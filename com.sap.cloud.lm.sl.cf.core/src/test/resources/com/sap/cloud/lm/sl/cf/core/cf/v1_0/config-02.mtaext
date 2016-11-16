@@ -1,0 +1,18 @@
+ID: com.sap.sample.mta.config-01
+extends: com.sap.sample.mta
+
+target-platforms: [XS2-INITIAL]
+
+modules:
+   - name: module-1
+resources:
+  - name: ups
+    properties:
+      service-name: user-provided-renamed
+  - name: rs
+    properties:
+      service-name: random-service-renamed
+  - name: es
+    properties:
+      service-name: existing-service-renamed
+

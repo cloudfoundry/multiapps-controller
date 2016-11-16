@@ -1,0 +1,17 @@
+[
+  {
+    "name": "application-1",
+    "uris": [
+      "http://localhost:40002",
+      "http://localhost:40003",
+      "http://localhost:40004",
+      "http://localhost:40005"
+    ]
+  },
+  {
+    "name": "application-2",
+    "uris": [
+      "http://www.sap.com"
+    ]
+  }
+]

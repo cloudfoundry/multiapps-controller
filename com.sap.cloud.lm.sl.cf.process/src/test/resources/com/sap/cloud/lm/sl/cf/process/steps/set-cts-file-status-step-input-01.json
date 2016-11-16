@@ -1,0 +1,8 @@
+{
+  "ctsReturnCode": WARNING,
+  "processId": "1000",
+  "mtarId": "1",
+  "mtarName": "MTAR_NAME",
+  "mtarPath": "MTAR_PATH",
+  "currentMtaDeployStartTime": 600000
+}

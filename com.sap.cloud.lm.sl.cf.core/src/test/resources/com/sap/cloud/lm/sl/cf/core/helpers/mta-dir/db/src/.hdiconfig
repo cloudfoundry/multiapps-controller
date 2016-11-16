@@ -1,0 +1,99 @@
+{
+  "file_suffixes" : {
+    "hdbsynonym" : {
+      "plugin_name"   : "com.sap.hana.di.synonym",
+      "plugin_version": "0.7.1"
+    },
+    "hdbsynonymconfig" : {
+      "plugin_name"   : "com.sap.hana.di.synonym.config",
+      "plugin_version": "0.7.1"
+    },
+
+    "hdbtable" : {
+      "plugin_name"   : "com.sap.hana.di.dropcreatetable",
+      "plugin_version": "0.7.1"
+    },
+    "hdbvirtualtable" : {
+      "plugin_name"   : "com.sap.hana.di.virtualtable",
+      "plugin_version": "0.7.1"
+    },
+    "hdbvirtualtableconfig" : {
+      "plugin_name"   : "com.sap.hana.di.virtualtable.config",
+      "plugin_version": "0.7.1"
+    },
+
+    "hdbindex" : {
+      "plugin_name"   : "com.sap.hana.di.index",
+      "plugin_version": "0.7.1"
+    },
+    "hdbfulltextindex" : {
+      "plugin_name"   : "com.sap.hana.di.fulltextindex",
+      "plugin_version": "0.7.1"
+    },
+    "hdbtrigger" : {
+      "plugin_name"   : "com.sap.hana.di.trigger",
+      "plugin_version": "0.7.1"
+    },
+
+    "hdbview" : {
+      "plugin_name"   : "com.sap.hana.di.view",
+      "plugin_version": "0.7.1"
+    },
+    "hdbcalculationview" : {
+      "plugin_name"   : "com.sap.hana.di.calculationview",
+      "plugin_version": "0.7.1"
+    },
+
+    "hdbcds" : {
+      "plugin_name"   : "com.sap.hana.di.cds",
+      "plugin_version": "0.7.1"
+    },
+
+    "hdbscalarfunction" : {
+      "plugin_name"   : "com.sap.hana.di.scalarfunction",
+      "plugin_version": "0.7.1"
+    },
+    "hdbtablefunction" : {
+      "plugin_name"   : "com.sap.hana.di.tablefunction",
+      "plugin_version": "0.7.1"
+    },
+
+    "hdbhadoopmrjob" : {
+      "plugin_name"   : "com.sap.hana.di.hadoopmrjob",
+      "plugin_version": "0.7.1"
+    },
+
+    "hdbtabletype" : {
+      "plugin_name"   : "com.sap.hana.di.tabletype",
+      "plugin_version": "0.7.1"
+    },
+
+    "hdbprocedure" : {
+      "plugin_name"   : "com.sap.hana.di.procedure",
+      "plugin_version": "0.7.1"
+    },
+    "hdbafllangprocedure" : {
+      "plugin_name"   : "com.sap.hana.di.afllangprocedure",
+      "plugin_version": "0.7.1"
+    },
+
+    "hdbsequence" : {
+      "plugin_name"   : "com.sap.hana.di.sequence",
+      "plugin_version": "0.7.1"
+    },
+
+    "hdbtabledata" : {
+      "plugin_name"   : "com.sap.hana.di.tabledata",
+      "plugin_version": "0.7.1"
+    },
+    "csv" : {
+      "plugin_name"   : "com.sap.hana.di.tabledata.source",
+      "plugin_version": "0.7.1"
+    },
+
+    "txt" : {
+      "plugin_name"   : "com.sap.hana.di.copyonly",
+      "plugin_version": "0.7.1"
+    }
+  }
+}

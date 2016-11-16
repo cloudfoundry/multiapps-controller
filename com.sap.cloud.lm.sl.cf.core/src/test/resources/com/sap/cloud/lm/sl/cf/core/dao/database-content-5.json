@@ -1,0 +1,44 @@
+[
+  {
+    "processId": "1",
+    "spaceId": "1234",
+    "mtaId": "1",
+    "acquiredLock": false,
+    "startedAt": "2016-04-27T10:29:27.074Z[UTC]"
+  },
+  {
+    "processId": "2",
+    "spaceId": "12345",
+    "mtaId": "2",
+    "acquiredLock": false,
+    "startedAt": "2016-04-27T10:30:27.074Z[UTC]"
+  },
+  {
+    "processId": "3",
+    "spaceId": "1234",
+    "mtaId": "3",
+    "acquiredLock": false,
+    "startedAt": "2016-04-27T10:31:27.074Z[UTC]"
+  },
+  {
+    "processId": "4",
+    "spaceId": "12345",
+    "mtaId": "4",
+    "acquiredLock": false,
+    "startedAt": "2016-04-27T10:32:27.074Z[UTC]"
+  },
+  {
+    "processId": "5",
+    "spaceId": "1234",
+    "mtaId": "5",
+    "acquiredLock": false,
+    "startedAt": "2016-04-27T10:33:27.074Z[UTC]"
+  },
+  {
+    "processId": "6",
+    "spaceId": "12345",
+    "mtaId": "6",
+    "acquiredLock": false,
+    "startedAt": "2016-04-27T10:34:27.074Z[UTC]"
+  }
+]

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+    xmlns:cloud="http://www.springframework.org/schema/cloud" xmlns:tx="http://www.springframework.org/schema/tx"
+
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/cloud 
+        http://www.springframework.org/schema/cloud/spring-cloud.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <beans profile="defaultdb">
+        <bean id="databaseDialect" class="com.sap.cloud.lm.sl.persistence.dialects.DefaultDatabaseDialect" />
+
+        <bean id="openJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+            <property name="showSql" value="false" />
+        </bean>
+
+        <bean id="baseEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+            abstract="true">
+            <property name="dataSource" ref="dataSource" />
+            <property name="jpaVendorAdapter" ref="openJpaVendorAdapter" />
+        </bean>
+    </beans>
+
+    <beans profile="hana">
+        <bean id="databaseDialect" class="com.sap.cloud.lm.sl.persistence.dialects.DefaultDatabaseDialect" />
+
+        <bean id="openJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+            <property name="showSql" value="false" />
+        </bean>
+
+        <bean id="baseEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+            abstract="true">
+            <property name="dataSource" ref="dataSource" />
+            <property name="jpaVendorAdapter" ref="openJpaVendorAdapter" />
+            <property name="jpaProperties">
+                <props>
+                    <prop key="openjpa.jdbc.DBDictionary">NextSequenceQuery=SELECT {0}.NEXTVAL FROM DUMMY</prop>
+                </props>
+            </property>
+        </bean>
+    </beans>
+
+    <beans profile="postgresql">
+        <bean id="databaseDialect" class="com.sap.cloud.lm.sl.persistence.dialects.PostgreSQLDatabaseDialect" />
+
+        <bean id="openJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+            <property name="showSql" value="false" />
+            <property name="database" value="POSTGRESQL" />
+            <property name="databasePlatform" value="org.apache.openjpa.jdbc.sql.PostgresDictionary" />
+        </bean>
+
+        <bean id="baseEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+            abstract="true">
+            <property name="dataSource" ref="dataSource" />
+            <property name="jpaVendorAdapter" ref="openJpaVendorAdapter" />
+            <property name="jpaProperties">
+                <props>
+                    <prop key="openjpa.jdbc.DBDictionary">postgres</prop>
+                </props>
+            </property>
+        </bean>
+    </beans>
+
+    <beans>
+
+        <bean id="dataSource" class="com.sap.cloud.lm.sl.cf.web.ds.CloudDataSourceFactoryBean">
+            <property name="serviceName" value="deploy-service-database" />
+        </bean>
+
+        <bean id="secureStoreDataSource" class="com.sap.cloud.lm.sl.cf.web.ds.CloudDataSourceFactoryBean">
+            <property name="serviceName" value="deploy-service-ss" />
+            <property name="defaultDataSource" ref="dataSource" />
+        </bean>
+        <bean id="configurationEntryEntityManagerFactory" parent="baseEntityManagerFactory">
+            <property name="persistenceUnitName" value="ConfigurationEntryManagement" />
+        </bean>
+
+        <bean id="configurationSubscriptionEntityManagerFactory" parent="baseEntityManagerFactory">
+            <property name="persistenceUnitName" value="ConfigurationSubscriptionManagement" />
+        </bean>
+
+        <bean id="ongoingOperationEntityManagerFactory" parent="baseEntityManagerFactory">
+            <property name="persistenceUnitName" value="OngoingOperationManagement" />
+        </bean>
+
+        <bean id="targetPlatformEntityManagerFactory" parent="baseEntityManagerFactory">
+            <property name="persistenceUnitName" value="TargetPlatformManagement" />
+        </bean>
+
+        <bean id="contextExtensionEntityManagerFactory" parent="baseEntityManagerFactory">
+            <property name="persistenceUnitName" value="ContextExtensionmManagement" />
+        </bean>
+
+        <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <property name="dataSource" ref="dataSource" />
+        </bean>
+
+        <bean id="liquibaseTemplate" class="liquibase.integration.spring.SpringLiquibase" abstract="true">
+            <property name="dataSource" ref="dataSource" />
+        </bean>
+
+        <bean id="persistenceChangelog" parent="liquibaseTemplate">
+            <property name="changeLog" value="classpath:/com/sap/cloud/lm/sl/persistence/db/changelog/db-changelog.xml" />
+        </bean>
+
+        <bean id="coreChangelog" parent="liquibaseTemplate">
+            <property name="changeLog" value="classpath:/com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog.xml" />
+        </bean>
+    </beans>
+</beans>

@@ -1,0 +1,89 @@
+{
+  "currentLocation": {
+    "org": "sap", "space": "sap"
+  },
+  "subscribersToUpdate": [
+    {
+      "relevantPublishedEntries": [
+        {
+          "providerId": "com.sap.sample.mta.plugin-01",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0",
+          "content": "{\"plugin_name\":\"plugin-01\"}"
+        },
+        {
+          "providerId": "com.sap.sample.mta.plugin-02",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0",
+          "content": "{\"plugin_name\":\"plugin-02\"}"
+        }
+      ],
+      "relevantDeletedEntries": [],
+      "subscription": {
+        "mtaId": "com.sap.sample.mta.framework",
+        "filter": {
+          "filter": {
+            "type": "com.acme.plugins"
+          }
+        },
+        "spaceId": "xsa",
+        "appName": "framework",
+        "moduleDto": {
+          "name": "framework",
+          "properties": {
+            "API": {
+              "names": "~{plugins/plugin_name}"
+            },
+            "names": "~{plugins/plugin_name}"
+          },
+          "providedDependencies": [],
+          "requiredDependencies": [
+            {
+              "name": "plugins",
+              "list": "plugins",
+              "properties": {
+                "plugin_name": "~{plugin_name}"
+              }
+            }
+          ]
+        },
+        "resourceDto": {
+          "name": "plugins",
+          "properties": {
+            "foo": "foo"
+          }
+        }
+      },
+      "location": {
+        "org": "xsa", "space": "xsa"
+      },
+      "app": {
+        "name": "framework",
+        "env": [
+          "plugins=[]"
+        ]
+      },
+      "relevantExistinggEntries": [
+        {
+          "providerId": "com.sap.sample.mta.plugin-03",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0",
+          "content": "{\"plugin_name\":\"plugin-03\"}"
+        }
+      ]
+    }
+  ],
+  "userRoles": [
+    {
+      "location": {
+        "org": "xsa", "space": "xsa"
+      },
+      "permissions": [
+        READ, WRITE
+      ]
+    }
+  ]
+}

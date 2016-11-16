@@ -1,0 +1,10 @@
+[
+  {
+    "filter": {
+      "requiredContent": {
+        "type": "com.acme.plugin"
+      }
+    },
+    "configurationEntries": []
+  }
+]

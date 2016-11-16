@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:collections="collections-ns"
+    xmlns:components="components-ns">
+
+    <xs:import schemaLocation="collections-schema.xsd" namespace="collections-ns" />
+    <xs:import schemaLocation="target-platform-components-schema.xsd" namespace="components-ns" />
+
+    <xs:element name="target-platform" type="target-platform-v3" />
+
+    <xs:complexType name="target-platform-v3">
+        <xs:all>
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="type" type="xs:string" />
+            <xs:element name="description" type="xs:string" minOccurs="0" />
+            <xs:element name="parameters" type="collections:map" minOccurs="0" />
+            <xs:element name="module-types" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="module-type" type="components:platform-module-type-v3" minOccurs="0"
+                            maxOccurs="1024" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="resource-types" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="resource-type" type="components:platform-resource-type-v3"
+                            minOccurs="0" maxOccurs="1024" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+
+</xs:schema>

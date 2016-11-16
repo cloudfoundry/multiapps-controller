@@ -1,0 +1,11 @@
+{
+	"staging": {
+		"buildpackUrl": "test-buildpack",
+		"command": "test-command",
+		"healthCheckTimeout": 10,
+		"healthCheckType": "none"
+	},
+	"application": {
+		"appName": "testApp"
+	}
+}

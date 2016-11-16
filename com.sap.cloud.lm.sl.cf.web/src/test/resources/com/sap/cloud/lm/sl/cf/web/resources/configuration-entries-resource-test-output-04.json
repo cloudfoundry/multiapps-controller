@@ -1,0 +1,11 @@
+{
+  "status": 201,
+  "entity": {
+    "id": 0,
+    "providerNid": "N/A",
+    "providerId": "com.sap.mta.test",
+    "providerVersion": "N/A",
+    "targetSpace": "sap",
+    "content": "{type:prod}"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "mtas": [
+    {
+      "metadata": {
+        "id": "test-mta-id",
+        "version": "0.1.0"
+      },
+      "modules": [
+        {
+          "moduleName": "mta-application-1",
+          "appName": "namespace.mta-application-1",
+          "services": [
+            "service-1",
+            "service-2",
+            "service-3"
+          ],
+          "providedDependencyNames": [
+            "mta-provided-dependency-1",
+            "mta-provided-dependency-2"
+          ]
+        },
+        {
+          "moduleName": "mta-application-2",
+          "appName": "namespace.mta-application-2",
+          "services": [
+            "service-1"
+          ],
+          "providedDependencyNames": []
+        }
+      ],
+      "services": [
+        "service-1",
+        "service-2",
+        "service-3"
+      ]
+    }
+  ],
+  "standaloneApps": [
+    "standalone-application-1",
+    "standalone-application-2",
+    "standalone-application-3"
+  ]
+}

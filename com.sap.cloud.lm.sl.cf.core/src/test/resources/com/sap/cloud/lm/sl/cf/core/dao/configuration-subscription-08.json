@@ -1,0 +1,16 @@
+{
+  "mtaId": "com.sap.sample.mta.test-4",
+  "filter": {
+    "requiredContent": {
+      "providerVersion": "1.0.0"
+    }
+  },
+  "spaceId": "sap",
+  "appName": "test-4",
+  "resourceDto": {
+    "name": "test",
+    "properties": {
+      "foo": "foo"
+    }
+  }
+}

@@ -1,0 +1,61 @@
+_schema-version: "2.0.0"
+ID: com.sap.devx.di
+version: 1.0.0
+
+modules:
+  - name: di-core
+    type: java.tomcat
+    properties:
+      JBP_CONFIG_TOMCAT: "[tomcat: {version: 7.0.+}]"
+      JBP_CONFIG_SAPJVM_MEMORY_SIZES: metaspace:128m..
+      JAVA_OPTS: -Daccess.logging.enabled=false -Dhttp.port=$VCAP_APP_PORT -Djava.io.tmpdir=$TMPDIR
+    provides:
+      - name: di-core-url
+        properties:
+          url:
+    requires:
+      - name: uaa
+      - name: di-core-hdi
+        properties:
+          SERVICE_TO_JNDI_NAME_MAPPING: >
+            {"di-core-hdi":"jdbc/DefaultDB"}
+
+  - name: di-builder
+    type: java.tomcat
+    properties:
+      JBP_CONFIG_TOMCAT: "[tomcat: {version: 7.0.+}]"
+    requires:
+      - name: uaa
+      - name: di-core-url
+        properties:
+          DI_URL: ~{url}
+        parameters:
+          buildpack: "~{url}/system/builderbp.git/"
+
+  - name: di-runner
+    type: java.tomcat
+    properties:
+      JBP_CONFIG_TOMCAT: "[tomcat: {version: 7.0.+}]"
+    requires:
+      - name: uaa
+      - name: di-core-url
+        properties:
+          DI_URL: ~{url}
+      - name: ui5-content-url
+        properties:
+          UI5_CONTENT_URL: ~{url}
+
+resources:
+  - name: uaa
+    type: org.cloudfoundry.existing-service
+
+#  - name: di-workspaces-fs
+#    type: org.cloudfoundry.user-provided-service
+
+  - name: di-core-hdi
+    type: com.sap.xs.hdi-container
+
+  - name: ui5-content-url
+    properties:
+      url:
+ 

@@ -1,0 +1,16 @@
+_schema-version: "2.0.0"
+ID: com.sap.sample.mta
+version: 0.1.0
+
+modules:
+  - name: module-1
+    type: java.tomee
+    parameters:
+      temp-ports: [52000, 52001]
+      temp-domain: localhost
+
+  - name: module-2
+    type: java.tomee
+    parameters:
+      temp-hosts: [module-2-temp-1, module-2-temp-2]
+      temp-domain: localhost

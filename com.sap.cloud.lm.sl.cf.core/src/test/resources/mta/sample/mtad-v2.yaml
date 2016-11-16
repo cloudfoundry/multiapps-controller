@@ -1,0 +1,63 @@
+_schema-version: "2.0.0"
+ID: com.sap.mta.sample
+version: 1.2.1-beta+20150403144937853
+
+modules:
+  - name: web-server
+    type: javascript.nodejs
+    properties:
+      docu-url: &docu-url "http://help.sap.com/saphelp_nw74/en/5c"
+      default-locale: &default-locale ""
+    parameters:
+      host: www
+      domain: bestprice.sap.com
+    requires:
+      - name: internal-odata
+        properties:
+          odata.svc_root: ~{odata.svc_root}
+      - name: internal-odata-service
+
+  - name: pricing
+    type: org.nodejs
+    properties:
+      docu-url: *docu-url
+      default-locale: *default-locale
+    parameters:
+      host: api
+      domain: bestprice.sap.com
+    provides:
+      - name: internal-odata
+        public: true
+        properties:
+          odata.svc_root: "odata/"
+    requires:
+      - name: pricing-db
+      - name: pricing-db-service
+      - name: competitor-data
+        properties:
+          url: ~{url}
+          application-key: ~{application-key}
+          secret-key: ~{secret-key}
+
+  - name: pricing-db
+    type: com.sap.xs.hdi
+    properties:
+      default-locale: *default-locale
+    requires:
+      - name: pricing-db-service
+
+resources:
+  - name: pricing-db-service
+    type: com.sap.xs.hdi-container
+
+  - name: internal-odata-service
+    type: org.cloudfoundry.user-provided-service
+
+  - name: competitor-data
+    properties:
+      url: "https://marketwatch.il/v2/"
+      application-key:
+      secret-key:
+
+parameters:
+  com.sap.releaseMetadataRefGuid: c6bc22d0-48b4-47d1-9fd4

@@ -1,0 +1,52 @@
+[
+  {
+    "moduleName": "module-1",
+    "tempUris": [],
+    "staging": {},
+    "instances": 0,
+    "memory": 0,
+    "diskQuota": 0,
+    "uris": [
+      "module-1.sofd60245639a"
+    ],
+    "services": [
+      "test"
+    ],
+    "runningInstances": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_PROPERTIES={\"create-user-provided-service\":true,\"user-provided-service-config\":{\"user\":\"test-user\",\"password\":\"test-pass\",\"url\":\"test-url\"},\"user-provided-service-name\":\"test\"}",
+      "MTA_SERVICES=[\"test\"]",
+      "TARGET_RUNTIME=tomee"
+    ],
+    "meta": {},
+    "name": "com.sap.sample.mta.module-1"
+  },
+  {
+    "moduleName": "module-2",
+    "tempUris": [],
+    "staging": {},
+    "instances": 0,
+    "memory": 0,
+    "diskQuota": 0,
+    "uris": [
+      "module-2.sofd60245639a"
+    ],
+    "services": [],
+    "runningInstances": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"module-2\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_PROPERTIES={\"create-user-provided-service\":false,\"user-provided-service-config\":{\"user\":\"test-user\",\"password\":\"test-pass\",\"url\":\"test-url\"},\"user-provided-service-name\":\"test\"}",
+      "MTA_SERVICES=[]",
+      "TARGET_RUNTIME=tomee"
+    ],
+    "meta": {},
+    "name": "com.sap.sample.mta.application-2"
+  }
+]

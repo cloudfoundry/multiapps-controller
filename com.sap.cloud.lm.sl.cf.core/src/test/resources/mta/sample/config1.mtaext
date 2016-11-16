@@ -1,0 +1,29 @@
+ID: com.sap.mta.sample.config1
+extends: com.sap.mta.sample
+
+target-platforms: [CF-QUAL]
+
+modules:
+  - name: web-server
+    properties:
+      default-locale: &default-locale zho
+
+  - name: pricing
+    properties:
+      default-locale: *default-locale
+
+  - name: pricing-db
+    properties:
+      default-locale: *default-locale
+
+resources:
+  - name: internal-odata-service
+    properties:
+      config:
+        username: "technicalUser"
+        password: "shfzj86g"
+
+  - name: competitor-data
+    properties:
+      application-key: "25892e17-80f6-415f-9c65-7395632f0223"
+      secret-key: "cd171f7c-560d-4a62-8d65-16b87419a58c"

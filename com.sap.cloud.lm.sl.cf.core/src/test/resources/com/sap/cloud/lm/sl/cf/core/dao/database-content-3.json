@@ -1,0 +1,14 @@
+[
+  {
+    "processId": "1",
+    "spaceId": "1234",
+    "mtaId": "1",
+    "acquiredLock": false
+  },
+  {
+    "processId": "2",
+    "spaceId": "12345",
+    "mtaId": "2",
+    "acquiredLock": false
+  }
+]

@@ -1,0 +1,77 @@
+[
+  {
+    "moduleName": "xsjs-hello-world-db",
+    "extendedStaging": {
+      "buildpackUrl": "git://github.wdf.sap.corp/xs2/hdi-deploy-buildpack.git"
+    },
+    "tempUris": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"check-deploy-id\": true,\n  \"dependency-type\": \"soft\",\n  \"execute-app\": true,\n  \"failure-marker\": \"STDERR:Deployment failed\",\n  \"stop-app\": true,\n  \"success-marker\": \"STDOUT:Deployment done\"\n}",
+      "DEPLOY_ID\u003ddeploy-1",
+      "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
+      "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-db\"\n}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world-db\"\n]",
+      "MTA_SERVICES\u003d[\n  \"xsjs-hdi-container\"\n]"
+    ],
+    "instances": 0,
+    "memory": 256,
+    "runningInstances": 0,
+    "services": [
+      "xsjs-hdi-container"
+    ],
+    "uris": [],
+    "meta": {},
+    "name": "xsjs-hello-world-db"
+  },
+  {
+    "moduleName": "xsjs-hello-world-backend",
+    "extendedStaging": {},
+    "tempUris": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
+      "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
+      "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-backend\"\n}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs\",\n  \"xsjs-hello-world-backend\"\n]",
+      "MTA_SERVICES\u003d[\n  \"xsjs-hdi-container\"\n]"
+    ],
+    "instances": 0,
+    "memory": 128,
+    "runningInstances": 0,
+    "services": [
+      "uaa",
+      "xsjs-hdi-container"
+    ],
+    "uris": [
+      "i027947-xsjs-hello-world-backend.cfapps.neo.ondemand.com"
+    ],
+    "meta": {},
+    "name": "xsjs-hello-world-backend"
+  },
+  {
+    "moduleName": "xsjs-hello-world",
+    "extendedStaging": {},
+    "tempUris": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
+      "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
+      "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world\"\n}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world\"\n]",
+      "MTA_SERVICES\u003d[]",
+      "destinations\u003d[\n  {\n    \"name\": \"xsjs\",\n    \"url\": \"http://i027947-xsjs-hello-world-backend.cfapps.neo.ondemand.com\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"url\": \"https://sapui5.netweaver.ondemand.com\"\n  }\n]"
+    ],
+    "instances": 0,
+    "memory": 128,
+    "runningInstances": 0,
+    "services": [
+      "uaa"
+    ],
+    "uris": [
+      "i027947-xsjs-hello-world.cfapps.neo.ondemand.com"
+    ],
+    "meta": {},
+    "name": "xsjs-hello-world"
+  }
+]

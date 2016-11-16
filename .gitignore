@@ -1,0 +1,12 @@
+bin/
+target/
+.project
+.classpath
+.settings
+.bpmn
+*.zip
+*.war
+*.log
+.pmd
+mta-assembly
+.DS_Store

@@ -1,0 +1,13 @@
+{
+  "serviceUrlsToRegister": [],
+  "apps": [
+    {
+      "name": "test-app-1",
+      "env": {
+        "DEPLOY_ATTRIBUTES": {
+          "register-service-url": false
+        }
+      }
+    }
+  ]
+}

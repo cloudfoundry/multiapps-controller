@@ -1,0 +1,21 @@
+[
+  {
+    "spaceId": "sap",
+    "appName": "t-4",
+    "moduleDto": {
+      "name": "t-4",
+      "properties": {},
+      "providedDependencies": [],
+      "requiredDependencies": [
+        {
+          "name": "plugins-1",
+          "properties": {}
+        }
+      ]
+    },
+    "resourceDto": {
+      "name": "plugins-1",
+      "properties": {}
+    }
+  }
+]

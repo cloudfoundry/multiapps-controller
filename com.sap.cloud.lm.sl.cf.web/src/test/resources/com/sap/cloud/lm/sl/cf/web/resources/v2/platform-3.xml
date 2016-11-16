@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<target-platform>
+    <name>XS-QUAL</name>
+    <type>XS</type>
+    <description>Test</description>
+    <parameters>
+        <entry>
+            <key>org</key>
+            <value>initial</value>
+        </entry>
+        <entry>
+            <key>space</key>
+            <value>initial</value>
+        </entry>
+    </parameters>
+    <module-types>
+        <module-type>
+            <name>foo</name>
+            <properties>
+                <entry>
+                    <key>test</key>
+                    <value>test</value>
+                </entry>
+            </properties>
+            <parameters/>
+        </module-type>
+    </module-types>
+    <resource-types/>
+</target-platform>

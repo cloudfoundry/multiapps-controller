@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "id": "com.sap.sample.mta.consumer"
+  },
+  "modules": [
+    {
+      "moduleName": "app-1",
+      "appName": "app-1-blue"
+    },
+    {
+      "moduleName": "app-2",
+      "appName": "app-2-blue"
+    },
+    {
+      "moduleName": "app-3",
+      "appName": "app-3-blue"
+    }
+  ]
+}

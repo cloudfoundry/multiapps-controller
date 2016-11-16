@@ -1,0 +1,16 @@
+{
+  "expectedUpdatedApps": {
+    "xsa": {
+      "diskQuota": 0,
+      "env": [
+        "plugin_name=plugin-02",
+        "plugin_name_referred_from_module_properties=plugin-02"
+      ],
+      "instances": 0,
+      "memory": 0,
+      "runningInstances": 0,
+      "meta": {},
+      "name": "framework"
+    }
+  }
+}

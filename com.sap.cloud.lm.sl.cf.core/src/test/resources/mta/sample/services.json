@@ -1,0 +1,21 @@
+[
+  {
+    "resourceName": "pricing-db-service",
+    "credentials": {},
+    "tags": [],
+    "label": "hdi-hana2",
+    "plan": "hdi-shared",
+    "meta": {},
+    "name": "pricing-db-service"
+  },
+  {
+    "resourceName": "internal-odata-service",
+    "credentials": {
+      "password": "shfzj86g",
+      "username": "technicalUser"
+    },
+    "tags": [],
+    "meta": {},
+    "name": "internal-odata-service"
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "id": "com.sap.xs2.samples.helloworld",
+    "version": "0.1.0"
+  },
+  "modules": [
+    {
+      "moduleName": "node-hello-world-db",
+      "appName": "node-hello-world-db",
+      "services": [
+        "node-hdi-container"
+      ],
+      "providedDependencyNames": []
+    },
+    {
+      "moduleName": "node-hello-world-backend",
+      "appName": "node-hello-world-backend",
+      "services": [
+        "uaa",
+        "node-hdi-container"
+      ],
+      "providedDependencyNames": []
+    },
+    {
+      "moduleName": "node-hello-world",
+      "appName": "node-hello-world",
+      "services": [
+        "uaa"
+      ],
+      "providedDependencyNames": []
+    }
+  ],
+  "services": [
+    "node-hdi-container",
+    "uaa"
+  ]
+}

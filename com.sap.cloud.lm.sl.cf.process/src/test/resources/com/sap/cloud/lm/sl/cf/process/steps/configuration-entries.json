@@ -1,0 +1,10 @@
+[
+	{
+		"id":0,
+		"providerNid":"mta",
+		"providerId":"test-mta-id:provided-dependency-3",
+		"providerVersion":"0.1.0",
+		"targetSpace":"test",
+		"content":"test"
+	}
+]

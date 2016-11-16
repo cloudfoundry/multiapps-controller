@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:collections="collections-ns" xmlns="components-ns"
+    targetNamespace="components-ns">
+
+    <xs:import schemaLocation="collections-schema.xsd" namespace="collections-ns" />
+
+    <xs:complexType name="platform-module-type-v1">
+        <xs:all>
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="properties" type="collections:map" minOccurs="0" />
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="platform-resource-type-v1">
+        <xs:all>
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="properties" type="collections:map" minOccurs="0" />
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="platform-module-type-v2">
+        <xs:all>
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="properties" type="collections:map" minOccurs="0" />
+            <xs:element name="parameters" type="collections:map" minOccurs="0" />
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="platform-resource-type-v2">
+        <xs:all>
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="parameters" type="collections:map" minOccurs="0" />
+        </xs:all>
+    </xs:complexType>
+
+</xs:schema>

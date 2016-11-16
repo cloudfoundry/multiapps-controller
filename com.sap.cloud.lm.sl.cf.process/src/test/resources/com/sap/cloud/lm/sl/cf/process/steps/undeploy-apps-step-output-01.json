@@ -1,0 +1,16 @@
+{
+  "expectedRoutesToDelete": [
+    {
+      "_1": "1111",
+      "_2": "routerhost.sap.corp"
+    },
+    {
+      "_1": "1112",
+      "_2": "routerhost.sap.corp"
+    },
+    {
+      "_1": "1113",
+      "_2": "routerhost.sap.corp"
+    }
+  ]
+}

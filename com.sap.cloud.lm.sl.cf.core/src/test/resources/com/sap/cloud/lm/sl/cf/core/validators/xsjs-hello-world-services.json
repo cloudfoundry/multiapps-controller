@@ -1,0 +1,11 @@
+[
+  {
+    "resourceName": "xsjs-hdi-container",
+    "credentials": {},
+    "tags": [],
+    "label": "hana",
+    "plan": "hdi-shared",
+    "meta": {},
+    "name": "xsjs-hdi-container"
+  }
+]

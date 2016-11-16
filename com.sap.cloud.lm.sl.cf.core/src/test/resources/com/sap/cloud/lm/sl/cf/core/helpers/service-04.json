@@ -1,0 +1,14 @@
+{
+  "service": {
+    "resourceName": "test",
+    "credentials": {
+      "password": "test-pass",
+      "url": "test-url",
+      "user": "test-user"
+    },
+    "tags": [],
+    "meta": {},
+    "label": "some-label",
+    "plan": "test-plan"
+    }
+}

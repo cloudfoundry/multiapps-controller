@@ -1,0 +1,13 @@
+{
+  "expectedUpdatedApps": {
+    "xsa": {
+      "env": [
+        "names=[\"plugin-03\",\"plugin-01\",\"plugin-02\"]",
+        "plugins=[{\"plugin_name\":\"plugin-03\"},{\"plugin_name\":\"plugin-01\"},{\"plugin_name\":\"plugin-02\"}]",
+        "API={\"names\":[\"plugin-03\",\"plugin-01\",\"plugin-02\"]}"
+      ],
+      "meta": {},
+      "name": "framework"
+    }
+  }
+}

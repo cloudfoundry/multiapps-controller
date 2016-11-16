@@ -1,0 +1,18 @@
+{
+  "servicesToDeploy": [
+    {
+      "name": "service-1"
+    },
+    {
+      "name": "service-2"
+    }
+  ],
+  "existingServices": [
+    {
+      "name": "service-1"
+    },
+    {
+      "name": "service-2"
+    }
+  ]
+}

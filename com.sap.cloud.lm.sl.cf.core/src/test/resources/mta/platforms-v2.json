@@ -1,0 +1,26 @@
+[
+    {
+        "name": "CF-DEV",
+        "type": "CLOUD-FOUNDRY",
+        "parameters": {
+            "org": "trial",
+            "space": "stoyan.rachev@sap.com"
+        }
+    },
+    {
+        "name": "CF-TRIAL",
+        "type": "CLOUD-FOUNDRY",
+        "parameters": {
+            "org": "trial",
+            "space": "i027947"
+        }
+    },
+    {
+        "name": "XS2-INITIAL",
+        "type": "XS2",
+        "parameters": {
+            "org": "initial",
+            "space": "initial"
+        }
+    }
+]

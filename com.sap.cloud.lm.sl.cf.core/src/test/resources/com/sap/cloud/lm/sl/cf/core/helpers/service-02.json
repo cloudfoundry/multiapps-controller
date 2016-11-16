@@ -1,0 +1,11 @@
+{
+  "service": {
+    "resourceName": "test",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.test",
+    "label": "some-label",
+    "plan": "test-plan"
+    }
+}

@@ -1,0 +1,9 @@
+[
+  {
+    "providerId": "com.sap.sample.mta.provider:provider",
+    "providerNid": "mta",
+    "targetSpace": "xsa",
+    "providerVersion": "2.0.0",
+    "content": "{\"type\":\"com.acme.not-plugin\"}"
+  }
+]

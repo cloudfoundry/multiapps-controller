@@ -1,0 +1,21 @@
+ID: com.sap.devx.webide
+version: 1.0.0              
+ 
+modules:    
+  - name: webide              
+    type: javascript.nodejs
+    requires: [uaa, sapui5, che]
+    
+resources:
+  - name: uaa
+    type: org.cloudfoundry.existing-service
+
+  - name: sapui5
+    groups: [destinations]
+    properties:
+      url:
+      
+  - name: che
+    groups: [destinations]
+    properties:
+      url:

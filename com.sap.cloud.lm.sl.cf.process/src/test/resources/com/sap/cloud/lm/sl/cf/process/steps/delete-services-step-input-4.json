@@ -1,0 +1,12 @@
+{
+  "servicesToDelete": [
+    {
+      "name": "service-1",
+      "hasBoundApplications": true
+    },
+    {
+      "name": "service-2",
+      "hasBoundApplications": false
+    }
+  ]
+}

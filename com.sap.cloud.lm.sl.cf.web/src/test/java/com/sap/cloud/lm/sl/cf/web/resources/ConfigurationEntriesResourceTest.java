@@ -1,0 +1,388 @@
+package com.sap.cloud.lm.sl.cf.web.resources;
+
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.mockito.ArgumentMatcher;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import com.google.gson.reflect.TypeToken;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.dto.ConfigurationEntryDto;
+import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationFilterDto;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.TestCase;
+import com.sap.cloud.lm.sl.common.util.TestInput;
+import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.XmlUtil;
+
+@RunWith(Parameterized.class)
+public class ConfigurationEntriesResourceTest {
+
+    private TestCase<TestInput> test;
+
+    public ConfigurationEntriesResourceTest(TestCase<TestInput> test) {
+        this.test = test;
+    }
+
+    @Parameters
+    public static List<Object[]> getParameters() throws Exception {
+        return Arrays.asList(new Object[][] {
+// @formatter:off
+            // (0)
+            {
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-01.xml"), "R:configuration-entries-resource-test-output-01.json"),
+            },
+            // (1)
+            {
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-02.xml"), "E:cvc-complex-type.2.4.b: The content of element configuration-entry is not complete. One of {provider-id} is expected."),
+            },
+            // (2)
+            {
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-03.xml"), "E:cvc-complex-type.2.4.b: The content of element configuration-entry is not complete. One of {target-space} is expected."),
+            },
+            // (3)
+            {
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-04.xml"), "R:configuration-entries-resource-test-output-04.json"),
+            },
+            // (4)
+            {
+                new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-05.json"), "R:configuration-entries-resource-test-output-05.json"),
+            },
+            // (5)
+            {
+                new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-06.json"), "R:configuration-entries-resource-test-output-06.json"),
+            },
+            // (6)
+            {
+                new DeleteRequestTest(new DeleteRequestTestInput(100), "R:configuration-entries-resource-test-output-07.json"),
+            },
+            // (7)
+            {
+                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("foo:bar", "baz:qux"), "R:parsed-properties-01.json"), "R:configuration-entries-resource-test-output-08.json"),
+            },
+            // (8)
+            {
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-09.xml"), "R:configuration-entries-resource-test-output-09.json"),
+            },
+            // (9)
+            {
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-10.xml"), "R:configuration-entries-resource-test-output-10.json"),
+            },
+            // (9)
+            {
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-11.xml"), "E:A configuration entry's id cannot be updated"),
+            },
+            // (10)
+            {
+                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("{\"foo\":\"bar\",\"baz\":\"qux\"}"), "R:parsed-properties-01.json"), "R:configuration-entries-resource-test-output-08.json"),
+            },
+            // (11)
+            {
+                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("a"), "R:parsed-properties-01.json"), "E:Could not parse content query parameter as JSON or list"),
+            },
+// @formatter:on
+        });
+    }
+
+    @Test
+    public void test() throws Exception {
+        test.run();
+    }
+
+    private static class GetRequestTestInput extends TestInput {
+
+        private long id;
+        private ConfigurationEntry entry;
+
+        public GetRequestTestInput(long id, String entryJsonLocation) throws Exception {
+            this.id = id;
+            this.entry = loadJsonInput(entryJsonLocation, ConfigurationEntry.class, getClass());
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public ConfigurationEntry getEntry() {
+            return entry;
+        }
+
+    }
+
+    private static class SearchRequestTestInput extends TestInput {
+
+        private List<String> requiredContent;
+        private Map<String, String> parsedRequiredContent;
+
+        public SearchRequestTestInput(List<String> requiredContent, String parsedRequiredContentLocation) throws Exception {
+            this.requiredContent = requiredContent;
+            this.parsedRequiredContent = JsonUtil.convertJsonToMap(
+                SearchRequestTestInput.class.getResourceAsStream(parsedRequiredContentLocation), new TypeToken<Map<String, String>>() {
+                }.getType());
+        }
+
+        public Map<String, String> getParsedRequiredContent() {
+            return parsedRequiredContent;
+        }
+
+        public List<String> getRequiredContent() {
+            return requiredContent;
+        }
+
+    }
+
+    private static class PostRequestTestInput extends TestInput {
+
+        private String entryXml;
+
+        public PostRequestTestInput(String entryXmlLocation) throws Exception {
+            this.entryXml = TestUtil.getResourceAsString(entryXmlLocation, getClass());
+        }
+
+        public String getEntryXml() {
+            return entryXml;
+        }
+
+    }
+
+    private static class PutRequestTestInput extends PostRequestTestInput {
+
+        private long id;
+
+        public PutRequestTestInput(long id, String entryXmlLocation) throws Exception {
+            super(entryXmlLocation);
+        }
+
+        public long getId() {
+            return id;
+        }
+
+    }
+
+    private static class DeleteRequestTestInput extends TestInput {
+
+        private long id;
+
+        public DeleteRequestTestInput(long id) {
+            this.id = id;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+    }
+
+    private static class GetRequestTest extends TestCase<GetRequestTestInput> {
+
+        @Mock
+        private ConfigurationEntryDao dao;
+        @InjectMocks
+        private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
+
+        public GetRequestTest(GetRequestTestInput input, String expected) {
+            super(input, expected);
+        }
+
+        @Override
+        protected void test() throws Exception {
+            TestUtil.test(() -> {
+
+                return new RestResponse(resource.getConfigurationEntry(input.getId()));
+
+            } , expected, getClass());
+        }
+
+        @Override
+        protected void setUp() throws Exception {
+            MockitoAnnotations.initMocks(this);
+            when(dao.find(input.getId())).thenReturn(input.getEntry());
+        }
+
+    }
+
+    private static class PostRequestTest extends TestCase<PostRequestTestInput> {
+
+        @Mock
+        private ConfigurationEntryDao dao;
+        @InjectMocks
+        private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
+
+        public PostRequestTest(PostRequestTestInput input, String expected) {
+            super(input, expected);
+        }
+
+        @Override
+        protected void test() throws Exception {
+            TestUtil.test(() -> {
+
+                return new RestResponse(resource.createConfigurationEntry(input.getEntryXml()));
+
+            } , expected, getClass());
+        }
+
+        @Override
+        protected void setUp() throws Exception {
+            MockitoAnnotations.initMocks(this);
+            ConfigurationEntryDto dto = getDto();
+
+            ConfigurationEntryMatcher entryMatcher = new ConfigurationEntryMatcher(dto);
+            when(dao.add(argThat(entryMatcher))).thenReturn(dto.toConfigurationEntry());
+        }
+
+        private ConfigurationEntryDto getDto() throws Exception {
+            return provideDefaultsForFields(XmlUtil.fromXml(input.getEntryXml(), ConfigurationEntryDto.class));
+        }
+
+        private ConfigurationEntryDto provideDefaultsForFields(ConfigurationEntryDto dto) {
+            return new ConfigurationEntryDto(dto.toConfigurationEntry());
+        }
+
+    }
+
+    private static class PutRequestTest extends TestCase<PutRequestTestInput> {
+
+        @Mock
+        private ConfigurationEntryDao dao;
+        @InjectMocks
+        private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
+
+        public PutRequestTest(PutRequestTestInput input, String expected) {
+            super(input, expected);
+        }
+
+        @Override
+        protected void test() throws Exception {
+            TestUtil.test(() -> {
+
+                return new RestResponse(resource.updateConfigurationEntry(input.getId(), input.getEntryXml()));
+
+            } , expected, getClass());
+        }
+
+        @Override
+        protected void setUp() throws Exception {
+            MockitoAnnotations.initMocks(this);
+            ConfigurationEntryDto dto = getDto();
+            ConfigurationEntryMatcher entryMatcher = new ConfigurationEntryMatcher(dto);
+            when(dao.update(eq(input.getId()), argThat(entryMatcher))).thenReturn(dto.toConfigurationEntry());
+        }
+
+        private ConfigurationEntryDto getDto() throws Exception {
+            return provideDefaultsForFields(XmlUtil.fromXml(input.getEntryXml(), ConfigurationEntryDto.class));
+        }
+
+        private ConfigurationEntryDto provideDefaultsForFields(ConfigurationEntryDto dto) {
+            return new ConfigurationEntryDto(dto.toConfigurationEntry());
+        }
+
+    }
+
+    private static class SearchRequestTest extends TestCase<SearchRequestTestInput> {
+
+        private static final String PROVIDER_NID = "N";
+        private static final String TARGET = "S";
+        private static final String PROVIDER_VERSION = "V";
+        private static final String PROVIDER_ID = "I";
+
+        @Mock
+        private CloudFoundryOperations client;
+        @Mock
+        private CloudFoundryClientProvider clientProvider;
+        @Mock
+        private ConfigurationEntryDao dao;
+        @InjectMocks
+        private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
+
+        public SearchRequestTest(SearchRequestTestInput input, String expected) {
+            super(input, expected);
+        }
+
+        @Override
+        protected void test() throws Exception {
+            TestUtil.test(() -> {
+
+                return new RestResponse(resource.getConfigurationEntries(
+                    new ConfigurationFilterDto(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION, TARGET, input.getRequiredContent())));
+
+            } , expected, getClass());
+        }
+
+        @Override
+        protected void setUp() throws Exception {
+            MockitoAnnotations.initMocks(this);
+
+            when(dao.find(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION, TARGET, input.getParsedRequiredContent(), null)).thenReturn(
+                Collections.emptyList());
+        }
+
+    }
+
+    private static class DeleteRequestTest extends TestCase<DeleteRequestTestInput> {
+
+        @Mock
+        private ConfigurationEntryDao dao;
+        @InjectMocks
+        private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
+
+        public DeleteRequestTest(DeleteRequestTestInput input, String expected) {
+            super(input, expected);
+        }
+
+        @Override
+        protected void test() throws Exception {
+            TestUtil.test(() -> {
+
+                return new RestResponse(resource.deleteConfigurationEntry(input.getId()));
+
+            } , expected, getClass());
+        }
+
+        @Override
+        protected void setUp() throws Exception {
+            MockitoAnnotations.initMocks(this);
+        }
+
+        protected void tearDown() throws Exception {
+            verify(dao).remove(input.getId());
+        }
+
+    }
+
+    private static class ConfigurationEntryMatcher extends ArgumentMatcher<ConfigurationEntry> {
+
+        private String xml;
+
+        public ConfigurationEntryMatcher(ConfigurationEntryDto dto) throws Exception {
+            this.xml = XmlUtil.toXml(dto, true);
+        }
+
+        @Override
+        public boolean matches(Object entry) {
+            try {
+                return xml.trim().equals(XmlUtil.toXml(new ConfigurationEntryDto((ConfigurationEntry) entry), true).trim());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+}

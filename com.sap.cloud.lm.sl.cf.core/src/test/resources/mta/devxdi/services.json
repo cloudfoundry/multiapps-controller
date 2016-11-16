@@ -1,0 +1,11 @@
+[
+  {
+    "resourceName": "di-core-hdi",
+    "credentials": {},
+    "tags": [],
+    "label": "hana",
+    "plan": "hdi-shared",
+    "meta": {},
+    "name": "di-core-hdi"
+  }
+]

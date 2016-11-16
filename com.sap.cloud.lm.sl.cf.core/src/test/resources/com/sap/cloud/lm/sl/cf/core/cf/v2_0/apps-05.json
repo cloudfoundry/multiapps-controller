@@ -1,0 +1,54 @@
+[
+  {
+    "moduleName": "module-1",
+    "extendedStaging": {},
+    "tempUris": [
+      "localhost:52000",
+      "localhost:52001"
+    ],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-1\"]",
+      "MTA_SERVICES=[]",
+      "TARGET_RUNTIME=tomee"
+    ],
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "services": [],
+    "uris": [
+      "module-1.sofd60245639a"
+    ],
+    "meta": {},
+    "name": "module-1"
+  },
+  {
+    "moduleName": "module-2",
+    "extendedStaging": {},
+    "tempUris": [
+      "module-2-temp-1.localhost",
+      "module-2-temp-2.localhost"
+    ],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"module-2\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-2\"]",
+      "MTA_SERVICES=[]",
+      "TARGET_RUNTIME=tomee"
+    ],
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "services": [],
+    "uris": [
+      "module-2.sofd60245639a"
+    ],
+    "meta": {},
+    "name": "module-2"
+  }
+]

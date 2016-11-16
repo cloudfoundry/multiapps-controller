@@ -1,0 +1,42 @@
+---
+applications:
+- name: di-core
+  path: core.war
+  port: 53030
+  memory: 512M
+  instances: 1
+  env:
+    TARGET_RUNTIME: tomcat
+    JBP_CONFIG_TOMCAT: "[tomcat: {version: 7.0.+}]"
+    JBP_CONFIG_SAPJVM_MEMORY_SIZES: metaspace:128m..
+    XS_PATH: /usr/sap/xs2runtime/bin/xs
+    DI_FS_ROOT: /usr/sap/xs2work
+    JAVA_OPTS: -Daccess.logging.enabled=false -Dhttp.port=$VCAP_APP_PORT -Djava.io.tmpdir=$TMPDIR -Dhttp.proxyHost=proxy.wdf.sap.corp -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy.wdf.sap.corp -Dhttps.proxyPort=8080
+    SERVICE_TO_JNDI_NAME_MAPPING: >
+      {"di-core-hdi":"jdbc/DefaultDB"}
+  services:
+    - uaa
+    - di-core-hdi
+    
+- name: di-builder
+  path: builder.war
+  port: 53031
+  memory: 512M
+  instances: 1
+#  buildpack: generic-builder-buildpack
+  buildpack: http://mo-5992388ad.mo.sap.corp:53030/system/builderbp.git/
+  env:
+    JBP_CONFIG_TOMCAT: '[tomcat: {version: 7.0.+}]'
+    DI_URL: http://mo-5992388ad.mo.sap.corp:53030
+    XS_PATH: /usr/sap/xs2runtime/bin/xs
+  services:
+    - uaa
+    
+- name: di-runner
+  path: runner.war
+  env:
+    TARGET_RUNTIME: tomcat
+    JBP_CONFIG_TOMCAT: "[tomcat: {version: 7.0.+}]"
+    DI_CORE_URL: "http://sofd60245639a:52001"
+  services:
+    - uaa

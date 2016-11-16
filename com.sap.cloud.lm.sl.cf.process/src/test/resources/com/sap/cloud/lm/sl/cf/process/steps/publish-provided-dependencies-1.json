@@ -1,0 +1,25 @@
+{
+	"providedDependencies":[
+		{
+			"name":"provided-dep-1",
+			"isPublic": true,
+			"groups": ["group-1", "group-2"],
+			"properties": {
+				"test-prop":"test-val",
+				"test-prop-1":"test-val-1"
+			}
+		},
+		{
+			"name":"provided-dep-2",
+			"isPublic": true,
+			"groups": [],
+			"properties": {}
+		}
+	],
+	"mtaId":"test-mta-id",
+	"newMtaVersion": "0.1.0",
+	"targetSpace": "myorg SAP",
+	"org": "myorg",
+	"space": "SAP",
+	"expectedAddedDependencies": ["provided-dep-1", "provided-dep-2"]
+}

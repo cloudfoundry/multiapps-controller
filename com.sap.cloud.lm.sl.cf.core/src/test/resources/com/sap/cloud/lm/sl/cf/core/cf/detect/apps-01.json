@@ -1,0 +1,14 @@
+[
+  {
+    "name": "standalone-application-1",
+    "env": {}
+  },
+  {
+    "name": "standalone-application-2",
+    "env": {}	
+  },
+  {
+    "name": "standalone-application-3",
+    "env": {}
+  }
+]

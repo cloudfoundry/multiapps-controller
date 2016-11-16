@@ -1,0 +1,68 @@
+package com.sap.cloud.lm.sl.cf.core.helpers.v1_0;
+
+import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.findConfigurationEntries;
+import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.getIndexedName;
+import static com.sap.cloud.lm.sl.common.util.MapUtil.merge;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.common.ParsingException;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Resource.ResourceBuilder;
+
+public class ConfigurationReferenceResolver {
+
+    protected static final String RESOURCE_INDEX_DELIMITER = ".";
+
+    protected ConfigurationEntryDao dao;
+
+    public ConfigurationReferenceResolver(ConfigurationEntryDao dao) {
+        this.dao = dao;
+    }
+
+    public List<Resource> resolve(Resource resource, ConfigurationFilter filter) throws ParsingException {
+        return asResources(findConfigurationEntries(dao, filter), resource);
+    }
+
+    protected List<Resource> asResources(List<ConfigurationEntry> entries, Resource resource) throws ParsingException {
+        List<Resource> result = new ArrayList<>();
+        for (int i = 0; i < entries.size(); i++) {
+            result.add(asResource(entries.get(i), resource, i, entries.size()));
+        }
+        return result;
+    }
+
+    protected Resource asResource(ConfigurationEntry entry, Resource resource, int index, int entriesCount) throws ParsingException {
+        String indexedResourceName = getIndexedName(resource.getName(), index, entriesCount, RESOURCE_INDEX_DELIMITER);
+        Map<String, Object> properties = mergeProperties(resource, entry);
+        ResourceBuilder builder = getResourceBuilder();
+        builder.setName(indexedResourceName);
+        builder.setDescription(resource.getDescription());
+        builder.setGroups(resource.getGroups());
+        builder.setProperties(properties);
+        return builder.build();
+    }
+
+    protected ResourceBuilder getResourceBuilder() {
+        return new ResourceBuilder();
+    }
+
+    protected Map<String, Object> removeConfigurationParameters(Map<String, Object> resourcePropertiesMap) {
+        Map<String, Object> result = new TreeMap<>(resourcePropertiesMap);
+        result.keySet().removeAll(SupportedParameters.CONFIGURATION_REFERENCE_PARAMETERS);
+        return result;
+    }
+
+    protected Map<String, Object> mergeProperties(Resource resource, ConfigurationEntry configurationEntry) throws ParsingException {
+        return merge(JsonUtil.convertJsonToMap(configurationEntry.getContent()), removeConfigurationParameters(resource.getProperties()));
+    }
+
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "resourceName": "ups",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "user-provided-renamed"
+  },
+  {
+    "resourceName": "user-provided-service",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "user-provided-service"
+  },
+  {
+    "resourceName": "user-provider-resource-named-service",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "user-provider-resource-named-service"
+  },
+  {
+    "resourceName": "rs",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "random-service-renamed"
+  },
+  {
+    "resourceName": "random-service",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "random-service"
+  },
+  {
+    "resourceName": "random-resource-named-service",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "random-resource-named-service"
+  }
+]

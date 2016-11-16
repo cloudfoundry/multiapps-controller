@@ -1,0 +1,58 @@
+_schema-version: 2.0.0
+ID: com.sap.sample.mta
+version: 1.0.0
+
+modules:
+  - name: foo
+    type: foo
+    requires:
+      - name: bar
+        parameters:
+          buildpack: "{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:52002/buildpack"
+        properties:
+          buildpack: "{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:52002/buildpack"
+      - name: baz
+        parameters:
+          command: "{xsa-placeholder-service-url-deploy-service} install"
+          test_1: "{xsa-placeholder-protocol}"
+          test_2: "{xsa-placeholder-endpoint-authorization}"
+        properties:
+          command: "{xsa-placeholder-service-url-deploy-service} install"
+          test_1: "{xsa-placeholder-protocol}"
+          test_2: "{xsa-placeholder-endpoint-authorization}"
+    parameters:
+      host: foo-initial-initial
+      app-name: "{xsa-placeholder-domain-default}.foo"
+      port: 52002
+      property: "{xsa-placeholder-domain-default}.foo"
+      domain: "{xsa-placeholder-domain-default}"
+    properties:
+      host: foo-initial-initial
+      app-name: "{xsa-placeholder-domain-default}.foo"
+      port: 52002
+      property: "{xsa-placeholder-domain-default}.foo"
+      domain: "{xsa-placeholder-domain-default}"
+
+  - name: bar
+    type: bar
+    provides:
+      - name: bar
+        properties:
+          buildpack: "{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:52002/buildpack"
+      - name: baz
+        properties:
+          command: "{xsa-placeholder-service-url-deploy-service} install"
+          test_1: "{xsa-placeholder-protocol}"
+          test_2: "{xsa-placeholder-endpoint-authorization}"
+
+resources:
+  - name: qux
+    type: qux
+    parameters:
+      service-plan: "{xsa-placeholder-protocol}"
+      service-name: "{xsa-placeholder-protocol}.qux"
+      test_3: "{xsa-placeholder-protocol}.qux"
+    properties:
+      service-plan: "{xsa-placeholder-protocol}"
+      service-name: "{xsa-placeholder-protocol}.qux"
+      test_3: "{xsa-placeholder-protocol}.qux"

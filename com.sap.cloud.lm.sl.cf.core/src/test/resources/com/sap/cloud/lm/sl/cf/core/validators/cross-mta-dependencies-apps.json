@@ -1,0 +1,30 @@
+[
+  {
+    "moduleName": "module",
+    "extendedStaging": {},
+    "tempUris": [
+      "sofd60245639a:55001"
+    ],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
+      "MTA_METADATA\u003d{\n  \"id\": \"cross-mta-dependencies-test\",\n  \"version\": \"0.0.1\"\n}",
+      "MTA_MODULE_METADATA\u003d{\n  \"name\": \"module\"\n}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"module\"\n]",
+      "MTA_SERVICES\u003d[]",
+      "bar\u003dbar",
+      "baz\u003dbaz",
+      "foo\u003dfoo",
+      "name\u003dresource"
+    ],
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "services": [],
+    "uris": [
+      "sofd60245639a:55000"
+    ],
+    "meta": {},
+    "name": "module"
+  }
+]

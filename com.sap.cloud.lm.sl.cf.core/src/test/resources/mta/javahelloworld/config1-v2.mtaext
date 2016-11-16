@@ -1,0 +1,30 @@
+_schema-version: "2.0.0"
+ID: com.sap.xs2.samples.javahelloworld.config1
+extends: com.sap.xs2.samples.javahelloworld
+
+target-platforms: [CF-TRIAL]
+
+modules:
+  - name: java-hello-world
+    parameters:
+      host: i027947-java-hello-world
+      memory: 128M
+
+  - name: java-hello-world-backend
+    parameters:
+      host: i027947-java-hello-world-backend
+      memory: 512M
+      instances: 1
+    provides:
+      - name: java
+        properties:
+          url: "http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com"
+
+resources:
+  - name: uaa
+    parameters:
+      config:
+        clientid: xs2.java
+        clientsecret: javaclientsecret
+        url: "http://sap-login.cfapps.neo.ondemand.com"
+        tags: [xsuaa]

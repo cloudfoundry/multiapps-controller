@@ -1,0 +1,59 @@
+[
+  {
+    "spaceId": "sap",
+    "appName": "t-1",
+    "moduleDto": {
+      "name": "t-1",
+      "properties": {},
+      "providedDependencies": [],
+      "requiredDependencies": [
+        {
+          "name": "plugins-1",
+          "properties": {}
+        }
+      ]
+    },
+    "resourceDto": {
+      "name": "plugins-1",
+      "properties": {}
+    }
+  },
+  {
+    "spaceId": "sap",
+    "appName": "t-2",
+    "moduleDto": {
+      "name": "t-2",
+      "properties": {},
+      "providedDependencies": [],
+      "requiredDependencies": [
+        {
+          "name": "plugins-1",
+          "properties": {}
+        }
+      ]
+    },
+    "resourceDto": {
+      "name": "plugins-1",
+      "properties": {}
+    }
+  },
+  {
+    "spaceId": "sap",
+    "appName": "t-3",
+    "moduleDto": {
+      "name": "t-3",
+      "properties": {},
+      "providedDependencies": [],
+      "requiredDependencies": [
+        {
+          "name": "plugins-2",
+          "properties": {}
+        }
+      ]
+    },
+    "resourceDto": {
+      "name": "plugins-2",
+      "properties": {}
+    }
+  }
+]

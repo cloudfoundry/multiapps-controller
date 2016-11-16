@@ -1,0 +1,19 @@
+{
+  "welcomeFile": "index.html",
+  "routes": [
+    {
+      "source": "/sap/ui5/1(.*)",
+      "target": "$1",
+      "destination": "ui5"
+    },
+    {
+      "source": "/rest/addressbook/testdataDestructor",
+      "destination": "nodejs",
+      "scope": "node-hello-world.Delete"
+    },
+    {
+      "source": "/rest/.*",
+      "destination": "nodejs"
+    }
+  ]
+}

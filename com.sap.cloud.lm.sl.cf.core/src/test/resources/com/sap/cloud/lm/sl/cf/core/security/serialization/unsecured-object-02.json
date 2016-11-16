@@ -1,0 +1,11 @@
+{
+  "name": "jobscheduler",
+  "env": [
+    "DEPLOY_ATTRIBUTES={\"create-service-broker\":true,\"dependency-type\":\"soft\",\"service-broker-name\":\"jobscheduler\",\"service-broker-password\":\"PTJ3FlgTz61#ZwU)\",\"service-broker-url\":\"https://mo-4dd483238.mo.sap.corp:51023\",\"service-broker-username\":\"6gx56t7HmkS)8hVj\"}",
+    "MTA_MODULE_METADATA={\"name\":\"jobscheduler-broker\"}",
+    "MTA_MODULE_PROVIDED=[\"name\":\"jobscheduler-broker\"]",
+    "BROKER_PASS=PTJ3FlgTz61#ZwU)",
+    "BROKER_USER=6gx56t7HmkS)8hVj",
+    "MTA_SERVICES=[\"jobscheduler-db-container\",\"jobscheduler-sbss\"]"
+  ]
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "id": 0,
+    "mtaId": "com.sap.example.mta",
+    "filter": {
+      "providerId": "com.sap.other.mta",
+      "requiredContent": {},
+      "providerNid": "mta",
+      "targetSpace": "SAP",
+      "providerVersion": "1.0.0"
+    },
+    "spaceId": "SPACE_ID_1",
+    "moduleDto": {
+      "name": "foo",
+      "properties": {
+        "other_1": "other_property_value",
+        "other_2": "other_property_value",
+        "plugin_names": "~{plugins/name}"
+      },
+      "providedDependencies": [
+        {
+          "name": "foo",
+          "properties": {}
+        }
+      ],
+      "requiredDependencies": [
+        {
+          "name": "plugins",
+          "list": "plugins",
+          "properties": {
+            "names": "~{name}"
+          }
+        }
+      ]
+    },
+    "resourceDto": {
+      "name": "plugins",
+      "properties": {}
+    }
+  }
+]

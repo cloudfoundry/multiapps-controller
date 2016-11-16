@@ -1,0 +1,15 @@
+---
+applications:
+- name: webide
+  path: webide.zip
+  host: i027947-webide
+  memory: 128M
+  env:
+    destinations: >
+      [
+        {"name":"di-core-destinations", "url":"http://i027947-di-core.cfapps.neo.ondemand.com"},
+        {"name":"ui5", "url":"https://sapui5.netweaver.ondemand.com"}
+      ]
+  services:
+    - webide-uaa
+    

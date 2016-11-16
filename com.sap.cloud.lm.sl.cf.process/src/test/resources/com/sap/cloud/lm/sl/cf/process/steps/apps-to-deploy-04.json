@@ -1,0 +1,25 @@
+[
+  {
+    "name": "module-1",
+    "tempUris": [],
+    "uris": []
+  },
+  {
+    "name": "module-2",
+    "tempUris": [
+      "module-2-temp.api.cf.neo.ondemand.com"
+    ],
+    "uris": [
+      "module-2.api.cf.neo.ondemand.com"
+    ]
+  },
+  {
+    "name": "module-3",
+    "tempUris": [
+      "module-3-temp.api.cf.neo.ondemand.com"
+    ],
+    "uris": [
+      "module-3.api.cf.neo.ondemand.com"
+    ]
+  }
+]

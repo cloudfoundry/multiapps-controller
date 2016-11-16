@@ -1,0 +1,15 @@
+---
+applications:
+- name: webide
+  path: webide.zip
+  port: 53035
+  memory: 128M
+  env:
+    destinations: >
+      [
+        {"name":"sapui5", "url":"https://sapui5.netweaver.ondemand.com", "proxyHost":"proxy.wdf.sap.corp", "proxyPort":"8080"},
+        {"name":"che", "url":"http://sofd60245639a:53030"}
+      ]
+  services:
+    - uaa
+    

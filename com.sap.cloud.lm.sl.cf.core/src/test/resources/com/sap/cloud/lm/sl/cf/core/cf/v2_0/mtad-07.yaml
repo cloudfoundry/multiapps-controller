@@ -1,0 +1,28 @@
+_schema-version: "2.0.0"
+ID: com.sap.sample.mta
+version: 1.0.0
+
+modules:
+  - name: framework
+    type: javascript.nodejs
+    requires:
+      - name: plugins.0
+        list: plugins
+        properties:
+          plugin_name: plugin-0
+          url: https://localhost:52001
+      - name: plugins.1
+        list: plugins
+        properties:
+          plugin_name: plugin-1
+          url: null
+
+resources:
+  - name: plugins.0
+    properties:
+      plugin_name: plugin-0
+      url: https://localhost:52001
+
+  - name: plugins.1
+    properties:
+      plugin_name: plugin-1

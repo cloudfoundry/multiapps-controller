@@ -1,0 +1,25 @@
+_schema-version: "2.0.0"
+ID: com.sap.devx.webide.xs2-config1
+extends: com.sap.devx.webide
+
+target-platforms: [XS2-INITIAL]
+
+modules:
+  - name: webide
+    parameters:
+      port: 53035
+      memory: 128M
+    requires:
+      - name: sapui5
+        properties:
+          proxyHost: proxy
+          proxyPort: "8080"
+
+resources:
+  - name: sapui5
+    properties:
+      url: "https://sapui5.netweaver.ondemand.com"
+
+  - name: che
+    properties:
+      url: "http://sofd60245639a:53030"

@@ -1,0 +1,16 @@
+{
+  "applications": [
+    {
+      "name": "application-1"
+    },
+    {
+      "name": "application-2"
+    },
+    {
+      "name": "application-3"
+    }
+  ],
+  "applicationIndex": 1,
+  "isExistingApplication": true,
+  "throwException": true
+}

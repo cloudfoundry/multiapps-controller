@@ -1,0 +1,18 @@
+{
+  "existingServiceBrokerNames": [],
+  "applications": [
+    {
+      "name": "foo",
+      "attributes": {
+        "create-service-broker": false
+      }
+    },
+    {
+      "name": "qux",
+      "attributes": {
+        "create-service-broker": false
+      }
+    }
+  ]
+}
+

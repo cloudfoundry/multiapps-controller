@@ -1,0 +1,76 @@
+{
+  "currentLocation": {
+    "org": "sap", "space": "sap"
+  },
+  "subscribersToUpdate": [
+    {
+      "relevantPublishedEntries": [
+        {
+          "providerId": "com.sap.sample.mta.plugin-02",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0",
+          "content": "{\"plugin_name\":\"plugin-02\"}"
+        }
+      ],
+      "relevantDeletedEntries": [],
+      "subscription": {
+        "mtaId": "com.sap.sample.mta.framework",
+        "filter": {
+          "filter": {
+            "type": "com.acme.plugins"
+          }
+        },
+        "spaceId": "xsa",
+        "appName": "framework",
+        "moduleDto": {
+          "name": "framework",
+          "properties": {
+            "bar": "bar",
+            "plugin_name_referred_from_module_properties": "~{plugin/plugin_name}"
+          },
+          "providedDependencies": [
+            {
+              "name": "framework",
+              "properties": {}
+            }
+          ],
+          "requiredDependencies": [
+            {
+              "name": "plugin",
+              "properties": {
+                "plugin_name": "~{plugin_name}"
+              }
+            }
+          ]
+        },
+        "resourceDto": {
+          "name": "plugin",
+          "properties": {
+            "foo": "foo"
+          }
+        }
+      },
+      "location": {
+        "org": "xsa", "space": "xsa"
+      },
+      "app": {
+        "name": "framework",
+        "env": [
+          "plugin_name=plugin_01"
+        ]
+      },
+      "relevantExistinggEntries": []
+    }
+  ],
+  "userRoles": [
+    {
+      "location": {
+        "org": "xsa", "space": "xsa"
+      },
+      "permissions": [
+        READ, WRITE
+      ]
+    }
+  ]
+}

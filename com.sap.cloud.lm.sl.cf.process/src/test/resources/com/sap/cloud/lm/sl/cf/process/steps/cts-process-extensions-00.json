@@ -1,0 +1,6 @@
+{
+  "id": 0,
+  "processId": "1000",
+  "type": "EXT",
+  "text": "{\"ctsProcessId\":\"2000\",\"ctsErrorCode\":\"OK\",\"logs\":\"ctslogs/CTS_LOG\"}"
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "processId": "5",
+    "startedAt": "2016-04-27T10:33:27.074Z[UTC]",
+    "spaceId": "1234",
+    "mtaId": "5",
+    "acquiredLock": false
+  },
+  {
+    "processId": "3",
+    "startedAt": "2016-04-27T10:31:27.074Z[UTC]",
+    "spaceId": "1234",
+    "mtaId": "3",
+    "acquiredLock": false
+  },
+  {
+    "processId": "1",
+    "startedAt": "2016-04-27T10:29:27.074Z[UTC]",
+    "spaceId": "1234",
+    "mtaId": "1",
+    "acquiredLock": false
+  }
+]

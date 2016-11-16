@@ -1,0 +1,14 @@
+{
+  "service": {
+    "resourceName": "test",
+    "credentials": {
+      "password": "test-pass",
+      "url": "test-url",
+      "user": "test-user"
+    },
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.test",
+    "label": "some-label"
+    }
+}

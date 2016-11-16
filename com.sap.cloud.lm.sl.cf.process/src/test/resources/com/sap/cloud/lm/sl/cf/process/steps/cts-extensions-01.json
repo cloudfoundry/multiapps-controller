@@ -1,0 +1,7 @@
+{
+  "id": 0,
+  "processId": "1000",
+  "taskId": "prepareDeployParametersTask",
+  "type": "EXT",
+  "text": "{\"ctsErrorCode\":\"WARNING\",\"fileName\":\"MTAR_NAME\",\"filePath\":\"MTAR_PATH\",\"logs\":\"ctslogs/CTS_LOG\"}"
+}

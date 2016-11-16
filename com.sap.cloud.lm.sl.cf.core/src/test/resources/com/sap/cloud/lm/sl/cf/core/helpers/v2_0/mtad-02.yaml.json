@@ -1,0 +1,56 @@
+{
+  "modules2_0": [
+    {
+      "requiredDependencies2_0": [],
+      "providedDependencies2_0": [
+        {
+          "isPublic": true,
+          "name": "app-1",
+          "properties": {}
+        }
+      ],
+      "parameters": {
+        "app-name": "custom-app-1-green"
+      },
+      "name": "app-1",
+      "type": "javascript.nodejs",
+      "properties": {}
+    },
+    {
+      "requiredDependencies2_0": [],
+      "providedDependencies2_0": [
+        {
+          "isPublic": true,
+          "name": "app-2",
+          "properties": {}
+        }
+      ],
+      "parameters": {
+        "app-name": "custom-app-2-green"
+      },
+      "name": "app-2",
+      "type": "javascript.nodejs",
+      "properties": {}
+    },
+    {
+      "requiredDependencies2_0": [],
+      "providedDependencies2_0": [
+        {
+          "isPublic": true,
+          "name": "app-3",
+          "properties": {}
+        }
+      ],
+      "parameters": {
+        "app-name": "custom-app-3-green"
+      },
+      "name": "app-3",
+      "type": "javascript.nodejs",
+      "properties": {}
+    }
+  ],
+  "resources2_0": [],
+  "parameters": {},
+  "id": "com.sap.mta.test",
+  "version": "1.0.0"
+}

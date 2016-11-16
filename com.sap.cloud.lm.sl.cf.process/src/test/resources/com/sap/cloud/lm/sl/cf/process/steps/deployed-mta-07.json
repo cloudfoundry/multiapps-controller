@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "id": "test",
+    "version": "0.1.0"
+  },
+  "modules": [
+    {
+      "moduleName": "a",
+      "appName": "namespace.a",
+      "services": [],
+      "providedDependencyNames": []
+    },
+    {
+      "moduleName": "b",
+      "appName": "namespace.b",
+      "services": [],
+      "providedDependencyNames": []
+    },
+    {
+      "moduleName": "c",
+      "appName": "namespace.c",
+      "services": [],
+      "providedDependencyNames": []
+    }
+  ],
+  "services": []
+}

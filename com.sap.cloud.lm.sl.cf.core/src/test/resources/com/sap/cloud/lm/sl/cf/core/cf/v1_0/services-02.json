@@ -1,0 +1,44 @@
+[
+  {
+    "resourceName": "ups",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.user-provided-renamed"
+  },
+  {
+    "resourceName": "user-provided-service",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.user-provided-service"
+  },
+  {
+    "resourceName": "user-provider-resource-named-service",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.user-provider-resource-7ef941fc"
+  },
+  {
+    "resourceName": "rs",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.random-service-renamed"
+  },
+  {
+    "resourceName": "random-service",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.random-service"
+  },
+  {
+    "resourceName": "random-resource-named-service",
+    "credentials": {},
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.random-resource-named-service"
+  }
+]
