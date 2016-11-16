@@ -1,17 +1,17 @@
 ---
 applications:
-- name: deploy-service-i305961
-  host: dev-deploy-service-i305961
+- name: deploy-service
+  host: deploy-service
   memory: 1024M
   instances: 1
-  path: ../target/com.sap.cloud.lm.sl.cf.web-1.29.0-SNAPSHOT.war
+  path: ../${project.build.finalName}.war
   buildpack: java_buildpack
   services:
     - deploy-service-database
   env:
-    VERSION: 1.29.0
+    VERSION: ${project.version}
     XS_TYPE: CF
-    XS_TARGET_URL: https://api.cf.sap.hana.ondemand.com
+    XS_TARGET_URL: http://api.bosh-lite.com
     DB_TYPE: POSTGRESQL
     PLATFORM_TYPES: >
       [
