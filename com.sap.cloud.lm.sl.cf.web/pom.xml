@@ -204,7 +204,7 @@
             <id>debug</id>
             <dependencies>
                 <dependency>
-                    <groupId>com.sap.hcp.oss.org.activiti</groupId>
+                    <groupId>org.activiti</groupId>
                     <artifactId>activiti-rest</artifactId>
                 </dependency>
             </dependencies>

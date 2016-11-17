@@ -205,6 +205,12 @@
         <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>
             <artifactId>com.sap.cloud.lm.sl.slp</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sap.hcp.oss.org.activiti</groupId>
+                    <artifactId>activiti-engine</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>

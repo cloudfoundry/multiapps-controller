@@ -27,10 +27,30 @@
         <dependency>
             <groupId>com.sap.activiti.common</groupId>
             <artifactId>com.sap.activiti.common</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
+                        <artifactId>activiti-rest</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
+                        <artifactId>activiti-engine</artifactId>
+                    </exclusion>
+                </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sap.activiti.common</groupId>
             <artifactId>com.sap.activiti.common</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
+                        <artifactId>activiti-rest</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
+                        <artifactId>activiti-engine</artifactId>
+                    </exclusion>
+                </exclusions>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
