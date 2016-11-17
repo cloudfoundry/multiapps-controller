@@ -176,10 +176,6 @@
             <artifactId>liquibase-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.liquibase.ext</groupId>
-            <artifactId>liquibase-hana</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.mattbertolini</groupId>
             <artifactId>liquibase-slf4j</artifactId>
         </dependency>
