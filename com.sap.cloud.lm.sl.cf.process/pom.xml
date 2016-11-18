@@ -39,6 +39,10 @@
                 </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.activiti</groupId>
+            <artifactId>activiti-engine</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.sap.activiti.common</groupId>
             <artifactId>com.sap.activiti.common</artifactId>
                 <exclusions>
@@ -71,14 +75,16 @@
         <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>
             <artifactId>com.sap.cloud.lm.sl.slp</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sap.hcp.oss.org.activiti</groupId>
+                    <artifactId>activiti-engine</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>
             <artifactId>com.sap.cloud.lm.sl.mta</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.cts</artifactId>
         </dependency>
     <dependency>
             <groupId>com.sap.cloud.lm.sl.cf</groupId>

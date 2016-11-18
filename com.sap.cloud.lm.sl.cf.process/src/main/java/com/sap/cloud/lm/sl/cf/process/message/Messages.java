@@ -328,7 +328,6 @@ public final class Messages {
     public static final String CLONING_REPOSITORY = "Cloning repository {0}";
     public static final String DOWNLOADING_DEPLOYABLE = "Downloading deployable from Git...";
     public static final String COMPRESSING_MTA_CONTENT = "Compressing MTA content...";
-    public static final String PROCESS_WILL_BE_ABORTED = "Process \"{0}\" is CTS_DEPLOY and will be auto-aborted";
     public static final String PROCESS_START_TIME = "Process started at: {0}";
     public static final String ARCHIVE_DEPLOY_ACTIVITY_START_TIME = "Deploy of archive \"{0}\" started at: {1}";
 

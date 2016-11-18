@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.impl.identity.Authentication;
-import org.apache.log4j.PatternLayout;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.StartingInfo;
@@ -48,16 +47,9 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.BinaryJson;
-import com.sap.cloud.lm.sl.cf.process.util.CtsArchiveExtensionsSetter;
-import com.sap.cloud.lm.sl.cf.process.util.CtsProcessExtensionsSetter;
-import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.cts.CtsReturnCode;
-import com.sap.cloud.lm.sl.cts.FileInfo;
-import com.sap.cloud.lm.sl.cts.log.log4j.CtsPatternLayout;
-import com.sap.cloud.lm.sl.cts.log.log4j.CtsPatternLayoutWithHeader;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.ProvidedDependency;
@@ -67,13 +59,10 @@ import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.slp.services.ProcessLoggerProviderFactory;
-import com.sap.cloud.lm.sl.slp.services.TaskExtensionService;
 
 public class StepsUtil {
 
     private static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
-    // TODO: Create a separate log for each archive deployed in a CTS_DEPLOY process:
-    public static final String CTS_LOG_NAME = "CTS_LOG";
 
     // Logger
     static final org.apache.log4j.Logger getLogger(DelegateExecution context, ProcessLoggerProviderFactory processLoggerProviderFactory) {
@@ -85,45 +74,9 @@ public class StepsUtil {
         return processLoggerProviderFactory.getLoggerProvider(appName).getLogger(context, PARENT_LOGGER, appName);
     }
 
-    private static org.apache.log4j.Logger getCtsLogger(DelegateExecution context,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        return getCtsLogger(context, processLoggerProviderFactory, new CtsPatternLayout());
-    }
-
-    private static org.apache.log4j.Logger getCtsLogger(DelegateExecution context,
-        ProcessLoggerProviderFactory processLoggerProviderFactory, PatternLayout patternLayout) {
-        return processLoggerProviderFactory.getLoggerProvider(CTS_LOG_NAME).getLogger(context, PARENT_LOGGER, CTS_LOG_NAME, patternLayout);
-    }
-
-    static void setCtsExtensions(DelegateExecution context, Exception e, TaskExtensionService taskExtensionService) throws SLException {
-        if (StepsUtil.isCtsDeploy(context)) {
-            StepsUtil.setCtsReturnCode(context, mapExceptionToCtsReturnCode(e));
-            new CtsArchiveExtensionsSetter(taskExtensionService).set(context);
-            new CtsProcessExtensionsSetter(taskExtensionService).set(context);
-        }
-    }
-
-    static CtsReturnCode mapExceptionToCtsReturnCode(Exception e) {
-        return (e instanceof ContentException) ? CtsReturnCode.CONTENT_ERROR : CtsReturnCode.SEVERE_ERROR;
-    }
-
-    static boolean isCtsDeploy(DelegateExecution context) {
-        return Constants.CTS_DEPLOY_SERVICE_ID.equals(getServiceId(context));
-    }
-
-    public static void initCtsLog(DelegateExecution context, ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        // This method should be called before any of the other methods that log CTS messages are
-        // called (info, warn, error). It initializes the CTS logs by creating a new logger with the
-        // layout that prints the GLF header in the beginning of the log file. The next steps in the
-        // process will use the regular CTS loggers, which do NOT print the header, thus ensuring
-        // that the header is only printed once.
-        getCtsLogger(context, processLoggerProviderFactory, new CtsPatternLayoutWithHeader());
-    }
-
     static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider, Logger logger,
         ProcessLoggerProviderFactory processLoggerProviderFactory) throws SLException {
-        return getCloudFoundryClient(context, clientProvider, logger, processLoggerProviderFactory, getOrg(context),
-            getSpace(context));
+        return getCloudFoundryClient(context, clientProvider, logger, processLoggerProviderFactory, getOrg(context), getSpace(context));
     }
 
     static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider, Logger logger,
@@ -320,28 +273,6 @@ public class StepsUtil {
         if (!urlOrg.equals(org)) {
             throw new SLException(Messages.TARGETED_ORG_DOES_NOT_MATCH_URL_ORG, org, urlOrg);
         }
-    }
-
-    static void setCtsCurrentFileInfo(DelegateExecution context, FileInfo fileInfo) {
-        byte[] fileInfoBinaryJson = GsonHelper.getAsBinaryJson(fileInfo);
-        context.setVariable(Constants.VAR_CTS_CURRENT_FILE_INFO, fileInfoBinaryJson);
-    }
-
-    public static FileInfo getCtsCurrentFileInfo(DelegateExecution context) {
-        byte[] fileInfoBinaryJson = (byte[]) context.getVariable(Constants.VAR_CTS_CURRENT_FILE_INFO);
-        return GsonHelper.getFromBinaryJson(fileInfoBinaryJson, FileInfo.class);
-    }
-
-    public static void setCtsReturnCode(DelegateExecution context, CtsReturnCode ctsReturnCode) {
-        context.setVariable(Constants.VAR_CTS_RETURN_CODE, ctsReturnCode.toString());
-    }
-
-    public static CtsReturnCode getCtsReturnCode(DelegateExecution context) {
-        String ctsErrorCodeString = (String) context.getVariable(Constants.VAR_CTS_RETURN_CODE);
-        if (ctsErrorCodeString != null) {
-            return CtsReturnCode.valueOf(ctsErrorCodeString);
-        }
-        return CtsReturnCode.OK;
     }
 
     public static String getOrg(DelegateExecution context) {
@@ -727,7 +658,6 @@ public class StepsUtil {
         logger.error(message);
         sendProgressMessage(context, message, ProgressMessageType.ERROR, progressMessageService, processLoggerProviderFactory);
         getLogger(context, processLoggerProviderFactory).error(getPrefix(logger) + message);
-        ctsError(context, processLoggerProviderFactory, message);
     }
 
     static void warn(DelegateExecution context, String message, Exception e, Logger logger, ProgressMessageService progressMessageService,
@@ -735,7 +665,6 @@ public class StepsUtil {
         logger.warn(message, e);
         sendProgressMessage(context, message, ProgressMessageType.WARNING, progressMessageService, processLoggerProviderFactory);
         getLogger(context, processLoggerProviderFactory).warn(getPrefix(logger) + message, e);
-        ctsWarn(context, processLoggerProviderFactory, message);
     }
 
     static void warn(DelegateExecution context, String message, Logger logger, ProgressMessageService progressMessageService,
@@ -743,7 +672,6 @@ public class StepsUtil {
         logger.warn(message);
         sendProgressMessage(context, message, ProgressMessageType.WARNING, progressMessageService, processLoggerProviderFactory);
         getLogger(context, processLoggerProviderFactory).warn(getPrefix(logger) + message);
-        ctsWarn(context, processLoggerProviderFactory, message);
     }
 
     static void info(DelegateExecution context, String message, Logger logger, ProgressMessageService progressMessageService,
@@ -751,30 +679,10 @@ public class StepsUtil {
         logger.info(message);
         sendProgressMessage(context, message, ProgressMessageType.INFO, progressMessageService, processLoggerProviderFactory);
         getLogger(context, processLoggerProviderFactory).info(getPrefix(logger) + message);
-        ctsInfo(context, processLoggerProviderFactory, message);
     }
 
     private static String getExtendedErrorMessage(String message, Exception e) {
         return message + ": " + e.getMessage();
-    }
-
-    private static void ctsError(DelegateExecution context, ProcessLoggerProviderFactory processLoggerProviderFactory, String message) {
-        if (isCtsDeploy(context)) {
-            getCtsLogger(context, processLoggerProviderFactory).error(message);
-        }
-    }
-
-    private static void ctsWarn(DelegateExecution context, ProcessLoggerProviderFactory processLoggerProviderFactory, String message) {
-        if (isCtsDeploy(context)) {
-            getCtsLogger(context, processLoggerProviderFactory).warn(message);
-            setCtsReturnCode(context, CtsReturnCode.WARNING);
-        }
-    }
-
-    private static void ctsInfo(DelegateExecution context, ProcessLoggerProviderFactory processLoggerProviderFactory, String message) {
-        if (isCtsDeploy(context)) {
-            getCtsLogger(context, processLoggerProviderFactory).info(message);
-        }
     }
 
     static void debug(DelegateExecution context, String message, Logger logger, ProcessLoggerProviderFactory processLoggerProviderFactory) {

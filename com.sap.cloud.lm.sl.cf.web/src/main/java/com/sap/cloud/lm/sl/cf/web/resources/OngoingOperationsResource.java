@@ -26,7 +26,6 @@ import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
 import com.sap.cloud.lm.sl.cf.core.model.OperationsBean;
 import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.core.util.AuthorizationUtil;
-import com.sap.cloud.lm.sl.cf.process.metadata.CtsDeployServiceMetadata;
 import com.sap.cloud.lm.sl.cf.process.metadata.XS2BlueGreenDeployServiceMetadata;
 import com.sap.cloud.lm.sl.cf.process.metadata.XS2DeployServiceMetadata;
 import com.sap.cloud.lm.sl.cf.process.metadata.XS2UndeployServiceMetadata;
@@ -170,8 +169,6 @@ public class OngoingOperationsResource {
                 return activitiServiceFactory.createActivitiService(new XS2UndeployServiceMetadata());
             case DEPLOY:
                 return activitiServiceFactory.createActivitiService(new XS2DeployServiceMetadata());
-            case CTS_DEPLOY:
-                return activitiServiceFactory.createActivitiService(new CtsDeployServiceMetadata());
             default:
                 throw new SLException(Messages.UNSUPPORTED_PROCESS_TYPE, processType.toString());
         }

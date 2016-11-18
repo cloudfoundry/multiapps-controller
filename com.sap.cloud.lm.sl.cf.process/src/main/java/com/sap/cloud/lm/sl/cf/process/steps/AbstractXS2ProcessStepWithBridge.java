@@ -22,12 +22,7 @@ public abstract class AbstractXS2ProcessStepWithBridge extends AbstractSLProcess
 
     @Override
     protected ExecutionStatus pollStatus(DelegateExecution context) throws Exception {
-        try {
-            return pollStatusInternal(context);
-        } catch (Exception e) {
-            StepsUtil.setCtsExtensions(context, e, taskExtensionService);
-            throw e;
-        }
+        return pollStatusInternal(context);
     }
 
     protected abstract ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception;

@@ -27,12 +27,7 @@ public abstract class AbstractXS2ProcessStep extends AbstractSLProcessStep {
 
     @Override
     protected ExecutionStatus executeStep(DelegateExecution context) throws Exception {
-        try {
-            return executeStepInternal(context);
-        } catch (Exception e) {
-            StepsUtil.setCtsExtensions(context, e, taskExtensionService);
-            throw e;
-        }
+        return executeStepInternal(context);
     }
 
     protected abstract ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception;

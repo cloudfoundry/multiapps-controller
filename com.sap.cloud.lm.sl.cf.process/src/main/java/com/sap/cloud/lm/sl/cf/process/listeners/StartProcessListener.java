@@ -34,9 +34,6 @@ public class StartProcessListener extends AbstractSLProcessExecutionListener {
     protected void notifyInternal(DelegateExecution context) throws SLException {
         String processId = context.getProcessInstanceId();
         ProcessType processType = getProcessType((String) context.getVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SERVICE_ID));
-        if (processType.equals(ProcessType.CTS_DEPLOY)) {
-            StepsUtil.initCtsLog(context, processLoggerProviderFactory);
-        }
         String startedAt = FORMATTER.format(ZonedDateTime.now());
         String user = StepsUtil.determineCurrentUser(context, LOGGER, processLoggerProviderFactory);
         String spaceId = StepsUtil.getSpaceId(context);
@@ -46,8 +43,6 @@ public class StartProcessListener extends AbstractSLProcessExecutionListener {
 
     private ProcessType getProcessType(String serviceId) throws SLException {
         switch (serviceId) {
-            case Constants.CTS_DEPLOY_SERVICE_ID:
-                return ProcessType.CTS_DEPLOY;
             case Constants.UNDEPLOY_SERVICE_ID:
                 return ProcessType.UNDEPLOY;
             case Constants.DEPLOY_SERVICE_ID:

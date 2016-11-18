@@ -10,10 +10,6 @@
         <property name="transactionManager" ref="transactionManager" />
         <property name="databaseSchemaUpdate" value="true" />
         <property name="jobExecutorActivate" value="true" />
-        <property name="failedJobCommandFactory">
-            <!-- By default Activiti will retry failed job. Disable this behavior. -->
-            <bean class="com.sap.cloud.lm.sl.cf.process.AbortFailedCtsDeployCommandFactory" />
-        </property>
         <property name="deploymentResources" value="classpath*:/com/sap/cloud/lm/sl/cf/process/*.bpmn" />
     </bean>
 

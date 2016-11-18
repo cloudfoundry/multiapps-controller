@@ -5,8 +5,6 @@ public final class Constants {
     public static final String DEPLOY_SERVICE_ID = "xs2-deploy";
     public static final String BLUE_GREEN_DEPLOY_SERVICE_ID = "xs2-bg-deploy";
     public static final String UNDEPLOY_SERVICE_ID = "xs2-undeploy";
-    public static final String CTS_PING_SERVICE_ID = "CTS_PING";
-    public static final String CTS_DEPLOY_SERVICE_ID = "CTS_DEPLOY";
     public static final String SERVICE_VERSION_1_1 = "1.1";
     public static final String SERVICE_VERSION_1_0 = "1.0";
 
