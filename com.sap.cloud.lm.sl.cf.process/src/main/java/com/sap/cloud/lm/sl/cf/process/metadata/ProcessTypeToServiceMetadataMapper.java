@@ -15,8 +15,6 @@ public class ProcessTypeToServiceMetadataMapper {
                 return XS2UndeployService.getMetadata();
             case DEPLOY:
                 return XS2DeployService.getMetadata();
-            case CTS_DEPLOY:
-                return CtsDeployService.getMetadata();
             default:
                 throw new SLException(Messages.UNSUPPORTED_PROCESS_TYPE, processType.toString());
         }

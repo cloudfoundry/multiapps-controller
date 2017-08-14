@@ -7,8 +7,6 @@ public final class Constants {
     public static final String DEPLOY_SERVICE_ID = "xs2-deploy";
     public static final String BLUE_GREEN_DEPLOY_SERVICE_ID = "xs2-bg-deploy";
     public static final String UNDEPLOY_SERVICE_ID = "xs2-undeploy";
-    public static final String CTS_PING_SERVICE_ID = "CTS_PING";
-    public static final String CTS_DEPLOY_SERVICE_ID = "CTS_DEPLOY";
     public static final String DEPLOY_APP_SUB_PROCESS_ID = "deployAppSubProcess";
     public static final String SERVICE_VERSION_1_2 = "1.2";
     public static final String SERVICE_VERSION_1_1 = "1.1";
@@ -113,8 +111,6 @@ public final class Constants {
     public static final String VAR_HAS_APP_CHANGED = "hasAppChanged";
     public static final String VAR_APP_PROPERTIES_CHANGED = "appPropertiesChanged";
     public static final String VAR_TRIGGERED_SERVICE_OPERATIONS = "triggeredServiceOperations";
-    public static final String VAR_CTS_RETURN_CODE = "ctsReturnCode";
-    public static final String VAR_CTS_CURRENT_FILE_INFO = "ctsCurrentFileInfo";
     public static final String VAR_CORRELATION_ID = "correlationId";
     public static final String VAR_APP_TO_DEPLOY = "appToDeploy";
     public static final String VAR_FILE_INFO_LIST = "fileInfoList";
@@ -123,7 +119,6 @@ public final class Constants {
     public static final String VAR_SERVICES_TO_CREATE_COUNT = "servicesToCreateCount";
 
     public static final String PARAM_TRANSFER_TYPE = "transferType";
-    public static final String PARAM_CTS_PROCESS_ID = "ctsProcessId";
     public static final String PARAM_DEPLOY_URI = "deployUri";
     public static final String PARAM_APPLICATION_TYPE = "applType";
     public static final String PARAM_FILE_LIST = "fileList";

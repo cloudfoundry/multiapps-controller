@@ -34,11 +34,7 @@ public abstract class AbstractXS2ProcessStep extends AbstractSLProcessStep {
         try {
             return executeStepInternal(context);
         } catch (MonitoringException e) {
-            StepsUtil.setCtsExtensions(context, e, taskExtensionService);
             StepsUtil.error(context, e.getMessage(), LOGGER, processLoggerProviderFactory);
-            throw e;
-        } catch (Exception e) {
-            StepsUtil.setCtsExtensions(context, e, taskExtensionService);
             throw e;
         }
     }

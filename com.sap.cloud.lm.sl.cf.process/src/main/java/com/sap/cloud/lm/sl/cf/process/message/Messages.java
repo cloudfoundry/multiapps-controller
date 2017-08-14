@@ -47,7 +47,6 @@ public final class Messages {
     public static final String ERROR_DELETING_ARCHIVE_PARTS_CONTENT = "Error deleting archive parts content";
     public static final String ERROR_ZDM_MODE_PARAMETER = "Parameter '" + SupportedParameters.ZDM_MODE.toString()
         + "' is supported only in blue-green deploy.";
-    public static final String CTS_PROCESS_ERROR = "CTS+ process failed.";
     public static final String SUB_PROCESS_HAS_FAILED = "Sub-process with id {0} has failed.";
     public static final String SUB_PROCESS_HAS_BEEN_ABORTED = "Sub-process with id {0} has been aborted.";
     public static final String COULD_NOT_FIND_TASK_WITH_GUID = "Could not find task with GUID \"{0}\"!";
@@ -112,8 +111,6 @@ public final class Messages {
     public static final String ERROR_PROCESSING_GIT_URI = "Error processing Git URI";
     public static final String ERROR_PROCESSING_GIT_MTA_SOURCE = "Failed to process Git MTA source";
     public static final String ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT = "Error downloading deployable from Git";
-    public static final String ERROR_SETTING_CTS_ARCHIVE_STATUS = "Error setting CTS+ extensions for archive \"{0}\"";
-    public static final String ERROR_SETTING_CTS_PROCESS_STATUS = "Error setting CTS+ process extensions";
     public static final String ERROR_RECONFIGURING_APPS_ENVIRONMENTS = "Error reconfiguring apps environments";
     public static final String ERROR_NOT_FOUND_APPLICATION = "Application \"{0}\" not found.";
     public static final String ERROR_MONITORING_SUBPROCESS = "Error monitoring subprocess with id {0}";
@@ -317,10 +314,6 @@ public final class Messages {
     public static final String SERVICE_UNCHANGED = "Service \"{0}\" is not modified and will not be updated";
     public static final String APPLICATION_UNCHANGED = "Application \"{0}\" is not modified and will not be updated";
     public static final String WILL_NOT_REBIND_APP_TO_SERVICE = "Service \"{0}\" will not be rebound to application \"{1}\" because the binding parameters are not modified";
-    public static final String SETTING_CTS_ARCHIVE_EXTENSIONS = "Setting CTS+ extensions for archive \"{0}\"...";
-    public static final String CTS_ARCHIVE_EXTENSIONS_SET = "CTS+ archive extensions set successfully";
-    public static final String SETTING_CTS_PROCESS_EXTENSIONS = "Setting CTS+ process extensions...";
-    public static final String CTS_PROCESS_EXTENSIONS_SET = "CTS+ process extensions set successfully";
     public static final String UPDATING_APP_ENVIRONMENT = "Updating apps environments...";
     public static final String STAGING_FAILED = "Staging failed. Please check the application logs for details.";
 
@@ -376,7 +369,6 @@ public final class Messages {
     public static final String CLONING_REPOSITORY = "Cloning repository {0}";
     public static final String DOWNLOADING_DEPLOYABLE = "Downloading deployable from Git...";
     public static final String COMPRESSING_MTA_CONTENT = "Compressing MTA content...";
-    public static final String PROCESS_WILL_BE_ABORTED = "Process \"{0}\" is CTS_DEPLOY and will be auto-aborted";
     public static final String PROCESS_START_TIME = "Process started at: {0}";
     public static final String ARCHIVE_DEPLOY_ACTIVITY_START_TIME = "Deploy of archive \"{0}\" started at: {1}";
     public static final String APPLICATION_ENVIRONMENTS_RECONFIGURED = "Application environments reconfigured";

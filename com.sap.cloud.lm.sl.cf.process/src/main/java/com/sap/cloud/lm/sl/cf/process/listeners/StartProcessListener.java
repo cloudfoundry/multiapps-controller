@@ -43,9 +43,6 @@ public class StartProcessListener extends AbstractXS2ProcessExecutionListener {
             context.setVariable(Constants.VAR_CORRELATION_ID, correlationId);
         }
         ProcessType processType = StepsUtil.getProcessType(context);
-        if (processType.equals(ProcessType.CTS_DEPLOY)) {
-            StepsUtil.initDefaultCtsLog(context, processLoggerProviderFactory);
-        }
         if (ongoingOperationDao.find(correlationId) == null) {
             addOngoingOperation(context, correlationId, processType);
         }

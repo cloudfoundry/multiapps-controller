@@ -24,8 +24,6 @@ import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
-import com.sap.cloud.lm.sl.cf.process.metadata.CtsDeployService;
-import com.sap.cloud.lm.sl.cf.process.metadata.CtsPingService;
 import com.sap.cloud.lm.sl.cf.process.metadata.XS2BlueGreenDeployService;
 import com.sap.cloud.lm.sl.cf.process.metadata.XS2DeployService;
 import com.sap.cloud.lm.sl.cf.process.metadata.XS2UndeployService;
@@ -111,8 +109,6 @@ public class BootstrapServlet extends HttpServlet {
 
     private void initializeServices() {
         ServiceRegistry.getInstance().addService(XS2DeployService.getMetadata());
-        ServiceRegistry.getInstance().addService(CtsDeployService.getMetadata());
-        ServiceRegistry.getInstance().addService(CtsPingService.getMetadata());
         ServiceRegistry.getInstance().addService(XS2BlueGreenDeployService.getMetadata());
         ServiceRegistry.getInstance().addService(XS2UndeployService.getMetadata());
     }

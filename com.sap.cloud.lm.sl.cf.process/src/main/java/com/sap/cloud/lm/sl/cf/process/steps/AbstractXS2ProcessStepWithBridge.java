@@ -30,11 +30,7 @@ public abstract class AbstractXS2ProcessStepWithBridge extends AbstractSLProcess
             return pollStatusInternal(context);
 
         } catch (MonitoringException e) {
-            StepsUtil.setCtsExtensions(context, e, taskExtensionService);
             StepsUtil.error(context, e.getMessage(), LOGGER, processLoggerProviderFactory);
-            throw e;
-        } catch (Exception e) {
-            StepsUtil.setCtsExtensions(context, e, taskExtensionService);
             throw e;
         }
 
