@@ -3,7 +3,8 @@
     "filter": {
       "requiredContent": {
         "type": "com.acme.plugin"
-      }
+      },
+      "targetSpace": "initial initial"
     },
     "configurationEntries": [
       {

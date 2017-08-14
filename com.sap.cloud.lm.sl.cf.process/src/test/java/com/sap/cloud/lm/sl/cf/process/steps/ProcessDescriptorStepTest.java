@@ -1,19 +1,17 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatformTypes;
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatforms;
+import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadTargets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.BiFunction;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
@@ -21,11 +19,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -37,8 +34,8 @@ import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 public class ProcessDescriptorStepTest extends AbstractStepTest<ProcessDescriptorStep> {
 
@@ -53,28 +50,22 @@ public class ProcessDescriptorStepTest extends AbstractStepTest<ProcessDescripto
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor(DESCRIPTOR_PARSER, "node-hello-mtad.yaml",
         ProcessDescriptorStepTest.class);
-    private static final TargetPlatformType PLATFORM_TYPE = loadPlatformTypes(CONFIGURATION_PARSER, "platform-types-01.json",
+    private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json",
         ProcessDescriptorStepTest.class).get(0);
-    private static final TargetPlatform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platforms-01.json",
-        ProcessDescriptorStepTest.class).get(0);
+    private static final Target TARGET = loadTargets(CONFIGURATION_PARSER, "platforms-01.json", ProcessDescriptorStepTest.class).get(0);
 
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
         @Override
-        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory,
-            TargetPlatformType platformType, TargetPlatform platform, SystemParameters systemParameters, ConfigurationEntryDao dao,
-            BiFunction<String, String, String> spaceIdSupplier) {
-            return resolverr;
+        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platformType,
+            Target platform, SystemParameters systemParameters, ConfigurationEntryDao dao,
+            BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
+            return resolver;
         }
-
     }
 
     @Mock
-    private CloudFoundryClientProvider clientProvider;
-    @Mock
-    private MtaDescriptorPropertiesResolver resolverr;
-    @Mock
-    private CloudFoundryOperations client;
+    private MtaDescriptorPropertiesResolver resolver;
     @Mock
     private MtaSchemaVersionDetector versionDetector;
 
@@ -87,31 +78,25 @@ public class ProcessDescriptorStepTest extends AbstractStepTest<ProcessDescripto
         StepsUtil.setSystemParameters(context,
             new SystemParameters(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap()));
 
-        StepsUtil.setDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        StepsUtil.setUnresolvedDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setXsPlaceholderReplacementValues(context, MapUtil.asMap(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER, 999));
 
-        context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
-        context.setVariable(Constants.VAR_ORG, ORG_NAME);
+        context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
 
-        StepsUtil.setPlatformType(context, PLATFORM_TYPE);
         StepsUtil.setPlatform(context, PLATFORM);
-
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
+        StepsUtil.setTarget(context, TARGET);
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
         context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, MTA_MINOR_SCHEMA_VERSION);
-
-        context.setVariable(Constants.VAR_USER, "XSMASTER");
     }
 
     @Test
     public void testExecute1() throws Exception {
-        when(resolverr.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
+        when(resolver.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
 
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         TestUtil.test(() -> StepsUtil.getSubscriptionsToCreate(context), "[]", getClass());
 
@@ -119,12 +104,12 @@ public class ProcessDescriptorStepTest extends AbstractStepTest<ProcessDescripto
 
             return StepsUtil.getDeploymentDescriptor(context);
 
-        } , "R:node-hello-mtad-1.yaml.json", getClass());
+        }, "R:node-hello-mtad-1.yaml.json", getClass());
     }
 
     @Test(expected = SLException.class)
     public void testExecute2() throws Exception {
-        when(resolverr.resolve(any())).thenThrow(new SLException("Error!"));
+        when(resolver.resolve(any())).thenThrow(new SLException("Error!"));
 
         step.execute(context);
     }

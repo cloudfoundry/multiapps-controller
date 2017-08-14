@@ -3,45 +3,56 @@ package com.sap.cloud.lm.sl.cf.core.cf.factory;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.DomainsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.TargetPlatformDao;
+import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ConfigurationSubscriptionFactory;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.DeployTargetFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.OrgAndSpaceHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ResourceTypeFinder;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.TargetPlatformFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v1_0.DescriptorParametersValidator;
-import com.sap.cloud.lm.sl.mta.mergers.v1_0.TargetPlatformMerger;
-import com.sap.cloud.lm.sl.mta.mergers.v1_0.TargetPlatformTypeMerger;
+import com.sap.cloud.lm.sl.mta.mergers.v1_0.PlatformMerger;
+import com.sap.cloud.lm.sl.mta.mergers.v1_0.TargetMerger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 public interface HelperFactoryConstructor {
 
-    CloudModelBuilder getCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, SystemParameters systemParameters,
-        boolean portBasedRouting, boolean prettyPrinting, boolean useNamespaces, boolean useNamespacesForServices,
-        boolean allowInvalidEnvNames, String deployId, XsPlaceholderResolver xsPlaceholderResolver);
+    ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
+        XsPlaceholderResolver xsPlaceholderResolver, String deployId);
 
-    TargetPlatformFactory getTargetPlatformFactory();
+    DomainsCloudModelBuilder getDomainsCloudModelBuilder(SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver,
+        DeploymentDescriptor deploymentDescriptor);
 
-    TargetPlatformDao getTargetPlatformDao(com.sap.cloud.lm.sl.cf.core.dao.v1.TargetPlatformDao dao1,
-        com.sap.cloud.lm.sl.cf.core.dao.v2.TargetPlatformDao dao2, com.sap.cloud.lm.sl.cf.core.dao.v3.TargetPlatformDao dao3);
+    ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
+        CloudModelConfiguration configuration);
 
-    ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor,
-        TargetPlatformType platformType, TargetPlatform platform, BiFunction<String, String, String> spaceIdSupplier,
-        ConfigurationEntryDao dao);
+    DeployTargetFactory getDeployTargetFactory();
 
-    ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser);
+    DeployTargetDao<?, ?> getDeployTargetDao(com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDao dao1,
+        com.sap.cloud.lm.sl.cf.core.dao.v2.DeployTargetDao dao2, com.sap.cloud.lm.sl.cf.core.dao.v3.DeployTargetDao dao3);
+
+    ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
+        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget);
+
+    ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
+        CloudTarget cloudTarget);
 
     DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
         List<ParameterValidator> parameterValidators);
@@ -49,18 +60,18 @@ public interface HelperFactoryConstructor {
     DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
         List<ParameterValidator> parameterValidators, boolean doNotCorrect);
 
-    ApplicationColorAppender getApplicationColorAppender(ApplicationColor applicationType);
+    ApplicationColorAppender getApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationType);
 
     ResourceTypeFinder getResourceTypeFinder(String resourceType);
 
-    TargetPlatformMerger getTargetPlatformMerger(TargetPlatform platform);
+    TargetMerger getTargetMerger(Target target);
 
-    TargetPlatformTypeMerger getTargetPlatformTypeMerger(TargetPlatformType platformType);
+    PlatformMerger getPlatformMerger(Platform platform);
 
-    OrgAndSpaceHelper getOrgAndSpaceHelper(TargetPlatform platform, TargetPlatformType platformType);
+    OrgAndSpaceHelper getOrgAndSpaceHelper(Target target, Platform platform);
 
     UserProvidedResourceResolver getUserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
-        TargetPlatform platform, TargetPlatformType platformType);
+        Target target, Platform platform);
 
     PropertiesAccessor getPropertiesAccessor();
 

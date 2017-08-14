@@ -59,7 +59,7 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
             if (serviceName != null && !serviceName.isEmpty()) {
                 CloudFactory cloudFactory = new CloudFactory();
                 Cloud cloud = cloudFactory.getCloud();
-                DataSourceConfig config = new DataSourceConfig(new PoolConfig(15, 30000), null);
+                DataSourceConfig config = new DataSourceConfig(new PoolConfig(30, 30000), null);
                 dataSource = cloud.getServiceConnector(serviceName, DataSource.class, config);
             }
         } catch (CloudException e) {

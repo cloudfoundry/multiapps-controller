@@ -2,16 +2,17 @@
   {
     "moduleName": "foo",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
     "bindingParameters": {
       "bar": {
         "baz": "baz",
         "qux": "qux"
       }
     },
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"foo.cfapps.neo.ondemand.com/test\"]}",
       "MTA_METADATA={\"id\":\"com.sap.xs2.test\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"foo\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"foo\"]",

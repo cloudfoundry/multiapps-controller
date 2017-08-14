@@ -1,40 +1,42 @@
 package com.sap.cloud.lm.sl.cf.core.cf;
 
-import java.util.Collection;
+import java.net.MalformedURLException;
+import java.util.Collections;
+import java.util.Map;
 
+import org.apache.commons.collections.map.ReferenceMap;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
-import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
+import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorFactory;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
-import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
 @Component
 public class CloudFoundryClientProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CloudFoundryClientProvider.class);
 
     @Autowired
-    private CloudFoundryClientFactory cloudFoundryClientFactory;
+    private ClientFactory cloudFoundryClientFactory;
 
     @Autowired(required = false)
     private PortAllocatorFactory portAllocatorFactory;
 
     @Autowired
-    private JdbcTokenStore tokenStore;
+    private TokenService tokenService;
+
+    // Cached clients. These are stored in memory-sensitive cache, i.e. no OutOfMemory error would
+    // occur before GC tries to release the not-used clients.
+    @SuppressWarnings("unchecked")
+    private Map<String, Pair<CloudFoundryOperations, TokenProvider>> clients = Collections.synchronizedMap(
+        new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT));
 
     public CloudFoundryOperations getCloudFoundryClient(String userName, String org, String space, String processId) throws SLException {
         return getCloudFoundryClient(getValidToken(userName, org, space), org, space, processId);
@@ -42,7 +44,7 @@ public class CloudFoundryClientProvider {
 
     public CloudFoundryOperations getCloudFoundryClient(OAuth2AccessToken token, String org, String space, String processId)
         throws SLException {
-        Pair<CloudFoundryOperations, TokenProvider> client = createClientForToken(token, org, space, processId);
+        Pair<CloudFoundryOperations, TokenProvider> client = retrieveClientForToken(token, org, space, processId);
         updateTokenIfNecessary(client._2, token);
         return client._1;
     }
@@ -62,7 +64,7 @@ public class CloudFoundryClientProvider {
     }
 
     public void releaseClient(String userName, String org, String space) throws SLException {
-        cloudFoundryClientFactory.releaseClient(getValidToken(userName, org, space), org, space);
+        releaseClientFromCache(getValidToken(userName, org, space), org, space);
     }
 
     public OAuth2AccessToken getValidToken(String userName) throws SLException {
@@ -70,15 +72,15 @@ public class CloudFoundryClientProvider {
     }
 
     private OAuth2AccessToken getValidToken(String userName, String org, String space) throws SLException {
-        OAuth2AccessToken token = chooseTokenFromTokenStore(userName);
+        OAuth2AccessToken token = tokenService.getToken(userName);
         if (token == null) {
             throw new SLException(Messages.NO_VALID_TOKEN_FOUND, userName);
         }
 
         if (token.isExpired() && token.getRefreshToken() == null) {
-            removeTokenFromTokenStore(token);
+            tokenService.removeToken(token);
             if (org != null && space != null) {
-                cloudFoundryClientFactory.releaseClient(token, org, space);
+                releaseClientFromCache(token, org, space);
             }
             throw new SLException(Messages.TOKEN_EXPIRED, userName);
         }
@@ -86,10 +88,10 @@ public class CloudFoundryClientProvider {
         return token;
     }
 
-    private Pair<CloudFoundryOperations, TokenProvider> createClientForToken(OAuth2AccessToken token, String org, String space,
+    private Pair<CloudFoundryOperations, TokenProvider> retrieveClientForToken(OAuth2AccessToken token, String org, String space,
         String processId) throws SLException {
         try {
-            return cloudFoundryClientFactory.getClient(token, org, space, processId);
+            return getClientFromCache(token, org, space, processId);
         } catch (CloudFoundryException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT_2, org, space);
         }
@@ -111,51 +113,73 @@ public class CloudFoundryClientProvider {
         OAuth2AccessToken newToken = (client != null) ? client.getToken() : null;
 
         if (newToken != null && !newToken.getValue().equals(token.getValue())) {
-            updateTokenInTokenStore(SecurityUtil.getTokenUserInfo(newToken), token, newToken);
+            tokenService.updateToken(SecurityUtil.getTokenUserInfo(newToken), token, newToken);
             if (org != null && space != null) {
-                cloudFoundryClientFactory.updateClient(token, newToken, org, space);
+                updateClientInCache(token, newToken, org, space);
             }
         }
     }
 
     /**
-     * Chooses a token among all tokens for this user in the token store.
+     * Returns a client for the specified access token, organization, and space by either getting it from the clients cache or creating a
+     * new one.
      * 
-     * @param tokenStore the token store to search in
-     * @param userName the username
-     * @return the chosen token, or null if no token was found
+     * @param token the access token to be used when getting the client
+     * @param org the organization associated with the client
+     * @param space the space associated with the client
+     * @return a CF client for the specified access token, organization, and space
+     * @throws MalformedURLException if the configured target URL is malformed
      */
-    private OAuth2AccessToken chooseTokenFromTokenStore(String userName) {
-        OAuth2AccessToken token = null;
-        Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByUserName(userName);
-        for (OAuth2AccessToken tokenx : tokens) {
-            // If a token is already found, overwrite it if the new token:
-            // 1) has a refresh token, and the current token hasn't, or
-            // 2) expires later than the current token
-            if (token == null || ((tokenx.getRefreshToken() != null) && (token.getRefreshToken() == null))
-                || (tokenx.getExpiresIn() > token.getExpiresIn())) {
-                token = tokenx;
+    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(OAuth2AccessToken token, String org, String space) {
+        return getClientFromCache(token, org, space, null);
+    }
+
+    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(OAuth2AccessToken token, String org, String space,
+        String processId) {
+        // Get a client from the cache or create a new one if needed
+        String key = getKey(token, org, space);
+        Pair<CloudFoundryOperations, TokenProvider> client = clients.get(key);
+        if (client == null) {
+            client = cloudFoundryClientFactory.createClient(token, org, space);
+            if (processId != null) {
+                clients.put(key, client);
             }
         }
-        return token;
+        return client;
     }
 
-    private void updateTokenInTokenStore(UserInfo userInfo, OAuth2AccessToken oldToken, OAuth2AccessToken newToken) {
-        // Create an authentication for the new token and add it to the token store
-        OAuth2Authentication auth = SecurityUtil.createAuthentication(TokenUtil.getTokenClientId(newToken), newToken.getScope(), userInfo);
-        try {
-            tokenStore.storeAccessToken(newToken, auth);
-        } catch (DataIntegrityViolationException e) {
-            LOGGER.debug(Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
-            // Ignoring the exception as the token and authentication are already persisted
-            // by another client.
+    /**
+     * Updates the client cache for the specified old access token, organization, and space by associating the existing client with the new
+     * access token.
+     * 
+     * @param oldToken the old access token to be used when getting the client
+     * @param newToken the new access token to associate the client with
+     * @param org the organization associated with the client
+     * @param space the space associated with the client
+     */
+    public void updateClientInCache(OAuth2AccessToken oldToken, OAuth2AccessToken newToken, String org, String space) {
+        String key = getKey(oldToken, org, space);
+        Pair<CloudFoundryOperations, TokenProvider> client = clients.remove(key);
+        if (client != null) {
+            String key2 = getKey(newToken, org, space);
+            clients.put(key2, client);
         }
-
-        // Remove the old token from the token store
-        tokenStore.removeAccessToken(oldToken);
     }
 
-    private void removeTokenFromTokenStore(OAuth2AccessToken token) {
-        tokenStore.removeAccessToken(token);
+    /**
+     * Releases the client for the specified token, organization, and space by removing it from the clients cache.
+     * 
+     * @param token the access token to be used when releasing the client
+     * @param org the organization associated with the client
+     * @param space the space associated with the client
+     */
+    public void releaseClientFromCache(OAuth2AccessToken token, String org, String space) {
+        clients.remove(getKey(token, org, space));
+    }
+
+    private String getKey(OAuth2AccessToken token, String org, String space) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(token.getValue()).append("|").append(org).append("|").append(space);
+        return sb.toString();
     }
 }

@@ -7,8 +7,8 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class OrgAndSpaceHelper {
@@ -16,13 +16,13 @@ public class OrgAndSpaceHelper {
     public static final String PROP_ORG = "org";
     public static final String PROP_SPACE = "space";
 
-    protected TargetPlatform platform;
-    protected TargetPlatformType platformType;
+    protected Target target;
+    protected Platform platform;
     protected DeploymentDescriptor descriptor;
 
-    public OrgAndSpaceHelper(TargetPlatform platform, TargetPlatformType platformType) {
+    public OrgAndSpaceHelper(Target target, Platform platform) {
+        this.target = target;
         this.platform = platform;
-        this.platformType = platformType;
     }
 
     public OrgAndSpaceHelper(DeploymentDescriptor descriptor) {
@@ -35,7 +35,7 @@ public class OrgAndSpaceHelper {
     }
 
     public Pair<String, String> getOrgAndSpace() {
-        return getOrgAndSpace(PropertiesUtil.getPropertiesList(platform, platformType, descriptor));
+        return getOrgAndSpace(PropertiesUtil.getPropertiesList(target, platform, descriptor));
     }
 
 }

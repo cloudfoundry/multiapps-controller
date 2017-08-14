@@ -67,6 +67,11 @@ public class UriUtilTest {
                 {
                     "https://valid-host.valid-domain:3000/too/long/path", "3000", "valid-host.valid-domain", "/too/long/path"
                 },
+                // (10) Test siemens landscape uri
+                {
+                    "deploy-service.cfapps.industrycloud-staging.siemens.com", "deploy-service", "cfapps.industrycloud-staging.siemens.com", null
+                },
+                
 // @formatter:on
             });
         }

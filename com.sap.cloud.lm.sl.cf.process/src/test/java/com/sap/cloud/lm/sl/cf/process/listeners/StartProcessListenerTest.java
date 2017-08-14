@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.junit.Before;
@@ -100,6 +101,7 @@ public class StartProcessListenerTest {
 
     private void prepareContext() {
         Mockito.when(context.getProcessInstanceId()).thenReturn(processInstanceId);
+        Mockito.when(context.getVariables()).thenReturn(Collections.emptyMap());
         context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SERVICE_ID, serviceId);
         context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         context.setVariable(Constants.VAR_USER, USER);

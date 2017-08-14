@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 public class HostValidator implements ParameterValidator {
 
     public static final String HOST_ILLEGAL_CHARACTERS = "[^a-z0-9\\-]";
-    public static final String HOST_PATTERN = "^([a-z0-9]|[a-z0-9][a-z0-9\\-]{0,61}[a-z0-9])$";
+    public static final String HOST_PATTERN = "^([a-z0-9]|[a-z0-9][a-z0-9\\-]{0,61}[a-z0-9])|\\*$";
     public static final int HOST_MAX_LENGTH = 63;
 
     @Override
@@ -26,14 +26,14 @@ public class HostValidator implements ParameterValidator {
         result = result.replaceAll(HOST_ILLEGAL_CHARACTERS, "-");
         result = result.replaceAll("^(\\-*)", "");
         result = result.replaceAll("(\\-*)$", "");
-        if (!validate(result)) {
+        if (!isValid(result)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_HOST, host);
         }
         return result;
     }
 
     @Override
-    public boolean validate(Object host) {
+    public boolean isValid(Object host) {
         if (!(host instanceof String)) {
             return false;
         }

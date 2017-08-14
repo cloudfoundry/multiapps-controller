@@ -1,0 +1,38 @@
+[
+  {
+    "processId": "100",
+    "startedAt": "10:11:12",
+    "spaceId": "testProcessSpaceId",
+    "mtaId": "testMtaId",
+    "user": "testUser",
+    "state": "SLP_TASK_STATE_FINISHED",
+    "acquiredLock": false
+  },
+  {
+    "processId": "200",
+    "startedAt": "10:11:12",
+    "spaceId": "testProcessSpaceId",
+    "mtaId": "testMtaId",
+    "user": "testUser",
+    "state": "SLP_TASK_STATE_FINISHED",
+    "acquiredLock": false
+  },
+  {
+    "processId": "300",
+    "startedAt": "10:11:12",
+    "spaceId": "testProcessSpaceId",
+    "mtaId": "testMtaId",
+    "user": "testUser",
+    "state": "SLP_TASK_STATE_RUNNING",
+    "acquiredLock": false
+  },
+  {
+    "processId": "400",
+    "startedAt": "10:11:12",
+    "spaceId": "testProcessSpaceId",
+    "mtaId": "testMtaId",
+    "user": "testUser",
+    "state": "SLP_TASK_STATE_RUNNING",
+    "acquiredLock": false
+  }
+]

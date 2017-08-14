@@ -8,41 +8,41 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 @XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)
 @XmlRootElement(name = "target-platforms")
+@Deprecated
 public class TargetPlatformsDto extends com.sap.cloud.lm.sl.cf.core.dto.serialization.TargetPlatformsDto {
 
     @XmlJavaTypeAdapter(TargetPlatformAdapter.class)
     @XmlElement(name = "target-platform")
-    private List<TargetPlatform> targetPlatforms;
+    private List<Target> deployTargets;
 
     public TargetPlatformsDto() {
         // Required by JAXB
     }
 
-    public TargetPlatformsDto(List<TargetPlatform> targetPlatforms) {
-        this.targetPlatforms = targetPlatforms;
+    public TargetPlatformsDto(List<Target> deployTargets) {
+        this.deployTargets = deployTargets;
     }
 
     @Override
-    public List<TargetPlatform> getTargetPlatforms() {
-        return targetPlatforms;
+    public List<Target> getTargetPlatforms() {
+        return deployTargets;
     }
-
 }
 
-class TargetPlatformAdapter extends XmlAdapter<TargetPlatformDto, TargetPlatform> {
+class TargetPlatformAdapter extends XmlAdapter<TargetPlatformDto, Target> {
 
     @Override
-    public TargetPlatform unmarshal(TargetPlatformDto dto) {
+    public Target unmarshal(TargetPlatformDto dto) throws Exception {
         return dto.toTargetPlatform();
     }
 
     @Override
-    public TargetPlatformDto marshal(TargetPlatform platform) {
-        return new TargetPlatformDto(platform);
+    public TargetPlatformDto marshal(Target target) throws Exception {
+        return new TargetPlatformDto(target);
     }
 
 }

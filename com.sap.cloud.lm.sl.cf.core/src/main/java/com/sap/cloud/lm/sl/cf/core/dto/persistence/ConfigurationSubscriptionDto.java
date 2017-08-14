@@ -36,7 +36,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 @Entity
 @Access(AccessType.FIELD)
 @SequenceGenerator(name = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, initialValue = 1, allocationSize = 1)
-// TODO: Use lazy loading for resource and module content.
+// gi
 @NamedQuery(name = NamedQueries.FIND_ALL_SUBSCRIPTIONS, query = "SELECT cs FROM ConfigurationSubscriptionDto cs")
 public class ConfigurationSubscriptionDto {
 

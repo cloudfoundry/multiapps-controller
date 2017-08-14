@@ -10,12 +10,11 @@ import org.springframework.stereotype.Component;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("mergeDescriptorsStep")
@@ -24,11 +23,11 @@ public class MergeDescriptorsStep extends AbstractXS2ProcessStep {
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeDescriptorsStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("mergeDescriptorsTask", "Merge Descriptors", "Merge Descriptors");
+        return StepMetadata.builder().id("mergeDescriptorsTask").displayName("Merge Descriptors").description("Merge Descriptors").build();
     }
 
-    protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, TargetPlatformType platformType, TargetPlatform platform) {
-        return new MtaDescriptorMerger(factory, platformType, platform);
+    protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform, Target target) {
+        return new MtaDescriptorMerger(factory, platform, target);
     }
 
     @Override
@@ -42,14 +41,13 @@ public class MergeDescriptorsStep extends AbstractXS2ProcessStep {
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
 
-            TargetPlatform platform = StepsUtil.getPlatform(context);
-            TargetPlatformType platformType = StepsUtil.getPlatformType(context);
+            Target target = StepsUtil.getTarget(context);
+            Platform platform = StepsUtil.getPlatform(context);
 
-            DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platformType, platform).merge(
-                deploymentDescriptorString, extensionDescriptorStrings);
+            DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform, target).merge(deploymentDescriptorString,
+                extensionDescriptorStrings);
 
-            StepsUtil.setDeploymentDescriptor(context, descriptor);
-            context.setVariable(Constants.PARAM_MTA_ID, descriptor.getId());
+            StepsUtil.setUnresolvedDeploymentDescriptor(context, descriptor);
         } catch (SLException e) {
             error(context, Messages.ERROR_MERGING_DESCRIPTORS, e, LOGGER);
             throw e;

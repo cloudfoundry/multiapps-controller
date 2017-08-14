@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,9 +24,9 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -61,6 +62,7 @@ public class ProcessMtaArchiveStepTest extends AbstractStepTest<ProcessMtaArchiv
     private void prepareContext() {
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_APP_ARCHIVE_ID, FILE_ID);
         context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        step.conflictPreventerSupplier = (dao) -> mock(ProcessConflictPreventer.class);
     }
 
     private void prepareFileService() throws Exception {
@@ -82,8 +84,7 @@ public class ProcessMtaArchiveStepTest extends AbstractStepTest<ProcessMtaArchiv
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         testModules();
         testResources();

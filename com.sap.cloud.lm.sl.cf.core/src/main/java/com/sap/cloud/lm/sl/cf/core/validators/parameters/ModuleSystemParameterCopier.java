@@ -21,7 +21,7 @@ public class ModuleSystemParameterCopier implements ParameterValidator {
     }
 
     @Override
-    public boolean validate(Object container, Object appName) {
+    public boolean isValid(Object container, Object appName) {
         return getModuleSystemParameter(((Module) container).getName()).equals(appName);
     }
 

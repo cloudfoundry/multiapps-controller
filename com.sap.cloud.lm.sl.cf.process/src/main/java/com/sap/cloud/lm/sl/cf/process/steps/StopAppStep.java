@@ -2,8 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.util.function.Function;
-
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -21,14 +19,11 @@ import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 @Component("stopAppStep")
 public class StopAppStep extends AbstractXS2ProcessStep {
 
-    // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(StopAppStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("stopAppTask", "Stop App", "Stop App");
+        return StepMetadata.builder().id("stopAppTask").displayName("Stop App").description("Stop App").build();
     }
-
-    protected Function<DelegateExecution, CloudFoundryOperations> clientSupplier = (context) -> getCloudFoundryClient(context, LOGGER);
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -46,7 +41,7 @@ public class StopAppStep extends AbstractXS2ProcessStep {
                 info(context, format(Messages.STOPPING_APP, app.getName()), LOGGER);
 
                 // Get a cloud foundry client
-                CloudFoundryOperations client = clientSupplier.apply(context);
+                CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
 
                 // Stop the application
                 client.stopApplication(app.getName());

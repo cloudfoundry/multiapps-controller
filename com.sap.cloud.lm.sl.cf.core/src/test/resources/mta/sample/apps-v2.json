@@ -2,10 +2,11 @@
   {
     "moduleName": "pricing-db",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"pricing-db.cfapps.neo.ondemand.com\"]}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"pricing-db\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"pricing-db\"]",
@@ -29,10 +30,11 @@
     "extendedStaging": {
       "buildpackUrl": "nodejs-test"
     },
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"api.bestprice.sap.com\"]}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"pricing\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"internal-odata\",\"pricing\"]",
@@ -55,10 +57,11 @@
   {
     "moduleName": "web-server",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"www.bestprice.sap.com\"]}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"web-server\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"web-server\"]",

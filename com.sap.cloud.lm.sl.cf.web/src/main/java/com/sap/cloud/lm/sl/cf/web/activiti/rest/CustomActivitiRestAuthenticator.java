@@ -15,7 +15,6 @@ import org.restlet.security.User;
 
 public class CustomActivitiRestAuthenticator implements RestAuthenticator {
 
-    // Logger
     private static final Logger LOGGER = Logger.getLogger(CustomActivitiRestAuthenticator.class);
 
     private static final String ACTIVITI_API_PATH = "/activiti";

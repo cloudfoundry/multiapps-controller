@@ -3,6 +3,7 @@
     "resourceName": "di-core-hdi",
     "credentials": {},
     "tags": [],
+    "isOptional": false,
     "label": "hana",
     "plan": "hdi-shared",
     "meta": {},

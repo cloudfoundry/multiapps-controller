@@ -6,6 +6,7 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
+import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2_0.ModulePropertiesReferenceResolver;
 
 public class PartialModulePropertiesReferenceResolver extends ModulePropertiesReferenceResolver {
@@ -14,7 +15,7 @@ public class PartialModulePropertiesReferenceResolver extends ModulePropertiesRe
 
     public PartialModulePropertiesReferenceResolver(DeploymentDescriptor descriptor, Module module, Map<String, Object> properties,
         String prefix, List<String> dependenciesToIgnore) {
-        super(descriptor, module, properties, prefix);
+        super(descriptor, module, properties, prefix, new ResolverBuilder());
         this.dependenciesToIgnore = dependenciesToIgnore;
     }
 

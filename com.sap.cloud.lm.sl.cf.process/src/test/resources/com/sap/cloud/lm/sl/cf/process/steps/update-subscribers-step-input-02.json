@@ -1,30 +1,18 @@
 {
-  "currentLocation": {
-    "org": "sap", "space": "sap"
+  "currentSpace": {
+    "organization": {
+      "meta": {},
+      "name": "sap"
+    },
+    "meta": {},
+    "name": "sap"
   },
   "subscribersToUpdate": [
     {
-      "relevantPublishedEntries": [
-        {
-          "providerId": "com.sap.sample.mta.plugin-01",
-          "providerNid": "mta",
-          "targetSpace": "sap",
-          "providerVersion": "1.0.0",
-          "content": "{\"plugin_name\":\"plugin-01\"}"
-        },
-        {
-          "providerId": "com.sap.sample.mta.plugin-02",
-          "providerNid": "mta",
-          "targetSpace": "sap",
-          "providerVersion": "1.0.0",
-          "content": "{\"plugin_name\":\"plugin-02\"}"
-        }
-      ],
-      "relevantDeletedEntries": [],
       "subscription": {
         "mtaId": "com.sap.sample.mta.framework",
         "filter": {
-          "filter": {
+          "requiredContent": {
             "type": "com.acme.plugins"
           }
         },
@@ -51,22 +39,52 @@
           }
         }
       },
-      "location": {
-        "org": "xsa", "space": "xsa"
-      },
       "app": {
+        "meta": {
+          "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
+        },
         "name": "framework",
         "env": [
           "plugins=[]"
-        ]
+        ],
+        "space": {
+          "organization": {
+            "meta": {},
+            "name": "xsa"
+          },
+          "meta": {},
+          "name": "xsa"
+        }
       },
-      "relevantExistinggEntries": []
+      "relevantPublishedEntries": [
+        {
+          "providerId": "com.sap.sample.mta.plugin-01",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0",
+          "content": "{\"plugin_name\":\"plugin-01\"}"
+        },
+        {
+          "providerId": "com.sap.sample.mta.plugin-02",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0",
+          "content": "{\"plugin_name\":\"plugin-02\"}"
+        }
+      ],
+      "relevantDeletedEntries": [],
+      "relevantExistingEntries": []
     }
   ],
   "userRoles": [
     {
-      "location": {
-        "org": "xsa", "space": "xsa"
+      "space": {
+        "organization": {
+          "meta": {},
+          "name": "xsa"
+        },
+        "meta": {},
+        "name": "xsa"
       },
       "permissions": [
         READ

@@ -84,7 +84,7 @@ public class DescriptorParametersValidatorTest {
     protected static class TestValidator implements ParameterValidator {
 
         @Override
-        public boolean validate(Object parameter) {
+        public boolean isValid(Object parameter) {
             return parameter.equals("test");
         }
 

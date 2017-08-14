@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.message;
 
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+
 /**
  * A collection of string constants used for exception and logging messages.
  */
@@ -9,7 +11,7 @@ public final class Messages {
 
     public static final String COULD_NOT_FIND_LAST_MTA_DEPLOY_ACTIVITY = "Could not find last MTA deploy activity";
     public static final String CANT_DETERMINE_CURRENT_USER = "Cannot determine the current user";
-    public static final String NO_TARGET_PLATFORM_TYPES_CONFIGURED = "No target platform types configured";
+    public static final String NO_PLATFORMS_CONFIGURED = "No platforms configured";
     public static final String CONFLICTING_PROCESS_FOUND = "Conflicting process \"{0}\" found for MTA \"{1}\"";
     public static final String REQUIRED_PARAMETER_IS_MISSING = "Required parameter \"{0}\" is missing";
     public static final String ERROR_RETRIEVING_MTA_ARCHIVE = "Error retrieving MTA archive \"{0}\"";
@@ -22,8 +24,8 @@ public final class Messages {
     public static final String CF_ERROR = "Controller operation failed: {0}";
     public static final String CANT_DELETE_SERVICE = "Service \"{0}\" cannot be deleted because there are external applications bound to it";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
-    public static final String TARGETED_ORG_DOES_NOT_MATCH_URL_ORG = "Target platform organization \"{0}\" does not match the organization \"{1}\" specified in the URL";
-    public static final String TARGETED_SPACE_DOES_NOT_MATCH_URL_SPACE = "Target platform space \"{0}\" does not match the space \"{1}\" specified in the URL";
+    public static final String TARGETED_ORG_DOES_NOT_MATCH_URL_ORG = "Deploy target organization \"{0}\" does not match the organization \"{1}\" specified in the URL";
+    public static final String TARGETED_SPACE_DOES_NOT_MATCH_URL_SPACE = "Deploy target space \"{0}\" does not match the space \"{1}\" specified in the URL";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
     public static final String ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2 = "The value \"{0}\" of parameter \"{1}\" is not valid, valid values are: {2}";
     public static final String ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0 = "There is no file associated with the specified file id \"{0}\"";
@@ -33,16 +35,25 @@ public final class Messages {
     public static final String MISSING_SERVICE_BROKER_URL = "Missing service broker url for application \"{0}\"";
     public static final String APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA = "Application \"{0}\" exists and is associated with MTA \"{1}\"";
     public static final String APPLICATION_EXISTS_AS_STANDALONE = "Application \"{0}\" exists, but is not associated with any MTA";
-    public static final String SERVICE_ASSOCIATED_WITH_OTHER_APPS = "Service \"{0}\" already exists, but is bound to the standalone application(s): {1}";
+    public static final String SERVICE_ASSOCIATED_WITH_OTHER_APPS = "Service \"{0}\" already exists, but is bound to application(s), not detected as part of the mta - standalone apps : {1}";
     public static final String SERVICE_ASSOCIATED_WITH_OTHER_MTAS = "Service \"{0}\" already exists, but is associated with MTA(s): {1}";
     public static final String ERROR_VALIDATING_SERVICES = "Could not validate services";
     public static final String ERROR_VALIDATING_APPLICATIONS = "Could not validate applications";
     public static final String COULD_NOT_CONFIGURE_GIT_TO_SKIP_SSL = "Could not configure Git to skip SSL";
     public static final String CANNOT_BIND_APP_TO_NON_EXISTING_SERVICE = "Cannot bind application \"{0}\" to non-existing service \"{1}\"!";
-    public static final String ERROR_MERGING_ARCHIVE_PARTS = "Error merging archive parts";
+    public static final String ERROR_MERGING_ARCHIVE_PARTS = "Error merging archive parts: {0}";
     public static final String ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT = "Error processing archive parts content";
     public static final String BUILDING_ARCHIVE_FROM_PARTS = "Building archive from parts...";
     public static final String ERROR_DELETING_ARCHIVE_PARTS_CONTENT = "Error deleting archive parts content";
+    public static final String ERROR_ZDM_MODE_PARAMETER = "Parameter '" + SupportedParameters.ZDM_MODE.toString()
+        + "' is supported only in blue-green deploy.";
+    public static final String CTS_PROCESS_ERROR = "CTS+ process failed.";
+    public static final String SUB_PROCESS_HAS_FAILED = "Sub-process with id {0} has failed.";
+    public static final String SUB_PROCESS_HAS_BEEN_ABORTED = "Sub-process with id {0} has been aborted.";
+    public static final String COULD_NOT_FIND_TASK_WITH_GUID = "Could not find task with GUID \"{0}\"!";
+    public static final String COULD_NOT_COLLECT_PROCESS_STATISTICS = "Could not collect statistics for process with ID \"{0}\"";
+    public static final String UNSUPPORTED_PROCESS_TYPE = "Process type \"{0}\" is not supported";
+    public static final String FAILED_SERVICE_UPDATE = "Updating service {0} failed: {1}";
 
     // Audit log messages
 
@@ -55,7 +66,7 @@ public final class Messages {
     public static final String ERROR_PROCESSING_MTA_ARCHIVE = "Error processing MTA archive";
     public static final String ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS = "Error processing MTA extension descriptors";
     public static final String ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION = "Error detecting MTA major schema version";
-    public static final String ERROR_DETECTING_PLATFORM = "Error detecting target platform";
+    public static final String ERROR_DETECTING_TARGET = "Error detecting deploy target";
     public static final String ERROR_MERGING_DESCRIPTORS = "Error merging descriptors";
     public static final String ERROR_DETECTING_DEPLOYED_MTA = "Error detecting deployed MTA";
     public static final String ERROR_RENAMING_MODULES = "Error renaming modules";
@@ -69,20 +80,26 @@ public final class Messages {
     public static final String ERROR_CREATING_SERVICES = "Error creating services";
     public static final String ERROR_DELETING_SERVICES = "Error deleting services";
     public static final String ERROR_UNDEPLOYING_APPS = "Error undeploying applications";
+    public static final String ERROR_BUILDING_CLOUD_APP_MODEL = "Error building cloud application deploy model";
     public static final String ERROR_CHECKING_APP = "Error checking application \"{0}\"";
     public static final String ERROR_CREATING_APP = "Error creating application \"{0}\"";
     public static final String ERROR_UPDATING_APP = "Error updating application \"{0}\"";
     public static final String ERROR_UPLOADING_APP = "Error uploading application \"{0}\"";
     public static final String ERROR_CHECKING_UPLOAD_APP_STATUS = "Error checking upload status of application \"{0}\"";
     public static final String ERROR_SCALING_APP = "Error scaling application \"{0}\"";
+    public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP = "Error determining actions to execute on application \"{0}\"";
     public static final String ERROR_STOPPING_APP = "Error stopping application \"{0}\"";
-    public static final String ERROR_STAGING_APP = "Error staging application \"{0}\": {1}";
+    public static final String ERROR_STAGING_APP_1 = "Error staging application \"{0}\"";
+    public static final String ERROR_STAGING_APP_2 = "Error staging application \"{0}\": {1}";
     public static final String ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Error publishing public provided dependecies";
-    public static final String ERROR_STARTING_APP = "Error starting application \"{0}\"";
-    public static final String ERROR_STARTING_APP2 = "Error starting application \"{0}\": {1}";
-    public static final String ERROR_EXECUTING_APP = "Error executing application \"{0}\": {1}";
+    public static final String ERROR_STARTING_APP_1 = "Error starting application \"{0}\"";
+    public static final String ERROR_STARTING_APP_2 = "Error starting application \"{0}\": {1}";
+    public static final String ERROR_EXECUTING_APP_1 = "Error executing application \"{0}\"";
+    public static final String ERROR_EXECUTING_APP_2 = "Error executing application \"{0}\": {1}";
+    public static final String ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP = "Error preparing to execute tasks on application \"{1}\"";
+    public static final String ERROR_EXECUTING_TASK_ON_APP = "Error executing task \"{0}\" on application \"{1}\"";
     public static final String ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY = "Error detecting components to undeploy";
-    public static final String ERROR_DELETING_TEMPORARY_URIS = "Error deleting temporary URIs";
+    public static final String ERROR_DELETING_IDLE_ROUTES = "Error deleting idle routes";
     public static final String ERROR_REGISTERING_SERVICE_URLS = "Error registering service URLs";
     public static final String ERROR_UNREGISTERING_SERVICE_URLS = "Error unregistering service URLs";
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
@@ -97,16 +114,26 @@ public final class Messages {
     public static final String ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT = "Error downloading deployable from Git";
     public static final String ERROR_SETTING_CTS_ARCHIVE_STATUS = "Error setting CTS+ extensions for archive \"{0}\"";
     public static final String ERROR_SETTING_CTS_PROCESS_STATUS = "Error setting CTS+ process extensions";
+    public static final String ERROR_RECONFIGURING_APPS_ENVIRONMENTS = "Error reconfiguring apps environments";
+    public static final String ERROR_NOT_FOUND_APPLICATION = "Application \"{0}\" not found.";
+    public static final String ERROR_MONITORING_SUBPROCESS = "Error monitoring subprocess with id {0}";
+    public static final String ERROR_CREATING_SERVICE_WITH_NAME = "Error creating service with name {0}: {1}";
+    public static final String ERROR_MONITORING_CREATION_OF_SERVICES = "Error monitoring creation of services";
 
     // WARN log messages
+    public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service {0}";
+    public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve instance of service {0}";
     public static final String CLIENT_DOES_NOT_SUPPORT_EXTENSIONS = "Client extensions are not supported";
-    public static final String CLIENT_DOES_NOT_SUPPORT_SERVICE_BINDING_PARAMETERS = "Cannot add parameters to binding between application \"{0}\" and service \"{1}\", because client extensions are not supported";
     public static final String COULD_NOT_DELETE_PROVIDED_DEPENDENCY = "Could not delete published provided dependency \"{0}\" from configuration registry";
     public static final String COULD_NOT_DELETE_ROUTE_FOR_PORT = "Could not delete route for allocated port \"{0}\"";
+    public static final String COULD_NOT_DELETE_SERVICE = "Could not delete service \"{0}\", as it does not exist";
     public static final String COULD_NOT_COMPUTE_DEFAULT_DOMAIN = "Could not compute the default domain";
-    public static final String ERROR_OCCURRED_DURING_PROCESS_ABORT = "An error occurred during process abort";
     public static final String COULD_NOT_DELETE_SUBSCRIPTION = "Could not delete subscription for application \"{0}\" and resource \"{1}\"";
-    public static final String COULD_NOT_UPDATE_SUBSCRIBER = "Could not update subscribed application \"{0}\" from MTA \"{1}\"";
+    public static final String COULD_NOT_UPDATE_SUBSCRIBER = "Could not update application \"{0}\" from MTA \"{1}\" for subscription \"{2}\"";
+    public static final String COULD_NOT_RESTART_SUBSCRIBER = "Could not restart subscribed application \"{0}\"";
+    public static final String CANNOT_CREATE_SPACE_SCOPED_SERVICE_BROKER_ON_THIS_PLATFORM = "Service broker \"{0}\" will be created as global, since space-scoped service brokers are not yet supported on this platform!";
+    public static final String CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL = "Visibility of service broker \"{0}\" will not be changed from space-scoped to global, as visibility changes are not yet supported!";
+    public static final String CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_GLOBAL_TO_SPACE_SCOPED = "Visibility of service broker \"{0}\" will not be changed from global to space-scoped, as visibility changes are not yet supported!";
     public static final String REGISTER_OF_SERVICE_URL_FAILED_403 = "Could not register service URL \"{0}\" named \"{1}\". Operation forbidden. Only admin users can manage service URLs!";
     public static final String UPDATE_OF_SERVICE_BROKERS_FAILED_501 = "Could not update service broker \"{0}\". Operation not supported.";
     public static final String UPDATE_OF_SERVICE_BROKERS_FAILED_403 = "Could not update service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
@@ -121,6 +148,12 @@ public final class Messages {
     public static final String WILL_NOT_UPDATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be updated, as the option for deleting discontinued service keys is not specified!";
     public static final String WILL_NOT_RECREATE_SERVICE = "Service \"{0}\" should, but will not be recreated, as the option for deleting discontinued services is not specified!";
     public static final String IGNORING_VERSION_RULE = "Version rule will be ignored, as the deployed MTA is in inconsistent state";
+    public static final String FAILED_SERVICE_BROKER_UPDATE = "Failed to update service broker \"{0}\"";
+    public static final String FAILED_SERVICE_BROKER_SUBSCRIBER_RESTART = "Failed to restart service broker subscriber \"{0}\"";
+    public static final String FAILED_SERVICE_BROKER_START = "Failed to start service broker \"{0}\"";
+    public static final String CANNOT_BIND_APPLICATION_TO_OPTIONAL_SERVICE = "Cannot bind application {0} to optional service {1}";
+    public static final String COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE = "Could not execute operation over optional service {0}: {1}";
+    public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
 
     // INFO log messages
     public static final String MTA_NOT_FOUND = "An MTA with id \"{0}\" does not exist";
@@ -132,6 +165,8 @@ public final class Messages {
     public static final String BINDING_APP_TO_SERVICE_WITH_PARAMETERS = "Binding application \"{0}\" to service \"{1}\" with parameters \"{2}\"";
     public static final String BINDING_APP_TO_SERVICE = "Binding application \"{0}\" to service \"{1}\"";
     public static final String UNBINDING_APP_FROM_SERVICE = "Unbinding application \"{0}\" from service \"{1}\"";
+    public static final String WAITING_FOR_SERVICE_TO_BE_CREATED = "Waiting for service {0} to be created...";
+    public static final String WAITING_FOR_SERVICES_CREATION = "Waiting for services creation...";
 
     // Progress messages
     public static final String PREPARING_DEPLOY_PARAMETERS = "Preparing deploy parameters...";
@@ -144,8 +179,8 @@ public final class Messages {
     public static final String MTA_EXTENSION_DESCRIPTORS_PROCESSED = "MTA extension descriptors processed";
     public static final String DETECTING_MTA_MAJOR_SCHEMA_VERSION = "Detecting MTA major schema version...";
     public static final String MTA_SCHEMA_VERSION_DETECTED_AS = "MTA schema version: {0}";
-    public static final String DETECTING_PLATFORM = "Detecting target platform...";
-    public static final String PLATFORM_DETECTED = "Detected target platform \"{0}\"";
+    public static final String DETECTING_TARGET = "Detecting deploy target...";
+    public static final String TARGET_DETECTED = "Detected deploy target \"{0}\"";
     public static final String MERGING_DESCRIPTORS = "Validating and merging descriptors...";
     public static final String DESCRIPTORS_MERGED = "Descriptors validated and merged";
     public static final String DETECTING_DEPLOYED_MTA = "Detecting deployed MTA...";
@@ -173,20 +208,20 @@ public final class Messages {
     public static final String UNUSED_RESERVED_ROUTES_DELETED = "Unused reserved routes deleted";
     public static final String ASSIGNING_ORIGINAL_URIS = "Assigning original URIs to applications...";
     public static final String ORIGINAL_URIS_ASSIGNED = "Original URIs assigned to applications";
-    public static final String SWAPPING_ORIGINAL_AND_TEMPORARY_URIS = "Swapping original and temporary URIs for applications...";
+    public static final String SWAPPING_LIVE_AND_IDLE_URIS = "Swapping live and idle URIs for applications...";
     public static final String ASSIGNING_URI = "Assigning URI \"{0}\" to application \"{1}\"...";
-    public static final String ASSIGNING_TEMPORARY_URIS = "Assigning temporary URIs to applications...";
-    public static final String TEMPORARY_URIS_ASSIGNED = "Temporary URIs assigned to applications";
-    public static final String ORIGINAL_AND_TEMPORARY_URIS_SWAPPED = "Original and temporary URIs swapped";
+    public static final String ASSIGNING_IDLE_URIS = "Assigning idle URIs to applications...";
+    public static final String IDLE_URIS_ASSIGNED = "Idle URIs assigned to applications";
+    public static final String LIVE_AND_IDLE_URIS_SWAPPED = "Live and idle URIs swapped";
     public static final String ADDING_DOMAINS = "Adding domains...";
     public static final String ADDING_DOMAIN = "Adding domain \"{0}\"...";
     public static final String DOMAINS_ADDED = "Domains added";
     public static final String UNDEPLOYING_APPS = "Undeploying discontinued applications...";
     public static final String APPS_UNDEPLOYED = "Discontinued applications undeployed";
-    public static final String CREATING_SERVICES = "Creating or updating services...";
+    public static final String CREATING_OR_UPDATING_SERVICES = "Creating or updating services...";
     public static final String CREATING_SERVICE = "Creating service \"{0}\"...";
     public static final String SERVICE_CREATED = "Service \"{0}\" created";
-    public static final String SERVICES_CREATED = "Services created or updated";
+    public static final String SERVICES_CREATED_OR_UPDATED = "Services created or updated";
     public static final String DELETING_SERVICES = "Deleting discontinuied services...";
     public static final String SERVICES_DELETED = "Discontinued services deleted";
     public static final String DELETING_SERVICE = "Deleting service \"{0}\"...";
@@ -213,27 +248,33 @@ public final class Messages {
     public static final String APP_UPLOADED = "Application \"{0}\" uploaded";
     public static final String SCALING_APP = "Scaling application \"{0}\"...";;
     public static final String APP_SCALED = "Application \"{0}\" scaled";
-    public static final String PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Publishing public provided dependencies...";
+    public static final String PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Publishing public provided dependencies for application \"{0}\"...";
     public static final String PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED = "Public provided dependencies published";
     public static final String UPDATING_SUBSCRIBERS = "Updating subscribers...";
-    public static final String UPDATING_SUBSCRIBER = "Updating subscribed application \"{0}\" from MTA \"{1}\"";
+    public static final String UPDATING_SUBSCRIBER = "Updating application \"{0}\" from MTA \"{1}\" for subscription \"{2}\"";
     public static final String SUBSCRIBERS_UPDATED = "Subscribers updated";
     public static final String DELETING_SUBSCRIPTIONS = "Deleting discontinued subscriptions...";
     public static final String DELETED_SUBSCRIPTIONS = "Deleted discontinued subscriptions";
     public static final String DELETING_PUBLISHED_DEPENDENCIES = "Deleting discontinued published dependencies...";
+    public static final String DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP = "Deleting discontinued configuration entries for application \"{0}\"...";
     public static final String PUBLISHED_DEPENDENCIES_DELETED = "Discontinued published dependencies deleted";
+    public static final String DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP_DELETED = "Discontinued configuration entries for application \"{0}\" deleted";
     public static final String STOPPING_APP = "Stopping application \"{0}\"...";
     public static final String APP_STOPPED = "Application \"{0}\" stopped";
+    public static final String STAGING_APP = "Staging application \"{0}\"...";
     public static final String STARTING_APP = "Starting application \"{0}\"...";
     public static final String APP_STAGED = "Application \"{0}\" staged";
     public static final String APP_STARTED = "Application \"{0}\" started";
     public static final String APP_EXECUTED = "Application \"{0}\" executed";
+    public static final String EXECUTING_TASK_ON_APP = "Executing task \"{0}\" on application \"{1}\"...";
+    public static final String CANCELING_TASK_ON_APP = "Canceling task \"{0}\" on application \"{1}\"...";
+    public static final String CANCELED_TASK_ON_APP = "Canceled task \"{0}\" on application \"{1}\"";
     public static final String APP_STARTED_URLS = "Application \"{0}\" started and available at \"{1}\"";
     public static final String CHECKING_APP_STATUS = "Checking status of application \"{0}\"...";
     public static final String DELETING_APP = "Deleting application \"{0}\"...";
     public static final String APP_DELETED = "Application \"{0}\" deleted";
-    public static final String DELETING_TEMPORARY_URIS = "Deleting temporary URIs from applications...";
-    public static final String TEMPORARY_URIS_DELETED = "Temporary URIs deleted";
+    public static final String DELETING_IDLE_URIS = "Deleting idle URIs from applications...";
+    public static final String IDLE_URIS_DELETED = "Idle URIs deleted";
     public static final String DELETING_APP_ROUTES = "Deleting routes for application \"{0}\"...";
     public static final String DELETING_ROUTE = "Deleting route \"{0}\"...";
     public static final String ROUTE_DELETED = "Route \"{0}\" deleted";
@@ -241,12 +282,14 @@ public final class Messages {
     public static final String CURRENT_START_PHASE = "Current start phase: {0}";
     public static final String APP_START_FAILED = "Application \"{0}\" failed to start";
     public static final String APP_START_TIMED_OUT = "Starting application \"{0}\" timed out";
+    public static final String EXECUTING_TASK_ON_APP_TIMED_OUT = "Executing task \"{0}\" on application \"{1}\" timed out";
+    public static final String TASK_EXECUTION_STATUS = "Task execution status: {0}";
     public static final String APP_UPLOAD_TIMED_OUT = "Uploading application \"{0}\" timed out";
     public static final String X_OF_Y_INSTANCES_RUNNING = "{0} of {1} instances running ({2})";
     public static final String DETECTING_DEPLOYED_COMPONENTS = "Detecting deployed components...";
     public static final String DEPLOYED_COMPONENTS_DETECTED = "Deployed components detected";
     public static final String MTA_VERSION_ACCEPTED = "MTA accepted for deployment";
-    public static final String MTA_VERSION_REJECTED = "MTA rejected for deployment as its version does not conform to the specified version rule \"{0}\"";
+    public static final String MTA_VERSION_REJECTED = "MTA rejected for deployment as its version does not conform to the specified version rule \"{0}\" : \"{1}\"";
     public static final String DETECTING_COMPONENTS_TO_UNDEPLOY = "Detecting components to undeploy...";
     public static final String COMPONENTS_TO_UNDEPLOY_DETECTED = "Components to undeploy detected";
     public static final String DETECTING_APPS_TO_UNDEPLOY = "Detectings applications to undeploy";
@@ -278,8 +321,12 @@ public final class Messages {
     public static final String CTS_ARCHIVE_EXTENSIONS_SET = "CTS+ archive extensions set successfully";
     public static final String SETTING_CTS_PROCESS_EXTENSIONS = "Setting CTS+ process extensions...";
     public static final String CTS_PROCESS_EXTENSIONS_SET = "CTS+ process extensions set successfully";
+    public static final String UPDATING_APP_ENVIRONMENT = "Updating apps environments...";
+    public static final String STAGING_FAILED = "Staging failed. Please check the application logs for details.";
 
     // DEBUG log messages
+    public static final String PROCESS_ENVIRONMENT = "Process environment: {0}";
+    public static final String PROCESS_VARIABLES = "Process variables: {0}";
     public static final String AUTHENTICATED_USER_ID = "Authenticated user id: {0}";
     public static final String PREVIOUS_USER = "Previous user: {0}";
     public static final String PROCESS_INITIATOR = "Process initiator: {0}";
@@ -319,6 +366,7 @@ public final class Messages {
     public static final String APPLICATION_PORTS = "Application ports: {0}";
     public static final String ALLOCATED_PORTS = "Allocated ports: {0}";
     public static final String DEPLOYED_APPS = "Deployed apps: {0}";
+    public static final String APP_WITH_UPDATED_ENVIRONMENT = "App with updated environment: {0}";
     public static final String VALIDATING_EXISTING_SERVICE_ASSOCIATION = "Trying to validate association of service \"{0}\"";
     public static final String VALIDATING_EXISTING_APPLICATION_ASSOCIATION = "Trying to validate association of application \"{0}\"";
     public static final String SERVICES_VALIDATED = "Services to create succesfully validated";
@@ -328,7 +376,14 @@ public final class Messages {
     public static final String CLONING_REPOSITORY = "Cloning repository {0}";
     public static final String DOWNLOADING_DEPLOYABLE = "Downloading deployable from Git...";
     public static final String COMPRESSING_MTA_CONTENT = "Compressing MTA content...";
+    public static final String PROCESS_WILL_BE_ABORTED = "Process \"{0}\" is CTS_DEPLOY and will be auto-aborted";
     public static final String PROCESS_START_TIME = "Process started at: {0}";
     public static final String ARCHIVE_DEPLOY_ACTIVITY_START_TIME = "Deploy of archive \"{0}\" started at: {1}";
+    public static final String APPLICATION_ENVIRONMENTS_RECONFIGURED = "Application environments reconfigured";
+    public static final String APPS_WITH_ENVS_TO_RECONFIGURE_0 = "Apps with envs to reconfigure: {0}";
+    public static final String DESIRED_STATE = "Desired state of application {0}: {1}";
+    public static final String CURRENT_STATE = "Current state of application {0}: {1}";
+    public static final String ACTIONS_TO_EXECUTE = "Actions that should be executed on application {0}: {1}";
+    public static final String STARTING_MONITORING_SUBPROCESS = "Starting monitoring subprocess with id {0}";
 
 }

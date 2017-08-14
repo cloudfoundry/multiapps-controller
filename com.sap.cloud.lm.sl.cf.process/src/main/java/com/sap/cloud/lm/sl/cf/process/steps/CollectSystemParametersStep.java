@@ -3,8 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static java.text.MessageFormat.format;
 
 import java.net.URL;
-import java.util.Collections;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.slf4j.Logger;
@@ -20,13 +19,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
-import com.sap.cloud.lm.sl.cf.core.helpers.OccupiedPortsDetector;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
+import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -40,13 +38,14 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
-@Component("collectSystemParametersStep")
+@Component("collectSystemParametersStep") // rename to collect system parameters and allocate ports?
 public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CollectSystemParametersStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("collectSystemParametersTask", "Collect System Parameters", "Collect System Parameters");
+        return StepMetadata.builder().id("collectSystemParametersTask").displayName("Collect System Parameters").description(
+            "Collect System Parameters").build();
     }
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
@@ -54,6 +53,7 @@ public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = () -> new CredentialsGenerator();
     protected Supplier<PlatformType> platformTypeSupplier = () -> ConfigurationUtil.getPlatformType();
     protected Supplier<Boolean> areXsPlaceholdersSupportedSupplier = () -> ConfigurationUtil.areXsPlaceholdersSupported();
+    protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
 
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
         return executeStepInternal(context, false);
@@ -65,48 +65,22 @@ public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
         info(context, Messages.COLLECTING_SYSTEM_PARAMETERS, LOGGER);
         PortAllocator portAllocator = null;
         try {
-            String platformName = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_PLATFORM_NAME);
-            boolean useNamespacesForServices = ContextUtil.getVariable(context, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
-            int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
-            boolean useNamespaces = ContextUtil.getVariable(context, Constants.PARAM_USE_NAMESPACES, true);
 
             CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
-            List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(context);
-            DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
-
             String defaultDomainName = getDefaultDomain(client);
             debug(context, format(Messages.DEFAULT_DOMAIN, defaultDomainName), LOGGER);
             boolean portBasedRouting = isPortBasedRouting(client);
-            String authorizationEndpoint = client.getCloudInfo().getAuthorizationEndpoint();
-            int routerPort = ConfigurationUtil.getRouterPort();
-            String user = ContextUtil.getVariable(context, Constants.VAR_USER, null);
-            String deployServiceUrl = getDeployServiceUrl(client);
-
             if (portBasedRouting) {
                 portAllocator = clientProvider.getPortAllocator(client, defaultDomainName);
             }
 
-            DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(context);
-
-            URL targetUrl = ConfigurationUtil.getTargetURL();
-
-            Map<String, Object> xsPlaceholderReplacementValues = buildXsPlaceholderReplacementValues(defaultDomainName,
-                authorizationEndpoint, deployServiceUrl, routerPort, targetUrl.toString(), targetUrl.getProtocol());
-            StepsUtil.setXsPlaceholderReplacementValues(context, xsPlaceholderReplacementValues);
-
-            Map<String, List<Integer>> occupiedPorts = getOccupiedPorts(deployedApps, portBasedRouting);
-
-            boolean areXsPlaceholdersSupported = areXsPlaceholdersSupportedSupplier.get();
-
-            SystemParametersBuilder systemParametersBuilder = new SystemParametersBuilder(platformName, StepsUtil.getOrg(context),
-                StepsUtil.getSpace(context), user, defaultDomainName, platformTypeSupplier.get(), targetUrl, authorizationEndpoint,
-                deployServiceUrl, routerPort, portBasedRouting, reserveTemporaryRoute, portAllocator, occupiedPorts, useNamespaces,
-                useNamespacesForServices, deployedMta, credentialsGeneratorSupplier.get(), majorSchemaVersion, areXsPlaceholdersSupported);
-
+            SystemParametersBuilder systemParametersBuilder = createParametersBuilder(context, client, portAllocator, portBasedRouting,
+                defaultDomainName, reserveTemporaryRoute);
+            DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
             SystemParameters systemParameters = systemParametersBuilder.build(descriptor);
             debug(context, format(Messages.SYSTEM_PARAMETERS, secureSerializer.toJson(systemParameters)), LOGGER);
 
-            determineShouldVersionBeAcceptedForDeployment(context, descriptor, deployedMta, portAllocator);
+            determineIsVersionAccepted(context, descriptor, portAllocator);
 
             if (portBasedRouting) {
                 StepsUtil.setAllocatedPorts(context, portAllocator.getAllocatedPorts());
@@ -130,6 +104,52 @@ public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
         return ExecutionStatus.SUCCESS;
     }
 
+    private String getDefaultDomain(CloudFoundryOperations client) {
+        CloudDomain defaultDomain = client.getDefaultDomain();
+        if (defaultDomain != null) {
+            return defaultDomain.getName();
+        }
+        return null;
+    }
+
+    private boolean isPortBasedRouting(CloudFoundryOperations client) {
+        CloudInfo info = client.getCloudInfo();
+        if (info instanceof CloudInfoExtended) {
+            return ((CloudInfoExtended) info).isPortBasedRouting();
+        }
+        return false;
+    }
+
+    private SystemParametersBuilder createParametersBuilder(DelegateExecution context, CloudFoundryOperations client,
+        PortAllocator portAllocator, boolean portBasedRouting, String defaultDomainName, boolean reserveTemporaryRoute) {
+        DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
+        String platformName = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_TARGET_NAME);
+        boolean useNamespacesForServices = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES);
+        int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
+        boolean useNamespaces = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES);
+
+        String authorizationEndpoint = client.getCloudInfo().getAuthorizationEndpoint();
+        int routerPort = ConfigurationUtil.getRouterPort();
+        String user = (String) context.getVariable(Constants.VAR_USER);
+
+        URL targetUrl = ConfigurationUtil.getTargetURL();
+
+        String deployServiceUrl = getDeployServiceUrl(client);
+        Map<String, Object> xsPlaceholderReplacementValues = buildXsPlaceholderReplacementValues(defaultDomainName, authorizationEndpoint,
+            deployServiceUrl, routerPort, targetUrl.toString(), targetUrl.getProtocol());
+        StepsUtil.setXsPlaceholderReplacementValues(context, xsPlaceholderReplacementValues);
+        XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(context);
+
+        boolean areXsPlaceholdersSupported = areXsPlaceholdersSupportedSupplier.get();
+
+        SystemParametersBuilder systemParametersBuilder = new SystemParametersBuilder(platformName, StepsUtil.getOrg(context),
+            StepsUtil.getSpace(context), user, defaultDomainName, platformTypeSupplier.get(), targetUrl, authorizationEndpoint,
+            deployServiceUrl, routerPort, portBasedRouting, reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices,
+            deployedMta, credentialsGeneratorSupplier.get(), majorSchemaVersion, areXsPlaceholdersSupported, xsPlaceholderResolver,
+            timestampSupplier);
+        return systemParametersBuilder;
+    }
+
     private Map<String, Object> buildXsPlaceholderReplacementValues(String defaultDomain, String authorizationEndpoint,
         String deployServiceUrl, int routerPort, String controllerEndpoint, String protocol) {
         Map<String, Object> result = new TreeMap<>();
@@ -142,50 +162,6 @@ public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
         return result;
     }
 
-    private void determineShouldVersionBeAcceptedForDeployment(DelegateExecution context, DeploymentDescriptor descriptor,
-        DeployedMta deployedMta, PortAllocator portAllocator) {
-        VersionRule versionRule = VersionRule.valueOf((String) context.getVariable(Constants.PARAM_VERSION_RULE));
-        debug(context, format(Messages.VERSION_RULE, versionRule), LOGGER);
-
-        Version mtaVersion = Version.parseVersion(descriptor.getVersion());
-        boolean mtaVersionAccepted;
-        if (deployedMta != null) {
-            if (!deployedMta.getMetadata().isVersionUnknown()) {
-                Version deployedMtaVersion = deployedMta.getMetadata().getVersion();
-                info(context, format(Messages.DEPLOYED_MTA_VERSION, deployedMtaVersion), LOGGER);
-                mtaVersionAccepted = versionRule.accept(mtaVersion, deployedMtaVersion);
-            } else {
-                warn(context, Messages.IGNORING_VERSION_RULE, LOGGER);
-                mtaVersionAccepted = true;
-            }
-        } else {
-            mtaVersionAccepted = true;
-        }
-        info(context, format(Messages.NEW_MTA_VERSION, mtaVersion), LOGGER);
-        if (mtaVersionAccepted) {
-            debug(context, Messages.MTA_VERSION_ACCEPTED, LOGGER);
-        } else {
-            info(context, format(Messages.MTA_VERSION_REJECTED, versionRule), LOGGER);
-            cleanUp(portAllocator);
-        }
-        StepsUtil.setMtaVersionAccepted(context, mtaVersionAccepted);
-    }
-
-    private Map<String, List<Integer>> getOccupiedPorts(List<CloudApplication> apps, boolean portBasedRouting) {
-        if (portBasedRouting) {
-            return new OccupiedPortsDetector().detectOccupiedPorts(apps);
-        }
-        return Collections.emptyMap();
-    }
-
-    private boolean isPortBasedRouting(CloudFoundryOperations client) {
-        CloudInfo info = client.getCloudInfo();
-        if (info instanceof CloudInfoExtended) {
-            return ((CloudInfoExtended) info).isPortBasedRouting();
-        }
-        return false;
-    }
-
     private String getDeployServiceUrl(CloudFoundryOperations client) {
         CloudInfo info = client.getCloudInfo();
         if (info instanceof CloudInfoExtended) {
@@ -194,12 +170,34 @@ public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
         return ConfigurationUtil.getDeployServiceUrl();
     }
 
-    private String getDefaultDomain(CloudFoundryOperations client) {
-        CloudDomain defaultDomain = client.getDefaultDomain();
-        if (defaultDomain != null) {
-            return defaultDomain.getName();
+    private void determineIsVersionAccepted(DelegateExecution context, DeploymentDescriptor descriptor, PortAllocator portAllocator) {
+        DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
+        VersionRule versionRule = VersionRule.valueOf((String) context.getVariable(Constants.PARAM_VERSION_RULE));
+        debug(context, format(Messages.VERSION_RULE, versionRule), LOGGER);
+
+        Version mtaVersion = Version.parseVersion(descriptor.getVersion());
+        info(context, format(Messages.NEW_MTA_VERSION, mtaVersion), LOGGER);
+        boolean mtaVersionAccepted = isVersionAccepted(context, versionRule, deployedMta, mtaVersion);
+        if (!mtaVersionAccepted) {
+            cleanUp(portAllocator);
+            throw new SLException(format(Messages.MTA_VERSION_REJECTED, versionRule, versionRule.getErrorMessage()));
+        } else {
+            debug(context, Messages.MTA_VERSION_ACCEPTED, LOGGER);
         }
-        return null;
+        StepsUtil.setMtaVersionAccepted(context, mtaVersionAccepted);
+    }
+
+    private boolean isVersionAccepted(DelegateExecution context, VersionRule versionRule, DeployedMta deployedMta, Version newMtaVersion) {
+        if (deployedMta == null) {
+            return true;
+        }
+        if (deployedMta.getMetadata().isVersionUnknown()) {
+            warn(context, Messages.IGNORING_VERSION_RULE, LOGGER);
+            return true;
+        }
+        Version deployedMtaVersion = deployedMta.getMetadata().getVersion();
+        info(context, format(Messages.DEPLOYED_MTA_VERSION, deployedMtaVersion), LOGGER);
+        return versionRule.accept(newMtaVersion, deployedMtaVersion);
     }
 
     private void cleanUp(PortAllocator portAllocator) {

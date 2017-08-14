@@ -32,7 +32,8 @@ public class DetectDeployedMtaStep extends AbstractXS2ProcessStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("detectDeployedMtaTask", "Detect Deployed MTA", "Detect Deployed MTA");
+        return StepMetadata.builder().id("detectDeployedMtaTask").displayName("Detect Deployed MTA").description(
+            "Detect Deployed MTA").build();
     }
 
     protected Function<List<CloudApplication>, DeployedComponents> componentsDetector = (

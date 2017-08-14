@@ -2,4 +2,4 @@ _schema-version: "2.0.0"
 ID: com.sap.xs2.test.config-01
 extends: com.sap.xs2.test
 
-target-platforms: [CF-TRIAL]
+targets: [CF-TRIAL]

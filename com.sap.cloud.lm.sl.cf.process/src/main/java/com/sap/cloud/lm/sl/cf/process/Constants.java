@@ -1,15 +1,23 @@
 package com.sap.cloud.lm.sl.cf.process;
 
+import java.util.concurrent.TimeUnit;
+
 public final class Constants {
 
     public static final String DEPLOY_SERVICE_ID = "xs2-deploy";
     public static final String BLUE_GREEN_DEPLOY_SERVICE_ID = "xs2-bg-deploy";
     public static final String UNDEPLOY_SERVICE_ID = "xs2-undeploy";
+    public static final String CTS_PING_SERVICE_ID = "CTS_PING";
+    public static final String CTS_DEPLOY_SERVICE_ID = "CTS_DEPLOY";
+    public static final String DEPLOY_APP_SUB_PROCESS_ID = "deployAppSubProcess";
+    public static final String SERVICE_VERSION_1_2 = "1.2";
     public static final String SERVICE_VERSION_1_1 = "1.1";
     public static final String SERVICE_VERSION_1_0 = "1.0";
+    public static final int DEFAULT_START_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(1);
 
     public static final String PARAM_APP_ARCHIVE_ID = "appArchiveId";
-    public static final String PARAM_PLATFORM_NAME = "targetPlatform";
+    public static final String PARAM_TARGET_NAME = "deployTarget";
+    public static final String PARAM_TARGET_PLATFORM_NAME = "targetPlatform";
     public static final String PARAM_EXT_DESCRIPTOR_FILE_ID = "mtaExtDescriptorId";
     public static final String PARAM_NO_START = "noStart";
     public static final String PARAM_START_TIMEOUT = "startTimeout";
@@ -17,9 +25,6 @@ public final class Constants {
     public static final String PARAM_USE_NAMESPACES = "useNamespaces";
     public static final String PARAM_USE_NAMESPACES_FOR_SERVICES = "useNamespacesForServices";
     public static final String PARAM_ALLOW_INVALID_ENV_NAMES = "allowInvalidEnvNames";
-    public static final String PARAM_KEEP_APP_ATTRIBUTES = "keepAppAttributes";
-    public static final String PARAM_STREAM_APP_LOGS = "streamAppLogs";
-    public static final String PARAM_SIM_ERROR_TASK = "simErrorTask";
     public static final String PARAM_INITIATOR = "initiator";
     public static final String PARAM_VERSION_RULE = "versionRule";
     public static final String PARAM_DELETE_SERVICES = "deleteServices";
@@ -34,6 +39,7 @@ public final class Constants {
     public static final String PARAM_GIT_REF = "gitRef";
     public static final String PARAM_GIT_REPO_PATH = "gitRepoPath";
     public static final String PARAM_GIT_SKIP_SSL = "gitSkipSsl";
+    public static final String PARAM_NO_FAIL_ON_MISSING_PERMISSIONS = "noFailOnMissingPermissions";
 
     public static final String VAR_USER = "user";
 
@@ -41,6 +47,7 @@ public final class Constants {
     public static final String VAR_MTA_DEPLOYMENT_DESCRIPTOR_STRING = "mtaDeploymentDescriptorString";
     public static final String VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS = "mtaExtensionDescriptorStrings";
     public static final String VAR_MTA_DEPLOYMENT_DESCRIPTOR = "mtaDeploymentDescriptor";
+    public static final String VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR = "mtaUnresolvedDeploymentDescriptor";
     public static final String VAR_MTA_MAJOR_SCHEMA_VERSION = "mtaMajorSchemaVersion";
     public static final String VAR_MTA_MINOR_SCHEMA_VERSION = "mtaMinorSchemaVersion";
     public static final String VAR_MTA_VERSION_ACCEPTED = "mtaVersionAccepted";
@@ -52,13 +59,14 @@ public final class Constants {
     public static final String VAR_MTA_MODULES = "mtaModules";
     public static final String VAR_NEW_MTA_VERSION = "newMtaVersion";
 
+    public static final String VAR_APP_STATE_ACTIONS_TO_EXECUTE = "appStateActionsToExecute";
     public static final String VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES = "xsPlaceholderReplacementValues";
     public static final String VAR_DEPLOYED_MTA = "deployedMta";
     public static final String VAR_SYSTEM_PARAMETERS = "systemParameters";
     public static final String VAR_PORT_BASED_ROUTING = "portBasedRouting";
     public static final String VAR_ALLOCATED_PORTS = "allocatedPorts";
+    public static final String VAR_TARGET = "target";
     public static final String VAR_PLATFORM = "platform";
-    public static final String VAR_PLATFORM_TYPE = "platformType";
     public static final String VAR_ORG = "org";
     public static final String VAR_SPACE = "space";
     public static final String VAR_CUSTOM_DOMAINS = "customDomains";
@@ -66,18 +74,33 @@ public final class Constants {
     public static final String VAR_SERVICES_TO_CREATE = "servicesToCreate";
     public static final String VAR_SERVICE_KEYS_TO_CREATE = "serviceKeysToCreate";
     public static final String VAR_APPS_TO_DEPLOY = "appsToDeploy";
+    public static final String VAR_UPDATED_SUBSCRIBERS = "updatedSubscribers";
+    public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS = "updatedServiceBrokerSubscribers";
+    public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = "updatedSubscribersCount";
+    public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX = "updatedSubscribersIndex";
+    public static final String VAR_APPS_TO_UNDEPLOY_COUNT = "appsToUndeployCount";
+    public static final String VAR_APPS_TO_UNDEPLOY_INDEX = "appsToUndeployIndex";
     public static final String VAR_APPS_INDEX = "appsIndex";
-    public static final String VAR_APPS_SIZE = "appsSize";
+    public static final String VAR_APPS_COUNT = "appsCount";
+    public static final String VAR_INDEX_VARIABLE_NAME = "indexVariableName";
+    public static final String VAR_MTARS_COUNT = "mtarsCount";
+    public static final String VAR_MTARS_INDEX = "mtarsIndex";
+    public static final String VAR_TASKS_TO_EXECUTE = "tasksToExecute";
+    public static final String VAR_TASKS_INDEX = "tasksIndex";
+    public static final String VAR_TASKS_COUNT = "tasksCount";
+    public static final String VAR_PLATFORM_SUPPORTS_TASKS = "platformSupportsTasks";
+    public static final String VAR_STARTED_TASK = "startedTask";
+    public static final String VAR_APPS_TO_RESTART = "appsToRestart";
+    public static final String VAR_APPS_TO_RESTART_COUNT = "appsToRestartCount";
     public static final String VAR_APPS_TO_UNDEPLOY = "appsToUndeploy";
     public static final String VAR_SERVICES_TO_DELETE = "servicesToDelete";
     public static final String VAR_SERVICE_URLS_TO_REGISTER = "serviceUrlsToRegister";
     public static final String VAR_SERVICE_BROKERS_TO_CREATE = "serviceBrokersToCreate";
     public static final String VAR_SUBSCRIPTIONS_TO_CREATE = "subscriptionsToCreate";
     public static final String VAR_SUBSCRIPTIONS_TO_DELETE = "subscriptionsToDelete";
-    public static final String VAR_DEPENDENCIES_TO_PUBLISH = "dependenciesToPublish";
+    public static final String VAR_CONFIGURATION_ENTRIES_TO_PUBLISH = "configurationEntriesToPublish";
     public static final String VAR_EXISTING_APP = "existingApp";
     public static final String VAR_START_TIME = "startTime";
-    public static final String VAR_START_PHASE = "startPhase";
     public static final String VAR_STARTING_INFO = "startingInfo";
     public static final String VAR_STARTING_INFO_CLASSNAME = "startingInfoClass";
     public static final String VAR_STREAMING_LOGS_TOKEN = "streamingLogsToken";
@@ -87,15 +110,17 @@ public final class Constants {
     public static final String VAR_UPLOAD_APP_TIMEOUT = "uploadAppTimeout";
     public static final String VAR_PUBLISHED_ENTRIES = "publishedEntries";
     public static final String VAR_DELETED_ENTRIES = "deletedEntries";
-    public static final String VAR_RESTART_APPLICATION = "restartApplication";
+    public static final String VAR_HAS_APP_CHANGED = "hasAppChanged";
     public static final String VAR_APP_PROPERTIES_CHANGED = "appPropertiesChanged";
-    public static final String VAR_UPDATED_SERVICES = "updatedServices";
+    public static final String VAR_TRIGGERED_SERVICE_OPERATIONS = "triggeredServiceOperations";
     public static final String VAR_CTS_RETURN_CODE = "ctsReturnCode";
     public static final String VAR_CTS_CURRENT_FILE_INFO = "ctsCurrentFileInfo";
-
-    public static final String START_PHASE_STAGING = "staging";
-    public static final String START_PHASE_STARTUP = "startup";
-    public static final String START_PHASE_EXECUTION = "execution";
+    public static final String VAR_CORRELATION_ID = "correlationId";
+    public static final String VAR_APP_TO_DEPLOY = "appToDeploy";
+    public static final String VAR_FILE_INFO_LIST = "fileInfoList";
+    public static final String VAR_SUBPROCESS_ID = "subProcessId";
+    public static final String VAR_PLATFORM_TYPE = "platformType";
+    public static final String VAR_SERVICES_TO_CREATE_COUNT = "servicesToCreateCount";
 
     public static final String PARAM_TRANSFER_TYPE = "transferType";
     public static final String PARAM_CTS_PROCESS_ID = "ctsProcessId";
@@ -104,5 +129,10 @@ public final class Constants {
     public static final String PARAM_FILE_LIST = "fileList";
     public static final String PARAM_USERNAME = "userId";
     public static final String PARAM_PASSWORD = "password";
+
+    public static final String SHOULD_EXECUTE_ZDM_FINALIZE_ACTION = "shouldExecuteZdmFinalizeAction";
+    public static final String ZDM_HDI_DEPLOYER_APPS = "hdiDeployerApps";
+    public static final String SHOULD_DELETE_ZDM_SERVICES = "shouldDeleteZdmServices";
+    public static final String APP_NAME_TO_ZDM_HDI_SERVICE_NAMES_MAP = "appNameToZdmHdiServiceNamesMap";
 
 }

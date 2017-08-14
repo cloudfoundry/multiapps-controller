@@ -5,16 +5,21 @@ import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.getIndexedName;
 import static com.sap.cloud.lm.sl.common.util.MapUtil.merge;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource.ResourceBuilder;
 
@@ -28,8 +33,12 @@ public class ConfigurationReferenceResolver {
         this.dao = dao;
     }
 
-    public List<Resource> resolve(Resource resource, ConfigurationFilter filter) throws ParsingException {
-        return asResources(findConfigurationEntries(dao, filter), resource);
+    public List<Resource> resolve(Resource resource, ConfigurationFilter filter, CloudTarget cloudTarget) throws ParsingException {
+        return asResources(findConfigurationEntries(dao, filter, getCloudTargetsList(cloudTarget)), resource);
+    }
+
+    private List<CloudTarget> getCloudTargetsList(CloudTarget target) {
+        return target == null ? null : Arrays.asList(target);
     }
 
     protected List<Resource> asResources(List<ConfigurationEntry> entries, Resource resource) throws ParsingException {
@@ -62,7 +71,10 @@ public class ConfigurationReferenceResolver {
     }
 
     protected Map<String, Object> mergeProperties(Resource resource, ConfigurationEntry configurationEntry) throws ParsingException {
-        return merge(JsonUtil.convertJsonToMap(configurationEntry.getContent()), removeConfigurationParameters(resource.getProperties()));
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PropertiesAdapterFactory()).create();
+        Map<String, Object> contentMap = gson.fromJson(configurationEntry.getContent(), new TypeToken<Map<String, Object>>() {
+        }.getType());
+        return merge(contentMap, removeConfigurationParameters(resource.getProperties()));
     }
 
 }

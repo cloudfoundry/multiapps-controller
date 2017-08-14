@@ -1,12 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +12,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
@@ -26,8 +22,6 @@ public class AddDomainsStepTest extends AbstractStepTest<AddDomainsStep> {
     private final List<String> customDomains;
 
     private List<String> nonExistingCustomDomains;
-
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -59,15 +53,13 @@ public class AddDomainsStepTest extends AbstractStepTest<AddDomainsStep> {
         prepareContext();
         Mockito.when(client.getDomainsForOrg()).thenReturn(getExistingDomainsList());
         nonExistingCustomDomains = getNonExistingDomainsList();
-        step.clientSupplier = (context) -> client;
     }
 
     @Test
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         for (String nonExistingCustomDomain : nonExistingCustomDomains) {
             Mockito.verify(client, Mockito.times(1)).addDomain(nonExistingCustomDomain);

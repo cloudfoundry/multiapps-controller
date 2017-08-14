@@ -8,11 +8,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.dto.ConfigurationEntryDto;
+import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto;
+import com.sap.cloud.lm.sl.cf.core.filters.VersionFilter;
+import com.sap.cloud.lm.sl.cf.core.filters.VisibilityFilter;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.mta.model.Version;
 
 @Component
 public class ConfigurationEntryDao {
@@ -20,13 +22,22 @@ public class ConfigurationEntryDao {
     @Autowired
     ConfigurationEntryDtoDao dao;
 
-    public List<ConfigurationEntry> find(String nid, String id, String version, String target, Map<String, String> requiredProperties,
-        String mtaId) {
-        return filter(toConfigurationEntries(dao.find(nid, id, target, requiredProperties, mtaId)), version);
+    private static final BiFunction<ConfigurationEntry, String, Boolean> VERSION_FILTER = new VersionFilter();
+    private static final BiFunction<ConfigurationEntry, List<CloudTarget>, Boolean> VISIBILITY_FILTER = new VisibilityFilter();
+
+    public List<ConfigurationEntry> find(String nid, String id, String version, String target, Map<String, Object> requiredProperties,
+        String mtaId, List<CloudTarget> cloudTargets) {
+        return filter(toConfigurationEntries(dao.find(nid, id, target, requiredProperties, mtaId)), version, cloudTargets);
     }
 
-    private List<ConfigurationEntry> filter(List<ConfigurationEntry> entries, String version) {
-        return entries.stream().filter((entry) -> VERSION_FILTER.apply(entry, version)).collect(Collectors.toList());
+    public List<ConfigurationEntry> find(String nid, String id, String version, String target, Map<String, Object> requiredProperties,
+        String mtaId) {
+        return find(nid, id, version, target, requiredProperties, mtaId, null);
+    }
+
+    private List<ConfigurationEntry> filter(List<ConfigurationEntry> entries, String version, List<CloudTarget> cloudTargets) {
+        return entries.stream().filter((entry) -> VERSION_FILTER.apply(entry, version)).filter(
+            (entry) -> VISIBILITY_FILTER.apply(entry, cloudTargets)).collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> toConfigurationEntries(List<ConfigurationEntryDto> dtos) {
@@ -52,22 +63,6 @@ public class ConfigurationEntryDao {
     public boolean exists(long id) {
         return dao.exists(id);
     }
-
-    private static final BiFunction<ConfigurationEntry, String, Boolean> VERSION_FILTER = new BiFunction<ConfigurationEntry, String, Boolean>() {
-
-        @Override
-        public Boolean apply(ConfigurationEntry entry, String requirement) {
-            if (requirement == null) {
-                return true;
-            }
-            Version providerVersion = entry.getProviderVersion();
-            if (providerVersion == null) {
-                return false;
-            }
-            return providerVersion.satisfies(requirement);
-        }
-
-    };
 
     public List<ConfigurationEntry> findAll() {
         return toConfigurationEntries(dao.findAll());

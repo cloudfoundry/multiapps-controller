@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryOperationsExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
-import com.sap.cloud.lm.sl.cf.web.util.ClientUtil;
+import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -46,7 +46,7 @@ public class RolesResource {
     @GET
     public Response getRoles() throws SLException {
         try {
-            return Response.ok().entity(getRoles(ClientUtil.getCloudFoundryClient(clientProvider, org, space))).build();
+            return Response.ok().entity(getRoles(getCloudFoundryClient())).build();
         } catch (IllegalArgumentException e) {
             /**
              * Thrown if the user has no roles in the specified organization and space. In that case the request should not fail - it should
@@ -71,6 +71,11 @@ public class RolesResource {
             roles.add(SPACE_MANAGER);
         }
         return String.join(",", roles);
+    }
+
+    public CloudFoundryOperations getCloudFoundryClient() throws SLException {
+        UserInfo userInfo = SecurityContextUtil.getUserInfo();
+        return clientProvider.getCloudFoundryClient(userInfo.getToken(), org, space, null);
     }
 
 }

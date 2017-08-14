@@ -1,11 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatformTypes;
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatforms;
+import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadTargets;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.activiti.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,25 +22,24 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
 import com.google.gson.reflect.TypeToken;
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKey;
-import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.DomainsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceKeysCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 @RunWith(Parameterized.class)
 public class BuildCloudDeployModelStepTest extends AbstractStepTest<BuildCloudDeployModelStep> {
@@ -53,10 +52,9 @@ public class BuildCloudDeployModelStepTest extends AbstractStepTest<BuildCloudDe
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor(DESCRIPTOR_PARSER, "node-hello-mtad.yaml",
         BuildCloudDeployModelStepTest.class);
-    private static final TargetPlatformType PLATFORM_TYPE = loadPlatformTypes(CONFIGURATION_PARSER, "platform-types-01.json",
+    private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json",
         BuildCloudDeployModelStepTest.class).get(0);
-    private static final TargetPlatform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platforms-01.json",
-        BuildCloudDeployModelStepTest.class).get(0);
+    private static final Target TARGET = loadTargets(CONFIGURATION_PARSER, "platforms-01.json", BuildCloudDeployModelStepTest.class).get(0);
 
     private static final SystemParameters EMPTY_SYSTEM_PARAMETERS = new SystemParameters(Collections.emptyMap(), Collections.emptyMap(),
         Collections.emptyMap(), Collections.emptyMap());
@@ -91,14 +89,26 @@ public class BuildCloudDeployModelStepTest extends AbstractStepTest<BuildCloudDe
     }
 
     private class BuildCloudDeployModelStepMock extends BuildCloudDeployModelStep {
-
         @Override
-        protected CloudModelBuilder getCloudModelBuilder(HandlerFactory handlerFactory, DeploymentDescriptor descriptor,
-            SystemParameters systemParameters, boolean portBasedRouting, boolean prettyPrinting, boolean useNamespaces,
-            boolean useNamespacesForServices, boolean allowInvalidEnvNames, String deployId, XsPlaceholderResolver xsPlaceholderResolver) {
-            return cloudModelBuilder;
+        protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {
+            return applicationsCloudModelBuilder;
         }
 
+        @Override
+        protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {
+            return servicesCloudModelBuilder;
+        }
+
+        @Override
+        protected DomainsCloudModelBuilder getDomainsCloudModelBuilder(DelegateExecution context) {
+            return domainsCloudModelBuilder;
+        }
+
+        @Override
+        protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context,
+            DeploymentDescriptor deploymentDescriptor) {
+            return serviceKeysCloudModelBuilder;
+        }
     }
 
     @Parameters
@@ -124,7 +134,13 @@ public class BuildCloudDeployModelStepTest extends AbstractStepTest<BuildCloudDe
     private Map<String, List<ServiceKey>> serviceKeys;
 
     @Mock
-    private CloudModelBuilder cloudModelBuilder;
+    private ApplicationsCloudModelBuilder applicationsCloudModelBuilder;
+    @Mock
+    private DomainsCloudModelBuilder domainsCloudModelBuilder;
+    @Mock
+    private ServiceKeysCloudModelBuilder serviceKeysCloudModelBuilder;
+    @Mock
+    private ServicesCloudModelBuilder servicesCloudModelBuilder;
 
     public BuildCloudDeployModelStepTest(StepInput input, StepOutput output) {
         this.output = output;
@@ -138,7 +154,6 @@ public class BuildCloudDeployModelStepTest extends AbstractStepTest<BuildCloudDe
     }
 
     private void prepareContext() throws Exception {
-        step.conflictPreventerSupplier = (dao) -> mock(ProcessConflictPreventer.class);
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
         context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, MTA_MINOR_SCHEMA_VERSION);
 
@@ -148,8 +163,8 @@ public class BuildCloudDeployModelStepTest extends AbstractStepTest<BuildCloudDe
         StepsUtil.setDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setXsPlaceholderReplacementValues(context, getDummyReplacementValues());
 
-        StepsUtil.setPlatformType(context, PLATFORM_TYPE);
         StepsUtil.setPlatform(context, PLATFORM);
+        StepsUtil.setTarget(context, TARGET);
     }
 
     private Map<String, Object> getDummyReplacementValues() {
@@ -162,8 +177,7 @@ public class BuildCloudDeployModelStepTest extends AbstractStepTest<BuildCloudDe
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         TestUtil.test(() -> StepsUtil.getServicesToCreate(context), "R:" + input.servicesToCreateLocation, getClass());
         TestUtil.test(() -> StepsUtil.getServiceKeysToCreate(context), "R:" + input.serviceKeysLocation, getClass());
@@ -191,10 +205,10 @@ public class BuildCloudDeployModelStepTest extends AbstractStepTest<BuildCloudDe
             deployedMta = JsonUtil.fromJson(deployedMtaString, DeployedMta.class);
         }
 
-        when(cloudModelBuilder.getApplications(any(), any(), any())).thenReturn(appsToDeploy);
-        when(cloudModelBuilder.getCustomDomains()).thenReturn(input.customDomains);
-        when(cloudModelBuilder.getServices(any())).thenReturn(servicesToCreate);
-        when(cloudModelBuilder.getServiceKeys()).thenReturn(serviceKeys);
+        when(applicationsCloudModelBuilder.build(any(), any(), any())).thenReturn(appsToDeploy);
+        when(domainsCloudModelBuilder.build()).thenReturn(input.customDomains);
+        when(servicesCloudModelBuilder.build(any())).thenReturn(servicesToCreate);
+        when(serviceKeysCloudModelBuilder.build()).thenReturn(serviceKeys);
         StepsUtil.setDeployedMta(context, deployedMta);
     }
 

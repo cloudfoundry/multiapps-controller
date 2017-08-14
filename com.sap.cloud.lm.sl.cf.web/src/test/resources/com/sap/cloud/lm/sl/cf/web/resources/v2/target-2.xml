@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<deployTarget>
+    <id>2</id>
+    <name>CF-PROD</name>
+    <type>CF</type>
+    <parameters>
+        <entry>
+            <key>api-url</key>
+            <value>https://api.sap.cf.com</value>
+        </entry>
+        <entry>
+            <key>username</key>
+            <value>i318495</value>
+        </entry>
+        <entry>
+            <key>password</key>
+            <value>test</value>
+        </entry>
+        <entry>
+            <key>org</key>
+            <value>SAP-STANDARD</value>
+        </entry>
+        <entry>
+            <key>space</key>
+            <value>PRODUCTIVE</value>
+        </entry>
+    </parameters>
+    <moduleTypes/>
+    <resourceTypes/>
+</deployTarget>

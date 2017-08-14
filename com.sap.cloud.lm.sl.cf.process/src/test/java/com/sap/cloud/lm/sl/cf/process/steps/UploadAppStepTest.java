@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -67,8 +68,8 @@ public class UploadAppStepTest {
 
         @Before
         public void setUp() throws Exception {
-            prepareContext();
-            prepareClients();
+            StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(new SimpleApplication(APP_NAME, 2).toCloudApplication()), context);
+            context.setVariable(Constants.VAR_APPS_INDEX, 0);
         }
 
         @Test
@@ -80,21 +81,9 @@ public class UploadAppStepTest {
 
         @Test(expected = SLException.class)
         public void testPollStatus2() throws Exception {
-            step.extensionsSupplier = (context) -> {
-                throw new CloudFoundryException(HttpStatus.BAD_REQUEST);
-            };
-
+            when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq(ORG_NAME), eq(SPACE_NAME), anyString())).thenThrow(
+                new CloudFoundryException(HttpStatus.BAD_REQUEST));
             step.pollStatus(context);
-        }
-
-        private void prepareContext() {
-            StepsUtil.setAppsToDeploy(context, Arrays.asList(new SimpleApplication(APP_NAME, 2).toCloudApplication()));
-            context.setVariable(Constants.VAR_APPS_INDEX, 0);
-        }
-
-        private void prepareClients() {
-            step.extensionsSupplier = (context) -> null;
-            step.clientSupplier = (context) -> null;
         }
 
         @Override
@@ -115,6 +104,8 @@ public class UploadAppStepTest {
         private ClientExtensions cfExtensions;
         @Mock
         private CloudFoundryOperations client;
+        @Mock
+        protected ContextExtensionDao contextExtensionDao;
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -210,6 +201,7 @@ public class UploadAppStepTest {
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             StepsUtil.setModuleFileName(context, APP_NAME, APP_FILE);
+            StepsUtil.setAppPropertiesChanged(context, false);
         }
 
         public void prepareClients() throws Exception {
@@ -229,6 +221,7 @@ public class UploadAppStepTest {
                     doThrow(CF_EXCEPTION).when(client).uploadApplication(eq(APP_NAME), eq(appFile), any());
                 }
             }
+            when(client.getApplication(APP_NAME)).thenReturn(new SimpleApplication(APP_NAME, 2).toCloudApplication());
         }
 
         public void prepareFileService() throws Exception {

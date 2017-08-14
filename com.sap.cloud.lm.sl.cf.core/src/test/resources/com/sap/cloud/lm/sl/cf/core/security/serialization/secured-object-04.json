@@ -35,6 +35,7 @@
               }
             }
           },
+          "parameters": {},
           "isPublic": false,
           "name": "test-dependency",
           "properties": {
@@ -82,6 +83,7 @@
           }
         }
       },
+      "isOptional": false,
       "parameters": {
         "resource-parameter": "********"
       },

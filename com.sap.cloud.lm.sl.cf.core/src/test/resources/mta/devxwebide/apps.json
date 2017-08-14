@@ -2,10 +2,11 @@
   {
     "moduleName": "webide",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-webide.cfapps.neo.ondemand.com\"]}",
       "MTA_METADATA={\"id\":\"com.sap.devx.webide\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"webide\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"webide\"]",

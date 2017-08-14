@@ -1,0 +1,38 @@
+{
+  "services": [
+    {
+      "name": "test-service-1",
+      "plan": "test",
+      "provider": "test",
+      "version": "test"
+    },
+    {
+      "name": "test-service-2",
+      "plan": "test",
+      "provider": "test",
+      "version": "test"
+    },
+    {
+      "name": "test-service-3",
+      "plan": "test",
+      "provider": "test",
+      "version": "test"
+    }
+  ],
+  "serviceInstanceResponse": {
+    "test-service-1": {
+      "last_operation": {
+        "type": "create",
+        "state": "succeeded"
+      }
+    },
+    "test-service-2": null,
+    "test-service-3": {
+      "last_operation": {
+        "type": "create",
+        "state": "succeeded"
+      }
+    }
+  },
+  "expectedStatus": "RUNNING"
+}

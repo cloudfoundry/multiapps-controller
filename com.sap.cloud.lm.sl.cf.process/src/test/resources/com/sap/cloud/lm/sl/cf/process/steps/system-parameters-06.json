@@ -17,7 +17,8 @@
       "memory": "256M",
       "port": 1,
       "service": "",
-      "service-plan": ""
+      "service-plan": "",
+      "timestamp": "19700101"
     },
     "node-hello-world-backend": {
       "app-name": "node-hello-world-backend",
@@ -36,7 +37,8 @@
       "memory": "256M",
       "port": 2,
       "service": "",
-      "service-plan": ""
+      "service-plan": "",
+      "timestamp": "19700101"
     },
     "node-hello-world-db": {
       "app-name": "node-hello-world-db",
@@ -55,11 +57,13 @@
       "memory": "256M",
       "port": 3,
       "service": "",
-      "service-plan": ""
+      "service-plan": "",
+      "timestamp": "19700101"
     }
   },
   "generalParameters": {
     "default-domain": "{xsa-placeholder-domain-default}",
+    "deploy-target": "initial initial",
     "deploy-url": "{xsa-placeholder-service-url-deploy-service}",
     "org": "initial",
     "platform": "initial initial",
@@ -102,9 +106,9 @@
   "singularPluralMapping": {
     "domain": "domains",
     "host": "hosts",
-    "port": "ports",
-    "temp-domain": "temp-domains",
-    "temp-host": "temp-hosts",
-    "temp-port": "temp-ports"
+    "idle-domain": "idle-domains",
+    "idle-host": "idle-hosts",
+    "idle-port": "idle-ports",
+    "port": "ports"
   }
 }

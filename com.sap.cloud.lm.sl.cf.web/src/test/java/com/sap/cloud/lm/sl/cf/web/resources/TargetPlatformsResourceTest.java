@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.web.resources;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -12,15 +11,16 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.dao.TargetPlatformDao;
+import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
+import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.Callable;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 public abstract class TargetPlatformsResourceTest {
 
@@ -78,53 +78,51 @@ public abstract class TargetPlatformsResourceTest {
 
     protected static class PostRequestInput extends RequestInput {
 
-        private String platformName;
-        private String platformXml;
+        private String targetName;
+        private String targetXml;
 
-        public PostRequestInput(String platformName, String platformXml) {
-            this.platformName = platformName;
-            this.platformXml = platformXml;
+        public PostRequestInput(String targetName, String targetXml) {
+            this.targetName = targetName;
+            this.targetXml = targetXml;
         }
 
-        public String getPlatformName() {
-            return platformName;
+        public String getTargetName() {
+            return targetName;
         }
 
         public String getPlatformXml() {
-            return platformXml;
+            return targetXml;
         }
 
     }
 
     protected static class DeleteRequestInput extends RequestInput {
 
-        private String platformName;
+        private String targetName;
 
-        public DeleteRequestInput(String platformName) {
-            this.platformName = platformName;
+        public DeleteRequestInput(String targetName) {
+            this.targetName = targetName;
         }
 
-        public String getPlatformName() {
-            return platformName;
+        public String getTargetName() {
+            return targetName;
         }
 
     }
 
-    private static final DescriptorHandler HANDLER = new DescriptorHandler();
-
-    protected String platformsJson;
+    protected String targetsJson;
     protected RequestInput input;
     protected RestResponse expected;
 
-    protected List<TargetPlatform> platforms;
+    protected List<PersistentObject<? extends Target>> targets;
 
-    public TargetPlatformsResourceTest(String platformsJson, RequestInput input, RestResponse expected) {
-        this.platformsJson = platformsJson;
+    public TargetPlatformsResourceTest(String targetsJson, RequestInput input, RestResponse expected) {
+        this.targetsJson = targetsJson;
         this.input = input;
         this.expected = expected;
     }
 
-    protected abstract TargetPlatformDao getDao();
+    protected abstract DeployTargetDao getDao();
 
     protected abstract TargetPlatformsResource getResource();
 
@@ -132,7 +130,7 @@ public abstract class TargetPlatformsResourceTest {
     public void testGetAllPlatforms() throws Exception {
         assumeTrue(input instanceof GetAllRequestInput);
 
-        when(getDao().findAll()).thenReturn(platforms);
+        when(getDao().findAll()).thenReturn(targets);
 
         TestUtil.test(new Callable<String>() {
             @Override
@@ -152,12 +150,12 @@ public abstract class TargetPlatformsResourceTest {
 
         GetRequestInput getRequestInput = (GetRequestInput) input;
 
-        TargetPlatform platform = HANDLER.findPlatform(platforms, getRequestInput.getPlatformName());
+        PersistentObject<? extends Target> platform = findByName(targets, getRequestInput.getPlatformName());
         if (platform == null) {
-            when(getDao().find(getRequestInput.getPlatformName())).thenThrow(
-                new NotFoundException(Messages.TARGET_PLATFORM_NOT_FOUND, getRequestInput.getPlatformName()));
+            when(getDao().findByName(getRequestInput.getPlatformName())).thenThrow(
+                new NotFoundException(Messages.DEPLOY_TARGET_WITH_NAME_NOT_FOUND, getRequestInput.getPlatformName()));
         } else {
-            when(getDao().find(getRequestInput.getPlatformName())).thenReturn(platform);
+            Mockito.doReturn(platform).when(getDao()).findByName(getRequestInput.getPlatformName());
         }
 
         TestUtil.test(new Callable<String>() {
@@ -178,9 +176,9 @@ public abstract class TargetPlatformsResourceTest {
 
         PostRequestInput postRequestInput = (PostRequestInput) input;
 
-        if (HANDLER.findPlatform(platforms, postRequestInput.getPlatformName()) != null) {
-            doThrow(new ConflictException(Messages.TARGET_PLATFORM_ALREADY_EXISTS, postRequestInput.getPlatformName())).when(getDao()).add(
-                any(TargetPlatform.class));
+        if (findByName(targets, postRequestInput.getTargetName()) != null) {
+            doThrow(new ConflictException(Messages.DEPLOY_TARGET_ALREADY_EXISTS, postRequestInput.getTargetName())).when(getDao()).add(
+                any(Target.class));
         }
 
         Class<? extends TargetPlatformsResourceTest> clazz = getClass();
@@ -202,14 +200,18 @@ public abstract class TargetPlatformsResourceTest {
 
         PutRequestInput putRequestInput = (PutRequestInput) input;
 
-        if (HANDLER.findPlatform(platforms, putRequestInput.getNewPlatformName()) != null) {
-            doThrow(new ConflictException(Messages.TARGET_PLATFORM_ALREADY_EXISTS, putRequestInput.getNewPlatformName())).when(
-                getDao()).merge(anyString(), any(TargetPlatform.class));
+        PersistentObject<? extends Target> target = findByName(targets, putRequestInput.getOldPlatformName());
+        if (target != null) {
+            Mockito.doReturn(target).when(getDao()).findByName(Mockito.any(String.class));
+        }
+        if (findByName(targets, putRequestInput.getNewPlatformName()) != null) {
+            doThrow(new ConflictException(Messages.DEPLOY_TARGET_ALREADY_EXISTS, putRequestInput.getNewPlatformName())).when(
+                getDao()).merge(Mockito.anyLong(), any(Target.class));
         }
 
-        if (HANDLER.findPlatform(platforms, putRequestInput.getOldPlatformName()) == null) {
-            doThrow(new NotFoundException(Messages.TARGET_PLATFORM_NOT_FOUND, putRequestInput.getOldPlatformName())).when(getDao()).merge(
-                anyString(), any(TargetPlatform.class));
+        if (findByName(targets, putRequestInput.getOldPlatformName()) == null) {
+            doThrow(new NotFoundException(Messages.DEPLOY_TARGET_NOT_FOUND, putRequestInput.getOldPlatformName())).when(getDao()).merge(
+                Mockito.anyLong(), any(Target.class));
         }
 
         Class<? extends TargetPlatformsResourceTest> clazz = getClass();
@@ -232,15 +234,19 @@ public abstract class TargetPlatformsResourceTest {
 
         DeleteRequestInput deleteRequestInput = (DeleteRequestInput) input;
 
-        if (HANDLER.findPlatform(platforms, deleteRequestInput.getPlatformName()) == null) {
-            doThrow(new NotFoundException(Messages.TARGET_PLATFORM_NOT_FOUND, deleteRequestInput.getPlatformName())).when(getDao()).remove(
-                deleteRequestInput.getPlatformName());
+        PersistentObject<? extends Target> target = findByName(targets, deleteRequestInput.getTargetName());
+
+        if (target == null) {
+            doThrow(new NotFoundException(Messages.DEPLOY_TARGET_WITH_NAME_NOT_FOUND, deleteRequestInput.getTargetName())).when(
+                getDao()).findByName(Mockito.anyString());
+        } else {
+            Mockito.doReturn(target).when(getDao()).findByName(Mockito.anyString());
         }
 
         TestUtil.test(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                Response response = getResource().deletePlatform(deleteRequestInput.getPlatformName());
+                Response response = getResource().deletePlatform(deleteRequestInput.getTargetName());
 
                 assertEquals(expected.getStatus(), response.getStatus());
 
@@ -251,6 +257,15 @@ public abstract class TargetPlatformsResourceTest {
 
     protected String getNonNullEntity(Response response) {
         return response.getEntity() != null ? response.getEntity().toString() : "";
+    }
+
+    private static PersistentObject<? extends Target> findByName(List<PersistentObject<? extends Target>> targets, String name) {
+        for (PersistentObject<? extends Target> t : targets) {
+            if (t.getObject().getName().equals(name)) {
+                return t;
+            }
+        }
+        return null;
     }
 
 }

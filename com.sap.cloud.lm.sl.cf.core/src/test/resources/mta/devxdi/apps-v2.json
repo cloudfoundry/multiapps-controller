@@ -4,10 +4,11 @@
     "extendedStaging": {
       "buildpackUrl": "git://github.wdf.sap.corp/xs2-java/java-buildpack.git"
     },
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-core.cfapps.neo.ondemand.com\"]}",
       "JAVA_OPTS=-Daccess.logging.enabled=false -Dhttp.port=$VCAP_APP_PORT -Djava.io.tmpdir=$TMPDIR",
       "JBP_CONFIG_SAPJVM_MEMORY_SIZES=metaspace:128m..",
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
@@ -36,10 +37,11 @@
     "extendedStaging": {
       "buildpackUrl": "http://i027947-di-core.cfapps.neo.ondemand.com/system/builderbp.git/"
     },
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-builder.cfapps.neo.ondemand.com\"]}",
       "DI_URL=http://i027947-di-core.cfapps.neo.ondemand.com",
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
@@ -65,10 +67,11 @@
     "extendedStaging": {
       "buildpackUrl": "git://github.wdf.sap.corp/xs2-java/java-buildpack.git"
     },
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-runner.cfapps.neo.ondemand.com\"]}",
       "DI_URL=http://i027947-di-core.cfapps.neo.ondemand.com",
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",

@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.detect;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +26,7 @@ public class DeployedComponentsDetector {
      * Detects all deployed components on this platform.
      * 
      */
-    public DeployedComponents detectAllDeployedComponents(List<CloudApplication> apps) throws ParsingException {
+    public DeployedComponents detectAllDeployedComponents(Collection<CloudApplication> apps) throws ParsingException {
         Map<DeployedMtaMetadata, Set<String>> servicesMap = new HashMap<>();
         Map<DeployedMtaMetadata, List<DeployedMtaModule>> modulesMap = new HashMap<>();
         List<String> standaloneApps = new ArrayList<>();
@@ -41,6 +42,8 @@ public class DeployedComponentsDetector {
                 List<String> providedDependencies = (appMetadata.getProvidedDependencyNames() != null)
                     ? appMetadata.getProvidedDependencyNames() : new ArrayList<>();
                 List<String> appServices = (appMetadata.getServices() != null) ? appMetadata.getServices() : new ArrayList<>();
+                Map<String, Object> deployAttributes = (appMetadata.getDeployAttributes() != null) ? appMetadata.getDeployAttributes()
+                    : new HashMap<>();
 
                 DeployedMtaMetadata mtaMetadata = appMetadata.getMtaMetadata();
 
@@ -48,7 +51,7 @@ public class DeployedComponentsDetector {
                 Date createdOn = app.getMeta().getCreated();
                 Date updatedOn = app.getMeta().getUpdated();
                 DeployedMtaModule module = new DeployedMtaModule(moduleName, appName, createdOn, updatedOn, appServices,
-                    providedDependencies);
+                    providedDependencies, deployAttributes, app.getUris());
                 modules.add(module);
                 modulesMap.put(mtaMetadata, modules);
 

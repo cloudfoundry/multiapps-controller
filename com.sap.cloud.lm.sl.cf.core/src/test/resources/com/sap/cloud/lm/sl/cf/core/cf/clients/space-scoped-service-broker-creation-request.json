@@ -1,0 +1,7 @@
+{
+  "auth_password": "some-password",
+  "auth_username": "some-username",
+  "broker_url": "foo.cfapps.sap.hana.ondemand.com",
+  "name": "foo",
+  "space_guid": "cb42bf12-b819-4c27-5ba0-d3dc351b80dc"
+}

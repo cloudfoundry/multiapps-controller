@@ -1,0 +1,36 @@
+{
+  "entriesToPublish": [
+    {
+      "providerNid": "mta",
+      "providerId": "mta-1:provided-dependency-1",
+      "providerVersion": "0.1.0",
+      "targetSpace": "test test",
+      "content": "baz"
+    },
+    {
+      "providerNid": "mta",
+      "providerId": "mta-1:provided-dependency-3",
+      "providerVersion": "0.1.0",
+      "targetSpace": "test test",
+      "content": "qux"
+    }
+  ],
+  "expectedCreatedEntries": [
+    {
+      "providerNid": "mta",
+      "providerId": "mta-1:provided-dependency-3",
+      "providerVersion": "0.1.0",
+      "targetSpace": "test test",
+      "content": "qux"
+    }
+  ],
+  "expectedUpdatedEntries": [
+    {
+      "providerNid": "mta",
+      "providerId": "mta-1:provided-dependency-1",
+      "providerVersion": "0.1.0",
+      "targetSpace": "test test",
+      "content": "baz"
+    }
+  ]
+}

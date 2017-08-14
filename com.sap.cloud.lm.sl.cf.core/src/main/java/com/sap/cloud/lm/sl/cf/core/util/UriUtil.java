@@ -1,5 +1,10 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.cloudfoundry.client.lib.domain.CloudRoute;
+
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
@@ -33,6 +38,18 @@ public class UriUtil {
         }
     }
 
+    public static Integer getPort(String uri) {
+        try {
+            int port = Integer.parseInt(getHostAndDomain(uri)._1);
+            if (isValidPort(port)) {
+                return port;
+            }
+            return null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     private static int getPathIndexAfter(String uri, int pos) {
         int pathIndex = uri.indexOf(DEFAULT_PATH_SEPARATOR, pos);
         if (pathIndex < 0) {
@@ -57,8 +74,12 @@ public class UriUtil {
         return uri;
     }
 
+    public static List<String> getUrisWithoutScheme(List<String> uris) {
+        return uris.stream().map(uri -> getUriWithoutScheme(uri)).collect(Collectors.toList());
+    }
+
     public static boolean isValidPort(int port) {
-        return PORT_VALIDATOR.validate(port);
+        return PORT_VALIDATOR.isValid(port);
     }
 
     public static String removePort(String uri) {
@@ -83,6 +104,18 @@ public class UriUtil {
 
     public static boolean isStandardPort(int port, String protocol) {
         return protocol.equals("http") && port == STANDARD_HTTP_PORT || protocol.equals("https") && port == STANDARD_HTTPS_PORT;
+    }
+
+    public static CloudRoute findRoute(List<CloudRoute> routes, String uri) {
+        return routes.stream().filter(route -> routeMatchesUri(route, uri)).findAny().orElseThrow(
+            () -> new IllegalStateException("No matching route found for URI: " + uri));
+    }
+
+    public static boolean routeMatchesUri(CloudRoute route, String uri) {
+        Pair<String, String> hostAndDomain = UriUtil.getHostAndDomain(uri);
+        String host = hostAndDomain._1;
+        String domain = hostAndDomain._2;
+        return route.getHost().equals(host) && route.getDomain().getName().equals(domain);
     }
 
 }

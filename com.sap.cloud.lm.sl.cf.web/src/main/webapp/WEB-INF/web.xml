@@ -10,14 +10,6 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
-        <servlet-name>ActivitiServlet</servlet-name>
-        <servlet-class>org.restlet.ext.servlet.ServerServlet</servlet-class>
-        <init-param>
-            <param-name>org.restlet.application</param-name>
-            <param-value>com.sap.cloud.lm.sl.cf.web.activiti.rest.CustomActivitiRestServicesApplication</param-value>
-        </init-param>
-    </servlet>
-    <servlet>
         <description>SL Protocol REST API Servlet</description>
         <display-name>SLProtRestServlet</display-name>
         <!-- Note that the <servlet-class> element is omitted from the Servlet declaration. For this reason the <servlet-name> 
@@ -41,6 +33,22 @@
             registration would not work. -->
         <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFApplication</servlet-name>
         <init-param>
+            <param-name>jersey.config.server.provider.packages</param-name>
+            <param-value>com.sap.cloud.lm.sl.cf.web.helpers</param-value>
+        </init-param>
+        <init-param>
+            <param-name>jersey.config.server.provider.classnames</param-name>
+            <param-value>org.glassfish.jersey.filter.LoggingFilter</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <display-name>CFPublicServlet</display-name>
+        <!-- Note that the <servlet-class> element is omitted from the Servlet declaration. For this reason the <servlet-name> 
+            element must specify the fully qualified name of the class that implements javax.ws.rs.core.Application. Otherwise the servlet 
+            registration would not work. -->
+        <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFPublicApplication</servlet-name>
+        <init-param>
             <param-name>jersey.config.server.provider.classnames</param-name>
             <param-value>org.glassfish.jersey.filter.LoggingFilter</param-value>
         </init-param>
@@ -48,17 +56,16 @@
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>ActivitiServlet</servlet-name>
-        <url-pattern>/activiti/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFSLProtocolApplication</servlet-name>
         <url-pattern>/slprot/*</url-pattern>
-
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFApplication</servlet-name>
         <url-pattern>/rest/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>com.sap.cloud.lm.sl.cf.web.app.CFPublicApplication</servlet-name>
+        <url-pattern>/public/*</url-pattern>
     </servlet-mapping>
 
     <resource-ref>

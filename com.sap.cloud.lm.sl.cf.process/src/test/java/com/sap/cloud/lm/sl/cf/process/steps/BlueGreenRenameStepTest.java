@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -9,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
@@ -43,7 +41,8 @@ public class BlueGreenRenameStepTest extends AbstractStepTest<BlueGreenRenameSte
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
         context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, MTA_MINOR_SCHEMA_VERSION);
 
-        StepsUtil.setDeploymentDescriptor(context, loadDeploymentDescriptor(DESCRIPTOR_PARSER, "node-hello-mtad.yaml", getClass()));
+        StepsUtil.setUnresolvedDeploymentDescriptor(context,
+            loadDeploymentDescriptor(DESCRIPTOR_PARSER, "node-hello-mtad.yaml", getClass()));
     }
 
     // Test what happens when there are 0 color(s) deployed:
@@ -53,10 +52,9 @@ public class BlueGreenRenameStepTest extends AbstractStepTest<BlueGreenRenameSte
 
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context), "R:node-hello-blue-mtad.yaml.json", getClass());
+        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), "R:node-hello-blue-mtad.yaml.json", getClass());
     }
 
     // Test what happens when there are 1 color(s) deployed:
@@ -66,10 +64,9 @@ public class BlueGreenRenameStepTest extends AbstractStepTest<BlueGreenRenameSte
 
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context), "R:node-hello-blue-mtad.yaml.json", getClass());
+        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), "R:node-hello-blue-mtad.yaml.json", getClass());
     }
 
     // Test what happens when there are 2 color(s) deployed:
@@ -81,10 +78,9 @@ public class BlueGreenRenameStepTest extends AbstractStepTest<BlueGreenRenameSte
 
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context), "R:node-hello-blue-mtad.yaml.json", getClass());
+        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), "R:node-hello-blue-mtad.yaml.json", getClass());
     }
 
     @Override

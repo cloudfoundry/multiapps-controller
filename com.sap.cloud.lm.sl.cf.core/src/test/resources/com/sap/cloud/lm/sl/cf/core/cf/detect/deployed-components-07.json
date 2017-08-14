@@ -17,7 +17,8 @@
           "providedDependencyNames": [
             "mta-provided-dependency-1",
             "mta-provided-dependency-2"
-          ]
+          ],
+          "deployAttributes": {}
         },
         {
           "moduleName": "mta-application-2",
@@ -25,7 +26,8 @@
           "services": [
             "service-1"
           ],
-          "providedDependencyNames": []
+          "providedDependencyNames": [],
+          "deployAttributes": {}
         }
       ],
       "services": [

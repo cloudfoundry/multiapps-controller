@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -22,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteUnusedReservedRoutesStep")
@@ -31,7 +31,8 @@ public class DeleteUnusedReservedRoutesStep extends AbstractXS2ProcessStep {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteUnusedReservedRoutesStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("deleteUnusedReservedRoutesTask", "Delete Unused Reserved Ports", "Delete Unused Reserved Ports");
+        return StepMetadata.builder().id("deleteUnusedReservedRoutesTask").displayName("Delete Unused Reserved Ports").description(
+            "Delete Unused Reserved Ports").build();
     }
 
     @Override
@@ -70,12 +71,9 @@ public class DeleteUnusedReservedRoutesStep extends AbstractXS2ProcessStep {
     }
 
     private Set<Integer> getApplicationPorts(List<CloudApplicationExtended> apps) {
-        Map<String, List<Integer>> occupiedPorts = new OccupiedPortsDetector().detectOccupiedPorts(ListUtil.upcastUnmodifiable(apps));
-        Set<Integer> result = new TreeSet<>();
-        for (String applicationName : occupiedPorts.keySet()) {
-            result.addAll(occupiedPorts.get(applicationName));
-        }
-        return result;
+        OccupiedPortsDetector occupiedPortsDetector = new OccupiedPortsDetector();
+        return apps.stream().flatMap(app -> occupiedPortsDetector.detectOccupiedPorts(app).stream()).collect(
+            Collectors.toCollection(() -> new TreeSet<>()));
     }
 
 }

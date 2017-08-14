@@ -9,6 +9,7 @@ import static java.text.MessageFormat.format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -24,29 +26,31 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.util.ContextUtil;
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
+import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.DummyConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.ReferencingPropertiesVisitor;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ConfigurationReferencesResolver;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ModuleDto;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.RequiredDependencyDto;
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -57,7 +61,9 @@ import com.sap.cloud.lm.sl.mta.parsers.v1_0.DeploymentDescriptorParser;
 import com.sap.cloud.lm.sl.mta.parsers.v1_0.ModuleParser;
 import com.sap.cloud.lm.sl.mta.resolvers.Reference;
 import com.sap.cloud.lm.sl.mta.resolvers.ReferencePattern;
+import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
+import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("updateSubscribersStep")
@@ -76,6 +82,9 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
      * the update of the subscriber to fail, as required dependency entities do not exist in version 1 of the MTA specification and
      * therefore cannot be parsed by the version 1 parser that would be returned by that handler factory.
      */
+    // FIXME: Either store the major schema version in the subscriptions table
+    // or change this to "3" and verify that everything is
+    // working...
     private static final int MAJOR_SCHEMA_VERSION = 2;
 
     private static final String DUMMY_VERSION = "1.0.0";
@@ -83,13 +92,19 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("updateSubscribersTask", "Update Subscribers", "Update Subscribers");
+        return StepMetadata.builder().id("updateSubscribersTask").displayName("Update Subscribers").description(
+            "Update Subscribers").build();
     }
+
+    protected BiFunction<CloudFoundryOperations, String, Pair<String, String>> orgAndSpaceCalculator = (client,
+        spaceId) -> new ClientHelper(client).computeOrgAndSpace(spaceId);
 
     @Inject
     private ConfigurationSubscriptionDao subscriptionsDao;
     @Inject
     private ConfigurationEntryDao entriesDao;
+    @Inject
+    private ActivitiFacade activitiFacade;
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -97,22 +112,28 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
 
         try {
             info(context, Messages.UPDATING_SUBSCRIBERS, LOGGER);
-            List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntries(context);
-            List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntries(context);
+            List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, activitiFacade);
+            List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(context, activitiFacade);
             List<ConfigurationEntry> updatedEntries = merge(publishedEntries, deletedEntries);
 
-            boolean noRestartSubscribedApps = ContextUtil.getVariable(context, Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS, false);
-            CloudFoundryOperations currentSpaceClient = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations clientForCurrentSpace = getCloudFoundryClient(context, LOGGER);
 
+            List<CloudApplication> updatedSubscribers = new ArrayList<>();
+            List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
             for (ConfigurationSubscription subscription : subscriptionsDao.findAll(updatedEntries)) {
-                String appName = subscription.getAppName();
-                String mtaId = subscription.getMtaId();
-                try {
-                    updateSubscriber(subscription, getClient(subscription, currentSpaceClient, context), noRestartSubscribedApps, context);
-                } catch (CloudFoundryException | SLException e) {
-                    warn(context, format(Messages.COULD_NOT_UPDATE_SUBSCRIBER, appName, mtaId), e, LOGGER);
+                Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientForCurrentSpace, subscription.getSpaceId());
+                if (orgAndSpace == null) {
+                    LOGGER.warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
+                    continue;
+                }
+                CloudApplication updatedApplication = updateSubscriber(context, orgAndSpace, subscription);
+                if (updatedApplication != null) {
+                    addOrgAndSpaceIfNecessary(updatedApplication, orgAndSpace);
+                    addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication);
                 }
             }
+            StepsUtil.setUpdatedSubscribers(context, removeDuplicates(updatedSubscribers));
+            StepsUtil.setUpdatedServiceBrokerSubscribers(context, updatedServiceBrokerSubscribers);
             debug(context, Messages.SUBSCRIBERS_UPDATED, LOGGER);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
@@ -121,37 +142,87 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
         }
     }
 
-    private void updateSubscriber(ConfigurationSubscription subscription, CloudFoundryOperations client, boolean doNotRestartSubscribers,
-        DelegateExecution context) throws SLException {
-        ClientExtensions clientExtensions = null;
-        if (client instanceof ClientExtensions) {
-            clientExtensions = (ClientExtensions) client;
-        }
+    private void addApplicationToProperList(List<CloudApplication> updatedSubscribers,
+        List<CloudApplication> updatedServiceBrokerSubscribers, CloudApplication updatedApplication) {
+        ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(updatedApplication);
 
+        if (attributesGetter.getAttribute(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
+            updatedServiceBrokerSubscribers.add(updatedApplication);
+        } else {
+            updatedSubscribers.add(updatedApplication);
+        }
+    }
+
+    private void addOrgAndSpaceIfNecessary(CloudApplication application, Pair<String, String> orgAndSpace) {
+        // The entity returned by the getApplication(String appName) method of
+        // the CF Java client does not contain a CloudOrganization,
+        // because the value of the 'inline-relations-depth' is hardcoded to 1
+        // (see the findApplicationResource method of
+        // org.cloudfoundry.client.lib.rest.CloudControllerClientImpl).
+        if (application.getSpace() == null || application.getSpace().getOrganization() == null) {
+            CloudSpace space = createDummySpace(orgAndSpace);
+            application.setSpace(space);
+        }
+    }
+
+    private CloudSpace createDummySpace(Pair<String, String> orgAndSpace) {
+        CloudOrganization org = createDummyOrg(orgAndSpace._1);
+        return new CloudSpace(null, orgAndSpace._2, org);
+    }
+
+    private CloudOrganization createDummyOrg(String orgName) {
+        return new CloudOrganization(null, orgName);
+    }
+
+    private List<CloudApplication> removeDuplicates(List<CloudApplication> applications) {
+        Map<UUID, CloudApplication> applicationsMap = new LinkedHashMap<>();
+        for (CloudApplication application : applications) {
+            applicationsMap.put(application.getMeta().getGuid(), application);
+        }
+        return new ArrayList<>(applicationsMap.values());
+    }
+
+    private CloudApplication updateSubscriber(DelegateExecution context, Pair<String, String> orgAndSpace,
+        ConfigurationSubscription subscription) {
+        String appName = subscription.getAppName();
+        String mtaId = subscription.getMtaId();
+        String subscriptionName = getRequiredDependency(subscription).getName();
+        try {
+            return attemptToUpdateSubscriber(context, getClient(context, orgAndSpace), subscription);
+        } catch (CloudFoundryException | SLException e) {
+            warn(context, format(Messages.COULD_NOT_UPDATE_SUBSCRIBER, appName, mtaId, subscriptionName), e, LOGGER);
+            return null;
+        }
+    }
+
+    private CloudApplication attemptToUpdateSubscriber(DelegateExecution context, CloudFoundryOperations client,
+        ConfigurationSubscription subscription) throws SLException {
         HandlerFactory handlerFactory = new HandlerFactory(MAJOR_SCHEMA_VERSION);
 
         DeploymentDescriptor dummyDescriptor = buildDummyDescriptor(subscription, handlerFactory);
         debug(context, format(com.sap.cloud.lm.sl.cf.core.message.Messages.DEPLOYMENT_DESCRIPTOR, toJson(dummyDescriptor, true)), LOGGER);
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(entriesDao,
-            new DummyConfigurationFilterParser(subscription.getFilter()));
+            new DummyConfigurationFilterParser(subscription.getFilter()),
+            new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)));
         resolver.resolve(dummyDescriptor);
         debug(context,
             format(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor)),
             LOGGER);
-        dummyDescriptor = handlerFactory.getDescriptorReferenceResolver(dummyDescriptor).resolve();
+        dummyDescriptor = handlerFactory.getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(),
+            new ResolverBuilder()).resolve();
         debug(context,
             format(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor)),
             LOGGER);
 
-        CloudModelBuilder cloudModelBuilder = handlerFactory.getCloudModelBuilder(dummyDescriptor, getEmptySystemParameters(), false,
-            shouldUsePretttyPrinting(), false, false, false, "", new XsPlaceholderResolver());
+        ApplicationsCloudModelBuilder appsCloudModelBuilder = handlerFactory.getApplicationsCloudModelBuilder(dummyDescriptor,
+            StepsUtil.getCloudBuilderConfiguration(context, shouldUsePrettyPrinting()), null, getEmptySystemParameters(),
+            new XsPlaceholderResolver(), "");
 
         String moduleName = dummyDescriptor.getModules1_0().get(0).getName();
         Set<String> moduleNamesSet = new TreeSet<>(Arrays.asList(moduleName));
 
-        CloudApplicationExtended application = cloudModelBuilder.getApplications(moduleNamesSet, moduleNamesSet,
-            Collections.emptySet()).get(0);
+        CloudApplicationExtended application = appsCloudModelBuilder.build(moduleNamesSet, moduleNamesSet, Collections.emptySet()).get(0);
         CloudApplication existingApplication = client.getApplication(subscription.getAppName());
 
         Map<String, String> updatedEnvironment = application.getEnvAsMap();
@@ -161,24 +232,13 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
             getPropertiesToTransfer(subscription, resolver));
 
         if (!neededToBeUpdated) {
-            return;
+            return null;
         }
 
-        info(context, format(Messages.UPDATING_SUBSCRIBER, subscription.getAppName(), subscription.getMtaId()), LOGGER);
+        info(context, format(Messages.UPDATING_SUBSCRIBER, subscription.getAppName(), subscription.getMtaId(),
+            getRequiredDependency(subscription).getName()), LOGGER);
         client.updateApplicationEnv(existingApplication.getName(), currentEnvironment);
-
-        if (doNotRestartSubscribers) {
-            return;
-        }
-
-        info(context, format(Messages.STOPPING_APP, existingApplication.getName()), LOGGER);
-        client.stopApplication(existingApplication.getName());
-        info(context, format(Messages.STARTING_APP, existingApplication.getName()), LOGGER);
-        if (clientExtensions != null) {
-            clientExtensions.startApplication(existingApplication.getName(), false);
-        } else {
-            client.startApplication(existingApplication.getName());
-        }
+        return existingApplication;
     }
 
     private List<String> getPropertiesToTransfer(ConfigurationSubscription subscription, ConfigurationReferencesResolver resolver) {
@@ -233,22 +293,8 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
         return new SystemParameters(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
-    private CloudFoundryOperations getClient(ConfigurationSubscription subscription, CloudFoundryOperations client,
-        DelegateExecution context) throws SLException {
-        Pair<String, String> orgAndSpace = computeOrgAndSpace(subscription.getSpaceId(), client);
-        if (orgAndSpace == null) {
-            throw new SLException(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
-        }
+    private CloudFoundryOperations getClient(DelegateExecution context, Pair<String, String> orgAndSpace) throws SLException {
         return getCloudFoundryClient(context, LOGGER, orgAndSpace._1, orgAndSpace._2);
-    }
-
-    protected Pair<String, String> computeOrgAndSpace(String spaceIdd, CloudFoundryOperations client) {
-        for (CloudSpace space : client.getSpaces()) {
-            if (space.getMeta().getGuid().equals(UUID.fromString(spaceIdd))) {
-                return new Pair<>(space.getOrganization().getName(), space.getName());
-            }
-        }
-        return null;
     }
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory)
@@ -274,7 +320,7 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
         return handlerFactory.getDescriptorParser().parseDeploymentDescriptor(dummyDescriptorMap);
     }
 
-    protected boolean shouldUsePretttyPrinting() {
+    protected boolean shouldUsePrettyPrinting() {
         return true;
     }
 

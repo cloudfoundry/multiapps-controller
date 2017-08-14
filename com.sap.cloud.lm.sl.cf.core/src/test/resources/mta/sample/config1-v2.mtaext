@@ -2,7 +2,7 @@ _schema-version: "2.0.0"
 ID: com.sap.mta.sample.config1
 extends: com.sap.mta.sample              
 
-target-platforms: [CF-QUAL]
+targets: [CF-QUAL]
 
 modules:
   - name: web-server

@@ -25,7 +25,7 @@ public class PrepareToUndeployStep extends AbstractXS2ProcessStep {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrepareToUndeployStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("prepareToUndeployTask", "Prepare Undeploy", "Prepare Undeploy");
+        return StepMetadata.builder().id("prepareToUndeployTask").displayName("Prepare Undeploy").description("Prepare Undeploy").build();
     }
 
     @Inject
@@ -44,7 +44,7 @@ public class PrepareToUndeployStep extends AbstractXS2ProcessStep {
             StepsUtil.setMtaModules(context, Collections.emptySet());
             StepsUtil.setServiceBrokersToCreate(context, Collections.emptyList());
             StepsUtil.setPublishedEntries(context, Collections.emptyList());
-            StepsUtil.setDependenciesToPublish(context, Collections.emptyList());
+            StepsUtil.setConfigurationEntriesToPublish(context, Collections.emptyMap());
             StepsUtil.setAppsToDeploy(context, Collections.emptyList());
             StepsUtil.setServiceUrlsToRegister(context, Collections.emptyList());
             StepsUtil.setSubscriptionsToCreate(context, Collections.emptyList());

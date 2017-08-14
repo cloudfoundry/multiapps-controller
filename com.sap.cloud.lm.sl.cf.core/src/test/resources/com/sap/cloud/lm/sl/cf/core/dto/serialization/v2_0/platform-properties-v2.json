@@ -1,0 +1,72 @@
+{
+  "id": 6,
+  "name": "name-value-2",
+  "description": "test deploy target content description value2",
+  "parameters": {
+    "KEY-1": "VALUE-1",
+    "KEY-2": {
+      "INNER-KEY-1": "INNER-VALUE-1",
+      "INNER-KEY-2": {
+        "INNER-INNER-KEY-1": [
+          "LIST-1-VALUE-1",
+          "LIST-1-VALUE-2"
+        ],
+        "INNER-INNER-KEY-2": [
+          "LIST-2-VALUE-1",
+          "LIST-2-VALUE-2"
+        ]
+      },
+      "INNER-KEY-3": "INNER-VALUE-3"
+    },
+    "KEY-3": "VALUE-3"
+  },
+  "module-types": [
+    {
+      "name": "MODULE-1",
+      "properties": {
+        "KEY-1": "VALUE-1",
+        "KEY-2": "VALUE-2"
+      },
+      "parameters": {
+        "KEY-1": [
+          {
+            "KEY-1": "VALUE-1",
+            "KEY-2": "VALUE-2"
+          },
+          {
+            "KEY-3": "VALUE-3",
+            "KEY-4": "VALUE-4"
+          }
+        ],
+        "KEY-2": "VALUE-2"
+      }
+    },
+    {
+      "name": "MODULE-2",
+      "properties": {},
+      "parameters": {}
+    }
+  ],
+  "resource-types": [
+    {
+      "name": "RESOURCE-1",
+      "parameters": {
+        "KEY-1": [
+          {
+            "KEY-1": "VALUE-1",
+            "KEY-2": "VALUE-2"
+          },
+          {
+            "KEY-3": "VALUE-3",
+            "KEY-4": "VALUE-4"
+          }
+        ],
+        "KEY-2": "VALUE-2"
+      }
+    },
+    {
+      "name": "RESOURCE-2",
+      "parameters": {}
+    }
+  ]
+}

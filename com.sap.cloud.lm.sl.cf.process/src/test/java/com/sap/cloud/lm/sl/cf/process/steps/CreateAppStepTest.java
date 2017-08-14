@@ -1,15 +1,16 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,14 +20,15 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEntityUpdater;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -40,9 +42,7 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
 
     private CloudApplicationExtended application;
 
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
-    private ClientExtensions clientExtensions = Mockito.mock(ClientExtensions.class);
-    private ApplicationEntityUpdater applicationUpdater = Mockito.mock(ApplicationEntityUpdater.class);
+    private ApplicationStagingUpdater applicationUpdater = Mockito.mock(ApplicationStagingUpdater.class);
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -74,6 +74,10 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
             {
                 "create-app-step-input-04.json", "Cannot bind application \"application\" to non-existing service \"service-2\"!", null,
             },
+            // (5) Binding parameters exist, but the services do not and service-2 is optional - so no exception should be thrown:
+            {
+                "create-app-step-input-05.json", null, PlatformType.CF,
+            },
 // @formatter:on
         });
     }
@@ -95,8 +99,7 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         validateClient();
         validateApplicationUpdate();
@@ -114,20 +117,43 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
             expectedException.expectMessage(expectedExceptionMessage);
         }
         application = stepInput.applications.get(stepInput.applicationIndex);
+        application.setModuleName("test");
     }
 
     private void prepareContext() {
         StepsUtil.setAppsToDeploy(context, stepInput.applications);
-        StepsUtil.setServicesToCreate(context, Collections.emptyList());
+        StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
+        StepsUtil.setServicesToCreate(context, mapToCloudServiceExtended());
+        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
         context.setVariable(Constants.VAR_APPS_INDEX, stepInput.applicationIndex);
     }
 
+    private List<CloudServiceExtended> mapToCloudServiceExtended() {
+        return application.getServices().stream().map(serviceName -> extracted(serviceName)).collect(Collectors.toList());
+    }
+
+    private CloudServiceExtended extracted(String serviceName) {
+        for (SimpleService simpleService : stepInput.services) {
+            if (simpleService.name.equals(serviceName)) {
+                return simpleService.toCloudServiceExtended();
+            }
+        }
+        return new CloudServiceExtended(null, serviceName);
+    }
+
     private void prepareClient() {
-        step.extensionsSupplier = (context) -> clientExtensions;
-        step.clientSupplier = (context) -> client;
         step.platformTypeSupplier = () -> stepInput.platform;
-        for (CloudService service : stepInput.services) {
-            Mockito.when(client.getService(service.getName())).thenReturn(service);
+        for (SimpleService simpleService : stepInput.services) {
+            CloudServiceExtended service = simpleService.toCloudServiceExtended();
+            if (!service.isOptional()) {
+                Mockito.when(client.getService(service.getName())).thenReturn(service);
+            }
+        }
+
+        for (String appName : stepInput.bindingErrors.keySet()) {
+            String serviceName = stepInput.bindingErrors.get(appName);
+            Mockito.doThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR)).when((ClientExtensions) client).bindService(
+                Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any());
         }
     }
 
@@ -139,21 +165,45 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
             argThat(ArgumentMatcherProvider.getStagingMatcher(application.getStaging())), eq(diskQuota), eq(memory),
             eq(application.getUris()), eq(Collections.emptyList()));
         for (String service : application.getServices()) {
-            if (application.getBindingParameters() == null || application.getBindingParameters().get(service) == null) {
-                Mockito.verify(client).bindService(application.getName(), service);
-            } else {
-                Mockito.verify(clientExtensions).bindService(application.getName(), service,
-                    application.getBindingParameters().get(service));
+            if (!isOptional(service)) {
+                if (application.getBindingParameters() == null || application.getBindingParameters().get(service) == null) {
+                    Mockito.verify(client).bindService(application.getName(), service);
+                } else {
+                    Mockito.verify(clientExtensions).bindService(application.getName(), service,
+                        application.getBindingParameters().get(service));
+                }
             }
         }
         Mockito.verify(client).updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
     }
 
+    private boolean isOptional(String service) {
+        for (SimpleService simpleService : stepInput.services) {
+            if (simpleService.name.equals(service)) {
+                return simpleService.isOptional;
+            }
+        }
+        return false;
+    }
+
     private static class StepInput {
         List<CloudApplicationExtended> applications = Collections.emptyList();
-        List<CloudService> services = Collections.emptyList();
+        List<SimpleService> services = Collections.emptyList();
         int applicationIndex;
         PlatformType platform;
+        Map<String, String> bindingErrors = new HashMap<>();
+    }
+
+    private static class SimpleService {
+        String name;
+        boolean isOptional;
+
+        CloudServiceExtended toCloudServiceExtended() {
+            CloudServiceExtended service = new CloudServiceExtended();
+            service.setName(name);
+            service.setOptional(isOptional);
+            return service;
+        }
     }
 
     @Override

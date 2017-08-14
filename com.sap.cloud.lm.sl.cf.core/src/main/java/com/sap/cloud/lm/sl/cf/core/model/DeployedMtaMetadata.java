@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.model;
 
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.google.gson.annotations.JsonAdapter;
@@ -9,8 +7,6 @@ import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonAdapter;
 import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionXmlAdapter;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
-@XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)
-@XmlRootElement(name = "metadata")
 public class DeployedMtaMetadata {
 
     // In order to keep backwards compatibility the version element cannot be null, since old clients might throw a NPE. TODO: Remove this
@@ -18,13 +14,11 @@ public class DeployedMtaMetadata {
     private static final Version UNKNOWN_MTA_VERSION = Version.parseVersion("0.0.0-unknown");
 
     private String id;
-
     @JsonAdapter(VersionJsonAdapter.class)
     @XmlJavaTypeAdapter(VersionXmlAdapter.class)
     private Version version;
 
     public DeployedMtaMetadata() {
-        // Required by JAXB
     }
 
     public DeployedMtaMetadata(String id) {

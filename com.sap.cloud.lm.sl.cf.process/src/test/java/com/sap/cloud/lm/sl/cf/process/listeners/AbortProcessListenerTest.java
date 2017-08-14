@@ -26,7 +26,7 @@ import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.persistence.services.FileService;
+import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 
 @RunWith(Enclosed.class)
 public class AbortProcessListenerTest {
@@ -92,7 +92,7 @@ public class AbortProcessListenerTest {
         private final String[] expectedFileIdsToSweep;
 
         @Mock
-        private FileService fileService;
+        private AbstractFileService fileService;
 
         @InjectMocks
         BeanProvider beanProvider = BeanProvider.getInstance();

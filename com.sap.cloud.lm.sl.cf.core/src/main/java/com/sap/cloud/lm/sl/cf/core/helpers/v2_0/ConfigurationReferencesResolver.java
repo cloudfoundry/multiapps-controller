@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.expander.PropertiesExpander;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.PropertiesContainer;
@@ -26,8 +27,8 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     private List<String> expandedProperties = new ArrayList<>();
 
     public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        BiFunction<String, String, String> spaceIdSupplier) {
-        super(dao, filterParser, spaceIdSupplier);
+        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
+        super(dao, filterParser, spaceIdSupplier, cloudTarget);
     }
 
     @Override

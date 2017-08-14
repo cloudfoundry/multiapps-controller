@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -27,8 +27,8 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.slp.resources.Configuration;
 import com.sap.cloud.lm.sl.slp.resources.DefaultConfiguration;
 
@@ -44,12 +44,12 @@ public class ConfigurationUtil {
     private static final String CFG_TYPE = "XS_TYPE";
     private static final String CFG_TARGET_URL = "XS_TARGET_URL"; // Mandatory
     private static final String CFG_DB_TYPE = "DB_TYPE";
-    private static final String CFG_PLATFORM_TYPES = "PLATFORM_TYPES"; // Mandatory
-    private static final String CFG_PLATFORM_TYPES_V2 = "PLATFORM_TYPES_V2"; // Mandatory
-    private static final String CFG_PLATFORM_TYPES_V3 = "PLATFORM_TYPES_V3"; // Mandatory
-    private static final String CFG_PLATFORMS = "PLATFORMS";
-    private static final String CFG_PLATFORMS_V2 = "PLATFORMS_V2";
-    private static final String CFG_PLATFORMS_V3 = "PLATFORMS_V3";
+    private static final String CFG_PLATFORMS = "PLATFORMS"; // Mandatory
+    private static final String CFG_PLATFORMS_V2 = "PLATFORMS_V2"; // Mandatory
+    private static final String CFG_PLATFORMS_V3 = "PLATFORMS_V3"; // Mandatory
+    private static final String CFG_TARGETS = "TARGETS";
+    private static final String CFG_TARGETS_V2 = "TARGETS_V2";
+    private static final String CFG_TARGETS_V3 = "TARGETS_V3";
     private static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     private static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     private static final String CFG_SCAN_UPLOADS = "SCAN_UPLOADS";
@@ -71,6 +71,8 @@ public class ConfigurationUtil {
     private static final String CFG_CHANGE_LOG_LOCK_WAIT_TIME = "CHANGE_LOG_LOCK_WAIT_TIME";
     private static final String CFG_CHANGE_LOG_LOCK_DURATION = "CHANGE_LOG_LOCK_DURATION";
     private static final String CFG_CHANGE_LOG_LOCK_ATTEMPTS = "CHANGE_LOG_LOCK_ATTEMPTS";
+    private static final String CFG_GLOBAL_CONFIG_SPACE = "GLOBAL_CONFIG_SPACE";
+    private static final String CFG_GATHER_USAGE_STATISTICS = "GATHER_USAGE_STATISTICS";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -78,8 +80,8 @@ public class ConfigurationUtil {
     static final PlatformType DEFAULT_TYPE = PlatformType.XS2;
     static final URL DEFAULT_TARGET_URL = url("http://localhost:9999");
     static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.DEFAULTDB;
-    static final List<TargetPlatformType> DEFAULT_PLATFORM_TYPES = Collections.emptyList();
-    static final List<TargetPlatform> DEFAULT_PLATFORMS = Collections.emptyList();
+    static final List<Platform> DEFAULT_PLATFORM_TYPES = Collections.emptyList();
+    static final List<Target> DEFAULT_PLATFORMS = Collections.emptyList();
     static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4GB
     static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1MB
     static final Boolean DEFAULT_SCAN_UPLOADS = false;
@@ -90,6 +92,8 @@ public class ConfigurationUtil {
     private static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
     private static final Integer DEFAULT_XS_CLIENT_QUEUE_CAPACITY = 8;
     private static final Integer DEFAULT_XS_CLIENT_KEEP_ALIVE = 60;
+    private static final Boolean DEFAULT_STATISTICS_USAGE = false;
+
     /*
      * In async local operations there are usually two threads. One does the actual work, while the other waits for a specific amount of
      * time and then terminates the first if it is still alive (thus introducing a time-out period for the entire operation).
@@ -134,6 +138,7 @@ public class ConfigurationUtil {
     private static Boolean scanUploads;
     private static Boolean useXSAuditLogging;
     private static String spaceGuid;
+    private static String orgName;
     private static Integer routerPort;
     private static Boolean dummyTokensEnabled;
     private static Boolean basicAuthEnabled;
@@ -152,18 +157,21 @@ public class ConfigurationUtil {
     private static Integer changeLogLockWaitTime;
     private static Integer changeLogLockDuration;
     private static Integer changeLogLockAttempts;
+    private static String globalConfigSpace;
+    private static Boolean gatherUsageStatistics;
 
     public static void load() {
         getPlatformType();
         getTargetURL();
         getDatabaseType();
-        getPlatformTypes();
         getPlatforms();
+        getTargets();
         getMaxUploadSize();
         getMaxMtaDescriptorSize();
         shouldScanUploads();
         isUseXSAuditLogging();
         getSpaceGuid();
+        getOrgName();
         getRouterPort();
         areDummyTokensEnabled();
         isBasicAuthEnabled();
@@ -175,27 +183,38 @@ public class ConfigurationUtil {
         getAsyncExecutorCoreThreads();
         getControllerPollingInterval();
         getUploadAppTimeout();
-        isSkipSslValidation();
+        shouldSkipSslValidation();
         areXsPlaceholdersSupported();
         getVersion();
         getDeployServiceUrl();
         getChangeLogLockWaitTime();
         getChangeLogLockDuration();
         getChangeLogLockAttempts();
-    }
-
-    private static Set<String> getNotSensitiveConfigVariables() {
-        return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_TARGET_URL, CFG_DB_TYPE, CFG_PLATFORM_TYPES, CFG_PLATFORM_TYPES_V2, CFG_PLATFORMS,
-            CFG_PLATFORMS_V2, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING,
-            CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_ADMIN_USERNAME, CFG_XS_CLIENT_CORE_THREADS, CFG_XS_CLIENT_MAX_THREADS,
-            CFG_XS_CLIENT_QUEUE_CAPACITY, CFG_XS_CLIENT_KEEP_ALIVE, CFG_SKIP_SSL_VALIDATION));
+        getGlobalConfigSpace();
+        shouldGatherUsageStatistics();
     }
 
     public static void logFullConfig() {
+        for (Map.Entry<String, String> envVariable : getFilteredEnv().entrySet()) {
+            AuditLoggingProvider.getFacade().logConfig(envVariable.getKey(), envVariable.getValue());
+        }
+    }
+
+    public static Map<String, String> getFilteredEnv() {
         Set<String> notSensitiveConfigVariables = getNotSensitiveConfigVariables();
-        Map<String, String> filteredEnv = System.getenv().entrySet().stream().filter(
-            e -> notSensitiveConfigVariables.contains(e.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        AuditLoggingProvider.getFacade().logFullConfig(filteredEnv.toString());
+        Map<String, String> env = System.getenv();
+        return env.entrySet().stream().filter(envVariable -> notSensitiveConfigVariables.contains(envVariable.getKey())).collect(
+            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private static Set<String> getNotSensitiveConfigVariables() {
+        return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_TARGET_URL, CFG_DB_TYPE, CFG_PLATFORMS, CFG_PLATFORMS_V2, CFG_PLATFORMS_V3,
+            CFG_TARGETS, CFG_TARGETS_V2, CFG_TARGETS_V3, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_SCAN_UPLOADS,
+            CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_ADMIN_USERNAME, CFG_XS_CLIENT_CORE_THREADS,
+            CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY, CFG_XS_CLIENT_KEEP_ALIVE, CFG_ASYNC_EXECUTOR_CORE_THREADS,
+            CFG_CONTROLLER_POLLING_INTERVAL, CFG_UPLOAD_APP_TIMEOUT, CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION,
+            CFG_CHANGE_LOG_LOCK_WAIT_TIME, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
+            CFG_GATHER_USAGE_STATISTICS));
     }
 
     public static Configuration getSlpConfiguration() {
@@ -223,35 +242,35 @@ public class ConfigurationUtil {
         return databaseType;
     }
 
-    public static List<TargetPlatformType> getPlatformTypes() {
-        return getPlatformTypes(null, 1);
+    public static List<Platform> getPlatforms() {
+        return getPlatforms(null, 1);
     }
 
-    public static List<TargetPlatformType> getPlatformTypes(ConfigurationParser parser, int majorVersion) {
+    public static List<Platform> getPlatforms(ConfigurationParser parser, int majorVersion) {
         switch (majorVersion) {
             case 1:
-                return getPlatformTypes(getEnv(CFG_PLATFORM_TYPES));
+                return getPlatforms(getEnv(CFG_PLATFORMS));
             case 2:
-                return getPlatformTypes(getEnv(CFG_PLATFORM_TYPES_V2), parser);
+                return getPlatforms(getEnv(CFG_PLATFORMS_V2), parser);
             case 3:
-                return getPlatformTypes(getEnv(CFG_PLATFORM_TYPES_V3), parser);
+                return getPlatforms(getEnv(CFG_PLATFORMS_V3), parser);
             default:
                 throw new UnsupportedOperationException();
         }
     }
 
-    public static List<TargetPlatform> getPlatforms() {
-        return getPlatforms(null, 1);
+    public static List<? extends Target> getTargets() {
+        return getTargets(null, 1);
     }
 
-    public static List<TargetPlatform> getPlatforms(ConfigurationParser parser, int majorVersion) {
+    public static List<? extends Target> getTargets(ConfigurationParser parser, int majorVersion) {
         switch (majorVersion) {
             case 1:
-                return getPlatforms(System.getenv(CFG_PLATFORMS));
+                return getTargets(System.getenv(CFG_TARGETS));
             case 2:
-                return getPlatforms(getEnv(CFG_PLATFORMS_V2), parser);
+                return getTargets(getEnv(CFG_TARGETS_V2), parser);
             case 3:
-                return getPlatforms(getEnv(CFG_PLATFORMS_V3), parser);
+                return getTargets(getEnv(CFG_TARGETS_V3), parser);
             default:
                 throw new UnsupportedOperationException();
         }
@@ -291,6 +310,28 @@ public class ConfigurationUtil {
             spaceGuid = getSpaceGuid(getEnv(CFG_VCAP_APPLICATION));
         }
         return spaceGuid;
+    }
+
+    public static String getOrgName() {
+        if (orgName == null) {
+            orgName = getOrgName(getEnv(CFG_VCAP_APPLICATION));
+        }
+        return orgName;
+    }
+
+    private static String getOrgName(String json) {
+        try {
+            Map<String, Object> vcapApplication = JsonUtil.convertJsonToMap(json);
+            Object orgName = vcapApplication.get("organization_name");
+            if (orgName != null) {
+                LOGGER.info(format(Messages.ORG_NAME, orgName));
+                return orgName.toString();
+            }
+            LOGGER.warn(format(Messages.SPACE_ID_NOT_SPECIFIED, DEFAULT_SPACE_ID));
+        } catch (ParsingException e) {
+            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION, json), e);
+        }
+        return null;
     }
 
     public static int getRouterPort() {
@@ -363,9 +404,9 @@ public class ConfigurationUtil {
         return controllerPollingInterval;
     }
 
-    public static Boolean isSkipSslValidation() {
+    public static Boolean shouldSkipSslValidation() {
         if (skipSslValidation == null) {
-            skipSslValidation = isSkipSslValidation(System.getenv(CFG_SKIP_SSL_VALIDATION));
+            skipSslValidation = shouldSkipSslValidation(System.getenv(CFG_SKIP_SSL_VALIDATION));
         }
         return skipSslValidation;
     }
@@ -454,38 +495,38 @@ public class ConfigurationUtil {
         return DEFAULT_DB_TYPE;
     }
 
-    static List<TargetPlatformType> getPlatformTypes(String json) {
-        return getPlatformTypes(json, new ConfigurationParser());
+    static List<Platform> getPlatforms(String json) {
+        return getPlatforms(json, new ConfigurationParser());
     }
 
-    static List<TargetPlatformType> getPlatformTypes(String json, ConfigurationParser parser) {
+    static List<Platform> getPlatforms(String json, ConfigurationParser parser) {
         try {
             if (json != null) {
-                List<TargetPlatformType> result = parser.parsePlatformTypesJson(json);
+                List<Platform> result = parser.parsePlatformsJson(json);
                 LOGGER.info(format(Messages.PLATFORM_TYPES, JsonUtil.toJson(result, true)));
                 return result;
             }
             LOGGER.warn(format(Messages.PLATFORM_TYPES_NOT_SPECIFIED, DEFAULT_PLATFORM_TYPES));
         } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_PLATFORM_TYPES, json, DEFAULT_PLATFORM_TYPES), e);
+            LOGGER.warn(format(Messages.INVALID_PLATFORMS, json, DEFAULT_PLATFORM_TYPES), e);
         }
         return DEFAULT_PLATFORM_TYPES;
     }
 
-    static List<TargetPlatform> getPlatforms(String json) {
-        return getPlatforms(json, new ConfigurationParser());
+    static List<Target> getTargets(String json) {
+        return getTargets(json, new ConfigurationParser());
     }
 
-    static List<TargetPlatform> getPlatforms(String json, ConfigurationParser parser) {
+    static List<Target> getTargets(String json, ConfigurationParser parser) {
         try {
             if (json != null) {
-                List<TargetPlatform> result = parser.parsePlatformsJson(json);
+                List<Target> result = parser.parseTargetsJson(json);
                 LOGGER.info(format(Messages.PLATFORMS, new SecureSerializationFacade().toJson(result)));
                 return result;
             }
             LOGGER.info(format(Messages.PLATFORMS_NOT_SPECIFIED, DEFAULT_PLATFORMS));
         } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_PLATFORMS, json, DEFAULT_PLATFORMS), e);
+            LOGGER.warn(format(Messages.INVALID_TARGETS, json, DEFAULT_PLATFORMS), e);
         }
         return DEFAULT_PLATFORMS;
     }
@@ -604,7 +645,7 @@ public class ConfigurationUtil {
         return getPositiveInt(value, DEFAULT_UPLOAD_APP_TIMEOUT, Messages.UPLOAD_APP_TIMEOUT);
     }
 
-    static Boolean isSkipSslValidation(String value) {
+    static Boolean shouldSkipSslValidation(String value) {
         return getBoolean(value, false, Messages.SKIP_SSL_VALIDATION);
     }
 
@@ -684,6 +725,24 @@ public class ConfigurationUtil {
             uploadAppTimeout = getUploadAppTimeout(System.getenv(CFG_UPLOAD_APP_TIMEOUT));
         }
         return uploadAppTimeout;
+    }
+
+    public static String getGlobalConfigSpace() {
+        if (globalConfigSpace == null) {
+            globalConfigSpace = System.getenv(CFG_GLOBAL_CONFIG_SPACE);
+        }
+        return globalConfigSpace;
+    }
+
+    static Boolean shouldGatherUsageStatistics(String value) {
+        return getBoolean(value, DEFAULT_STATISTICS_USAGE, Messages.GATHER_STATISTICS);
+    }
+
+    public static Boolean shouldGatherUsageStatistics() {
+        if (gatherUsageStatistics == null) {
+            gatherUsageStatistics = shouldGatherUsageStatistics(System.getenv(CFG_GATHER_USAGE_STATISTICS));
+        }
+        return gatherUsageStatistics;
     }
 
 }

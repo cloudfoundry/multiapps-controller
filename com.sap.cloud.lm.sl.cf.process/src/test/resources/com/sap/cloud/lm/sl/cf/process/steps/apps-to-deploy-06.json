@@ -5,14 +5,14 @@
   },
   {
     "name": "module-2",
-    "tempUris": [],
+    "idleUris": [],
     "uris": [
       "module-2.api.cf.neo.ondemand.com"
     ]
   },
   {
     "name": "module-3",
-    "tempUris": [],
+    "idleUris": [],
     "uris": [
       "module-3.api.cf.neo.ondemand.com"
     ]

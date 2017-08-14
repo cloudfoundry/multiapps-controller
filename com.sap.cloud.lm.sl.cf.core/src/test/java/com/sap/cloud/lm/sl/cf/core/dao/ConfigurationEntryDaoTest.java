@@ -24,6 +24,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -67,23 +68,23 @@ public class ConfigurationEntryDaoTest {
                 },
                 // (2)
                 {
-                    new FindTest(new FindTestInput("n-1", "id-1", "1.0.0", "s-1", null, null), "R:configuration-entry-01.json"),
+                    new FindTest(new FindTestInput("n-1", "id-1", "1.0.0", "s-1", null, null, null), "R:configuration-entry-01.json"),
                 },
                 // (3)
                 {
-                    new RemoveTest(new RemoveTestInput("n-1", "id-1", "1.0.0", "s-1", null), ""),
+                    new RemoveTest(new RemoveTestInput("n-1", "id-1", "1.0.0", "s-1", null, null), ""),
                 },
                 // (4)
                 {
-                    new FindAllTest(new FindTestInput(null, "id-1", "1.0.0", null, null, null), "R:configuration-entry-dao-test-output-04.json"),
+                    new FindAllTest(new FindTestInput(null, "id-1", "1.0.0", null, null, null, null), "R:configuration-entry-dao-test-output-04.json"),
                 },
                 // (5)
                 {
-                    new FindAllTest(new FindTestInput("n-3", "id-3", "3.0.0", "s-3", null, null), "R:configuration-entry-dao-test-output-05.json"),
+                    new FindAllTest(new FindTestInput("n-3", "id-3", "3.0.0", "s-3", null, null, null), "R:configuration-entry-dao-test-output-05.json"),
                 },
                 // (6)
                 {
-                    new FindAllTest(new FindTestInput("n-1", null, null, "s-1", null, null), "R:configuration-entry-dao-test-output-06.json"),
+                    new FindAllTest(new FindTestInput("n-1", null, null, "s-1", null, null, null), "R:configuration-entry-dao-test-output-06.json"),
                 },
                 // (7)
                 {
@@ -91,52 +92,76 @@ public class ConfigurationEntryDaoTest {
                 },
                 // (8)
                 {
-                    new FindAllTest(new FindTestInput(null, null, null, null, null, null), "R:configuration-registry-content.json"),
+                    new FindAllTest(new FindTestInput(null, null, null, null, null, null, null), "R:configuration-registry-content.json"),
                 },
                 // (9)
                 {
-                    new FindAllTest(new FindTestInput(null, null, "> 1.0.0", null, null, null), "R:configuration-entry-dao-test-output-09.json"),
+                    new FindAllTest(new FindTestInput(null, null, "> 1.0.0", null, null, null, null), "R:configuration-entry-dao-test-output-09.json"),
                 },
                 // (10)
                 {
-                    new FindAllTest(new FindTestInput(null, null, "= 1.0.0", null, null, null), "R:configuration-entry-dao-test-output-10.json"),
+                    new FindAllTest(new FindTestInput(null, null, "= 1.0.0", null, null, null, null), "R:configuration-entry-dao-test-output-10.json"),
                 },
                 // (11)
                 {
-                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, null, null), "R:configuration-entry-dao-test-output-11.json"),
+                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, null, null, null), "R:configuration-entry-dao-test-output-11.json"),
                 },
                 // (12)
                 {
-                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, MapUtil.asMap("type", "test"), null), "R:configuration-entry-dao-test-output-12.json"),
+                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, MapUtil.asMap("type", "test"), null, null), "R:configuration-entry-dao-test-output-12.json"),
                 },
                 // (13)
                 {
-                    new RemoveTest(new RemoveTestInput(null, "id-2", null, "s-2", null), ""),
+                    new RemoveTest(new RemoveTestInput(null, "id-2", null, "s-2", null, null), ""),
                 },
                 // (14)
                 {
-                    new FindTest(new FindTestInput(null, "id-6", null, "s-6", null, null), "R:configuration-entry-06.json"),
+                    new FindTest(new FindTestInput(null, "id-6", null, "s-6", null, null, null), "R:configuration-entry-06.json"),
                 },
                 // (15)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", "s-1", "configuration-entry-dao-test-input-18.json"), "R:configuration-entry-dao-test-output-15.json"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", "s-1", "configuration-entry-dao-test-input-18.json", null), "R:configuration-entry-dao-test-output-15.json"),
                 },
                 // (16)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", "s-1", "configuration-entry-dao-test-input-19.json"), "R:configuration-entry-dao-test-output-16.json"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", "s-1", "configuration-entry-dao-test-input-19.json", null), "R:configuration-entry-dao-test-output-16.json"),
                 },
                 // (17)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", "s-1", "configuration-entry-dao-test-input-20.json"), "R:configuration-entry-dao-test-output-17.json"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", "s-1", "configuration-entry-dao-test-input-20.json", null), "R:configuration-entry-dao-test-output-17.json"),
                 },
                 // (18)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", "s-1", "configuration-entry-dao-test-input-21.json"), "E:Configuration entry with namespace ID \"n-2\", ID \"id-2\", version \"2.0.0\" and target space \"s-2\" already exists"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", "s-1", "configuration-entry-dao-test-input-21.json", null), "E:Configuration entry with namespace ID \"n-2\", ID \"id-2\", version \"2.0.0\" and target space \"s-2\" already exists"),
                 },
                 // (19)
                 {
-                    new FindAllTest(new FindTestInput(null, null, null, null, null, "com.sap.example.mta"), "R:configuration-entry-dao-test-output-19.json"),
+                    new FindAllTest(new FindTestInput(null, null, null, null, null, "com.sap.example.mta", null), "R:configuration-entry-dao-test-output-19.json"),
                 },
+                // (20)
+                {
+                    new FindAllTest(new FindTestInput(null, "id-2", null, null, null, null, Arrays.asList(new CloudTarget("org2", "space2"))), "R:configuration-entry-dao-test-output-20.json"),
+                },              
+                // (21)
+                {
+                    new FindAllTest(new FindTestInput(null, null, "0.1.0", null, null, null, Arrays.asList(new CloudTarget("myorg", "*"))), "R:configuration-entry-dao-test-output-21.json"),
+                },
+                // (22)
+                {
+                    new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org3", "space3"))), "R:configuration-entry-dao-test-output-22.json"),
+                },
+                // (23)
+                {
+                    new FindAllTest(new FindTestInput("n-2", null, null, null, null, null, Arrays.asList(new CloudTarget("*", ""))), "R:configuration-entry-dao-test-output-23.json"),
+                },
+                // (24)
+                {
+                    new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org3", "space3"), new CloudTarget("org4", "space4"))), "R:configuration-entry-dao-test-output-24.json"),
+                }, 
+                // (25)               
+                {
+                    new FindAllTest(new FindTestInput(null, "s-2", null, null, null, null, Arrays.asList(new CloudTarget("myorg1", "myspace1"))), "[]"),
+                }
     // @formatter:on
             });
         }
@@ -167,8 +192,9 @@ public class ConfigurationEntryDaoTest {
 
         private static class RemoveTestInput extends FindTestInput {
 
-            public RemoveTestInput(String nid, String id, String version, String target, Map<String, String> requiredProperties) {
-                super(nid, id, version, target, requiredProperties, null);
+            public RemoveTestInput(String nid, String id, String version, String target, Map<String, Object> requiredProperties,
+                List<CloudTarget> cloudTargets) {
+                super(nid, id, version, target, requiredProperties, null, cloudTargets);
             }
 
         }
@@ -177,9 +203,9 @@ public class ConfigurationEntryDaoTest {
 
             public ConfigurationEntry configurationEntry;
 
-            public UpdateTestInput(String nid, String id, String version, String target, String configurationEntryLocation)
-                throws Exception {
-                super(nid, id, version, target, Collections.emptyMap(), null);
+            public UpdateTestInput(String nid, String id, String version, String target, String configurationEntryLocation,
+                List<CloudTarget> cloudTarget) throws Exception {
+                super(nid, id, version, target, Collections.emptyMap(), null, cloudTarget);
                 configurationEntry = TestInput.loadJsonInput(configurationEntryLocation, ConfigurationEntry.class, getClass());
             }
 
@@ -188,16 +214,18 @@ public class ConfigurationEntryDaoTest {
         private static class FindTestInput extends TestInput {
 
             public String nid, id, version, target, mtaId;
-            public Map<String, String> requiredProperties;
+            public Map<String, Object> requiredProperties;
+            public List<CloudTarget> cloudTargets;
 
-            public FindTestInput(String nid, String id, String version, String target, Map<String, String> requiredProperties,
-                String mtaId) {
+            public FindTestInput(String nid, String id, String version, String target, Map<String, Object> requiredProperties, String mtaId,
+                List<CloudTarget> cloudTargets) {
                 this.version = version;
                 this.nid = nid;
                 this.target = target;
                 this.id = id;
                 this.requiredProperties = requiredProperties;
                 this.mtaId = mtaId;
+                this.cloudTargets = cloudTargets;
             }
 
         }
@@ -228,7 +256,7 @@ public class ConfigurationEntryDaoTest {
                     dao.remove(entry.getId());
                     assertTrue(!dao.exists(entry.getId()));
 
-                } , expected);
+                }, expected);
             }
 
         }
@@ -247,7 +275,7 @@ public class ConfigurationEntryDaoTest {
 
                     return dao.update(findConfigurationEntries(input, dao).get(0).getId(), input.configurationEntry);
 
-                } , expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
@@ -266,7 +294,7 @@ public class ConfigurationEntryDaoTest {
 
                     return dao.add(input.configurationEntry);
 
-                } , expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
@@ -285,7 +313,7 @@ public class ConfigurationEntryDaoTest {
 
                     return dao.find(findConfigurationEntries(input, dao).get(0).getId());
 
-                } , expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
@@ -299,16 +327,15 @@ public class ConfigurationEntryDaoTest {
             @Override
             public void test() {
                 TestUtil.test(() -> {
-
                     return findConfigurationEntries(input, createDao());
 
-                } , expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
 
         private static List<ConfigurationEntry> findConfigurationEntries(FindTestInput input, ConfigurationEntryDao dao) {
-            return dao.find(input.nid, input.id, input.version, input.target, input.requiredProperties, input.mtaId);
+            return dao.find(input.nid, input.id, input.version, input.target, input.requiredProperties, input.mtaId, input.cloudTargets);
         }
 
     }
@@ -332,7 +359,7 @@ public class ConfigurationEntryDaoTest {
         public void testUpdate() {
             long id = getUnusedId(dao);
             try {
-                dao.update(id, new ConfigurationEntry("", "", Version.parseVersion("1.0.0"), "", ""));
+                dao.update(id, new ConfigurationEntry("", "", Version.parseVersion("1.0.0"), "", "", null));
                 fail();
             } catch (SLException e) {
                 assertEquals(MessageFormat.format(Messages.CONFIGURATION_ENTRY_NOT_FOUND, id), e.getMessage());

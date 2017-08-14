@@ -4,14 +4,14 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 public interface ParameterValidator {
 
-    default boolean validate(Object container, Object parameter) {
+    default boolean isValid(Object container, Object parameter) {
         if (parameter != null) {
-            return validate(parameter);
+            return isValid(parameter);
         }
         return true;
     }
 
-    default boolean validate(Object parameter) {
+    default boolean isValid(Object parameter) {
         return true;
     }
 

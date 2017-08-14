@@ -13,12 +13,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @RunWith(Parameterized.class)
-public class DeployAppsStepTest extends AbstractStepTest<DeployAppsStep> {
+public class DeployAppsStepTest extends AbstractStepTest<PrepareAppsDeploymentStep> {
 
     private final int count;
 
@@ -40,10 +39,9 @@ public class DeployAppsStepTest extends AbstractStepTest<DeployAppsStep> {
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
-        assertEquals(count, context.getVariable(Constants.VAR_APPS_SIZE));
+        assertEquals(count, context.getVariable(Constants.VAR_APPS_COUNT));
         assertEquals(0, context.getVariable(Constants.VAR_APPS_INDEX));
     }
 
@@ -61,8 +59,8 @@ public class DeployAppsStepTest extends AbstractStepTest<DeployAppsStep> {
     }
 
     @Override
-    protected DeployAppsStep createStep() {
-        return new DeployAppsStep();
+    protected PrepareAppsDeploymentStep createStep() {
+        return new PrepareAppsDeploymentStep();
     }
 
 }

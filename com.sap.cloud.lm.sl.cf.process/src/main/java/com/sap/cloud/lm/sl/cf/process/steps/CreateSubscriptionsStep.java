@@ -23,7 +23,8 @@ public class CreateSubscriptionsStep extends AbstractXS2ProcessStep {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateSubscriptionsStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("createSubscriptionsTask", "Create Subscriptions", "Create Subscriptions");
+        return StepMetadata.builder().id("createSubscriptionsTask").displayName("Create Subscriptions").description(
+            "Create Subscriptions").build();
     }
 
     @Inject

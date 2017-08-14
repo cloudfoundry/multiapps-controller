@@ -11,6 +11,12 @@
     "providerId": "id-1",
     "providerVersion": "1.0.0",
     "targetSpace": "s-1",
-    "content": "{\"type\": \"prod\"}"
+    "content": "{\"type\": \"prod\"}",
+    "visibility": [
+      {
+        "space": "*",
+        "org": "org1"
+      }
+    ]
   }
 ]

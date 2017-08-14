@@ -1,0 +1,33 @@
+[
+  {
+    "idleUris": [],
+    "diskQuota": 0,
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "uris": [],
+    "name": "module-1"
+  },
+  {
+    "idleUris": [],
+    "diskQuota": 0,
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "uris": [
+      "module-2.api.cf.neo.ondemand.com"
+    ],
+    "name": "module-2"
+  },
+  {
+    "idleUris": [],
+    "diskQuota": 0,
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "uris": [
+      "module-3.api.cf.neo.ondemand.com"
+    ],
+    "name": "module-3"
+  }
+]

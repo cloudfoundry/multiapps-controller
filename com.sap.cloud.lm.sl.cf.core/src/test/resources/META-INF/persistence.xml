@@ -29,7 +29,7 @@
     </persistence-unit>
     <persistence-unit name="ConfigurationEntryManagement" transaction-type="RESOURCE_LOCAL">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <class>com.sap.cloud.lm.sl.cf.core.dto.ConfigurationEntryDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
@@ -40,18 +40,19 @@
             <property name="openjpa.jdbc.DBDictionary" value="derby(NextSequenceQuery=VALUES NEXT VALUE FOR {0})" />
         </properties>
     </persistence-unit>
-    <persistence-unit name="TargetPlatformManagement" transaction-type="RESOURCE_LOCAL">
+    <persistence-unit name="DeployTargetManagement" transaction-type="RESOURCE_LOCAL">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v1.TargetPlatformDto</class>
-        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v2.TargetPlatformDto</class>
-        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v3.TargetPlatformDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v1.DeployTargetDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v2.DeployTargetDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v3.DeployTargetDto</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
-            <property name="javax.persistence.jdbc.url" value="jdbc:derby:memory:target-platforms;create=true" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:derby:memory:deploy-targets;create=true" />
             <property name="javax.persistence.jdbc.user" value="root" />
             <property name="javax.persistence.jdbc.password" value="root" />
             <property name="jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)" />
+            <property name="openjpa.jdbc.DBDictionary" value="derby(NextSequenceQuery=VALUES NEXT VALUE FOR {0})" />
         </properties>
     </persistence-unit>
 

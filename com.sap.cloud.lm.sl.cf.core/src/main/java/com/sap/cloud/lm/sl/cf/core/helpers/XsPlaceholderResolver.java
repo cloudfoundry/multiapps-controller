@@ -1,7 +1,11 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
+//TODO we should move this out of the cf. project
 public class XsPlaceholderResolver {
 
     private String authorizationEndpoint;
@@ -67,6 +71,10 @@ public class XsPlaceholderResolver {
         value = replaceIfReplacementValueIsSet(value, SupportedParameters.XSA_PROTOCOL_PLACEHOLDER, protocol);
         value = replaceIfReplacementValueIsSet(value, SupportedParameters.XSA_DEPLOY_SERVICE_URL_PLACEHOLDER, deployServiceUrl);
         return value;
+    }
+
+    public List<String> resolve(List<String> values) {
+        return values.stream().map(value -> resolve(value)).collect(Collectors.toList());
     }
 
     private String replaceIfReplacementValueIsSet(String value, String placeholder, String replacementValue) {

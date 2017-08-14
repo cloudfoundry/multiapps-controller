@@ -9,11 +9,15 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.services.TaskExtensionService;
 import com.sap.cloud.lm.sl.slp.steps.AbstractSLProcessStepWithBridge;
+import com.sap.cloud.lm.sl.slp.steps.SLProcessStepHelper;
 
 public abstract class AbstractXS2ProcessStepWithBridge extends AbstractSLProcessStepWithBridge {
+
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(AbstractXS2ProcessStepWithBridge.class);
 
     @Inject
     protected CloudFoundryClientProvider clientProvider;
@@ -22,7 +26,18 @@ public abstract class AbstractXS2ProcessStepWithBridge extends AbstractSLProcess
 
     @Override
     protected ExecutionStatus pollStatus(DelegateExecution context) throws Exception {
-        return pollStatusInternal(context);
+        try {
+            return pollStatusInternal(context);
+
+        } catch (MonitoringException e) {
+            StepsUtil.setCtsExtensions(context, e, taskExtensionService);
+            StepsUtil.error(context, e.getMessage(), LOGGER, processLoggerProviderFactory);
+            throw e;
+        } catch (Exception e) {
+            StepsUtil.setCtsExtensions(context, e, taskExtensionService);
+            throw e;
+        }
+
     }
 
     protected abstract ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception;
@@ -41,7 +56,7 @@ public abstract class AbstractXS2ProcessStepWithBridge extends AbstractSLProcess
     }
 
     protected void logActivitiTask(DelegateExecution context, org.slf4j.Logger appLogger) {
-        StepsUtil.logActivitiTask(context, appLogger, processLoggerProviderFactory);
+        StepsUtil.logActivitiTask(context, appLogger, progressMessageService, processLoggerProviderFactory);
     }
 
     protected void error(DelegateExecution context, String message, Exception e, org.slf4j.Logger appLogger) {
@@ -56,6 +71,10 @@ public abstract class AbstractXS2ProcessStepWithBridge extends AbstractSLProcess
         StepsUtil.warn(context, message, appLogger, progressMessageService, processLoggerProviderFactory);
     }
 
+    protected void warn(DelegateExecution context, String message, Exception e, org.slf4j.Logger appLogger) {
+        StepsUtil.warn(context, message, e, appLogger, progressMessageService, processLoggerProviderFactory);
+    }
+
     protected void info(DelegateExecution context, String message, org.slf4j.Logger appLogger) {
         StepsUtil.info(context, message, appLogger, progressMessageService, processLoggerProviderFactory);
     }
@@ -66,6 +85,14 @@ public abstract class AbstractXS2ProcessStepWithBridge extends AbstractSLProcess
 
     protected void trace(DelegateExecution context, String message, org.slf4j.Logger appLogger) {
         StepsUtil.trace(context, message, appLogger, processLoggerProviderFactory);
+    }
+
+    @Override
+    protected SLProcessStepHelper getStepHelper() {
+        if (stepHelper == null) {
+            stepHelper = new XS2ProcessStepHelper(getProgressMessageService(), getProcessLoggerProvider(), this);
+        }
+        return stepHelper;
     }
 
 }

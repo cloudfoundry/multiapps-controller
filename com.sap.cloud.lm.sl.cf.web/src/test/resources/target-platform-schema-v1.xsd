@@ -17,7 +17,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element name="module-type" type="components:platform-module-type-v1" minOccurs="0"
-                            maxOccurs="unbounded" />
+                            maxOccurs="1024" />
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -25,7 +25,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element name="resource-type" type="components:platform-resource-type-v1"
-                            minOccurs="0" maxOccurs="unbounded" />
+                            minOccurs="0" maxOccurs="1024" />
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

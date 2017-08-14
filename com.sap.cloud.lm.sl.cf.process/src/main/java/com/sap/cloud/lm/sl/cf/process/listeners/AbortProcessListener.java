@@ -10,6 +10,8 @@ import org.activiti.engine.HistoryService;
 import org.activiti.engine.delegate.event.ActivitiEvent;
 import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.history.HistoricVariableInstance;
+import org.activiti.engine.impl.event.logger.handler.ProcessInstanceEndedEventHandler;
+import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.slf4j.Logger;
@@ -21,13 +23,18 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.analytics.ActivitiEventToDelegateExecutionAdapter;
+import com.sap.cloud.lm.sl.cf.process.analytics.AnalyticsCollector;
+import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Runnable;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.lmsl.slp.SlpTaskState;
@@ -38,6 +45,9 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
     private static final long serialVersionUID = -7665948468083310385L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortProcessListener.class);
+
+    @Inject
+    private AnalyticsCollector analytics;
 
     /*
      * In older version of the Activiti process diagram, the AbortProcessListener was defined with its fully qualified class name. In the
@@ -59,14 +69,19 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
 
     @Override
     public void onEvent(ActivitiEvent event) {
+        if (!isEventValid(event)) {
+            return;
+        }
+
         String processInstanceId = event.getProcessInstanceId();
+        String correlationId = getCorrelationId(event);
 
         new SafeExecutor().executeSafely(() -> {
-            new ProcessConflictPreventer(getOngoingOperationDao()).attemptToReleaseLock(processInstanceId);
+            new ProcessConflictPreventer(getOngoingOperationDao()).attemptToReleaseLock(correlationId);
         });
 
         new SafeExecutor().executeSafely(() -> {
-            setOngoingOperationInAbortedState(processInstanceId);
+            setOngoingOperationInAbortedState(correlationId);
         });
 
         HistoryService historyService = event.getEngineServices().getHistoryService();
@@ -81,10 +96,36 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         new SafeExecutor().executeSafely(() -> {
             new ClientReleaser(event, getClientProvider()).releaseClient();
         });
+
+        new SafeExecutor().executeSafely(() -> {
+            if (ConfigurationUtil.shouldGatherUsageStatistics()) {
+                collectAnalytics(event);
+            }
+            // TODO send generated statistics to statistics server.
+        });
+
+    }
+
+    private AnalyticsData collectAnalytics(ActivitiEvent event) throws SLException {
+        AnalyticsData model = analytics.collectAttributes(new ActivitiEventToDelegateExecutionAdapter(event));
+        model.setProcessFinalState(SlpTaskState.SLP_TASK_STATE_ABORTED);
+        LOGGER.debug(JsonUtil.toJson(model, true));
+        return model;
+    }
+
+    private String getCorrelationId(ActivitiEvent event) {
+        HistoricVariableInstance correlationId = getHistoricVarInstanceValue(event.getEngineServices().getHistoryService(),
+            event.getProcessInstanceId(), Constants.VAR_CORRELATION_ID);
+        if (correlationId != null) {
+            return (String) correlationId.getValue();
+        }
+        // The process was started before we introduced subprocesses in our BPMN diagrams. Therefore, the correlation ID is the ID of the
+        // process instance.
+        return event.getProcessInstanceId();
     }
 
     protected void setOngoingOperationInAbortedState(String processInstanceId) throws NotFoundException {
-        OngoingOperation ongoingOperation = getOngoingOperationDao().find(processInstanceId);
+        OngoingOperation ongoingOperation = getOngoingOperationDao().findRequired(processInstanceId);
         ongoingOperation.setFinalState(SlpTaskState.SLP_TASK_STATE_ABORTED);
         getOngoingOperationDao().merge(ongoingOperation);
     }
@@ -161,13 +202,27 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         return beanProvider;
     }
 
+    /*
+     * This is a workaround for a bug in the activiti engine. If the event listener is configured for ENTITY_DELETED event on entity type
+     * "process-instance", the event listener is also triggered for entity type "execution". In activiti engine version 5.16.0 the timer
+     * behavior was changed to start an Execution process, which, after the execution of the timer, is deleted. This leads to the triggering
+     * of this event listener. The workaround implemented is to check whether there is a delete reason specified, as the deletion for the
+     * Execution process for the timer doesn't specify a reason.
+     */
+    private boolean isEventValid(ActivitiEvent event) {
+        ProcessInstanceEndedEventHandler eventHandler = new ProcessInstanceEndedEventHandler();
+        eventHandler.setEvent(event);
+        ExecutionEntity entity = eventHandler.getEntityFromEvent();
+        return entity.getDeleteReason() != null;
+    }
+
     private class SafeExecutor {
 
         private void executeSafely(Runnable runnable) {
             try {
                 runnable.run();
             } catch (Exception e) { // NOSONAR
-                LOGGER.warn(Messages.ERROR_OCCURRED_DURING_PROCESS_ABORT, e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
 

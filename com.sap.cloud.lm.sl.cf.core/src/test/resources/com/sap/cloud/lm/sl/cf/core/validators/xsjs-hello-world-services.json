@@ -3,6 +3,7 @@
     "resourceName": "xsjs-hdi-container",
     "credentials": {},
     "tags": [],
+    "isOptional": false,
     "label": "hana",
     "plan": "hdi-shared",
     "meta": {},

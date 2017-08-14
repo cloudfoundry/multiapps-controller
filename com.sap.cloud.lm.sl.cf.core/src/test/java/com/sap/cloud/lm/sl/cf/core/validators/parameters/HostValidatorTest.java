@@ -48,7 +48,7 @@ public class HostValidatorTest {
 
     @Test
     public void testValidate() {
-        assertEquals(isValid, validator.validate(host));
+        assertEquals(isValid, validator.isValid(host));
     }
 
     @Test

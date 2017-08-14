@@ -14,15 +14,15 @@ public class PortValidatorTest {
 
     @Test
     public void testValidate() {
-        assertTrue(validator.validate(1));
-        assertTrue(validator.validate(65535));
-        assertTrue(validator.validate(30030));
+        assertTrue(validator.isValid(1));
+        assertTrue(validator.isValid(65535));
+        assertTrue(validator.isValid(30030));
 
-        assertFalse(validator.validate(-1));
-        assertFalse(validator.validate(-65535));
-        assertFalse(validator.validate(+65536));
+        assertFalse(validator.isValid(-1));
+        assertFalse(validator.isValid(-65535));
+        assertFalse(validator.isValid(+65536));
 
-        assertFalse(validator.validate("30030"));
+        assertFalse(validator.isValid("30030"));
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.dto.serialization.v2;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +8,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.google.gson.annotations.JsonAdapter;
@@ -17,14 +15,13 @@ import com.google.gson.annotations.SerializedName;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.common.model.xml.Wrapper;
-import com.sap.cloud.lm.sl.mta.model.v2_0.PlatformModuleType;
-import com.sap.cloud.lm.sl.mta.model.v2_0.PlatformResourceType;
-import com.sap.cloud.lm.sl.mta.model.v2_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v2_0.TargetPlatform.TargetPlatformBuilder;;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Target;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Target.TargetBuilder;;
 
 @XmlRootElement(name = "target-platform")
 @XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)
 @XmlSeeAlso(Wrapper.class)
+@Deprecated
 public class TargetPlatformDto extends com.sap.cloud.lm.sl.cf.core.dto.serialization.TargetPlatformDto {
 
     private static final PlatformModuleTypesAdapter MT_ADAPTER = new PlatformModuleTypesAdapter();
@@ -55,18 +52,18 @@ public class TargetPlatformDto extends com.sap.cloud.lm.sl.cf.core.dto.serializa
         // Required by JAXB
     }
 
-    public TargetPlatformDto(TargetPlatform platform) {
-        this.name = platform.getName();
-        this.type = platform.getType();
-        this.description = platform.getDescription();
-        this.parameters = platform.getParameters();
-        this.platformModuleTypes = MT_ADAPTER.marshal(platform.getModuleTypes2_0());
-        this.platformResourceTypes = RT_ADAPTER.marshal(platform.getResourceTypes2_0());
+    public TargetPlatformDto(Target target) {
+        this.name = target.getName();
+        this.type = target.getType();
+        this.description = target.getDescription();
+        this.parameters = target.getParameters();
+        this.platformModuleTypes = MT_ADAPTER.marshal(target.getModuleTypes2_0());
+        this.platformResourceTypes = RT_ADAPTER.marshal(target.getResourceTypes2_0());
     }
 
     @Override
-    public TargetPlatform toTargetPlatform() {
-        TargetPlatformBuilder result = new TargetPlatformBuilder();
+    public Target toTargetPlatform() {
+        TargetBuilder result = new TargetBuilder();
         result.setName(name);
         result.setType(type);
         result.setDescription(description);
@@ -74,70 +71,6 @@ public class TargetPlatformDto extends com.sap.cloud.lm.sl.cf.core.dto.serializa
         result.setModuleTypes2_0(MT_ADAPTER.unmarshal(platformModuleTypes));
         result.setResourceTypes2_0(RT_ADAPTER.unmarshal(platformResourceTypes));
         return result.build();
-    }
-
-}
-
-class PlatformResourceTypesAdapter extends XmlAdapter<List<PlatformResourceTypeDto>, List<PlatformResourceType>> {
-
-    @Override
-    public List<PlatformResourceTypeDto> marshal(List<PlatformResourceType> resourceTypes) {
-        if (resourceTypes == null) {
-            return null;
-        }
-
-        List<PlatformResourceTypeDto> resourceTypeDtos = new ArrayList<PlatformResourceTypeDto>();
-        for (PlatformResourceType resourceType : resourceTypes) {
-            resourceTypeDtos.add(new PlatformResourceTypeDto(resourceType));
-        }
-
-        return resourceTypeDtos;
-    }
-
-    @Override
-    public List<PlatformResourceType> unmarshal(List<PlatformResourceTypeDto> resourceTypeDtos) {
-        if (resourceTypeDtos == null) {
-            return null;
-        }
-
-        List<PlatformResourceType> resourceTypes = new ArrayList<PlatformResourceType>();
-        for (PlatformResourceTypeDto resourceTypeDto : resourceTypeDtos) {
-            resourceTypes.add(resourceTypeDto.toPlatformResourceType());
-        }
-
-        return resourceTypes;
-    }
-
-}
-
-class PlatformModuleTypesAdapter extends XmlAdapter<List<PlatformModuleTypeDto>, List<PlatformModuleType>> {
-
-    @Override
-    public List<PlatformModuleTypeDto> marshal(List<PlatformModuleType> moduleTypes) {
-        if (moduleTypes == null) {
-            return null;
-        }
-
-        List<PlatformModuleTypeDto> moduleTypeDtos = new ArrayList<PlatformModuleTypeDto>();
-        for (PlatformModuleType moduleType : moduleTypes) {
-            moduleTypeDtos.add(new PlatformModuleTypeDto(moduleType));
-        }
-
-        return moduleTypeDtos;
-    }
-
-    @Override
-    public List<PlatformModuleType> unmarshal(List<PlatformModuleTypeDto> moduleTypeDtos) {
-        if (moduleTypeDtos == null) {
-            return null;
-        }
-
-        List<PlatformModuleType> moduleTypes = new ArrayList<PlatformModuleType>();
-        for (PlatformModuleTypeDto moduleTypeDto : moduleTypeDtos) {
-            moduleTypes.add(moduleTypeDto.toPlatformModuleType());
-        }
-
-        return moduleTypes;
     }
 
 }

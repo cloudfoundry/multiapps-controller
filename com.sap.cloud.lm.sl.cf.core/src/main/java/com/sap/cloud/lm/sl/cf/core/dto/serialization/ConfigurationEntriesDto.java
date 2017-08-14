@@ -7,8 +7,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.sap.cloud.lm.sl.cf.core.dto.ConfigurationEntryDto;
-
 @XmlRootElement(name = "configuration-entries")
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class ConfigurationEntriesDto {

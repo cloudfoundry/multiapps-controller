@@ -11,23 +11,25 @@ import javax.ws.rs.core.MediaType;
 
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.dao.v3.TargetPlatformDao;
+import com.sap.cloud.lm.sl.cf.core.dao.v3.DeployTargetDao;
+import com.sap.cloud.lm.sl.cf.core.dto.persistence.v3.DeployTargetDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.v3.TargetPlatformDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.v3.TargetPlatformsDto;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
-import com.sap.cloud.lm.sl.mta.model.v3_1.TargetPlatform;
+import com.sap.cloud.lm.sl.mta.model.v3_1.Target;
 
 @Component("targetPlatformsResourceV3")
 @Path("/v3/platforms")
 @Produces(MediaType.APPLICATION_XML)
-public class TargetPlatformsResource extends com.sap.cloud.lm.sl.cf.web.resources.TargetPlatformsResource {
+@Deprecated
+public class TargetPlatformsResource
+    extends com.sap.cloud.lm.sl.cf.web.resources.TargetPlatformsResource<Target, DeployTargetDto, DeployTargetDao> {
 
     private static final URL PLATFORM_SCHEMA = TargetPlatformsResource.class.getResource("/target-platform-schema-v3.xsd");
 
     @Inject
-    private TargetPlatformDao dao;
+    private DeployTargetDao dao;
 
     public TargetPlatformsResource() {
         super(PLATFORM_SCHEMA, false);
@@ -38,31 +40,31 @@ public class TargetPlatformsResource extends com.sap.cloud.lm.sl.cf.web.resource
     }
 
     @Override
-    protected com.sap.cloud.lm.sl.cf.core.dao.TargetPlatformDao getDao() {
+    protected DeployTargetDao getDao() {
         return dao;
     }
 
     @Override
-    protected void validateRequestPayload(com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform platform) throws ParsingException {
-        Map<String, Object> parameters = ((TargetPlatform) platform).getParameters();
+    protected void validateRequestPayload(Target target) throws ParsingException {
+        Map<String, Object> parameters = (target).getParameters();
         if (parameters == null || !isOrgSpaceSpecified(parameters)) {
             throw new ParsingException(Messages.ORG_SPACE_NOT_SPECIFIED_2);
         }
-        validatePlatformIdentifiers(platform);
+        validatePlatformIdentifiers(target);
     }
 
     @Override
-    protected TargetPlatformsDto getTargetPlatformsDto(List<com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform> platforms) {
-        return new TargetPlatformsDto(ListUtil.cast(platforms));
+    protected TargetPlatformsDto getTargetPlatformsDto(List<Target> targets) {
+        return new TargetPlatformsDto(targets);
     }
 
     @Override
-    protected TargetPlatformDto getTargetPlatformDto(com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform platform) {
-        return new TargetPlatformDto((TargetPlatform) platform);
+    protected TargetPlatformDto getTargetPlatformDto(Target target) {
+        return new TargetPlatformDto(target);
     }
 
     @Override
-    protected Class<TargetPlatformDto> getPlatformDtoClass() {
+    protected Class<TargetPlatformDto> getTargetPlatformDtoClass() {
         return TargetPlatformDto.class;
     }
 

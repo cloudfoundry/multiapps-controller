@@ -10,23 +10,23 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceType;
 import com.sap.cloud.lm.sl.common.util.Callable;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 
 @RunWith(Parameterized.class)
 public class UserProvidedResourceResolverTest {
 
-    protected static final String USER_PROVIDED_SERVICE_TYPE = CloudModelBuilder.ServiceType.USER_PROVIDED.toString();
+    protected static final String USER_PROVIDED_SERVICE_TYPE = ServiceType.USER_PROVIDED.toString();
 
     private String descriptorLocation;
+    private String targetLocation;
     private String platformLocation;
-    private String platformTypeLocation;
     private String expectedJsonLocation;
 
     protected UserProvidedResourceResolver resolver;
@@ -36,13 +36,13 @@ public class UserProvidedResourceResolverTest {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                "mtad-07.yaml", "/mta/platforms.json", "/mta/platform-types.json", "R:mtad-07.yaml.json",
+                "mtad-07.yaml", "/mta/targets.json", "/mta/platform-types.json", "R:mtad-07.yaml.json",
             },
             {
-                "mtad-08.yaml", "/mta/platforms.json", "/mta/platform-types.json", "R:mtad-08.yaml.json",
+                "mtad-08.yaml", "/mta/targets.json", "/mta/platform-types.json", "R:mtad-08.yaml.json",
             },
             {
-                "mtad-09.yaml", "/mta/platforms.json", "/mta/platform-types.json", "R:mtad-09.yaml.json",
+                "mtad-09.yaml", "/mta/targets.json", "/mta/platform-types.json", "R:mtad-09.yaml.json",
             },
 // @formatter:on
         });
@@ -51,8 +51,8 @@ public class UserProvidedResourceResolverTest {
     public UserProvidedResourceResolverTest(String descriptorLocation, String platformLocation, String platformTypeLocation,
         String expected) {
         this.descriptorLocation = descriptorLocation;
-        this.platformLocation = platformLocation;
-        this.platformTypeLocation = platformTypeLocation;
+        this.targetLocation = platformLocation;
+        this.platformLocation = platformTypeLocation;
         this.expectedJsonLocation = expected;
     }
 
@@ -64,13 +64,13 @@ public class UserProvidedResourceResolverTest {
         InputStream descriptorYaml = getClass().getResourceAsStream(descriptorLocation);
         DeploymentDescriptor descriptor = descriptorParser.parseDeploymentDescriptorYaml(descriptorYaml);
 
+        InputStream targetJson = getClass().getResourceAsStream(targetLocation);
+        Target target = configurationParser.parseTargetsJson(targetJson).get(2);
+
         InputStream platformJson = getClass().getResourceAsStream(platformLocation);
-        TargetPlatform platform = configurationParser.parsePlatformsJson(platformJson).get(2);
+        Platform platform = configurationParser.parsePlatformsJson(platformJson).get(0);
 
-        InputStream platformTypeJson = getClass().getResourceAsStream(platformTypeLocation);
-        TargetPlatformType platformType = configurationParser.parsePlatformTypesJson(platformTypeJson).get(0);
-
-        resolver = getUserProidedResourceResolver(descriptor, platform, platformType);
+        resolver = getUserProidedResourceResolver(descriptor, target, platform);
 
     }
 
@@ -85,9 +85,9 @@ public class UserProvidedResourceResolverTest {
         }, expectedJsonLocation, getClass());
     }
 
-    protected UserProvidedResourceResolver getUserProidedResourceResolver(DeploymentDescriptor descriptor, TargetPlatform platform,
-        TargetPlatformType platformType) {
-        return new UserProvidedResourceResolver(getResourceTypeFinder(), descriptor, platform, platformType);
+    protected UserProvidedResourceResolver getUserProidedResourceResolver(DeploymentDescriptor descriptor, Target target,
+        Platform platform) {
+        return new UserProvidedResourceResolver(getResourceTypeFinder(), descriptor, target, platform);
     }
 
     protected ResourceTypeFinder getResourceTypeFinder() {

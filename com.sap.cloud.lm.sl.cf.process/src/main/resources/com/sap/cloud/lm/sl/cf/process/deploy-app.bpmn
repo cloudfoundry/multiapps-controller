@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test" id="Definitions_1" name="Definitions 1">
+  <process id="deployAppSubProcess" name="Deploy App Sub Process" isExecutable="true">
+    <startEvent id="startEvent" name="Start" activiti:initiator="initiator"></startEvent>
+    <serviceTask id="stopAppTask" name="Stop App" activiti:async="true" activiti:delegateExpression="${stopAppStep}"></serviceTask>
+    <serviceTask id="checkAppTask" name="Check App" activiti:async="true" activiti:delegateExpression="${checkAppStep}"></serviceTask>
+    <exclusiveGateway id="doesAppExistGateway" name="Does App Exist" default="appDoesNotExistFlow"></exclusiveGateway>
+    <serviceTask id="createAppTask" name="Create App" activiti:async="true" activiti:delegateExpression="${createAppStep}"></serviceTask>
+    <sequenceFlow id="appDoesNotExistFlow" name="App doesn't exist" sourceRef="doesAppExistGateway" targetRef="createAppTask"></sequenceFlow>
+    <sequenceFlow id="appExistsFlow" name="App exists" sourceRef="doesAppExistGateway" targetRef="updateAppTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(existingApp != null)}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="updateAppTask" name="Update App" activiti:async="true" activiti:delegateExpression="${updateAppStep}"></serviceTask>
+    <serviceTask id="uploadAppTask" name="Upload App" activiti:async="true" activiti:delegateExpression="${uploadAppStep}"></serviceTask>
+    <sequenceFlow id="flow20" sourceRef="createAppTask" targetRef="uploadAppTask"></sequenceFlow>
+    <sequenceFlow id="flow21" sourceRef="updateAppTask" targetRef="uploadAppTask"></sequenceFlow>
+    <serviceTask id="scaleAppTask" name="Scale App" activiti:async="true" activiti:delegateExpression="${scaleAppStep}"></serviceTask>
+    <sequenceFlow id="flow19" sourceRef="checkAppTask" targetRef="doesAppExistGateway"></sequenceFlow>
+    <sequenceFlow id="flow22" sourceRef="uploadAppTask" targetRef="waitTillUploadStartTask"></sequenceFlow>
+    <serviceTask id="pollUploadAppStatusTask" name="Poll Upload App Status" activiti:async="true" activiti:delegateExpression="${pollUploadAppStatusStep}"></serviceTask>
+    <exclusiveGateway id="isAppUploadedGateway" name="Is App Uploaded" default="waitForAppToBeUploadedFlow"></exclusiveGateway>
+    <sequenceFlow id="flow24" sourceRef="pollUploadAppStatusTask" targetRef="isAppUploadedGateway"></sequenceFlow>
+    <sequenceFlow id="appUploadedFlow" sourceRef="isAppUploadedGateway" targetRef="updateContextTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_UploadAppStep == "SUCCESS")}]]></conditionExpression>
+    </sequenceFlow>
+    <intermediateCatchEvent id="uploadPollingIntervalTimer" name="Upload Polling Interval Timer">
+      <timerEventDefinition>
+        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="waitForAppToBeUploadedFlow" sourceRef="isAppUploadedGateway" targetRef="uploadPollingIntervalTimer"></sequenceFlow>
+    <sequenceFlow id="flow25" sourceRef="uploadPollingIntervalTimer" targetRef="pollUploadAppStatusTask"></sequenceFlow>
+    <sequenceFlow id="retryAppUploadFlow" name="On Retry" sourceRef="isAppUploadedGateway" targetRef="uploadAppTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_UploadAppStep == "LOGICAL_RETRY")}]]></conditionExpression>
+    </sequenceFlow>
+    <receiveTask id="waitTillUploadStartTask" name="Wait Till Upload Start" activiti:async="true"></receiveTask>
+    <boundaryEvent id="uploadTimer" name="Upload Timer" attachedToRef="waitTillUploadStartTask" cancelActivity="true">
+      <timerEventDefinition>
+        <timeDuration>PT${uploadAppTimeout}S</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flow23" sourceRef="waitTillUploadStartTask" targetRef="pollUploadAppStatusTask"></sequenceFlow>
+    <sequenceFlow id="onUploadTimeoutFlow" name="On Timeout" sourceRef="uploadTimer" targetRef="pollUploadAppStatusTask"></sequenceFlow>
+    <serviceTask id="updateContextTask" name="Update Context" activiti:async="true" activiti:delegateExpression="${updateContextStep}"></serviceTask>
+    <sequenceFlow id="flow26" sourceRef="updateContextTask" targetRef="scaleAppTask"></sequenceFlow>
+    <endEvent id="endevent" name="End"></endEvent>
+    <sequenceFlow id="flow32" sourceRef="startEvent" targetRef="reprocessDescriptorTask"></sequenceFlow>
+    <serviceTask id="determineDesiredStateAchievingActionsTask" name="Determine Desired State Achieving Actions" activiti:async="true" activiti:delegateExpression="${determineDesiredStateAchievingActionsStep}"></serviceTask>
+    <sequenceFlow id="flow34" sourceRef="scaleAppTask" targetRef="determineDesiredStateAchievingActionsTask"></sequenceFlow>
+    <sequenceFlow id="flow35" sourceRef="determineDesiredStateAchievingActionsTask" targetRef="shouldStopAppGateway"></sequenceFlow>
+    <serviceTask id="prepareToExecuteTasksTask" name="Prepare To Execute Tasks" activiti:async="true" activiti:delegateExpression="${prepareToExecuteTasksStep}"></serviceTask>
+    <exclusiveGateway id="areThereMoreTasksToExecuteGateway" name="Are There More Tasks To Execute" default="thereAreMoreTasksToExecuteFlow"></exclusiveGateway>
+    <sequenceFlow id="flow37" sourceRef="prepareToExecuteTasksTask" targetRef="doesPlatformSupportTasksGateway"></sequenceFlow>
+    <sequenceFlow id="thereAreNoMoreTasksToExecuteFlow" sourceRef="areThereMoreTasksToExecuteGateway" targetRef="publishProvidedDependenciesTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(tasksCount == tasksIndex)}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="executeTaskTask" name="Execute Task" activiti:async="true" activiti:delegateExpression="${executeTaskStep}"></serviceTask>
+    <sequenceFlow id="thereAreMoreTasksToExecuteFlow" sourceRef="areThereMoreTasksToExecuteGateway" targetRef="executeTaskTask"></sequenceFlow>
+    <serviceTask id="pollExecuteTaskStatusTask" name="Poll Execute Task Status" activiti:async="true" activiti:delegateExpression="${pollExecuteTaskStatusStep}"></serviceTask>
+    <sequenceFlow id="flow40" sourceRef="executeTaskTask" targetRef="pollExecuteTaskStatusTask"></sequenceFlow>
+    <exclusiveGateway id="isTaskExecutedGateway" name="Is Task Executed" default="waitForTaskToBeExecutedFlow"></exclusiveGateway>
+    <sequenceFlow id="flow41" sourceRef="pollExecuteTaskStatusTask" targetRef="isTaskExecutedGateway"></sequenceFlow>
+    <intermediateCatchEvent id="taskExecutionPollingIntervalTimer" name="Task Execution Polling Interval Timer">
+      <timerEventDefinition>
+        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="waitForTaskToBeExecutedFlow" sourceRef="isTaskExecutedGateway" targetRef="taskExecutionPollingIntervalTimer"></sequenceFlow>
+    <sequenceFlow id="flow43" sourceRef="taskExecutionPollingIntervalTimer" targetRef="pollExecuteTaskStatusTask"></sequenceFlow>
+    <sequenceFlow id="retryTaskExecutionFlow" name="On Retry" sourceRef="isTaskExecutedGateway" targetRef="executeTaskTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_ExecuteTaskStep == "LOGICAL_RETRY")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="taskExecutedFlow" sourceRef="isTaskExecutedGateway" targetRef="incrementTaskIndexTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_ExecuteTaskStep == "SUCCESS")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="incrementTaskIndexTask" name="Increment Task Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
+    <sequenceFlow id="flow46" sourceRef="incrementTaskIndexTask" targetRef="areThereMoreTasksToExecuteGateway"></sequenceFlow>
+    <exclusiveGateway id="doesPlatformSupportTasksGateway" name="Does Platform Support Tasks" default="platformDoesNotSupportTasks"></exclusiveGateway>
+    <sequenceFlow id="platformSupportsTasksFlow" name="Platform Supports Tasks" sourceRef="doesPlatformSupportTasksGateway" targetRef="areThereMoreTasksToExecuteGateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${platformSupportsTasks}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="platformDoesNotSupportTasks" name="Platform Does Not Support Tasks" sourceRef="doesPlatformSupportTasksGateway" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
+    <serviceTask id="reprocessDescriptorTask" name="Re-Process Descriptor Step" activiti:async="true" activiti:delegateExpression="${processDescriptorStep}"></serviceTask>
+    <sequenceFlow id="flow48" sourceRef="rebuildApplicationEnvironmentTask" targetRef="checkAppTask"></sequenceFlow>
+    <serviceTask id="rebuildApplicationEnvironmentTask" name="Re-Build Application Environment" activiti:async="true" activiti:delegateExpression="${rebuildApplicationEnvironmentStep}"></serviceTask>
+    <sequenceFlow id="flow49" sourceRef="reprocessDescriptorTask" targetRef="rebuildApplicationEnvironmentTask"></sequenceFlow>
+    <serviceTask id="publishProvidedDependenciesTask" name="Publish Provided Dependencies" activiti:async="true" activiti:delegateExpression="${publishProvidedDependenciesStep}"></serviceTask>
+    <sequenceFlow id="flow50" sourceRef="publishProvidedDependenciesTask" targetRef="deleteDiscontinuedConfigurationEntriesForAppTask"></sequenceFlow>
+    <serviceTask id="deleteDiscontinuedConfigurationEntriesForAppTask" name="Delete Discontinued Configuration Entries" activiti:async="true" activiti:delegateExpression="${deleteDiscontinuedConfigurationEntriesForAppStep}"></serviceTask>
+    <sequenceFlow id="flow51" sourceRef="deleteDiscontinuedConfigurationEntriesForAppTask" targetRef="endevent"></sequenceFlow>
+    <exclusiveGateway id="shouldStopAppGateway" name="Should Stop App" default="doNotStopAppFlow"></exclusiveGateway>
+    <sequenceFlow id="stopAppFlow" sourceRef="shouldStopAppGateway" targetRef="stopAppTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('STOP')}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="shouldStartAppGateway" name="Should Start App" default="doNotStartAppFlow"></exclusiveGateway>
+    <sequenceFlow id="doNotStartAppFlow" sourceRef="shouldStartAppGateway" targetRef="prepareToExecuteTasksTask"></sequenceFlow>
+    <sequenceFlow id="appStagedFlow" sourceRef="isAppStagedGateway" targetRef="shouldStartAppGateway">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_StageAppStep == "SUCCESS")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="stageAppTask" name="Stage App" activiti:async="true" activiti:delegateExpression="${stageAppStep}"></serviceTask>
+    <serviceTask id="pollStageAppStatusTask" name="Poll Stage App Status" activiti:async="true" activiti:delegateExpression="${pollStageAppStatusStep}"></serviceTask>
+    <serviceTask id="pollStartAppStatusTask" name="Poll Start App Status" activiti:async="true" activiti:delegateExpression="${pollStartAppStatusStep}"></serviceTask>
+    <serviceTask id="startAppTask" name="Start App" activiti:async="true" activiti:delegateExpression="${startAppStep}"></serviceTask>
+    <serviceTask id="pollExecuteAppStatusTask" name="Poll Execute App Status" activiti:async="true" activiti:delegateExpression="${pollExecuteAppStatusStep}"></serviceTask>
+    <exclusiveGateway id="isAppStagedGateway" name="Exclusive Gateway" default="waitForAppToBeStagedFlow"></exclusiveGateway>
+    <intermediateCatchEvent id="stagePollingIntervalTimer" name="Stage Polling Interval">
+      <timerEventDefinition>
+        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="flow56" sourceRef="stageAppTask" targetRef="pollStageAppStatusTask"></sequenceFlow>
+    <sequenceFlow id="retryAppStagingFlow" name="On Retry" sourceRef="isAppStagedGateway" targetRef="stageAppTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_StageAppStep == "LOGICAL_RETRY")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="waitForAppToBeStagedFlow" sourceRef="isAppStagedGateway" targetRef="stagePollingIntervalTimer"></sequenceFlow>
+    <sequenceFlow id="flow59" sourceRef="stagePollingIntervalTimer" targetRef="pollStageAppStatusTask"></sequenceFlow>
+    <sequenceFlow id="flow60" sourceRef="pollStageAppStatusTask" targetRef="isAppStagedGateway"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="doNotStageAppFlow"></exclusiveGateway>
+    <sequenceFlow id="doNotStopAppFlow" sourceRef="shouldStopAppGateway" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="stageAppFlow" sourceRef="exclusivegateway2" targetRef="stageAppTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('STAGE') and platformType != 'CF'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="doNotStageAppFlow" sourceRef="exclusivegateway2" targetRef="shouldStartAppGateway"></sequenceFlow>
+    <sequenceFlow id="flow64" sourceRef="stopAppTask" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="startAppFlow" sourceRef="shouldStartAppGateway" targetRef="startAppTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('START')}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="isAppStartedGateway" name="Is App Started" default="waitForAppToBeStartedFlow"></exclusiveGateway>
+    <exclusiveGateway id="isAppExecutedGateway" name="Is App Executed" default="waitForAppToBeExecutedFlow"></exclusiveGateway>
+    <sequenceFlow id="flow67" sourceRef="pollStartAppStatusTask" targetRef="isAppStartedGateway"></sequenceFlow>
+    <sequenceFlow id="appStartedFlow" sourceRef="isAppStartedGateway" targetRef="pollExecuteAppStatusTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_StartAppStep == "SUCCESS")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow69" sourceRef="pollExecuteAppStatusTask" targetRef="isAppExecutedGateway"></sequenceFlow>
+    <sequenceFlow id="appExecutedFlow" sourceRef="isAppExecutedGateway" targetRef="prepareToExecuteTasksTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_StartAppStep == "SUCCESS")}]]></conditionExpression>
+    </sequenceFlow>
+    <intermediateCatchEvent id="startPollingIntervalTimer" name="Start Polling Interval">
+      <timerEventDefinition>
+        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <intermediateCatchEvent id="executionPollingIntervalTimer" name="Execution Polling Interval">
+      <timerEventDefinition>
+        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="waitForAppToBeStartedFlow" sourceRef="isAppStartedGateway" targetRef="startPollingIntervalTimer"></sequenceFlow>
+    <sequenceFlow id="waitForAppToBeExecutedFlow" sourceRef="isAppExecutedGateway" targetRef="executionPollingIntervalTimer"></sequenceFlow>
+    <sequenceFlow id="flow73" sourceRef="executionPollingIntervalTimer" targetRef="pollExecuteAppStatusTask"></sequenceFlow>
+    <sequenceFlow id="flow74" sourceRef="startPollingIntervalTimer" targetRef="pollStartAppStatusTask"></sequenceFlow>
+    <sequenceFlow id="retryAppExecutionFlow" name="On Retry" sourceRef="isAppExecutedGateway" targetRef="startAppTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_StartAppStep == "LOGICAL_RETRY")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="retryAppStartupFlow" name="On Retry" sourceRef="isAppStartedGateway" targetRef="startAppTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_StartAppStep == "LOGICAL_RETRY")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="pollStageAppStatusOnCfTask" name="Poll Stage App Status On CF" activiti:async="true" activiti:delegateExpression="${pollStageAppStatusOnCfStep}"></serviceTask>
+    <sequenceFlow id="flow75" sourceRef="pollStageAppStatusOnCfTask" targetRef="isAppStagedOnCfGateway"></sequenceFlow>
+    <exclusiveGateway id="isAppStagedOnCfGateway" name="Is App Staged On CF" default="waitForAppToBeStagedOnCfFlow"></exclusiveGateway>
+    <intermediateCatchEvent id="stagePollingIntervalOnCfTimer" name="Stage Polling Interval On CF">
+      <timerEventDefinition>
+        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="waitForAppToBeStagedOnCfFlow" sourceRef="isAppStagedOnCfGateway" targetRef="stagePollingIntervalOnCfTimer"></sequenceFlow>
+    <sequenceFlow id="flow77" sourceRef="stagePollingIntervalOnCfTimer" targetRef="pollStageAppStatusOnCfTask"></sequenceFlow>
+    <sequenceFlow id="retryAppStagingOnCfFlow" name="On Retry" sourceRef="isAppStagedOnCfGateway" targetRef="startAppTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_StartAppStep == "LOGICAL_RETRY")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="appStagedOnCfFlow" sourceRef="isAppStagedOnCfGateway" targetRef="pollStartAppStatusTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_StartAppStep == "SUCCESS")}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="isPlatformTypeCfGateway" name="Is Platform Type CF" default="platformTypeIsNotCfFlow"></exclusiveGateway>
+    <sequenceFlow id="flow80" sourceRef="startAppTask" targetRef="isPlatformTypeCfGateway"></sequenceFlow>
+    <sequenceFlow id="platformTypeIsCfFlow" sourceRef="isPlatformTypeCfGateway" targetRef="pollStageAppStatusOnCfTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${platformType == 'CF'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="platformTypeIsNotCfFlow" sourceRef="isPlatformTypeCfGateway" targetRef="pollStartAppStatusTask"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_deployAppSubProcess">
+    <bpmndi:BPMNPlane bpmnElement="deployAppSubProcess" id="BPMNPlane_deployAppSubProcess">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="36.0" width="36.0" x="13.0" y="100.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="stopAppTask" id="BPMNShape_stopAppTask">
+        <omgdc:Bounds height="57.0" width="105.0" x="228.0" y="422.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="checkAppTask" id="BPMNShape_checkAppTask">
+        <omgdc:Bounds height="68.0" width="105.0" x="373.0" y="83.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="doesAppExistGateway" id="BPMNShape_doesAppExistGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="510.0" y="96.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="createAppTask" id="BPMNShape_createAppTask">
+        <omgdc:Bounds height="56.0" width="105.0" x="624.0" y="89.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="updateAppTask" id="BPMNShape_updateAppTask">
+        <omgdc:Bounds height="56.0" width="105.0" x="624.0" y="201.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="uploadAppTask" id="BPMNShape_uploadAppTask">
+        <omgdc:Bounds height="56.0" width="105.0" x="760.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scaleAppTask" id="BPMNShape_scaleAppTask">
+        <omgdc:Bounds height="68.0" width="105.0" x="230.0" y="295.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="pollUploadAppStatusTask" id="BPMNShape_pollUploadAppStatusTask">
+        <omgdc:Bounds height="56.0" width="119.0" x="1036.0" y="91.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="isAppUploadedGateway" id="BPMNShape_isAppUploadedGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="1189.0" y="98.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="uploadPollingIntervalTimer" id="BPMNShape_uploadPollingIntervalTimer">
+        <omgdc:Bounds height="35.0" width="35.0" x="1192.0" y="172.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="waitTillUploadStartTask" id="BPMNShape_waitTillUploadStartTask">
+        <omgdc:Bounds height="56.0" width="105.0" x="896.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="uploadTimer" id="BPMNShape_uploadTimer">
+        <omgdc:Bounds height="30.0" width="30.0" x="959.0" y="137.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="updateContextTask" id="BPMNShape_updateContextTask">
+        <omgdc:Bounds height="69.0" width="105.0" x="91.0" y="294.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent" id="BPMNShape_endevent">
+        <omgdc:Bounds height="35.0" width="35.0" x="1330.0" y="1115.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="determineDesiredStateAchievingActionsTask" id="BPMNShape_determineDesiredStateAchievingActionsTask">
+        <omgdc:Bounds height="69.0" width="122.0" x="365.0" y="294.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="prepareToExecuteTasksTask" id="BPMNShape_prepareToExecuteTasksTask">
+        <omgdc:Bounds height="61.0" width="111.0" x="88.0" y="1101.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="areThereMoreTasksToExecuteGateway" id="BPMNShape_areThereMoreTasksToExecuteGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="396.0" y="1112.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="executeTaskTask" id="BPMNShape_executeTaskTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="469.0" y="1105.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="pollExecuteTaskStatusTask" id="BPMNShape_pollExecuteTaskStatusTask">
+        <omgdc:Bounds height="61.0" width="105.0" x="606.0" y="1102.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="isTaskExecutedGateway" id="BPMNShape_isTaskExecutedGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="782.0" y="1112.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="taskExecutionPollingIntervalTimer" id="BPMNShape_taskExecutionPollingIntervalTimer">
+        <omgdc:Bounds height="35.0" width="35.0" x="785.0" y="1207.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="incrementTaskIndexTask" id="BPMNShape_incrementTaskIndexTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="850.0" y="1106.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="doesPlatformSupportTasksGateway" id="BPMNShape_doesPlatformSupportTasksGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="263.0" y="1112.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reprocessDescriptorTask" id="BPMNShape_reprocessDescriptorTask">
+        <omgdc:Bounds height="68.0" width="105.0" x="91.0" y="83.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="rebuildApplicationEnvironmentTask" id="BPMNShape_rebuildApplicationEnvironmentTask">
+        <omgdc:Bounds height="68.0" width="105.0" x="230.0" y="83.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="publishProvidedDependenciesTask" id="BPMNShape_publishProvidedDependenciesTask">
+        <omgdc:Bounds height="58.0" width="105.0" x="1066.0" y="1104.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="deleteDiscontinuedConfigurationEntriesForAppTask" id="BPMNShape_deleteDiscontinuedConfigurationEntriesForAppTask">
+        <omgdc:Bounds height="59.0" width="105.0" x="1201.0" y="1102.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="shouldStopAppGateway" id="BPMNShape_shouldStopAppGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="123.0" y="430.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="shouldStartAppGateway" id="BPMNShape_shouldStartAppGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="123.0" y="873.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="stageAppTask" id="BPMNShape_stageAppTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="230.0" y="603.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="pollStageAppStatusTask" id="BPMNShape_pollStageAppStatusTask">
+        <omgdc:Bounds height="55.0" width="122.0" x="365.0" y="603.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="pollStartAppStatusTask" id="BPMNShape_pollStartAppStatusTask">
+        <omgdc:Bounds height="55.0" width="122.0" x="575.0" y="866.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startAppTask" id="BPMNShape_startAppTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="228.0" y="866.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="pollExecuteAppStatusTask" id="BPMNShape_pollExecuteAppStatusTask">
+        <omgdc:Bounds height="55.0" width="122.0" x="783.0" y="866.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="isAppStagedGateway" id="BPMNShape_isAppStagedGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="510.0" y="610.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="stagePollingIntervalTimer" id="BPMNShape_stagePollingIntervalTimer">
+        <omgdc:Bounds height="35.0" width="35.0" x="513.0" y="680.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="123.0" y="610.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="isAppStartedGateway" id="BPMNShape_isAppStartedGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="720.0" y="873.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="isAppExecutedGateway" id="BPMNShape_isAppExecutedGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="928.0" y="873.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startPollingIntervalTimer" id="BPMNShape_startPollingIntervalTimer">
+        <omgdc:Bounds height="35.0" width="35.0" x="723.0" y="941.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="executionPollingIntervalTimer" id="BPMNShape_executionPollingIntervalTimer">
+        <omgdc:Bounds height="35.0" width="35.0" x="931.0" y="941.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="pollStageAppStatusOnCfTask" id="BPMNShape_pollStageAppStatusOnCfTask">
+        <omgdc:Bounds height="55.0" width="122.0" x="365.0" y="866.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="isAppStagedOnCfGateway" id="BPMNShape_isAppStagedOnCfGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="510.0" y="873.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="stagePollingIntervalOnCfTimer" id="BPMNShape_stagePollingIntervalOnCfTimer">
+        <omgdc:Bounds height="35.0" width="35.0" x="513.0" y="941.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="isPlatformTypeCfGateway" id="BPMNShape_isPlatformTypeCfGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="325.0" y="938.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="appDoesNotExistFlow" id="BPMNEdge_appDoesNotExistFlow">
+        <omgdi:waypoint x="550.0" y="116.0"></omgdi:waypoint>
+        <omgdi:waypoint x="624.0" y="117.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="84.0" x="534.0" y="78.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="appExistsFlow" id="BPMNEdge_appExistsFlow">
+        <omgdi:waypoint x="530.0" y="136.0"></omgdi:waypoint>
+        <omgdi:waypoint x="529.0" y="228.0"></omgdi:waypoint>
+        <omgdi:waypoint x="624.0" y="229.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="52.0" x="536.0" y="207.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="729.0" y="117.0"></omgdi:waypoint>
+        <omgdi:waypoint x="760.0" y="118.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="729.0" y="229.0"></omgdi:waypoint>
+        <omgdi:waypoint x="812.0" y="228.0"></omgdi:waypoint>
+        <omgdi:waypoint x="812.0" y="146.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="478.0" y="117.0"></omgdi:waypoint>
+        <omgdi:waypoint x="510.0" y="116.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="865.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="896.0" y="118.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
+        <omgdi:waypoint x="1155.0" y="119.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1189.0" y="118.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="appUploadedFlow" id="BPMNEdge_appUploadedFlow">
+        <omgdi:waypoint x="1229.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1263.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1263.0" y="268.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="268.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="294.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="waitForAppToBeUploadedFlow" id="BPMNEdge_waitForAppToBeUploadedFlow">
+        <omgdi:waypoint x="1209.0" y="138.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1209.0" y="172.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
+        <omgdi:waypoint x="1192.0" y="189.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1095.0" y="189.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1095.0" y="147.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="retryAppUploadFlow" id="BPMNEdge_retryAppUploadFlow">
+        <omgdi:waypoint x="1209.0" y="98.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1209.0" y="25.0"></omgdi:waypoint>
+        <omgdi:waypoint x="812.0" y="25.0"></omgdi:waypoint>
+        <omgdi:waypoint x="812.0" y="90.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="43.0" x="1005.0" y="44.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
+        <omgdi:waypoint x="1001.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1036.0" y="119.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="onUploadTimeoutFlow" id="BPMNEdge_onUploadTimeoutFlow">
+        <omgdi:waypoint x="974.0" y="167.0"></omgdi:waypoint>
+        <omgdi:waypoint x="973.0" y="218.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1095.0" y="218.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1095.0" y="147.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="54.0" x="990.0" y="195.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow26" id="BPMNEdge_flow26">
+        <omgdi:waypoint x="196.0" y="328.0"></omgdi:waypoint>
+        <omgdi:waypoint x="230.0" y="329.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">
+        <omgdi:waypoint x="49.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="91.0" y="117.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="335.0" y="329.0"></omgdi:waypoint>
+        <omgdi:waypoint x="365.0" y="328.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
+        <omgdi:waypoint x="487.0" y="328.0"></omgdi:waypoint>
+        <omgdi:waypoint x="537.0" y="329.0"></omgdi:waypoint>
+        <omgdi:waypoint x="537.0" y="406.0"></omgdi:waypoint>
+        <omgdi:waypoint x="142.0" y="406.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="430.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
+        <omgdi:waypoint x="199.0" y="1131.0"></omgdi:waypoint>
+        <omgdi:waypoint x="263.0" y="1132.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="thereAreNoMoreTasksToExecuteFlow" id="BPMNEdge_thereAreNoMoreTasksToExecuteFlow">
+        <omgdi:waypoint x="416.0" y="1152.0"></omgdi:waypoint>
+        <omgdi:waypoint x="415.0" y="1272.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1002.0" y="1272.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1002.0" y="1132.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1066.0" y="1133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="thereAreMoreTasksToExecuteFlow" id="BPMNEdge_thereAreMoreTasksToExecuteFlow">
+        <omgdi:waypoint x="436.0" y="1132.0"></omgdi:waypoint>
+        <omgdi:waypoint x="469.0" y="1132.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
+        <omgdi:waypoint x="574.0" y="1132.0"></omgdi:waypoint>
+        <omgdi:waypoint x="606.0" y="1132.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
+        <omgdi:waypoint x="711.0" y="1132.0"></omgdi:waypoint>
+        <omgdi:waypoint x="782.0" y="1132.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="waitForTaskToBeExecutedFlow" id="BPMNEdge_waitForTaskToBeExecutedFlow">
+        <omgdi:waypoint x="802.0" y="1152.0"></omgdi:waypoint>
+        <omgdi:waypoint x="802.0" y="1207.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
+        <omgdi:waypoint x="785.0" y="1224.0"></omgdi:waypoint>
+        <omgdi:waypoint x="658.0" y="1224.0"></omgdi:waypoint>
+        <omgdi:waypoint x="658.0" y="1163.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="retryTaskExecutionFlow" id="BPMNEdge_retryTaskExecutionFlow">
+        <omgdi:waypoint x="802.0" y="1112.0"></omgdi:waypoint>
+        <omgdi:waypoint x="802.0" y="1062.0"></omgdi:waypoint>
+        <omgdi:waypoint x="521.0" y="1062.0"></omgdi:waypoint>
+        <omgdi:waypoint x="521.0" y="1105.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="43.0" x="647.0" y="1066.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="taskExecutedFlow" id="BPMNEdge_taskExecutedFlow">
+        <omgdi:waypoint x="822.0" y="1132.0"></omgdi:waypoint>
+        <omgdi:waypoint x="850.0" y="1133.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow46" id="BPMNEdge_flow46">
+        <omgdi:waypoint x="902.0" y="1106.0"></omgdi:waypoint>
+        <omgdi:waypoint x="902.0" y="1038.0"></omgdi:waypoint>
+        <omgdi:waypoint x="415.0" y="1038.0"></omgdi:waypoint>
+        <omgdi:waypoint x="416.0" y="1112.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="platformSupportsTasksFlow" id="BPMNEdge_platformSupportsTasksFlow">
+        <omgdi:waypoint x="303.0" y="1132.0"></omgdi:waypoint>
+        <omgdi:waypoint x="396.0" y="1132.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="302.0" y="1137.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="platformDoesNotSupportTasks" id="BPMNEdge_platformDoesNotSupportTasks">
+        <omgdi:waypoint x="283.0" y="1152.0"></omgdi:waypoint>
+        <omgdi:waypoint x="282.0" y="1287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1118.0" y="1287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1118.0" y="1162.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="304.0" y="1256.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
+        <omgdi:waypoint x="335.0" y="117.0"></omgdi:waypoint>
+        <omgdi:waypoint x="373.0" y="117.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow49" id="BPMNEdge_flow49">
+        <omgdi:waypoint x="196.0" y="117.0"></omgdi:waypoint>
+        <omgdi:waypoint x="230.0" y="117.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow50" id="BPMNEdge_flow50">
+        <omgdi:waypoint x="1171.0" y="1133.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1201.0" y="1131.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51">
+        <omgdi:waypoint x="1306.0" y="1131.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1330.0" y="1132.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="stopAppFlow" id="BPMNEdge_stopAppFlow">
+        <omgdi:waypoint x="163.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="228.0" y="450.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="doNotStartAppFlow" id="BPMNEdge_doNotStartAppFlow">
+        <omgdi:waypoint x="143.0" y="913.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="1101.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="appStagedFlow" id="BPMNEdge_appStagedFlow">
+        <omgdi:waypoint x="550.0" y="630.0"></omgdi:waypoint>
+        <omgdi:waypoint x="621.0" y="630.0"></omgdi:waypoint>
+        <omgdi:waypoint x="621.0" y="746.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="746.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="873.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow56" id="BPMNEdge_flow56">
+        <omgdi:waypoint x="335.0" y="630.0"></omgdi:waypoint>
+        <omgdi:waypoint x="365.0" y="630.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="retryAppStagingFlow" id="BPMNEdge_retryAppStagingFlow">
+        <omgdi:waypoint x="530.0" y="610.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.0" y="553.0"></omgdi:waypoint>
+        <omgdi:waypoint x="282.0" y="553.0"></omgdi:waypoint>
+        <omgdi:waypoint x="282.0" y="603.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="43.0" x="376.0" y="531.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="waitForAppToBeStagedFlow" id="BPMNEdge_waitForAppToBeStagedFlow">
+        <omgdi:waypoint x="530.0" y="650.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.0" y="680.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow59" id="BPMNEdge_flow59">
+        <omgdi:waypoint x="513.0" y="697.0"></omgdi:waypoint>
+        <omgdi:waypoint x="425.0" y="697.0"></omgdi:waypoint>
+        <omgdi:waypoint x="426.0" y="658.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow60" id="BPMNEdge_flow60">
+        <omgdi:waypoint x="487.0" y="630.0"></omgdi:waypoint>
+        <omgdi:waypoint x="510.0" y="630.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="doNotStopAppFlow" id="BPMNEdge_doNotStopAppFlow">
+        <omgdi:waypoint x="143.0" y="470.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="610.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="stageAppFlow" id="BPMNEdge_stageAppFlow">
+        <omgdi:waypoint x="163.0" y="630.0"></omgdi:waypoint>
+        <omgdi:waypoint x="230.0" y="630.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="doNotStageAppFlow" id="BPMNEdge_doNotStageAppFlow">
+        <omgdi:waypoint x="143.0" y="650.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="873.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow64" id="BPMNEdge_flow64">
+        <omgdi:waypoint x="333.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="409.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="409.0" y="506.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="506.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="610.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="startAppFlow" id="BPMNEdge_startAppFlow">
+        <omgdi:waypoint x="163.0" y="893.0"></omgdi:waypoint>
+        <omgdi:waypoint x="228.0" y="893.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow67" id="BPMNEdge_flow67">
+        <omgdi:waypoint x="697.0" y="893.0"></omgdi:waypoint>
+        <omgdi:waypoint x="720.0" y="893.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="appStartedFlow" id="BPMNEdge_appStartedFlow">
+        <omgdi:waypoint x="760.0" y="893.0"></omgdi:waypoint>
+        <omgdi:waypoint x="783.0" y="893.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow69" id="BPMNEdge_flow69">
+        <omgdi:waypoint x="905.0" y="893.0"></omgdi:waypoint>
+        <omgdi:waypoint x="928.0" y="893.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="appExecutedFlow" id="BPMNEdge_appExecutedFlow">
+        <omgdi:waypoint x="968.0" y="893.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1014.0" y="893.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1014.0" y="1019.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="1019.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="1101.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="waitForAppToBeStartedFlow" id="BPMNEdge_waitForAppToBeStartedFlow">
+        <omgdi:waypoint x="740.0" y="913.0"></omgdi:waypoint>
+        <omgdi:waypoint x="740.0" y="941.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="waitForAppToBeExecutedFlow" id="BPMNEdge_waitForAppToBeExecutedFlow">
+        <omgdi:waypoint x="948.0" y="913.0"></omgdi:waypoint>
+        <omgdi:waypoint x="948.0" y="941.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow73" id="BPMNEdge_flow73">
+        <omgdi:waypoint x="931.0" y="958.0"></omgdi:waypoint>
+        <omgdi:waypoint x="844.0" y="958.0"></omgdi:waypoint>
+        <omgdi:waypoint x="844.0" y="921.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow74" id="BPMNEdge_flow74">
+        <omgdi:waypoint x="723.0" y="958.0"></omgdi:waypoint>
+        <omgdi:waypoint x="635.0" y="958.0"></omgdi:waypoint>
+        <omgdi:waypoint x="636.0" y="921.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="retryAppExecutionFlow" id="BPMNEdge_retryAppExecutionFlow">
+        <omgdi:waypoint x="948.0" y="873.0"></omgdi:waypoint>
+        <omgdi:waypoint x="947.0" y="794.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="794.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="866.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="43.0" x="377.0" y="771.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="retryAppStartupFlow" id="BPMNEdge_retryAppStartupFlow">
+        <omgdi:waypoint x="740.0" y="873.0"></omgdi:waypoint>
+        <omgdi:waypoint x="739.0" y="820.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="820.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="866.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="43.0" x="377.0" y="801.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow75" id="BPMNEdge_flow75">
+        <omgdi:waypoint x="487.0" y="893.0"></omgdi:waypoint>
+        <omgdi:waypoint x="510.0" y="893.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="waitForAppToBeStagedOnCfFlow" id="BPMNEdge_waitForAppToBeStagedOnCfFlow">
+        <omgdi:waypoint x="530.0" y="913.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.0" y="941.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow77" id="BPMNEdge_flow77">
+        <omgdi:waypoint x="513.0" y="958.0"></omgdi:waypoint>
+        <omgdi:waypoint x="426.0" y="958.0"></omgdi:waypoint>
+        <omgdi:waypoint x="426.0" y="921.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="retryAppStagingOnCfFlow" id="BPMNEdge_retryAppStagingOnCfFlow">
+        <omgdi:waypoint x="530.0" y="873.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.0" y="847.0"></omgdi:waypoint>
+        <omgdi:waypoint x="281.0" y="847.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="866.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="43.0" x="376.0" y="831.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="appStagedOnCfFlow" id="BPMNEdge_appStagedOnCfFlow">
+        <omgdi:waypoint x="550.0" y="893.0"></omgdi:waypoint>
+        <omgdi:waypoint x="575.0" y="893.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow80" id="BPMNEdge_flow80">
+        <omgdi:waypoint x="280.0" y="921.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="957.0"></omgdi:waypoint>
+        <omgdi:waypoint x="325.0" y="958.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="platformTypeIsCfFlow" id="BPMNEdge_platformTypeIsCfFlow">
+        <omgdi:waypoint x="365.0" y="958.0"></omgdi:waypoint>
+        <omgdi:waypoint x="426.0" y="958.0"></omgdi:waypoint>
+        <omgdi:waypoint x="426.0" y="921.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="platformTypeIsNotCfFlow" id="BPMNEdge_platformTypeIsNotCfFlow">
+        <omgdi:waypoint x="345.0" y="978.0"></omgdi:waypoint>
+        <omgdi:waypoint x="345.0" y="997.0"></omgdi:waypoint>
+        <omgdi:waypoint x="635.0" y="997.0"></omgdi:waypoint>
+        <omgdi:waypoint x="636.0" y="921.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

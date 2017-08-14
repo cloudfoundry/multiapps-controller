@@ -18,7 +18,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 
@@ -93,8 +92,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends AbstractStepTest<Pro
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         validateOutput();
     }

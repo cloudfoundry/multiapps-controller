@@ -1,0 +1,4 @@
+{
+  "name": "foo",
+  "uris": [ "localhost:40001", "localhost:40002", "host1.localhost", "host2.localhost" ]
+}

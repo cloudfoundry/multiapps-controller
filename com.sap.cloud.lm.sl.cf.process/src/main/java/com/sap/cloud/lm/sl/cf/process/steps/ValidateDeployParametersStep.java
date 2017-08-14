@@ -33,12 +33,11 @@ import com.sap.cloud.lm.sl.slp.resources.Configuration;
 public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
 
     private static final String PART_POSTFIX = ".part.";
-
-    // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidateDeployParametersStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("validateParametersTask", "Validate Parameters", "Validate Parameters");
+        return StepMetadata.builder().id("validateParametersTask").displayName("Validate Parameters").description(
+            "Validate Parameters").build();
     }
 
     @Override
@@ -113,9 +112,9 @@ public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
             debug(context, Messages.BUILDING_ARCHIVE_FROM_PARTS, LOGGER);
             createArchiveFromParts(context, archivePartEntries);
         } catch (FileStorageException e) {
-            throw new SLException(e, Messages.ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT);
+            throw new SLException(e, MessageFormat.format(Messages.ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT, e.getMessage()));
         } catch (IOException e) {
-            throw new SLException(e, Messages.ERROR_MERGING_ARCHIVE_PARTS);
+            throw new SLException(e, MessageFormat.format(Messages.ERROR_MERGING_ARCHIVE_PARTS, e.getMessage()));
         }
     }
 
@@ -131,26 +130,36 @@ public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
             for (FileEntry fileEntry : sortedParts) {
                 fileService.processFileContent(
                     new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), fileEntry.getId(), archivePartProcessor));
+                attemptToDeleteFilePart(fileEntry);
             }
         } finally {
+            deleteRemainingFileParts(sortedParts);
             archiveMerger.close();
-            try {
-                deleteParts(sortedParts);
-            } catch (FileStorageException e) {
-                LOGGER.error(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
-            }
         }
-        persistMergedArchive(archiveMerger.getMergedFilePath(), context);
+
+        try {
+            persistMergedArchive(archiveMerger.getMergedFilePath(), context);
+        } finally {
+            Files.deleteIfExists(archiveMerger.getMergedFilePath());
+        }
+    }
+
+    private void deleteRemainingFileParts(List<FileEntry> sortedParts) {
+        for (FileEntry fileEntry : sortedParts) {
+            attemptToDeleteFilePart(fileEntry);
+        }
+    }
+
+    private void attemptToDeleteFilePart(FileEntry fileEntry) {
+        try {
+            fileService.deleteFile(fileEntry.getSpace(), fileEntry.getId());
+        } catch (FileStorageException e) {
+            LOGGER.warn(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
+        }
     }
 
     protected FilePartsMerger getArchiveMerger(String archiveName) throws IOException {
         return new FilePartsMerger(archiveName);
-    }
-
-    private void deleteParts(List<FileEntry> fileEntries) throws FileStorageException {
-        for (FileEntry fileEntry : fileEntries) {
-            fileService.deleteFile(fileEntry.getSpace(), fileEntry.getId());
-        }
     }
 
     private String getArchiveName(FileEntry fileEntry) {
@@ -162,7 +171,7 @@ public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
         Configuration configuration = ConfigurationUtil.getSlpConfiguration();
         String name = archivePath.getFileName().toString();
         FileEntry uploadedArchive = fileService.addFile(StepsUtil.getSpaceId(context), StepsUtil.getServiceId(context), name,
-            configuration.getFileUploadProcessor(name), Files.newInputStream(archivePath));
+            configuration.getFileUploadProcessor(name), archivePath.toFile());
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 

@@ -1,11 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Arrays;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,64 +10,55 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @RunWith(Parameterized.class)
 public class ScaleAppStepTest extends AbstractStepTest<ScaleAppStep> {
 
     private final SimpleApplication application;
     private final SimpleApplication existingApplication;
-    private final boolean keepAppAtributes;
-
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
             // @formatter:off
             {
-                new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 3), false
+                new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 3),
             },
             {
-                new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 2), false
+                new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 2),
             },
             {
-                new SimpleApplication("test-app-1", 2), new SimpleApplication("test-app-1", 2), true
-            }
-            ,
-            {
-                new SimpleApplication("test-app-1", 2), null, true
-            }
+                new SimpleApplication("test-app-1", 2), null,
+            },
             // @formatter:on
         });
     }
 
-    public ScaleAppStepTest(SimpleApplication application, SimpleApplication existingApplication, boolean keepAttr) {
+    public ScaleAppStepTest(SimpleApplication application, SimpleApplication existingApplication) {
         this.application = application;
         this.existingApplication = existingApplication;
-        this.keepAppAtributes = keepAttr;
     }
 
     @Before
     public void setUp() throws Exception {
         prepareContext();
-        step.clientSupplier = (context) -> client;
     }
 
     @Test
     public void testExecute() throws Exception {
-        ExecutionStatus status = step.executeStep(context);
+        step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(), status.toString());
+        assertStepFinishedSuccessfully();
 
         validateUpdatedApplications();
     }
 
     private void prepareContext() {
         context.setVariable(Constants.VAR_APPS_INDEX, 0);
-        context.setVariable(Constants.PARAM_KEEP_APP_ATTRIBUTES, keepAppAtributes);
+        context.setVariable("appToDeploy", JsonUtil.toJson(application.toCloudApplication()));
         StepsUtil.setAppsToDeploy(context, toCloudApplication());
         StepsUtil.setExistingApp(context, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
     }
@@ -80,7 +68,7 @@ public class ScaleAppStepTest extends AbstractStepTest<ScaleAppStep> {
     }
 
     private void validateUpdatedApplications() {
-        if (application.instances != 0 && !keepAppAtributes) {
+        if (application.instances != 0) {
             if (existingApplication == null || application.instances != existingApplication.instances) {
                 Mockito.verify(client).updateApplicationInstances(application.name, application.instances);
             }

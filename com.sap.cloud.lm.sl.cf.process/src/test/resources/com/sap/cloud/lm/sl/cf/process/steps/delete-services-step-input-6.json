@@ -1,0 +1,13 @@
+{
+  "servicesToDelete": [
+    {
+      "name": "service-1",
+      "hasBoundApplications": false
+    },
+    {
+      "name": "service-2",
+      "httpErrorCodeToReturnOnDelete": 403,
+      "hasBoundApplications": false
+    }
+  ]
+}

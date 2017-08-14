@@ -11,19 +11,19 @@ import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorValidator;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 
 public class MtaDescriptorMerger {
 
     private HandlerFactory handlerFactory;
-    private TargetPlatformType platformType;
-    private TargetPlatform platform;
+    private Platform platform;
+    private Target target;
 
-    public MtaDescriptorMerger(HandlerFactory handlerFactory, TargetPlatformType platformType, TargetPlatform platform) {
+    public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform, Target target) {
         this.handlerFactory = handlerFactory;
-        this.platformType = platformType;
         this.platform = platform;
+        this.target = target;
     }
 
     public DeploymentDescriptor merge(String deploymentDescriptorString, List<String> extensionDescriptorStrings) throws ContentException {
@@ -45,7 +45,7 @@ public class MtaDescriptorMerger {
             false);
 
         DescriptorValidator validator = handlerFactory.getDescriptorValidator();
-        validator.validateDeploymentDescriptor(deploymentDescriptor, platformType);
+        validator.validateDeploymentDescriptor(deploymentDescriptor, platform);
         validator.validateExtensionDescriptors(extensionDescriptors, deploymentDescriptor);
 
         DescriptorMerger merger = handlerFactory.getDescriptorMerger();
@@ -53,7 +53,7 @@ public class MtaDescriptorMerger {
         // Merge the passed set of descriptors into one deployment descriptor. The deployment descriptor at the root of
         // the chain is merged in as well:
         Pair<DeploymentDescriptor, List<String>> mergedDescriptor = merger.merge(deploymentDescriptor, extensionDescriptors);
-        validator.validateMergedDescriptor(mergedDescriptor, platform);
+        validator.validateMergedDescriptor(mergedDescriptor, target);
 
         deploymentDescriptor = mergedDescriptor._1;
         // TODO log without plain text sensitive content

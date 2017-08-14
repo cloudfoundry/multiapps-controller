@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet author="sap.com" id="rename_target_platform_to_deploy_target">
+        <renameTable oldTableName="target_platform_v1" newTableName="deploy_target_v1" />
+        <renameTable oldTableName="target_platform_v2" newTableName="deploy_target_v2" />
+        <renameTable oldTableName="target_platform_v3" newTableName="deploy_target_v3" />
+        <update tableName="deploy_target_v1">
+               <column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'target-platform>', 'deploy-target>')"/>
+        </update>
+        <update tableName="deploy_target_v2">
+               <column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'target-platform>', 'deploy-target>')"/>
+        </update>
+        <update tableName="deploy_target_v3">
+               <column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'target-platform>', 'deploy-target>')"/>
+        </update>
+    </changeSet>
+</databaseChangeLog>

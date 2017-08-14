@@ -2,15 +2,16 @@ package com.sap.cloud.lm.sl.cf.core.util;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.cloudfoundry.client.lib.domain.CloudEntity;
 
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryOperationsExtended;
+import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
 import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetterFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -20,6 +21,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 public class AuthorizationUtil {
 
     private static final String SPACE_CACHE_SEPARATOR = "|";
+    private static final ExecutionRetrier retrier = new ExecutionRetrier();
 
     public static String getSpaceId(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String orgName, String spaceName,
         String processId) throws SLException {
@@ -53,20 +55,24 @@ public class AuthorizationUtil {
 
     public static boolean checkPermissions(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String orgName, String spaceName,
         boolean readOnly, String processId) throws SLException {
-        if (ConfigurationUtil.areDummyTokensEnabled() && isDummyToken(userInfo))
+        if (ConfigurationUtil.areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
-        if (isAdminUser(userInfo) || hasAdminScope(userInfo))
+        }
+        if (isAdminUser(userInfo) || hasAdminScope(userInfo)) {
             return true;
+        }
         CloudFoundryOperations client = getCloudFoundryClient(clientProvider, userInfo);
         return checkPermissions(client, userInfo, orgName, spaceName, readOnly);
     }
 
     public static boolean checkPermissions(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String spaceGuid, boolean readOnly)
         throws SLException {
-        if (ConfigurationUtil.areDummyTokensEnabled() && isDummyToken(userInfo))
+        if (ConfigurationUtil.areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
-        if (isAdminUser(userInfo) || hasAdminScope(userInfo))
+        }
+        if (isAdminUser(userInfo) || hasAdminScope(userInfo)) {
             return true;
+        }
         CloudFoundryOperations client = getCloudFoundryClient(clientProvider, userInfo);
         Pair<String, String> location = new ClientHelper(client).computeOrgAndSpace(spaceGuid);
         if (location == null) {
@@ -78,34 +84,28 @@ public class AuthorizationUtil {
     private static boolean checkPermissions(CloudFoundryOperations client, UserInfo userInfo, String orgName, String spaceName,
         boolean readOnly) {
         CloudFoundryOperationsExtended clientx = (CloudFoundryOperationsExtended) client;
-
-        return hasAccess(clientx, orgName, spaceName) && hasPermissions(clientx, userInfo.getId(), orgName, spaceName, readOnly);
+        return hasPermissions(clientx, userInfo.getId(), orgName, spaceName, readOnly) && hasAccess(clientx, orgName, spaceName);
     }
 
     private static boolean hasPermissions(CloudFoundryOperationsExtended client, String userId, String orgName, String spaceName,
         boolean readOnly) {
-        if (client.getSpaceDevelopers2(orgName, spaceName).contains(userId))
+        if (client.getSpaceDevelopers2(orgName, spaceName).contains(userId)) {
             return true;
+        }
         if (readOnly) {
-            if (client.getSpaceAuditors2(orgName, spaceName).contains(userId))
+            if (client.getSpaceAuditors2(orgName, spaceName).contains(userId)) {
                 return true;
-            if (client.getSpaceManagers2(orgName, spaceName).contains(userId))
+            }
+            if (client.getSpaceManagers2(orgName, spaceName).contains(userId)) {
                 return true;
+            }
         }
         return false;
     }
 
     private static boolean hasAccess(CloudFoundryOperationsExtended client, String orgName, String spaceName) {
-        return containsEntity(client.getOrganizations(), orgName) && containsEntity(client.getSpaces(), spaceName);
-    }
-
-    private static boolean containsEntity(List<? extends CloudEntity> entities, String entityName) {
-        for (CloudEntity entity : entities) {
-            if (entity.getName().equals(entityName)) {
-                return true;
-            }
-        }
-        return false;
+        SpaceGetter spaceGetter = new SpaceGetterFactory().createSpaceGetter();
+        return retrier.executeWithRetry(() -> spaceGetter.findSpace(client, orgName, spaceName)) != null;
     }
 
     private static CloudFoundryOperations getCloudFoundryClient(CloudFoundryClientProvider clientProvider, UserInfo userInfo)

@@ -35,8 +35,8 @@ public class ApplicationColorAppenderTest extends com.sap.cloud.lm.sl.cf.core.he
     }
 
     @Override
-    protected ApplicationColorAppender getApplicationColorAppender(ApplicationColor applicationColor) {
-        return new ApplicationColorAppender(applicationColor);
+    protected ApplicationColorAppender getApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationColor) {
+        return new ApplicationColorAppender(deployedMtaColor, applicationColor);
     }
 
 }

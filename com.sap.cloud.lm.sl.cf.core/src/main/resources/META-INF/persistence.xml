@@ -18,16 +18,16 @@
     </persistence-unit>
     <persistence-unit name="ConfigurationEntryManagement" transaction-type="RESOURCE_LOCAL">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <class>com.sap.cloud.lm.sl.cf.core.dto.ConfigurationEntryDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto</class>
         <properties>
             <property name="openjpa.Log" value="slf4j" />
         </properties>
     </persistence-unit>
-    <persistence-unit name="TargetPlatformManagement" transaction-type="RESOURCE_LOCAL">
+    <persistence-unit name="DeployTargetManagement" transaction-type="RESOURCE_LOCAL">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v1.TargetPlatformDto</class>
-        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v2.TargetPlatformDto</class>
-        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v3.TargetPlatformDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v1.DeployTargetDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v2.DeployTargetDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v3.DeployTargetDto</class>
         <properties>
             <property name="openjpa.Log" value="slf4j" />
         </properties>

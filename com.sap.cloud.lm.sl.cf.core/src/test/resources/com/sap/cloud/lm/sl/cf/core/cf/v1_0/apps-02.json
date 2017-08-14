@@ -2,10 +2,11 @@
   {
     "moduleName": "module-1",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-1.sofd60245639a/test-route\"]}",
       "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
@@ -26,10 +27,11 @@
   {
     "moduleName": "module-2",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-2.sofd60245639a\"]}",
       "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"module-2\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",

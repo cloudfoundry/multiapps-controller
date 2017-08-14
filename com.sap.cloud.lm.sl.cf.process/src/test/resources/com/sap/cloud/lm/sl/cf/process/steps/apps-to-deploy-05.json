@@ -1,6 +1,7 @@
 [
   {
-    "tempUris": [],
+    "moduleName": "module-1",
+    "idleUris": [],
     "diskQuota": 0,
     "instances": 0,
     "memory": 0,
@@ -9,28 +10,30 @@
     "name": "module-1"
   },
   {
-    "tempUris": [
-      "module-2.api.cf.neo.ondemand.com"
+    "moduleName": "module-2",
+    "idleUris": [
+      "module-2-idle.api.cf.neo.ondemand.com"
     ],
     "diskQuota": 0,
     "instances": 0,
     "memory": 0,
     "runningInstances": 0,
     "uris": [
-      "module-2-temp.api.cf.neo.ondemand.com"
+      "module-2-idle.api.cf.neo.ondemand.com"
     ],
     "name": "module-2"
   },
   {
-    "tempUris": [
-      "module-3.api.cf.neo.ondemand.com"
+    "moduleName": "module-3",
+    "idleUris": [
+      "module-3-idle.api.cf.neo.ondemand.com"
     ],
     "diskQuota": 0,
     "instances": 0,
     "memory": 0,
     "runningInstances": 0,
     "uris": [
-      "module-3-temp.api.cf.neo.ondemand.com"
+      "module-3-idle.api.cf.neo.ondemand.com"
     ],
     "name": "module-3"
   }

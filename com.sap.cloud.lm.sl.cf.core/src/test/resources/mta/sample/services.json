@@ -3,6 +3,7 @@
     "resourceName": "pricing-db-service",
     "credentials": {},
     "tags": [],
+    "isOptional": false,
     "label": "hdi-hana2",
     "plan": "hdi-shared",
     "meta": {},
@@ -15,6 +16,7 @@
       "username": "technicalUser"
     },
     "tags": [],
+    "isOptional": false,
     "meta": {},
     "name": "internal-odata-service"
   }

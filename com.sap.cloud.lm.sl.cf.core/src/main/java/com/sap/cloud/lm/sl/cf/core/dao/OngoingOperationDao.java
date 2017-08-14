@@ -65,14 +65,18 @@ public class OngoingOperationDao {
         remove(ongoingOperation.getProcessId());
     }
 
-    public OngoingOperation find(String processId) throws NotFoundException {
+    public OngoingOperation find(String processId) {
         return new Executor<OngoingOperation>(createEntityManager()).execute((manager) -> {
-            OngoingOperation oo = manager.find(OngoingOperation.class, processId);
-            if (oo == null) {
-                throw new NotFoundException(Messages.ONGOING_OPERATION_NOT_FOUND, processId);
-            }
-            return oo;
+            return manager.find(OngoingOperation.class, processId);
         });
+    }
+
+    public OngoingOperation findRequired(String processId) throws NotFoundException {
+        OngoingOperation oo = find(processId);
+        if (oo == null) {
+            throw new NotFoundException(Messages.ONGOING_OPERATION_NOT_FOUND, processId);
+        }
+        return oo;
     }
 
     @SuppressWarnings("unchecked")

@@ -10,7 +10,8 @@
       "services": [
         "node-hdi-container"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "uris": []
     },
     {
       "moduleName": "node-hello-world-backend",
@@ -19,7 +20,8 @@
         "uaa",
         "node-hdi-container"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "uris": []
     },
     {
       "moduleName": "node-hello-world",
@@ -27,7 +29,8 @@
       "services": [
         "uaa"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "uris": []
     }
   ],
   "services": [

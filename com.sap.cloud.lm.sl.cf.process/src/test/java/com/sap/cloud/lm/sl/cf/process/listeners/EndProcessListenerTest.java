@@ -16,7 +16,7 @@ import org.mockito.Spy;
 
 import com.sap.activiti.common.impl.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.persistence.services.FileService;
+import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.slp.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.slp.services.ProcessLogsPersistenceService;
@@ -41,7 +41,7 @@ public class EndProcessListenerTest {
     @Mock
     protected ProgressMessageService progressMessageService;
     @Mock
-    private FileService fileService;
+    private AbstractFileService fileService;
 
     @InjectMocks
     private EndProcessListener listener = new EndProcessListener();

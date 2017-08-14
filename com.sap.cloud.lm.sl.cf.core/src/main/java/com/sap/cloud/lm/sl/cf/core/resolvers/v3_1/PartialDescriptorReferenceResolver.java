@@ -6,6 +6,7 @@ import com.sap.cloud.lm.sl.cf.core.resolvers.v2_0.PartialModuleReferenceResolver
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Resource;
+import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2_0.ModuleReferenceResolver;
 import com.sap.cloud.lm.sl.mta.resolvers.v3_1.DescriptorReferenceResolver;
 import com.sap.cloud.lm.sl.mta.resolvers.v3_1.ResourceReferenceResolver;
@@ -15,7 +16,7 @@ public class PartialDescriptorReferenceResolver extends DescriptorReferenceResol
     private List<String> dependenciesToIgnore;
 
     public PartialDescriptorReferenceResolver(DeploymentDescriptor descriptor, List<String> dependenciesToIgnore) {
-        super(descriptor);
+        super(descriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder());
         this.dependenciesToIgnore = dependenciesToIgnore;
     }
 

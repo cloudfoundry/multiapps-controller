@@ -11,7 +11,20 @@
             <xs:element name="provider-version" type="xs:string" minOccurs="0" />
             <xs:element name="provider-id" type="xs:string" minOccurs="0" />
             <xs:element name="content" type="xs:string" minOccurs="0" />
+            <xs:element name="visibility" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="target" type="target" maxOccurs="unbounded" minOccurs="0" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:all>
     </xs:complexType>
 
+    <xs:complexType name="target">
+        <xs:all>
+            <xs:element name="org" type="xs:string" />
+            <xs:element name="space" type="xs:string" minOccurs="0" />
+        </xs:all>
+    </xs:complexType>
 </xs:schema>

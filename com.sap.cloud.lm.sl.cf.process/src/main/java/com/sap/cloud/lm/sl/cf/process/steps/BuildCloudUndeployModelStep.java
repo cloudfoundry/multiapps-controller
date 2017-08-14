@@ -38,7 +38,8 @@ public class BuildCloudUndeployModelStep extends AbstractXS2ProcessStep {
     private ConfigurationSubscriptionDao dao;
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("buildUndeployModelTask", "Build Undeploy Model", "Build Undeploy Model");
+        return StepMetadata.builder().id("buildUndeployModelTask").displayName("Build Undeploy Model").description(
+            "Build Undeploy Model").build();
     }
 
     @Override

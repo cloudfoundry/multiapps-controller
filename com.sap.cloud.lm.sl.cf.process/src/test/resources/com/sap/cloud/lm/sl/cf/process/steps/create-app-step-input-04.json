@@ -31,5 +31,8 @@
       "name": "service-3"
     }
   ],
-  "applicationIndex": 0
+  "applicationIndex": 0,
+  "bindingErrors" : {
+  	"application": "service-2"
+  }
 }

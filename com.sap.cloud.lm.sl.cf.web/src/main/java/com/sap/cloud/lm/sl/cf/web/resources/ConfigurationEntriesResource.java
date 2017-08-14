@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -35,10 +38,11 @@ import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
-import com.sap.cloud.lm.sl.cf.core.dto.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationEntriesDto;
+import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationFilterDto;
-import com.sap.cloud.lm.sl.cf.core.helpers.ConfigurationEntriesPurger;
+import com.sap.cloud.lm.sl.cf.core.helpers.MtaConfigurationPurger;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
@@ -66,6 +70,7 @@ public class ConfigurationEntriesResource {
         "/update-configuration-entry-schema.xsd");
     private static final URL CONFIGURATION_FILTER_SCHEMA_LOCATION = ConfigurationEntriesResource.class.getResource(
         "/configuration-filter-schema.xsd");
+    protected Supplier<UserInfo> userInfoSupplier = () -> SecurityContextUtil.getUserInfo();
 
     @Inject
     private ConfigurationEntryDao entryDao;
@@ -81,7 +86,7 @@ public class ConfigurationEntriesResource {
 
     protected Response filterConfigurationEntries(ConfigurationFilter filter) throws ParsingException {
         try {
-            List<ConfigurationEntry> entries = findConfigurationEntries(entryDao, filter);
+            List<ConfigurationEntry> entries = findConfigurationEntries(entryDao, filter, getUserTargets());
             return Response.status(Response.Status.OK).entity(wrap(entries)).build();
         } catch (IllegalArgumentException e) {
             /**
@@ -89,6 +94,16 @@ public class ConfigurationEntriesResource {
              */
             throw new ParsingException(e.getMessage(), e);
         }
+    }
+
+    private List<CloudTarget> getUserTargets() {
+        UserInfo userInfo = userInfoSupplier.get();
+        CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
+        return client.getSpaces().stream().map(cloudSpace -> getCloudTarget(cloudSpace)).collect(Collectors.toList());
+    }
+
+    private CloudTarget getCloudTarget(CloudSpace cloudSpace) {
+        return new CloudTarget(cloudSpace.getOrganization().getName(), cloudSpace.getName());
     }
 
     private ConfigurationEntriesDto wrap(List<ConfigurationEntry> entries) {
@@ -105,7 +120,7 @@ public class ConfigurationEntriesResource {
         return Response.status(Response.Status.OK).entity(new ConfigurationEntryDto(entryDao.find(id))).build();
     }
 
-    private Map<String, String> parseContentFilterParameter(List<String> content) throws ParsingException {
+    private Map<String, Object> parseContentFilterParameter(List<String> content) throws ParsingException {
         if (content == null || content.isEmpty()) {
             return null;
         }
@@ -130,13 +145,13 @@ public class ConfigurationEntriesResource {
         throw new ParsingException(Messages.COULD_NOT_PARSE_CONTENT_PARAMETER);
     }
 
-    private Map<String, String> parseContentQueryJsonParameter(List<String> content) throws ParsingException {
+    private Map<String, Object> parseContentQueryJsonParameter(List<String> content) throws ParsingException {
         return JsonUtil.fromJson(content.get(0), new TypeToken<Map<String, String>>() {
         }.getType());
     }
 
-    private Map<String, String> parseContentQueryListParameter(List<String> content) throws ParsingException {
-        Map<String, String> parsedContent = new HashMap<String, String>();
+    private Map<String, Object> parseContentQueryListParameter(List<String> content) throws ParsingException {
+        Map<String, Object> parsedContent = new HashMap<String, Object>();
         for (String property : content) {
             String[] keyValuePair = property.split(KEYVALUE_SEPARATOR, 2);
             if (keyValuePair.length != 2) {
@@ -153,8 +168,10 @@ public class ConfigurationEntriesResource {
         ConfigurationEntryDto dto = parseDto(xml, CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION);
 
         ConfigurationEntry result = entryDao.add(dto.toConfigurationEntry());
-
         return Response.status(Response.Status.CREATED).entity(new ConfigurationEntryDto(result)).build();
+
+        // TODO: check if this would work fine:
+        // return Response.status(Response.Status.CREATED).entity(dto).build();
     }
 
     @Path("/{id}")
@@ -202,7 +219,7 @@ public class ConfigurationEntriesResource {
         String providerId = bean.getProviderId();
         String providerVersion = bean.getProviderVersion();
         String providerNid = bean.getProviderNid();
-        Map<String, String> content = parseContentFilterParameter(bean.getContent());
+        Map<String, Object> content = parseContentFilterParameter(bean.getContent());
         String targetSpace = bean.getTargetSpace();
         return new ConfigurationFilter(providerNid, providerId, providerVersion, targetSpace, content);
     }
@@ -217,7 +234,9 @@ public class ConfigurationEntriesResource {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         AuthorizationChecker.ensureUserIsAuthorized(request, clientProvider, userInfo, org, space, PURGE_COMMAND);
         CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName(), org, space, null);
-        ConfigurationEntriesPurger.purge(client, org, space, entryDao, subscriptionDao);
+        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
+        purger.purge(org, space);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
+
 }

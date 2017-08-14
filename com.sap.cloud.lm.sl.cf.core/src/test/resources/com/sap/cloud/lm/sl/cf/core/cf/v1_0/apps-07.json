@@ -1,0 +1,87 @@
+[
+  {
+    "moduleName": "module-1",
+    "extendedStaging": {},
+    "idleUris": [],
+    "tasks": [
+      {
+        "command": "echo 1",
+        "environmentVariables": {
+          "test_1": "test",
+          "test_2": "[{\"name\":\"foo\",\"type\":\"foo\"},{\"name\":\"bar\",\"type\":\"bar\"}]",
+          "test_3": "{\"baz\":\"qux\"}"
+        },
+        "meta": {},
+        "name": "task-1"
+      },
+      {
+        "command": "echo 2",
+        "meta": {},
+        "name": "task-2"
+      }
+    ],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-1.sofd60245639a\"],\"no-start\":true}",
+      "MTA_METADATA={\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_SERVICES=[]"
+    ],
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "services": [],
+    "uris": [
+      "module-1.sofd60245639a"
+    ],
+    "meta": {},
+    "name": "module-1"
+  },
+  {
+    "moduleName": "module-2",
+    "extendedStaging": {},
+    "idleUris": [],
+    "tasks": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-2.sofd60245639a\"]}",
+      "MTA_METADATA={\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"module-2\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_SERVICES=[]"
+    ],
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "services": [],
+    "uris": [
+      "module-2.sofd60245639a"
+    ],
+    "meta": {},
+    "name": "module-2"
+  },
+  {
+    "moduleName": "module-3",
+    "extendedStaging": {},
+    "idleUris": [],
+    "tasks": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-3.sofd60245639a\"]}",
+      "MTA_METADATA={\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"module-3\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_SERVICES=[]"
+    ],
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "services": [],
+    "uris": [
+      "module-3.sofd60245639a"
+    ],
+    "meta": {},
+    "name": "module-3"
+  }
+]

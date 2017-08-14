@@ -1,0 +1,29 @@
+{
+  "existingApp": {
+    "name": "app",
+    "env": [
+      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"foo\",\"bar\"]"
+    ]
+  },
+  "mtaId": "com.sap.sample.mta",
+  "mtaVersion": "0.1.0",
+  "org": "myorg",
+  "space": "SAP",
+  "existingEntries": [
+    {
+      "id": 0,
+      "providerNid": "mta",
+      "providerId": "com.sap.sample.mta:foo",
+      "providerVersion": "0.1.0",
+      "targetSpace": "myorg SAP"
+    },
+    {
+      "id": 1,
+      "providerNid": "mta",
+      "providerId": "com.sap.sample.mta:bar",
+      "providerVersion": "0.1.0",
+      "targetSpace": "myorg SAP"
+    }
+  ]
+}

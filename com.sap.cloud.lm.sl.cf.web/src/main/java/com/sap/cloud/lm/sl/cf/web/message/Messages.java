@@ -5,15 +5,19 @@ package com.sap.cloud.lm.sl.cf.web.message;
  */
 public final class Messages {
 
+    public static final String CREATE_DEPLOY_TARGET = "Create deploy target";
+    public static final String UPDATE_DEPLOY_TARGET = "Update deploy target";
+    public static final String DELETE_DEPLOY_TARGET = "Delete deploy target";
+
+    // Deprecated, used in TargetPlatformsResource_V* for backwards compatibility
     public static final String CREATE_TARGET_PLATFORM = "Create target platform";
     public static final String UPDATE_TARGET_PLATFORM = "Update target platform";
     public static final String DELETE_TARGET_PLATFORM = "Delete target platform";
 
     // Exception messages
-    public static final String ORG_SPACE_NOT_SPECIFIED_1 = "Platform does not contain 'org' and 'space' properties";
-    public static final String ORG_SPACE_NOT_SPECIFIED_2 = "Platform does not contain 'org' and 'space' parameters";
+    public static final String ORG_SPACE_NOT_SPECIFIED_1 = "Target does not contain 'org' and 'space' properties";
+    public static final String ORG_SPACE_NOT_SPECIFIED_2 = "Target does not contain 'org' and 'space' parameters";
     public static final String ERROR_EXECUTING_REST_API_CALL = "Error occurred while executing REST API call";
-    public static final String UNSUPPORTED_PROCESS_TYPE = "Process type \"{0}\" is not supported";
     public static final String ONGOING_OPERATION_NOT_FOUND = "Ongoing MTA operation with id \"{0}\" in space \"{1}\" does not exist";
     public static final String CONFIGURATION_ENTRY_ID_CANNOT_BE_UPDATED = "A configuration entry''s id cannot be updated";
     public static final String PROPERTY_DOES_NOT_CONTAIN_KEY_VALUE_PAIR = "Property \"{0}\" does not contain a key value pair";

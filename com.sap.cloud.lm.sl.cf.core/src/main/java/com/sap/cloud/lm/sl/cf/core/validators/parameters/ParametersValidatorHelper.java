@@ -43,7 +43,7 @@ public class ParametersValidatorHelper {
     private Object validate(Object container, String parameterName, Object parameter, ParameterValidator validator) throws SLException {
         if ((parameter instanceof String) && containsXsaPlaceholders((String) parameter)) {
             return parameter;
-        } else if (!validator.validate(container, parameter)) {
+        } else if (!validator.isValid(container, parameter)) {
             return attemptToCorrect(container, parameterName, parameter, validator);
         } else {
             return parameter;

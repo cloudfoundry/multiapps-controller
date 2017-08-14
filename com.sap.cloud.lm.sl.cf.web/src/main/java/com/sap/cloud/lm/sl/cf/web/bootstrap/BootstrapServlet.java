@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.web.bootstrap;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -20,17 +21,20 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
-import com.sap.cloud.lm.sl.cf.core.dao.TargetPlatformDao;
+import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
+import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
-import com.sap.cloud.lm.sl.cf.process.metadata.XS2BlueGreenDeployServiceMetadata;
-import com.sap.cloud.lm.sl.cf.process.metadata.XS2DeployServiceMetadata;
-import com.sap.cloud.lm.sl.cf.process.metadata.XS2UndeployServiceMetadata;
+import com.sap.cloud.lm.sl.cf.process.metadata.CtsDeployService;
+import com.sap.cloud.lm.sl.cf.process.metadata.CtsPingService;
+import com.sap.cloud.lm.sl.cf.process.metadata.XS2BlueGreenDeployService;
+import com.sap.cloud.lm.sl.cf.process.metadata.XS2DeployService;
+import com.sap.cloud.lm.sl.cf.process.metadata.XS2UndeployService;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.persistence.dialects.DatabaseDialect;
 import com.sap.cloud.lm.sl.slp.ServiceRegistry;
 import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
@@ -39,7 +43,6 @@ public class BootstrapServlet extends HttpServlet {
 
     private static final long serialVersionUID = -1740423033397429145L;
 
-    // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapServlet.class);
 
     @Inject
@@ -50,13 +53,13 @@ public class BootstrapServlet extends HttpServlet {
     protected DatabaseDialect databaseDialect;
 
     @Inject
-    protected com.sap.cloud.lm.sl.cf.core.dao.v1.TargetPlatformDao targetPlatformDaoV1;
+    protected com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDao deployTargetDaoV1;
 
     @Inject
-    protected com.sap.cloud.lm.sl.cf.core.dao.v2.TargetPlatformDao targetPlatformDaoV2;
+    protected com.sap.cloud.lm.sl.cf.core.dao.v2.DeployTargetDao deployTargetDaoV2;
 
     @Inject
-    protected com.sap.cloud.lm.sl.cf.core.dao.v3.TargetPlatformDao targetPlatformDaoV3;
+    protected com.sap.cloud.lm.sl.cf.core.dao.v3.DeployTargetDao deployTargetDaoV3;
 
     @Inject
     protected ProcessEngine processEngine;
@@ -70,7 +73,7 @@ public class BootstrapServlet extends HttpServlet {
             initializeProviders();
             initializeActiviti();
             initializeServices();
-            addTargetPlatforms();
+            addDeployTargets();
             initExtras();
             ConfigurationUtil.logFullConfig();
             LOGGER.info(Messages.ALM_SERVICE_ENV_INITIALIZED);
@@ -107,33 +110,40 @@ public class BootstrapServlet extends HttpServlet {
     }
 
     private void initializeServices() {
-        ServiceRegistry.getInstance().addService(new XS2DeployServiceMetadata());
-        ServiceRegistry.getInstance().addService(new XS2BlueGreenDeployServiceMetadata());
-        ServiceRegistry.getInstance().addService(new XS2UndeployServiceMetadata());
+        ServiceRegistry.getInstance().addService(XS2DeployService.getMetadata());
+        ServiceRegistry.getInstance().addService(CtsDeployService.getMetadata());
+        ServiceRegistry.getInstance().addService(CtsPingService.getMetadata());
+        ServiceRegistry.getInstance().addService(XS2BlueGreenDeployService.getMetadata());
+        ServiceRegistry.getInstance().addService(XS2UndeployService.getMetadata());
     }
 
-    private void addTargetPlatforms() {
-        addTargetPlatforms(targetPlatformDaoV1, new com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser(), 1);
-        addTargetPlatforms(targetPlatformDaoV2, new com.sap.cloud.lm.sl.mta.handlers.v2_0.ConfigurationParser(), 2);
-        addTargetPlatforms(targetPlatformDaoV3, new com.sap.cloud.lm.sl.mta.handlers.v3_1.ConfigurationParser(), 3);
+    private void addDeployTargets() {
+        addDeployTargets(deployTargetDaoV1, new com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser(), 1);
+        addDeployTargets(deployTargetDaoV2, new com.sap.cloud.lm.sl.mta.handlers.v2_0.ConfigurationParser(), 2);
+        addDeployTargets(deployTargetDaoV3, new com.sap.cloud.lm.sl.mta.handlers.v3_1.ConfigurationParser(), 3);
     }
 
-    private void addTargetPlatforms(TargetPlatformDao dao, ConfigurationParser parser, int majorVersion) {
-        List<TargetPlatform> existingPlatforms = dao.findAll();
+    private void addDeployTargets(DeployTargetDao dao, ConfigurationParser parser, int majorVersion) {
+        List<PersistentObject<? extends Target>> existingTargets = dao.findAll();
         DescriptorHandler handler = new DescriptorHandler();
-        for (TargetPlatform platform : ConfigurationUtil.getPlatforms(parser, majorVersion)) {
-            if (!platformExists(handler, existingPlatforms, platform)) {
+        for (Target target : ConfigurationUtil.getTargets(parser, majorVersion)) {
+            if (!targetExists(handler, existingTargets, target)) {
                 try {
-                    dao.add(platform);
+                    dao.add(target);
                 } catch (SLException e) {
-                    LOGGER.warn(MessageFormat.format("Could not persist default platform \"{0}\" to the database", platform.getName()), e);
+                    LOGGER.warn(MessageFormat.format("Could not persist default target \"{0}\" to the database", target.getName()), e);
                 }
             }
         }
     }
 
-    private static boolean platformExists(DescriptorHandler handler, List<TargetPlatform> existingPlatforms, TargetPlatform platform) {
-        return handler.findPlatform(existingPlatforms, platform.getName()) != null;
+    private static boolean targetExists(DescriptorHandler handler, List<PersistentObject<? extends Target>> existingTargets,
+        Target target) {
+        List<Target> rawTargets = new ArrayList<>();
+        for (PersistentObject<? extends Target> t : existingTargets) {
+            rawTargets.add(t.getObject());
+        }
+        return handler.findTarget(rawTargets, target.getName()) != null;
     }
 
 }

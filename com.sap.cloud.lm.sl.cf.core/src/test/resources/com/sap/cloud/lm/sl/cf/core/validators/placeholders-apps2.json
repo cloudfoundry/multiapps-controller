@@ -2,7 +2,8 @@
   {
     "moduleName": "m2",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 1024,
     "env": [
       "APP_NAME\u003dm2",
@@ -11,7 +12,7 @@
       "DEFAULT_DOMAIN\u003dcfapps.neo.ondemand.com",
       "DEFAULT_HOST\u003dcf-trial-m2",
       "DEFAULT_URI\u003di027947-m2.cfapps.neo.ondemand.com",
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"i027947-m2.cfapps.neo.ondemand.com\"\n  ]\n}",
       "DISK_QUOTA\u003d1G",
       "DOMAIN\u003dcfapps.neo.ondemand.com",
       "HOST\u003di027947-m2",
@@ -44,7 +45,8 @@
   {
     "moduleName": "m1",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
       "APP_NAME\u003dm1",
@@ -54,7 +56,7 @@
       "DEFAULT_HOST\u003dcf-trial-m1",
       "DEFAULT_URI\u003di027947-m1.cfapps.neo.ondemand.com",
       "DEFAULT_URL\u003dhttps://i027947-m1.cfapps.neo.ondemand.com",
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"i027947-m1.cfapps.neo.ondemand.com\"\n  ]\n}",
       "DISK_QUOTA\u003d-1",
       "DOMAIN\u003dcfapps.neo.ondemand.com",
       "HOST\u003di027947-m1",

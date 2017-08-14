@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -20,8 +19,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.Constants;
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -105,7 +102,7 @@ public class DeleteSubscriptionsStepTest extends AbstractStepTest<DeleteSubscrip
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(), context.getVariable(Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         for (Integer subscription : input.existingSubscriptions) {
             if (input.subscriptionsToDelete.contains(subscription)) {

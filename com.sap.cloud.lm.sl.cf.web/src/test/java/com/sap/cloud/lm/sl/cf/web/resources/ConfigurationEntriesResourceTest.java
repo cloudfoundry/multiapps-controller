@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -23,9 +24,10 @@ import org.mockito.MockitoAnnotations;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dto.ConfigurationEntryDto;
+import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationFilterDto;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestCase;
 import com.sap.cloud.lm.sl.common.util.TestInput;
@@ -51,11 +53,11 @@ public class ConfigurationEntriesResourceTest {
             },
             // (1)
             {
-                new PostRequestTest(new PostRequestTestInput("configuration-entry-02.xml"), "E:cvc-complex-type.2.4.b: The content of element configuration-entry is not complete. One of {provider-id} is expected."),
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-02.xml"), "E:cvc-complex-type.2.4.b: The content of element configuration-entry is not complete"),
             },
             // (2)
             {
-                new PostRequestTest(new PostRequestTestInput("configuration-entry-03.xml"), "E:cvc-complex-type.2.4.b: The content of element configuration-entry is not complete. One of {target-space} is expected."),
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-03.xml"), "E:cvc-complex-type.2.4.b: The content of element configuration-entry is not complete"),
             },
             // (3)
             {
@@ -85,15 +87,15 @@ public class ConfigurationEntriesResourceTest {
             {
                 new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-10.xml"), "R:configuration-entries-resource-test-output-10.json"),
             },
-            // (9)
+            // (10)
             {
                 new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-11.xml"), "E:A configuration entry's id cannot be updated"),
             },
-            // (10)
+            // (11)
             {
                 new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("{\"foo\":\"bar\",\"baz\":\"qux\"}"), "R:parsed-properties-01.json"), "R:configuration-entries-resource-test-output-08.json"),
             },
-            // (11)
+            // (12)
             {
                 new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("a"), "R:parsed-properties-01.json"), "E:Could not parse content query parameter as JSON or list"),
             },
@@ -129,7 +131,7 @@ public class ConfigurationEntriesResourceTest {
     private static class SearchRequestTestInput extends TestInput {
 
         private List<String> requiredContent;
-        private Map<String, String> parsedRequiredContent;
+        private Map<String, Object> parsedRequiredContent;
 
         public SearchRequestTestInput(List<String> requiredContent, String parsedRequiredContentLocation) throws Exception {
             this.requiredContent = requiredContent;
@@ -138,7 +140,7 @@ public class ConfigurationEntriesResourceTest {
                 }.getType());
         }
 
-        public Map<String, String> getParsedRequiredContent() {
+        public Map<String, Object> getParsedRequiredContent() {
             return parsedRequiredContent;
         }
 
@@ -207,7 +209,7 @@ public class ConfigurationEntriesResourceTest {
 
                 return new RestResponse(resource.getConfigurationEntry(input.getId()));
 
-            } , expected, getClass());
+            }, expected, getClass());
         }
 
         @Override
@@ -235,7 +237,7 @@ public class ConfigurationEntriesResourceTest {
 
                 return new RestResponse(resource.createConfigurationEntry(input.getEntryXml()));
 
-            } , expected, getClass());
+            }, expected, getClass());
         }
 
         @Override
@@ -274,7 +276,7 @@ public class ConfigurationEntriesResourceTest {
 
                 return new RestResponse(resource.updateConfigurationEntry(input.getId(), input.getEntryXml()));
 
-            } , expected, getClass());
+            }, expected, getClass());
         }
 
         @Override
@@ -308,6 +310,8 @@ public class ConfigurationEntriesResourceTest {
         private CloudFoundryClientProvider clientProvider;
         @Mock
         private ConfigurationEntryDao dao;
+        @Mock
+        private UserInfo userInfo;
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
@@ -322,15 +326,18 @@ public class ConfigurationEntriesResourceTest {
                 return new RestResponse(resource.getConfigurationEntries(
                     new ConfigurationFilterDto(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION, TARGET, input.getRequiredContent())));
 
-            } , expected, getClass());
+            }, expected, getClass());
         }
 
         @Override
         protected void setUp() throws Exception {
             MockitoAnnotations.initMocks(this);
-
-            when(dao.find(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION, TARGET, input.getParsedRequiredContent(), null)).thenReturn(
-                Collections.emptyList());
+            resource.userInfoSupplier = () -> userInfo;
+            when(userInfo.getName()).thenReturn("");
+            when(clientProvider.getCloudFoundryClient("")).thenReturn(client);
+            when(client.getSpaces()).thenReturn(Collections.emptyList());
+            when(dao.find(eq(PROVIDER_NID), eq(PROVIDER_ID), eq(PROVIDER_VERSION), eq(TARGET), eq(input.getParsedRequiredContent()), any(),
+                any())).thenReturn(Collections.emptyList());
         }
 
     }
@@ -352,7 +359,7 @@ public class ConfigurationEntriesResourceTest {
 
                 return new RestResponse(resource.deleteConfigurationEntry(input.getId()));
 
-            } , expected, getClass());
+            }, expected, getClass());
         }
 
         @Override

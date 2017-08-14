@@ -2,8 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.util.function.Function;
-
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -21,14 +19,11 @@ import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 @Component("checkAppStep")
 public class CheckAppStep extends AbstractXS2ProcessStep {
 
-    // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(CheckAppStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("checkAppTask", "Check App", "Check App");
+        return StepMetadata.builder().id("checkAppTask").displayName("Check App").description("Check App").build();
     }
-
-    protected Function<DelegateExecution, CloudFoundryOperations> clientSupplier = (context) -> getCloudFoundryClient(context, LOGGER);
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -41,7 +36,7 @@ public class CheckAppStep extends AbstractXS2ProcessStep {
         try {
             info(context, format(Messages.CHECKING_APP, app.getName()), LOGGER);
 
-            CloudFoundryOperations client = clientSupplier.apply(context);
+            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
 
             // Check if an application with this name already exists, and store it in the context:
             CloudApplication existingApp = getApplication(client, app.getName());

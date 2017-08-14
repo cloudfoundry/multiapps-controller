@@ -24,14 +24,14 @@ public class DomainValidator implements ParameterValidator {
         result = result.replaceAll(DOMAIN_ILLEGAL_CHARACTERS, "-");
         result = result.replaceAll("^(\\-*)", "");
         result = result.replaceAll("(\\-*)$", "");
-        if (!validate(result)) {
+        if (!isValid(result)) {
             throw new ContentException(Messages.COULD_NOT_CREATE_VALID_DOMAIN, domain);
         }
         return result;
     }
 
     @Override
-    public boolean validate(Object domain) {
+    public boolean isValid(Object domain) {
         if (!(domain instanceof String)) {
             return false;
         }

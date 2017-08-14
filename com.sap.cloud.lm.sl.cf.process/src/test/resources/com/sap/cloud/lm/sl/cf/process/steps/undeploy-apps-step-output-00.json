@@ -1,15 +1,11 @@
 {
   "expectedRoutesToDelete": [
     {
-      "_1": "test-app",
-      "_2": "wsv.xs2tests-wdf.sap.corp"
-    },
-    {
       "_1": "test-app-db",
       "_2": "wsv.xs2tests-wdf.sap.corp"
     },
     {
-      "_1": "test-app-be",
+      "_1": "test-app-ui",
       "_2": "wsv.xs2tests-wdf.sap.corp"
     }
   ]

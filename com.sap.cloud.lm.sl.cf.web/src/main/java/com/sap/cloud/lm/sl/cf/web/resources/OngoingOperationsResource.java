@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,9 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
 import com.sap.cloud.lm.sl.cf.core.model.OperationsBean;
 import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.core.util.AuthorizationUtil;
-import com.sap.cloud.lm.sl.cf.process.metadata.XS2BlueGreenDeployServiceMetadata;
-import com.sap.cloud.lm.sl.cf.process.metadata.XS2DeployServiceMetadata;
-import com.sap.cloud.lm.sl.cf.process.metadata.XS2UndeployServiceMetadata;
+import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToServiceMetadataMapper;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -65,33 +62,47 @@ public class OngoingOperationsResource {
         Integer lastRequestedOperationsCount = operationsBean.getLastRequestedOperationsCount();
         List<String> statusList = operationsBean.getStatusList();
 
+        List<OngoingOperation> foundOngoingOperations = filterByQueryParameters(lastRequestedOperationsCount, statusList);
+
+        List<OngoingOperation> existingOngoingOperations = filterExistingOngoingOperations(foundOngoingOperations);
+
+        addOngoingOperationsState(existingOngoingOperations);
+
+        return new OngoingOperationsDto(wrap(existingOngoingOperations));
+    }
+
+    private void addOngoingOperationsState(List<OngoingOperation> existingOngoingOperations) {
+        for (OngoingOperation ongoingOperation : existingOngoingOperations) {
+            addState(ongoingOperation);
+        }
+    }
+
+    private List<OngoingOperation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<String> statusList) {
         if (lastRequestedOperationsCount == null && statusList.isEmpty()) {
-            return new OngoingOperationsDto(getAllOperations());
+            return getAllOperations();
         }
 
         if (lastRequestedOperationsCount != null && statusList.isEmpty()) {
-            return new OngoingOperationsDto(getLastOperations(lastRequestedOperationsCount));
+            return getLastOperations(lastRequestedOperationsCount);
         }
 
         if (lastRequestedOperationsCount == null && !statusList.isEmpty()) {
-            return new OngoingOperationsDto(getOperationsByStatus(statusList));
+            return getOperationsByStatus(statusList);
         }
 
         if (lastRequestedOperationsCount != null && !statusList.isEmpty()) {
-            List<OngoingOperationDto> lastOperationsByStatus = getLastOperationsFilteredByStatus(lastRequestedOperationsCount,
-                getOperationsByStatus(statusList));
-            return new OngoingOperationsDto(lastOperationsByStatus);
+            return getLastOperationsFilteredByStatus(lastRequestedOperationsCount, getOperationsByStatus(statusList));
         }
 
-        return new OngoingOperationsDto(Collections.emptyList());
+        return Collections.emptyList();
     }
 
-    private List<OngoingOperationDto> getLastOperations(Integer lastOperationsCount) throws SLException {
-        return wrap(dao.findLastOperations(lastOperationsCount, getSpaceId()));
+    private List<OngoingOperation> getLastOperations(Integer lastOperationsCount) throws SLException {
+        return dao.findLastOperations(lastOperationsCount, getSpaceId());
     }
 
-    private List<OngoingOperationDto> getLastOperationsFilteredByStatus(int lastRequestedOperationsCount,
-        List<OngoingOperationDto> operationsByStatus) {
+    private List<OngoingOperation> getLastOperationsFilteredByStatus(int lastRequestedOperationsCount,
+        List<OngoingOperation> operationsByStatus) {
         int operationsByStatusSize = operationsByStatus.size();
         if (lastRequestedOperationsCount > operationsByStatusSize) {
             return operationsByStatus;
@@ -103,45 +114,50 @@ public class OngoingOperationsResource {
         return operationsByStatus.subList(operationsByStatusSize - lastRequestedOperationsCount, operationsByStatusSize);
     }
 
-    private List<OngoingOperationDto> getOperationsByStatus(List<String> statusList) throws SLException {
+    private List<OngoingOperation> getOperationsByStatus(List<String> statusList) throws SLException {
         if (statusList.isEmpty()) {
             return Collections.emptyList();
         }
-        return wrap(dao.findOperationsByStatus(getSlpTaskStateList(statusList), getSpaceId()));
+        return dao.findOperationsByStatus(getSlpTaskStateList(statusList), getSpaceId());
     }
 
     private List<SlpTaskState> getSlpTaskStateList(List<String> statusList) {
         return statusList.stream().map(status -> SlpTaskState.valueOf(status)).collect(Collectors.toList());
     }
 
-    private List<OngoingOperationDto> wrap(List<OngoingOperation> ongoingOperations) throws SLException {
-        List<OngoingOperationDto> result = new ArrayList<>();
-        for (OngoingOperation ongoingOperation : ongoingOperations) {
-            result.add(addState(ongoingOperation));
-        }
-        return result;
+    private List<OngoingOperation> getAllOperations() throws SLException {
+        return dao.findAllInSpace(getSpaceId());
     }
 
-    private List<OngoingOperationDto> getAllOperations() throws SLException {
-        return wrap(dao.findAllInSpace(getSpaceId()));
+    private List<OngoingOperationDto> wrap(List<OngoingOperation> ongoingOperations) throws SLException {
+        return ongoingOperations.stream().map(operation -> toOngoingOperationDto(operation)).collect(Collectors.toList());
+    }
+
+    private List<OngoingOperation> filterExistingOngoingOperations(List<OngoingOperation> ongoingOperations) {
+        return ongoingOperations.stream().filter(operation -> getProcessForOperation(operation) != null).collect(Collectors.toList());
     }
 
     @GET
     @Path("/{processId}")
     public OngoingOperationDto getOngoingOperation(@PathParam("processId") String processId) throws SLException {
         String spaceId = getSpaceIdByProcessId(processId);
-        OngoingOperation ongoingOperation = dao.find(processId);
-        if (ongoingOperation.getSpaceId().equals(spaceId)) {
-            return addState(ongoingOperation);
+        OngoingOperation ongoingOperation = dao.findRequired(processId);
+        if (getProcessForOperation(ongoingOperation) != null && ongoingOperation.getSpaceId().equals(spaceId)) {
+            addState(ongoingOperation);
+            return toOngoingOperationDto(ongoingOperation);
         }
         throw new NotFoundException(Messages.ONGOING_OPERATION_NOT_FOUND, processId, spaceId);
     }
 
-    protected OngoingOperationDto addState(OngoingOperation ongoingOperation) throws SLException {
+    protected void addState(OngoingOperation ongoingOperation) throws SLException {
         SlpTaskState state = getOngoingOperationState(ongoingOperation);
+        ongoingOperation.setFinalState(state);
+    }
+
+    protected OngoingOperationDto toOngoingOperationDto(OngoingOperation ongoingOperation) throws SLException {
         return new OngoingOperationDto(ongoingOperation.getProcessId(), ongoingOperation.getProcessType(), ongoingOperation.getStartedAt(),
-            ongoingOperation.getSpaceId(), ongoingOperation.getMtaId(), ongoingOperation.getUser(), state.toString(),
-            ongoingOperation.hasAcquiredLock());
+            ongoingOperation.getSpaceId(), ongoingOperation.getMtaId(), ongoingOperation.getUser(),
+            ongoingOperation.getFinalState().toString(), ongoingOperation.hasAcquiredLock());
     }
 
     protected SlpTaskState getOngoingOperationState(OngoingOperation ongoingOperation) throws SLException {
@@ -155,23 +171,16 @@ public class OngoingOperationsResource {
     protected SlpTaskState computeState(OngoingOperation ongoingOperation) throws SLException {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
             ongoingOperation.getProcessId()));
+        return getProcessForOperation(ongoingOperation).getCurrentState();
+    }
+
+    protected ActivitiProcess getProcessForOperation(OngoingOperation ongoingOperation) throws SLException {
         ActivitiService activitiService = getActivitiService(ongoingOperation.getProcessType());
-        ActivitiProcess activitiProcess = activitiService.getActivitiProcess(ongoingOperation.getSpaceId(),
-            ongoingOperation.getProcessId());
-        return activitiProcess.getProcessStatus();
+        return activitiService.getActivitiProcess(ongoingOperation.getSpaceId(), ongoingOperation.getProcessId());
     }
 
     private ActivitiService getActivitiService(ProcessType processType) throws SLException {
-        switch (processType) {
-            case BLUE_GREEN_DEPLOY:
-                return activitiServiceFactory.createActivitiService(new XS2BlueGreenDeployServiceMetadata());
-            case UNDEPLOY:
-                return activitiServiceFactory.createActivitiService(new XS2UndeployServiceMetadata());
-            case DEPLOY:
-                return activitiServiceFactory.createActivitiService(new XS2DeployServiceMetadata());
-            default:
-                throw new SLException(Messages.UNSUPPORTED_PROCESS_TYPE, processType.toString());
-        }
+        return activitiServiceFactory.createActivitiService(ProcessTypeToServiceMetadataMapper.getServiceMetadata(processType));
     }
 
     protected String getSpaceId() throws SLException {

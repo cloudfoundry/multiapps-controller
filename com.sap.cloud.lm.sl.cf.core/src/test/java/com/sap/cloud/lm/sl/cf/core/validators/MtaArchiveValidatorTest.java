@@ -15,7 +15,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -28,7 +28,7 @@ public class MtaArchiveValidatorTest {
 
     private static final String DEPLOY_ID = "deploy-1";
     private static final String PLATFORM_TYPES = "/mta/platform-types-v2.json";
-    private static final String PLATFORMS = "/mta/platforms-v2.json";
+    private static final String PLATFORMS = "/mta/targets-v2.json";
 
     private static final int MIN_PORT = 55000;
     private static final int MAX_PORT = 55999;
@@ -129,9 +129,10 @@ public class MtaArchiveValidatorTest {
 
     private void prepareConfigurationDao() {
         dao = Mockito.mock(ConfigurationEntryDao.class);
-        Mockito.when(dao.find("mta", "mta-sample:provides-dependency", "0.0.1", "initial initial", null, null)).thenReturn(
+        Mockito.when(dao.find("mta", "mta-sample:provides-dependency", "0.0.1", "initial initial", null, null, null)).thenReturn(
             Arrays.asList(new ConfigurationEntry(0, "mta", "mta-sample:provides-dependency",
-                com.sap.cloud.lm.sl.mta.model.Version.parseVersion("0.0.1"), null, "{\"baz\":\"baz\",\"bar\":\"bar\", \"foo\":\"foo\"}")));
+                com.sap.cloud.lm.sl.mta.model.Version.parseVersion("0.0.1"), null, "{\"baz\":\"baz\",\"bar\":\"bar\", \"foo\":\"foo\"}",
+                null)));
     }
 
     @Test

@@ -2,11 +2,13 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
@@ -19,28 +21,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory.PlatformType;
-import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("updateAppStep")
 public class UpdateAppStep extends CreateAppStep {
 
-    // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateAppStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("updateAppTask", "Update App", "Update App");
+        return StepMetadata.builder().id("updateAppTask").displayName("Update App").description("Update App").build();
     }
 
     @Override
-    protected ExecutionStatus executeStep(DelegateExecution context) throws SLException, FileStorageException {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException, FileStorageException {
         logActivitiTask(context, LOGGER);
 
         // Get the next cloud application from the context
@@ -53,7 +56,7 @@ public class UpdateAppStep extends CreateAppStep {
             info(context, format(Messages.UPDATING_APP, app.getName()), LOGGER);
 
             // Get a cloud foundry client
-            CloudFoundryOperations client = clientSupplier.apply(context);
+            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
 
             // Get application parameters
             String appName = app.getName();
@@ -63,38 +66,36 @@ public class UpdateAppStep extends CreateAppStep {
             List<String> uris = app.getUris();
             Map<String, String> env = app.getEnvAsMap();
 
-            boolean keepAppAttributes = ContextUtil.getVariable(context, Constants.PARAM_KEEP_APP_ATTRIBUTES, false);
             boolean appPropertiesChanged = false;
 
             // Update the application
-            if (hasChanged(staging, existingApp.getStaging()) && !keepAppAttributes) {
+            if (hasChanged(staging, existingApp.getStaging())) {
                 debug(context, format("Updating staging of application \"{0}\"", appName), LOGGER);
                 if (platformTypeSupplier.get() == PlatformType.CF) {
-                    applicationEntityUpdater.updateApplicationStaging(client, appName, staging);
+                    applicationStagingUpdater.updateApplicationStaging(client, appName, staging);
                 } else {
                     client.updateApplicationStaging(appName, staging);
                 }
                 appPropertiesChanged = true;
             }
-            if (memory != null && !memory.equals(existingApp.getMemory()) && !keepAppAttributes) {
+            if (memory != null && !memory.equals(existingApp.getMemory())) {
                 debug(context, format("Updating memory of application \"{0}\"", appName), LOGGER);
                 client.updateApplicationMemory(appName, memory);
                 appPropertiesChanged = true;
             }
-            if (diskQuota != null && !diskQuota.equals(existingApp.getDiskQuota()) && !keepAppAttributes) {
+            if (diskQuota != null && !diskQuota.equals(existingApp.getDiskQuota())) {
                 debug(context, format("Updating disk quota of application \"{0}\"", appName), LOGGER);
                 client.updateApplicationDiskQuota(appName, diskQuota);
                 appPropertiesChanged = true;
             }
-            if (hasChanged(uris, existingApp.getUris()) && !keepAppAttributes) {
+            if (hasChanged(uris, existingApp.getUris())) {
                 debug(context, format("Updating uris of application \"{0}\"", appName), LOGGER);
                 client.updateApplicationUris(appName, uris);
                 appPropertiesChanged = true;
             }
-            if (!keepAppAttributes) {
-                appPropertiesChanged = updateApplicationServices(app, existingApp, client, context) ? true : appPropertiesChanged;
-            }
-            if (!env.equals(existingApp.getEnvAsMap()) && !keepAppAttributes) {
+            appPropertiesChanged = updateApplicationServices(app, existingApp, client, context) ? true : appPropertiesChanged;
+            updateAppDigest(env, existingApp.getEnvAsMap());
+            if (!env.equals(existingApp.getEnvAsMap())) {
                 debug(context, format("Updating env of application \"{0}\"", appName), LOGGER);
                 client.updateApplicationEnv(appName, env);
                 appPropertiesChanged = true;
@@ -119,12 +120,30 @@ public class UpdateAppStep extends CreateAppStep {
         }
     }
 
+    private void updateAppDigest(Map<String, String> newAppEnv, Map<String, String> existingAppEnv) {
+        Object existingFileDigest = getExistingAppFileDigest(existingAppEnv);
+        if (existingFileDigest == null) {
+            return;
+        }
+        String newAppDeployAttributes = newAppEnv.get(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES);
+        TreeMap<String, Object> newAppDeployAttributesMap = new TreeMap<>(JsonUtil.convertJsonToMap(newAppDeployAttributes));
+        newAppDeployAttributesMap.put(com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST, existingFileDigest);
+        newAppEnv.put(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(newAppDeployAttributesMap, true));
+    }
+
+    private Object getExistingAppFileDigest(Map<String, String> envAsMap) {
+        String applicationDeployAttributes = envAsMap.get(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES);
+        Map<String, Object> deployAttributesMap = JsonUtil.convertJsonToMap(applicationDeployAttributes);
+        return deployAttributesMap.get(com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST);
+    }
+
     private boolean updateApplicationServices(CloudApplicationExtended app, CloudApplication existingApp, CloudFoundryOperations client,
         DelegateExecution context) throws SLException, FileStorageException {
         boolean hasUnboundServices = unbindNotRequiredServices(existingApp, app.getServices(), client, context);
+        List<String> services = app.getServices();
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters(context, app);
-        Set<String> updatedServices = StepsUtil.getUpdatedServices(context);
-        boolean hasUpdatedServices = updateServices(app, existingApp, bindingParameters, client, context, updatedServices);
+        Set<String> updatedServices = getUpdatedServices(context);
+        boolean hasUpdatedServices = updateServices(app, existingApp, bindingParameters, client, context, updatedServices, services);
         return hasUnboundServices || hasUpdatedServices;
     }
 
@@ -145,32 +164,44 @@ public class UpdateAppStep extends CreateAppStep {
         client.unbindService(appName, serviceName);
     }
 
+    private Set<String> getUpdatedServices(DelegateExecution context) {
+        Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(context);
+        Set<String> updatedServices = new HashSet<>();
+        for (String serviceName : triggeredServiceOperations.keySet()) {
+            if (triggeredServiceOperations.get(serviceName) == ServiceOperationType.UPDATE) {
+                updatedServices.add(serviceName);
+            }
+        }
+        return updatedServices;
+    }
+
     private boolean updateServices(CloudApplicationExtended app, CloudApplication existingApp,
         Map<String, Map<String, Object>> bindingParameters, CloudFoundryOperations client, DelegateExecution context,
-        Set<String> updatedServices) throws SLException {
+        Set<String> updatedServices, List<String> services) throws SLException {
         boolean hasUpdatedService = false;
         List<String> existingAppServices = existingApp.getServices();
-        for (String serviceName : app.getServices()) {
+        List<CloudServiceExtended> servicesCloudModel = StepsUtil.getServicesToCreate(context);
+        for (String serviceName : services) {
             Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
             if (updatedServices.contains(serviceName)) {
                 hasUpdatedService = true;
             }
             if (!existingAppServices.contains(serviceName)) {
                 hasUpdatedService = true;
-                bindService(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
+                bindService(context, client, servicesCloudModel, app.getName(), serviceName, bindingParametersForCurrentService);
                 continue;
             }
             List<CloudServiceBinding> existingServiceBindings = client.getServiceInstance(serviceName).getBindings();
             CloudServiceBinding existingBindingForApplication = getServiceBindingsForApplication(existingApp, existingServiceBindings);
             if (existingBindingForApplication == null) {
                 hasUpdatedService = true;
-                bindService(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
+                bindService(context, client, servicesCloudModel, app.getName(), serviceName, bindingParametersForCurrentService);
                 continue;
             }
             Map<String, Object> existingBindingParameters = existingBindingForApplication.getBindingOptions();
             if (!Objects.equals(existingBindingParameters, bindingParametersForCurrentService)) {
                 unbindService(existingApp.getName(), serviceName, client, context);
-                bindService(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
+                bindService(context, client, servicesCloudModel, app.getName(), serviceName, bindingParametersForCurrentService);
                 hasUpdatedService = true;
                 continue;
             }
@@ -203,20 +234,9 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     private boolean hasChanged(List<String> uris, List<String> existingUris) {
-        if (uris.size() != existingUris.size())
-            return true;
-        for (int i = 0; i < uris.size(); i++) {
-            String uri = uris.get(i);
-            String existingUri = existingUris.get(i);
-            if (!uri.equals(existingUri) && !uri.equals(removeSchema(existingUri))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static String removeSchema(String uri) {
-        return uri.substring(uri.indexOf("://") + 3);
+        Set<String> urisSet = new HashSet<>(uris);
+        Set<String> existingUrisSet = new HashSet<>(UriUtil.getUrisWithoutScheme(existingUris));
+        return !urisSet.equals(existingUrisSet);
     }
 
 }

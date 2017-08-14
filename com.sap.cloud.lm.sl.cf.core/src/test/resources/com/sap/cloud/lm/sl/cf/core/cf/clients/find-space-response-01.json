@@ -1,0 +1,53 @@
+{
+    "total_results": 2,
+    "total_pages": 2,
+    "prev_url": null,
+    "next_url": "p2",
+    "resources": [
+        {
+            "metadata": {
+                "guid": "ef93547f-74c3-4bad-ba69-b7dc4f212622",
+                "url": "/v2/spaces/ef93547f-74c3-4bad-ba69-b7dc4f212622"
+            },
+            "entity": {
+                "name": "blah",
+                "organization_guid": "b71fc53b-7518-4d2b-b8da-00aaed032e0c",
+                "space_quota_definition_guid": null,
+                "isolation_segment_guid": null,
+                "allow_ssh": true,
+                "organization_url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c",
+                "organization": {
+                    "metadata": {
+                        "guid": "b71fc53b-7518-4d2b-b8da-00aaed032e0c",
+                        "url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c"
+                    },
+                    "entity": {
+                        "name": "deploy-service",
+                        "billing_enabled": false,
+                        "quota_definition_guid": "80eafd62-e610-4273-9553-ac1e7d544419",
+                        "status": "active",
+                        "default_isolation_segment_guid": null,
+                        "quota_definition_url": "/v2/quota_definitions/80eafd62-e610-4273-9553-ac1e7d544419",
+                        "spaces_url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c/spaces",
+                        "domains_url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c/domains",
+                        "private_domains_url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c/private_domains",
+                        "users_url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c/users",
+                        "managers_url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c/managers",
+                        "billing_managers_url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c/billing_managers",
+                        "auditors_url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c/auditors",
+                        "app_events_url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c/app_events",
+                        "space_quota_definitions_url": "/v2/organizations/b71fc53b-7518-4d2b-b8da-00aaed032e0c/space_quota_definitions"
+                    }
+                },
+                "developers_url": "/v2/spaces/ef93547f-74c3-4bad-ba69-b7dc4f212622/developers",
+                "developers": [],
+                "managers_url": "/v2/spaces/ef93547f-74c3-4bad-ba69-b7dc4f212622/managers",
+                "managers": [],
+                "auditors_url": "/v2/spaces/ef93547f-74c3-4bad-ba69-b7dc4f212622/auditors",
+                "auditors": [],
+                "apps_url": "/v2/spaces/ef93547f-74c3-4bad-ba69-b7dc4f212622/apps",
+                "apps": []
+            }
+        }
+    ]
+}

@@ -4,9 +4,10 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -23,13 +24,19 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 public class SystemParametersBuilder {
 
     public static final int GENERATED_CREDENTIALS_LENGTH = 16;
-    public static final String TEMP_HOST_SUFFIX = "-temp";
+    public static final String IDLE_HOST_SUFFIX = "-idle";
     private static final String ROUTE_PATH_PLACEHOLDER = "${route-path}";
+    private static final String DEFAULT_URI_HOST_PLACEHOLDER = "${host}.${domain}";
+    private static final String DEFAULT_IDLE_URI_HOST_PLACEHOLDER = "${idle-host}.${idle-domain}";
+    private static final String DEFAULT_PORT_URI = "${domain}:${port}";
+    private static final String DEFAULT_IDLE_PORT_URI = "${idle-domain}:${idle-port}";
+    private static final String DEFAULT_URL_PLACEHOLDER = "${protocol}://${default-uri}";
+    private static final String DEFAULT_IDLE_URL_PLACEHOLDER = "${protocol}://${default-idle-uri}";
 
     private static final HostValidator HOST_VALIDATOR = new HostValidator();
 
     private final CredentialsGenerator credentialsGenerator;
-    private final String platformName;
+    private final String targetName;
     private final String organization;
     private final String space;
     private final String user;
@@ -41,29 +48,32 @@ public class SystemParametersBuilder {
     private final int routerPort;
     private final boolean portBasedRouting;
     private final PortAllocator portAllocator;
-    private final Map<String, List<Integer>> occupiedPorts;
     private final boolean useNamespaces;
     private final boolean useNamespacesForServices;
     private final DeployedMta deployedMta;
     private final boolean reserveTemporaryRoutes;
     private final boolean areXsPlaceholdersSupported;
+    private final XsPlaceholderResolver xsPlaceholderResolver;
     private final PropertiesAccessor propertiesAccessor;
+    private final Supplier<String> timestampSupplier;
 
+    // constructor is used by DEVX
     public SystemParametersBuilder(String platformName, String organization, String space, String user, String defaultDomain,
         PlatformType xsType, URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting,
-        boolean reserveTemporaryRoutes, PortAllocator portAllocator, Map<String, List<Integer>> occupiedPorts, boolean useNamespaces,
-        boolean useNamespacesForServices, DeployedMta deployedMta, int majorSchemaVersion, boolean areXsPlaceholdersSupported) {
+        boolean reserveTemporaryRoutes, PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices,
+        DeployedMta deployedMta, int majorSchemaVersion, boolean areXsPlaceholdersSupported, XsPlaceholderResolver xsPlaceholderResolver,
+        Supplier<String> timestampSupplier) {
         this(platformName, organization, space, user, defaultDomain, xsType, targetUrl, authorizationEndpoint, deployServiceUrl, routerPort,
-            portBasedRouting, reserveTemporaryRoutes, portAllocator, occupiedPorts, useNamespaces, useNamespacesForServices, deployedMta,
-            new CredentialsGenerator(), majorSchemaVersion, areXsPlaceholdersSupported);
+            portBasedRouting, reserveTemporaryRoutes, portAllocator, useNamespaces, useNamespacesForServices, deployedMta,
+            new CredentialsGenerator(), majorSchemaVersion, areXsPlaceholdersSupported, xsPlaceholderResolver, timestampSupplier);
     }
 
     public SystemParametersBuilder(String platformName, String organization, String space, String user, String defaultDomain,
         PlatformType xsType, URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting,
-        boolean reserveTemporaryRoutes, PortAllocator portAllocator, Map<String, List<Integer>> occupiedPorts, boolean useNamespaces,
-        boolean useNamespacesForServices, DeployedMta deployedMta, CredentialsGenerator credentialsGenerator, int majorSchemaVersion,
-        boolean areXsPlaceholdersSupported) {
-        this.platformName = platformName;
+        boolean reserveTemporaryRoutes, PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices,
+        DeployedMta deployedMta, CredentialsGenerator credentialsGenerator, int majorSchemaVersion, boolean areXsPlaceholdersSupported,
+        XsPlaceholderResolver xsPlaceholderResolver, Supplier<String> timestampSupplier) {
+        this.targetName = platformName;
         this.organization = organization;
         this.space = space;
         this.user = user;
@@ -75,14 +85,15 @@ public class SystemParametersBuilder {
         this.routerPort = routerPort;
         this.portBasedRouting = portBasedRouting;
         this.portAllocator = portAllocator;
-        this.occupiedPorts = occupiedPorts;
         this.useNamespacesForServices = useNamespacesForServices;
         this.useNamespaces = useNamespaces;
         this.deployedMta = deployedMta;
         this.credentialsGenerator = credentialsGenerator;
         this.reserveTemporaryRoutes = reserveTemporaryRoutes;
         this.areXsPlaceholdersSupported = areXsPlaceholdersSupported;
+        this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.propertiesAccessor = new HandlerFactory(majorSchemaVersion).getPropertiesAccessor();
+        this.timestampSupplier = timestampSupplier;
     }
 
     public SystemParameters build(DeploymentDescriptor descriptor) throws SLException {
@@ -102,13 +113,14 @@ public class SystemParametersBuilder {
     private Map<String, Object> getGeneralParameters() {
         Map<String, Object> systemParameters = new HashMap<>();
 
-        systemParameters.put(SupportedParameters.PLATFORM, platformName);
+        systemParameters.put(SupportedParameters.PLATFORM, targetName);
+        systemParameters.put(SupportedParameters.DEPLOY_TARGET, targetName);
         systemParameters.put(SupportedParameters.ORG, organization);
         systemParameters.put(SupportedParameters.USER, user);
         systemParameters.put(SupportedParameters.SPACE, space);
         systemParameters.put(SupportedParameters.DEFAULT_DOMAIN, getDefaultDomain());
         if (shouldReserveTemporaryRoutes()) {
-            systemParameters.put(SupportedParameters.DEFAULT_TEMP_DOMAIN, getDefaultDomain());
+            systemParameters.put(SupportedParameters.DEFAULT_IDLE_DOMAIN, getDefaultDomain());
         }
         systemParameters.put(SupportedParameters.XS_TARGET_API_URL, getTargetUrl());
         systemParameters.put(SupportedParameters.XS_TYPE, xsType.toString());
@@ -124,37 +136,12 @@ public class SystemParametersBuilder {
 
         Map<String, Object> moduleParameters = propertiesAccessor.getParameters(module);
         moduleSystemParameters.put(SupportedParameters.DOMAIN, getDefaultDomain());
+        if (shouldReserveTemporaryRoutes()) {
+            moduleSystemParameters.put(SupportedParameters.IDLE_DOMAIN, getDefaultDomain());
+        }
         String appName = (String) moduleParameters.getOrDefault(SupportedParameters.APP_NAME, module.getName());
         moduleSystemParameters.put(SupportedParameters.APP_NAME, NameUtil.getApplicationName(appName, mtaId, useNamespaces));
-        String defaultHost = getDefaultHost(module.getName());
-        moduleSystemParameters.put(SupportedParameters.DEFAULT_HOST, defaultHost);
-        moduleSystemParameters.put(SupportedParameters.HOST, defaultHost);
-        if (shouldReserveTemporaryRoutes()) {
-            String tempDefaultHost = getDefaultHost(module.getName() + TEMP_HOST_SUFFIX);
-            moduleSystemParameters.put(SupportedParameters.DEFAULT_TEMP_HOST, tempDefaultHost);
-            moduleSystemParameters.put(SupportedParameters.TEMP_HOST, tempDefaultHost);
-        }
-        if (portBasedRouting) {
-            int defaultPort = getDefaultPort(getExistingApplicationName(module.getName()));
-            moduleSystemParameters.put(SupportedParameters.DEFAULT_PORT, defaultPort);
-            moduleSystemParameters.put(SupportedParameters.PORT, defaultPort);
-            if (shouldReserveTemporaryRoutes()) {
-                int tempDefaultPort = portAllocator.allocatePort();
-                moduleSystemParameters.put(SupportedParameters.DEFAULT_TEMP_PORT, tempDefaultPort);
-                moduleSystemParameters.put(SupportedParameters.TEMP_PORT, tempDefaultPort);
-            }
-            moduleSystemParameters.put(SupportedParameters.DEFAULT_URI, appendRoutePathIfPresent("${domain}:${port}", moduleParameters));
-        } else {
-            if (!UriUtil.isStandardPort(routerPort, targetUrl.getProtocol())) {
-                moduleSystemParameters.put(SupportedParameters.DEFAULT_URI,
-                    appendRoutePathIfPresent("${host}.${domain}:" + getRouterPort(), moduleParameters));
-            } else {
-                moduleSystemParameters.put(SupportedParameters.DEFAULT_URI,
-                    appendRoutePathIfPresent("${host}.${domain}", moduleParameters));
-            }
-        }
-        String defaulUrl = "${protocol}://${default-uri}";
-        moduleSystemParameters.put(SupportedParameters.DEFAULT_URL, defaulUrl);
+        putRoutingParameters(module, moduleParameters, moduleSystemParameters);
         moduleSystemParameters.put(SupportedParameters.COMMAND, "");
         moduleSystemParameters.put(SupportedParameters.BUILDPACK, "");
         moduleSystemParameters.put(SupportedParameters.DISK_QUOTA, -1);
@@ -162,11 +149,74 @@ public class SystemParametersBuilder {
         moduleSystemParameters.put(SupportedParameters.INSTANCES, 1);
         moduleSystemParameters.put(SupportedParameters.SERVICE, "");
         moduleSystemParameters.put(SupportedParameters.SERVICE_PLAN, "");
+        moduleSystemParameters.put(SupportedParameters.TIMESTAMP, getDefaultTimestamp());
 
         moduleSystemParameters.put(SupportedParameters.GENERATED_USER, credentialsGenerator.next(GENERATED_CREDENTIALS_LENGTH));
         moduleSystemParameters.put(SupportedParameters.GENERATED_PASSWORD, credentialsGenerator.next(GENERATED_CREDENTIALS_LENGTH));
 
         return moduleSystemParameters;
+    }
+
+    private String getDefaultTimestamp() {
+        return timestampSupplier.get();
+    }
+
+    private void putRoutingParameters(Module module, Map<String, Object> moduleParameters, Map<String, Object> moduleSystemParameters) {
+        putHostParameters(module, moduleSystemParameters);
+        if (portBasedRouting) {
+            putPortRoutingParameters(module, moduleParameters, moduleSystemParameters);
+        } else {
+            boolean isStandardPort = UriUtil.isStandardPort(routerPort, targetUrl.getProtocol());
+            String defaultUri = isStandardPort ? DEFAULT_URI_HOST_PLACEHOLDER : DEFAULT_URI_HOST_PLACEHOLDER + getRouterPort();
+            if (shouldReserveTemporaryRoutes()) {
+                String defaultIdleUri = isStandardPort ? DEFAULT_IDLE_URI_HOST_PLACEHOLDER
+                    : DEFAULT_IDLE_URI_HOST_PLACEHOLDER + getRouterPort();
+                moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_URI,
+                    appendRoutePathIfPresent(defaultIdleUri, moduleParameters));
+                defaultUri = defaultIdleUri;
+            }
+
+            moduleSystemParameters.put(SupportedParameters.DEFAULT_URI, appendRoutePathIfPresent(defaultUri, moduleParameters));
+        }
+
+        String defaultUrl = DEFAULT_URL_PLACEHOLDER;
+        if (shouldReserveTemporaryRoutes()) {
+            String defaultIdleUrl = DEFAULT_IDLE_URL_PLACEHOLDER;
+            moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_URL, defaultIdleUrl);
+            defaultUrl = defaultIdleUrl;
+        }
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_URL, defaultUrl);
+    }
+
+    private void putHostParameters(Module module, Map<String, Object> moduleSystemParameters) {
+        String defaultHost = getDefaultHost(module.getName());
+        if (shouldReserveTemporaryRoutes()) {
+            String idleHost = getDefaultHost(module.getName() + IDLE_HOST_SUFFIX);
+            moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_HOST, idleHost);
+            moduleSystemParameters.put(SupportedParameters.IDLE_HOST, idleHost);
+            defaultHost = idleHost;
+        }
+
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_HOST, defaultHost);
+        moduleSystemParameters.put(SupportedParameters.HOST, defaultHost);
+    }
+
+    private void putPortRoutingParameters(Module module, Map<String, Object> moduleParameters, Map<String, Object> moduleSystemParameters) {
+
+        int defaultPort = getDefaultPort(module.getName());
+        if (shouldReserveTemporaryRoutes()) {
+            int idlePort = portAllocator.allocatePort();
+            moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_PORT, idlePort);
+            moduleSystemParameters.put(SupportedParameters.IDLE_PORT, idlePort);
+            moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_URI,
+                appendRoutePathIfPresent(DEFAULT_IDLE_PORT_URI, moduleParameters));
+            defaultPort = idlePort;
+        }
+
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_PORT, defaultPort);
+        moduleSystemParameters.put(SupportedParameters.PORT, defaultPort);
+        moduleSystemParameters.put(SupportedParameters.DEFAULT_URI, appendRoutePathIfPresent(DEFAULT_PORT_URI, moduleParameters));
+
     }
 
     private Object appendRoutePathIfPresent(String uri, Map<String, Object> moduleParameters) {
@@ -193,30 +243,22 @@ public class SystemParametersBuilder {
         return resourceSystemParameters;
     }
 
-    private String getExistingApplicationName(String moduleName) {
-        if (deployedMta == null) {
-            return null;
+    private Integer getDefaultPort(String moduleName) {
+        DeployedMtaModule deployedModule = getDeployedModule(moduleName);
+        List<String> descriptorDefinedUris = new UrisClassifier(xsPlaceholderResolver).getDescriptorDefinedUris(deployedModule);
+        if (descriptorDefinedUris.isEmpty()) {
+            return portAllocator.allocatePort();
         }
-        DeployedMtaModule deployedModule = deployedMta.findDeployedModule(moduleName);
-        if (deployedModule != null) {
-            return deployedModule.getAppName();
-        }
-        return null;
+        return UriUtil.getPort(descriptorDefinedUris.get(0));
     }
 
-    private Integer getDefaultPort(String existingApplicationName) {
-        if (existingApplicationName != null && occupiedPorts.containsKey(existingApplicationName)) {
-            List<Integer> ports = occupiedPorts.get(existingApplicationName);
-            if (ports.size() > 0) {
-                return ports.get(0);
-            }
-        }
-        return portAllocator.allocatePort();
+    private DeployedMtaModule getDeployedModule(String moduleName) {
+        return deployedMta == null ? null : deployedMta.findDeployedModule(moduleName);
     }
 
     private String getDefaultHost(String moduleName) throws SLException {
-        String host = (platformName + " " + moduleName).replaceAll("\\s", "-").toLowerCase();
-        if (!HOST_VALIDATOR.validate(host)) {
+        String host = (targetName + " " + moduleName).replaceAll("\\s", "-").toLowerCase();
+        if (!HOST_VALIDATOR.isValid(host)) {
             return HOST_VALIDATOR.attemptToCorrect(host);
         }
         return host;
@@ -271,5 +313,4 @@ public class SystemParametersBuilder {
     private boolean shouldUseXsPlaceholders() {
         return xsType.equals(PlatformType.XS2) && areXsPlaceholdersSupported;
     }
-
 }

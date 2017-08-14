@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +18,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.springframework.http.HttpStatus;
 
 import com.sap.activiti.common.ExecutionStatus;
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo.State;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -38,7 +38,6 @@ public class PollUploadAppStatusStepTest extends AbstractStepTest<PollUploadAppS
     private final String expectedCfExceptionMessage;
     private final String uploadToken;
 
-    private ClientExtensions clientExtensions = mock(ClientExtensions.class);
     private SimpleApplication application = new SimpleApplication(APP_NAME, 2);
 
     @Rule
@@ -122,22 +121,21 @@ public class PollUploadAppStatusStepTest extends AbstractStepTest<PollUploadAppS
     }
 
     private void prepareClient() {
-        if (supportsExtensions) {
-            step.extensionsSupplier = (context) -> clientExtensions;
-            if (expectedCfExceptionMessage != null) {
-                when(clientExtensions.getUploadProgress(UPLOAD_TOKEN)).thenThrow(CFEXCEPTION);
-            } else {
-                UploadInfo uploadInfo = mock(UploadInfo.class);
-                when(uploadInfo.getUploadJobState()).thenReturn(uploadState);
-                when(clientExtensions.getUploadProgress(UPLOAD_TOKEN)).thenReturn(uploadInfo);
-            }
+        if (!supportsExtensions) {
+            when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(null);
+            return;
+        }
+        if (expectedCfExceptionMessage != null) {
+            when(clientExtensions.getUploadProgress(UPLOAD_TOKEN)).thenThrow(CFEXCEPTION);
         } else {
-            step.extensionsSupplier = (context) -> null;
+            UploadInfo uploadInfo = mock(UploadInfo.class);
+            when(uploadInfo.getUploadJobState()).thenReturn(uploadState);
+            when(clientExtensions.getUploadProgress(UPLOAD_TOKEN)).thenReturn(uploadInfo);
         }
     }
 
     private void prepareContext() {
-        StepsUtil.setAppsToDeploy(context, Arrays.asList(application.toCloudApplication()));
+        StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(application.toCloudApplication()), context);
         context.setVariable(Constants.VAR_APPS_INDEX, 0);
         context.setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
         context.setVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName(), previousStatus.toString());

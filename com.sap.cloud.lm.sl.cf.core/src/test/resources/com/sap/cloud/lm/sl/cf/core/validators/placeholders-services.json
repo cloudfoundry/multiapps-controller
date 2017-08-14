@@ -3,6 +3,7 @@
     "resourceName": "r1",
     "credentials": {},
     "tags": [],
+    "isOptional": false,
     "label": "hana",
     "plan": "hdi-shared",
     "meta": {},
@@ -12,6 +13,7 @@
     "resourceName": "r3",
     "credentials": {},
     "tags": [],
+    "isOptional": false,
     "meta": {},
     "name": "r3"
   }

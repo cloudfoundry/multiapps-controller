@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
@@ -26,14 +24,12 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEntityUpdater;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
@@ -48,9 +44,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
     private List<String> notRequiredServices = new ArrayList<>();
     private List<String> expectedServicesToBind = new ArrayList<>();
 
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
-    private ClientExtensions clientExtensions = Mockito.mock(ClientExtensions.class);
-    private ApplicationEntityUpdater applicationUpdaterMock = Mockito.mock(ApplicationEntityUpdater.class);
+    private ApplicationStagingUpdater applicationUpdaterMock = Mockito.mock(ApplicationStagingUpdater.class);
 
     private PlatformType platform;
 
@@ -114,9 +108,9 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
 
     @Test
     public void testExecute() throws Exception {
-        ExecutionStatus status = step.executeStep(context);
+        step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(), status.toString());
+        assertStepFinishedSuccessfully();
 
         validateUnbindServices();
         validateBindServices();
@@ -162,23 +156,28 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
     }
 
     private void prepareClient() {
-        step.extensionsSupplier = (contextMock) -> clientExtensions;
-
         prepareDiscontinuedServices();
 
         prepareServicesToBind();
 
-        step.clientSupplier = (contextMock) -> client;
         step.platformTypeSupplier = () -> platform;
 
         for (String serviceName : input.application.services) {
-            CloudServiceExtended service = new SimpleService(serviceName).toCloudService();
+            CloudServiceExtended service = mapToCloudService(serviceName);
             Mockito.when(client.getService(serviceName)).thenReturn(service);
             CloudServiceInstance cloudServiceInstance = Mockito.mock(CloudServiceInstance.class);
             Mockito.when(cloudServiceInstance.getBindings()).thenReturn(createServiceBindings(Arrays.asList(input.application)));
             Mockito.when(client.getServiceInstance(serviceName)).thenReturn(cloudServiceInstance);
         }
 
+    }
+
+    private List<CloudServiceExtended> mapToCloudServices() {
+        return input.application.services.stream().map(serviceName -> mapToCloudService(serviceName)).collect(Collectors.toList());
+    }
+
+    private CloudServiceExtended mapToCloudService(String serviceName) {
+        return new SimpleService(serviceName).toCloudService();
     }
 
     private void prepareServicesToBind() {
@@ -202,23 +201,21 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
 
     private void prepareContext() {
         StepsUtil.setExistingApp(context, input.existingApplication.toCloudApp());
-        StepsUtil.setAppsToDeploy(context, Arrays.asList(input.application.toCloudApp()));
-        StepsUtil.setServicesToCreate(context, toCloudServiceExtended(input.services));
-        StepsUtil.setUpdatedServices(context, Collections.emptySet());
+        CloudApplicationExtended cloudApp = input.application.toCloudApp();
+        cloudApp.setModuleName("test");
+        StepsUtil.setAppsToDeploy(context, Arrays.asList(cloudApp));
+        StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(cloudApp), context);
+        StepsUtil.setServicesToCreate(context, mapToCloudServices());// toCloudServiceExtended(input.services));
+        StepsUtil.setTriggeredServiceOperations(context, Collections.emptyMap());
         context.setVariable(Constants.VAR_APPS_INDEX, 0);
-        context.setVariable(Constants.PARAM_KEEP_APP_ATTRIBUTES, false);
+        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
 
-    }
-
-    private List<CloudServiceExtended> toCloudServiceExtended(List<SimpleService> services) {
-        return services.stream().map(service -> service.toCloudService()).collect(Collectors.toList());
     }
 
     private static class StepInput {
         SimpleApplication application;
         SimpleApplication existingApplication;
         SimpleBinding serviceBindings;
-        List<SimpleService> services;
         boolean updateStaging;
         boolean updateMemory;
         boolean updateDiskQuota;

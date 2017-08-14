@@ -29,7 +29,8 @@ public class ProcessMtaExtensionDescriptorsStep extends AbstractXS2ProcessStep {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessMtaExtensionDescriptorsStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("processExtensionDescriptorsTask", "Process Extension Descriptors", "Process Extension Descriptors");
+        return StepMetadata.builder().id("processExtensionDescriptorsTask").displayName("Process Extension Descriptors").description(
+            "Process Extension Descriptors").build();
     }
 
     @Override

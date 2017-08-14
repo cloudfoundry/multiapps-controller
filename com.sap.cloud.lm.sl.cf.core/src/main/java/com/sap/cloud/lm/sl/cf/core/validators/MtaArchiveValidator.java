@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorMock;
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.TargetPlatformFactory;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.DeployTargetFactory;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -43,9 +43,10 @@ import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
+//used by DevX
 public class MtaArchiveValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MtaArchiveValidator.class);
@@ -55,8 +56,8 @@ public class MtaArchiveValidator {
     private final ConfigurationEntryDao dao;
     private final InputStream mtarStream;
     private final InputStream extensionDescriptorStream;
-    private final InputStream platformTypesStream;
     private final InputStream platformsStream;
+    private final InputStream targetsStream;
     private final String platformName;
     private final String deployId;
     private final String userName;
@@ -97,8 +98,8 @@ public class MtaArchiveValidator {
         DeployedMta deployedMta, long maxMtaDescriptorSize, ConfigurationEntryDao dao, boolean xsPlaceholdersSupported) {
         this.mtarStream = mtarStream;
         this.extensionDescriptorStream = extensionDescriptorStream;
-        this.platformTypesStream = platformTypesStream;
-        this.platformsStream = platformsStream;
+        this.platformsStream = platformTypesStream;
+        this.targetsStream = platformsStream;
         this.platformName = platformName;
         this.deployId = deployId;
         this.userName = userName;
@@ -166,20 +167,20 @@ public class MtaArchiveValidator {
 
         // Parse configuration files
         ConfigurationParser configurationParser = handlerFactory.getConfigurationParser();
-        List<TargetPlatformType> platformTypes = configurationParser.parsePlatformTypesJson(platformTypesStream);
-        List<TargetPlatform> platforms = configurationParser.parsePlatformsJson(platformsStream);
+        List<Platform> platforms = configurationParser.parsePlatformsJson(platformsStream);
+        List<Target> targets = configurationParser.parseTargetsJson(targetsStream);
 
-        // Determine platform and platform type
+        // Determine target and platform
         DescriptorHandler handler = handlerFactory.getDescriptorHandler();
-        TargetPlatformFactory factory = handlerFactory.getTargetPlatformFactory();
-        TargetPlatform implicitPlatform = factory.create(platformName, platformTypes.get(0).getName());
-        TargetPlatform platform = CloudModelBuilderUtil.findPlatform(handler, platforms, platformName, implicitPlatform);
+        DeployTargetFactory factory = handlerFactory.getDeployTargetFactory();
+        Target implicitTarget = factory.create(platformName, platforms.get(0).getName());
+        Target target = CloudModelBuilderUtil.findTarget(handler, targets, platformName, implicitTarget);
+        LOGGER.debug(format("Target: {0}", JsonUtil.toJson(target, true)));
+        Platform platform = CloudModelBuilderUtil.findPlatform(handler, platforms, target);
         LOGGER.debug(format("Platform: {0}", JsonUtil.toJson(platform, true)));
-        TargetPlatformType platformType = CloudModelBuilderUtil.findPlatformType(handler, platformTypes, platform);
-        LOGGER.debug(format("Platform type: {0}", JsonUtil.toJson(platformType, true)));
 
         // Get organization and space
-        Pair<String, String> orgSpace = handlerFactory.getOrgAndSpaceHelper(platform, platformType).getOrgAndSpace();
+        Pair<String, String> orgSpace = handlerFactory.getOrgAndSpaceHelper(target, platform).getOrgAndSpace();
         organization = orgSpace._1;
         space = orgSpace._2;
         LOGGER.debug(format("Organization: {0}, space: {1}", organization, space));
@@ -190,43 +191,49 @@ public class MtaArchiveValidator {
         PortAllocator portAllocator = new PortAllocatorMock(minPort, maxPort);
 
         // Create system parameters builder
-        SystemParametersBuilder parametersBuilder = new SystemParametersBuilder(platform.getName(), organization, space, userName,
+        SystemParametersBuilder parametersBuilder = new SystemParametersBuilder(target.getName(), organization, space, userName,
             defaultDomain, xsType, targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting, true, portAllocator,
-            Collections.emptyMap(), false, false, deployedMta, schemaVersion.getMajor(), xsPlaceholdersSupported);
+            false, false, deployedMta, schemaVersion.getMajor(), xsPlaceholdersSupported, null, () -> "0");
 
         // Create and initialize cloud model helper
-        MtaDescriptorMerger descriptorMerger = new MtaDescriptorMerger(handlerFactory, platformType, platform);
+        MtaDescriptorMerger descriptorMerger = new MtaDescriptorMerger(handlerFactory, platform, target);
         DeploymentDescriptor deploymentDescriptor = descriptorMerger.merge(deploymentDescriptorString, extensionDescriptorStrings);
         SystemParameters systemParameters = parametersBuilder.build(deploymentDescriptor);
 
-        MtaDescriptorPropertiesResolver descriptorProcessor = new MtaDescriptorPropertiesResolver(handlerFactory, platformType, platform,
-            systemParameters, spaceIdSupplier, dao);
+        MtaDescriptorPropertiesResolver descriptorProcessor = new MtaDescriptorPropertiesResolver(handlerFactory, platform, target,
+            systemParameters, spaceIdSupplier, dao, null);
         deploymentDescriptor = descriptorProcessor.resolve(deploymentDescriptor);
 
-        // Merge DeploymentDescriptor and TargetPlatform
-        handlerFactory.getTargetPlatformMerger(platform).mergeInto(deploymentDescriptor);
+        // Merge DeploymentDescriptor and Target
+        handlerFactory.getTargetMerger(target).mergeInto(deploymentDescriptor);
 
-        // Merge DeploymentDescriptor and TargetPlatformType
-        handlerFactory.getTargetPlatformTypeMerger(platformType).mergeInto(deploymentDescriptor);
+        // Merge DeploymentDescriptor and Platform
+        handlerFactory.getPlatformMerger(platform).mergeInto(deploymentDescriptor);
 
         XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
         xsPlaceholderResolver.setRouterPort(routerPort);
         xsPlaceholderResolver.setDefaultDomain(defaultDomain);
 
         // Get a cloud model builder from the helper
-        CloudModelBuilder builder = handlerFactory.getCloudModelBuilder(deploymentDescriptor, systemParameters, portBasedRouting, true,
-            false, false, false, deployId, xsPlaceholderResolver);
+        CloudModelConfiguration config = new CloudModelConfiguration();
+        config.setAllowInvalidEnvNames(false);
+        config.setPortBasedRouting(portBasedRouting);
+        config.setPrettyPrinting(true);
+        config.setUseNamespaces(false);
+        config.setUseNamespacesForServices(false);
 
         // Build a list of custom domains and save them in the context
-        customDomains = builder.getCustomDomains();
+        customDomains = handlerFactory.getDomainsCloudModelBuilder(systemParameters, xsPlaceholderResolver, deploymentDescriptor).build();
         LOGGER.debug(format("Custom domains: {0}", customDomains));
 
         // Build a list of cloud applications and save them in the context
-        applications = builder.getApplications(mtaArchiveModules, mtaModules, Collections.emptySet());
+        applications = handlerFactory.getApplicationsCloudModelBuilder(deploymentDescriptor, config, deployedMta, systemParameters,
+            xsPlaceholderResolver, deployId).build(mtaArchiveModules, mtaModules, Collections.emptySet());
         LOGGER.debug(format("Cloud applications: {0}", JsonUtil.toJson(applications, true)));
 
         // Build a list of cloud services and save them in the context
-        services = builder.getServices(mtaArchiveModules);
+        services = handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), config).build(
+            mtaArchiveModules);
         LOGGER.debug(format("Cloud services: {0}", JsonUtil.toJson(services, true)));
     }
 

@@ -1,0 +1,26 @@
+{
+    "total_results": 2,
+    "total_pages": 1,
+    "prev_url": null,
+    "next_url": null,
+    "resources": [
+        {
+            "metadata": {
+                "guid": "ef93547f-74c3-4bad-ba69-b7dc4f212622",
+                "url": "/v2/spaces/ef93547f-74c3-4bad-ba69-b7dc4f212622"
+            },
+            "entity": {
+                "name": "foo"
+            }
+        },
+        {
+            "metadata": {
+                "guid": "ef93547f-bbbb-aaaa-eeee-b7dc4f212622",
+                "url": "/v2/spaces/ef93547f-bbbb-aaaa-eeee-b7dc4f212622"
+            },
+            "entity": {
+                "name": "bar"
+            }
+        }
+    ]
+}

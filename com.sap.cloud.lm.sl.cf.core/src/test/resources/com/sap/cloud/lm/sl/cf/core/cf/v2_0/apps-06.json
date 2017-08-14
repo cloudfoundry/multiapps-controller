@@ -2,10 +2,11 @@
   {
     "moduleName": "framework",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"sofd60245639a:52001/test-route\"]}",
       "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"framework\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"framework\"]",

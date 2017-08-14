@@ -7,8 +7,8 @@ import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 
@@ -21,21 +21,21 @@ public class PrepareToUndeployStepTest extends AbstractStepTest<PrepareToUndeplo
         context.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
 
         step.conflictPreventerSupplier = (dao) -> mock(ProcessConflictPreventer.class);
+        Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any())).thenReturn(Collections.emptyList());
     }
 
     @Test
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
-        assertEquals(Collections.emptyList(), StepsUtil.getDependenciesToPublish(context));
+        assertEquals(Collections.emptyMap(), StepsUtil.getConfigurationEntriesToPublish(context));
         assertEquals(Collections.emptyList(), StepsUtil.getServiceUrlsToRegister(context));
         assertEquals(Collections.emptyList(), StepsUtil.getAppsToDeploy(context));
         assertEquals(Collections.emptyList(), StepsUtil.getServiceBrokersToCreate(context));
         assertEquals(Collections.emptySet(), StepsUtil.getMtaModules(context));
-        assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntries(context));
+        assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(context, activitiFacade));
     }
 
     @Override

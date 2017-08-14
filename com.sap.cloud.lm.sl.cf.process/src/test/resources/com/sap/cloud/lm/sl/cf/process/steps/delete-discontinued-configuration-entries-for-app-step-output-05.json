@@ -1,0 +1,12 @@
+{
+  "deletedEntries": [
+    {
+      "id": 1,
+      "providerNid": "mta",
+      "providerId": "com.sap.sample.mta:bar",
+      "providerVersion": "0.1.0",
+      "targetSpace": "myorg SAP",
+      "content": "bar"
+    }
+  ]
+}

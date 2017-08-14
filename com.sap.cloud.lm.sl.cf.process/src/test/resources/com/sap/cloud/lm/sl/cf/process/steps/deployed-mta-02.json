@@ -11,7 +11,8 @@
         "uaa",
         "node-hdi-container"
       ],
-      "providedDependencyNames": []
+      "providedDependencyNames": [],
+      "uris": []
     }
   ],
   "services": [

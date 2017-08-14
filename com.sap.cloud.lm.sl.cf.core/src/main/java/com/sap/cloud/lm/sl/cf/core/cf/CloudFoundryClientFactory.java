@@ -1,122 +1,58 @@
 package com.sap.cloud.lm.sl.cf.core.cf;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.Map;
-
-import org.apache.commons.collections.map.ReferenceMap;
 import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.cloudfoundry.client.lib.domain.CloudSpace;
+import org.cloudfoundry.client.lib.oauth2.OauthClient;
+import org.cloudfoundry.client.lib.rest.CloudControllerClient;
+import org.cloudfoundry.client.lib.rest.CloudControllerClientFactory;
+import org.springframework.util.Assert;
 
+import com.sap.cloud.lm.sl.cf.client.CloudFoundryClientExtended;
+import com.sap.cloud.lm.sl.cf.client.CloudFoundryTokenProvider;
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
-import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
-public abstract class CloudFoundryClientFactory {
+public class CloudFoundryClientFactory extends ClientFactory {
 
-    public enum PlatformType {
-        CF, XS2, MOCK
-    };
-
-    // Cached clients. These are stored in memory-sensitive cache, i.e. no OutOfMemory error would
-    // occur before GC tries to release the not-used clients.
-    @SuppressWarnings("unchecked")
-    private Map<String, Pair<CloudFoundryOperations, TokenProvider>> clients = Collections.synchronizedMap(
-        new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT));
-
-    protected final URL cloudControllerUrl = ConfigurationUtil.getTargetURL();
+    private boolean trustSelfSignedCertificates;
 
     public CloudFoundryClientFactory() {
+        // Since the CF client cannot be told to skip the entire SSL validation - tell it to at least trust self signed certificates.
+        this.trustSelfSignedCertificates = ConfigurationUtil.shouldSkipSslValidation();
     }
 
-    /**
-     * Returns a client for the specified access token, organization, and space by either getting it
-     * from the clients cache or creating a new one.
-     * 
-     * @param token the access token to be used when getting the client
-     * @param org the organization associated with the client
-     * @param space the space associated with the client
-     * @return a CF client for the specified access token, organization, and space
-     * @throws MalformedURLException if the configured target URL is malformed
-     */
-    public Pair<CloudFoundryOperations, TokenProvider> getClient(OAuth2AccessToken token, String org, String space) {
-        return getClient(token, org, space, null);
+    @Override
+    protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials) {
+        CloudControllerClientFactory factory = new CloudControllerClientFactory(null, trustSelfSignedCertificates);
+        OauthClient oauthClient = createOauthClient();
+        CloudControllerClient controllerClient = factory.newCloudController(cloudControllerUrl, credentials, null, oauthClient);
+        return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
+            new CloudFoundryTokenProvider(oauthClient));
     }
 
-    public Pair<CloudFoundryOperations, TokenProvider> getClient(OAuth2AccessToken token, String org, String space, String processId) {
-        // Get a client from the cache or create a new one if needed
-        String key = getKey(token, org, space);
-        Pair<CloudFoundryOperations, TokenProvider> client = clients.get(key);
-        if (client == null) {
-            client = createClient(token, org, space);
-            if (processId != null) {
-                clients.put(key, client);
-            }
-        }
-        return client;
+    @Override
+    protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String org, String space) {
+        CloudControllerClientFactory factory = new CloudControllerClientFactory(null, trustSelfSignedCertificates);
+        CloudSpace sessionSpace = getSessionSpace(credentials, org, space);
+        OauthClient oauthClient = createOauthClient();
+        CloudControllerClient controllerClient = factory.newCloudController(cloudControllerUrl, credentials, sessionSpace, oauthClient);
+        return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
+            new CloudFoundryTokenProvider(oauthClient));
     }
 
-    /**
-     * Updates the client cache for the specified old access token, organization, and space by
-     * associating the existing client with the new access token.
-     * 
-     * @param oldToken the old access token to be used when getting the client
-     * @param newToken the new access token to associate the client with
-     * @param org the organization associated with the client
-     * @param space the space associated with the client
-     */
-    public void updateClient(OAuth2AccessToken oldToken, OAuth2AccessToken newToken, String org, String space) {
-        String key = getKey(oldToken, org, space);
-        Pair<CloudFoundryOperations, TokenProvider> client = clients.remove(key);
-        if (client != null) {
-            String key2 = getKey(newToken, org, space);
-            clients.put(key2, client);
-        }
+    private CloudSpace getSessionSpace(CloudCredentials credentials, String orgName, String spaceName) {
+        // There are two constructors, which can be used to create a CF client. The first accepts a session space object. The second accepts
+        // the org and space names of the session space and attempts to compute it from them. The computation operation is implemented in an
+        // incredibly inefficient way, however. This is why here, we create a client without a session space (null) and we use it to compute
+        // the session space in a better way (by using the CFOptimizedSpaceGetter). After we do that, we can create a CF client with the
+        // computed session space.
+        CloudFoundryOperations clientWithoutSessionSpace = createClient(credentials)._1;
+        CloudSpace sessionSpace = new CFOptimizedSpaceGetter().findSpace(clientWithoutSessionSpace, orgName, spaceName);
+        Assert.notNull(sessionSpace, "No matching organization and space found for org: " + orgName + " space: " + spaceName);
+        return sessionSpace;
     }
 
-    /**
-     * Releases the client for the specified token, organization, and space by removing it from the
-     * clients cache.
-     * 
-     * @param token the access token to be used when releasing the client
-     * @param org the organization associated with the client
-     * @param space the space associated with the client
-     */
-    public void releaseClient(OAuth2AccessToken token, String org, String space) {
-        clients.remove(getKey(token, org, space));
-    }
-
-    public Pair<CloudFoundryOperations, TokenProvider> createClient(String userName, String password) {
-        return createClient(createCredentials(userName, password));
-    }
-
-    public Pair<CloudFoundryOperations, TokenProvider> createClient(OAuth2AccessToken token) {
-        return createClient(createCredentials(token));
-    }
-
-    public Pair<CloudFoundryOperations, TokenProvider> createClient(OAuth2AccessToken token, String org, String space) {
-        return createClient(createCredentials(token), org, space);
-    }
-
-    protected abstract Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials);
-
-    protected abstract Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String org, String space);
-
-    private static CloudCredentials createCredentials(String userName, String password) {
-        return new CloudCredentials(userName, password, SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
-    }
-
-    private static CloudCredentials createCredentials(OAuth2AccessToken token) {
-        boolean refreshable = (token.getRefreshToken() != null);
-        return new CloudCredentials(token, refreshable);
-    }
-
-    private static String getKey(OAuth2AccessToken token, String org, String space) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(token.getValue()).append("|").append(org).append("|").append(space);
-        return sb.toString();
-    }
 }

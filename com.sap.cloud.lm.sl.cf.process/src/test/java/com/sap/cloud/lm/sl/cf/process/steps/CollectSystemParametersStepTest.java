@@ -9,35 +9,32 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
-import com.google.gson.reflect.TypeToken;
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorMock;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
@@ -48,6 +45,10 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
 
     private static final String GENERATED_CREDENTIAL = "credential";
     private static final UUID CLOUD_DOMAIN_GUID = UUID.fromString("7b5987e9-4325-4bb6-93e2-a0b1c562e60c");
+    private static final String DEFAULT_TIMESTAMP = "19700101";
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     protected static class StepInput {
 
@@ -60,7 +61,6 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
         public boolean useNamespacesForServices;
         public String deployedMtaLocation;
         public String user;
-        public String deployedAppsLocation;
         public String platformName;
         public String org;
         public String space;
@@ -70,9 +70,9 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
         public boolean areXsPlaceholdersSupported;
 
         public StepInput(String deploymentDescriptorLocation, String authorizationEndpoint, String deployServiceUrl, String defaultDomain,
-            boolean portBasedRouting, boolean useNamespaces, boolean useNamespacesForServices, String user, String deployedAppsLocation,
-            String platformName, String org, String space, int majorMtaSchemaVersion, int minorMtaSchemaVersion, String deployedMtaLocation,
-            PlatformType xsType, boolean areXsPlaceholdersSupported) {
+            boolean portBasedRouting, boolean useNamespaces, boolean useNamespacesForServices, String user, String platformName, String org,
+            String space, int majorMtaSchemaVersion, int minorMtaSchemaVersion, String deployedMtaLocation, PlatformType xsType,
+            boolean areXsPlaceholdersSupported) {
             this.deploymentDescriptorLocation = deploymentDescriptorLocation;
             this.authorizationEndpoint = authorizationEndpoint;
             this.deployServiceUrl = deployServiceUrl;
@@ -82,7 +82,6 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
             this.useNamespacesForServices = useNamespacesForServices;
             this.deployedMtaLocation = deployedMtaLocation;
             this.user = user;
-            this.deployedAppsLocation = deployedAppsLocation;
             this.platformName = platformName;
             this.org = org;
             this.space = space;
@@ -98,14 +97,13 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
 
         public Set<Integer> allocatedPorts;
         public String systemParametersLocation;
-        public boolean versionAccepted;
+        public String versionException;
 
-        public StepOutput(Set<Integer> allocatedPorts, String systemParametersLocation, boolean versionAccepted) {
+        public StepOutput(Set<Integer> allocatedPorts, String systemParametersLocation, String versionException) {
             this.allocatedPorts = allocatedPorts;
             this.systemParametersLocation = systemParametersLocation;
-            this.versionAccepted = versionAccepted;
+            this.versionException = versionException;
         }
-
     }
 
     @Parameters
@@ -114,54 +112,56 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
 // @formatter:off
             // (0) Should not use namespaces for applications and services:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "deployed-apps-01.json", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, false), new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-02.json", true),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, false), 
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-02.json", null),
             },
             // (1) Should use namespaces for applications and services:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "deployed-apps-01.json", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, false), new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-01.json", true),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, false), 
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-01.json", null),
             },
             // (2) There are deployed MTAs:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "deployed-apps-02.json", "initial initial", "initial", "initial", 1, 0, "deployed-mta-01.json", PlatformType.XS2, false), new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-04.json", true),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, 0, "deployed-mta-01.json", PlatformType.XS2, false), 
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-04.json", null),
             },
             // (3) Host based routing:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "deployed-apps-01.json", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, false), new StepOutput(null, "R:system-parameters-03.json", true),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, false), 
+                new StepOutput(null, "R:system-parameters-03.json", null),
             },
             // (4) The version of the MTA is lower than the version of the previously deployed MTA:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "deployed-apps-03.json", "initial initial", "initial", "initial", 1, 0, "deployed-mta-02.json", PlatformType.XS2, false), new StepOutput(Collections.emptySet(), "R:system-parameters-04.json", false),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, 0, "deployed-mta-02.json", PlatformType.XS2, false), 
+                new StepOutput(Collections.emptySet(), "R:system-parameters-04.json", "MTA rejected for deployment as its version does not conform to the specified version rule \"SAME_HIGHER\" : \"Higher version already deployed\""),
             },
             // (5) Should not use namespaces for applications and services (platform type  is  CF):
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "deployed-apps-01.json", "initial initial", "initial", "initial", 1, 0, null, PlatformType.CF , false), new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-07.json", true),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, 0, null, PlatformType.CF , false), 
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-07.json", null),
             },
             // (6) Should not use namespaces for applications and services (XS placeholders are supported):
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "deployed-apps-01.json", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, true ), new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-06.json", true),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, true ), 
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-06.json", null),
             },
 // @formatter:on
         });
     }
 
-    private List<CloudApplication> deployedApps;
     private DeploymentDescriptor descriptor;
     private DeployedMta deployedMta;
 
-    private StepOutput outputt;
+    private StepOutput output;
     private StepInput input;
 
     private PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE, PortValidator.MAX_PORT_VALUE);
     @Mock
-    private CloudFoundryClientProvider clientProvider;
-    @Mock
     private CredentialsGenerator credentialsGenerator;
-    @Mock
-    private CloudFoundryOperations client;
 
     public CollectSystemParametersStepTest(StepInput input, StepOutput output) {
-        this.outputt = output;
         this.input = input;
+        this.output = output;
     }
 
     @Before
@@ -170,6 +170,11 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
         prepareContext();
         prepareClient();
         when(credentialsGenerator.next(anyInt())).thenReturn(GENERATED_CREDENTIAL);
+
+        if (output.versionException != null) {
+            expectedException.expect(SLException.class);
+            expectedException.expectMessage(output.versionException);
+        }
     }
 
     private void loadParameters() throws Exception {
@@ -181,17 +186,13 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
             String deployedMtaString = TestUtil.getResourceAsString(input.deployedMtaLocation, getClass());
             deployedMta = JsonUtil.fromJson(deployedMtaString, DeployedMta.class);
         }
-
-        String deployedAppsString = TestUtil.getResourceAsString(input.deployedAppsLocation, getClass());
-
-        deployedApps = JsonUtil.fromJson(deployedAppsString, new TypeToken<List<CloudApplication>>() {
-        }.getType());
     }
 
     private void prepareContext() throws Exception {
         step.platformTypeSupplier = () -> input.xsType;
         step.areXsPlaceholdersSupportedSupplier = () -> input.areXsPlaceholdersSupported;
         step.credentialsGeneratorSupplier = () -> credentialsGenerator;
+        step.timestampSupplier = () -> DEFAULT_TIMESTAMP;
 
         context.setVariable(Constants.VAR_SPACE, input.space);
         context.setVariable(Constants.VAR_ORG, input.org);
@@ -201,13 +202,12 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, input.majorMtaSchemaVersion);
         context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, input.minorMtaSchemaVersion);
 
-        StepsUtil.setDeploymentDescriptor(context, descriptor);
-        context.setVariable(Constants.PARAM_PLATFORM_NAME, input.platformName);
+        StepsUtil.setUnresolvedDeploymentDescriptor(context, descriptor);
+        context.setVariable(Constants.PARAM_TARGET_NAME, input.platformName);
 
         context.setVariable(Constants.PARAM_VERSION_RULE, VersionRule.SAME_HIGHER.toString());
         context.setVariable(Constants.VAR_USER, input.user);
 
-        StepsUtil.setDeployedApps(context, deployedApps);
         StepsUtil.setDeployedMta(context, deployedMta);
     }
 
@@ -224,7 +224,6 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
         if (info instanceof CloudInfoExtended)
             when(((CloudInfoExtended) info).getDeployServiceUrl()).thenReturn(input.deployServiceUrl);
 
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
         when(clientProvider.getPortAllocator(any(), anyString())).thenReturn(portAllocator);
 
         when(info.getAuthorizationEndpoint()).thenReturn(input.authorizationEndpoint);
@@ -239,20 +238,17 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         if (input.portBasedRouting) {
-            assertEquals(outputt.allocatedPorts, StepsUtil.getAllocatedPorts(context));
+            assertEquals(output.allocatedPorts, StepsUtil.getAllocatedPorts(context));
         }
 
         TestUtil.test(() -> {
 
             return StepsUtil.getSystemParameters(context);
 
-        } , outputt.systemParametersLocation, getClass());
-
-        assertEquals(outputt.versionAccepted, context.getVariable(Constants.VAR_MTA_VERSION_ACCEPTED));
+        }, output.systemParametersLocation, getClass());
     }
 
     @Override

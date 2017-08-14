@@ -8,7 +8,7 @@
     "name": "module-1"
   },
   {
-    "tempUris": [],
+    "idleUris": [],
     "diskQuota": 0,
     "instances": 0,
     "memory": 0,
@@ -19,7 +19,7 @@
     "name": "module-2"
   },
   {
-    "tempUris": [],
+    "idleUris": [],
     "diskQuota": 0,
     "instances": 0,
     "memory": 0,

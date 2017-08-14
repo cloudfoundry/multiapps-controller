@@ -18,7 +18,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
-import com.sap.cloud.lm.sl.cf.core.dto.serialization.OngoingOperationDto;
 import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
 import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation.SlpTaskStates;
 import com.sap.cloud.lm.sl.cf.core.model.OperationsBean;
@@ -26,6 +25,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.TestCase;
 import com.sap.cloud.lm.sl.common.util.TestInput;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.slp.activiti.ActivitiProcess;
 import com.sap.lmsl.slp.SlpTaskState;
 
 @RunWith(Parameterized.class)
@@ -41,8 +41,7 @@ public class OngoingOperationsResourceTest {
 
     @Parameters
     public static List<Object[]> getParameters() throws Exception {
-        return Arrays.asList(
-            new Object[][] {
+        return Arrays.asList(new Object[][] {
       //@formatter:off
                 // (0)
                 { 
@@ -75,6 +74,10 @@ public class OngoingOperationsResourceTest {
                 // (7) With only active and finished operations and requested the last 2 operations and the running and finished operations
                 { 
                     new GetAllOngoingOperationsTest(new GetAllOngoingOperationsTestInput(new OperationsBean(2, Arrays.asList("SLP_TASK_STATE_RUNNING", "SLP_TASK_STATE_FINISHED")), "ongoing-operations-6.json"),"R:ongoing-operations-resource-test-output-7.json") 
+                },
+                // (8) 
+                { 
+                    new GetAllOngoingOperationsTest(new GetAllOngoingOperationsTestInput(new OperationsBean(null, Collections.emptyList()), "ongoing-operations-7.json"),"R:ongoing-operations-resource-test-output-8.json") 
                 },
             }
         );
@@ -131,10 +134,11 @@ public class OngoingOperationsResourceTest {
         @Mock
         private OngoingOperationDao dao;
         @InjectMocks
-        private OngoingOperationsResourceMock resource = new OngoingOperationsResourceMock();
+        private OngoingOperationsResourceMock resource;
 
         public GetOngoingOperationTest(GetOngoingOperationTestInput input, String expected) {
             super(input, expected);
+            resource = new OngoingOperationsResourceMock();
         }
 
         @Override
@@ -143,14 +147,14 @@ public class OngoingOperationsResourceTest {
 
                 return resource.getOngoingOperation(input.getId());
 
-            } , expected, getClass());
+            }, expected, getClass());
 
         }
 
         @Override
         protected void setUp() throws Exception {
             MockitoAnnotations.initMocks(this);
-            when(dao.find(input.getId())).thenReturn(input.getOperation());
+            when(dao.findRequired(input.getId())).thenReturn(input.getOperation());
         }
 
     }
@@ -159,10 +163,11 @@ public class OngoingOperationsResourceTest {
         @Mock
         private OngoingOperationDao dao;
         @InjectMocks
-        private OngoingOperationsResourceMock resource = new OngoingOperationsResourceMock();
+        private OngoingOperationsResourceMock resource;
 
         public GetAllOngoingOperationsTest(GetAllOngoingOperationsTestInput input, String expected) {
             super(input, expected);
+            resource = new OngoingOperationsResourceMock();
         }
 
         @Override
@@ -171,7 +176,7 @@ public class OngoingOperationsResourceTest {
 
                 return resource.getOngoingOperations(input.getFilter()).getOngoingOperations();
 
-            } , expected, getClass());
+            }, expected, getClass());
 
         }
 
@@ -220,10 +225,10 @@ public class OngoingOperationsResourceTest {
     private static class OngoingOperationsResourceMock extends OngoingOperationsResource {
 
         @Override
-        protected OngoingOperationDto addState(OngoingOperation ongoingOperation) throws SLException {
-            return new OngoingOperationDto(ongoingOperation.getProcessId(), ongoingOperation.getProcessType(),
-                ongoingOperation.getStartedAt(), ongoingOperation.getSpaceId(), ongoingOperation.getMtaId(), ongoingOperation.getUser(),
-                ongoingOperation.getFinalState().toString(), ongoingOperation.hasAcquiredLock());
+        protected ActivitiProcess getProcessForOperation(OngoingOperation ongoingOperation) throws SLException {
+            ActivitiProcess processMock = Mockito.mock(ActivitiProcess.class);
+            Mockito.when(processMock.getCurrentState()).thenReturn(SlpTaskState.SLP_TASK_STATE_RUNNING);
+            return processMock;
         }
 
         @Override

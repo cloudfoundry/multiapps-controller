@@ -6,6 +6,7 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.resolvers.v2_0.PartialPropertiesResolver;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Resource;
+import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v3_1.ResourcePropertiesReferenceResolver;
 
 public class PartialResourcePropertiesReferenceResolver extends ResourcePropertiesReferenceResolver {
@@ -14,7 +15,7 @@ public class PartialResourcePropertiesReferenceResolver extends ResourceProperti
 
     public PartialResourcePropertiesReferenceResolver(DeploymentDescriptor descriptor, Resource resource, Map<String, Object> properties,
         String prefix, List<String> dependenciesToIgnore) {
-        super(descriptor, resource, properties, prefix);
+        super(descriptor, resource, properties, prefix, new ResolverBuilder());
         this.dependenciesToIgnore = dependenciesToIgnore;
     }
 

@@ -3,28 +3,13 @@ package com.sap.cloud.lm.sl.cf.core.model;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)
-@XmlRootElement(name = "mta")
 public class DeployedMta {
 
-    @XmlElement(name = "metadata")
     private DeployedMtaMetadata metadata;
-
-    @XmlElementWrapper(name = "modules")
-    @XmlElement(name = "module")
     private List<DeployedMtaModule> modules;
-
-    @XmlElementWrapper(name = "services")
-    @XmlElement(name = "service")
     private Set<String> services;
 
     public DeployedMta() {
-        // Required by JAXB
     }
 
     public DeployedMta(DeployedMtaMetadata metadata, List<DeployedMtaModule> modules, Set<String> services) {

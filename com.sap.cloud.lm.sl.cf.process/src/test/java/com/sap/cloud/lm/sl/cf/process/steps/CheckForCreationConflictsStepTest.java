@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudService;
@@ -30,8 +29,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 
-import com.sap.activiti.common.Constants;
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -48,7 +45,6 @@ public class CheckForCreationConflictsStepTest extends AbstractStepTest<CheckFor
     private final StepInput stepInput;
     private final String expectedExceptionMessage;
     private Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances;
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
     private boolean didWarn;
     private boolean shouldWarn;
     @Rule
@@ -80,7 +76,7 @@ public class CheckForCreationConflictsStepTest extends AbstractStepTest<CheckFor
             },
             // (5) Applications to deploy exist, not part of the deployed MTA -> expect exception:
             {
-                "check-for-creation-conflicts-step-input-6.json", MessageFormat.format(Messages.APPLICATION_EXISTS_AS_STANDALONE, "application-1"), false,
+                "check-for-creation-conflicts-step-input-6.json", null, true,
             },
             // (6) Applications to deploy exist, part of the deployed MTA -> should be OK:
             {
@@ -118,7 +114,7 @@ public class CheckForCreationConflictsStepTest extends AbstractStepTest<CheckFor
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(), context.getVariable(Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
         assertEquals(shouldWarn, didWarn);
     }
 
@@ -159,14 +155,13 @@ public class CheckForCreationConflictsStepTest extends AbstractStepTest<CheckFor
 
     private List<DeployedMtaModule> simpleAppListToModuleList(List<SimpleApplication> simpleApps) {
         List<DeployedMtaModule> modulesList = new ArrayList<>();
-        simpleApps.forEach(app -> modulesList.add(new DeployedMtaModule(app.name, app.name, null, null, null, null)));
+        simpleApps.forEach(app -> modulesList.add(new DeployedMtaModule(app.name, app.name, null, null, null, null, null, null)));
         return modulesList;
     }
 
     private void prepareClient() throws Exception {
         existingServiceInstances = createServiceInstances(stepInput);
         prepareExistingServices();
-        step.clientSupplier = (context) -> client;
     }
 
     private Map<CloudServiceExtended, CloudServiceInstance> createServiceInstances(StepInput stepInput) throws Exception {

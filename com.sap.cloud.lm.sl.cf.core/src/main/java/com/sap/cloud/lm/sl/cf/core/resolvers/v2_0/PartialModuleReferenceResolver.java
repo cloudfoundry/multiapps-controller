@@ -6,6 +6,7 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2_0.ModulePropertiesReferenceResolver;
 import com.sap.cloud.lm.sl.mta.resolvers.v2_0.ModuleReferenceResolver;
 
@@ -15,7 +16,7 @@ public class PartialModuleReferenceResolver extends ModuleReferenceResolver {
 
     public PartialModuleReferenceResolver(DeploymentDescriptor descriptor, Module module, String prefix,
         List<String> dependenciesToIgnore) {
-        super(descriptor, module, prefix);
+        super(descriptor, module, prefix, new ResolverBuilder(), new ResolverBuilder());
         this.dependenciesToIgnore = dependenciesToIgnore;
     }
 

@@ -4,7 +4,6 @@ import static java.text.MessageFormat.format;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
@@ -22,14 +21,11 @@ import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 @Component("addDomainsStep")
 public class AddDomainsStep extends AbstractXS2ProcessStep {
 
-    // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(AddDomainsStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("addDomainsTask", "Add Domains", "Add Domains");
+        return StepMetadata.builder().id("addDomainsTask").displayName("Add Domains").description("Add Domains").build();
     }
-
-    protected Function<DelegateExecution, CloudFoundryOperations> clientSupplier = (context) -> getCloudFoundryClient(context, LOGGER);
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -37,7 +33,7 @@ public class AddDomainsStep extends AbstractXS2ProcessStep {
         try {
             info(context, Messages.ADDING_DOMAINS, LOGGER);
 
-            CloudFoundryOperations client = clientSupplier.apply(context);
+            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
 
             List<CloudDomain> existingDomains = client.getDomainsForOrg();
             List<String> existingDomainNames = getDomainNames(existingDomains);

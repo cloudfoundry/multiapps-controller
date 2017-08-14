@@ -2,15 +2,16 @@
   {
     "moduleName": "framework",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"framework.sofd60245639a\"]}",
       "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"framework\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"framework\"]",
       "MTA_SERVICES=[]",
-      "plugins=[{\"plugin_name\":\"plugin-0\",\"url\":\"https://localhost:52001\"},{\"plugin_name\":\"plugin-1\",\"url\":null}]"
+      "plugins=[{\"plugin_name\":\"plugin-0\",\"url\":\"https://localhost:52001\"},{\"plugin_name\":\"plugin-1\"}]"
     ],
     "instances": 0,
     "memory": 0,

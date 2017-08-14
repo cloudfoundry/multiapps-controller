@@ -46,18 +46,18 @@ public class ApplicationColorAppenderTest {
 
         TestUtil.test(() -> {
 
-            descriptor.accept(getApplicationColorAppender(ApplicationColor.GREEN));
+            descriptor.accept(getApplicationColorAppender(ApplicationColor.BLUE, ApplicationColor.GREEN));
             return descriptor;
 
-        } , expected, getClass());
+        }, expected, getClass());
     }
 
     protected DescriptorParser getDescriptorParser() {
         return new DescriptorParser();
     }
 
-    protected ApplicationColorAppender getApplicationColorAppender(ApplicationColor applicationColor) {
-        return new ApplicationColorAppender(applicationColor);
+    protected ApplicationColorAppender getApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationColor) {
+        return new ApplicationColorAppender(deployedMtaColor, applicationColor);
     }
 
 }

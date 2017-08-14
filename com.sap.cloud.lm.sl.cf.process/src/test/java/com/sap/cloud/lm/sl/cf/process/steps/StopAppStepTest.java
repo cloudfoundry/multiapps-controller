@@ -1,11 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Arrays;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +11,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
@@ -26,8 +22,6 @@ public class StopAppStepTest extends AbstractStepTest<StopAppStep> {
     private SimpleApplicationWithState existingApplication;
 
     private boolean shouldBeStopped;
-
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -58,14 +52,13 @@ public class StopAppStepTest extends AbstractStepTest<StopAppStep> {
     public void setUp() throws Exception {
         prepareContext();
         determineActionForApplication();
-        step.clientSupplier = (context) -> client;
     }
 
     @Test
     public void testExecute() throws Exception {
-        ExecutionStatus status = step.executeStep(context);
+        step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(), status.toString());
+        assertStepFinishedSuccessfully();
 
         validateStoppedApplications();
     }
@@ -80,7 +73,7 @@ public class StopAppStepTest extends AbstractStepTest<StopAppStep> {
 
     private void prepareContext() {
         context.setVariable(Constants.VAR_APPS_INDEX, 0);
-        StepsUtil.setAppsToDeploy(context, toCloudApplication());
+        StepsTestUtil.mockApplicationsToDeploy(toCloudApplication(), context);
         StepsUtil.setExistingApp(context, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
     }
 

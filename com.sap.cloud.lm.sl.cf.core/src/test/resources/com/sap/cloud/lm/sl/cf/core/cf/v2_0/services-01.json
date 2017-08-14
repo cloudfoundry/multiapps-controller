@@ -3,6 +3,7 @@
     "resourceName": "bar",
     "credentials": {},
     "tags": [],
+    "isOptional": false,
     "meta": {},
     "name": "bar"
   }

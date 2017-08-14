@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,8 +17,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -32,8 +29,6 @@ public class UnregisterServiceUrlsStepTest extends AbstractStepTest<UnregisterSe
     private final String[] expectedUnregisteredServiceUrls;
 
     private StepInput input;
-
-    private ClientExtensions clientExtensions = Mockito.mock(ClientExtensions.class);
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -68,7 +63,6 @@ public class UnregisterServiceUrlsStepTest extends AbstractStepTest<UnregisterSe
     public void setUp() throws Exception {
         loadParameters();
         prepareContext();
-        step.extensionsSupplier = (context) -> clientExtensions;
     }
 
     private void loadParameters() throws Exception {
@@ -86,9 +80,9 @@ public class UnregisterServiceUrlsStepTest extends AbstractStepTest<UnregisterSe
 
     @Test
     public void testExecute() throws Exception {
-        ExecutionStatus status = step.executeStep(context);
+        step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(), status.toString());
+        assertStepFinishedSuccessfully();
 
         String[] deletedServiceUrls = captureStepOutput();
 

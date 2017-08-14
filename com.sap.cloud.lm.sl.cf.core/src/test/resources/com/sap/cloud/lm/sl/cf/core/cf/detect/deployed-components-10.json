@@ -1,0 +1,25 @@
+{
+  "mtas": [
+    {
+      "metadata": {
+        "id": "foo",
+        "version": "0.1.0"
+      },
+      "modules": [
+        {
+          "moduleName": "mta-application",
+          "appName": "mta-application",
+          "services": [],
+          "providedDependencyNames": [],
+          "deployAttributes": {
+            "success-marker": "SUCCESS",
+            "failure-marker": "FAILURE",
+            "executeApp": true
+          }
+        }
+      ],
+      "services": []
+    }
+  ],
+  "standaloneApps": []
+}

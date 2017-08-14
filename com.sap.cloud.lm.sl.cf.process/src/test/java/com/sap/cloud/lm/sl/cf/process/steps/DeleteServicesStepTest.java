@@ -1,25 +1,26 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -27,10 +28,12 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class DeleteServicesStepTest extends AbstractStepTest<DeleteServicesStep> {
 
     private final StepInput stepInput;
+    private final String expectedExceptionMessage;
 
     private List<String> servicesToDelete = new ArrayList<>();
 
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -38,26 +41,35 @@ public class DeleteServicesStepTest extends AbstractStepTest<DeleteServicesStep>
         // @formatter:off
             // (0) Services have bindings:
             {
-                "delete-services-step-input-1.json",
+                "delete-services-step-input-1.json", null,
             },
             // (1) Services do not have bindings:
             {
-                "delete-services-step-input-2.json",
+                "delete-services-step-input-2.json", null,
             },
             // (2) No services to delete:
             {
-                "delete-services-step-input-3.json",
+                "delete-services-step-input-3.json", null,
             },
             // (3) Some services have bindings, some do not:
             {
-                "delete-services-step-input-4.json",
+                "delete-services-step-input-4.json", null,
+            },
+            // (4) One of the services is missing (maybe the user deleted it manually):
+            {
+                "delete-services-step-input-5.json", null,
+            },
+            // (5) The user does not have the necessary rights to delete the service:
+            {
+                "delete-services-step-input-6.json", "Controller operation failed: 403 Forbidden",
             },
         // @formatter:on
         });
     }
 
-    public DeleteServicesStepTest(String stepInput) throws Exception {
+    public DeleteServicesStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, DeleteServicesStepTest.class), StepInput.class);
+        this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Before
@@ -71,14 +83,17 @@ public class DeleteServicesStepTest extends AbstractStepTest<DeleteServicesStep>
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         verifyClient();
     }
 
     private void loadParameters() {
         servicesToDelete = stepInput.servicesToDelete.stream().map((service) -> service.name).collect(Collectors.toList());
+        if (expectedExceptionMessage != null) {
+            expectedException.expect(SLException.class);
+            expectedException.expectMessage(expectedExceptionMessage);
+        }
     }
 
     private void prepareContext() {
@@ -89,8 +104,11 @@ public class DeleteServicesStepTest extends AbstractStepTest<DeleteServicesStep>
     private void prepareClient() {
         for (SimpleService service : stepInput.servicesToDelete) {
             Mockito.when(client.getServiceInstance(service.name)).thenReturn(createServiceInstance(service));
+            if (service.httpErrorCodeToReturnOnDelete != null) {
+                HttpStatus httpStatusToReturnOnDelete = HttpStatus.valueOf(service.httpErrorCodeToReturnOnDelete);
+                Mockito.doThrow(new CloudFoundryException(httpStatusToReturnOnDelete)).when(client).deleteService(service.name);
+            }
         }
-        step.clientSupplier = (context) -> client;
     }
 
     private CloudServiceInstance createServiceInstance(SimpleService service) {
@@ -116,6 +134,7 @@ public class DeleteServicesStepTest extends AbstractStepTest<DeleteServicesStep>
     private static class SimpleService {
         String name;
         boolean hasBoundApplications;
+        Integer httpErrorCodeToReturnOnDelete;
     }
 
     @Override

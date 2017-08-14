@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.model;
 
+import java.util.List;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonAdapter;
@@ -25,17 +27,23 @@ public class ConfigurationEntry {
     @Expose
     private String content;
 
-    public ConfigurationEntry(long id, String providerNid, String providerId, Version providerVersion, String targetSpace, String content) {
+    @Expose
+    private List<CloudTarget> visibility;
+
+    public ConfigurationEntry(long id, String providerNid, String providerId, Version providerVersion, String targetSpace, String content,
+        List<CloudTarget> visibility) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
         this.providerVersion = providerVersion;
         this.targetSpace = targetSpace;
         this.content = content;
+        this.visibility = visibility;
     }
 
-    public ConfigurationEntry(String providerNid, String providerId, Version providerVersion, String targetSpace, String content) {
-        this(0, providerNid, providerId, providerVersion, targetSpace, content);
+    public ConfigurationEntry(String providerNid, String providerId, Version providerVersion, String targetSpace, String content,
+        List<CloudTarget> cloudTargets) {
+        this(0, providerNid, providerId, providerVersion, targetSpace, content, cloudTargets);
     }
 
     public long getId() {
@@ -60,6 +68,10 @@ public class ConfigurationEntry {
 
     public String getContent() {
         return content;
+    }
+
+    public List<CloudTarget> getVisibility() {
+        return visibility;
     }
 
 }

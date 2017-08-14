@@ -1,6 +1,9 @@
 {
-  "existingServiceBrokerNames": [
-    "foo-broker"
+  "existingServiceBrokers": [
+    {
+      "meta": {},
+      "name": "foo-broker"
+    }
   ],
   "applications": [
     {

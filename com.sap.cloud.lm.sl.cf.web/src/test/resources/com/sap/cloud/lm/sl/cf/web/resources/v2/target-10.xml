@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<deployTarget>
+    <name>CF-TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST</name>
+    <type>CF</type>
+    <parameters>
+      <entry>
+        <key>org</key>
+        <value>initial</value>
+      </entry>
+      <entry>
+        <key>space</key>
+        <value>initial</value>
+      </entry>
+    </parameters>
+    <moduleTypes/>
+    <resourceTypes/>
+</deployTarget>

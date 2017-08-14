@@ -5,7 +5,9 @@ import static com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter.CONTENT_FILT
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -20,8 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.dto.ConfigurationEntryDto;
-import com.sap.cloud.lm.sl.cf.core.dto.ConfigurationEntryDto.FieldNames;
+import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto;
+import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto.FieldNames;
+import com.sap.cloud.lm.sl.cf.core.filters.TargetWildcardFilter;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.NamedQueries;
@@ -31,6 +34,8 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component
 public class ConfigurationEntryDtoDao {
+
+    public static final BiFunction<String, String, Boolean> TARGET_WILDCARD_FILTER = new TargetWildcardFilter();
 
     @Autowired
     @Qualifier("configurationEntryEntityManagerFactory")
@@ -93,7 +98,7 @@ public class ConfigurationEntryDtoDao {
     }
 
     public List<ConfigurationEntryDto> find(String providerNid, String providerId, String targetSpace,
-        Map<String, String> requiredProperties, String mtaId) {
+        Map<String, Object> requiredProperties, String mtaId) {
         return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
 
             return findInternal(providerNid, providerId, targetSpace, requiredProperties, mtaId, manager);
@@ -102,11 +107,11 @@ public class ConfigurationEntryDtoDao {
     }
 
     private List<ConfigurationEntryDto> findInternal(String providerNid, String providerId, String targetSpace,
-        Map<String, String> requiredProperties, String mtaId, EntityManager manager) {
+        Map<String, Object> requiredProperties, String mtaId, EntityManager manager) {
 
         TypedQuery<ConfigurationEntryDto> query = createQuery(providerNid, providerId, targetSpace, mtaId, manager);
 
-        return filter(query.getResultList(), requiredProperties);
+        return filter(query.getResultList(), requiredProperties, targetSpace);
 
     }
 
@@ -140,7 +145,7 @@ public class ConfigurationEntryDtoDao {
         if (providerNid != null) {
             predicates.add(builder.equal(root.get(FieldNames.PROVIDER_NID), providerNid));
         }
-        if (targetSpace != null) {
+        if (targetSpace != null && !targetSpace.matches(TargetWildcardFilter.ANY_TARGET_REGEX)) {
             predicates.add(builder.equal(root.get(FieldNames.TARGET_SPACE), targetSpace));
         }
         if (providerId != null) {
@@ -160,9 +165,12 @@ public class ConfigurationEntryDtoDao {
         return emf.createEntityManager();
     }
 
-    private List<ConfigurationEntryDto> filter(List<ConfigurationEntryDto> entries, Map<String, String> requiredProperties) {
-        return entries.stream().filter((entry) -> CONTENT_FILTER.apply(entry.getContent(), requiredProperties)).collect(
-            Collectors.toList());
+    private List<ConfigurationEntryDto> filter(List<ConfigurationEntryDto> entries, Map<String, Object> requiredProperties,
+        String requestedSpace) {
+        Stream<ConfigurationEntryDto> stream = entries.stream();
+        stream = stream.filter((entry) -> CONTENT_FILTER.apply(entry.getContent(), requiredProperties));
+        stream = stream.filter((entry) -> TARGET_WILDCARD_FILTER.apply(entry.getTargetSpace(), requestedSpace));
+        return stream.collect(Collectors.toList());
     }
 
     private ConfigurationEntryDto merge(ConfigurationEntryDto existingEntry, ConfigurationEntryDto entry) {
@@ -171,8 +179,9 @@ public class ConfigurationEntryDtoDao {
         String providerId = CommonUtil.merge(existingEntry.getProviderId(), entry.getProviderId(), null);
         String targetSpace = CommonUtil.merge(existingEntry.getTargetSpace(), entry.getTargetSpace(), null);
         String providerVersion = CommonUtil.merge(existingEntry.getProviderVersion(), removeDefault(entry.getProviderVersion()), null);
-        String cntent = CommonUtil.merge(existingEntry.getContent(), entry.getContent(), null);
-        return new ConfigurationEntryDto(id, providerNid, providerId, providerVersion, targetSpace, cntent);
+        String content = CommonUtil.merge(existingEntry.getContent(), entry.getContent(), null);
+        String visibility = CommonUtil.merge(existingEntry.getVisibility(), entry.getVisibility(), null);
+        return new ConfigurationEntryDto(id, providerNid, providerId, providerVersion, targetSpace, content, visibility);
     }
 
     private String removeDefault(String value) {

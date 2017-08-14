@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +16,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ParsingException;
@@ -31,8 +29,6 @@ public class CheckAppStepTest extends AbstractStepTest<CheckAppStep> {
 
     private CloudApplication expectedResult;
     private CloudApplication application;
-
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -69,20 +65,20 @@ public class CheckAppStepTest extends AbstractStepTest<CheckAppStep> {
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         CloudApplication actualResult = StepsUtil.getExistingApp(context);
         assertEquals(JsonUtil.toJson(expectedResult, true), JsonUtil.toJson(actualResult, true));
     }
 
     private void loadParameters() {
-        application = stepInput.applications.get(stepInput.applicationIndex);
+        application = stepInput.applications.get(stepInput.applications.size() - 1);
         expectedResult = stepInput.isExistingApplication && !stepInput.throwException ? application : null;
     }
 
     private void prepareContext() {
         StepsUtil.setAppsToDeploy(context, stepInput.applications);
+        StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
         context.setVariable(Constants.VAR_APPS_INDEX, stepInput.applicationIndex);
     }
 
@@ -92,7 +88,6 @@ public class CheckAppStepTest extends AbstractStepTest<CheckAppStep> {
         } else {
             Mockito.when(client.getApplication(application.getName())).thenThrow(new CloudFoundryException(HttpStatus.NOT_FOUND));
         }
-        step.clientSupplier = (context) -> client;
     }
 
     private static class StepInput {

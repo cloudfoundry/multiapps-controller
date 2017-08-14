@@ -74,6 +74,10 @@ public class DeployedComponentsDetectorTest {
             {
                 "apps-09.json", "R:deployed-components-09.json",
             },
+            // (9) Applications with deploy attributes:
+            {
+                "apps-10.json", "R:deployed-components-10.json",
+            },
 // @formatter:on
         });
     }

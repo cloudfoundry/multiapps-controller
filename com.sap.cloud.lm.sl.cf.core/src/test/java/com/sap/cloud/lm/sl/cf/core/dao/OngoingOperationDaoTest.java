@@ -132,7 +132,7 @@ public class OngoingOperationDaoTest {
 
                 assertEquals(currentOngoingOperationsCnt + 1, dao.findAll().size());
 
-                OngoingOperation oo2 = dao.find(processId);
+                OngoingOperation oo2 = dao.findRequired(processId);
 
                 assertEquals(oo1.getProcessId(), oo2.getProcessId());
             }
@@ -162,7 +162,7 @@ public class OngoingOperationDaoTest {
             @Override
             public void run() throws Exception {
                 OngoingOperation oo1 = new OngoingOperation(processId, null, null, null, null, null, false, null);
-                OngoingOperation oo2 = dao.find(processId);
+                OngoingOperation oo2 = dao.findRequired(processId);
 
                 assertEquals(oo1.getProcessId(), oo2.getProcessId());
             }

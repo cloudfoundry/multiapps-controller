@@ -1,0 +1,19 @@
+{
+  "services": [
+    {
+      "name": "test-service",
+      "plan": "test",
+      "provider": "test",
+      "version": "test"
+    }
+  ],
+  "serviceInstanceResponse": {
+    "test-service": {
+      "last_operation": {
+        "type": "create",
+        "state": "failed"
+      }
+    }
+  },
+  "expectedStatus": "RUNNING"
+}

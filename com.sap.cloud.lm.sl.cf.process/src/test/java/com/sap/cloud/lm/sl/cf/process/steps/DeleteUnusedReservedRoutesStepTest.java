@@ -13,18 +13,14 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Mock;
 
 import com.google.gson.reflect.TypeToken;
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorMock;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -36,12 +32,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 @RunWith(Parameterized.class)
 public class DeleteUnusedReservedRoutesStepTest extends AbstractStepTest<DeleteUnusedReservedRoutesStep> {
 
-    private static final String SPACE = "initial";
-    private static final String ORG = "initial";
-
     private static final String DEFAULT_DOMAIN = "localhost";
-
-    private static final String USER = "XSMASTER";
 
     private static class StepInput {
 
@@ -93,10 +84,6 @@ public class DeleteUnusedReservedRoutesStepTest extends AbstractStepTest<DeleteU
     private StepInput input;
 
     private PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE, PortValidator.MAX_PORT_VALUE);
-    @Mock
-    private CloudFoundryClientProvider clientProvider;
-    @Mock
-    private CloudFoundryOperations client;
 
     public DeleteUnusedReservedRoutesStepTest(StepInput input, StepOutput output) {
         this.output = output;
@@ -111,7 +98,6 @@ public class DeleteUnusedReservedRoutesStepTest extends AbstractStepTest<DeleteU
     }
 
     private void prepareClient() throws Exception {
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
         when(clientProvider.getPortAllocator(any(), anyString())).thenReturn(portAllocator);
     }
 
@@ -123,15 +109,11 @@ public class DeleteUnusedReservedRoutesStepTest extends AbstractStepTest<DeleteU
     }
 
     private void prepareContext() throws Exception {
-        context.setVariable(Constants.VAR_SPACE, SPACE);
-        context.setVariable(Constants.VAR_ORG, ORG);
         StepsUtil.setXsPlaceholderReplacementValues(context, getReplacementValues());
 
         context.setVariable(Constants.VAR_PORT_BASED_ROUTING, input.portBasedRouting);
         StepsUtil.setAllocatedPorts(context, input.allocatedPorts);
         StepsUtil.setAppsToDeploy(context, appsToDeploy);
-
-        context.setVariable(Constants.VAR_USER, USER);
     }
 
     private Map<String, Object> getReplacementValues() {
@@ -144,8 +126,7 @@ public class DeleteUnusedReservedRoutesStepTest extends AbstractStepTest<DeleteU
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         assertEquals(output.allocatedPorts, StepsUtil.getAllocatedPorts(context));
     }

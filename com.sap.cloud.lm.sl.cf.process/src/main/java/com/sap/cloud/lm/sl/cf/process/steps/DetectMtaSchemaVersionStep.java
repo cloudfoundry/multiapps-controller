@@ -25,7 +25,8 @@ public class DetectMtaSchemaVersionStep extends AbstractXS2ProcessStep {
     private static final Logger LOGGER = LoggerFactory.getLogger(DetectMtaSchemaVersionStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("detectSchemaVersionTask", "Detect Schema Version", "Detect Schema Version");
+        return StepMetadata.builder().id("detectSchemaVersionTask").displayName("Detect Schema Version").description(
+            "Detect Schema Version").build();
     }
 
     protected Supplier<MtaSchemaVersionDetector> detectorSupplier = () -> new MtaSchemaVersionDetector();

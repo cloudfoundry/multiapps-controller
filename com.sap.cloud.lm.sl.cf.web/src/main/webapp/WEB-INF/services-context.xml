@@ -5,9 +5,20 @@
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
 
-    <bean id="fileService" class="com.sap.cloud.lm.sl.persistence.services.FileService" factory-method="getInstance">
+    <bean id="fileDatabaseService" class="com.sap.cloud.lm.sl.persistence.services.DatabaseFileService" factory-method="getInstance">
         <property name="dataSource" ref="dataSource" />
         <property name="databaseDialect" ref="databaseDialect" />
+    </bean>
+    
+    <bean id="fileSystemFileService" class="com.sap.cloud.lm.sl.persistence.services.FileSystemFileService" factory-method="getInstance">
+        <property name="dataSource" ref="dataSource" />
+        <property name="databaseDialect" ref="databaseDialect" />
+    </bean>
+    
+    <bean id="fileService" class="com.sap.cloud.lm.sl.cf.web.ds.FileServiceFactoryBean" >
+        <property name="serviceName" value="deploy-service-fss"/>
+        <property name="fileDatabaseService" ref="fileDatabaseService" />
+        <property name="fileSystemFileService" ref="fileSystemFileService"></property>
     </bean>
 
     <bean id="processLogsPersistenceService" class="com.sap.cloud.lm.sl.slp.services.ProcessLogsPersistenceService"

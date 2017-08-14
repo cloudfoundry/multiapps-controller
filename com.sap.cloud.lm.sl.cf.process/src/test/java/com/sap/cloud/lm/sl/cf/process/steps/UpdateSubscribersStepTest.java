@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.printingAssertEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -16,12 +15,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.activiti.engine.history.HistoricVariableInstance;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,13 +31,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -91,6 +91,18 @@ public class UpdateSubscribersStepTest extends AbstractStepTest<UpdateSubscriber
             {
                 "update-subscribers-step-input-06.json", "update-subscribers-step-output-06.json", 2, null,
             },
+            // (8) There are multiple subscribers that should be updated:
+            {
+                "update-subscribers-step-input-07.json", "update-subscribers-step-output-07.json", 2, null,
+            },
+            // (9) One application has two subscriptions:
+            {
+                "update-subscribers-step-input-08.json", "update-subscribers-step-output-08.json", 2, null,
+            },
+            // (10) There's no need to update a subscriber:
+            {
+                "update-subscribers-step-input-09.json", "update-subscribers-step-output-09.json", 2, null,
+            },
 // @formatter:on
         });
     }
@@ -102,15 +114,13 @@ public class UpdateSubscribersStepTest extends AbstractStepTest<UpdateSubscriber
 
     @Mock
     private CloudFoundryOperations clientForCurrentSpace;
-    @Mock
-    private CloudFoundryClientProvider clientProvider;
 
     private String expectedExceptionMessage;
 
     private int majorSchemaVersion;
     private String expectedOutputLocation;
     private StepOutput expectedOutput;
-    private Map<CloudLocation, CloudFoundryOperations> clients;
+    private Map<CloudSpace, CloudFoundryOperations> clients;
     private String inputLocation;
     private StepInput input;
 
@@ -143,60 +153,29 @@ public class UpdateSubscribersStepTest extends AbstractStepTest<UpdateSubscriber
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_SPACE, input.currentLocation.space);
-        context.setVariable(Constants.VAR_ORG, input.currentLocation.org);
+        context.setVariable(Constants.VAR_SPACE, input.currentSpace.getName());
+        context.setVariable(Constants.VAR_ORG, input.currentSpace.getOrganization().getName());
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, majorSchemaVersion);
+        context.setVariable(Constants.PARAM_ALLOW_INVALID_ENV_NAMES, false);
+        context.setVariable(Constants.PARAM_USE_NAMESPACES, false);
+        context.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
+        context.setVariable(Constants.VAR_PORT_BASED_ROUTING, false);
 
         StepsUtil.setPublishedEntries(context, getPublishedEntries());
         StepsUtil.setDeletedEntries(context, getDeletedEntries());
 
         context.setVariable(Constants.VAR_USER, USER);
+        step.orgAndSpaceCalculator = (client, spaceId) -> new Pair<>(spaceId, spaceId);
+        Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any())).thenReturn(Arrays.asList("test-subprocess-id"));
+        HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
+        Mockito.when(activitiFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES)).thenReturn(
+            varInstanceMock);
+        Mockito.when(varInstanceMock.getValue()).thenReturn(getBytes(getPublishedEntries()));
     }
 
-    private void prepareClients() throws Exception {
-        prepareClient(input.currentLocation, clientForCurrentSpace);
-        clients = createClients();
-        for (CloudLocation location : clients.keySet()) {
-            prepareClient(location, clients.get(location));
-        }
-    }
-
-    private void prepareClient(CloudLocation location, CloudFoundryOperations clientMock) throws Exception {
-        when(clientProvider.getCloudFoundryClient(eq(USER), eq(location.org), eq(location.space), anyString())).thenReturn((clientMock));
-    }
-
-    private Map<CloudLocation, CloudFoundryOperations> createClients() {
-        Map<CloudLocation, CloudFoundryOperations> result = new HashMap<>();
-        for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
-            result.put(subscriber.location, createClient(subscriber));
-        }
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    private CloudFoundryOperations createClient(SubscriberToUpdate subscriber) {
-        CloudFoundryOperations client = mock(CloudFoundryOperations.class);
-        if (userHasPermissions(subscriber.location, UserPermission.READ)) {
-            when(client.getApplication(subscriber.subscription.getAppName())).thenReturn(subscriber.app);
-        } else {
-            when(client.getApplication(subscriber.subscription.getAppName())).thenThrow(new CloudFoundryException(HttpStatus.FORBIDDEN));
-        }
-        if (!userHasPermissions(subscriber.location, UserPermission.WRITE)) {
-            doThrow(new CloudFoundryException(HttpStatus.FORBIDDEN)).when(client).updateApplicationEnv(
-                eq(subscriber.subscription.getAppName()), any(Map.class));
-        }
-        return client;
-    }
-
-    private void prepareDaos() {
-        when(subscriptionsDao.findAll(any())).thenReturn(getSubscriptions());
-
-        for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
-            ConfigurationFilter filter = subscriber.subscription.getFilter();
-            when(entriesDao.find(filter.getProviderNid(), filter.getProviderId(), filter.getProviderVersion(), filter.getTargetSpace(),
-                filter.getRequiredContent(), null)).thenReturn(getAllEntries(subscriber));
-        }
+    private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {
+        return GsonHelper.getAsBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
     }
 
     private List<ConfigurationEntry> getDeletedEntries() {
@@ -209,13 +188,76 @@ public class UpdateSubscribersStepTest extends AbstractStepTest<UpdateSubscriber
             Collectors.toList());
     }
 
+    private void prepareClients() throws Exception {
+        prepareClientProvider(input.currentSpace, clientForCurrentSpace);
+        clients = createClientsForSpacesOfSubscribedApps();
+        for (CloudSpace space : clients.keySet()) {
+            prepareClientProvider(space, clients.get(space));
+        }
+    }
+
+    private void prepareClientProvider(CloudSpace space, CloudFoundryOperations clientMock) throws Exception {
+        String orgName = space.getOrganization().getName();
+        String spaceName = space.getName();
+        when(clientProvider.getCloudFoundryClient(eq(USER), eq(orgName), eq(spaceName), anyString())).thenReturn(clientMock);
+    }
+
+    private Map<CloudSpace, CloudFoundryOperations> createClientsForSpacesOfSubscribedApps() {
+        Map<CloudSpace, CloudFoundryOperations> result = new HashMap<>();
+        for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
+            CloudFoundryOperations client = getOrCreateClientForSpace(result, subscriber.app.getSpace());
+            mockClientInvocations(subscriber, client);
+        }
+        return result;
+    }
+
+    private CloudFoundryOperations getOrCreateClientForSpace(Map<CloudSpace, CloudFoundryOperations> clients, CloudSpace space) {
+        for (CloudSpace existingSpace : clients.keySet()) {
+            if (isSameSpace(space, existingSpace)) {
+                return clients.get(existingSpace);
+            }
+        }
+        client = mock(CloudFoundryOperations.class);
+        clients.put(space, client);
+        return client;
+    }
+
+    private boolean isSameSpace(CloudSpace space1, CloudSpace space2) {
+        return space1.getName().equals(space2.getName()) && space1.getOrganization().getName().equals(space2.getOrganization().getName());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void mockClientInvocations(SubscriberToUpdate subscriber, CloudFoundryOperations client) {
+        if (userHasPermissions(subscriber.app.getSpace(), UserPermission.READ)) {
+            when(client.getApplication(subscriber.subscription.getAppName())).thenReturn(subscriber.app);
+        } else {
+            when(client.getApplication(subscriber.subscription.getAppName())).thenThrow(new CloudFoundryException(HttpStatus.FORBIDDEN));
+        }
+        if (!userHasPermissions(subscriber.app.getSpace(), UserPermission.WRITE)) {
+            doThrow(new CloudFoundryException(HttpStatus.FORBIDDEN)).when(client).updateApplicationEnv(
+                eq(subscriber.subscription.getAppName()), any(Map.class));
+        }
+    }
+
+    private void prepareDaos() {
+        when(subscriptionsDao.findAll(any())).thenReturn(getSubscriptions());
+
+        for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
+            ConfigurationFilter filter = subscriber.subscription.getFilter();
+            List<CloudTarget> targets = Arrays.asList(
+                new CloudTarget(input.currentSpace.getOrganization().getName(), input.currentSpace.getName()));
+            when(entriesDao.find(filter.getProviderNid(), filter.getProviderId(), filter.getProviderVersion(), filter.getTargetSpace(),
+                filter.getRequiredContent(), null, targets)).thenReturn(getAllEntries(subscriber));
+        }
+    }
+
     private List<ConfigurationSubscription> getSubscriptions() {
         return input.subscribersToUpdate.stream().map((subscriber) -> subscriber.subscription).collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getAllEntries(SubscriberToUpdate subscriber) {
         List<ConfigurationEntry> allEntries = new ArrayList<>();
-        allEntries.addAll(subscriber.relevantExistinggEntries);
+        allEntries.addAll(subscriber.relevantExistingEntries);
         allEntries.addAll(subscriber.relevantPublishedEntries);
         return allEntries;
     }
@@ -224,97 +266,69 @@ public class UpdateSubscribersStepTest extends AbstractStepTest<UpdateSubscriber
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         StepOutput actualOutput = captureStepOutput();
-        printingAssertEquals(JsonUtil.toJson(expectedOutput, true, false, true, false),
-            JsonUtil.toJson(actualOutput, true, false, true, false));
+        assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
+    }
+
+    private StepOutput captureStepOutput() {
+        StepOutput result = new StepOutput();
+        result.callArgumentsOfUpdateApplicationEnvMethod = new ArrayList<>();
+
+        for (CloudSpace space : clients.keySet()) {
+            if (userHasPermissions(space, UserPermission.READ, UserPermission.WRITE)) {
+                List<CloudApplication> callArgumentsOfUpdateApplicationEnvMethod = getCallArgumentsOfUpdateApplicationEnvMethod(space,
+                    clients.get(space));
+                result.callArgumentsOfUpdateApplicationEnvMethod.addAll(callArgumentsOfUpdateApplicationEnvMethod);
+            }
+        }
+        result.updatedSubscribers = StepsUtil.getUpdatedSubscribers(context);
+        return result;
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private StepOutput captureStepOutput() {
-        StepOutput result = new StepOutput();
-        result.expectedUpdatedApps = new HashMap<>();
-
+    private List<CloudApplication> getCallArgumentsOfUpdateApplicationEnvMethod(CloudSpace space, CloudFoundryOperations client) {
         ArgumentCaptor<Map> appEnvCaptor = ArgumentCaptor.forClass(Map.class);
         ArgumentCaptor<String> appNameCaptor = ArgumentCaptor.forClass(String.class);
+        verify(client, Mockito.atLeast(0)).updateApplicationEnv(appNameCaptor.capture(), appEnvCaptor.capture());
 
-        for (CloudLocation location : clients.keySet()) {
-            if (userHasPermissions(location, UserPermission.READ, UserPermission.WRITE)) {
-                CloudFoundryOperations client = clients.get(location);
-                verify(client).updateApplicationEnv(appNameCaptor.capture(), appEnvCaptor.capture());
-                Map<Object, Object> appEnv = (Map<Object, Object>) appEnvCaptor.getValue();
-                String appName = appNameCaptor.getValue();
-                result.expectedUpdatedApps.put(location.space, createApp(appName, appEnv));
-                verify(client).stopApplication(appName);
-                if (client instanceof ClientExtensions) {
-                    verify((ClientExtensions) client).startApplication(appName, false);
-                } else {
-                    verify(client).startApplication(appName);
-                }
-            }
+        List<Map> appEnvs = appEnvCaptor.getAllValues();
+        List<String> appNames = appNameCaptor.getAllValues();
+        List<CloudApplication> result = new ArrayList<>();
+        for (int i = 0; i < appNames.size(); i++) {
+            result.add(createApp(appNames.get(i), space, appEnvs.get(i)));
         }
         return result;
     }
 
-    private boolean userHasPermissions(CloudLocation location, UserPermission... permissions) {
-        UserRole userRole = getUserRole(location);
+    private boolean userHasPermissions(CloudSpace space, UserPermission... permissions) {
+        UserRole userRole = getUserRole(space);
         if (userRole == null) {
-            throw new IllegalStateException(MessageFormat.format(NO_USER_ROLES_DEFINED_FOR_ORG_AND_SPACE, location.org, location.space));
+            throw new IllegalStateException(
+                MessageFormat.format(NO_USER_ROLES_DEFINED_FOR_ORG_AND_SPACE, space.getOrganization().getName(), space.getName()));
         }
         return userRole.permissions.containsAll(Arrays.asList(permissions));
     }
 
-    private UserRole getUserRole(CloudLocation location) {
-        return input.userRoles.stream().filter((role) -> role.location.equals(location)).findFirst().orElse(null);
+    private UserRole getUserRole(CloudSpace space) {
+        return input.userRoles.stream().filter((role) -> isSameSpace(role.space, space)).findFirst().orElse(null);
     }
 
-    private CloudApplication createApp(String name, Map<Object, Object> env) {
+    private CloudApplication createApp(String name, CloudSpace space, Map<Object, Object> env) {
         CloudApplication app = new CloudApplication(null, name);
+        app.setSpace(space);
         app.setEnv(env);
         return app;
     }
 
     private static class SubscriberToUpdate {
 
-        public CloudLocation location;
         public List<ConfigurationEntry> relevantPublishedEntries;
         public ConfigurationSubscription subscription;
-        public List<ConfigurationEntry> relevantExistinggEntries;
+        public List<ConfigurationEntry> relevantExistingEntries;
         public CloudApplication app;
         public List<ConfigurationEntry> relevantDeletedEntries;
-
-    }
-
-    private static class CloudLocation {
-
-        public String org;
-        public String space;
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((org == null) ? 0 : org.hashCode());
-            result = prime * result + ((space == null) ? 0 : space.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            if (this == other) {
-                return true;
-            }
-            if (other == null) {
-                return false;
-            }
-            if (getClass() != other.getClass()) {
-                return false;
-            }
-            CloudLocation otherLocation = (CloudLocation) other;
-            return Objects.equals(org, otherLocation.org) && Objects.equals(space, otherLocation.space);
-        }
 
     }
 
@@ -326,14 +340,14 @@ public class UpdateSubscribersStepTest extends AbstractStepTest<UpdateSubscriber
 
     private static class UserRole {
 
-        public CloudLocation location;
+        public CloudSpace space;
         public List<UserPermission> permissions;
 
     }
 
     private static class StepInput {
 
-        public CloudLocation currentLocation;
+        public CloudSpace currentSpace;
         public List<SubscriberToUpdate> subscribersToUpdate;
         public List<UserRole> userRoles;
 
@@ -341,19 +355,16 @@ public class UpdateSubscribersStepTest extends AbstractStepTest<UpdateSubscriber
 
     private static class StepOutput {
 
-        public Map<String, CloudApplication> expectedUpdatedApps;
+        public List<CloudApplication> callArgumentsOfUpdateApplicationEnvMethod;
+        @SuppressWarnings("unused")
+        public List<CloudApplication> updatedSubscribers;
 
     }
 
     private static class UpdateSubscribersStepMock extends UpdateSubscribersStep {
 
         @Override
-        protected Pair<String, String> computeOrgAndSpace(String spaceId, CloudFoundryOperations client) {
-            return new Pair<>(spaceId, spaceId);
-        }
-
-        @Override
-        protected boolean shouldUsePretttyPrinting() {
+        protected boolean shouldUsePrettyPrinting() {
             return false;
         }
 

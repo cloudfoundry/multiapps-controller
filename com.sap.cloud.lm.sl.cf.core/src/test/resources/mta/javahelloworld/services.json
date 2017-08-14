@@ -3,6 +3,7 @@
     "resourceName": "java-hdi-container",
     "credentials": {},
     "tags": [],
+    "isOptional": false,
     "label": "hana",
     "plan": "hdi-shared",
     "meta": {},
@@ -19,6 +20,7 @@
       "url": "http://sap-login.cfapps.neo.ondemand.com"
     },
     "tags": [],
+    "isOptional": false,
     "meta": {},
     "name": "uaa"
   }

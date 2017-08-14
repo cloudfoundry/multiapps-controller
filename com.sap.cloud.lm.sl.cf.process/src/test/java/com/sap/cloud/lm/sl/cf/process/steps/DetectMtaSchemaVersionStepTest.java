@@ -18,7 +18,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.MtaSchemaVersionDetector;
@@ -46,7 +45,7 @@ public class DetectMtaSchemaVersionStepTest extends AbstractStepTest<DetectMtaSc
             },
             // Supported version:
             {
-                "2", 2, 1, null,
+                "2", 2, 2, null,
             },
             // Supported version:
             {
@@ -98,8 +97,7 @@ public class DetectMtaSchemaVersionStepTest extends AbstractStepTest<DetectMtaSc
 
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         assertEquals(expectedMajor, context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION));
         assertEquals(expectedMinor, context.getVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION));

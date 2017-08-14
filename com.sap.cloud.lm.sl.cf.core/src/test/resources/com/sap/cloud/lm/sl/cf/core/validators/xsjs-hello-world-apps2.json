@@ -4,10 +4,11 @@
     "extendedStaging": {
       "buildpackUrl": "git://github.wdf.sap.corp/xs2/hdi-deploy-buildpack.git"
     },
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"check-deploy-id\": true,\n  \"dependency-type\": \"soft\",\n  \"execute-app\": true,\n  \"failure-marker\": \"STDERR:Deployment failed\",\n  \"stop-app\": true,\n  \"success-marker\": \"STDOUT:Deployment done\"\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"check-deploy-id\": true,\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [],\n  \"execute-app\": true,\n  \"failure-marker\": \"STDERR:Deployment failed\",\n  \"stop-app\": true,\n  \"success-marker\": \"STDOUT:Deployment done\"\n}",
       "DEPLOY_ID\u003ddeploy-1",
       "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-db\"\n}",
@@ -27,10 +28,11 @@
   {
     "moduleName": "xsjs-hello-world-backend",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"i027947-xsjs-hello-world-backend.cfapps.neo.ondemand.com\"\n  ]\n}",
       "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-backend\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs\",\n  \"xsjs-hello-world-backend\"\n]",
@@ -52,10 +54,11 @@
   {
     "moduleName": "xsjs-hello-world",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"i027947-xsjs-hello-world.cfapps.neo.ondemand.com\"\n  ]\n}",
       "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world\"\n]",

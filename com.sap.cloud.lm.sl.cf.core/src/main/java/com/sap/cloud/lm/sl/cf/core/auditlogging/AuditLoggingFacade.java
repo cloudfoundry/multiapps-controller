@@ -12,14 +12,14 @@ public interface AuditLoggingFacade {
 
     void logActionStarted(String action, boolean success);
 
-    void logFullConfig(String value);
+    void logConfig(String name, Object value);
 
-    void logConfigUpdate(String name, Object value);
+    void logConfigCreate(String name);
+
+    void logConfigUpdate(String name);
 
     void logConfigDelete(String name);
 
     void logConfigUpdated(boolean success);
-
-    void logConfigCreate(String name, String xml);
 
 }

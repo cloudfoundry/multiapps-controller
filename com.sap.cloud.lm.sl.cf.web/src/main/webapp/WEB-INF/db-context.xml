@@ -88,8 +88,8 @@
             <property name="persistenceUnitName" value="OngoingOperationManagement" />
         </bean>
 
-        <bean id="targetPlatformEntityManagerFactory" parent="baseEntityManagerFactory">
-            <property name="persistenceUnitName" value="TargetPlatformManagement" />
+        <bean id="deployTargetEntityManagerFactory" parent="baseEntityManagerFactory">
+            <property name="persistenceUnitName" value="DeployTargetManagement" />
         </bean>
 
         <bean id="contextExtensionEntityManagerFactory" parent="baseEntityManagerFactory">

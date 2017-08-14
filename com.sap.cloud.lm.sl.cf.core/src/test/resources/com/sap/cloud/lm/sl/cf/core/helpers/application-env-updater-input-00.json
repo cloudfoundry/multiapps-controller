@@ -1,0 +1,14 @@
+{
+	"app": {
+		"name": "testApp",
+		"env": {
+			"test-key": "test-value",
+			"test-complex-key": {
+				"test-inner-key-1": "test-inner-value-2"
+			}
+		}
+	},
+	"envPropertyKey": "test-complex-key",
+	"newKey": "test-new-key",
+	"newValue": "test-new-value"
+}

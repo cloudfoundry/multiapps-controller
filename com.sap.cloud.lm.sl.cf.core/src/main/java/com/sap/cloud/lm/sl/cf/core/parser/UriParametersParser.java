@@ -23,8 +23,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     private String portParameterName;
     private String routePath;
 
-    public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort,
-        String routePath) {
+    public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort, String routePath) {
         this(portBasedRouting, defaultHost, defaultDomain, defaultPort, SupportedParameters.HOST, SupportedParameters.DOMAIN,
             SupportedParameters.PORT, routePath);
     }
@@ -51,7 +50,8 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     private List<Integer> getApplicationPorts(List<Map<String, Object>> parametersList) {
-        List<Integer> ports = getAll(parametersList, portParameterName, SupportedParameters.SINGULAR_PLURAL_MAPPING.get(portParameterName));
+        String portsParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(portParameterName);
+        List<Integer> ports = getAll(parametersList, portParameterName, portsParameterName);
         if (ports.isEmpty() && defaultPort != null && defaultPort != 0) {
             ports.add(defaultPort);
         }
@@ -65,8 +65,8 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     private List<String> getApplicationDomains(List<Map<String, Object>> parametersList) {
-        List<String> domains = getAll(parametersList, domainParameterName,
-            SupportedParameters.SINGULAR_PLURAL_MAPPING.get(domainParameterName));
+        String domainsParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(domainParameterName);
+        List<String> domains = getAll(parametersList, domainParameterName, domainsParameterName);
         if (domains.isEmpty() && defaultDomain != null) {
             domains.add(defaultDomain);
         }
@@ -78,7 +78,8 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         if (noHostname) {
             return Collections.emptyList();
         }
-        List<String> hostss = getAll(parametersList, hostParameterName, SupportedParameters.SINGULAR_PLURAL_MAPPING.get(hostParameterName));
+        String hostsParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(hostParameterName);
+        List<String> hostss = getAll(parametersList, hostParameterName, hostsParameterName);
         if (hostss.isEmpty() && defaultHost != null && !noHostname) {
             hostss.add(defaultHost);
         }
@@ -92,19 +93,21 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     private List<String> getUris(List<String> hosts, List<String> domains, List<Integer> ports) {
-        Set<String> uris = new LinkedHashSet<>();
-        if (!domains.isEmpty()) {
-            for (String domain : domains) {
-                if (shouldUsePortBasedUris(ports, hosts)) {
-                    addPortBasedUris(uris, domain, ports);
-                } else if (!hosts.isEmpty()) {
-                    addHostBasedUris(uris, domain, hosts);
-                } else {
-                    uris.add(appendRoutePathIfPresent(domain));
-                }
-            }
-        } else if (!hosts.isEmpty()) {
+        if (domains.isEmpty() && hosts.isEmpty()) {
+            return new ArrayList<>();
+        }
+        if (domains.isEmpty() && !hosts.isEmpty()) {
             return getUris(Collections.emptyList(), hosts, ports); // Use hosts as domains;
+        }
+        Set<String> uris = new LinkedHashSet<>();
+        for (String domain : domains) {
+            if (shouldUsePortBasedUris(ports, hosts)) {
+                addPortBasedUris(uris, domain, ports);
+            } else if (!hosts.isEmpty()) {
+                addHostBasedUris(uris, domain, hosts);
+            } else {
+                uris.add(appendRoutePathIfPresent(domain));
+            }
         }
         return new ArrayList<>(uris);
     }

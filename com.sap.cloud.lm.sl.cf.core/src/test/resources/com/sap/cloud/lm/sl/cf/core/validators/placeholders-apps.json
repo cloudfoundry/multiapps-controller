@@ -2,7 +2,8 @@
   {
     "moduleName": "m2",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 1024,
     "env": [
       "APP_NAME\u003dm2",
@@ -11,7 +12,7 @@
       "DEFAULT_DOMAIN\u003d{xsa-placeholder-domain-default}",
       "DEFAULT_HOST\u003dinitial-initial-m2",
       "DEFAULT_URI\u003d{xsa-placeholder-domain-default}:55001",
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:55001\"\n  ]\n}",
       "DISK_QUOTA\u003d1G",
       "DOMAIN\u003d{xsa-placeholder-domain-default}",
       "HOST\u003dbootstrap-m2",
@@ -44,7 +45,8 @@
   {
     "moduleName": "m1",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
       "APP_NAME\u003dm1",
@@ -54,7 +56,7 @@
       "DEFAULT_HOST\u003dinitial-initial-m1",
       "DEFAULT_URI\u003d{xsa-placeholder-domain-default}:55000",
       "DEFAULT_URL\u003d{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:55000",
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:55000\"\n  ]\n}",
       "DISK_QUOTA\u003d-1",
       "DOMAIN\u003d{xsa-placeholder-domain-default}",
       "HOST\u003dbootstrap-m1",

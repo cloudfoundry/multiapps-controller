@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v1_0;
 
 import static com.sap.cloud.lm.sl.common.util.TestUtil.getResourceAsString;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,8 +24,8 @@ import com.sap.cloud.lm.sl.mta.builders.v1_0.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 @RunWith(Parameterized.class)
 public class ConfigurationReferencesResolverTest {
@@ -38,8 +39,8 @@ public class ConfigurationReferencesResolverTest {
 
     }
 
-    private static TargetPlatformType platformType;
-    private static TargetPlatform platform;
+    private static Platform platform;
+    private static Target target;
 
     private String descriptorLocation;
     private String expectedDescriptor;
@@ -76,7 +77,7 @@ public class ConfigurationReferencesResolverTest {
             // (3) No configuration entries matching the filter:
             {
                 "mtad-06.yaml", "configuration-entries-03.json", "E:No configuration entries were found matching the filter specified in resource \"resource-2\"",
-            },
+            }
 // @formatter:on
         });
     }
@@ -84,9 +85,9 @@ public class ConfigurationReferencesResolverTest {
     @BeforeClass
     public static void initializePlatformAndPlatformType() throws Exception {
         ConfigurationParser parser = new ConfigurationParser();
-        platform = parser.parsePlatformsJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/platforms.json")).get(2);
-        platformType = parser.parsePlatformTypesJson(
-            ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/platform-types.json")).get(0);
+        target = parser.parseTargetsJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/targets.json")).get(2);
+        platform = parser.parsePlatformsJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/platform-types.json")).get(
+            0);
     }
 
     @Before
@@ -95,8 +96,8 @@ public class ConfigurationReferencesResolverTest {
 
         for (DaoMockConfiguration configuration : daoConfigurations) {
             ConfigurationFilter filter = configuration.filter;
-            Mockito.when(dao.find(filter.getProviderNid(), filter.getProviderId(), filter.getProviderVersion(), filter.getTargetSpace(),
-                filter.getRequiredContent(), null)).thenReturn(configuration.configurationEntries);
+            when(dao.find(filter.getProviderNid(), filter.getProviderId(), filter.getProviderVersion(), filter.getTargetSpace(),
+                filter.getRequiredContent(), null, null)).thenReturn(configuration.configurationEntries);
         }
     }
 
@@ -109,12 +110,12 @@ public class ConfigurationReferencesResolverTest {
             referencesResolver.resolve(descriptor);
             return descriptor;
 
-        } , expectedDescriptor, getClass());
+        }, expectedDescriptor, getClass());
     }
 
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor descriptor) {
         return new ConfigurationReferencesResolver(dao,
-            new ConfigurationFilterParser(platformType, platform, getPropertiesChainBuilder(descriptor)), (org, space) -> SPACE_ID);
+            new ConfigurationFilterParser(platform, target, getPropertiesChainBuilder(descriptor)), (org, space) -> SPACE_ID, null);
     }
 
     protected DescriptorParser getDescriptorParser() {
@@ -122,7 +123,7 @@ public class ConfigurationReferencesResolverTest {
     }
 
     protected PropertiesChainBuilder getPropertiesChainBuilder(DeploymentDescriptor descriptor) {
-        return new PropertiesChainBuilder(descriptor, platform, platformType);
+        return new PropertiesChainBuilder(descriptor, target, platform);
     }
 
 }

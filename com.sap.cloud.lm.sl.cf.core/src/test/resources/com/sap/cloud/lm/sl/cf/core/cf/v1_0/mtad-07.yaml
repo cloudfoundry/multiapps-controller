@@ -1,0 +1,10 @@
+ID: test
+version: 0.1.0
+
+modules:
+  - name: module
+    type: module
+    provides:
+      - name: foo
+      - name: bar
+      - name: baz

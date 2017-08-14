@@ -18,8 +18,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.TargetPlatformFactory;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.DeployTargetFactory;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.util.Callable;
@@ -29,14 +30,14 @@ import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.mergers.v1_0.TargetPlatformMerger;
-import com.sap.cloud.lm.sl.mta.mergers.v1_0.TargetPlatformTypeMerger;
+import com.sap.cloud.lm.sl.mta.mergers.v1_0.PlatformMerger;
+import com.sap.cloud.lm.sl.mta.mergers.v1_0.TargetMerger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 @RunWith(value = Parameterized.class)
 public class CloudModelBuilderTest {
@@ -48,8 +49,8 @@ public class CloudModelBuilderTest {
 
     protected final String deploymentDescriptorLocation;
     protected final String extensionDescriptorLocation;
-    protected final String platformTypesLocation;
     protected final String platformsLocation;
+    protected final String targetsLocation;
     protected final boolean useNamespaces;
     protected final boolean useNamespacesForServices;
     protected final boolean allowInvalidEnvNames;
@@ -58,14 +59,16 @@ public class CloudModelBuilderTest {
     protected final Set<String> deployedApps;
     protected final String[] expected;
 
-    private CloudModelBuilder builder;
+    private ApplicationsCloudModelBuilder appsBuilder;
+    private ServicesCloudModelBuilder servicesBuilder;
+    private DomainsCloudModelBuilder domainsBuilder;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             // (00) Full MTA:
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -75,7 +78,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/javahelloworld/services.json",
                     "R:/mta/javahelloworld/apps.json", } },
             // (01)
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -85,7 +88,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/javahelloworld/xs2-services.json",
                     "R:/mta/javahelloworld/xs2-apps.json", } },
             // (02) Full MTA with namespaces:
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 true, true, true,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -95,7 +98,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/javahelloworld/services-ns.json",
                     "R:/mta/javahelloworld/apps-ns.json", } },
             // (03) Full MTA with namespaces (w/o services):
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 true, false, true,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -105,7 +108,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/javahelloworld/services.json",
                     "R:/mta/javahelloworld/apps-ns2.json", } },
             // (04) Patch MTA (resolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -115,7 +118,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/javahelloworld/services-patch1.json",
                     "R:/mta/javahelloworld/apps-patch2.json", } },
             // (05) Patch MTA with namespaces (resolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 true, true, true,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -125,7 +128,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/javahelloworld/services-patch1-ns.json",
                     "R:/mta/javahelloworld/apps-patch2-ns.json", } },
             // (06) Patch MTA (unresolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -135,7 +138,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/javahelloworld/services-patch1.json",
                     "E:Unresolved MTA modules [java-hello-world-backend, java-hello-world-db]", } },
             // (07) Patch MTA (module is in archive, but not intended for platform):
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "java-hello-world", }, // mtaArchiveModules
                 new String[] {}, // mtaModules
@@ -145,7 +148,7 @@ public class CloudModelBuilderTest {
                 "R:/mta/javahelloworld/services-patch1.json",
                 "E:MTA module \"java-hello-world\" is part of MTA archive, but is not intended for deployment", } },
             // (08)
-            { "/mta/shine/mtad.yaml", "/mta/shine/config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/shine/mtad.yaml", "/mta/shine/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaArchiveModules
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaModules
@@ -155,7 +158,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/shine/services.json",
                     "R:/mta/shine/apps.json", } },
             // (09)
-            { "/mta/sample/mtad.yaml", "/mta/sample/config1.mtaext", "/mta/sample/platform-types.json", "/mta/sample/platforms.json",
+            { "/mta/sample/mtad.yaml", "/mta/sample/config1.mtaext", "/mta/sample/platform-types.json", "/mta/sample/targets.json",
                 false, false, true,
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
@@ -165,7 +168,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/sample/services.json",
                     "R:/mta/sample/apps.json", } },
             // (10)
-            { "/mta/sample/mtad.yaml", "/mta/sample/config1.mtaext", "/mta/sample/platform-types.json", "/mta/sample/platforms.json",
+            { "/mta/sample/mtad.yaml", "/mta/sample/config1.mtaext", "/mta/sample/platform-types.json", "/mta/sample/targets.json",
                 false, false, false,
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
@@ -175,7 +178,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/sample/services.json",
                     "E:The name \"default-locale\" is not a valid environment variable name", } },
             // (11)
-            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -185,7 +188,7 @@ public class CloudModelBuilderTest {
                     "[]",
                     "R:/mta/devxwebide/apps2.json", } },
             // (12)
-            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json", 
+            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", 
                 false, false, true,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -195,7 +198,7 @@ public class CloudModelBuilderTest {
                     "[]",
                     "R:/mta/devxwebide/xs2-apps2.json", } },
             // (13)
-            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
@@ -205,7 +208,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/devxdi/services.json",
                     "R:/mta/devxdi/apps.json", } },
             // (14)
-            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
@@ -215,7 +218,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/devxdi/xs2-services.json",
                     "R:/mta/devxdi/xs2-apps.json", } },
             // (15)
-            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config2.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config2.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -225,7 +228,7 @@ public class CloudModelBuilderTest {
                     "[]",
                     "R:/mta/devxwebide/xs2-apps2.json", } },
             // (16) Unknown typed resource properties:
-            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config2.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config2.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
@@ -236,7 +239,7 @@ public class CloudModelBuilderTest {
                     "R:/mta/devxdi/xs2-apps.json", } },
             // (17) Custom application names are used:
             {
-                "mtad-01.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+                "mtad-01.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
@@ -245,7 +248,7 @@ public class CloudModelBuilderTest {
             },
             // (18) Custom application names are used:
             {
-                "mtad-01.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+                "mtad-01.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 true, true, true,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
@@ -254,7 +257,7 @@ public class CloudModelBuilderTest {
             },
             // (19) Temporary URIs are used:
             {
-                "mtad-03.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+                "mtad-03.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
@@ -263,21 +266,30 @@ public class CloudModelBuilderTest {
             },
             // (20) Some env values have HTML symbols embedded in them:
             {
-                "mtad-04.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+                "mtad-04.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, true,
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-05.json", }
             },
-            // (21) Resource service-name definition in extension descriptor
+            // (21) Resource service-name definition in extension descriptor:
             { 
-                "mtad-05.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/platforms.json",
+                "mtad-05.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 true, true, true,
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
                 new String[] {}, // deployedApps
                 new String[] { "[]", "R:services-02.json", "R:apps-06.json", }
+            },
+            // (22) Test support for one-off tasks:
+            { 
+                "mtad-06.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
+                false, false, false,
+                new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
+                new String[] { "module-1", "module-2", "module-3" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:apps-07.json", }
             },
 // @formatter:on
         });
@@ -288,8 +300,9 @@ public class CloudModelBuilderTest {
         String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, String[] expected) {
         this.deploymentDescriptorLocation = deploymentDescriptorLocation;
         this.extensionDescriptorLocation = extensionDescriptorLocation;
-        this.platformTypesLocation = platformTypesLocation;
-        this.platformsLocation = platformsLocation;
+        System.out.println(extensionDescriptorLocation);
+        this.platformsLocation = platformTypesLocation;
+        this.targetsLocation = platformsLocation;
         this.useNamespaces = useNamespaces;
         this.useNamespacesForServices = useNamespacesForServices;
         this.allowInvalidEnvNames = allowInvalidEnvNames;
@@ -310,32 +323,62 @@ public class CloudModelBuilderTest {
         InputStream extensionDescriptorYaml = getClass().getResourceAsStream(extensionDescriptorLocation);
         ExtensionDescriptor extensionDescriptor = descriptorParser.parseExtensionDescriptorYaml(extensionDescriptorYaml);
 
-        InputStream platformTypesJson = getClass().getResourceAsStream(platformTypesLocation);
-        List<TargetPlatformType> platformTypes = configurationParser.parsePlatformTypesJson(platformTypesJson);
-
         InputStream platformsJson = getClass().getResourceAsStream(platformsLocation);
-        List<TargetPlatform> platforms = configurationParser.parsePlatformsJson(platformsJson);
+        List<Platform> platforms = configurationParser.parsePlatformsJson(platformsJson);
+
+        InputStream targetsJson = getClass().getResourceAsStream(targetsLocation);
+        List<Target> targets = configurationParser.parseTargetsJson(targetsJson);
 
         DescriptorHandler handler = getDescriptorHandler();
 
-        String platformName = extensionDescriptor.getTargetPlatforms().get(0);
-        TargetPlatform implicitPlatform = getTargetPlatformFactory().create(platformName, platformTypes.get(0).getName());
-        TargetPlatform platform = handler.findPlatform(platforms, platformName, implicitPlatform);
-        TargetPlatformType platformType = handler.findPlatformType(platformTypes, platform.getType());
+        String targetName = extensionDescriptor.getDeployTargets().get(0);
+        Target implicitTarget = getDeployTargetFactory().create(targetName, platforms.get(0).getName());
+        Target target = handler.findTarget(targets, targetName, implicitTarget);
+        Platform platform = handler.findPlatform(platforms, target.getType());
 
         deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Arrays.asList(extensionDescriptor))._1;
         insertProperAppNames(deploymentDescriptor);
 
-        TargetPlatformMerger platformMerger = getTargetPlatformMerger(platform, handler);
+        TargetMerger platformMerger = getTargetMerger(target, handler);
         platformMerger.mergeInto(deploymentDescriptor);
 
-        TargetPlatformTypeMerger platformTypeMerger = getTargetPlatformTypeMerger(platformType, handler);
+        PlatformMerger platformTypeMerger = getPlatformMerger(platform, handler);
         platformTypeMerger.mergeInto(deploymentDescriptor);
 
-        String defaultDomain = (platformName.startsWith("CF")) ? DEFAULT_DOMAIN_CF : DEFAULT_DOMAIN_XS;
+        String defaultDomain = getDefaultDomain(targetName);
 
-        builder = createCloudModelBuilder(deploymentDescriptor, platformType, platform,
-            createSystemParameters(deploymentDescriptor, defaultDomain), platformName, defaultDomain);
+        SystemParameters systemParameters = createSystemParameters(deploymentDescriptor, defaultDomain);
+        XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
+        xsPlaceholderResolver.setDefaultDomain(defaultDomain);
+        CloudModelConfiguration configuration = new CloudModelConfiguration();
+        configuration.setPortBasedRouting(defaultDomain.equals(DEFAULT_DOMAIN_XS));
+        configuration.setPrettyPrinting(false);
+        configuration.setAllowInvalidEnvNames(allowInvalidEnvNames);
+        configuration.setUseNamespaces(useNamespaces);
+        configuration.setUseNamespacesForServices(useNamespacesForServices);
+        appsBuilder = getApplicationsCloudModelBuilder(deploymentDescriptor, systemParameters, xsPlaceholderResolver, configuration);
+        domainsBuilder = getDomainsBuilder(deploymentDescriptor, systemParameters, xsPlaceholderResolver);
+        servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
+    }
+
+    protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+        CloudModelConfiguration configuration) {
+        return new ServicesCloudModelBuilder(deploymentDescriptor, new HandlerFactory(1).getPropertiesAccessor(), configuration);
+    }
+
+    protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+        SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, CloudModelConfiguration configuration) {
+        return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, null, systemParameters, xsPlaceholderResolver,
+            DEPLOY_ID);
+    }
+
+    protected DomainsCloudModelBuilder getDomainsBuilder(DeploymentDescriptor deploymentDescriptor, SystemParameters systemParameters,
+        XsPlaceholderResolver xsPlaceholderResolver) {
+        return new DomainsCloudModelBuilder(systemParameters, xsPlaceholderResolver, deploymentDescriptor);
+    }
+
+    protected String getDefaultDomain(String targetName) {
+        return (targetName.startsWith("CF")) ? DEFAULT_DOMAIN_CF : DEFAULT_DOMAIN_XS;
     }
 
     private SystemParameters createSystemParameters(DeploymentDescriptor descriptor, String defaultDomain) {
@@ -366,12 +409,12 @@ public class CloudModelBuilderTest {
         return new DescriptorHandler();
     }
 
-    protected TargetPlatformTypeMerger getTargetPlatformTypeMerger(TargetPlatformType platformType, DescriptorHandler handler) {
-        return new TargetPlatformTypeMerger(platformType, handler);
+    protected PlatformMerger getPlatformMerger(Platform platform, DescriptorHandler handler) {
+        return new PlatformMerger(platform, handler);
     }
 
-    protected TargetPlatformMerger getTargetPlatformMerger(TargetPlatform platform, DescriptorHandler handler) {
-        return new TargetPlatformMerger(platform, handler);
+    protected TargetMerger getTargetMerger(Target target, DescriptorHandler handler) {
+        return new TargetMerger(target, handler);
     }
 
     protected Map<String, Object> getParameters(Module module) {
@@ -390,20 +433,12 @@ public class CloudModelBuilderTest {
         return new ConfigurationParser();
     }
 
-    protected CloudModelBuilder createCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, TargetPlatformType platformType,
-        TargetPlatform platform, SystemParameters systemParameters, String platformName, String defaultDomain) throws Exception {
-        XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
-        xsPlaceholderResolver.setDefaultDomain(defaultDomain);
-        return new CloudModelBuilder(deploymentDescriptor, systemParameters, !platformName.startsWith("CF"), false, useNamespaces,
-            useNamespacesForServices, allowInvalidEnvNames, DEPLOY_ID, xsPlaceholderResolver);
-    }
-
     protected DescriptorMerger getDescriptorMerger() {
         return new DescriptorMerger();
     }
 
-    protected TargetPlatformFactory getTargetPlatformFactory() {
-        return new TargetPlatformFactory();
+    protected DeployTargetFactory getDeployTargetFactory() {
+        return new DeployTargetFactory();
     }
 
     @Test
@@ -411,7 +446,7 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<String>>() {
             @Override
             public List<String> call() throws Exception {
-                return builder.getCustomDomains();
+                return domainsBuilder.build();
             }
         }, expected[0], getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
@@ -421,7 +456,7 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
             @Override
             public List<CloudApplicationExtended> call() throws Exception {
-                return builder.getApplications(mtaArchiveModules, mtaModules, deployedApps);
+                return appsBuilder.build(mtaArchiveModules, mtaModules, deployedApps);
             }
         }, expected[2], getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
@@ -431,7 +466,7 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudServiceExtended>>() {
             @Override
             public List<CloudServiceExtended> call() throws Exception {
-                return builder.getServices(mtaArchiveModules);
+                return servicesBuilder.build(mtaArchiveModules);
             }
         }, expected[1], getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }

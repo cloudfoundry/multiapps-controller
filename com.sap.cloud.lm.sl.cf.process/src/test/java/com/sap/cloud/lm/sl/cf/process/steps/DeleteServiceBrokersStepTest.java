@@ -1,14 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.junit.Before;
@@ -24,8 +22,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
-import com.sap.activiti.common.Constants;
-import com.sap.activiti.common.ExecutionStatus;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.CreateServiceBrokersStepTest.SimpleApplication;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -44,8 +42,6 @@ public class DeleteServiceBrokersStepTest extends AbstractStepTest<DeleteService
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -73,9 +69,13 @@ public class DeleteServiceBrokersStepTest extends AbstractStepTest<DeleteService
             },
             // (5) One service broker  should be deleted, but an exception is thrown by the client:
             {
-                "delete-service-brokers-step-input-01.json", new String[] {}, "Controller operation failed: I_AM_A_TEAPOT", new CloudFoundryException(HttpStatus.I_AM_A_TEAPOT),
+                "delete-service-brokers-step-input-01.json", new String[] {}, "Controller operation failed: 418 I'm a teapot", new CloudFoundryException(HttpStatus.I_AM_A_TEAPOT),
             },
-            // (6) One service broker  should be deleted, but the user is not an admin:
+            // (6) Service broker should not be deleted and an exception should be thrown, because the user is not an admin and failsafe option is not set:
+            {
+                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, "Controller operation failed: 403 Forbidden", new CloudFoundryException(HttpStatus.FORBIDDEN),
+            },
+            // (7) Service broker should not be deleted without an exception, because the user is not an admin and failsafe option is set:
             {
                 "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, new CloudFoundryException(HttpStatus.FORBIDDEN),
             },
@@ -96,14 +96,13 @@ public class DeleteServiceBrokersStepTest extends AbstractStepTest<DeleteService
         loadParameters();
         prepareContext();
         prepareClient();
-        step.clientSupplier = (context) -> client;
     }
 
     @Test
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(), context.getVariable(Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         String[] deletedBrokers = captureStepOutput();
 
@@ -111,10 +110,13 @@ public class DeleteServiceBrokersStepTest extends AbstractStepTest<DeleteService
     }
 
     private void loadParameters() throws Exception {
+        boolean shouldSucceed = true;
         if (expectedExceptionMessage != null) {
             expectedException.expectMessage(expectedExceptionMessage);
             expectedException.expect(SLException.class);
+            shouldSucceed = false;
         }
+        context.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
         input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
     }
 
@@ -123,12 +125,12 @@ public class DeleteServiceBrokersStepTest extends AbstractStepTest<DeleteService
         StepsUtil.setServiceBrokersToCreate(context, toCloudServiceBrokers(input.serviceBrokersToCreate));
     }
 
-    private List<CloudServiceBroker> toCloudServiceBrokers(List<String> serviceBrokerNames) {
+    private List<CloudServiceBrokerExtended> toCloudServiceBrokers(List<String> serviceBrokerNames) {
         return serviceBrokerNames.stream().map((serviceBrokerName) -> toCloudServiceBroker(serviceBrokerName)).collect(Collectors.toList());
     }
 
-    private CloudServiceBroker toCloudServiceBroker(String serviceBrokerName) {
-        return new CloudServiceBroker(null, serviceBrokerName, null, null);
+    private CloudServiceBrokerExtended toCloudServiceBroker(String serviceBrokerName) {
+        return new CloudServiceBrokerExtended(null, serviceBrokerName, null, null, null, null);
     }
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> applications) {

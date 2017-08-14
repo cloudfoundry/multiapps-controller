@@ -2,10 +2,11 @@
   {
     "moduleName": "di-core",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"sofd60245639a:53030\"]}",
       "DI_FS_ROOT=/usr/sap/xs2work",
       "JAVA_OPTS=-Daccess.logging.enabled=false -Dhttp.port=$VCAP_APP_PORT -Djava.io.tmpdir=$TMPDIR",
       "JBP_CONFIG_SAPJVM_MEMORY_SIZES=metaspace:128m..",
@@ -36,10 +37,11 @@
     "extendedStaging": {
       "buildpackUrl": "http://sofd60245639a:53030/system/builderbp.git/"
     },
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"sofd60245639a:53031\"]}",
       "DI_URL=http://sofd60245639a:53030",
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
@@ -64,10 +66,11 @@
   {
     "moduleName": "di-runner",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"sofd60245639a:53033\"]}",
       "DI_URL=http://sofd60245639a:53030",
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",

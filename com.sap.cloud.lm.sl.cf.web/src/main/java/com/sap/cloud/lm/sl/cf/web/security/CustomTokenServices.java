@@ -52,7 +52,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
 
     public CustomTokenServices() {
         restTemplate = new RestTemplate();
-        if (ConfigurationUtil.isSkipSslValidation()) {
+        if (ConfigurationUtil.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
     }
@@ -65,7 +65,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
 
         // Check if a valid access token has been obtained
         if (token == null) {
-            logToAuditLogAndThrow(MessageFormat.format("Invalid access token \"{0}\"", tokenString));
+            logToAuditLogAndThrow("Invalid access token");
         }
 
         // Check if the token has expired and there is no refresh token
@@ -149,9 +149,10 @@ public class CustomTokenServices implements ResourceServerTokenServices {
         String key = tokenKey._1;
         String alg = tokenKey._2;
         SignatureVerifier verifier = null;
-        if (alg.equals("SHA256withRSA"))
+        // TODO: Find or implement a factory, which would support other algorithms like SHA384withRSA, SHA512withRSA and HmacSHA512.
+        if (alg.equals("SHA256withRSA") || alg.equals("RS256"))
             verifier = new RsaVerifier(key);
-        else if (alg.equals("HMACSHA256"))
+        else if (alg.equals("HMACSHA256") || alg.equals("HS256"))
             verifier = new MacSigner(key);
         else
             throw new InternalAuthenticationServiceException("Unsupported verifier algorithm " + alg);

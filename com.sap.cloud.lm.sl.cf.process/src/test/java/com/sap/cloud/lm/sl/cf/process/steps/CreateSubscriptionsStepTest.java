@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.printingAssertEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -21,8 +20,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.Constants;
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
@@ -111,12 +108,12 @@ public class CreateSubscriptionsStepTest extends AbstractStepTest<CreateSubscrip
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(), context.getVariable(Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         StepOutput output = captureStepOutput();
 
-        printingAssertEquals(JsonUtil.toJson(output.createdSubscriptions, true), JsonUtil.toJson(input.subscriptionsToCreate, true));
-        printingAssertEquals(JsonUtil.toJson(output.updatedSubscriptions, true), JsonUtil.toJson(input.subscriptionsToUpdate, true));
+        assertEquals(JsonUtil.toJson(output.createdSubscriptions, true), JsonUtil.toJson(input.subscriptionsToCreate, true));
+        assertEquals(JsonUtil.toJson(output.updatedSubscriptions, true), JsonUtil.toJson(input.subscriptionsToUpdate, true));
     }
 
     private StepOutput captureStepOutput() throws Exception {

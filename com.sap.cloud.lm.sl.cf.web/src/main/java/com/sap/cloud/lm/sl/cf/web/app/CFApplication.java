@@ -20,6 +20,9 @@ public class CFApplication extends Application {
         classes.add(com.sap.cloud.lm.sl.cf.web.resources.v1.TargetPlatformsResource.class);
         classes.add(com.sap.cloud.lm.sl.cf.web.resources.v2.TargetPlatformsResource.class);
         classes.add(com.sap.cloud.lm.sl.cf.web.resources.v3.TargetPlatformsResource.class);
+        classes.add(com.sap.cloud.lm.sl.cf.web.resources.v1.DeployTargetsResource.class);
+        classes.add(com.sap.cloud.lm.sl.cf.web.resources.v2.DeployTargetsResource.class);
+        classes.add(com.sap.cloud.lm.sl.cf.web.resources.v3.DeployTargetsResource.class);
         classes.add(OngoingOperationsResource.class);
         classes.add(DeployedComponentsResource.class);
         classes.add(RolesResource.class);

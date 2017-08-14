@@ -27,7 +27,7 @@ public class ProcessConflictPreventer {
         if (ongoingProcess != null) {
             throw new SLException(Messages.CONFLICTING_PROCESS_FOUND, ongoingProcess.getProcessId(), mtaId);
         }
-        OngoingOperation currentOngoingProcess = dao.find(processId);
+        OngoingOperation currentOngoingProcess = dao.findRequired(processId);
         currentOngoingProcess.setMtaId(mtaId);
         currentOngoingProcess.setHasAcquiredLock(true);
         dao.merge(currentOngoingProcess);
@@ -37,7 +37,7 @@ public class ProcessConflictPreventer {
     }
 
     public synchronized void attemptToReleaseLock(String processId) throws SLException {
-        OngoingOperation ongoingProcess = dao.find(processId);
+        OngoingOperation ongoingProcess = dao.findRequired(processId);
         String mtaId = ongoingProcess.getMtaId();
 
         LOGGER.info(format(Messages.RELEASING_LOCK, processId, mtaId));

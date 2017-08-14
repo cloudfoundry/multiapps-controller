@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 public class DomainValidatorTest {
 
     private DomainValidator validator = new DomainValidator();
-    
+
     private boolean isValid;
     private String domain;
     private String expected;
@@ -50,7 +50,7 @@ public class DomainValidatorTest {
 
     @Test
     public void testValidate() {
-        assertEquals(isValid, validator.validate(domain));
+        assertEquals(isValid, validator.isValid(domain));
     }
 
     @Test

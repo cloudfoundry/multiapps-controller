@@ -1,0 +1,55 @@
+{
+  "callArgumentsOfUpdateApplicationEnvMethod": [
+    {
+      "env": [
+        "test\u003dthis-property-should-remain-in-the-env-after-the-update",
+        "plugins\u003d[{\"name\":\"plugin-01\"}]"
+      ],
+      "space": {
+        "organization": {
+          "meta": {},
+          "name": "xsa"
+        },
+        "meta": {},
+        "name": "xsa"
+      },
+      "meta": {},
+      "name": "foo"
+    },
+    {
+      "env": [
+        "urls\u003d[{\"url\":\"https://localhost:30030\"}]",
+        "test\u003dthis-property-should-remain-in-the-env-after-the-update"
+      ],
+      "space": {
+        "organization": {
+          "meta": {},
+          "name": "xsa"
+        },
+        "meta": {},
+        "name": "xsa"
+      },
+      "meta": {},
+      "name": "foo"
+    }
+  ],
+  "updatedSubscribers": [
+    {
+      "env": [
+        "test\u003dthis-property-should-remain-in-the-env-after-the-update"
+      ],
+      "space": {
+        "organization": {
+          "meta": {},
+          "name": "xsa"
+        },
+        "meta": {},
+        "name": "xsa"
+      },
+      "meta": {
+        "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
+      },
+      "name": "foo"
+    }
+  ]
+}

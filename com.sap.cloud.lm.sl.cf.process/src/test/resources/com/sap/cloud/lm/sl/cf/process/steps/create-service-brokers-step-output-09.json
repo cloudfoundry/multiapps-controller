@@ -1,23 +1,25 @@
 {
   "createdServiceBrokers": [
-  	{
+    {
+      "password": "baz",
       "url": "http://localhost:3031",
       "username": "bar",
-      "password": "baz",
+      "meta": {},
       "name": "bar-broker"
     },
     {
+      "password": "baz",
       "url": "http://localhost:3032",
       "username": "bar",
-      "password": "baz",
+      "meta": {},
       "name": "boo-broker"
     }
   ],
   "updatedServiceBrokers": [
-  	{
+    {
+      "password": "baz",
       "url": "http://localhost:3030",
       "username": "bar",
-      "password": "baz",
       "meta": {},
       "name": "foo-broker"
     }

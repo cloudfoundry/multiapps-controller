@@ -1,5 +1,5 @@
 {
-  "existingServiceBrokerNames": [],
+  "existingServiceBrokers": [],
   "applications": [
     {
       "name": "foo",

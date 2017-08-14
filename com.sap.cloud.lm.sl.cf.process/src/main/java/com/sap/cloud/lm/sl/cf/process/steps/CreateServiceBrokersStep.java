@@ -5,8 +5,10 @@ import static java.text.MessageFormat.format;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
@@ -18,8 +20,15 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokerCreator;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokersGetter;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
@@ -29,13 +38,17 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateServiceBrokersStep.class);
 
+    @Inject
+    private ServiceBrokerCreator serviceBrokerCreator;
+    @Inject
+    private ServiceBrokersGetter serviceBrokersGetter;
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    protected Supplier<PlatformType> platformTypeSupplier = () -> ConfigurationUtil.getPlatformType();
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("createServiceBrokersTask", "Create Service Brokers", "Create Service Brokers");
+        return StepMetadata.builder().id("createServiceBrokersTask").displayName("Create Service Brokers").description(
+            "Create Service Brokers").build();
     }
-
-    protected Function<DelegateExecution, CloudFoundryOperations> clientSupplier = (context) -> getCloudFoundryClient(context, LOGGER);
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -43,18 +56,17 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
         try {
             info(context, Messages.CREATING_SERVICE_BROKERS, LOGGER);
 
-            CloudFoundryOperations client = clientSupplier.apply(context);
-            List<CloudServiceBroker> existingServiceBrokers = client.getServiceBrokers();
-            List<CloudServiceBroker> serviceBrokersToCreate = getServiceBrokersToCreate(StepsUtil.getAppsToDeploy(context), context);
+            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            List<CloudServiceBrokerExtended> existingServiceBrokers = serviceBrokersGetter.getServiceBrokers(client);
+            List<CloudServiceBrokerExtended> serviceBrokersToCreate = getServiceBrokersToCreate(StepsUtil.getAppsToDeploy(context),
+                context);
             debug(context, MessageFormat.format(Messages.SERVICE_BROKERS, secureSerializer.toJson(serviceBrokersToCreate)), LOGGER);
             List<String> existingServiceBrokerNames = getServiceBrokerNames(existingServiceBrokers);
 
-            for (CloudServiceBroker serviceBroker : serviceBrokersToCreate) {
+            for (CloudServiceBrokerExtended serviceBroker : serviceBrokersToCreate) {
                 if (existingServiceBrokerNames.contains(serviceBroker.getName())) {
-                    CloudServiceBroker existingBroker = existingServiceBrokers.stream().filter(
-                        (broker) -> broker.getName().equals(serviceBroker.getName())).findFirst().get();
-                    serviceBroker.setMeta(existingBroker.getMeta());
-                    updateServiceBroker(context, serviceBroker, client);
+                    CloudServiceBrokerExtended existingBroker = findServiceBroker(existingServiceBrokers, serviceBroker.getName());
+                    updateServiceBroker(context, serviceBroker, existingBroker, client);
                 } else {
                     createServiceBroker(context, serviceBroker, client);
                 }
@@ -73,11 +85,28 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
         }
     }
 
-    private List<CloudServiceBroker> getServiceBrokersToCreate(List<CloudApplicationExtended> appsToDeploy, DelegateExecution context)
-        throws SLException {
-        List<CloudServiceBroker> serviceBrokersToCreate = new ArrayList<>();
+    private void updateServiceBroker(DelegateExecution context, CloudServiceBrokerExtended serviceBroker,
+        CloudServiceBrokerExtended existingBroker, CloudFoundryOperations client) {
+        serviceBroker.setMeta(existingBroker.getMeta());
+        if (existingBroker.getSpaceGuid() != null && serviceBroker.getSpaceGuid() == null) {
+            warn(context, MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL,
+                serviceBroker.getName()), LOGGER);
+        } else if (existingBroker.getSpaceGuid() == null && serviceBroker.getSpaceGuid() != null) {
+            warn(context, MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_GLOBAL_TO_SPACE_SCOPED,
+                serviceBroker.getName()), LOGGER);
+        }
+        updateServiceBroker(context, serviceBroker, client);
+    }
+
+    private CloudServiceBrokerExtended findServiceBroker(List<CloudServiceBrokerExtended> serviceBrokers, String name) {
+        return serviceBrokers.stream().filter((broker) -> broker.getName().equals(name)).findFirst().get();
+    }
+
+    private List<CloudServiceBrokerExtended> getServiceBrokersToCreate(List<CloudApplicationExtended> appsToDeploy,
+        DelegateExecution context) throws SLException {
+        List<CloudServiceBrokerExtended> serviceBrokersToCreate = new ArrayList<>();
         for (CloudApplicationExtended app : appsToDeploy) {
-            CloudServiceBroker serviceBroker = getServiceBrokerFromApp(app, context);
+            CloudServiceBrokerExtended serviceBroker = getServiceBrokerFromApp(app, context);
             if (serviceBroker == null) {
                 continue;
             }
@@ -88,15 +117,17 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
         return serviceBrokersToCreate;
     }
 
-    private CloudServiceBroker getServiceBrokerFromApp(CloudApplicationExtended app, DelegateExecution context) throws SLException {
-        if (!StepsUtil.getAppAttribute(app, SupportedParameters.CREATE_SERVICE_BROKER, false)) {
+    private CloudServiceBrokerExtended getServiceBrokerFromApp(CloudApplicationExtended app, DelegateExecution context) throws SLException {
+        ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
+        if (!attributesGetter.getAttribute(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return null;
         }
 
-        String serviceBrokerName = StepsUtil.getAppAttribute(app, SupportedParameters.SERVICE_BROKER_NAME, app.getName());
-        String serviceBrokerUrl = StepsUtil.getAppAttribute(app, SupportedParameters.SERVICE_BROKER_URL, null);
-        String serviceBrokerPasswordd = StepsUtil.getAppAttribute(app, SupportedParameters.SERVICE_BROKER_PASSWORD, null);
-        String serviceBrokerUser = StepsUtil.getAppAttribute(app, SupportedParameters.SERVICE_BROKER_USER, null);
+        String serviceBrokerName = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_NAME, String.class, app.getName());
+        String serviceBrokerUrl = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_URL, String.class);
+        String serviceBrokerPassword = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_PASSWORD, String.class);
+        String serviceBrokerUser = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_USER, String.class);
+        String serviceBrokerSpaceGuid = getServiceBrokerSpaceGuid(context, serviceBrokerName, attributesGetter);
 
         if (serviceBrokerUser == null) {
             throw new SLException(Messages.MISSING_SERVICE_BROKER_USER, app.getName());
@@ -108,14 +139,26 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
             throw new SLException(Messages.MISSING_SERVICE_BROKER_NAME, app.getName());
         }
 
-        return getCloudServiceBroker(serviceBrokerName, serviceBrokerUser, serviceBrokerPasswordd, serviceBrokerUrl);
+        return getCloudServiceBroker(serviceBrokerName, serviceBrokerUser, serviceBrokerPassword, serviceBrokerUrl, serviceBrokerSpaceGuid);
     }
 
-    public static List<String> getServiceBrokerNames(List<CloudServiceBroker> serviceBrokers) {
+    private String getServiceBrokerSpaceGuid(DelegateExecution context, String serviceBrokerName,
+        ApplicationAttributesGetter attributesGetter) {
+        PlatformType platformType = platformTypeSupplier.get();
+        boolean isSpaceScoped = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_SPACE_SCOPED, Boolean.class, false);
+        if (platformType == PlatformType.XS2 && isSpaceScoped) {
+            warn(context, MessageFormat.format(Messages.CANNOT_CREATE_SPACE_SCOPED_SERVICE_BROKER_ON_THIS_PLATFORM, serviceBrokerName),
+                LOGGER);
+            return null;
+        }
+        return isSpaceScoped ? StepsUtil.getSpaceId(context) : null;
+    }
+
+    public static List<String> getServiceBrokerNames(List<? extends CloudServiceBroker> serviceBrokers) {
         return serviceBrokers.stream().map((broker) -> broker.getName()).collect(Collectors.toList());
     }
 
-    private void updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudFoundryOperations client) {
+    protected void updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudFoundryOperations client) {
         try {
             info(context, MessageFormat.format(Messages.UPDATING_SERVICE_BROKER, serviceBroker.getName()), LOGGER);
             client.updateServiceBroker(serviceBroker);
@@ -126,36 +169,40 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
                     warn(context, format(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_501, serviceBroker.getName()), LOGGER);
                     break;
                 case FORBIDDEN:
-                    warn(context, format(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName()), LOGGER);
-                    break;
+                    if (shouldSucceed(context)) {
+                        warn(context, format(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName()), LOGGER);
+                        return;
+                    }
                 default:
                     throw e;
             }
         }
     }
 
-    private void createServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudFoundryOperations client) {
+    private void createServiceBroker(DelegateExecution context, CloudServiceBrokerExtended serviceBroker, CloudFoundryOperations client) {
         try {
             info(context, MessageFormat.format(Messages.CREATING_SERVICE_BROKER, serviceBroker.getName()), LOGGER);
-            client.createServiceBroker(serviceBroker);
+            serviceBrokerCreator.createServiceBroker(client, serviceBroker);
             debug(context, MessageFormat.format(Messages.CREATED_SERVICE_BROKER, serviceBroker.getName()), LOGGER);
         } catch (CloudFoundryException e) {
             switch (e.getStatusCode()) {
                 case FORBIDDEN:
-                    warn(context, format(Messages.CREATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName()), LOGGER);
-                    break;
+                    if (shouldSucceed(context)) {
+                        warn(context, format(Messages.CREATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName()), LOGGER);
+                        return;
+                    }
                 default:
                     throw e;
             }
         }
     }
 
-    private CloudServiceBroker getCloudServiceBroker(String name, String user, String password, String url) {
-        CloudServiceBroker serviceBroker = new CloudServiceBroker(url, user, password);
-        if (name != null) {
-            serviceBroker.setName(name);
-        }
-        return serviceBroker;
+    private CloudServiceBrokerExtended getCloudServiceBroker(String name, String user, String password, String url, String spaceGuid) {
+        return new CloudServiceBrokerExtended(name, url, user, password, spaceGuid);
+    }
+
+    private boolean shouldSucceed(DelegateExecution context) {
+        return (Boolean) context.getVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS);
     }
 
 }

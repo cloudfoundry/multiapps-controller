@@ -1,5 +1,5 @@
 {
-  "name": "TARGET-PLATFORM-TEST",
+  "name": "DEPLOY-TARGET-TEST",
   "type": "TEST",
   "description": "TEST DESCRIPTION",
   "parameters": {

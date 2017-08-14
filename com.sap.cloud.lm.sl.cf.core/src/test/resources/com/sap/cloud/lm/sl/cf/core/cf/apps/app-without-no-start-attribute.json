@@ -1,0 +1,6 @@
+{
+  "name": "foo",
+  "env": [
+    "DEPLOY_ATTRIBUTES={}"
+  ]
+}

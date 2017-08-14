@@ -4,6 +4,7 @@ import static java.text.MessageFormat.format;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -19,7 +19,6 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +30,9 @@ import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEntityUpdater;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -55,15 +55,14 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Autowired
-    protected ApplicationEntityUpdater applicationEntityUpdater;
+    protected ApplicationStagingUpdater applicationStagingUpdater;
+
+    @Autowired(required = false)
+    ServiceBindingCreator serviceBindingCreator;
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("createAppTask", "Create App", "Create App");
+        return StepMetadata.builder().id("createAppTask").displayName("Create App").description("Create App").build();
     }
-
-    protected Function<DelegateExecution, ClientExtensions> extensionsSupplier = (context) -> getClientExtensions(context, LOGGER);
-
-    protected Function<DelegateExecution, CloudFoundryOperations> clientSupplier = (context) -> getCloudFoundryClient(context, LOGGER);
 
     protected Supplier<PlatformType> platformTypeSupplier = () -> ConfigurationUtil.getPlatformType();
 
@@ -77,7 +76,7 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
         try {
             info(context, format(Messages.CREATING_APP, app.getName()), LOGGER);
 
-            CloudFoundryOperations client = clientSupplier.apply(context);
+            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
 
             // Get application parameters:
             String appName = app.getName();
@@ -86,7 +85,7 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
             Integer diskQuota = (app.getDiskQuota() != 0) ? app.getDiskQuota() : null;
             Integer memory = (app.getMemory() != 0) ? app.getMemory() : null;
             List<String> uris = app.getUris();
-            List<String> serviceNames = app.getServices();
+            List<String> services = app.getServices();
             Map<String, Map<String, Object>> bindingParameters = getBindingParameters(context, app);
 
             // Check if an application with this name already exists (as a result of a previous
@@ -96,15 +95,16 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
             if (existingApp == null) {
                 client.createApplication(appName, staging, diskQuota, memory, uris, Collections.emptyList());
                 if (platformTypeSupplier.get() == PlatformType.CF) {
-                    applicationEntityUpdater.updateApplicationStaging(client, appName, staging);
+                    applicationStagingUpdater.updateApplicationStaging(client, appName, staging);
                 }
             }
             // In all cases, update its environment:
+            List<CloudServiceExtended> servicesToCreate = StepsUtil.getServicesToCreate(context);
             client.updateApplicationEnv(appName, env);
             if (existingApp == null) {
-                for (String serviceName : serviceNames) {
+                for (String serviceName : services) {
                     Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
-                    bindService(context, client, appName, serviceName, bindingParametersForCurrentService);
+                    bindService(context, client, servicesToCreate, appName, serviceName, bindingParametersForCurrentService);
                 }
             }
 
@@ -139,7 +139,7 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
         return bindingParameters;
     }
 
-    private static List<CloudServiceExtended> getServices(List<CloudServiceExtended> services, List<String> serviceNames) {
+    protected static List<CloudServiceExtended> getServices(List<CloudServiceExtended> services, List<String> serviceNames) {
         return services.stream().filter((service) -> serviceNames.contains(service.getName())).collect(Collectors.toList());
     }
 
@@ -198,22 +198,29 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
         return null;
     }
 
-    private CloudService getService(CloudFoundryOperations client, String serviceName) {
-        try {
-            return client.getService(serviceName);
-        } catch (CloudFoundryException e) {
-            if (!e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                throw e;
-            }
-        }
-        return null;
+    private CloudServiceExtended findServiceCloudModel(List<CloudServiceExtended> servicesCloudModel, String serviceName) {
+        return servicesCloudModel.stream().filter(service -> service.getName().equals(serviceName)).findAny().orElse(null);
     }
 
-    protected void bindService(DelegateExecution context, CloudFoundryOperations client, String appName, String serviceName,
-        Map<String, Object> bindingParameters) throws SLException {
-        if (getService(client, serviceName) == null) {
-            throw new SLException(Messages.CANNOT_BIND_APP_TO_NON_EXISTING_SERVICE, appName, serviceName);
+    protected void bindService(DelegateExecution context, CloudFoundryOperations client, List<CloudServiceExtended> servicesCloudModel,
+        String appName, String serviceName, Map<String, Object> bindingParameters) throws SLException {
+
+        try {
+            bindServiceToApplication(context, client, appName, serviceName, bindingParameters);
+        } catch (CloudFoundryException e) {
+            CloudServiceExtended serviceCloudModel = findServiceCloudModel(servicesCloudModel, serviceName);
+
+            if (serviceCloudModel != null && serviceCloudModel.isOptional()) {
+                warn(context, MessageFormat.format(Messages.CANNOT_BIND_APPLICATION_TO_OPTIONAL_SERVICE, appName, serviceName), LOGGER);
+                return;
+            }
+            throw new SLException(e, Messages.CANNOT_BIND_APP_TO_NON_EXISTING_SERVICE, appName, serviceName);
         }
+
+    }
+
+    private void bindServiceToApplication(DelegateExecution context, CloudFoundryOperations client, String appName, String serviceName,
+        Map<String, Object> bindingParameters) {
         if (bindingParameters != null) {
             bindServiceWithParameters(context, client, appName, serviceName, bindingParameters);
         } else {
@@ -221,15 +228,15 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
         }
     }
 
+    // TODO Fix update of service bindings parameters
     private void bindServiceWithParameters(DelegateExecution context, CloudFoundryOperations client, String appName, String serviceName,
         Map<String, Object> bindingParameters) {
-        ClientExtensions clientExtensions = extensionsSupplier.apply(context);
+        ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
+        debug(context, format(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters.get(serviceName)),
+            LOGGER);
         if (clientExtensions == null) {
-            warn(context, format(Messages.CLIENT_DOES_NOT_SUPPORT_SERVICE_BINDING_PARAMETERS, appName, serviceName), LOGGER);
-            bindService(context, client, appName, serviceName);
+            serviceBindingCreator.bindService(client, appName, serviceName, bindingParameters);
         } else {
-            debug(context,
-                format(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters.get(serviceName)), LOGGER);
             clientExtensions.bindService(appName, serviceName, bindingParameters);
         }
     }

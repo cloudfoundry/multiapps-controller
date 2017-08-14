@@ -30,6 +30,7 @@ public class PersistenceMetadata {
 
     public static class SequenceNames {
 
+        public static final String DEPLOY_TARGET_SEQUENCE = "deploy_target_sequence";
         public static final String CONFIGURATION_ENTRY_SEQUENCE = "configuration_entry_sequence";
         public static final String CONFIGURATION_SUBSCRIPTION_SEQUENCE = "configuration_subscription_sequence";
 
@@ -43,6 +44,7 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_ENTRY_PROVIDER_VERSION = "provider_version";
         public static final String CONFIGURATION_ENTRY_TARGET_SPACE = "target_space";
         public static final String CONFIGURATION_ENTRY_CONTENT = "content";
+        public static final String CONFIGURATION_CLOUD_TARGET = "visibility";
 
         public static final String CONFIGURATION_SUBSCRIPTION_MTA_ID = "mta_id";
         public static final String CONFIGURATION_SUBSCRIPTION_ID = "id";
@@ -63,6 +65,8 @@ public class PersistenceMetadata {
         public static final String ONGOING_OPERATION_SPACE_ID = "spaceId";
         public static final String ONGOING_OPERATION_FINAL_STATE = "finalState";
         public static final String ONGOING_OPERATION_MTA_ID = "mtaId";
+
+        public static final String DEPLOY_TARGET_NAME = "name";
 
     }
 

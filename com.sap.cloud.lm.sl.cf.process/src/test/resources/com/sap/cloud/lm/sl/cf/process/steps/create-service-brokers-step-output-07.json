@@ -1,9 +1,10 @@
 {
   "createdServiceBrokers": [
     {
+      "password": "baz",
       "url": "http://localhost:3030",
       "username": "bar",
-      "password": "baz",
+      "meta": {},
       "name": "foo"
     }
   ],

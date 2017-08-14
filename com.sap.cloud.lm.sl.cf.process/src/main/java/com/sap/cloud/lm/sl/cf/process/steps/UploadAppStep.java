@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 import javax.inject.Inject;
 
@@ -31,6 +30,8 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
 import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
 import com.sap.cloud.lm.sl.cf.client.util.StreamUtil;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -48,16 +49,12 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
     private static final String WAIT_TILL_UPLOAD_START_TASK_ID = "waitTillUploadStartTask";
     private static final String ARCHIVE_FILE_SEPARATOR = "/";
-    // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppStep.class);
 
     public static StepMetadata getMetadata() {
-        return new AsyncStepMetadata("uploadAppTask", "Upload App", "Upload App", "pollUploadAppStatusTask", "pollUploadAppStatusTimer");
+        return AsyncStepMetadata.builder().id("uploadAppTask").displayName("Upload").description("Upload App").pollTaskId(
+            "pollUploadAppStatusTask").childrenVisible(true).build();
     }
-
-    protected Function<DelegateExecution, CloudFoundryOperations> clientSupplier = (context) -> getCloudFoundryClient(context, LOGGER);
-
-    protected Function<DelegateExecution, ClientExtensions> extensionsSupplier = (context) -> getClientExtensions(context, LOGGER);
 
     @Inject
     protected ScheduledExecutorService asyncTaskExecutor;
@@ -75,8 +72,8 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
             info(context, format(Messages.UPLOADING_APP, app.getName()), LOGGER);
             int uploadAppTimeoutSeconds = ConfigurationUtil.getUploadAppTimeout();
 
-            CloudFoundryOperations client = clientSupplier.apply(context);
-            ClientExtensions clientExtensions = extensionsSupplier.apply(context);
+            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
 
             Future<?> future = asyncTaskExecutor.submit(getUploadAppStepRunnable(context, app, client, clientExtensions));
             asyncTaskExecutor.schedule(getUploadAppStepRunnableKiller(context, future), uploadAppTimeoutSeconds, TimeUnit.SECONDS);
@@ -99,8 +96,8 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
         };
     }
 
-    private String asyncUploadFiles(DelegateExecution context, ClientExtensions clientExtensions, CloudApplication app, String appArchiveId,
-        String fileName) throws FileStorageException, SLException {
+    private String asyncUploadFiles(DelegateExecution context, ClientExtensions clientExtensions, CloudFoundryOperations client,
+        CloudApplication app, String appArchiveId, String fileName) throws FileStorageException, SLException {
         final StringBuilder uploadTokenBuilder = new StringBuilder();
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
@@ -108,6 +105,7 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName)) {
                     // Start uploading application content
                     file = saveToFile(fileName, streamProducer);
+                    detectApplicationFileDigestChanges(context, app, file, client);
                     String uploadToken = clientExtensions.asynchUploadApplication(app.getName(), file,
                         getMonitorUploadStatusCallback(context, app, file));
                     uploadTokenBuilder.append(uploadToken);
@@ -131,8 +129,8 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName)) {
                     // Upload application content
                     file = saveToFile(fileName, streamProducer);
+                    detectApplicationFileDigestChanges(context, app, file, client);
                     client.uploadApplication(app.getName(), file, getMonitorUploadStatusCallback(context, app, file));
-
                 } catch (IOException e) {
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
                 } catch (CloudFoundryException e) {
@@ -142,6 +140,41 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
                 }
             });
         fileService.processFileContent(uploadFileToControllerProcessor);
+
+    }
+
+    private void detectApplicationFileDigestChanges(DelegateExecution context, CloudApplication app, File applicationFile,
+        CloudFoundryOperations client) {
+        ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(
+            getExistingApplication(app.getName(), client));
+        String appNewFileDigest = applicationFileDigestDetector.detectNewAppFileDigest(applicationFile);
+        String currentFileDigest = applicationFileDigestDetector.detectCurrentAppFileDigest();
+        attemptToUpdateApplicationDigest(client, app, appNewFileDigest, currentFileDigest);
+        updateContextExtension(context, hasAppFileDigestChanged(appNewFileDigest, currentFileDigest));
+    }
+
+    private CloudApplication getExistingApplication(String appName, CloudFoundryOperations client) {
+        return client.getApplication(appName);
+    }
+
+    private void attemptToUpdateApplicationDigest(CloudFoundryOperations client, CloudApplication app, String newFileDigest,
+        String currentFileDigest) {
+        if (!hasAppFileDigestChanged(newFileDigest, currentFileDigest)) {
+            return;
+        }
+        new ApplicationEnvironmentUpdater(app, client).updateApplicationEnvironment(
+            com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST,
+            newFileDigest);
+    }
+
+    private boolean hasAppFileDigestChanged(String newFileDigest, String currentFileDigest) {
+        return !newFileDigest.equals(currentFileDigest);
+    }
+
+    private void updateContextExtension(DelegateExecution context, boolean appContentChanged) throws SLException {
+        boolean appPropertiesChanged = StepsUtil.getAppPropertiesChanged(context);
+        boolean hasAppChanged = appPropertiesChanged || appContentChanged;
+        contextExtensionDao.addOrUpdate(context.getProcessInstanceId(), Constants.VAR_HAS_APP_CHANGED, Boolean.toString(hasAppChanged));
     }
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(DelegateExecution context, CloudApplication app, File file) {
@@ -212,20 +245,7 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
         @Override
         public void onMatchedFileNames(Set<String> matchedFileNames) {
-            boolean appContentChanged = matchedFileNames.size() != 0;
-            try {
-                updateContextExtension(matchedFileNames, appContentChanged);
-            } catch (SLException e) {
-                error(context, Messages.ERROR_UPDATING_CONTEXT_EXTENSION, e, LOGGER);
-            }
             info(context, format("Matched files count: {0}", matchedFileNames.size()), LOGGER);
-        }
-
-        private void updateContextExtension(Set<String> matchedFileNames, boolean appContentChanged) throws SLException {
-            boolean appPropertiesChanged = StepsUtil.getAppPropertiesChanged(context);
-            boolean shouldRestart = appPropertiesChanged || appContentChanged;
-            contextExtensionDao.addOrUpdate(context.getProcessInstanceId(), Constants.VAR_RESTART_APPLICATION,
-                Boolean.toString(shouldRestart));
         }
 
         @Override
@@ -262,7 +282,7 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
                 String fileName = StepsUtil.getModuleFileName(context, app.getModuleName());
                 debug(context, format("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName()), LOGGER);
                 if (clientExtensions != null) {
-                    String uploadToken = asyncUploadFiles(context, clientExtensions, app, appArchiveId, fileName);
+                    String uploadToken = asyncUploadFiles(context, clientExtensions, client, app, appArchiveId, fileName);
                     outputVariables.put(Constants.VAR_UPLOAD_TOKEN, uploadToken);
                     debug(context, format("Started async upload of application \"{0}\"", fileName, app.getName()), LOGGER);
                     status = ExecutionStatus.RUNNING;
@@ -279,9 +299,15 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
                 error(context, format(Messages.ERROR_UPLOADING_APP, app.getName()), e, LOGGER);
                 throw new IllegalStateException(e.getMessage(), e);
             } catch (Throwable e) {
-                e = getWithProperMessage(e);
-                logException(context, e);
-                throw new RuntimeException(e.getMessage(), e);
+                Throwable eWithMessage = getWithProperMessage(e);
+                logException(context, eWithMessage);
+                if (e instanceof Exception) {
+                    // only wrap Runtime & checked exceptions as Runtime ones
+                    throw new RuntimeException(eWithMessage.getMessage(), eWithMessage);
+                } else {
+                    // Errors and other should be handled elsewhere
+                    throw e;
+                }
             } finally {
                 outputVariables.put(getStatusVariable(), status.name());
                 LOGGER.info(format("Attempting to signal process with id:{0} with variables : {1}", processId, outputVariables));
@@ -293,5 +319,10 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
     protected void signalWaitTask(String processId, Map<String, Object> outputVariables, int timeout) {
         ActivitiFacade.getInstance().signal(null, processId, WAIT_TILL_UPLOAD_START_TASK_ID, outputVariables, timeout);
+    }
+
+    @Override
+    protected String getIndexVariable() {
+        return Constants.VAR_APPS_INDEX;
     }
 }

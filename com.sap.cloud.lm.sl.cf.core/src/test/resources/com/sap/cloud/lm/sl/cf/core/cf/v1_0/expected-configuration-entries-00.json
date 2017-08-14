@@ -1,0 +1,46 @@
+{
+  "module": [
+    {
+      "id": 0,
+      "providerNid": "mta",
+      "providerId": "test:foo",
+      "providerVersion": "0.1.0",
+      "targetSpace": "some-org some-space",
+      "content": "{}",
+      "visibility": [
+        {
+          "space": "*",
+          "org": "some-org"
+        }
+      ]
+    },
+    {
+      "id": 0,
+      "providerNid": "mta",
+      "providerId": "test:bar",
+      "providerVersion": "0.1.0",
+      "targetSpace": "some-org some-space",
+      "content": "{}",
+      "visibility": [
+        {
+          "space": "*",
+          "org": "some-org"
+        }
+      ]
+    },
+    {
+      "id": 0,
+      "providerNid": "mta",
+      "providerId": "test:baz",
+      "providerVersion": "0.1.0",
+      "targetSpace": "some-org some-space",
+      "content": "{}",
+      "visibility": [
+        {
+          "space": "*",
+          "org": "some-org"
+        }
+      ]
+    }
+  ]
+}

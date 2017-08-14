@@ -7,7 +7,7 @@ public final class Messages {
 
     // Exception messages
     public static final String NO_VALID_TOKEN_FOUND = "No valid access token was found for user \"{0}\"";
-    public static final String TOKEN_EXPIRED = "The access token asocieated with user \"{0}\" has expired";
+    public static final String TOKEN_EXPIRED = "The access token associated with user \"{0}\" has expired";
     public static final String CANT_CREATE_CLIENT = "Could not create client";
     public static final String CANT_CREATE_CLIENT_2 = "Could not create client in organization \"{0}\" and space \"{1}\"";
     public static final String UNAUTHORISED_OPERATION_ORG_SPACE = "Not authorized to perform operation \"{0}\" in organization \"{1}\" and space \"{2}\"";
@@ -24,14 +24,16 @@ public final class Messages {
     public static final String PATH_MUST_NOT_CONTAIN_WINDOWS_SEPARATORS = "Path \"{0}\" must use only Unix separators \"/\", but contain Windows separators \"\\\"";
     public static final String UNRESOLVED_MTA_MODULES = "Unresolved MTA modules {0}, these modules are neither part of MTA archive, nor already deployed";
     public static final String INVALID_ENVIRONMENT_VARIABLE_NAME = "The name \"{0}\" is not a valid environment variable name";
-    public static final String UNKNOWN_PLATFORM = "Unknown platform \"{0}\"";
-    public static final String UNKNOWN_PLATFORM_TYPE = "Unknown platform type \"{0}\" for platform \"{1}\"";
+    public static final String UNKNOWN_TARGET = "Unknown target \"{0}\"";
+    public static final String UNKNOWN_PLATFORM = "Unknown platform \"{0}\" for target \"{1}\"";
     public static final String UNKNOWN_MODULE = "Unknown module \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_DOMAIN = "Could not create a valid domain from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_HOST = "Could not create a valid host from \"{0}\"";
+    public static final String COULD_NOT_CREATE_VALID_VISIBILITY_PARAMETER = "Could not create a valid visibility parameter from \"{0}\"";
     public static final String CANNOT_CORRECT_PARAMETER = "Value for parameter \"{0}\" is not valid and cannot be corrected";
-    public static final String TARGET_PLATFORM_ALREADY_EXISTS = "Target platform with name \"{0}\" already exists";
-    public static final String TARGET_PLATFORM_NOT_FOUND = "Target platform with name \"{0}\" does not exist";
+    public static final String DEPLOY_TARGET_ALREADY_EXISTS = "Deploy target with name \"{0}\" already exists";
+    public static final String DEPLOY_TARGET_NOT_FOUND = "Deploy target with id \"{0}\" does not exist";
+    public static final String DEPLOY_TARGET_WITH_NAME_NOT_FOUND = "Deploy target with name \"{0}\" does not exist";
     public static final String CONFIGURATION_ENTRY_ALREADY_EXISTS = "Configuration entry with namespace ID \"{0}\", ID \"{1}\", version \"{2}\" and target space \"{3}\" already exists";
     public static final String CONFIGURATION_SUBSCRIPTION_ALREADY_EXISTS = "Configuration subscription for MTA \"{0}\", app \"{1}\" and resource \"{2}\" already exists in space \"{3}\"";
     public static final String CONFIGURATION_ENTRY_NOT_FOUND = "Configuration entry with ID \"{0}\" does not exist";
@@ -56,17 +58,22 @@ public final class Messages {
     public static final String ERROR_GETTING_APPLICATIONS = "Error getting Cloud Foundry applications";
     public static final String ERROR_RETRIEVING_RECENT_LOGS = "Error retrieving recent logs";
     public static final String ERROR_READING_PROTOCOL_BUFFER_LOGS = "Error reading protocol buffer logs";
+    public static final String ERROR_COMPUTING_CHECKSUM_OF_FILE = "Error computing checksum of file {0} for application {1}";
+    public static final String ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3 = "Attribute \"{0}\" of application \"{1}\" is of type {2} instead of {3}!";
+    public static final String ILLEGAL_DESIRED_STATE = "Illegal desired application state: {0}";
+    public static final String ILLEGAL_SERVICE_OPERATION_STATE = "Illegal service operation state: {0}";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_NOT_SET = "Environment variable \"{0}\" not set";
     public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\", using default \"{1}\"";
     public static final String INVALID_XS_TARGET_URL = "Invalid XS target URL \"{0}\", using default \"{1}\"";
     public static final String UNKNOWN_DB_TYPE = "Unknown database type \"{0}\", using default \"{1}\"";
-    public static final String INVALID_PLATFORM_TYPES = "Invalid platform types \"{0}\", using default \"{1}\"";
     public static final String INVALID_PLATFORMS = "Invalid platforms \"{0}\", using default \"{1}\"";
+    public static final String INVALID_TARGETS = "Invalid targets \"{0}\", using default \"{1}\"";
     public static final String INVALID_MAX_UPLOAD_SIZE = "Invalid max upload size \"{0}\", using default \"{1}\"";
     public static final String INVALID_MAX_MTA_DESCRIPTOR_SIZE = "Invalid max mta descriptor size \"{0}\", using default \"{1}\"";
     public static final String INVALID_VCAP_APPLICATION_SPACE_ID = "Invalid VCAP_APPLICATION \"{0}\", using default space ID \"{1}\"";
+    public static final String INVALID_VCAP_APPLICATION = "Invalid VCAP_APPLICATION \"{0}\"";
     public static final String INVALID_VCAP_APPLICATION_DEPLOY_SERVICE_URI = "Could not determine deploy service URI from VCAP_APPLICATION \"{0}\"";
     public static final String INVALID_VCAP_APPLICATION_ROUTER_PORT = "Invalid VCAP_APPLICATION \"{0}\", using default router port \"{1}\"";
     public static final String UNSUPPORTED_PARAMETER = "Parameter \"{0}\" is not supported, it will be ignored";
@@ -83,7 +90,7 @@ public final class Messages {
     public static final String SPACE_ID_NOT_SPECIFIED = "Space ID not specified in environment, using default \"{0}\"";
     public static final String NO_APPLICATION_URIS_SPECIFIED = "No application uris specified in environment";
     public static final String ATTEMPTING_TO_RELEASE_STUCK_LOCK = "Change log lock is presumed to be stuck. Attempting to release it...";
-    public static final String CURRENT_LOCK = "Change log lock was acquired at {1} by {0}";
+    public static final String CURRENT_LOCK = "Change log lock was acquired at {0} by {1}";
     public static final String CURRENT_DATE = "The current date is {0}";
 
     public static final String XS_TYPE = "XS type: {0}";
@@ -95,6 +102,7 @@ public final class Messages {
     public static final String MAX_MTA_DESCRIPTOR_SIZE = "Max mta descriptor size: {0}";
     public static final String SCAN_UPLOADS = "Scan uploads: {0}";
     public static final String SPACE_ID = "Space ID: {0}";
+    public static final String ORG_NAME = "Org Name: {0}";
     public static final String DUMMY_TOKENS_ENABLED = "Dummy tokens enabled: {0}";
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";
     public static final String ADMIN_USERNAME = "Superuser username: {0}";
@@ -112,15 +120,16 @@ public final class Messages {
     public static final String CHANGE_LOG_LOCK_WAIT_TIME = "Change log lock wait time: {0}";
     public static final String CHANGE_LOG_LOCK_DURATION = "Change log lock duration: {0}";
     public static final String CHANGE_LOG_LOCK_ATTEMPTS = "Change log lock attempts: {0}";
+    public static final String GATHER_STATISTICS = "Gather statistics: {0}";
 
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION = "About to perform action \"{0}\"";
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION_WITH_PARAMS = "About to perform action \"{0}\" with parameters \"{1}\"";
     public static final String AUDIT_LOG_ACTION_SUCCESS = "Succesfuly performed action \"{0}\"";
     public static final String AUDIT_LOG_ACTION_FAILURE = "Failed to perform action \"{0}\"";
     public static final String AUDIT_LOGGING_FAILED = "Failed to write message to the audit log";
-    public static final String AUDIT_LOG_FULL_CONFIG = "Full deploy service configuration : {0}";
-    public static final String AUDIT_LOG_UPDATE_CONFIG = "Updating configuration \"{0}\" with value \"{1}\"";
-    public static final String AUDIT_LOG_CREATE_CONFIG = "Creating configuration \"{0}\" with value \"{1}\"";
+    public static final String AUDIT_LOG_CONFIG = "Deploy service configuration \"{0}\": {1}";
+    public static final String AUDIT_LOG_UPDATE_CONFIG = "Updating configuration \"{0}\"";
+    public static final String AUDIT_LOG_CREATE_CONFIG = "Creating configuration \"{0}\"";
     public static final String AUDIT_LOG_DELETE_CONFIG = "Deleting configuration \"{0}\"";
     public static final String AUDIT_LOG_CONFIG_UPDATED = "Configuration was updated";
     public static final String AUDIT_LOG_CONFIG_UPDATE_FAILED = "Configuration update failed";

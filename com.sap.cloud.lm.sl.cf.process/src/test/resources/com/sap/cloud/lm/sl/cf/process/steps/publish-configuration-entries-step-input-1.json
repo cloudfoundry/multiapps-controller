@@ -1,0 +1,34 @@
+{
+  "entriesToPublish": [
+    {
+      "providerNid": "mta",
+      "providerId": "mta-2:provided-dependency-1",
+      "providerVersion": "1.0.0",
+      "targetSpace": "test test",
+      "content": "foo"
+    },
+    {
+      "providerNid": "mta",
+      "providerId": "mta-2:provided-dependency-2",
+      "providerVersion": "1.0.0",
+      "targetSpace": "test test",
+      "content": "bar"
+    }
+  ],
+  "expectedCreatedEntries": [
+    {
+      "providerNid": "mta",
+      "providerId": "mta-2:provided-dependency-1",
+      "providerVersion": "1.0.0",
+      "targetSpace": "test test",
+      "content": "foo"
+    },
+    {
+      "providerNid": "mta",
+      "providerId": "mta-2:provided-dependency-2",
+      "providerVersion": "1.0.0",
+      "targetSpace": "test test",
+      "content": "bar"
+    }
+  ]
+}

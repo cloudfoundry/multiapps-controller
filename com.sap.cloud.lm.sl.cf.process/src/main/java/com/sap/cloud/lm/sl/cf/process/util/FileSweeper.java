@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.persistence.services.FileService;
+import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 public class FileSweeper {
@@ -15,9 +15,9 @@ public class FileSweeper {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSweeper.class);
 
     private final String spaceId;
-    private final FileService fileService;
+    private final AbstractFileService fileService;
 
-    public FileSweeper(String spaceId, FileService fileService) {
+    public FileSweeper(String spaceId, AbstractFileService fileService) {
         this.spaceId = spaceId;
         this.fileService = fileService;
     }

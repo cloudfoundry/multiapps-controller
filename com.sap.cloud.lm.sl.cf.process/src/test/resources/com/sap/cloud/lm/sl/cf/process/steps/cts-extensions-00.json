@@ -3,5 +3,5 @@
   "processId": "1000",
   "taskId": "prepareDeployParametersTask",
   "type": "EXT",
-  "text": "{\"ctsErrorCode\":\"OK\",\"fileName\":\"MTAR_NAME\",\"filePath\":\"MTAR_PATH\",\"logs\":\"ctslogs/CTS_LOG\"}"
+  "text": "{\"ctsErrorCode\":\"OK\",\"fileName\":\"MTAR_NAME\",\"filePath\":\"MTAR_PATH\",\"logs\":\"ctslogs/MTAR_NAME\"}"
 }

@@ -2,7 +2,7 @@ _schema-version: "2.0.0"
 ID: com.sap.xs2.samples.javahelloworld.config1
 extends: com.sap.xs2.samples.javahelloworld
 
-target-platforms: [XS2-INITIAL]
+targets: [XS2-INITIAL]
 
 modules:
   - name: java-hello-world

@@ -1,8 +1,10 @@
 [
   {
+    "isOptional": false,
     "name": "resource-1"
   },
   {
+    "isOptional": false,
     "name": "resource-2"
   }
 ]

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -22,18 +23,20 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
 public class ConfigurationReferencesResolver extends Visitor {
 
-    protected ConfigurationReferenceResolver referenceResolver;
+    protected ConfigurationReferenceResolver configurationResolver;
     protected ConfigurationEntryDao dao;
     protected Map<String, ResolvedConfigurationReference> resolvedReferences = new TreeMap<>();
     protected ConfigurationFilterParser filterParser;
     protected BiFunction<String, String, String> spaceIdSupplier;
+    protected CloudTarget cloudTarget;
 
     public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        BiFunction<String, String, String> spaceIdSupplier) {
+        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
         this.dao = dao;
-        this.referenceResolver = createReferenceResolver(dao);
+        this.configurationResolver = createReferenceResolver(dao);
         this.filterParser = filterParser;
         this.spaceIdSupplier = spaceIdSupplier;
+        this.cloudTarget = cloudTarget;
     }
 
     protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryDao dao) {
@@ -87,13 +90,16 @@ public class ConfigurationReferencesResolver extends Visitor {
     }
 
     @Override
-    public void visit(ElementContext context, Resource resource) throws ContentException {
-        ConfigurationFilter configurationFilter = filterParser.parse(resource);
-        if (configurationFilter != null) {
-            ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter, resource,
-                referenceResolver.resolve(resource, configurationFilter));
-            resolvedReferences.put(resource.getName(), resolvedReference);
+    public void visit(ElementContext context, Resource sourceResource) throws ContentException {
+        ConfigurationFilter configurationFilter = filterParser.parse(sourceResource);
+        if (configurationFilter == null) {
+            // resource is not a config reference.
+            return;
         }
+        List<Resource> resolvedResources = configurationResolver.resolve(sourceResource, configurationFilter, cloudTarget);
+        ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter, sourceResource,
+            resolvedResources);
+        resolvedReferences.put(sourceResource.getName(), resolvedReference);
     }
 
 }

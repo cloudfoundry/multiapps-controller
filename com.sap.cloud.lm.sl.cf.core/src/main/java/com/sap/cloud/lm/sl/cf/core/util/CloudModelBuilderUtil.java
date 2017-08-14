@@ -1,18 +1,23 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceType;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.parser.ParametersParser;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 public class CloudModelBuilderUtil {
 
@@ -23,22 +28,21 @@ public class CloudModelBuilderUtil {
         return true;
     }
 
-    public static TargetPlatform findPlatform(DescriptorHandler handler, List<TargetPlatform> platforms, String platformName,
-        TargetPlatform defaultPlatform) throws ContentException {
-        TargetPlatform platform = handler.findPlatform(platforms, platformName, defaultPlatform);
-        if (platform == null) {
-            throw new ContentException(Messages.UNKNOWN_PLATFORM, platformName);
+    public static Target findTarget(DescriptorHandler handler, List<Target> targets, String targetName, Target defaultTarget)
+        throws ContentException {
+        Target target = handler.findTarget(targets, targetName, defaultTarget);
+        if (target == null) {
+            throw new ContentException(Messages.UNKNOWN_TARGET, targetName);
         }
-        return platform;
+        return target;
     }
 
-    public static TargetPlatformType findPlatformType(DescriptorHandler handler, List<TargetPlatformType> platformTypes,
-        TargetPlatform platform) throws ContentException {
-        TargetPlatformType platformType = handler.findPlatformType(platformTypes, platform.getType());
-        if (platformType == null) {
-            throw new ContentException(Messages.UNKNOWN_PLATFORM_TYPE, platform.getType(), platform.getName());
+    public static Platform findPlatform(DescriptorHandler handler, List<Platform> platforms, Target target) throws ContentException {
+        Platform platform = handler.findPlatform(platforms, target.getType());
+        if (platform == null) {
+            throw new ContentException(Messages.UNKNOWN_PLATFORM, target.getType(), target.getName());
         }
-        return platformType;
+        return platform;
     }
 
     public static Module findModule(DescriptorHandler handler, DeploymentDescriptor deploymentDescriptor, String moduleName)
@@ -66,8 +70,21 @@ public class CloudModelBuilderUtil {
         return deployedAppNames;
     }
 
-    public static String buildImplicitTargetPlatformName(String org, String space) {
+    public static String buildImplicitDeployTargetName(String org, String space) {
         return String.format("%s %s", org, space);
+    }
+
+    public static boolean isService(Resource resource) {
+        return resource.getType() != null; // Typed resource = service;
+    }
+
+    public static <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
+        return parser.parse(parametersList);
+    }
+
+    public static ServiceType getServiceType(Map<String, Object> properties) {
+        String type = (String) properties.getOrDefault(SupportedParameters.TYPE, ServiceType.MANAGED.toString());
+        return ServiceType.get(type);
     }
 
 }

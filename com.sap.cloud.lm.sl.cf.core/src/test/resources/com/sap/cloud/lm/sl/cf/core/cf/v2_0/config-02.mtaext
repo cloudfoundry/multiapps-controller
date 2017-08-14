@@ -1,5 +1,5 @@
-_schema-version: "2.0.0"
+_schema-version: "2.1.0"
 ID: com.sap.sample.mta.config-01
 extends: com.sap.sample.mta
 
-target-platforms: [XS2-INITIAL]
+targets: [XS2-INITIAL]

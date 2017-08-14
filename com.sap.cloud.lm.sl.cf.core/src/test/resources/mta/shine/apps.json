@@ -2,10 +2,11 @@
   {
     "moduleName": "shine-xsjs",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-shine-xsjs.cfapps.neo.ondemand.com\"]}",
       "HANA_SERVICE_NAME=shine-database",
       "MTA_METADATA={\"id\":\"com.sap.xs2.samples.shine\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"shine-xsjs\"}",
@@ -30,10 +31,11 @@
     "extendedStaging": {
       "buildpackUrl": "git://github.wdf.sap.corp/xs2-java/java-buildpack.git"
     },
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-shine-odata.cfapps.neo.ondemand.com\"]}",
       "MTA_METADATA={\"id\":\"com.sap.xs2.samples.shine\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"shine-odata\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"xsodata\"]",
@@ -57,10 +59,11 @@
   {
     "moduleName": "shine",
     "extendedStaging": {},
-    "tempUris": [],
+    "idleUris": [],
+    "tasks": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-shine.cfapps.neo.ondemand.com\"]}",
       "MTA_METADATA={\"id\":\"com.sap.xs2.samples.shine\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"shine\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",

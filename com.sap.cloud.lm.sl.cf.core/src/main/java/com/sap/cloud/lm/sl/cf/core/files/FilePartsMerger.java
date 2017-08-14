@@ -15,7 +15,8 @@ public class FilePartsMerger implements Closeable {
     private OutputStream fileOutputStream;
 
     public FilePartsMerger(String fileName) throws IOException {
-        mergedFilePath = Paths.get(fileName).toAbsolutePath().normalize();
+        Path tempDir = Files.createTempDirectory("merge");
+        mergedFilePath = Paths.get(tempDir.toString(), fileName);
         fileOutputStream = Files.newOutputStream(mergedFilePath);
     }
 

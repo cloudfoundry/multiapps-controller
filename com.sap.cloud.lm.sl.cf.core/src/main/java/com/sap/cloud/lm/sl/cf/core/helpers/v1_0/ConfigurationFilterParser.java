@@ -14,22 +14,22 @@ import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.builders.v1_0.PropertiesChainBuilder;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 public class ConfigurationFilterParser {
 
     private static final String NEW_SYNTAX_FILTER = "configuration";
     private static final String OLD_SYNTAX_FILTER = "mta-provides-dependency";
 
-    protected TargetPlatformType platformType;
-    protected TargetPlatform platform;
+    protected Platform platform;
+    protected Target target;
     protected PropertiesChainBuilder chainBuilder;
 
-    public ConfigurationFilterParser(TargetPlatformType platformType, TargetPlatform platform, PropertiesChainBuilder chainBuilder) {
-        this.platformType = platformType;
+    public ConfigurationFilterParser(Platform platform, Target target, PropertiesChainBuilder chainBuilder) {
         this.platform = platform;
+        this.target = target;
         this.chainBuilder = chainBuilder;
     }
 
@@ -64,17 +64,18 @@ public class ConfigurationFilterParser {
         String version = getOptionalParameter(parameters, SupportedParameters.VERSION);
         String namespaceId = getOptionalParameter(parameters, SupportedParameters.PROVIDER_NID);
         String pid = getOptionalParameter(parameters, SupportedParameters.PROVIDER_ID);
-        Map<String, String> filter = getOptionalParameter(parameters, SupportedParameters.FILTER);
-        return new ConfigurationFilter(namespaceId, pid, version, getTargetSpace(parameters), filter);
+        Map<String, Object> filter = getOptionalParameter(parameters, SupportedParameters.FILTER);
+        Map<String, Object> target = getOptionalParameter(parameters, SupportedParameters.TARGET);
+        boolean hasExplicitTarget = target != null;
+        String targetSpace = hasExplicitTarget ? parseSpaceTarget(target) : computeTargetSpace(getCurrentOrgAndSpace());
+        return new ConfigurationFilter(namespaceId, pid, version, targetSpace, filter, hasExplicitTarget);
+
     }
 
-    private String getTargetSpace(Map<String, Object> parameters) throws ContentException {
-        Map<String, Object> target = getOptionalParameter(parameters, SupportedParameters.TARGET);
-        if (target != null) {
-            return computeTargetSpace(
-                new Pair<>(getRequiredParameter(target, SupportedParameters.ORG), getRequiredParameter(target, SupportedParameters.SPACE)));
-        }
-        return null;
+    private String parseSpaceTarget(Map<String, Object> target) {
+        String org = getRequiredParameter(target, SupportedParameters.ORG);
+        String space = getRequiredParameter(target, SupportedParameters.SPACE);
+        return computeTargetSpace(new Pair<>(org, space));
     }
 
     protected Map<String, Object> getParameters(Resource resource) {
@@ -82,7 +83,6 @@ public class ConfigurationFilterParser {
     }
 
     protected Pair<String, String> getCurrentOrgAndSpace() {
-        return new OrgAndSpaceHelper(platform, platformType).getOrgAndSpace();
+        return new OrgAndSpaceHelper(target, platform).getOrgAndSpace();
     }
-
 }

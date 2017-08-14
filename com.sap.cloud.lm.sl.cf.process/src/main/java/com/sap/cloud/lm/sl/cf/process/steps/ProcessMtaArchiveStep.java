@@ -4,7 +4,10 @@ import static java.text.MessageFormat.format;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.jar.Manifest;
+
+import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
@@ -12,12 +15,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
+import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
+import com.sap.cloud.lm.sl.mta.parsers.v1_0.DeploymentDescriptorParser;
+import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
@@ -28,8 +35,14 @@ public class ProcessMtaArchiveStep extends AbstractXS2ProcessStep {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessMtaArchiveStep.class);
 
+    @Inject
+    private OngoingOperationDao ongoingOperationDao;
+
+    protected Function<OngoingOperationDao, ProcessConflictPreventer> conflictPreventerSupplier = (dao) -> new ProcessConflictPreventer(
+        ongoingOperationDao);
+
     public static StepMetadata getMetadata() {
-        return new StepMetadata("processArchiveTask", "Process Archive", "Process Archive");
+        return StepMetadata.builder().id("processArchiveTask").displayName("Process Archive").description("Process Archive").build();
     }
 
     @Override
@@ -41,7 +54,7 @@ public class ProcessMtaArchiveStep extends AbstractXS2ProcessStep {
 
             String appArchiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
             processApplicationArchive(context, appArchiveId);
-
+            setMtaIdForProcess(context);
             debug(context, Messages.MTA_ARCHIVE_PROCESSED, LOGGER);
             return ExecutionStatus.SUCCESS;
         } catch (FileStorageException fse) {
@@ -92,6 +105,15 @@ public class ProcessMtaArchiveStep extends AbstractXS2ProcessStep {
                 StepsUtil.setMtaModules(context, mtaModules);
             });
         fileService.processFileContent(manifestProcessor);
+    }
+
+    private void setMtaIdForProcess(DelegateExecution context) {
+        String descriptorString = StepsUtil.getDeploymentDescriptorString(context);
+        Map<String, Object> descriptorMap = YamlUtil.convertYamlToMap(descriptorString);
+        String mtaId = (String) descriptorMap.get(DeploymentDescriptorParser.ID);
+        context.setVariable(Constants.PARAM_MTA_ID, mtaId);
+        conflictPreventerSupplier.apply(ongoingOperationDao).attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(context),
+            StepsUtil.getCorrelationId(context));
     }
 
     protected MtaArchiveHelper getHelper(Manifest manifest) {

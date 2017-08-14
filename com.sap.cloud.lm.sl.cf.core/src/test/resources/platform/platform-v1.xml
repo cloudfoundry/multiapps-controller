@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<target-platform>
-    <name>TARGET-PLATFORM-TEST</name>
+<deployTarget>
+    <name>DEPLOY-TARGET-TEST</name>
     <type>TEST</type>
     <description>TEST DESCRIPTION</description>
     <properties>
@@ -45,8 +45,8 @@
             <value>VALUE-3</value>
         </entry>
     </properties>
-    <module-types>
-        <module-type>
+    <moduleTypes>
+        <moduleType>
             <name>MODULE-1</name>
             <properties>
                 <entry>
@@ -79,14 +79,14 @@
                     <value>VALUE-2</value>
                 </entry>
             </properties>
-        </module-type>
-        <module-type>
+        </moduleType>
+        <moduleType>
             <name>MODULE-2</name>
             <properties/>
-        </module-type>
-    </module-types>
-    <resource-types>
-        <resource-type>
+        </moduleType>
+    </moduleTypes>
+    <resourceTypes>
+        <resourceType>
             <name>RESOURCE-1</name>
             <properties>
                 <entry>
@@ -119,10 +119,10 @@
                     <value>VALUE-2</value>
                 </entry>
             </properties>
-        </resource-type>
-        <resource-type>
+        </resourceType>
+        <resourceType>
             <name>RESOURCE-2</name>
             <properties/>
-        </resource-type>
-    </resource-types>
-</target-platform>
+        </resourceType>
+    </resourceTypes>
+</deployTarget>

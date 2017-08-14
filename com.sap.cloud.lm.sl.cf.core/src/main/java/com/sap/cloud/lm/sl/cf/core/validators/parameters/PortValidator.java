@@ -9,7 +9,7 @@ public class PortValidator implements ParameterValidator {
     public static final int MAX_PORT_VALUE = 65535;
 
     @Override
-    public boolean validate(Object port) {
+    public boolean isValid(Object port) {
         if (!(port instanceof Integer)) {
             return false;
         }

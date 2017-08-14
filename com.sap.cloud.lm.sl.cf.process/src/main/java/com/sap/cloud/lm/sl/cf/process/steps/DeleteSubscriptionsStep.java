@@ -25,7 +25,8 @@ public class DeleteSubscriptionsStep extends AbstractXS2ProcessStep {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteSubscriptionsStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("deleteSubscriptionsTask", "Delete Subscriptions", "Delete Subscriptions");
+        return StepMetadata.builder().id("deleteSubscriptionsTask").displayName("Delete Subscriptions").description(
+            "Delete Subscriptions").build();
     }
 
     @Inject

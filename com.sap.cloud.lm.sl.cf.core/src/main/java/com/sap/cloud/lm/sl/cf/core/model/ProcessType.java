@@ -8,6 +8,6 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum ProcessType {
 
-    @XmlEnumValue("deploy") DEPLOY, @XmlEnumValue("undeploy") UNDEPLOY, @XmlEnumValue("blue-green-deploy") BLUE_GREEN_DEPLOY;
+    @XmlEnumValue("deploy") DEPLOY, @XmlEnumValue("undeploy") UNDEPLOY, @XmlEnumValue("blue-green-deploy") BLUE_GREEN_DEPLOY, @XmlEnumValue("cts-deploy") CTS_DEPLOY;
 
 }

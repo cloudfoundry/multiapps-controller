@@ -1,7 +1,9 @@
 [
   {
     "moduleName": "module-1",
-    "tempUris": [],
+    "idleUris": [],
+    "liveUris": [],
+    "tasks": [],
     "staging": {},
     "instances": 0,
     "memory": 0,
@@ -27,7 +29,9 @@
   },
   {
     "moduleName": "module-2",
-    "tempUris": [],
+    "idleUris": [],
+    "liveUris": [],
+    "tasks": [],
     "staging": {},
     "instances": 0,
     "memory": 0,

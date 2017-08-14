@@ -5,7 +5,6 @@ import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.function.Function;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
@@ -17,7 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
@@ -28,10 +29,9 @@ public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateServiceBrokersStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("deleteServiceBrokersTask", "Delete Service Brokers", "Delete Service Brokers");
+        return StepMetadata.builder().id("deleteServiceBrokersTask").displayName("Delete Service Brokers").description(
+            "Delete Service Brokers").build();
     }
-
-    protected Function<DelegateExecution, CloudFoundryOperations> clientSupplier = (context) -> getCloudFoundryClient(context, LOGGER);
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -40,7 +40,7 @@ public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
             info(context, Messages.DELETING_SERVICE_BROKERS, LOGGER);
 
             List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(context);
-            CloudFoundryOperations client = clientSupplier.apply(context);
+            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
             List<String> serviceBrokersToCreate = getServiceBrokerNames(StepsUtil.getServiceBrokersToCreate(context));
 
             for (CloudApplication app : appsToUndeploy) {
@@ -61,10 +61,11 @@ public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
 
     private void deleteServiceBrokerIfNecessary(DelegateExecution context, CloudApplication app, List<String> serviceBrokersToCreate,
         CloudFoundryOperations client) throws SLException {
-        if (!StepsUtil.getAppAttribute(app, SupportedParameters.CREATE_SERVICE_BROKER, false)) {
+        ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
+        if (!attributesGetter.getAttribute(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return;
         }
-        String name = StepsUtil.getAppAttribute(app, SupportedParameters.SERVICE_BROKER_NAME, app.getName());
+        String name = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_NAME, String.class, app.getName());
 
         if (serviceBrokerExists(name, client) && !serviceBrokersToCreate.contains(name)) {
             try {
@@ -74,8 +75,10 @@ public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
             } catch (CloudFoundryException e) {
                 switch (e.getStatusCode()) {
                     case FORBIDDEN:
-                        warn(context, format(Messages.DELETE_OF_SERVICE_BROKERS_FAILED_403, name), LOGGER);
-                        break;
+                        if (shouldSucceed(context)) {
+                            warn(context, format(Messages.DELETE_OF_SERVICE_BROKERS_FAILED_403, name), LOGGER);
+                            return;
+                        }
                     default:
                         throw e;
                 }
@@ -93,6 +96,10 @@ public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
             throw e;
         }
         return true;
+    }
+
+    private boolean shouldSucceed(DelegateExecution context) {
+        return (Boolean) context.getVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS);
     }
 
 }

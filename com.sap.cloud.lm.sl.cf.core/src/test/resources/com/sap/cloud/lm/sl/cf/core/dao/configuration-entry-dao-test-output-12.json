@@ -4,6 +4,16 @@
     "providerId": "id-2",
     "providerVersion": "2.0.0",
     "targetSpace": "s-2",
-    "content": "{\"type\": \"test\"}"
+    "content": "{\"type\": \"test\"}",
+    "visibility": [
+      {
+        "space": "space3",
+        "org": "org3"
+      },
+      {
+        "space": "space4",
+        "org": "org4"
+      }
+    ]
   }
 ]

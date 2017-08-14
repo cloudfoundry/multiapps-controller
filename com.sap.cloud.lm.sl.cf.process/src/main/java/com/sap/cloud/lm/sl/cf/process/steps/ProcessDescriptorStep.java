@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceType;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
@@ -23,14 +23,19 @@ import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolverInvoker;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ZdmHelper;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
+import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatformType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("processDescriptorStep")
@@ -41,21 +46,22 @@ public class ProcessDescriptorStep extends AbstractXS2ProcessStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("processDescriptorStepTask", "Process Descriptor Step", "Process Descriptor Step");
+        return StepMetadata.builder().id("processDescriptorTask").displayName("Process Descriptor Step").description(
+            "Process Descriptor Step").build();
     }
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;
 
-    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, TargetPlatformType platformType,
-        TargetPlatform platform, SystemParameters systemParameters, ConfigurationEntryDao dao,
-        BiFunction<String, String, String> spaceIdSupplier) {
-        return new MtaDescriptorPropertiesResolver(factory, platformType, platform, systemParameters, spaceIdSupplier, dao);
+    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platform, Target target,
+        SystemParameters systemParameters, ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
+        CloudTarget cloudTarget) {
+        return new MtaDescriptorPropertiesResolver(factory, platform, target, systemParameters, spaceIdSupplier, dao, cloudTarget);
     }
 
     protected UserProvidedResourceResolver getUserProvidedResourceResolver(DeploymentDescriptor descriptor, HandlerFactory handlerFactory,
-        TargetPlatform platform, TargetPlatformType platformType, ResourceTypeFinder resourceHelper) {
-        return handlerFactory.getUserProvidedResourceResolver(resourceHelper, descriptor, platform, platformType);
+        Target target, Platform platform, ResourceTypeFinder resourceHelper) {
+        return handlerFactory.getUserProvidedResourceResolver(resourceHelper, descriptor, target, platform);
     }
 
     @Override
@@ -63,31 +69,31 @@ public class ProcessDescriptorStep extends AbstractXS2ProcessStep {
         logActivitiTask(context, LOGGER);
 
         try {
-            info(context, Messages.RESOLVING_DESCRIPTOR_PROPERTIES, LOGGER);
+            debug(context, Messages.RESOLVING_DESCRIPTOR_PROPERTIES, LOGGER);
 
             CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
-            TargetPlatform platform = StepsUtil.getPlatform(context);
-            TargetPlatformType platformType = StepsUtil.getPlatformType(context);
-            ResourceTypeFinder resourceHelper = handlerFactory.getResourceTypeFinder(
-                CloudModelBuilder.ServiceType.USER_PROVIDED.toString());
-            platformType.accept(resourceHelper);
+            Target target = StepsUtil.getTarget(context);
+            Platform platform = StepsUtil.getPlatform(context);
+            ResourceTypeFinder resourceHelper = handlerFactory.getResourceTypeFinder(ServiceType.USER_PROVIDED.toString());
+            platform.accept(resourceHelper);
 
-            MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, platformType, platform,
-                StepsUtil.getSystemParameters(context), configurationEntryDao, getSpaceIdSupplier(client));
+            MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, platform, target,
+                StepsUtil.getSystemParameters(context), configurationEntryDao, getSpaceIdSupplier(client),
+                new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)));
 
-            DeploymentDescriptor descriptor = resolver.resolve(StepsUtil.getDeploymentDescriptor(context));
-            UserProvidedResourceResolver userProvidedServiceResolver = getUserProvidedResourceResolver(descriptor, handlerFactory, platform,
-                platformType, resourceHelper);
+            DeploymentDescriptor descriptor = resolver.resolve(StepsUtil.getUnresolvedDeploymentDescriptor(context));
+            UserProvidedResourceResolver userProvidedServiceResolver = getUserProvidedResourceResolver(descriptor, handlerFactory, target,
+                platform, resourceHelper);
 
             descriptor = userProvidedServiceResolver.resolve();
 
-            // Merge DeploymentDescriptor and TargetPlatform
-            handlerFactory.getTargetPlatformMerger(platform).mergeInto(descriptor);
+            // Merge DeploymentDescriptor and Target
+            handlerFactory.getTargetMerger(target).mergeInto(descriptor);
 
-            // Merge DeploymentDescriptor and TargetPlatformType
-            handlerFactory.getTargetPlatformTypeMerger(platformType).mergeInto(descriptor);
+            // Merge DeploymentDescriptor and Platform
+            handlerFactory.getPlatformMerger(platform).mergeInto(descriptor);
 
             List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
             StepsUtil.setSubscriptionsToCreate(context, subscriptions);
@@ -95,6 +101,12 @@ public class ProcessDescriptorStep extends AbstractXS2ProcessStep {
             resolveXsPlaceholders(descriptor, xsPlaceholderResolver, handlerFactory.getMajorVersion());
 
             StepsUtil.setDeploymentDescriptor(context, descriptor);
+
+            ProcessType processType = StepsUtil.getProcessType(context);
+            if (!processType.equals(ProcessType.BLUE_GREEN_DEPLOY)) {
+                validateZdmModeParameter(context);
+            }
+
             debug(context,
                 format(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor)),
                 LOGGER);
@@ -117,4 +129,12 @@ public class ProcessDescriptorStep extends AbstractXS2ProcessStep {
         return (orgName, spaceName) -> new ClientHelper(client).computeSpaceId(orgName, spaceName);
     }
 
+    private void validateZdmModeParameter(DelegateExecution context) throws ContentException {
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(context);
+        int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
+        int minorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION);
+        if ((new ZdmHelper()).existsZdmMarker(descriptor, majorSchemaVersion, minorSchemaVersion)) {
+            throw new SLException(Messages.ERROR_ZDM_MODE_PARAMETER);
+        }
+    }
 }

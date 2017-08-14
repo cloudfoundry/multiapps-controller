@@ -21,7 +21,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.ClientFactory;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
@@ -37,7 +37,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     @Qualifier("cloudFoundryClientFactory")
-    CloudFoundryClientFactory cloudFoundryClientFactory;
+    ClientFactory cloudFoundryClientFactory;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

@@ -19,7 +19,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
 import com.google.gson.reflect.TypeToken;
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -159,8 +158,7 @@ public class BuildCloudUndeployModelStepTest extends AbstractStepTest<BuildCloud
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(),
-            context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
 
         assertEquals(output.servicesToDelete, StepsUtil.getServicesToDelete(context));
 

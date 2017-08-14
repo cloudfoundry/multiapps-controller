@@ -16,8 +16,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -36,8 +34,6 @@ public class RegisterServiceUrlsStepTest extends AbstractStepTest<RegisterServic
     private StepOutput expectedOutput;
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
-    private ClientExtensions client = Mockito.mock(ClientExtensions.class);
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -65,20 +61,19 @@ public class RegisterServiceUrlsStepTest extends AbstractStepTest<RegisterServic
     public void setUp() throws Exception {
         loadParameters();
         prepareContext();
-        step.extensionsSupplier = (context) -> client;
     }
 
     @Test
     public void testExecute() throws Exception {
-        ExecutionStatus status = step.executeStep(context);
+        step.execute(context);
 
-        assertEquals(ExecutionStatus.SUCCESS.toString(), status.toString());
+        assertStepFinishedSuccessfully();
 
         StepOutput actualOutput = captureStepOutput();
         assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
 
         for (ServiceUrl serviceUrl : expectedOutput.serviceUrlsToRegister) {
-            Mockito.verify(client).registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
+            Mockito.verify(clientExtensions).registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
         }
     }
 

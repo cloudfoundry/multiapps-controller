@@ -1,7 +1,10 @@
 package com.sap.cloud.lm.sl.cf.web.resources;
 
+import static com.sap.cloud.lm.sl.common.util.CommonUtil.cast;
+
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.TargetPlatformDao;
+import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
+import com.sap.cloud.lm.sl.cf.core.dto.persistence.DeployTargetDto;
+import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.TargetPlatformDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.TargetPlatformsDto;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -40,14 +45,15 @@ import com.sap.cloud.lm.sl.common.util.XmlUtil;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.Schemas;
 import com.sap.cloud.lm.sl.mta.model.v1_0.PlatformModuleType;
 import com.sap.cloud.lm.sl.mta.model.v1_0.PlatformResourceType;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetPlatform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.mta.parsers.v1_0.PlatformModuleTypeParser;
 import com.sap.cloud.lm.sl.mta.parsers.v1_0.PlatformResourceTypeParser;
-import com.sap.cloud.lm.sl.mta.parsers.v1_0.TargetPlatformParser;
+import com.sap.cloud.lm.sl.mta.parsers.v1_0.TargetParser;
 
 @Path("/platforms")
 @Produces(MediaType.APPLICATION_XML)
-public abstract class TargetPlatformsResource {
+
+public abstract class TargetPlatformsResource<Tgt extends Target, Dto extends DeployTargetDto<Tgt>, Dao extends DeployTargetDao<Tgt, Dto>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TargetPlatformsResource.class);
 
@@ -71,11 +77,12 @@ public abstract class TargetPlatformsResource {
     public Response updatePlatform(@PathParam("name") String name, String xml) throws SLException {
         String action = Messages.UPDATE_TARGET_PLATFORM;
         ensureUserIsAuthorized(action);
-        AuditLoggingProvider.getFacade().logConfigUpdate(name, xml);
+        AuditLoggingProvider.getFacade().logConfigUpdate(name);
         try {
-            TargetPlatform platform = parsePlatformXml(xml, schemaLocation);
-            validateRequestPayload(platform);
-            getDao().merge(name, platform);
+            Tgt target = parsePlatformXml(xml, schemaLocation);
+            validateRequestPayload(target);
+            long targetId = getDao().findByName(target.getName()).getId();
+            getDao().merge(targetId, target);
             // CHECKSTYLE:OFF
         } catch (Throwable e) {
             // CHECKSTYLE:ON
@@ -89,15 +96,19 @@ public abstract class TargetPlatformsResource {
 
     @GET
     public Response getAllPlatforms() throws SLException {
-        TargetPlatformsDto dto = getTargetPlatformsDto(getDao().findAll());
-
+        List<Tgt> targets = new ArrayList<Tgt>();
+        for (PersistentObject<Tgt> platform : getDao().findAll()) {
+            targets.add(platform.getObject());
+        }
+        TargetPlatformsDto dto = getTargetPlatformsDto(targets);
         return Response.status(Status.OK).entity(XmlUtil.toXml(dto, true)).build();
     }
 
     @GET
     @Path("/{name}")
     public Response getPlatform(@PathParam("name") String name) throws SLException {
-        TargetPlatformDto dto = getTargetPlatformDto(getDao().find(name));
+        PersistentObject<Tgt> findByName = getDao().findByName(name);
+        TargetPlatformDto dto = getTargetPlatformDto(findByName.getObject());
         return Response.status(Status.OK).entity(XmlUtil.toXml(dto, true)).build();
     }
 
@@ -108,7 +119,8 @@ public abstract class TargetPlatformsResource {
         ensureUserIsAuthorized(action);
         AuditLoggingProvider.getFacade().logConfigDelete(name);
         try {
-            getDao().remove(name);
+            PersistentObject<? extends Target> target = getDao().findByName(name);
+            getDao().remove(target.getId());
             // CHECKSTYLE:OFF
         } catch (Throwable e) {
             // CHECKSTYLE:ON
@@ -126,11 +138,11 @@ public abstract class TargetPlatformsResource {
         String action = Messages.CREATE_TARGET_PLATFORM;
         ensureUserIsAuthorized(action);
         try {
-            TargetPlatform platform = parsePlatformXml(xml, schemaLocation);
-            AuditLoggingProvider.getFacade().logConfigCreate(platform.getName(), xml);
-            validateRequestPayload(platform);
-            getDao().add(platform);
-            LOGGER.debug(MessageFormat.format("Persisted platform: {0}", JsonUtil.toJson(platform, true)));
+            Tgt target = parsePlatformXml(xml, schemaLocation);
+            AuditLoggingProvider.getFacade().logConfigCreate(target.getName());
+            validateRequestPayload(target);
+            getDao().add(target);
+            LOGGER.debug(MessageFormat.format("Persisted target platform: {0}", JsonUtil.toJson(target, true)));
             // CHECKSTYLE:OFF
         } catch (Throwable e) {
             // CHECKSTYLE:ON
@@ -149,31 +161,32 @@ public abstract class TargetPlatformsResource {
         }
     }
 
-    protected TargetPlatform parsePlatformXml(String xml, URL schemaLocation) throws ParsingException {
-        return XmlUtil.fromXml(xml, getPlatformDtoClass(), schemaLocation).toTargetPlatform();
+    protected Tgt parsePlatformXml(String xml, URL schemaLocation) throws ParsingException {
+        Tgt target = cast(XmlUtil.fromXml(xml, getTargetPlatformDtoClass(), schemaLocation).toTargetPlatform());
+        return target;
     }
 
     protected boolean isOrgSpaceSpecified(Map<String, Object> properties) {
         return properties.containsKey(SupportedParameters.ORG) && properties.containsKey(SupportedParameters.SPACE);
     }
 
-    protected void validatePlatformIdentifiers(TargetPlatform platform) throws ParsingException {
-        validateIdentifier(TargetPlatformParser.NAME, platform.getName());
-        validateIdentifier(TargetPlatformParser.TYPE, platform.getType());
-        List<PlatformModuleType> moduleTypes = platform.getModuleTypes1_0();
+    protected void validatePlatformIdentifiers(Target target) throws ParsingException {
+        validateIdentifier(TargetParser.NAME, target.getName());
+        validateIdentifier(TargetParser.TYPE, target.getType());
+        List<PlatformModuleType> moduleTypes = target.getModuleTypes1_0();
         if (moduleTypes == null) {
             return;
         }
         for (int i = 0; i < moduleTypes.size(); i++) {
-            validateIdentifier(String.format("%s#%d#%s", TargetPlatformParser.MODULE_TYPES, i, PlatformModuleTypeParser.NAME),
+            validateIdentifier(String.format("%s#%d#%s", TargetParser.MODULE_TYPES, i, PlatformModuleTypeParser.NAME),
                 moduleTypes.get(i).getName());
         }
-        List<PlatformResourceType> resourceTypes = platform.getResourceTypes1_0();
+        List<PlatformResourceType> resourceTypes = target.getResourceTypes1_0();
         if (resourceTypes == null) {
             return;
         }
         for (int i = 0; i < resourceTypes.size(); i++) {
-            validateIdentifier(String.format("%s#%d#%s", TargetPlatformParser.RESOURCE_TYPES, i, PlatformResourceTypeParser.NAME),
+            validateIdentifier(String.format("%s#%d#%s", TargetParser.RESOURCE_TYPES, i, PlatformResourceTypeParser.NAME),
                 resourceTypes.get(i).getName());
         }
     }
@@ -194,14 +207,14 @@ public abstract class TargetPlatformsResource {
         }
     }
 
-    protected abstract TargetPlatformDao getDao();
+    protected abstract DeployTargetDao<Tgt, Dto> getDao();
 
-    protected abstract void validateRequestPayload(TargetPlatform platform) throws ParsingException;
+    protected abstract void validateRequestPayload(Tgt target) throws ParsingException;
 
-    protected abstract TargetPlatformDto getTargetPlatformDto(TargetPlatform platform);
+    protected abstract TargetPlatformDto getTargetPlatformDto(Tgt target);
 
-    protected abstract TargetPlatformsDto getTargetPlatformsDto(List<TargetPlatform> platforms);
+    protected abstract TargetPlatformsDto getTargetPlatformsDto(List<Tgt> targets);
 
-    protected abstract Class<? extends TargetPlatformDto> getPlatformDtoClass();
+    protected abstract Class<? extends TargetPlatformDto> getTargetPlatformDtoClass();
 
 }

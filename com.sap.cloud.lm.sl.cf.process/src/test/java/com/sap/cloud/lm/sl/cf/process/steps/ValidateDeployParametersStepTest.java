@@ -1,10 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,8 +19,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.Constants;
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -91,11 +88,10 @@ public class ValidateDeployParametersStepTest extends AbstractStepTest<ValidateD
     }
 
     private void validate() throws IOException {
-        assertEquals(ExecutionStatus.SUCCESS.toString(), context.getVariable(Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+        assertStepFinishedSuccessfully();
         if (isArchiveChunked) {
             Path mergedArchiveAbsolutePath = Paths.get(MERGED_ARCHIVE_NAME).toAbsolutePath();
-            assertTrue(Files.exists(mergedArchiveAbsolutePath));
-            Files.delete(mergedArchiveAbsolutePath);
+            assertFalse(Files.exists(mergedArchiveAbsolutePath));
         }
     }
 
@@ -130,7 +126,7 @@ public class ValidateDeployParametersStepTest extends AbstractStepTest<ValidateD
             createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024l + 1));
         Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID)).thenReturn(null);
         Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.any(), Mockito.any(),
-            Mockito.<InputStream> any())).thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024l));
+            Mockito.<File> any())).thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024l));
     }
 
     private void prepareArchiveMerger() throws IOException {

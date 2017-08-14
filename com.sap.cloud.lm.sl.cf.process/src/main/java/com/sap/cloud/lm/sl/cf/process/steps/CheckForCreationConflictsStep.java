@@ -2,14 +2,15 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
@@ -36,14 +37,13 @@ import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("checkForCreationConflictsStep")
 public class CheckForCreationConflictsStep extends AbstractXS2ProcessStep {
-    // Logger
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CheckForCreationConflictsStep.class);
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("checkForCreationConflictsTask", "Check For Creation Conflicts", "Check For Creation Conflicts");
+        return StepMetadata.builder().id("checkForCreationConflictsTask").displayName("Check For Creation Conflicts").description(
+            "Check For Creation Conflicts").build();
     }
-
-    protected Function<DelegateExecution, CloudFoundryOperations> clientSupplier = (context) -> getCloudFoundryClient(context, LOGGER);
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
@@ -81,7 +81,7 @@ public class CheckForCreationConflictsStep extends AbstractXS2ProcessStep {
     }
 
     private void validateServicesToCreate(DelegateExecution context, DeployedMta deployedMta, List<CloudApplication> deployedApps) {
-        CloudFoundryOperations client = clientSupplier.apply(context);
+        CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
         List<CloudServiceExtended> servicesToCreate = StepsUtil.getServicesToCreate(context);
         Map<String, CloudService> existingServicesMap = createExistingServicesMap(client.getServices());
         Set<String> servicesInDeployedMta = deployedMta != null ? deployedMta.getServices() : Collections.emptySet();
@@ -144,43 +144,36 @@ public class CheckForCreationConflictsStep extends AbstractXS2ProcessStep {
         List<CloudApplicationExtended> applicationsToDeploy = StepsUtil.getAppsToDeploy(context);
         Map<String, CloudApplication> existingApplicationsMap = createExistingApplicationsMap(deployedApps);
         List<DeployedMtaModule> deployedMtaModules = deployedMta != null ? deployedMta.getModules() : Collections.emptyList();
-        Map<String, DeployedMtaModule> applicationsInDeployedMta = createApplicationsInDeployedMtaMap(deployedMtaModules);
+        Set<String> applicationsInDeployedMta = getApplicationsInDeployedMta(deployedMtaModules);
 
         for (CloudApplicationExtended application : applicationsToDeploy) {
             if (existingApplicationsMap.containsKey(application.getName())) {
-                validateExistingApplicationAssociation(context, application, deployedApps, applicationsInDeployedMta);
+                validateApplicationToDeploy(context, applicationsInDeployedMta, application, existingApplicationsMap);
             }
         }
     }
 
-    private void validateExistingApplicationAssociation(DelegateExecution context, CloudApplicationExtended existingApp,
-        List<CloudApplication> deployedApps, Map<String, DeployedMtaModule> applicationsInDeployedMtaMap) {
-
-        debug(context, format(Messages.VALIDATING_EXISTING_APPLICATION_ASSOCIATION, existingApp.getName()), LOGGER);
-        if (!applicationsInDeployedMtaMap.containsKey(existingApp.getName())) {
-            throw createApplicationValidationException(existingApp, deployedApps);
+    private void validateApplicationToDeploy(DelegateExecution context, Set<String> applicationsInDeployedMta,
+        CloudApplicationExtended applicationToDeploy, Map<String, CloudApplication> existingApplicationsMap) {
+        debug(context, format(Messages.VALIDATING_EXISTING_APPLICATION_ASSOCIATION, applicationToDeploy.getName()), LOGGER);
+        if (applicationsInDeployedMta.contains(applicationToDeploy.getName())) {
+            return;
         }
+        Optional<DeployedMta> owningMta = detectOwningMta(applicationToDeploy, existingApplicationsMap.values());
+        if (!owningMta.isPresent()) {
+            warn(context, format(Messages.APPLICATION_EXISTS_AS_STANDALONE, applicationToDeploy.getName()), LOGGER);
+            return;
+        }
+        String owningMtaId = owningMta.get().getMetadata().getId();
+        throw new SLException(format(Messages.APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA, applicationToDeploy.getName(), owningMtaId));
     }
 
-    private SLException createApplicationValidationException(CloudApplicationExtended existingApp, List<CloudApplication> deployedApps) {
-
-        DeployedMta applicationOwner = null;
-        try {
-            applicationOwner = detectApplicationOwner(existingApp, deployedApps);
-            String applicationOwnerId = applicationOwner.getMetadata().getId();
-            return new SLException(format(Messages.APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA, existingApp.getName(), applicationOwnerId));
-        } catch (NoSuchElementException e) {
-            return new SLException(format(Messages.APPLICATION_EXISTS_AS_STANDALONE, existingApp.getName()));
-        }
-
-    }
-
-    private DeployedMta detectApplicationOwner(CloudApplicationExtended application, List<CloudApplication> deployedApps) {
+    private Optional<DeployedMta> detectOwningMta(CloudApplicationExtended application, Collection<CloudApplication> deployedApps) {
         List<DeployedMta> deployedMtas = getDeployedMtas(deployedApps);
-        return deployedMtas.stream().filter(mta -> deployedMtaContainsApplication(mta, application)).findAny().get();
+        return deployedMtas.stream().filter(mta -> deployedMtaContainsApplication(mta, application)).findAny();
     }
 
-    private List<DeployedMta> getDeployedMtas(List<CloudApplication> deployedApps) {
+    private List<DeployedMta> getDeployedMtas(Collection<CloudApplication> deployedApps) {
         return new DeployedComponentsDetector().detectAllDeployedComponents(deployedApps).getMtas();
     }
 
@@ -201,10 +194,8 @@ public class CheckForCreationConflictsStep extends AbstractXS2ProcessStep {
         return servicesMap;
     }
 
-    public Map<String, DeployedMtaModule> createApplicationsInDeployedMtaMap(List<DeployedMtaModule> modules) {
-        Map<String, DeployedMtaModule> applicationsInDeployedMtaMap = new HashMap<>(modules.size());
-        modules.forEach(module -> applicationsInDeployedMtaMap.put(module.getAppName(), module));
-        return applicationsInDeployedMtaMap;
+    private Set<String> getApplicationsInDeployedMta(List<DeployedMtaModule> modules) {
+        return modules.stream().map(module -> module.getAppName()).collect(Collectors.toSet());
     }
 
 }

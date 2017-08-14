@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.activiti.engine.delegate.DelegateExecution;
@@ -29,7 +30,7 @@ public class BlueGreenRenameStep extends AbstractXS2ProcessStep {
     private static final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
 
     public static StepMetadata getMetadata() {
-        return new StepMetadata("blueGreenRenameTask", "Blue Green Rename", "Blue Green Rename");
+        return StepMetadata.builder().id("blueGreenRenameTask").displayName("Blue Green Rename").description("Blue Green Rename").build();
     }
 
     protected Supplier<ApplicationColorDetector> colorDetectorSupplier = () -> new ApplicationColorDetector();
@@ -41,13 +42,14 @@ public class BlueGreenRenameStep extends AbstractXS2ProcessStep {
         try {
             info(context, Messages.DETECTING_COLOR_OF_DEPLOYED_MTA, LOGGER);
 
-            DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(context);
+            DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
             DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
 
             ApplicationColorDetector detector = colorDetectorSupplier.get();
             ApplicationColor mtaColor;
+            ApplicationColor deployedMtaColor = null;
             try {
-                ApplicationColor deployedMtaColor = detector.detectSingularDeployedApplicationColor(deployedMta);
+                deployedMtaColor = detector.detectSingularDeployedApplicationColor(deployedMta);
                 if (deployedMtaColor != null) {
                     info(context, format(Messages.DEPLOYED_MTA_COLOR, deployedMtaColor), LOGGER);
                     mtaColor = deployedMtaColor.getAlternativeColor();
@@ -65,9 +67,11 @@ public class BlueGreenRenameStep extends AbstractXS2ProcessStep {
             info(context, format(Messages.NEW_MTA_COLOR, mtaColor), LOGGER);
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
-            ApplicationColorAppender appender = handlerFactory.getApplicationColorAppender(mtaColor);
+            ApplicationColorAppender appender = handlerFactory.getApplicationColorAppender(deployedMtaColor, mtaColor);
             descriptor.accept(appender);
-            StepsUtil.setDeploymentDescriptor(context, descriptor);
+            Map<String, Map<String, String>> moduleNameToZdmResourcesMap = appender.getColorResourceNameMap();
+            StepsUtil.setAppNameToZdmHdiServiceNamesMap(context, moduleNameToZdmResourcesMap);
+            StepsUtil.setUnresolvedDeploymentDescriptor(context, descriptor);
 
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {

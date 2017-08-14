@@ -16,14 +16,26 @@
     <context:component-scan base-package="com.sap.cloud.lm.sl.cf" />
 
     <beans profile="cf">
-        <bean id="cloudFoundryClientFactory" class="com.sap.cloud.lm.sl.cf.core.cf.CFCloudFoundryClientFactory" />
+        <bean id="cloudFoundryClientFactory" class="com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory" />
 
         <bean id="customTokenServices" class="com.sap.cloud.lm.sl.cf.web.security.CustomTokenServices" />
 
-        <bean id="defaultTagsDetector" class="com.sap.cloud.lm.sl.cf.core.helpers.DefaultTagsDetector" />
-        
-        <bean id="recentLogsRetriever" class="com.sap.cloud.lm.sl.cf.core.helpers.RecentLogsRetriever" />
-        
-        <bean id="serviceCreator" class="com.sap.cloud.lm.sl.cf.core.helpers.ServiceCreator" />
+        <bean id="defaultTagsDetector" class="com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector" />
+
+        <bean id="recentLogsRetriever" class="com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever" />
+
+        <bean id="serviceCreator" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator" />
+
+        <bean id="serviceBindingCreator" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator" />
+
+        <bean id="cloudInfoGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.LoggingEndpointGetter" />
+
+        <bean id="applicationRoutesGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter" />
+
+        <bean id="serviceBrokerCreator" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokerCreator" />
+
+        <bean id="serviceBrokersGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokersGetter" />
+
+        <bean id="applicationStagingStateGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingStateGetter" />
     </beans>
 </beans>

@@ -2,8 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.util.function.Function;
-
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -14,20 +12,17 @@ import org.springframework.stereotype.Component;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("pollUploadAppStatusStep")
 public class PollUploadAppStatusStep extends AbstractXS2ProcessStepWithBridge {
 
-    // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(PollUploadAppStatusStep.class);
-
-    protected Function<DelegateExecution, ClientExtensions> extensionsSupplier = (context) -> getClientExtensions(context, LOGGER);
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws SLException {
-
         logActivitiTask(context, LOGGER);
 
         // Get the next cloud application from the context
@@ -35,7 +30,6 @@ public class PollUploadAppStatusStep extends AbstractXS2ProcessStepWithBridge {
 
         try {
             debug(context, format(Messages.CHECKING_UPLOAD_APP_STATUS, app.getName()), LOGGER);
-
             String status = (String) context.getVariable(getStatusVariable());
             if (ExecutionStatus.FAILED.name().equalsIgnoreCase(status)) {
                 String message = format(Messages.ERROR_UPLOADING_APP, app.getName());
@@ -43,7 +37,7 @@ public class PollUploadAppStatusStep extends AbstractXS2ProcessStepWithBridge {
                 return ExecutionStatus.LOGICAL_RETRY;
             }
 
-            ClientExtensions clientExtensions = extensionsSupplier.apply(context);
+            ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
             if (clientExtensions == null && ExecutionStatus.SUCCESS.name().equalsIgnoreCase(status)) {
                 return ExecutionStatus.SUCCESS;
             }
@@ -87,6 +81,11 @@ public class PollUploadAppStatusStep extends AbstractXS2ProcessStepWithBridge {
     @Override
     public String getLogicalStepName() {
         return UploadAppStep.class.getSimpleName();
+    }
+
+    @Override
+    protected String getIndexVariable() {
+        return Constants.VAR_APPS_INDEX;
     }
 
 }
