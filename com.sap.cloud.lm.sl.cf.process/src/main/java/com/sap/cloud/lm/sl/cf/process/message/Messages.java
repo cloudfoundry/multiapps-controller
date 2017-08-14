@@ -45,8 +45,6 @@ public final class Messages {
     public static final String ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT = "Error processing archive parts content";
     public static final String BUILDING_ARCHIVE_FROM_PARTS = "Building archive from parts...";
     public static final String ERROR_DELETING_ARCHIVE_PARTS_CONTENT = "Error deleting archive parts content";
-    public static final String ERROR_ZDM_MODE_PARAMETER = "Parameter '" + SupportedParameters.ZDM_MODE.toString()
-        + "' is supported only in blue-green deploy.";
     public static final String SUB_PROCESS_HAS_FAILED = "Sub-process with id {0} has failed.";
     public static final String SUB_PROCESS_HAS_BEEN_ABORTED = "Sub-process with id {0} has been aborted.";
     public static final String COULD_NOT_FIND_TASK_WITH_GUID = "Could not find task with GUID \"{0}\"!";

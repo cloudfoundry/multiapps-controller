@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 import org.activiti.engine.delegate.DelegateExecution;
@@ -69,8 +68,6 @@ public class BlueGreenRenameStep extends AbstractXS2ProcessStep {
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
             ApplicationColorAppender appender = handlerFactory.getApplicationColorAppender(deployedMtaColor, mtaColor);
             descriptor.accept(appender);
-            Map<String, Map<String, String>> moduleNameToZdmResourcesMap = appender.getColorResourceNameMap();
-            StepsUtil.setAppNameToZdmHdiServiceNamesMap(context, moduleNameToZdmResourcesMap);
             StepsUtil.setUnresolvedDeploymentDescriptor(context, descriptor);
 
             return ExecutionStatus.SUCCESS;

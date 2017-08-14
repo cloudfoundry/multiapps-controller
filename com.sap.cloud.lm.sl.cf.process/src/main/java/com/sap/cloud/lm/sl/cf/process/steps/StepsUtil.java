@@ -445,28 +445,6 @@ public class StepsUtil {
         return Arrays.asList(apps);
     }
 
-    static Map<String, Map<String, String>> getAppNameToZdmHdiServiceNamesMap(DelegateExecution context) {
-        String json = new String((byte[]) context.getVariable(Constants.APP_NAME_TO_ZDM_HDI_SERVICE_NAMES_MAP), StandardCharsets.UTF_8);
-        return JsonUtil.fromJson(json, new TypeToken<Map<String, Map<String, String>>>() {
-        }.getType());
-    }
-
-    static void setAppNameToZdmHdiServiceNamesMap(DelegateExecution context, Map<String, Map<String, String>> moduleServiceMapping) {
-        context.setVariable(Constants.APP_NAME_TO_ZDM_HDI_SERVICE_NAMES_MAP, GsonHelper.getAsBinaryJson(moduleServiceMapping));
-    }
-
-    static List<CloudApplicationExtended> getHdiDeployerAppsInZdmMode(DelegateExecution context) {
-        CloudApplicationExtended[] apps = GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.ZDM_HDI_DEPLOYER_APPS),
-            CloudApplicationExtended[].class);
-        return Arrays.asList(apps);
-    }
-
-    static void setHdiDeployerAppsInZdmMode(DelegateExecution context, List<CloudApplicationExtended> hdiDeployerApps) {
-        context.setVariable(Constants.SHOULD_EXECUTE_ZDM_FINALIZE_ACTION, (!hdiDeployerApps.isEmpty()));
-        context.setVariable(Constants.ZDM_HDI_DEPLOYER_APPS,
-            GsonHelper.getAsBinaryJson(hdiDeployerApps.toArray(new CloudApplicationExtended[] {})));
-    }
-
     public static List<CloudApplication> getAppsToUndeploy(DelegateExecution context) {
         CloudApplication[] apps = GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY),
             CloudApplication[].class);
@@ -745,12 +723,6 @@ public class StepsUtil {
         final String appToRestartName = appsToRestart.get(index);
         List<CloudApplicationExtended> appsToDeploy = StepsUtil.getAppsToDeploy(context);
         return appsToDeploy.stream().filter((app) -> app.getName().equals(appToRestartName)).findFirst().get();
-    }
-
-    static CloudApplicationExtended getHdiDeployerApp(DelegateExecution context) {
-        List<CloudApplicationExtended> hdiDeployerApps = StepsUtil.getHdiDeployerAppsInZdmMode(context);
-        int index = (Integer) context.getVariable(Constants.VAR_APPS_INDEX);
-        return hdiDeployerApps.get(index);
     }
 
     static CloudApplication getExistingApp(DelegateExecution context) {

@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ConfigurationEntriesCloudModelBuilder
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServicesCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ZdmHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -33,7 +31,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("buildCloudDeployModelStep")
@@ -99,10 +96,6 @@ public class BuildCloudDeployModelStep extends AbstractXS2ProcessStep {
             // Needed by CreateOrUpdateServicesStep, as it is used as an iteration variable:
             context.setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
 
-            List<CloudApplicationExtended> hdiDeployerApps = getZdmHdiDeployerModulesNotInInstallAction(context, deploymentDescriptor,
-                apps);
-            StepsUtil.setHdiDeployerAppsInZdmMode(context, hdiDeployerApps);
-
             debug(context, Messages.CLOUD_MODEL_BUILT, LOGGER);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
@@ -143,28 +136,6 @@ public class BuildCloudDeployModelStep extends AbstractXS2ProcessStep {
         String orgName = StepsUtil.getOrg(context);
         String spaceName = StepsUtil.getSpace(context);
         return new ConfigurationEntriesCloudModelBuilder(orgName, spaceName);
-    }
-
-    private List<CloudApplicationExtended> getZdmHdiDeployerModulesNotInInstallAction(DelegateExecution context,
-        DeploymentDescriptor deploymentDescriptor, List<CloudApplicationExtended> apps) {
-
-        int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
-        int minorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION);
-        List<Module> zdmHdiDeployerModules = (new ZdmHelper()).getZdmHdiDeployerModulesNotInInstallAction(deploymentDescriptor,
-            majorSchemaVersion, minorSchemaVersion);
-
-        List<CloudApplicationExtended> hdiDeployerApps = new ArrayList<>();
-
-        for (Module hdiDeployerModule : zdmHdiDeployerModules) {
-            for (CloudApplicationExtended app : apps) {
-                if (!app.getModuleName().equals(hdiDeployerModule.getName())) {
-                    continue;
-                }
-                hdiDeployerApps.add(app);
-            }
-        }
-
-        return hdiDeployerApps;
     }
 
 }

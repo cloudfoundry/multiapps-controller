@@ -12,7 +12,6 @@ import com.sap.cloud.lm.sl.cf.process.steps.BuildCloudUndeployModelStep;
 import com.sap.cloud.lm.sl.cf.process.steps.CheckForCreationConflictsStep;
 import com.sap.cloud.lm.sl.cf.process.steps.CollectBlueGreenSystemParametersStep;
 import com.sap.cloud.lm.sl.cf.process.steps.CollectSystemParametersStep;
-import com.sap.cloud.lm.sl.cf.process.steps.ComputeZdmServicesForDeletionStep;
 import com.sap.cloud.lm.sl.cf.process.steps.CreateOrUpdateServicesStep;
 import com.sap.cloud.lm.sl.cf.process.steps.CreateServiceBrokersStep;
 import com.sap.cloud.lm.sl.cf.process.steps.CreateSubscriptionsStep;
@@ -24,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.process.steps.DeleteUnusedReservedRoutesStep;
 import com.sap.cloud.lm.sl.cf.process.steps.DetectDeployedMtaStep;
 import com.sap.cloud.lm.sl.cf.process.steps.DetectMtaSchemaVersionStep;
 import com.sap.cloud.lm.sl.cf.process.steps.DetectTargetStep;
-import com.sap.cloud.lm.sl.cf.process.steps.HdiDeployerAppsFinalizeStep;
 import com.sap.cloud.lm.sl.cf.process.steps.MergeDescriptorsStep;
 import com.sap.cloud.lm.sl.cf.process.steps.PrepareAppsDeploymentStep;
 import com.sap.cloud.lm.sl.cf.process.steps.PrepareToRestartServiceBrokersStep;
@@ -54,8 +52,6 @@ public class XS2BlueGreenDeployService {
         "Start").build();
     private static final StepMetadata STEP_CONTINUE_DEPLOYMENT = StepMetadata.builder().id("continueDeploymentTask").displayName(
         "Continue Deployment").description("Continue Deployment").targetState(SlpTaskState.SLP_TASK_STATE_DIALOG).build();
-    private static final StepMetadata STEP_DELETE_ZDM_SERVICES = StepMetadata.builder().id("deleteZdmServicesTask").displayName(
-        "Delete ZDM Services").description("Delete ZDM Services").build();
     private static final StepMetadata STEP_END = StepMetadata.builder().id("endEvent").displayName("End").description("End").build();
     private static final StepMetadata PROCESS_LIVE_DESCRIPTOR = StepMetadata.builder().id("processLiveDescriptorTask").displayName(
         "Process Live Descriptor Step").description("Process Live Descriptor Step").build();
@@ -77,8 +73,7 @@ public class XS2BlueGreenDeployService {
             DeleteDiscontinuedConfigurationEntriesStep.getMetadata(), UnregisterServiceUrlsStep.getMetadata(),
             PrepareToUndeployAppsStep.getMetadata(), DeleteServicesStep.getMetadata(), CreateServiceBrokersStep.getMetadata(),
             DeleteServiceBrokersStep.getMetadata(), UpdateSubscribersStep.getMetadata(), RestartUpdatedSubscribersStep.getMetadata(),
-            PrepareToRestartServiceBrokersStep.getMetadata(), HdiDeployerAppsFinalizeStep.getMetadata(),
-            ComputeZdmServicesForDeletionStep.getMetadata(), STEP_DELETE_ZDM_SERVICES, STEP_END).build();
+            PrepareToRestartServiceBrokersStep.getMetadata(), STEP_END).build();
 
     private final static Set<ParameterMetadata> PARAMS = new HashSet<ParameterMetadata>();
 

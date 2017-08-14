@@ -125,9 +125,4 @@ public final class Constants {
     public static final String PARAM_USERNAME = "userId";
     public static final String PARAM_PASSWORD = "password";
 
-    public static final String SHOULD_EXECUTE_ZDM_FINALIZE_ACTION = "shouldExecuteZdmFinalizeAction";
-    public static final String ZDM_HDI_DEPLOYER_APPS = "hdiDeployerApps";
-    public static final String SHOULD_DELETE_ZDM_SERVICES = "shouldDeleteZdmServices";
-    public static final String APP_NAME_TO_ZDM_HDI_SERVICE_NAMES_MAP = "appNameToZdmHdiServiceNamesMap";
-
 }

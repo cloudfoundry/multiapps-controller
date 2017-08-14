@@ -93,8 +93,6 @@ public class SupportedParameters {
 
     public static final String DEFAULT_RT = "default-resource-type";
 
-    public static final String ZDM_MODE = "zdm-mode";
-
     // Required dependency parameters:
     public static final String SERVICE_BINDING_CONFIG = "config";
     public static final String SERVICE_BINDING_CONFIG_PATH = "config-path";
