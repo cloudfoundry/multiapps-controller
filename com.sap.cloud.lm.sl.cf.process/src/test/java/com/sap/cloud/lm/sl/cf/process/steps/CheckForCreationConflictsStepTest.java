@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudService;
@@ -27,7 +24,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -45,7 +41,6 @@ public class CheckForCreationConflictsStepTest extends AbstractStepTest<CheckFor
     private final StepInput stepInput;
     private final String expectedExceptionMessage;
     private Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances;
-    private boolean didWarn;
     private boolean shouldWarn;
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -74,7 +69,7 @@ public class CheckForCreationConflictsStepTest extends AbstractStepTest<CheckFor
             {
                 "check-for-creation-conflicts-step-input-5.json", null, false,
             },
-            // (5) Applications to deploy exist, not part of the deployed MTA -> expect exception:
+            // (5) Applications to deploy exist, not part of the deployed MTA, but stand-alone -> should warn:
             {
                 "check-for-creation-conflicts-step-input-6.json", null, true,
             },
@@ -99,7 +94,6 @@ public class CheckForCreationConflictsStepTest extends AbstractStepTest<CheckFor
             StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
         this.shouldWarn = shouldWarn;
-        didWarn = false;
     }
 
     @Before
@@ -115,7 +109,9 @@ public class CheckForCreationConflictsStepTest extends AbstractStepTest<CheckFor
         step.execute(context);
 
         assertStepFinishedSuccessfully();
-        assertEquals(shouldWarn, didWarn);
+        if (shouldWarn) {
+            Mockito.verify(stepLogger, Mockito.atLeastOnce()).warn(Mockito.anyString());
+        }
     }
 
     private void prepareException() {
@@ -212,15 +208,7 @@ public class CheckForCreationConflictsStepTest extends AbstractStepTest<CheckFor
 
     @Override
     protected CheckForCreationConflictsStep createStep() {
-        return new CheckForCreationConflictsStep() {
-
-            @Override
-            protected void warn(DelegateExecution context, String message, Logger appLogger) {
-                didWarn = true;
-                super.warn(context, message, appLogger);
-            }
-
-        };
+        return new CheckForCreationConflictsStep();
     }
 
     private static class StepInput {

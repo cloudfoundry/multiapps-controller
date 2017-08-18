@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -9,8 +7,8 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -35,9 +33,8 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("processDescriptorStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessDescriptorStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessDescriptorStep.class);
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -62,12 +59,12 @@ public class ProcessDescriptorStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         try {
-            debug(context, Messages.RESOLVING_DESCRIPTOR_PROPERTIES, LOGGER);
+            getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
             Target target = StepsUtil.getTarget(context);
@@ -98,14 +95,13 @@ public class ProcessDescriptorStep extends AbstractXS2ProcessStep {
 
             StepsUtil.setDeploymentDescriptor(context, descriptor);
 
-            debug(context,
-                format(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor)),
-                LOGGER);
-            debug(context, Messages.DESCRIPTOR_PROPERTIES_RESOVED, LOGGER);
+            getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
+                secureSerializer.toJson(descriptor));
+            getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOVED);
 
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES);
             throw e;
         }
     }

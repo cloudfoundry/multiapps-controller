@@ -1,13 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -22,9 +20,8 @@ import com.sap.cloud.lm.sl.slp.model.LoopStepMetadata;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("prepareToExecuteTasksStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PrepareToExecuteTasksStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrepareToExecuteTasksStep.class);
 
     public static StepMetadata getMetadata() {
         return LoopStepMetadata.builder().id("prepareToExecuteTasksTask").displayName("Prepare To Execute Tasks").description(
@@ -33,7 +30,7 @@ public class PrepareToExecuteTasksStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(context);
         List<CloudTask> tasksToExecute = app.getTasks();
@@ -41,10 +38,10 @@ public class PrepareToExecuteTasksStep extends AbstractXS2ProcessStep {
             return attemptToPrepareExecutionOfTasks(context, tasksToExecute);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, format(Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, app.getName());
             throw e;
         } catch (SLException e) {
-            error(context, format(Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, app.getName());
             throw e;
         }
     }
@@ -65,7 +62,7 @@ public class PrepareToExecuteTasksStep extends AbstractXS2ProcessStep {
     }
 
     private boolean platformSupportsTasks(DelegateExecution context) {
-        return new OneOffTasksSupportChecker().areOneOffTasksSupported(getCloudFoundryClient(context, LOGGER));
+        return new OneOffTasksSupportChecker().areOneOffTasksSupported(getCloudFoundryClient(context));
     }
 
 }

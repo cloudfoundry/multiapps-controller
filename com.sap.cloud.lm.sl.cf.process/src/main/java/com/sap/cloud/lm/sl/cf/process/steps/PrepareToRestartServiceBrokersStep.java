@@ -3,8 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -15,9 +15,8 @@ import com.sap.cloud.lm.sl.slp.model.LoopStepMetadata;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("prepareToRestartServiceBrokersStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PrepareToRestartServiceBrokersStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrepareToRestartServiceBrokersStep.class);
 
     public static StepMetadata getMetadata() {
         return LoopStepMetadata.builder().id("prepareToRestartServiceBrokersTask").displayName(
@@ -28,7 +27,7 @@ public class PrepareToRestartServiceBrokersStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         List<CloudApplicationExtended> serviceBrokersToRestart = StepsUtil.getServiceBrokerSubscribersToRestart(context);
         prepareServiceBrokersToRestart(context, serviceBrokersToRestart);
@@ -42,4 +41,5 @@ public class PrepareToRestartServiceBrokersStep extends AbstractXS2ProcessStep {
         context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         context.setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, ConfigurationUtil.getControllerPollingInterval());
     }
+
 }

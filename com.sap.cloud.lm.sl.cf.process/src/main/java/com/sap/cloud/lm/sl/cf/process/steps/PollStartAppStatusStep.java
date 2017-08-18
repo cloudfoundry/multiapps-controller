@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,9 +13,9 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.InstanceInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -29,9 +28,8 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("pollStartAppStatusStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PollStartAppStatusStep extends AbstractXS2ProcessStepWithBridge {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PollStartAppStatusStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("pollStartAppStatusTask").displayName("Poll Start App Status").description(
@@ -52,32 +50,32 @@ public class PollStartAppStatusStep extends AbstractXS2ProcessStepWithBridge {
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         CloudApplication app = getAppToPoll(context);
-        CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+        CloudFoundryOperations client = getCloudFoundryClient(context);
 
         try {
-            debug(context, format(Messages.CHECKING_APP_STATUS, app.getName()), LOGGER);
+            getStepLogger().debug(Messages.CHECKING_APP_STATUS, app.getName());
 
             StartupStatus status = getStartupStatus(context, client, app.getName());
             return checkStartupStatus(context, client, app, status);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            onError(context, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
+            onError(format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
             throw e;
         } catch (SLException e) {
-            onError(context, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
+            onError(format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
             throw e;
         }
     }
 
-    protected void onError(DelegateExecution context, String message, Exception e) {
-        error(context, message, e, LOGGER);
+    protected void onError(String message, Exception e) {
+        getStepLogger().error(e, message);
     }
 
-    protected void onError(DelegateExecution context, String message) {
-        error(context, message, LOGGER);
+    protected void onError(String message) {
+        getStepLogger().error(message);
     }
 
     protected CloudApplication getAppToPoll(DelegateExecution context) {
@@ -119,28 +117,28 @@ public class PollStartAppStatusStep extends AbstractXS2ProcessStepWithBridge {
     private ExecutionStatus checkStartupStatus(DelegateExecution context, CloudFoundryOperations client, CloudApplication app,
         StartupStatus status) throws SLException {
 
-        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER, processLoggerProviderFactory);
+        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
         if (status.equals(StartupStatus.CRASHED) || status.equals(StartupStatus.FLAPPING)) {
             // Application failed to start
             String message = format(Messages.ERROR_STARTING_APP_2, app.getName(), getMessageForStatus(status));
-            onError(context, message);
+            onError(message);
             setRetryMessage(context, message);
             return ExecutionStatus.LOGICAL_RETRY;
         } else if (status.equals(StartupStatus.STARTED)) {
             // Application started successfully
             List<String> uris = app.getUris();
             if (uris.isEmpty()) {
-                info(context, format(Messages.APP_STARTED, app.getName()), LOGGER);
+                getStepLogger().info(Messages.APP_STARTED, app.getName());
             } else {
                 String urls = CommonUtil.toCommaDelimitedString(uris, getProtocolPrefix());
-                info(context, format(Messages.APP_STARTED_URLS, app.getName(), urls), LOGGER);
+                getStepLogger().info(Messages.APP_STARTED_URLS, app.getName(), urls);
             }
             return ExecutionStatus.SUCCESS;
         } else {
             // Application not started yet, wait and try again unless it's a timeout
             if (StepsUtil.hasTimedOut(context, () -> System.currentTimeMillis())) {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-                onError(context, message);
+                onError(message);
                 setRetryMessage(context, message);
                 return ExecutionStatus.LOGICAL_RETRY;
             }
@@ -181,7 +179,7 @@ public class PollStartAppStatusStep extends AbstractXS2ProcessStepWithBridge {
         // Print message
         String message = format(Messages.X_OF_Y_INSTANCES_RUNNING, runningInstances, expectedInstances,
             CommonUtil.toCommaDelimitedString(stateStrings, ""));
-        info(context, message, LOGGER);
+        getStepLogger().info(message);
     }
 
     private static List<InstanceInfo> getApplicationInstances(CloudFoundryOperations client, CloudApplication app) {

@@ -8,8 +8,8 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +21,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("startAppStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StartAppStep extends AbstractXS2ProcessStepWithBridge {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(StartAppStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("startAppTask").displayName("Start App").description("Start App").children(
@@ -37,28 +36,28 @@ public class StartAppStep extends AbstractXS2ProcessStepWithBridge {
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         CloudApplication app = getAppToStart(context);
         try {
             attemptToStartApp(context, app);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            onError(context, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
+            onError(format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
             throw e;
         }
         return ExecutionStatus.SUCCESS;
     }
 
-    protected void onError(DelegateExecution context, String message, Exception e) {
-        error(context, message, e, LOGGER);
+    protected void onError(String message, Exception e) {
+        getStepLogger().error(e, message);
     }
 
     private void attemptToStartApp(DelegateExecution context, CloudApplication app) {
-        CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+        CloudFoundryOperations client = getCloudFoundryClient(context);
 
         if (isAppStarted(client, app.getName())) {
-            stopApp(context, client, app);
+            stopApp(client, app);
         }
         StartingInfo startingInfo = startApp(context, client, app);
         StepsUtil.setStartingInfo(context, startingInfo);
@@ -80,21 +79,21 @@ public class StartAppStep extends AbstractXS2ProcessStepWithBridge {
             return app2.getState().equals(AppState.STARTED);
         } catch (CloudFoundryException e) {
             if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                LOGGER.warn(e.getMessage(), e);
+                logger.warn(e.getMessage(), e);
                 return false;
             }
             throw e;
         }
     }
 
-    private void stopApp(DelegateExecution context, CloudFoundryOperations client, CloudApplication app) {
-        info(context, format(Messages.STOPPING_APP, app.getName()), LOGGER);
+    private void stopApp(CloudFoundryOperations client, CloudApplication app) {
+        getStepLogger().info(Messages.STOPPING_APP, app.getName());
         client.stopApplication(app.getName());
     }
 
     private StartingInfo startApp(DelegateExecution context, CloudFoundryOperations client, CloudApplication app) {
-        ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
-        info(context, format(Messages.STARTING_APP, app.getName()), LOGGER);
+        ClientExtensions clientExtensions = getClientExtensions(context);
+        getStepLogger().info(Messages.STARTING_APP, app.getName());
         if (clientExtensions != null) {
             return clientExtensions.startApplication(app.getName(), false);
         }

@@ -1,5 +1,9 @@
 package com.sap.cloud.lm.sl.cf.core.cf.services;
 
+import java.text.MessageFormat;
+
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
+
 public enum ServiceOperationType {
 
     CREATE("create"), UPDATE("update"), DELETE("delete");
@@ -21,7 +25,7 @@ public enum ServiceOperationType {
                 return type;
             }
         }
-        return null;
+        throw new IllegalStateException(MessageFormat.format(Messages.ILLEGAL_SERVICE_OPERATION_TYPE, value));
     }
 
 }

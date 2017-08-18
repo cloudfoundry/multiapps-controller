@@ -8,8 +8,8 @@ import java.util.function.Supplier;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -21,9 +21,8 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("pollExecuteTaskStatusStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PollExecuteTaskStatusStep.class);
 
     protected Supplier<Long> currentTimeSupplier = () -> System.currentTimeMillis();
 
@@ -39,7 +38,7 @@ public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge 
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(context);
         CloudTask task = StepsUtil.getStartedTask(context);
@@ -47,10 +46,10 @@ public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge 
             return new PollExecuteTaskStatusDelegate(context).execute();
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, format(Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
             throw e;
         } catch (SLException e) {
-            error(context, format(Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
             throw e;
         }
     }
@@ -74,7 +73,7 @@ public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge 
         }
 
         private CloudTask.State getCurrentState() {
-            ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
+            ClientExtensions clientExtensions = getClientExtensions(context);
             List<CloudTask> allTasksForApp = clientExtensions.getTasks(app.getName());
 
             return findTaskWithGuid(allTasksForApp, taskToPoll.getMeta().getGuid()).getState();
@@ -86,7 +85,7 @@ public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge 
         }
 
         private void reportCurrentState(CloudTask.State currentState) {
-            info(context, format(Messages.TASK_EXECUTION_STATUS, currentState.toString().toLowerCase()), LOGGER);
+            getStepLogger().info(Messages.TASK_EXECUTION_STATUS, currentState.toString().toLowerCase());
         }
 
         private ExecutionStatus handleCurrentState(CloudTask.State currentState) {
@@ -102,7 +101,7 @@ public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge 
 
         private ExecutionStatus handleFinalState(CloudTask.State state) {
             if (state.equals(CloudTask.State.FAILED)) {
-                error(context, format(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName()), LOGGER);
+                getStepLogger().error(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName());
                 return ExecutionStatus.LOGICAL_RETRY;
             }
             return ExecutionStatus.SUCCESS;
@@ -111,11 +110,12 @@ public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge 
         private ExecutionStatus checkTimeout() {
             if (StepsUtil.hasTimedOut(context, currentTimeSupplier)) {
                 String message = format(Messages.EXECUTING_TASK_ON_APP_TIMED_OUT, taskToPoll.getName(), app.getName());
-                error(context, message, LOGGER);
+                getStepLogger().error(message);
                 setRetryMessage(context, message);
                 return ExecutionStatus.LOGICAL_RETRY;
             }
             return ExecutionStatus.RUNNING;
         }
     }
+
 }

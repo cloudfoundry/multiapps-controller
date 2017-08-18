@@ -1,12 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,6 +56,7 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.BinaryJson;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -66,9 +64,6 @@ import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.slp.model.ParameterMetadata;
 import com.sap.cloud.lm.sl.slp.model.ServiceMetadata;
@@ -77,10 +72,6 @@ import com.sap.cloud.lm.sl.slp.services.ProcessLoggerProviderFactory;
 public class StepsUtil {
 
     private static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
-
-    static final org.apache.log4j.Logger getLogger(DelegateExecution context, ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        return processLoggerProviderFactory.getDefaultLoggerProvider().getLogger(getCorrelationId(context), PARENT_LOGGER);
-    }
 
     private static org.apache.log4j.Logger getAppLogger(DelegateExecution context, String appName,
         ProcessLoggerProviderFactory processLoggerProviderFactory) {
@@ -99,59 +90,56 @@ public class StepsUtil {
         return result;
     }
 
-    static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider, Logger logger,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) throws SLException {
-        return getCloudFoundryClient(context, clientProvider, logger, processLoggerProviderFactory, getOrg(context), getSpace(context));
+    static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,
+        StepLogger stepLogger) throws SLException {
+        return getCloudFoundryClient(context, clientProvider, stepLogger, getOrg(context), getSpace(context));
     }
 
-    static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider, Logger logger,
-        ProcessLoggerProviderFactory processLoggerProviderFactory, String org, String space) throws SLException {
+    static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,
+        StepLogger stepLogger, String org, String space) throws SLException {
         // Determine the current user
-        String userName = determineCurrentUser(context, logger, processLoggerProviderFactory);
+        String userName = determineCurrentUser(context, stepLogger);
 
-        debug(context, format(Messages.CURRENT_USER, userName), logger, processLoggerProviderFactory);
-        debug(context, format(Messages.CLIENT_SPACE, space), logger, processLoggerProviderFactory);
-        debug(context, format(Messages.CLIENT_ORG, org), logger, processLoggerProviderFactory);
+        stepLogger.debug(Messages.CURRENT_USER, userName);
+        stepLogger.debug(Messages.CLIENT_SPACE, space);
+        stepLogger.debug(Messages.CLIENT_ORG, org);
 
         return clientProvider.getCloudFoundryClient(userName, org, space, context.getProcessInstanceId());
     }
 
-    static ClientExtensions getClientExtensions(DelegateExecution context, CloudFoundryClientProvider clientProvider, Logger logger,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) throws SLException {
-        CloudFoundryOperations cloudFoundryClient = StepsUtil.getCloudFoundryClient(context, clientProvider, logger,
-            processLoggerProviderFactory);
+    static ClientExtensions getClientExtensions(DelegateExecution context, CloudFoundryClientProvider clientProvider, StepLogger stepLogger)
+        throws SLException {
+        CloudFoundryOperations cloudFoundryClient = StepsUtil.getCloudFoundryClient(context, clientProvider, stepLogger);
         if (cloudFoundryClient instanceof ClientExtensions) {
             return (ClientExtensions) cloudFoundryClient;
         }
         return null;
     }
 
-    static ClientExtensions getClientExtensions(DelegateExecution context, CloudFoundryClientProvider clientProvider, Logger logger,
-        ProcessLoggerProviderFactory processLoggerProviderFactory, String org, String space) throws SLException {
-        CloudFoundryOperations cloudFoundryClient = StepsUtil.getCloudFoundryClient(context, clientProvider, logger,
-            processLoggerProviderFactory, org, space);
+    static ClientExtensions getClientExtensions(DelegateExecution context, CloudFoundryClientProvider clientProvider, StepLogger stepLogger,
+        String org, String space) throws SLException {
+        CloudFoundryOperations cloudFoundryClient = StepsUtil.getCloudFoundryClient(context, clientProvider, stepLogger, org, space);
         if (cloudFoundryClient instanceof ClientExtensions) {
             return (ClientExtensions) cloudFoundryClient;
         }
         return null;
     }
 
-    public static String determineCurrentUser(DelegateExecution context, Logger logger,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) throws SLException {
+    public static String determineCurrentUser(DelegateExecution context, StepLogger stepLogger) throws SLException {
         String userId = Authentication.getAuthenticatedUserId();
 
         // Determine the current user
-        debug(context, format(Messages.AUTHENTICATED_USER_ID, userId), logger, processLoggerProviderFactory);
+        stepLogger.debug(Messages.AUTHENTICATED_USER_ID, userId);
         if (userId == null) {
             // If the authenticated user cannot be determined,
             // use the user saved by the previous service task
             userId = (String) context.getVariable(Constants.VAR_USER);
-            debug(context, format(Messages.PREVIOUS_USER, userId), logger, processLoggerProviderFactory);
+            stepLogger.debug(Messages.PREVIOUS_USER, userId);
             if (userId == null) {
                 // If there is no previous user, this must be the first service task
                 // Use the process initiator in this case
                 userId = (String) context.getVariable(Constants.PARAM_INITIATOR);
-                debug(context, format(Messages.PROCESS_INITIATOR, userId), logger, processLoggerProviderFactory);
+                stepLogger.debug(Messages.PROCESS_INITIATOR, userId);
                 if (userId == null) {
                     throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
                 }
@@ -347,6 +335,20 @@ public class StepsUtil {
     static void setServicesToCreate(DelegateExecution context, List<CloudServiceExtended> services) {
         List<String> servicesAsStrings = services.stream().map(service -> JsonUtil.toJson(service)).collect(Collectors.toList());
         context.setVariable(Constants.VAR_SERVICES_TO_CREATE, servicesAsStrings);
+    }
+
+    static void setServicesToPoll(DelegateExecution context, List<CloudServiceExtended> servicesToPoll) {
+        context.setVariable(Constants.VAR_SERVICES_TO_POLL, GsonHelper.getAsBinaryJson(servicesToPoll));
+    }
+
+    static List<CloudServiceExtended> getServicesToPoll(DelegateExecution context) {
+        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_SERVICES_TO_POLL);
+        if (binaryJson == null) {
+            return null;
+        }
+        String jsonString = new String(binaryJson, StandardCharsets.UTF_8);
+        return JsonUtil.fromJson(jsonString, new TypeToken<List<CloudServiceExtended>>() {
+        }.getType());
     }
 
     static void setTriggeredServiceOperations(DelegateExecution context, Map<String, ServiceOperationType> triggeredServiceOperations) {
@@ -829,69 +831,7 @@ public class StepsUtil {
         return (String) context.getVariable(Constants.VAR_CORRELATION_ID);
     }
 
-    static void logActivitiTask(DelegateExecution context, Logger logger, ProgressMessageService progressMessageService,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        String message = format(Messages.EXECUTING_ACTIVITI_TASK, context.getId(), context.getCurrentActivityId());
-        debug(context, message, logger, processLoggerProviderFactory);
-    }
-
-    public static void error(DelegateExecution context, String message, Exception e, Logger logger,
-        ProgressMessageService progressMessageService, ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        error(context, getExtendedMessage(message, e), logger, progressMessageService, processLoggerProviderFactory);
-    }
-
-    public static void error(DelegateExecution context, String message, Logger logger, ProgressMessageService progressMessageService,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        logger.error(message);
-        sendProgressMessage(context, message, ProgressMessageType.ERROR, progressMessageService, processLoggerProviderFactory);
-        getLogger(context, processLoggerProviderFactory).error(getPrefix(logger) + message);
-    }
-
-    public static void error(DelegateExecution context, String message, Logger logger,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        logger.error(message);
-        getLogger(context, processLoggerProviderFactory).error(getPrefix(logger) + message);
-    }
-
-    public static void warn(DelegateExecution context, String message, Exception e, Logger logger,
-        ProgressMessageService progressMessageService, ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        logger.warn(message, e);
-        sendProgressMessage(context, getExtendedMessage(message, e), ProgressMessageType.WARNING, progressMessageService,
-            processLoggerProviderFactory);
-        getLogger(context, processLoggerProviderFactory).warn(getPrefix(logger) + message, e);
-    }
-
-    public static void warn(DelegateExecution context, String message, Logger logger, ProgressMessageService progressMessageService,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        logger.warn(message);
-        sendProgressMessage(context, message, ProgressMessageType.WARNING, progressMessageService, processLoggerProviderFactory);
-        getLogger(context, processLoggerProviderFactory).warn(getPrefix(logger) + message);
-    }
-
-    public static void info(DelegateExecution context, String message, Logger logger, ProgressMessageService progressMessageService,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        logger.info(message);
-        sendProgressMessage(context, message, ProgressMessageType.INFO, progressMessageService, processLoggerProviderFactory);
-        getLogger(context, processLoggerProviderFactory).info(getPrefix(logger) + message);
-    }
-
-    private static String getExtendedMessage(String message, Exception e) {
-        return message + ": " + e.getMessage();
-    }
-
-    public static void debug(DelegateExecution context, String message, Logger logger,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        logger.debug(message);
-        getLogger(context, processLoggerProviderFactory).debug(getPrefix(logger) + message);
-    }
-
-    public static void trace(DelegateExecution context, String message, Logger logger,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        logger.trace(message);
-        getLogger(context, processLoggerProviderFactory).trace(getPrefix(logger) + message);
-    }
-
-    static String getIndexedStepName(DelegateExecution context) {
+    public static String getIndexedStepName(DelegateExecution context) {
         return (String) context.getVariable(com.sap.cloud.lm.sl.slp.Constants.INDEXED_STEP_NAME);
     }
 
@@ -902,16 +842,6 @@ public class StepsUtil {
 
     static SLException createException(CloudFoundryException e) {
         return new SLException(e, Messages.CF_ERROR, e.getMessage());
-    }
-
-    private static void sendProgressMessage(DelegateExecution context, String message, ProgressMessageType type,
-        ProgressMessageService progressMessageService, ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        try {
-            progressMessageService.add(new ProgressMessage(getCorrelationId(context), getIndexedStepName(context), type, message,
-                new Timestamp(System.currentTimeMillis())));
-        } catch (SLException e) {
-            getLogger(context, processLoggerProviderFactory).error(e);
-        }
     }
 
     private static String getPrefix(Logger logger) {

@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +12,8 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -34,9 +32,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("createServiceBrokersStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateServiceBrokersStep.class);
 
     @Inject
     private ServiceBrokerCreator serviceBrokerCreator;
@@ -52,15 +49,15 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
         try {
-            info(context, Messages.CREATING_SERVICE_BROKERS, LOGGER);
+            getStepLogger().info(Messages.CREATING_SERVICE_BROKERS);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
             List<CloudServiceBrokerExtended> existingServiceBrokers = serviceBrokersGetter.getServiceBrokers(client);
             List<CloudServiceBrokerExtended> serviceBrokersToCreate = getServiceBrokersToCreate(StepsUtil.getAppsToDeploy(context),
                 context);
-            debug(context, MessageFormat.format(Messages.SERVICE_BROKERS, secureSerializer.toJson(serviceBrokersToCreate)), LOGGER);
+            getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKERS, secureSerializer.toJson(serviceBrokersToCreate)));
             List<String> existingServiceBrokerNames = getServiceBrokerNames(existingServiceBrokers);
 
             for (CloudServiceBrokerExtended serviceBroker : serviceBrokersToCreate) {
@@ -73,14 +70,14 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
             }
 
             StepsUtil.setServiceBrokersToCreate(context, serviceBrokersToCreate);
-            debug(context, Messages.SERVICE_BROKERS_CREATED, LOGGER);
+            getStepLogger().debug(Messages.SERVICE_BROKERS_CREATED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_CREATING_SERVICE_BROKERS, e, LOGGER);
+            getStepLogger().error(Messages.ERROR_CREATING_SERVICE_BROKERS, e);
             throw e;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, Messages.ERROR_CREATING_SERVICE_BROKERS, e, LOGGER);
+            getStepLogger().error(Messages.ERROR_CREATING_SERVICE_BROKERS, e);
             throw e;
         }
     }
@@ -89,11 +86,11 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
         CloudServiceBrokerExtended existingBroker, CloudFoundryOperations client) {
         serviceBroker.setMeta(existingBroker.getMeta());
         if (existingBroker.getSpaceGuid() != null && serviceBroker.getSpaceGuid() == null) {
-            warn(context, MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL,
-                serviceBroker.getName()), LOGGER);
+            getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL,
+                serviceBroker.getName()));
         } else if (existingBroker.getSpaceGuid() == null && serviceBroker.getSpaceGuid() != null) {
-            warn(context, MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_GLOBAL_TO_SPACE_SCOPED,
-                serviceBroker.getName()), LOGGER);
+            getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_GLOBAL_TO_SPACE_SCOPED,
+                serviceBroker.getName()));
         }
         updateServiceBroker(context, serviceBroker, client);
     }
@@ -111,7 +108,7 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
                 continue;
             }
             String msg = MessageFormat.format(Messages.CONSTRUCTED_SERVICE_BROKER_FROM_APPLICATION, serviceBroker.getName(), app.getName());
-            debug(context, msg, LOGGER);
+            getStepLogger().debug(msg);
             serviceBrokersToCreate.add(serviceBroker);
         }
         return serviceBrokersToCreate;
@@ -147,8 +144,8 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
         PlatformType platformType = platformTypeSupplier.get();
         boolean isSpaceScoped = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_SPACE_SCOPED, Boolean.class, false);
         if (platformType == PlatformType.XS2 && isSpaceScoped) {
-            warn(context, MessageFormat.format(Messages.CANNOT_CREATE_SPACE_SCOPED_SERVICE_BROKER_ON_THIS_PLATFORM, serviceBrokerName),
-                LOGGER);
+            getStepLogger().warn(
+                MessageFormat.format(Messages.CANNOT_CREATE_SPACE_SCOPED_SERVICE_BROKER_ON_THIS_PLATFORM, serviceBrokerName));
             return null;
         }
         return isSpaceScoped ? StepsUtil.getSpaceId(context) : null;
@@ -160,17 +157,17 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
 
     protected void updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudFoundryOperations client) {
         try {
-            info(context, MessageFormat.format(Messages.UPDATING_SERVICE_BROKER, serviceBroker.getName()), LOGGER);
+            getStepLogger().info(MessageFormat.format(Messages.UPDATING_SERVICE_BROKER, serviceBroker.getName()));
             client.updateServiceBroker(serviceBroker);
-            debug(context, MessageFormat.format(Messages.UPDATED_SERVICE_BROKER, serviceBroker.getName()), LOGGER);
+            getStepLogger().debug(MessageFormat.format(Messages.UPDATED_SERVICE_BROKER, serviceBroker.getName()));
         } catch (CloudFoundryException e) {
             switch (e.getStatusCode()) {
                 case NOT_IMPLEMENTED:
-                    warn(context, format(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_501, serviceBroker.getName()), LOGGER);
+                    getStepLogger().warn(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_501, serviceBroker.getName());
                     break;
                 case FORBIDDEN:
                     if (shouldSucceed(context)) {
-                        warn(context, format(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName()), LOGGER);
+                        getStepLogger().warn(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
                         return;
                     }
                 default:
@@ -181,14 +178,14 @@ public class CreateServiceBrokersStep extends AbstractXS2ProcessStep {
 
     private void createServiceBroker(DelegateExecution context, CloudServiceBrokerExtended serviceBroker, CloudFoundryOperations client) {
         try {
-            info(context, MessageFormat.format(Messages.CREATING_SERVICE_BROKER, serviceBroker.getName()), LOGGER);
+            getStepLogger().info(MessageFormat.format(Messages.CREATING_SERVICE_BROKER, serviceBroker.getName()));
             serviceBrokerCreator.createServiceBroker(client, serviceBroker);
-            debug(context, MessageFormat.format(Messages.CREATED_SERVICE_BROKER, serviceBroker.getName()), LOGGER);
+            getStepLogger().debug(MessageFormat.format(Messages.CREATED_SERVICE_BROKER, serviceBroker.getName()));
         } catch (CloudFoundryException e) {
             switch (e.getStatusCode()) {
                 case FORBIDDEN:
                     if (shouldSucceed(context)) {
-                        warn(context, format(Messages.CREATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName()), LOGGER);
+                        getStepLogger().warn(Messages.CREATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
                         return;
                     }
                 default:

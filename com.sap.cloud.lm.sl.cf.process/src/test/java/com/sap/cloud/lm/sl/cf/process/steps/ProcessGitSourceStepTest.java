@@ -14,34 +14,33 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @RunWith(Enclosed.class)
 public class ProcessGitSourceStepTest extends AbstractStepTest<ProcessGitSourceStep> {
 
     public static final String PROCESS_INSTANCE_ID = "1234";
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
     private CloudInfoExtended cloudInfo = Mockito.mock(CloudInfoExtended.class);
 
     @Override
     protected ProcessGitSourceStep createStep() {
         return new ProcessGitSourceStep() {
+
             @Override
-            protected CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, Logger appLogger) throws SLException {
-                return client;
+            protected StepLogger getStepLogger() {
+                return stepLogger;
             }
+
         };
     }
 
@@ -107,7 +106,7 @@ public class ProcessGitSourceStepTest extends AbstractStepTest<ProcessGitSourceS
             Path repoDir = Paths.get(getClass().getResource(repository).toURI());
             Path mtarZip = null;
             try {
-                mtarZip = step.zipRepoContent(context, repoDir.toAbsolutePath());
+                mtarZip = step.zipRepoContent(repoDir.toAbsolutePath());
                 URI jarMtarUri = URI.create("jar:" + mtarZip.toAbsolutePath().toUri().toString());
                 try (FileSystem mtarFS = FileSystems.newFileSystem(jarMtarUri, new HashMap<>())) {
                     Path mtarRoot = mtarFS.getRootDirectories().iterator().next();

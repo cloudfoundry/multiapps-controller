@@ -15,8 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-import org.slf4j.LoggerFactory;
 
 import com.sap.activiti.common.impl.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
@@ -25,11 +23,9 @@ import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
-import com.sap.cloud.lm.sl.slp.services.ProcessLoggerProviderFactory;
-import com.sap.cloud.lm.sl.slp.services.ProcessLogsPersistenceService;
 
 @RunWith(Parameterized.class)
 public class StartProcessListenerTest {
@@ -48,13 +44,10 @@ public class StartProcessListenerTest {
 
     @Mock
     private OngoingOperationDao dao;
-    @Spy
-    @InjectMocks
-    protected ProcessLoggerProviderFactory processLoggerProviderFactory = new ProcessLoggerProviderFactory();
     @Mock
-    private ProcessLogsPersistenceService processLogsPersistenceService;
+    private StepLogger.Factory stepLoggerFactory;
     @Mock
-    protected ProgressMessageService progressMessageService;
+    private StepLogger stepLogger;
 
     @InjectMocks
     private StartProcessListener listener = new StartProcessListener();
@@ -90,6 +83,7 @@ public class StartProcessListenerTest {
         MockitoAnnotations.initMocks(this);
         loadParameters();
         prepareContext();
+        Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(stepLogger);
     }
 
     @Test
@@ -116,8 +110,7 @@ public class StartProcessListenerTest {
 
     private void verifyOngoingOperationInsertion() throws SLException, ConflictException {
         ProcessType type = (serviceId.equals("xs2-undeploy")) ? ProcessType.UNDEPLOY : ProcessType.DEPLOY;
-        String user = StepsUtil.determineCurrentUser(context, LoggerFactory.getLogger(StartProcessListenerTest.class),
-            processLoggerProviderFactory);
+        String user = StepsUtil.determineCurrentUser(context, stepLogger);
         Mockito.verify(dao).add(Mockito.argThat(ArgumentMatcherProvider.getOngoingOpMatcher(
             new OngoingOperation(processInstanceId, type, null, SPACE_ID, null, user, false, null))));
     }

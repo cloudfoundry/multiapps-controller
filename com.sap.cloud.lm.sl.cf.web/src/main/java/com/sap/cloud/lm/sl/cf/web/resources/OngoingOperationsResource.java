@@ -163,9 +163,16 @@ public class OngoingOperationsResource {
     protected SlpTaskState getOngoingOperationState(OngoingOperation ongoingOperation) throws SLException {
         if (ongoingOperation.getFinalState() != null) {
             return ongoingOperation.getFinalState();
-        } else {
-            return computeState(ongoingOperation);
         }
+        SlpTaskState state = computeState(ongoingOperation);
+        // Fixes bug XSBUG-2035: Inconsistency in 'ongoing_operations', 'act_hi_procinst' and 'act_ru_execution' tables
+        if (ongoingOperation.hasAcquiredLock()
+            && (state.equals(SlpTaskState.SLP_TASK_STATE_ABORTED) || state.equals(SlpTaskState.SLP_TASK_STATE_FINISHED))) {
+            ongoingOperation.setHasAcquiredLock(false);
+            ongoingOperation.setFinalState(state);
+            this.dao.merge(ongoingOperation);
+        }
+        return state;
     }
 
     protected SlpTaskState computeState(OngoingOperation ongoingOperation) throws SLException {

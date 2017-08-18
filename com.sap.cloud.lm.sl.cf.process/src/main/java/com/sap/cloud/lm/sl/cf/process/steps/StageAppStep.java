@@ -1,13 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -19,9 +17,8 @@ import com.sap.cloud.lm.sl.slp.model.AsyncStepMetadata;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("stageAppStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StageAppStep extends AbstractXS2ProcessStepWithBridge {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(StageAppStep.class);
 
     public static StepMetadata getMetadata() {
         return AsyncStepMetadata.builder().id("stageAppTask").displayName("Stage App").description("Stage App").pollTaskId(
@@ -35,21 +32,21 @@ public class StageAppStep extends AbstractXS2ProcessStepWithBridge {
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         CloudApplication app = StepsUtil.getApp(context);
         try {
             return stageApp(context, app);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, format(Messages.ERROR_STAGING_APP_1, app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
             throw e;
         }
     }
 
     private ExecutionStatus stageApp(DelegateExecution context, CloudApplication app) {
-        ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
-        info(context, format(Messages.STAGING_APP, app.getName()), LOGGER);
+        ClientExtensions clientExtensions = getClientExtensions(context);
+        getStepLogger().info(Messages.STAGING_APP, app.getName());
         StartingInfo startingInfo = clientExtensions.stageApplication(app.getName());
         StepsUtil.setStartingInfo(context, startingInfo);
         context.setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());

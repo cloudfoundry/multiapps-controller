@@ -13,6 +13,10 @@
       "version": "test"
     }
   ],
+  "triggeredServiceOperations": {
+    "test-service-1": "CREATE",
+    "test-service-2": "UPDATE"
+  },
   "serviceInstanceResponse": {
     "test-service-1": {
       "last_operation": {

@@ -1,12 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.function.Supplier;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -22,9 +20,8 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("blueGreenRenameStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BlueGreenRenameStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BlueGreenRenameStep.class);
 
     private static final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
 
@@ -36,10 +33,10 @@ public class BlueGreenRenameStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         try {
-            info(context, Messages.DETECTING_COLOR_OF_DEPLOYED_MTA, LOGGER);
+            getStepLogger().info(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
 
             DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
             DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
@@ -50,20 +47,20 @@ public class BlueGreenRenameStep extends AbstractXS2ProcessStep {
             try {
                 deployedMtaColor = detector.detectSingularDeployedApplicationColor(deployedMta);
                 if (deployedMtaColor != null) {
-                    info(context, format(Messages.DEPLOYED_MTA_COLOR, deployedMtaColor), LOGGER);
+                    getStepLogger().info(Messages.DEPLOYED_MTA_COLOR, deployedMtaColor);
                     mtaColor = deployedMtaColor.getAlternativeColor();
                 } else {
                     mtaColor = DEFAULT_MTA_COLOR;
                 }
             } catch (ConflictException e) {
-                warn(context, e.getMessage(), LOGGER);
+                getStepLogger().warn(e.getMessage());
                 // Assume that the last deployed color was not deployed successfully and try to update (fix) it in this process:
                 ApplicationColor liveMtaColor = detector.detectFirstDeployedApplicationColor(deployedMta);
                 ApplicationColor idleMtaColor = liveMtaColor.getAlternativeColor();
-                info(context, format(Messages.ASSUMED_LIVE_AND_IDLE_COLORS, liveMtaColor, idleMtaColor), LOGGER);
+                getStepLogger().info(Messages.ASSUMED_LIVE_AND_IDLE_COLORS, liveMtaColor, idleMtaColor);
                 mtaColor = idleMtaColor;
             }
-            info(context, format(Messages.NEW_MTA_COLOR, mtaColor), LOGGER);
+            getStepLogger().info(Messages.NEW_MTA_COLOR, mtaColor);
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
             ApplicationColorAppender appender = handlerFactory.getApplicationColorAppender(deployedMtaColor, mtaColor);
@@ -72,7 +69,7 @@ public class BlueGreenRenameStep extends AbstractXS2ProcessStep {
 
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_RENAMING_MODULES, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_RENAMING_MODULES);
             throw e;
         }
     }

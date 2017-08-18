@@ -81,7 +81,7 @@ public class EndProcessListener extends AbstractXS2ProcessExecutionListener {
     }
 
     private void removeClientForProcess(DelegateExecution context) throws SLException {
-        String user = StepsUtil.determineCurrentUser(context, LOGGER, processLoggerProviderFactory);
+        String user = StepsUtil.determineCurrentUser(context, getStepLogger());
         String space = StepsUtil.getSpace(context);
         String org = StepsUtil.getOrg(context);
 
@@ -103,6 +103,11 @@ public class EndProcessListener extends AbstractXS2ProcessExecutionListener {
 
     private boolean shouldKeepFiles(Boolean keepFiles) {
         return keepFiles != null && keepFiles;
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
     }
 
 }

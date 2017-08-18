@@ -3,8 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -18,9 +18,8 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("mergeDescriptorsStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MergeDescriptorsStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MergeDescriptorsStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("mergeDescriptorsTask").displayName("Merge Descriptors").description("Merge Descriptors").build();
@@ -32,9 +31,9 @@ public class MergeDescriptorsStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
-        info(context, Messages.MERGING_DESCRIPTORS, LOGGER);
+        getStepLogger().info(Messages.MERGING_DESCRIPTORS);
         try {
             String deploymentDescriptorString = StepsUtil.getDeploymentDescriptorString(context);
             List<String> extensionDescriptorStrings = StepsUtil.getExtensionDescriptorStrings(context);
@@ -49,10 +48,10 @@ public class MergeDescriptorsStep extends AbstractXS2ProcessStep {
 
             StepsUtil.setUnresolvedDeploymentDescriptor(context, descriptor);
         } catch (SLException e) {
-            error(context, Messages.ERROR_MERGING_DESCRIPTORS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_MERGING_DESCRIPTORS);
             throw e;
         }
-        debug(context, Messages.DESCRIPTORS_MERGED, LOGGER);
+        getStepLogger().debug(Messages.DESCRIPTORS_MERGED);
 
         return ExecutionStatus.SUCCESS;
     }

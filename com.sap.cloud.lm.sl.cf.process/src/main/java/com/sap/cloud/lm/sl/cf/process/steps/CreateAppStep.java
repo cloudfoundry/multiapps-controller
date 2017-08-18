@@ -1,10 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,9 +16,9 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -48,9 +45,8 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("createAppStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateAppStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateAppStep.class);
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -68,15 +64,15 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException, FileStorageException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context:
         CloudApplicationExtended app = StepsUtil.getApp(context);
 
         try {
-            info(context, format(Messages.CREATING_APP, app.getName()), LOGGER);
+            getStepLogger().info(Messages.CREATING_APP, app.getName());
 
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
 
             // Get application parameters:
             String appName = app.getName();
@@ -110,14 +106,14 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
 
             StepsUtil.setAppPropertiesChanged(context, true);
 
-            debug(context, format(Messages.APP_CREATED, app.getName()), LOGGER);
+            getStepLogger().debug(Messages.APP_CREATED, app.getName());
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, format(Messages.ERROR_CREATING_APP, app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_CREATING_APP, app.getName());
             throw e;
-        } catch (CloudFoundryException exception) {
-            SLException e = StepsUtil.createException(exception);
-            error(context, format(Messages.ERROR_CREATING_APP, app.getName()), e, LOGGER);
+        } catch (CloudFoundryException cfe) {
+            SLException e = StepsUtil.createException(cfe);
+            getStepLogger().error(e, Messages.ERROR_CREATING_APP, app.getName());
             throw e;
         }
     }
@@ -134,8 +130,7 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
             services);
         Map<String, Map<String, Object>> bindingParameters = mergeBindingParameters(descriptorProvidedBindingParameters,
             fileProvidedBindingParameters);
-        debug(context, format(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), secureSerializer.toJson(bindingParameters)),
-            LOGGER);
+        getStepLogger().debug(Messages.BINDING_PARAMETERS_FOR_APPLICATION, app.getName(), secureSerializer.toJson(bindingParameters));
         return bindingParameters;
     }
 
@@ -211,12 +206,11 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
             CloudServiceExtended serviceCloudModel = findServiceCloudModel(servicesCloudModel, serviceName);
 
             if (serviceCloudModel != null && serviceCloudModel.isOptional()) {
-                warn(context, MessageFormat.format(Messages.CANNOT_BIND_APPLICATION_TO_OPTIONAL_SERVICE, appName, serviceName), LOGGER);
+                getStepLogger().warn(e, Messages.COULD_NOT_BIND_APP_TO_OPTIONAL_SERVICE, appName, serviceName);
                 return;
             }
-            throw new SLException(e, Messages.CANNOT_BIND_APP_TO_NON_EXISTING_SERVICE, appName, serviceName);
+            throw new SLException(e, Messages.COULD_NOT_BIND_APP_TO_SERVICE, appName, serviceName, e.getMessage());
         }
-
     }
 
     private void bindServiceToApplication(DelegateExecution context, CloudFoundryOperations client, String appName, String serviceName,
@@ -224,16 +218,15 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
         if (bindingParameters != null) {
             bindServiceWithParameters(context, client, appName, serviceName, bindingParameters);
         } else {
-            bindService(context, client, appName, serviceName);
+            bindService(client, appName, serviceName);
         }
     }
 
     // TODO Fix update of service bindings parameters
     private void bindServiceWithParameters(DelegateExecution context, CloudFoundryOperations client, String appName, String serviceName,
         Map<String, Object> bindingParameters) {
-        ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
-        debug(context, format(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters.get(serviceName)),
-            LOGGER);
+        ClientExtensions clientExtensions = getClientExtensions(context);
+        getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters.get(serviceName));
         if (clientExtensions == null) {
             serviceBindingCreator.bindService(client, appName, serviceName, bindingParameters);
         } else {
@@ -241,8 +234,8 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
         }
     }
 
-    private void bindService(DelegateExecution context, CloudFoundryOperations client, String appName, String serviceName) {
-        debug(context, format(Messages.BINDING_APP_TO_SERVICE, appName, serviceName), LOGGER);
+    private void bindService(CloudFoundryOperations client, String appName, String serviceName) {
+        getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE, appName, serviceName);
         client.bindService(appName, serviceName);
     }
 

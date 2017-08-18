@@ -4,15 +4,14 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -30,10 +29,10 @@ import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 import com.sap.cloud.lm.sl.slp.resources.Configuration;
 
 @Component("validateDeployParametersStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
 
     private static final String PART_POSTFIX = ".part.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ValidateDeployParametersStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("validateParametersTask").displayName("Validate Parameters").description(
@@ -43,16 +42,16 @@ public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
 
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
         try {
-            info(context, Messages.VALIDATING_PARAMETERS, LOGGER);
+            getStepLogger().info(Messages.VALIDATING_PARAMETERS);
 
             validateParameters(context);
 
-            debug(context, Messages.PARAMETERS_VALIDATED, LOGGER);
+            getStepLogger().debug(Messages.PARAMETERS_VALIDATED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_VALIDATING_PARAMS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_VALIDATING_PARAMS);
             throw e;
         }
     }
@@ -109,12 +108,12 @@ public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
             archivePartEntries.add(findFile(context, appArchivePartId));
         }
         try {
-            debug(context, Messages.BUILDING_ARCHIVE_FROM_PARTS, LOGGER);
+            getStepLogger().debug(Messages.BUILDING_ARCHIVE_FROM_PARTS);
             createArchiveFromParts(context, archivePartEntries);
         } catch (FileStorageException e) {
-            throw new SLException(e, MessageFormat.format(Messages.ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT, e.getMessage()));
+            throw new SLException(e, Messages.ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT, e.getMessage());
         } catch (IOException e) {
-            throw new SLException(e, MessageFormat.format(Messages.ERROR_MERGING_ARCHIVE_PARTS, e.getMessage()));
+            throw new SLException(e, Messages.ERROR_MERGING_ARCHIVE_PARTS, e.getMessage());
         }
     }
 
@@ -154,7 +153,7 @@ public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
         try {
             fileService.deleteFile(fileEntry.getSpace(), fileEntry.getId());
         } catch (FileStorageException e) {
-            LOGGER.warn(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
+            logger.warn(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
         }
     }
 
@@ -204,8 +203,7 @@ public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
         }
         int startTimeout = (Integer) parameter;
         if (startTimeout < 0) {
-            throw new SLException(
-                MessageFormat.format(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, startTimeout, Constants.PARAM_START_TIMEOUT));
+            throw new SLException(Messages.ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE, startTimeout, Constants.PARAM_START_TIMEOUT);
         }
     }
 

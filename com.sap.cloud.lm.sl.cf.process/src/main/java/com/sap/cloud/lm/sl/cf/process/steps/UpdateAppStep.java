@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +14,8 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.Staging;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -34,9 +32,8 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("updateAppStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UpdateAppStep extends CreateAppStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateAppStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("updateAppTask").displayName("Update App").description("Update App").build();
@@ -44,7 +41,7 @@ public class UpdateAppStep extends CreateAppStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException, FileStorageException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context
         CloudApplicationExtended app = StepsUtil.getApp(context);
@@ -53,10 +50,10 @@ public class UpdateAppStep extends CreateAppStep {
         CloudApplication existingApp = StepsUtil.getExistingApp(context);
 
         try {
-            info(context, format(Messages.UPDATING_APP, app.getName()), LOGGER);
+            getStepLogger().info(Messages.UPDATING_APP, app.getName());
 
             // Get a cloud foundry client
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
 
             // Get application parameters
             String appName = app.getName();
@@ -70,7 +67,7 @@ public class UpdateAppStep extends CreateAppStep {
 
             // Update the application
             if (hasChanged(staging, existingApp.getStaging())) {
-                debug(context, format("Updating staging of application \"{0}\"", appName), LOGGER);
+                getStepLogger().debug("Updating staging of application \"{0}\"", appName);
                 if (platformTypeSupplier.get() == PlatformType.CF) {
                     applicationStagingUpdater.updateApplicationStaging(client, appName, staging);
                 } else {
@@ -79,44 +76,44 @@ public class UpdateAppStep extends CreateAppStep {
                 appPropertiesChanged = true;
             }
             if (memory != null && !memory.equals(existingApp.getMemory())) {
-                debug(context, format("Updating memory of application \"{0}\"", appName), LOGGER);
+                getStepLogger().debug("Updating memory of application \"{0}\"", appName);
                 client.updateApplicationMemory(appName, memory);
                 appPropertiesChanged = true;
             }
             if (diskQuota != null && !diskQuota.equals(existingApp.getDiskQuota())) {
-                debug(context, format("Updating disk quota of application \"{0}\"", appName), LOGGER);
+                getStepLogger().debug("Updating disk quota of application \"{0}\"", appName);
                 client.updateApplicationDiskQuota(appName, diskQuota);
                 appPropertiesChanged = true;
             }
             if (hasChanged(uris, existingApp.getUris())) {
-                debug(context, format("Updating uris of application \"{0}\"", appName), LOGGER);
+                getStepLogger().debug("Updating uris of application \"{0}\"", appName);
                 client.updateApplicationUris(appName, uris);
                 appPropertiesChanged = true;
             }
             appPropertiesChanged = updateApplicationServices(app, existingApp, client, context) ? true : appPropertiesChanged;
             updateAppDigest(env, existingApp.getEnvAsMap());
             if (!env.equals(existingApp.getEnvAsMap())) {
-                debug(context, format("Updating env of application \"{0}\"", appName), LOGGER);
+                getStepLogger().debug("Updating env of application \"{0}\"", appName);
                 client.updateApplicationEnv(appName, env);
                 appPropertiesChanged = true;
             }
 
             if (!appPropertiesChanged) {
-                info(context, format(Messages.APPLICATION_UNCHANGED, app.getName()), LOGGER);
+                getStepLogger().info(Messages.APPLICATION_UNCHANGED, app.getName());
             } else {
-                debug(context, format(Messages.APP_UPDATED, app.getName()), LOGGER);
+                getStepLogger().debug(Messages.APP_UPDATED, app.getName());
             }
 
             StepsUtil.setAppPropertiesChanged(context, appPropertiesChanged);
 
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, format(Messages.ERROR_UPDATING_APP, app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_UPDATING_APP, app.getName());
             throw e;
-        } catch (CloudFoundryException e) {
-            SLException ex = StepsUtil.createException(e);
-            error(context, format(Messages.ERROR_UPDATING_APP, app.getName()), ex, LOGGER);
-            throw ex;
+        } catch (CloudFoundryException cfe) {
+            SLException e = StepsUtil.createException(cfe);
+            getStepLogger().error(e, Messages.ERROR_UPDATING_APP, app.getName());
+            throw e;
         }
     }
 
@@ -160,7 +157,7 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     private void unbindService(String appName, String serviceName, CloudFoundryOperations client, DelegateExecution context) {
-        debug(context, format(Messages.UNBINDING_APP_FROM_SERVICE, appName, serviceName), LOGGER);
+        getStepLogger().debug(Messages.UNBINDING_APP_FROM_SERVICE, appName, serviceName);
         client.unbindService(appName, serviceName);
     }
 
@@ -205,7 +202,7 @@ public class UpdateAppStep extends CreateAppStep {
                 hasUpdatedService = true;
                 continue;
             }
-            info(context, format(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, serviceName, app.getName()), LOGGER);
+            getStepLogger().info(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, serviceName, app.getName());
         }
         return hasUpdatedService;
     }

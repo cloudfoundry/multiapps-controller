@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
-import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -43,30 +42,36 @@ public class StartProcessListener extends AbstractXS2ProcessExecutionListener {
             context.setVariable(Constants.VAR_CORRELATION_ID, correlationId);
         }
         ProcessType processType = StepsUtil.getProcessType(context);
+
         if (ongoingOperationDao.find(correlationId) == null) {
             addOngoingOperation(context, correlationId, processType);
         }
-        logProcessEnvironment(context);
+        logProcessEnvironment();
         logProcessVariables(context, processType);
     }
 
-    private void logProcessEnvironment(DelegateExecution context) {
+    private void logProcessEnvironment() {
         Map<String, String> environment = ConfigurationUtil.getFilteredEnv();
-        debug(context, MessageFormat.format(Messages.PROCESS_ENVIRONMENT, JsonUtil.toJson(environment, true)), LOGGER);
+        getStepLogger().debug(Messages.PROCESS_ENVIRONMENT, JsonUtil.toJson(environment, true));
     }
 
     private void logProcessVariables(DelegateExecution context, ProcessType processType) {
         ServiceMetadata serviceMetadata = ProcessTypeToServiceMetadataMapper.getServiceMetadata(processType);
         Map<String, Object> nonSensitiveVariables = StepsUtil.getNonSensitiveVariables(context, serviceMetadata);
-        debug(context, MessageFormat.format(Messages.PROCESS_VARIABLES, JsonUtil.toJson(nonSensitiveVariables, true)), LOGGER);
+        getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(nonSensitiveVariables, true));
     }
 
     private void addOngoingOperation(DelegateExecution context, String correlationId, ProcessType processType) {
         String startedAt = FORMATTER.format(ZonedDateTime.now());
-        String user = StepsUtil.determineCurrentUser(context, LOGGER, processLoggerProviderFactory);
+        String user = StepsUtil.determineCurrentUser(context, getStepLogger());
         String spaceId = StepsUtil.getSpaceId(context);
         OngoingOperation process = new OngoingOperation(correlationId, processType, startedAt, spaceId, null, user, false, null);
         ongoingOperationDao.add(process);
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
     }
 
 }

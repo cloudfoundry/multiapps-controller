@@ -1,15 +1,13 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -26,9 +24,8 @@ import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteDiscontinuedConfigurationEntriesStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteDiscontinuedConfigurationEntriesStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteDiscontinuedConfigurationEntriesStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("deleteDiscontinuedConfigurationEntriesTask").displayName(
@@ -43,9 +40,9 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends AbstractXS2Proce
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
-        info(context, Messages.DELETING_PUBLISHED_DEPENDENCIES, LOGGER);
+        getStepLogger().info(Messages.DELETING_PUBLISHED_DEPENDENCIES);
         String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
         String org = StepsUtil.getOrg(context);
         String space = StepsUtil.getSpace(context);
@@ -59,13 +56,13 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends AbstractXS2Proce
             try {
                 configurationEntryDao.remove(entry.getId());
             } catch (NotFoundException e) {
-                warn(context, format(Messages.COULD_NOT_DELETE_PROVIDED_DEPENDENCY, entry.getProviderId()), LOGGER);
+                getStepLogger().warn(Messages.COULD_NOT_DELETE_PROVIDED_DEPENDENCY, entry.getProviderId());
             }
         }
-        debug(context, format(Messages.DELETED_ENTRIES, JsonUtil.toJson(entriesToDelete, true)), LOGGER);
+        getStepLogger().debug(Messages.DELETED_ENTRIES, JsonUtil.toJson(entriesToDelete, true));
         StepsUtil.setDeletedEntries(context, entriesToDelete);
 
-        debug(context, Messages.PUBLISHED_DEPENDENCIES_DELETED, LOGGER);
+        getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
         return ExecutionStatus.SUCCESS;
     }
 

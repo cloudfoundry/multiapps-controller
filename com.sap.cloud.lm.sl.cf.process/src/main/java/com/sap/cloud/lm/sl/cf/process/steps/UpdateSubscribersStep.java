@@ -4,7 +4,6 @@ import static com.sap.cloud.lm.sl.common.util.JsonUtil.convertJsonToList;
 import static com.sap.cloud.lm.sl.common.util.JsonUtil.convertJsonToMap;
 import static com.sap.cloud.lm.sl.common.util.JsonUtil.toJson;
 import static com.sap.cloud.lm.sl.common.util.ListUtil.merge;
-import static java.text.MessageFormat.format;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,8 +27,8 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -67,9 +66,8 @@ import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("updateSubscribersStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateSubscribersStep.class);
 
     /*
      * This schema version will be used only for the handling of the subscription entities and it should always be the same as the latest
@@ -108,22 +106,22 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         try {
-            info(context, Messages.UPDATING_SUBSCRIBERS, LOGGER);
+            getStepLogger().info(Messages.UPDATING_SUBSCRIBERS);
             List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, activitiFacade);
             List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(context, activitiFacade);
             List<ConfigurationEntry> updatedEntries = merge(publishedEntries, deletedEntries);
 
-            CloudFoundryOperations clientForCurrentSpace = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations clientForCurrentSpace = getCloudFoundryClient(context);
 
             List<CloudApplication> updatedSubscribers = new ArrayList<>();
             List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
             for (ConfigurationSubscription subscription : subscriptionsDao.findAll(updatedEntries)) {
                 Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientForCurrentSpace, subscription.getSpaceId());
                 if (orgAndSpace == null) {
-                    LOGGER.warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
+                    logger.warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                     continue;
                 }
                 CloudApplication updatedApplication = updateSubscriber(context, orgAndSpace, subscription);
@@ -134,10 +132,10 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
             }
             StepsUtil.setUpdatedSubscribers(context, removeDuplicates(updatedSubscribers));
             StepsUtil.setUpdatedServiceBrokerSubscribers(context, updatedServiceBrokerSubscribers);
-            debug(context, Messages.SUBSCRIBERS_UPDATED, LOGGER);
+            getStepLogger().debug(Messages.SUBSCRIBERS_UPDATED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_UPDATING_SUBSCRIBERS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_UPDATING_SUBSCRIBERS);
             throw e;
         }
     }
@@ -190,7 +188,7 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
         try {
             return attemptToUpdateSubscriber(context, getClient(context, orgAndSpace), subscription);
         } catch (CloudFoundryException | SLException e) {
-            warn(context, format(Messages.COULD_NOT_UPDATE_SUBSCRIBER, appName, mtaId, subscriptionName), e, LOGGER);
+            getStepLogger().warn(e, Messages.COULD_NOT_UPDATE_SUBSCRIBER, appName, mtaId, subscriptionName);
             return null;
         }
     }
@@ -200,20 +198,18 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
         HandlerFactory handlerFactory = new HandlerFactory(MAJOR_SCHEMA_VERSION);
 
         DeploymentDescriptor dummyDescriptor = buildDummyDescriptor(subscription, handlerFactory);
-        debug(context, format(com.sap.cloud.lm.sl.cf.core.message.Messages.DEPLOYMENT_DESCRIPTOR, toJson(dummyDescriptor, true)), LOGGER);
+        getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.DEPLOYMENT_DESCRIPTOR, toJson(dummyDescriptor, true));
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(entriesDao,
             new DummyConfigurationFilterParser(subscription.getFilter()),
             new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)));
         resolver.resolve(dummyDescriptor);
-        debug(context,
-            format(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor)),
-            LOGGER);
+        getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
+            secureSerializer.toJson(dummyDescriptor));
         dummyDescriptor = handlerFactory.getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(),
             new ResolverBuilder()).resolve();
-        debug(context,
-            format(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(dummyDescriptor)),
-            LOGGER);
+        getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
+            secureSerializer.toJson(dummyDescriptor));
 
         ApplicationsCloudModelBuilder appsCloudModelBuilder = handlerFactory.getApplicationsCloudModelBuilder(dummyDescriptor,
             StepsUtil.getCloudBuilderConfiguration(context, shouldUsePrettyPrinting()), null, getEmptySystemParameters(),
@@ -235,8 +231,8 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
             return null;
         }
 
-        info(context, format(Messages.UPDATING_SUBSCRIBER, subscription.getAppName(), subscription.getMtaId(),
-            getRequiredDependency(subscription).getName()), LOGGER);
+        getStepLogger().info(Messages.UPDATING_SUBSCRIBER, subscription.getAppName(), subscription.getMtaId(),
+            getRequiredDependency(subscription).getName());
         client.updateApplicationEnv(existingApplication.getName(), currentEnvironment);
         return existingApplication;
     }
@@ -294,7 +290,7 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
     }
 
     private CloudFoundryOperations getClient(DelegateExecution context, Pair<String, String> orgAndSpace) throws SLException {
-        return getCloudFoundryClient(context, LOGGER, orgAndSpace._1, orgAndSpace._2);
+        return getCloudFoundryClient(context, orgAndSpace._1, orgAndSpace._2);
     }
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory)

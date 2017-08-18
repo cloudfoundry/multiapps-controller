@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.message;
 
-import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-
 /**
  * A collection of string constants used for exception and logging messages.
  */
@@ -40,7 +38,6 @@ public final class Messages {
     public static final String ERROR_VALIDATING_SERVICES = "Could not validate services";
     public static final String ERROR_VALIDATING_APPLICATIONS = "Could not validate applications";
     public static final String COULD_NOT_CONFIGURE_GIT_TO_SKIP_SSL = "Could not configure Git to skip SSL";
-    public static final String CANNOT_BIND_APP_TO_NON_EXISTING_SERVICE = "Cannot bind application \"{0}\" to non-existing service \"{1}\"!";
     public static final String ERROR_MERGING_ARCHIVE_PARTS = "Error merging archive parts: {0}";
     public static final String ERROR_PROCESSING_ARCHIVE_PARTS_CONTENT = "Error processing archive parts content";
     public static final String BUILDING_ARCHIVE_FROM_PARTS = "Building archive from parts...";
@@ -51,6 +48,8 @@ public final class Messages {
     public static final String COULD_NOT_COLLECT_PROCESS_STATISTICS = "Could not collect statistics for process with ID \"{0}\"";
     public static final String UNSUPPORTED_PROCESS_TYPE = "Process type \"{0}\" is not supported";
     public static final String FAILED_SERVICE_UPDATE = "Updating service {0} failed: {1}";
+    public static final String STEP_LOGGER_NOT_INITIALIZED = "Step logger is not initialized!";
+    public static final String COULD_NOT_BIND_APP_TO_SERVICE = "Could not bind application \"{0}\" to service \"{1}\": {2}";
 
     // Audit log messages
 
@@ -112,7 +111,12 @@ public final class Messages {
     public static final String ERROR_RECONFIGURING_APPS_ENVIRONMENTS = "Error reconfiguring apps environments";
     public static final String ERROR_NOT_FOUND_APPLICATION = "Application \"{0}\" not found.";
     public static final String ERROR_MONITORING_SUBPROCESS = "Error monitoring subprocess with id {0}";
-    public static final String ERROR_CREATING_SERVICE_WITH_NAME = "Error creating service with name {0}: {1}";
+    public static final String ERROR_CREATING_SERVICE = "Error creating service \"{0}\": {1}";
+    public static final String ERROR_UPDATING_SERVICE = "Error updating service \"{0}\": {1}";
+    public static final String ERROR_DELETING_SERVICE = "Error deleting service \"{0}\": {1}";
+    public static final String ERROR_CREATING_OPTIONAL_SERVICE = "Error creating optional service \"{0}\": {1}";
+    public static final String ERROR_UPDATING_OPTIONAL_SERVICE = "Error updating optional service \"{0}\": {1}";
+    public static final String ERROR_DELETING_OPTIONAL_SERVICE = "Error deleting optional service \"{0}\": {1}";
     public static final String ERROR_MONITORING_CREATION_OF_SERVICES = "Error monitoring creation of services";
 
     // WARN log messages
@@ -146,8 +150,8 @@ public final class Messages {
     public static final String FAILED_SERVICE_BROKER_UPDATE = "Failed to update service broker \"{0}\"";
     public static final String FAILED_SERVICE_BROKER_SUBSCRIBER_RESTART = "Failed to restart service broker subscriber \"{0}\"";
     public static final String FAILED_SERVICE_BROKER_START = "Failed to start service broker \"{0}\"";
-    public static final String CANNOT_BIND_APPLICATION_TO_OPTIONAL_SERVICE = "Cannot bind application {0} to optional service {1}";
-    public static final String COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE = "Could not execute operation over optional service {0}: {1}";
+    public static final String COULD_NOT_BIND_APP_TO_OPTIONAL_SERVICE = "Could not bind application \"{0}\" to optional service \"{1}\"";
+    public static final String COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE = "Could not execute operation over optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
 
     // INFO log messages
@@ -160,8 +164,7 @@ public final class Messages {
     public static final String BINDING_APP_TO_SERVICE_WITH_PARAMETERS = "Binding application \"{0}\" to service \"{1}\" with parameters \"{2}\"";
     public static final String BINDING_APP_TO_SERVICE = "Binding application \"{0}\" to service \"{1}\"";
     public static final String UNBINDING_APP_FROM_SERVICE = "Unbinding application \"{0}\" from service \"{1}\"";
-    public static final String WAITING_FOR_SERVICE_TO_BE_CREATED = "Waiting for service {0} to be created...";
-    public static final String WAITING_FOR_SERVICES_CREATION = "Waiting for services creation...";
+    public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
 
     // Progress messages
     public static final String PREPARING_DEPLOY_PARAMETERS = "Preparing deploy parameters...";
@@ -223,6 +226,8 @@ public final class Messages {
     public static final String SERVICE_DELETED = "Service \"{0}\" deleted";
     public static final String UPDATING_SERVICE = "Updating service \"{0}\"...";
     public static final String SERVICE_UPDATED = "Service \"{0}\" updated";
+    public static final String SERVICES_TO_CREATE = "Services to create: {0}";
+    public static final String SERVICES_TO_UPDATE = "Services to update: {0}";
     public static final String UPDATING_SERVICE_TAGS = "Updating service tags for service \"{0}\"...";
     public static final String SERVICE_TAGS_UPDATED = "Service tags for service \"{0}\" updated";
     public static final String CREATING_SERVICE_KEY_FOR_SERVICE = "Creating service key \"{0}\" for service \"{1}\"...";
@@ -352,7 +357,6 @@ public final class Messages {
     public static final String MTA_ARCHIVE_MODULES = "MTA archive modules: {0}";
     public static final String CUSTOM_DOMAINS = "Custom domains: {0}";
     public static final String APPS_TO_DEPLOY = "Apps to deploy: {0}";
-    public static final String SERVICES_TO_CREATE = "Services to create: {0}";
     public static final String SERVICE_KEYS_TO_CREATE = "Service keys to create: {0}";
     public static final String APPLICATION_PORTS = "Application ports: {0}";
     public static final String ALLOCATED_PORTS = "Allocated ports: {0}";
@@ -375,5 +379,8 @@ public final class Messages {
     public static final String CURRENT_STATE = "Current state of application {0}: {1}";
     public static final String ACTIONS_TO_EXECUTE = "Actions that should be executed on application {0}: {1}";
     public static final String STARTING_MONITORING_SUBPROCESS = "Starting monitoring subprocess with id {0}";
+    public static final String TRIGGERED_SERVICE_OPERATIONS = "Triggered service operations: {0}";
+    public static final String REMAINING_SERVICES_TO_POLL = "Remaining services to poll: {0}";
+    public static final String LAST_OPERATION_FOR_SERVICE = "Last operation for service \"{0}\": {1}";
 
 }

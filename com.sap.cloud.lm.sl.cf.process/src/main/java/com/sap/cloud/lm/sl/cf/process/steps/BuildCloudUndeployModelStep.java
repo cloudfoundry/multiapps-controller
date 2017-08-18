@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -12,8 +10,8 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -28,9 +26,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("buildCloudUndeployModelStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BuildCloudUndeployModelStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BuildCloudUndeployModelStep.class);
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -44,9 +41,9 @@ public class BuildCloudUndeployModelStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
-        info(context, Messages.BUILDING_CLOUD_UNDEPLOY_MODEL, LOGGER);
+        getStepLogger().info(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
         try {
             DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
             if (deployedMta == null) {
@@ -59,7 +56,7 @@ public class BuildCloudUndeployModelStep extends AbstractXS2ProcessStep {
             List<CloudApplicationExtended> appsToDeploy = StepsUtil.getAppsToDeploy(context);
             List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(context);
 
-            debug(context, format(Messages.MTA_MODULES, mtaModules), LOGGER);
+            getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
             List<String> appNames = appsToDeploy.stream().map((app) -> app.getName()).collect(Collectors.toList());
 
@@ -68,20 +65,20 @@ public class BuildCloudUndeployModelStep extends AbstractXS2ProcessStep {
 
             List<ConfigurationSubscription> subscriptionsToDelete = computeSubscriptionsToDelete(subscriptionsToCreate, deployedMta,
                 StepsUtil.getSpaceId(context));
-            debug(context, format(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete)), LOGGER);
+            getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete));
 
             List<String> servicesToDelete = computeServicesToDelete(deployedMta.getServices(), modulesToKeep);
-            debug(context, format(Messages.SERVICES_TO_DELETE, servicesToDelete), LOGGER);
+            getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
 
             List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(modulesToUndeploy, deployedApps);
-            debug(context, format(Messages.APPS_TO_UNDEPLOY, secureSerializer.toJson(appsToUndeploy)), LOGGER);
+            getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, secureSerializer.toJson(appsToUndeploy));
 
             setComponentsToUndeploy(context, servicesToDelete, appsToUndeploy, subscriptionsToDelete);
 
-            debug(context, Messages.CLOUD_UNDEPLOY_MODEL_BUILT, LOGGER);
+            getStepLogger().debug(Messages.CLOUD_UNDEPLOY_MODEL_BUILT);
             return ExecutionStatus.SUCCESS;
         } catch (Exception e) {
-            error(context, Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL);
             throw e;
         }
     }

@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,8 +17,8 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -36,9 +34,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("checkForCreationConflictsStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CheckForCreationConflictsStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CheckForCreationConflictsStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("checkForCreationConflictsTask").displayName("Check For Creation Conflicts").description(
@@ -47,33 +44,33 @@ public class CheckForCreationConflictsStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
         List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(context);
         try {
-            info(context, Messages.VALIDATING_SERVICES, LOGGER);
+            getStepLogger().info(Messages.VALIDATING_SERVICES);
             validateServicesToCreate(context, deployedMta, deployedApps);
-            debug(context, Messages.SERVICES_VALIDATED, LOGGER);
+            getStepLogger().debug(Messages.SERVICES_VALIDATED);
         } catch (SLException e) {
-            error(context, Messages.ERROR_VALIDATING_SERVICES, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_VALIDATING_SERVICES);
             throw e;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, Messages.ERROR_VALIDATING_SERVICES, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_VALIDATING_SERVICES);
             throw e;
         }
 
         try {
-            info(context, Messages.VALIDATING_APPLICATIONS, LOGGER);
+            getStepLogger().info(Messages.VALIDATING_APPLICATIONS);
             validateApplicationsToDeploy(context, deployedMta, deployedApps);
-            debug(context, Messages.APPLICATIONS_VALIDATED, LOGGER);
+            getStepLogger().debug(Messages.APPLICATIONS_VALIDATED);
         } catch (SLException e) {
-            error(context, Messages.ERROR_VALIDATING_APPLICATIONS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_VALIDATING_APPLICATIONS);
             throw e;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, Messages.ERROR_VALIDATING_APPLICATIONS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_VALIDATING_APPLICATIONS);
             throw e;
         }
 
@@ -81,28 +78,28 @@ public class CheckForCreationConflictsStep extends AbstractXS2ProcessStep {
     }
 
     private void validateServicesToCreate(DelegateExecution context, DeployedMta deployedMta, List<CloudApplication> deployedApps) {
-        CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+        CloudFoundryOperations client = getCloudFoundryClient(context);
         List<CloudServiceExtended> servicesToCreate = StepsUtil.getServicesToCreate(context);
         Map<String, CloudService> existingServicesMap = createExistingServicesMap(client.getServices());
         Set<String> servicesInDeployedMta = deployedMta != null ? deployedMta.getServices() : Collections.emptySet();
         for (CloudServiceExtended service : servicesToCreate) {
             if (existingServicesMap.containsKey(service.getName())) {
-                validateExistingServiceAssociation(context, service, client, deployedApps, servicesInDeployedMta);
+                validateExistingServiceAssociation(service, client, deployedApps, servicesInDeployedMta);
             }
         }
     }
 
-    private void validateExistingServiceAssociation(DelegateExecution context, CloudServiceExtended serviceToCreate,
-        CloudFoundryOperations client, List<CloudApplication> deployedApps, Set<String> servicesInDeployedMta) {
+    private void validateExistingServiceAssociation(CloudServiceExtended serviceToCreate, CloudFoundryOperations client,
+        List<CloudApplication> deployedApps, Set<String> servicesInDeployedMta) {
 
-        debug(context, format(Messages.VALIDATING_EXISTING_SERVICE_ASSOCIATION, serviceToCreate.getName()), LOGGER);
+        getStepLogger().debug(Messages.VALIDATING_EXISTING_SERVICE_ASSOCIATION, serviceToCreate.getName());
         if (servicesInDeployedMta.contains(serviceToCreate.getName())) {
             return;
         }
 
         List<CloudServiceBinding> bindings = getServiceBindings(client, serviceToCreate);
         if (bindings.size() == 0) {
-            warn(context, format(Messages.SERVICE_DOESNT_HAVE_BOUND_COMPONENTS, serviceToCreate.getName()), LOGGER);
+            getStepLogger().warn(Messages.SERVICE_DOESNT_HAVE_BOUND_COMPONENTS, serviceToCreate.getName());
             return;
         }
         Set<String> namesOfBoundStandaloneApplications = new LinkedHashSet<>();
@@ -148,24 +145,24 @@ public class CheckForCreationConflictsStep extends AbstractXS2ProcessStep {
 
         for (CloudApplicationExtended application : applicationsToDeploy) {
             if (existingApplicationsMap.containsKey(application.getName())) {
-                validateApplicationToDeploy(context, applicationsInDeployedMta, application, existingApplicationsMap);
+                validateApplicationToDeploy(applicationsInDeployedMta, application, existingApplicationsMap);
             }
         }
     }
 
-    private void validateApplicationToDeploy(DelegateExecution context, Set<String> applicationsInDeployedMta,
-        CloudApplicationExtended applicationToDeploy, Map<String, CloudApplication> existingApplicationsMap) {
-        debug(context, format(Messages.VALIDATING_EXISTING_APPLICATION_ASSOCIATION, applicationToDeploy.getName()), LOGGER);
+    private void validateApplicationToDeploy(Set<String> applicationsInDeployedMta, CloudApplicationExtended applicationToDeploy,
+        Map<String, CloudApplication> existingApplicationsMap) {
+        getStepLogger().debug(Messages.VALIDATING_EXISTING_APPLICATION_ASSOCIATION, applicationToDeploy.getName());
         if (applicationsInDeployedMta.contains(applicationToDeploy.getName())) {
             return;
         }
         Optional<DeployedMta> owningMta = detectOwningMta(applicationToDeploy, existingApplicationsMap.values());
         if (!owningMta.isPresent()) {
-            warn(context, format(Messages.APPLICATION_EXISTS_AS_STANDALONE, applicationToDeploy.getName()), LOGGER);
+            getStepLogger().warn(Messages.APPLICATION_EXISTS_AS_STANDALONE, applicationToDeploy.getName());
             return;
         }
         String owningMtaId = owningMta.get().getMetadata().getId();
-        throw new SLException(format(Messages.APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA, applicationToDeploy.getName(), owningMtaId));
+        throw new SLException(Messages.APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA, applicationToDeploy.getName(), owningMtaId);
     }
 
     private Optional<DeployedMta> detectOwningMta(CloudApplicationExtended application, Collection<CloudApplication> deployedApps) {

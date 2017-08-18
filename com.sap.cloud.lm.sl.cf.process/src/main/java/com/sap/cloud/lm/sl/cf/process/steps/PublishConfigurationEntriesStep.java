@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,8 +9,8 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -25,9 +23,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("publishProvidedDependenciesStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PublishConfigurationEntriesStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PublishConfigurationEntriesStep.class);
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -41,25 +38,25 @@ public class PublishConfigurationEntriesStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(context);
 
         try {
-            info(context, MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES, app.getName()), LOGGER);
+            getStepLogger().info(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES, app.getName()));
 
             Map<String, List<ConfigurationEntry>> entriesToPublish = StepsUtil.getConfigurationEntriesToPublish(context);
 
             List<ConfigurationEntry> entriesToPublishPerApp = entriesToPublish.get(app.getName());
             List<ConfigurationEntry> publishedEntries = publish(entriesToPublishPerApp);
 
-            debug(context, format(Messages.PUBLISHED_ENTRIES, secureSerializer.toJson(publishedEntries)), LOGGER);
+            getStepLogger().debug(Messages.PUBLISHED_ENTRIES, secureSerializer.toJson(publishedEntries));
             StepsUtil.setPublishedEntries(context, publishedEntries);
 
-            debug(context, Messages.PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED, LOGGER);
+            getStepLogger().debug(Messages.PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES);
             throw e;
         }
     }

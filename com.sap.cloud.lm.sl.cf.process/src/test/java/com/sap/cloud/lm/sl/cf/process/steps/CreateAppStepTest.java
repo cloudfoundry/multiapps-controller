@@ -72,7 +72,7 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
             },
             // (4) Binding parameters exist, but the services do not:
             {
-                "create-app-step-input-04.json", "Cannot bind application \"application\" to non-existing service \"service-2\"!", null,
+                "create-app-step-input-04.json", "Could not bind application \"application\" to service \"service-2\": 500 Internal Server Error: Something happened!", null,
             },
             // (5) Binding parameters exist, but the services do not and service-2 is optional - so no exception should be thrown:
             {
@@ -152,8 +152,9 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
 
         for (String appName : stepInput.bindingErrors.keySet()) {
             String serviceName = stepInput.bindingErrors.get(appName);
-            Mockito.doThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR)).when((ClientExtensions) client).bindService(
-                Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any());
+            Mockito.doThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                "Something happened!")).when((ClientExtensions) client).bindService(Mockito.eq(appName), Mockito.eq(serviceName),
+                    Mockito.any());
         }
     }
 

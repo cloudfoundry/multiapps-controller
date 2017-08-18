@@ -19,8 +19,8 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -45,11 +45,11 @@ import com.sap.cloud.lm.sl.slp.model.AsyncStepMetadata;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("uploadAppStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
     private static final String WAIT_TILL_UPLOAD_START_TASK_ID = "waitTillUploadStartTask";
     private static final String ARCHIVE_FILE_SEPARATOR = "/";
-    private static final Logger LOGGER = LoggerFactory.getLogger(UploadAppStep.class);
 
     public static StepMetadata getMetadata() {
         return AsyncStepMetadata.builder().id("uploadAppTask").displayName("Upload").description("Upload App").pollTaskId(
@@ -64,22 +64,22 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws FileStorageException, SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(context);
 
         try {
-            info(context, format(Messages.UPLOADING_APP, app.getName()), LOGGER);
+            getStepLogger().info(Messages.UPLOADING_APP, app.getName());
             int uploadAppTimeoutSeconds = ConfigurationUtil.getUploadAppTimeout();
 
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
-            ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
+            ClientExtensions clientExtensions = getClientExtensions(context);
 
             Future<?> future = asyncTaskExecutor.submit(getUploadAppStepRunnable(context, app, client, clientExtensions));
             asyncTaskExecutor.schedule(getUploadAppStepRunnableKiller(context, future), uploadAppTimeoutSeconds, TimeUnit.SECONDS);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, format(Messages.ERROR_UPLOADING_APP, app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
             throw e;
         }
         return ExecutionStatus.RUNNING;
@@ -87,11 +87,11 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
     private Runnable getUploadAppStepRunnableKiller(DelegateExecution context, Future<?> future) {
         return () -> {
-            LOGGER.warn(format(Messages.CANCELING_UPLOAD_ASYNC_THREAD, context.getProcessInstanceId()));
+            logger.warn(format(Messages.CANCELING_UPLOAD_ASYNC_THREAD, context.getProcessInstanceId()));
             if (future.cancel(true)) {
-                LOGGER.warn(format(Messages.ASYNC_THREAD_CANCELLED, context.getProcessInstanceId()));
+                logger.warn(format(Messages.ASYNC_THREAD_CANCELLED, context.getProcessInstanceId()));
             } else {
-                LOGGER.warn(format(Messages.ASYNC_THREAD_COMPLETED, context.getProcessInstanceId()));
+                logger.warn(format(Messages.ASYNC_THREAD_COMPLETED, context.getProcessInstanceId()));
             }
         };
     }
@@ -215,7 +215,7 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
             try {
                 StreamUtil.deleteFile(file);
             } catch (IOException e) {
-                warn(context, format(Messages.ERROR_DELETING_APP_TEMP_FILE, file.getAbsolutePath()), LOGGER);
+                getStepLogger().warn(Messages.ERROR_DELETING_APP_TEMP_FILE, file.getAbsolutePath());
             }
         }
     }
@@ -240,22 +240,22 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
         @Override
         public void onCheckResources() {
-            debug(context, "Resources checked", LOGGER);
+            getStepLogger().debug("Resources checked");
         }
 
         @Override
         public void onMatchedFileNames(Set<String> matchedFileNames) {
-            info(context, format("Matched files count: {0}", matchedFileNames.size()), LOGGER);
+            getStepLogger().info("Matched files count: {0}", matchedFileNames.size());
         }
 
         @Override
         public void onProcessMatchedResources(int length) {
-            info(context, format("Matched resources processed, total size is {0}", length), LOGGER);
+            getStepLogger().info("Matched resources processed, total size is {0}", length);
         }
 
         @Override
         public boolean onProgress(String status) {
-            info(context, format("Upload status: {0}", status), LOGGER);
+            getStepLogger().info("Upload status: {0}", status);
             if (status.equals(FINISHED_STATUS)) {
                 cleanUpTempFile(context, file);
             }
@@ -264,7 +264,7 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
         @Override
         public void onError(Exception e) {
-            error(context, format(Messages.ERROR_UPLOADING_APP, app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
             cleanUpTempFile(context, file);
         }
 
@@ -274,29 +274,29 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
         ClientExtensions clientExtensions) {
         return () -> {
             String processId = context.getProcessInstanceId();
-            trace(context, format("Started upload app step runnable for process \"{0}\"", processId), LOGGER);
+            getStepLogger().trace("Started upload app step runnable for process \"{0}\"", processId);
             ExecutionStatus status = ExecutionStatus.FAILED;
             Map<String, Object> outputVariables = new HashMap<>();
             try {
                 String appArchiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
                 String fileName = StepsUtil.getModuleFileName(context, app.getModuleName());
-                debug(context, format("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName()), LOGGER);
+                getStepLogger().debug("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName());
                 if (clientExtensions != null) {
                     String uploadToken = asyncUploadFiles(context, clientExtensions, client, app, appArchiveId, fileName);
                     outputVariables.put(Constants.VAR_UPLOAD_TOKEN, uploadToken);
-                    debug(context, format("Started async upload of application \"{0}\"", fileName, app.getName()), LOGGER);
+                    getStepLogger().debug("Started async upload of application \"{0}\"", fileName, app.getName());
                     status = ExecutionStatus.RUNNING;
                 } else {
                     uploadFiles(context, client, app, appArchiveId, fileName);
-                    debug(context, format(Messages.APP_UPLOADED, app.getName()), LOGGER);
+                    getStepLogger().debug(Messages.APP_UPLOADED, app.getName());
                     status = ExecutionStatus.SUCCESS;
                 }
             } catch (SLException | FileStorageException e) {
-                error(context, format(Messages.ERROR_UPLOADING_APP, app.getName()), e, LOGGER);
+                getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
                 throw new IllegalStateException(e.getMessage(), e);
             } catch (CloudFoundryException cfe) {
                 SLException e = StepsUtil.createException(cfe);
-                error(context, format(Messages.ERROR_UPLOADING_APP, app.getName()), e, LOGGER);
+                getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
                 throw new IllegalStateException(e.getMessage(), e);
             } catch (Throwable e) {
                 Throwable eWithMessage = getWithProperMessage(e);
@@ -310,10 +310,10 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
                 }
             } finally {
                 outputVariables.put(getStatusVariable(), status.name());
-                LOGGER.info(format("Attempting to signal process with id:{0} with variables : {1}", processId, outputVariables));
+                logger.info(format("Attempting to signal process with id:{0} with variables : {1}", processId, outputVariables));
                 signalWaitTask(context.getProcessInstanceId(), outputVariables, ConfigurationUtil.getUploadAppTimeout() * 1000);
             }
-            trace(context, format("Upload app step runnable for process \"{0}\" finished", context.getProcessInstanceId()), LOGGER);
+            getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", context.getProcessInstanceId());
         };
     }
 
@@ -325,4 +325,5 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
     protected String getIndexVariable() {
         return Constants.VAR_APPS_INDEX;
     }
+
 }

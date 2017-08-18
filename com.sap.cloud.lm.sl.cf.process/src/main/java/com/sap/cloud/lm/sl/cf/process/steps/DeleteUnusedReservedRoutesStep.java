@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,8 +8,8 @@ import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -26,9 +24,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteUnusedReservedRoutesStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteUnusedReservedRoutesStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteUnusedReservedRoutesStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("deleteUnusedReservedRoutesTask").displayName("Delete Unused Reserved Ports").description(
@@ -37,12 +34,12 @@ public class DeleteUnusedReservedRoutesStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
         try {
-            info(context, Messages.DELETING_UNUSED_RESERVED_ROUTES, LOGGER);
+            getStepLogger().info(Messages.DELETING_UNUSED_RESERVED_ROUTES);
             boolean portBasedRouting = ContextUtil.getVariable(context, Constants.VAR_PORT_BASED_ROUTING, false);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
             List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(context);
             String defaultDomain = getDefaultDomain(context);
 
@@ -51,16 +48,16 @@ public class DeleteUnusedReservedRoutesStep extends AbstractXS2ProcessStep {
                 portAllocator.setAllocatedPorts(StepsUtil.getAllocatedPorts(context));
 
                 Set<Integer> applicationPorts = getApplicationPorts(apps);
-                debug(context, format(Messages.APPLICATION_PORTS, applicationPorts), LOGGER);
+                getStepLogger().debug(Messages.APPLICATION_PORTS, applicationPorts);
                 portAllocator.freeAllExcept(applicationPorts);
                 StepsUtil.setAllocatedPorts(context, applicationPorts);
-                debug(context, format(Messages.ALLOCATED_PORTS, portAllocator.getAllocatedPorts()), LOGGER);
+                getStepLogger().debug(Messages.ALLOCATED_PORTS, portAllocator.getAllocatedPorts());
             }
 
-            debug(context, Messages.UNUSED_RESERVED_ROUTES_DELETED, LOGGER);
+            getStepLogger().debug(Messages.UNUSED_RESERVED_ROUTES_DELETED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_DELETING_UNUSED_RESERVED_ROUTES, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_DELETING_UNUSED_RESERVED_ROUTES);
             throw e;
         }
     }

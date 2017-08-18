@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.CreateServiceBrokersStep.getServiceBrokerNames;
-import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -10,8 +9,8 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +23,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteServiceBrokersStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateServiceBrokersStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("deleteServiceBrokersTask").displayName("Delete Service Brokers").description(
@@ -35,26 +33,26 @@ public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
         try {
-            info(context, Messages.DELETING_SERVICE_BROKERS, LOGGER);
+            getStepLogger().info(Messages.DELETING_SERVICE_BROKERS);
 
             List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(context);
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
             List<String> serviceBrokersToCreate = getServiceBrokerNames(StepsUtil.getServiceBrokersToCreate(context));
 
             for (CloudApplication app : appsToUndeploy) {
                 deleteServiceBrokerIfNecessary(context, app, serviceBrokersToCreate, client);
             }
 
-            debug(context, Messages.SERVICE_BROKERS_DELETED, LOGGER);
+            getStepLogger().debug(Messages.SERVICE_BROKERS_DELETED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_DELETING_SERVICE_BROKERS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_DELETING_SERVICE_BROKERS);
             throw e;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, Messages.ERROR_DELETING_SERVICE_BROKERS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_DELETING_SERVICE_BROKERS);
             throw e;
         }
     }
@@ -69,14 +67,14 @@ public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
 
         if (serviceBrokerExists(name, client) && !serviceBrokersToCreate.contains(name)) {
             try {
-                info(context, MessageFormat.format(Messages.DELETING_SERVICE_BROKER, name, app.getName()), LOGGER);
+                getStepLogger().info(MessageFormat.format(Messages.DELETING_SERVICE_BROKER, name, app.getName()));
                 client.deleteServiceBroker(name);
-                debug(context, MessageFormat.format(Messages.DELETED_SERVICE_BROKER, name, app.getName()), LOGGER);
+                getStepLogger().debug(MessageFormat.format(Messages.DELETED_SERVICE_BROKER, name, app.getName()));
             } catch (CloudFoundryException e) {
                 switch (e.getStatusCode()) {
                     case FORBIDDEN:
                         if (shouldSucceed(context)) {
-                            warn(context, format(Messages.DELETE_OF_SERVICE_BROKERS_FAILED_403, name), LOGGER);
+                            getStepLogger().warn(Messages.DELETE_OF_SERVICE_BROKERS_FAILED_403, name);
                             return;
                         }
                     default:

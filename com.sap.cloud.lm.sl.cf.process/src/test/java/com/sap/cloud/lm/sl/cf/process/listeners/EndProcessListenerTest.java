@@ -12,14 +12,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 
 import com.sap.activiti.common.impl.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
-import com.sap.cloud.lm.sl.slp.services.ProcessLoggerProviderFactory;
-import com.sap.cloud.lm.sl.slp.services.ProcessLogsPersistenceService;
 
 @RunWith(Parameterized.class)
 public class EndProcessListenerTest {
@@ -33,15 +30,12 @@ public class EndProcessListenerTest {
 
     private DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
-    @Spy
-    @InjectMocks
-    protected ProcessLoggerProviderFactory processLoggerProviderFactory = new ProcessLoggerProviderFactory();
-    @Mock
-    private ProcessLogsPersistenceService processLogsPersistenceService;
-    @Mock
-    protected ProgressMessageService progressMessageService;
     @Mock
     private AbstractFileService fileService;
+    @Mock
+    private StepLogger.Factory stepLoggerFactory;
+    @Mock
+    private StepLogger stepLogger;
 
     @InjectMocks
     private EndProcessListener listener = new EndProcessListener();
@@ -95,6 +89,7 @@ public class EndProcessListenerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         prepareContext();
+        Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(stepLogger);
     }
 
     private void prepareContext() {

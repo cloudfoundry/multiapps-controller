@@ -5,8 +5,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -18,9 +18,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("createSubscriptionsStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateSubscriptionsStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateSubscriptionsStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("createSubscriptionsTask").displayName("Create Subscriptions").description(
@@ -32,10 +31,10 @@ public class CreateSubscriptionsStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         try {
-            info(context, Messages.CREATING_SUBSCRIPTIONS, LOGGER);
+            getStepLogger().info(Messages.CREATING_SUBSCRIPTIONS);
 
             List<ConfigurationSubscription> subscriptions = StepsUtil.getSubscriptionsToCreate(context);
 
@@ -43,10 +42,10 @@ public class CreateSubscriptionsStep extends AbstractXS2ProcessStep {
                 createSubscription(subscription);
             }
 
-            debug(context, Messages.SUBSCRIPTIONS_CREATED, LOGGER);
+            getStepLogger().debug(Messages.SUBSCRIPTIONS_CREATED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_CREATING_SUBSCRIPTIONS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_CREATING_SUBSCRIPTIONS);
             throw e;
         }
     }

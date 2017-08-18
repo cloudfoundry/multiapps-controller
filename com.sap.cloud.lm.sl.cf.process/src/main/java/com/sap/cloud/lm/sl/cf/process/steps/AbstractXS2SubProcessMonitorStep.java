@@ -1,13 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.text.MessageFormat;
-
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.runtime.Job;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
@@ -15,12 +11,10 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 public abstract class AbstractXS2SubProcessMonitorStep extends AbstractXS2ProcessStepWithBridge {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(AbstractXS2SubProcessMonitorStep.class);
-
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) {
         String subProcessId = StepsUtil.getSubProcessId(context);
-        debug(context, MessageFormat.format(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId), LOGGER);
+        getStepLogger().debug(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId);
         try {
             HistoricProcessInstance subProcess = getSubProcess(context, subProcessId);
             return getSubProcessStatus(subProcess, context);

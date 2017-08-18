@@ -196,7 +196,9 @@
     <sequenceFlow id="flow121" sourceRef="processDescriptorTask" targetRef="buildDeployModelTask"></sequenceFlow>
     <exclusiveGateway id="shouldRestartServiceBrokerGateway" name="Should Restart Subscribers" default="restartServiceBrokerSubscriberFlow"></exclusiveGateway>
     <sequenceFlow id="flow122" sourceRef="prepareToRestartServiceBrokersTask" targetRef="shouldRestartServiceBrokerGateway"></sequenceFlow>
-    <sequenceFlow id="updatedSubscribersRestarted" sourceRef="shouldRestartServiceBrokerGateway" targetRef="endEvent"></sequenceFlow>
+    <sequenceFlow id="updatedSubscribersRestartedFlow" sourceRef="shouldRestartServiceBrokerGateway" targetRef="endEvent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(updatedSubscribersCount == updatedSubscribersIndex)}]]></conditionExpression>
+    </sequenceFlow>
     <sequenceFlow id="restartServiceBrokerSubscriberFlow" sourceRef="shouldRestartServiceBrokerGateway" targetRef="restartServiceBrokerSubscriberTask"></sequenceFlow>
     <sequenceFlow id="flow125" sourceRef="incrementBrokerIndexTask" targetRef="shouldRestartServiceBrokerGateway"></sequenceFlow>
   </process>
@@ -778,7 +780,7 @@
         <omgdi:waypoint x="1138.0" y="882.0"></omgdi:waypoint>
         <omgdi:waypoint x="1070.0" y="881.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="updatedSubscribersRestarted" id="BPMNEdge_updatedSubscribersRestarted">
+      <bpmndi:BPMNEdge bpmnElement="updatedSubscribersRestartedFlow" id="BPMNEdge_updatedSubscribersRestartedFlow">
         <omgdi:waypoint x="1050.0" y="901.0"></omgdi:waypoint>
         <omgdi:waypoint x="1050.0" y="963.0"></omgdi:waypoint>
         <omgdi:waypoint x="1255.0" y="963.0"></omgdi:waypoint>

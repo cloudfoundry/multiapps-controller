@@ -1,15 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
-import java.text.MessageFormat;
 import java.util.function.Supplier;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -23,9 +20,8 @@ import com.sap.cloud.lm.sl.slp.model.AsyncStepMetadata;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("executeTaskStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ExecuteTaskStep extends AbstractXS2ProcessStepWithBridge {
-
-    static final Logger LOGGER = LoggerFactory.getLogger(ExecuteTaskStep.class);
 
     public static StepMetadata getMetadata() {
         return AsyncStepMetadata.builder().id("executeTaskTask").displayName("Execute Task").description("Execute Task").pollTaskId(
@@ -41,7 +37,7 @@ public class ExecuteTaskStep extends AbstractXS2ProcessStepWithBridge {
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(context);
         CloudTask taskToExecute = StepsUtil.getTask(context);
@@ -49,18 +45,18 @@ public class ExecuteTaskStep extends AbstractXS2ProcessStepWithBridge {
             return attemptToExecuteTask(context, app, taskToExecute);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, format(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
             throw e;
         } catch (SLException e) {
-            error(context, format(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
             throw e;
         }
     }
 
     private ExecutionStatus attemptToExecuteTask(DelegateExecution context, CloudApplication app, CloudTask taskToExecute) {
-        ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
+        ClientExtensions clientExtensions = getClientExtensions(context);
 
-        info(context, MessageFormat.format(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName()), LOGGER);
+        getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
         CloudTask startedTask = runTask(clientExtensions, app, taskToExecute);
 
         StepsUtil.setStartedTask(context, startedTask);

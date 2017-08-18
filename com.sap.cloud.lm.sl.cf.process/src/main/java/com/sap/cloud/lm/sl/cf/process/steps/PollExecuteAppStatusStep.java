@@ -13,8 +13,8 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -28,9 +28,8 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("pollExecuteAppStatusStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PollExecuteAppStatusStep extends AbstractXS2ProcessStepWithBridge {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PollExecuteAppStatusStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("pollExecuteAppStatusTask").displayName("Poll Execute App Status").description(
@@ -59,7 +58,7 @@ public class PollExecuteAppStatusStep extends AbstractXS2ProcessStepWithBridge {
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
         CloudApplication app = getNextApp(context);
         ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
         boolean executeApp = attributesGetter.getAttribute(SupportedParameters.EXECUTE_APP, Boolean.class, false);
@@ -68,15 +67,15 @@ public class PollExecuteAppStatusStep extends AbstractXS2ProcessStepWithBridge {
             return ExecutionStatus.SUCCESS;
         }
         try {
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
             Pair<AppExecutionStatus, String> status = getAppExecutionStatus(context, client, attributesGetter, app);
             return checkAppExecutionStatus(context, client, attributesGetter, app, status);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, format(Messages.ERROR_EXECUTING_APP_1, app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw e;
         } catch (SLException e) {
-            error(context, format(Messages.ERROR_EXECUTING_APP_1, app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw e;
         }
     }
@@ -127,28 +126,28 @@ public class PollExecuteAppStatusStep extends AbstractXS2ProcessStepWithBridge {
         if (status._1.equals(AppExecutionStatus.FAILED)) {
             // Application execution failed
             String message = format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status._2);
-            error(context, message, LOGGER);
-            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER, processLoggerProviderFactory);
+            getStepLogger().error(message);
+            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
             setRetryMessage(context, message);
             return ExecutionStatus.LOGICAL_RETRY;
         } else if (status._1.equals(AppExecutionStatus.SUCCEEDED)) {
             // Application executed successfully
-            info(context, format(Messages.APP_EXECUTED, app.getName()), LOGGER);
-            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER, processLoggerProviderFactory);
+            getStepLogger().info(Messages.APP_EXECUTED, app.getName());
+            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
             // Stop the application if specified
             boolean stopApp = attributesGetter.getAttribute(SupportedParameters.STOP_APP, Boolean.class, false);
             if (stopApp) {
-                info(context, format(Messages.STOPPING_APP, app.getName()), LOGGER);
+                getStepLogger().info(Messages.STOPPING_APP, app.getName());
                 client.stopApplication(app.getName());
-                debug(context, format(Messages.APP_STOPPED, app.getName()), LOGGER);
+                getStepLogger().debug(Messages.APP_STOPPED, app.getName());
             }
             return ExecutionStatus.SUCCESS;
         } else {
             // Application not executed yet, wait and try again unless it's a timeout
             if (StepsUtil.hasTimedOut(context, () -> System.currentTimeMillis())) {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-                error(context, message, LOGGER);
-                StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER, processLoggerProviderFactory);
+                getStepLogger().error(message);
+                StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
                 setRetryMessage(context, message);
                 return ExecutionStatus.LOGICAL_RETRY;
             }

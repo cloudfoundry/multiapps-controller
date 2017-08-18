@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,8 +7,8 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -28,9 +26,8 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteDiscontinuedConfigurationEntriesForAppStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteDiscontinuedConfigurationEntriesForAppStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteDiscontinuedConfigurationEntriesForAppStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("deleteDiscontinuedConfigurationEntriesForAppTask").displayName(
@@ -42,13 +39,13 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends AbstractXS
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         CloudApplication existingApp = StepsUtil.getExistingApp(context);
         if (existingApp == null) {
             return ExecutionStatus.SUCCESS;
         }
-        info(context, format(Messages.DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP, existingApp.getName()), LOGGER);
+        getStepLogger().info(Messages.DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP, existingApp.getName());
         String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
         ApplicationMtaMetadata mtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(existingApp);
         if (mtaMetadata == null) {
@@ -68,13 +65,13 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends AbstractXS
             try {
                 configurationEntryDao.remove(entry.getId());
             } catch (NotFoundException e) {
-                warn(context, format(Messages.COULD_NOT_DELETE_PROVIDED_DEPENDENCY, entry.getProviderId()), LOGGER);
+                getStepLogger().warn(Messages.COULD_NOT_DELETE_PROVIDED_DEPENDENCY, entry.getProviderId());
             }
         }
-        debug(context, format(Messages.DELETED_ENTRIES, JsonUtil.toJson(entriesToDelete, true)), LOGGER);
+        getStepLogger().debug(Messages.DELETED_ENTRIES, JsonUtil.toJson(entriesToDelete, true));
         StepsUtil.setDeletedEntries(context, entriesToDelete);
 
-        debug(context, format(Messages.DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP_DELETED, existingApp.getName()), LOGGER);
+        getStepLogger().debug(Messages.DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP_DELETED, existingApp.getName());
         return ExecutionStatus.SUCCESS;
     }
 

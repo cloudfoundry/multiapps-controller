@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -24,9 +24,8 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("processMtaExtensionDescriptorsStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessMtaExtensionDescriptorsStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessMtaExtensionDescriptorsStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("processExtensionDescriptorsTask").displayName("Process Extension Descriptors").description(
@@ -35,20 +34,20 @@ public class ProcessMtaExtensionDescriptorsStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
-        info(context, Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS, LOGGER);
+        getStepLogger().info(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
         List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(context);
         try {
-            String spaceIdd = StepsUtil.getSpaceId(context);
+            String spaceId = StepsUtil.getSpaceId(context);
 
             ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS,
-                getExtensionDescriptorsAsStrings(spaceIdd, extensionDescriptorFileIds));
+                getExtensionDescriptorsAsStrings(spaceId, extensionDescriptorFileIds));
         } catch (SLException e) {
-            error(context, Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS, LOGGER);
+            getStepLogger().error(Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS);
             throw e;
         }
-        debug(context, Messages.MTA_EXTENSION_DESCRIPTORS_PROCESSED, LOGGER);
+        getStepLogger().debug(Messages.MTA_EXTENSION_DESCRIPTORS_PROCESSED);
         return ExecutionStatus.SUCCESS;
     }
 

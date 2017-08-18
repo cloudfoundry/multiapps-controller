@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,8 +9,8 @@ import java.util.Set;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -29,9 +27,8 @@ import com.sap.cloud.lm.sl.slp.model.LoopStepMetadata;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("reconfigureAppEnvironmentStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ReconfigureAppEnvironmentStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReconfigureAppEnvironmentStep.class);
 
     public static final String DEPLOY_ID_PREFIX = "deploy-";
 
@@ -45,20 +42,20 @@ public class ReconfigureAppEnvironmentStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         try {
-            info(context, Messages.UPDATING_APP_ENVIRONMENT, LOGGER);
+            getStepLogger().info(Messages.UPDATING_APP_ENVIRONMENT);
 
             DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
 
             Set<String> mtaArchiveModules = StepsUtil.getMtaArchiveModules(context);
-            debug(context, format(Messages.MTA_ARCHIVE_MODULES, mtaArchiveModules), LOGGER);
+            getStepLogger().debug(Messages.MTA_ARCHIVE_MODULES, mtaArchiveModules);
             List<DeployedMtaModule> deployedModules = (deployedMta != null) ? deployedMta.getModules() : Collections.emptyList();
             Set<String> deployedModuleNames = CloudModelBuilderUtil.getDeployedModuleNames(deployedModules);
-            debug(context, format(Messages.DEPLOYED_MODULES, deployedModuleNames), LOGGER);
+            getStepLogger().debug(Messages.DEPLOYED_MODULES, deployedModuleNames);
             Set<String> mtaModulesNames = StepsUtil.getMtaModules(context);
-            debug(context, format(Messages.MTA_MODULES, mtaModulesNames), LOGGER);
+            getStepLogger().debug(Messages.MTA_MODULES, mtaModulesNames);
 
             List<CloudApplicationExtended> updatedApps = getApplicationsCloudModelBuilder(context).build(mtaArchiveModules, mtaModulesNames,
                 deployedModuleNames);
@@ -67,7 +64,7 @@ public class ReconfigureAppEnvironmentStep extends AbstractXS2ProcessStep {
 
             List<String> changedAppNames = new ArrayList<>();
             copyAppEnvironments(updatedApps, targetApps, changedAppNames);
-            debug(context, format(Messages.APPS_WITH_ENVS_TO_RECONFIGURE_0, secureSerializer.toJson(changedAppNames)), LOGGER);
+            getStepLogger().debug(Messages.APPS_WITH_ENVS_TO_RECONFIGURE_0, secureSerializer.toJson(changedAppNames));
             updateAppEnvironments(context, targetApps, changedAppNames);
             StepsUtil.setAppsToDeploy(context, updatedApps);
             StepsUtil.setAppsToRestart(context, changedAppNames);
@@ -76,11 +73,11 @@ public class ReconfigureAppEnvironmentStep extends AbstractXS2ProcessStep {
             context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_APPS_INDEX);
             context.setVariable(Constants.VAR_APPS_INDEX, 0);
 
-            debug(context, Messages.APPLICATION_ENVIRONMENTS_RECONFIGURED, LOGGER);
+            getStepLogger().debug(Messages.APPLICATION_ENVIRONMENTS_RECONFIGURED);
 
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_RECONFIGURING_APPS_ENVIRONMENTS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_RECONFIGURING_APPS_ENVIRONMENTS);
             throw e;
         }
     }
@@ -90,7 +87,7 @@ public class ReconfigureAppEnvironmentStep extends AbstractXS2ProcessStep {
     }
 
     private void updateAppEnvironments(DelegateExecution context, List<CloudApplicationExtended> targetApps, List<String> changedAppNames) {
-        CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+        CloudFoundryOperations client = getCloudFoundryClient(context);
         for (CloudApplicationExtended app : targetApps) {
             String appName = app.getName();
             if (!changedAppNames.contains(appName)) {
@@ -114,4 +111,5 @@ public class ReconfigureAppEnvironmentStep extends AbstractXS2ProcessStep {
             }
         }
     }
+
 }

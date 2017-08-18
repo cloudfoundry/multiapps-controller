@@ -1,10 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import org.activiti.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -14,8 +12,8 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("pollServiceBrokerRestartStatus")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PollRestartServiceBrokerStatusStep extends PollStartAppStatusStep {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PollRestartServiceBrokerStatusStep.class);
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws SLException {
@@ -26,7 +24,7 @@ public class PollRestartServiceBrokerStatusStep extends PollStartAppStatusStep {
             }
             return status;
         } catch (SLException e) {
-            warn(context, format(Messages.FAILED_SERVICE_BROKER_START, getAppToPoll(context).getName()), e, LOGGER);
+            getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_START, getAppToPoll(context).getName());
             return ExecutionStatus.SUCCESS;
         }
     }
@@ -47,13 +45,13 @@ public class PollRestartServiceBrokerStatusStep extends PollStartAppStatusStep {
     }
 
     @Override
-    protected void onError(DelegateExecution context, String message, Exception e) {
-        warn(context, message, e, LOGGER);
+    protected void onError(String message, Exception e) {
+        getStepLogger().warn(e, message);
     }
 
     @Override
-    protected void onError(DelegateExecution context, String message) {
-        warn(context, message, LOGGER);
+    protected void onError(String message) {
+        getStepLogger().warn(message);
     }
 
 }

@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -14,8 +12,8 @@ import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -39,9 +37,8 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("collectSystemParametersStep") // rename to collect system parameters and allocate ports?
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CollectSystemParametersStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("collectSystemParametersTask").displayName("Collect System Parameters").description(
@@ -60,15 +57,15 @@ public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
     }
 
     protected ExecutionStatus executeStepInternal(DelegateExecution context, boolean reserveTemporaryRoute) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
-        info(context, Messages.COLLECTING_SYSTEM_PARAMETERS, LOGGER);
+        getStepLogger().info(Messages.COLLECTING_SYSTEM_PARAMETERS);
         PortAllocator portAllocator = null;
         try {
 
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
             String defaultDomainName = getDefaultDomain(client);
-            debug(context, format(Messages.DEFAULT_DOMAIN, defaultDomainName), LOGGER);
+            getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
             boolean portBasedRouting = isPortBasedRouting(client);
             if (portBasedRouting) {
                 portAllocator = clientProvider.getPortAllocator(client, defaultDomainName);
@@ -78,13 +75,13 @@ public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
                 defaultDomainName, reserveTemporaryRoute);
             DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
             SystemParameters systemParameters = systemParametersBuilder.build(descriptor);
-            debug(context, format(Messages.SYSTEM_PARAMETERS, secureSerializer.toJson(systemParameters)), LOGGER);
+            getStepLogger().debug(Messages.SYSTEM_PARAMETERS, secureSerializer.toJson(systemParameters));
 
             determineIsVersionAccepted(context, descriptor, portAllocator);
 
             if (portBasedRouting) {
                 StepsUtil.setAllocatedPorts(context, portAllocator.getAllocatedPorts());
-                debug(context, format(Messages.ALLOCATED_PORTS, portAllocator.getAllocatedPorts()), LOGGER);
+                getStepLogger().debug(Messages.ALLOCATED_PORTS, portAllocator.getAllocatedPorts());
             }
             context.setVariable(Constants.VAR_PORT_BASED_ROUTING, portBasedRouting);
 
@@ -92,14 +89,14 @@ public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             cleanUp(portAllocator);
-            error(context, Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS);
             throw e;
         } catch (SLException e) {
             cleanUp(portAllocator);
-            error(context, Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS);
             throw e;
         }
-        debug(context, Messages.SYSTEM_PARAMETERS_COLLECTED, LOGGER);
+        getStepLogger().debug(Messages.SYSTEM_PARAMETERS_COLLECTED);
 
         return ExecutionStatus.SUCCESS;
     }
@@ -173,30 +170,30 @@ public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
     private void determineIsVersionAccepted(DelegateExecution context, DeploymentDescriptor descriptor, PortAllocator portAllocator) {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
         VersionRule versionRule = VersionRule.valueOf((String) context.getVariable(Constants.PARAM_VERSION_RULE));
-        debug(context, format(Messages.VERSION_RULE, versionRule), LOGGER);
+        getStepLogger().debug(Messages.VERSION_RULE, versionRule);
 
         Version mtaVersion = Version.parseVersion(descriptor.getVersion());
-        info(context, format(Messages.NEW_MTA_VERSION, mtaVersion), LOGGER);
-        boolean mtaVersionAccepted = isVersionAccepted(context, versionRule, deployedMta, mtaVersion);
+        getStepLogger().info(Messages.NEW_MTA_VERSION, mtaVersion);
+        boolean mtaVersionAccepted = isVersionAccepted(versionRule, deployedMta, mtaVersion);
         if (!mtaVersionAccepted) {
             cleanUp(portAllocator);
-            throw new SLException(format(Messages.MTA_VERSION_REJECTED, versionRule, versionRule.getErrorMessage()));
+            throw new SLException(Messages.MTA_VERSION_REJECTED, versionRule, versionRule.getErrorMessage());
         } else {
-            debug(context, Messages.MTA_VERSION_ACCEPTED, LOGGER);
+            getStepLogger().debug(Messages.MTA_VERSION_ACCEPTED);
         }
         StepsUtil.setMtaVersionAccepted(context, mtaVersionAccepted);
     }
 
-    private boolean isVersionAccepted(DelegateExecution context, VersionRule versionRule, DeployedMta deployedMta, Version newMtaVersion) {
+    private boolean isVersionAccepted(VersionRule versionRule, DeployedMta deployedMta, Version newMtaVersion) {
         if (deployedMta == null) {
             return true;
         }
         if (deployedMta.getMetadata().isVersionUnknown()) {
-            warn(context, Messages.IGNORING_VERSION_RULE, LOGGER);
+            getStepLogger().warn(Messages.IGNORING_VERSION_RULE);
             return true;
         }
         Version deployedMtaVersion = deployedMta.getMetadata().getVersion();
-        info(context, format(Messages.DEPLOYED_MTA_VERSION, deployedMtaVersion), LOGGER);
+        getStepLogger().info(Messages.DEPLOYED_MTA_VERSION, deployedMtaVersion);
         return versionRule.accept(newMtaVersion, deployedMtaVersion);
     }
 

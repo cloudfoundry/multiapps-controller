@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -10,8 +8,8 @@ import java.util.jar.Manifest;
 import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -31,9 +29,8 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("processMtaArchiveStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessMtaArchiveStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessMtaArchiveStep.class);
 
     @Inject
     private OngoingOperationDao ongoingOperationDao;
@@ -48,21 +45,21 @@ public class ProcessMtaArchiveStep extends AbstractXS2ProcessStep {
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
 
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
         try {
-            info(context, Messages.PROCESSING_MTA_ARCHIVE, LOGGER);
+            getStepLogger().info(Messages.PROCESSING_MTA_ARCHIVE);
 
             String appArchiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
             processApplicationArchive(context, appArchiveId);
             setMtaIdForProcess(context);
-            debug(context, Messages.MTA_ARCHIVE_PROCESSED, LOGGER);
+            getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);
             return ExecutionStatus.SUCCESS;
         } catch (FileStorageException fse) {
             SLException e = new SLException(fse, fse.getMessage());
-            error(context, Messages.ERROR_PROCESSING_MTA_ARCHIVE, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_ARCHIVE);
             throw e;
         } catch (SLException e) {
-            error(context, Messages.ERROR_PROCESSING_MTA_ARCHIVE, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_ARCHIVE);
             throw e;
         }
     }
@@ -86,22 +83,22 @@ public class ProcessMtaArchiveStep extends AbstractXS2ProcessStep {
                 // Set MTA archive modules in the context
                 Map<String, String> mtaArchiveModules = helper.getMtaArchiveModules();
                 mtaArchiveModules.forEach((moduleName, fileName) -> StepsUtil.setModuleFileName(context, moduleName, fileName));
-                debug(context, format("MTA Archive Modules: {0}", mtaArchiveModules.keySet()), LOGGER);
+                getStepLogger().debug("MTA Archive Modules: {0}", mtaArchiveModules.keySet());
                 StepsUtil.setMtaArchiveModules(context, mtaArchiveModules.keySet());
 
                 Map<String, String> mtaArchiveRequiresDependencies = helper.getMtaRequiresDependencies();
                 mtaArchiveRequiresDependencies.forEach(
                     (requiresName, fileName) -> StepsUtil.setRequiresFileName(context, requiresName, fileName));
-                debug(context, format("MTA Archive Requires: {0}", mtaArchiveRequiresDependencies.keySet()), LOGGER);
+                getStepLogger().debug("MTA Archive Requires: {0}", mtaArchiveRequiresDependencies.keySet());
 
                 // Set MTA archive resources in the context
                 Map<String, String> mtaArchiveResources = helper.getMtaArchiveResources();
                 mtaArchiveResources.forEach((resourceName, fileName) -> StepsUtil.setResourceFileName(context, resourceName, fileName));
-                debug(context, format("MTA Archive Resources: {0}", mtaArchiveResources.keySet()), LOGGER);
+                getStepLogger().debug("MTA Archive Resources: {0}", mtaArchiveResources.keySet());
 
                 // Set MTA modules in the context
                 Set<String> mtaModules = helper.getMtaModules();
-                debug(context, format("MTA Modules: {0}", mtaModules), LOGGER);
+                getStepLogger().debug("MTA Modules: {0}", mtaModules);
                 StepsUtil.setMtaModules(context, mtaModules);
             });
         fileService.processFileContent(manifestProcessor);
@@ -119,4 +116,5 @@ public class ProcessMtaArchiveStep extends AbstractXS2ProcessStep {
     protected MtaArchiveHelper getHelper(Manifest manifest) {
         return new MtaArchiveHelper(manifest);
     }
+
 }

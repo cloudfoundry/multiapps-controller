@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 import java.util.function.Function;
 
@@ -9,8 +7,8 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -25,9 +23,8 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("detectDeployedMtaStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetectDeployedMtaStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DetectDeployedMtaStep.class);
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -41,12 +38,12 @@ public class DetectDeployedMtaStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         try {
-            info(context, Messages.DETECTING_DEPLOYED_MTA, LOGGER);
+            getStepLogger().info(Messages.DETECTING_DEPLOYED_MTA);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
 
             List<CloudApplication> deployedApps = client.getApplications();
             StepsUtil.setDeployedApps(context, deployedApps);
@@ -54,20 +51,20 @@ public class DetectDeployedMtaStep extends AbstractXS2ProcessStep {
 
             DeployedMta deployedMta = componentsDetector.apply(deployedApps).findDeployedMta(mtaId);
             if (deployedMta == null) {
-                info(context, Messages.NO_DEPLOYED_MTA_DETECTED, LOGGER);
+                getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
             } else {
-                debug(context, format(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true)), LOGGER);
-                info(context, Messages.DEPLOYED_MTA_DETECTED, LOGGER);
+                getStepLogger().debug(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true));
+                getStepLogger().info(Messages.DEPLOYED_MTA_DETECTED);
             }
             StepsUtil.setDeployedMta(context, deployedMta);
-            debug(context, format(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps)), LOGGER);
+            getStepLogger().debug(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps));
             return ExecutionStatus.SUCCESS;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, Messages.ERROR_DETECTING_DEPLOYED_MTA, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_DETECTING_DEPLOYED_MTA);
             throw e;
         } catch (SLException e) {
-            error(context, Messages.ERROR_DETECTING_DEPLOYED_MTA, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_DETECTING_DEPLOYED_MTA);
             throw e;
         }
     }

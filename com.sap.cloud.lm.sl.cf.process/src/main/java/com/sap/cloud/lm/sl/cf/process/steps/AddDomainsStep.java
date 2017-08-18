@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +7,8 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -19,9 +17,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("addDomainsStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class AddDomainsStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AddDomainsStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("addDomainsTask").displayName("Add Domains").description("Add Domains").build();
@@ -29,28 +26,28 @@ public class AddDomainsStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
         try {
-            info(context, Messages.ADDING_DOMAINS, LOGGER);
+            getStepLogger().info(Messages.ADDING_DOMAINS);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
 
             List<CloudDomain> existingDomains = client.getDomainsForOrg();
             List<String> existingDomainNames = getDomainNames(existingDomains);
-            debug(context, "Existing domains: " + existingDomainNames, LOGGER);
+            getStepLogger().debug("Existing domains: " + existingDomainNames);
 
             List<String> customDomains = StepsUtil.getCustomDomains(context);
-            addDomains(context, client, customDomains, existingDomainNames);
+            addDomains(client, customDomains, existingDomainNames);
 
-            debug(context, Messages.DOMAINS_ADDED, LOGGER);
+            getStepLogger().debug(Messages.DOMAINS_ADDED);
             return ExecutionStatus.SUCCESS;
-        } catch (SLException e) {
-            error(context, Messages.ERROR_ADDING_DOMAINS, e, LOGGER);
+        } catch (CloudFoundryException cfe) {
+            SLException e = StepsUtil.createException(cfe);
+            getStepLogger().error(e, Messages.ERROR_ADDING_DOMAINS);
             throw e;
-        } catch (CloudFoundryException e) {
-            SLException ex = StepsUtil.createException(e);
-            error(context, Messages.ERROR_ADDING_DOMAINS, ex, LOGGER);
-            throw ex;
+        } catch (SLException e) {
+            getStepLogger().error(e, Messages.ERROR_ADDING_DOMAINS);
+            throw e;
         }
     }
 
@@ -62,18 +59,17 @@ public class AddDomainsStep extends AbstractXS2ProcessStep {
         return domainNames;
     }
 
-    private void addDomains(DelegateExecution context, CloudFoundryOperations client, List<String> domainNames,
-        List<String> existingDomainNames) {
+    private void addDomains(CloudFoundryOperations client, List<String> domainNames, List<String> existingDomainNames) {
         for (String domainName : domainNames) {
-            addDomain(context, client, domainName, existingDomainNames);
+            addDomain(client, domainName, existingDomainNames);
         }
     }
 
-    private void addDomain(DelegateExecution context, CloudFoundryOperations client, String domainName, List<String> existingDomainNames) {
+    private void addDomain(CloudFoundryOperations client, String domainName, List<String> existingDomainNames) {
         if (existingDomainNames.contains(domainName)) {
-            debug(context, format(Messages.DOMAIN_ALREADY_EXISTS, domainName), LOGGER);
+            getStepLogger().debug(Messages.DOMAIN_ALREADY_EXISTS, domainName);
         } else {
-            info(context, format(Messages.ADDING_DOMAIN, domainName), LOGGER);
+            getStepLogger().info(Messages.ADDING_DOMAIN, domainName);
             client.addDomain(domainName);
         }
     }

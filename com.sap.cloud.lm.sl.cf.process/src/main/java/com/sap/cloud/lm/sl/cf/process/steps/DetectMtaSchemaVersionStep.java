@@ -1,13 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 import java.util.function.Supplier;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -20,9 +18,8 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("detectMtaSchemaVersionStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetectMtaSchemaVersionStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DetectMtaSchemaVersionStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("detectSchemaVersionTask").displayName("Detect Schema Version").description(
@@ -33,9 +30,9 @@ public class DetectMtaSchemaVersionStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
-        info(context, Messages.DETECTING_MTA_MAJOR_SCHEMA_VERSION, LOGGER);
+        getStepLogger().info(Messages.DETECTING_MTA_MAJOR_SCHEMA_VERSION);
         try {
             List<String> extensionDescriptorStrings = StepsUtil.getExtensionDescriptorStrings(context);
             String deploymentDescriptorString = StepsUtil.getDeploymentDescriptorString(context);
@@ -48,12 +45,13 @@ public class DetectMtaSchemaVersionStep extends AbstractXS2ProcessStep {
             context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
             context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, schemaVersion.getMinor());
 
-            info(context, format(Messages.MTA_SCHEMA_VERSION_DETECTED_AS, schemaVersion), LOGGER);
+            getStepLogger().info(Messages.MTA_SCHEMA_VERSION_DETECTED_AS, schemaVersion);
 
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION);
             throw e;
         }
     }
+
 }

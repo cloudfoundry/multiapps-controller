@@ -5,7 +5,7 @@
 
     <groupId>com.sap.cloud.lm.sl.cf</groupId>
     <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
-    <version>1.42.0-SNAPSHOT</version>
+    <version>1.43.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LM SL CF Parent</name>
 
@@ -73,7 +73,7 @@
         <vulas.version>1.0.6</vulas.version>
         <activiti.common.version>1.28.0</activiti.common.version>
         <slp.version>1.2.3</slp.version>
-        <com.sap.cloud.lm.sl.version>1.47.0-SNAPSHOT</com.sap.cloud.lm.sl.version>
+        <com.sap.cloud.lm.sl.version>1.48.0-SNAPSHOT</com.sap.cloud.lm.sl.version>
     </properties>
 
     <modules>

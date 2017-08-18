@@ -4,7 +4,8 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 
-import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.slp.listener.AbstractSLProcessExecutionListener;
 
@@ -14,33 +15,32 @@ public abstract class AbstractXS2ProcessExecutionListener extends AbstractSLProc
 
     @Inject
     private ProgressMessageService progressMessageService;
+    @Inject
+    private StepLogger.Factory stepLoggerFactory;
 
-    protected void error(DelegateExecution context, String message, Exception e, org.slf4j.Logger appLogger) {
-        StepsUtil.error(context, message, e, appLogger, progressMessageService, processLoggerProviderFactory);
+    private StepLogger stepLogger;
+
+    @Override
+    public void notify(DelegateExecution context) throws Exception {
+        try {
+            this.stepLogger = createStepLogger(context);
+            notifyInternal(context);
+        } finally {
+            writeLogs(context);
+        }
     }
 
-    protected void error(DelegateExecution context, String message, org.slf4j.Logger appLogger) {
-        StepsUtil.error(context, message, appLogger, progressMessageService, processLoggerProviderFactory);
+    protected abstract org.slf4j.Logger getLogger();
+
+    protected StepLogger getStepLogger() {
+        if (stepLogger == null) {
+            throw new IllegalStateException(Messages.STEP_LOGGER_NOT_INITIALIZED);
+        }
+        return stepLogger;
     }
 
-    protected void warn(DelegateExecution context, String message, Exception e, org.slf4j.Logger appLogger) {
-        StepsUtil.warn(context, message, e, appLogger, progressMessageService, processLoggerProviderFactory);
-    }
-
-    protected void warn(DelegateExecution context, String message, org.slf4j.Logger appLogger) {
-        StepsUtil.warn(context, message, appLogger, progressMessageService, processLoggerProviderFactory);
-    }
-
-    protected void info(DelegateExecution context, String message, org.slf4j.Logger appLogger) {
-        StepsUtil.info(context, message, appLogger, progressMessageService, processLoggerProviderFactory);
-    }
-
-    protected void debug(DelegateExecution context, String message, org.slf4j.Logger logger) {
-        StepsUtil.debug(context, message, logger, processLoggerProviderFactory);
-    }
-
-    protected void trace(DelegateExecution context, String message, org.slf4j.Logger logger) {
-        StepsUtil.trace(context, message, logger, processLoggerProviderFactory);
+    private StepLogger createStepLogger(DelegateExecution context) {
+        return stepLoggerFactory.create(context, progressMessageService, processLoggerProviderFactory, getLogger());
     }
 
 }

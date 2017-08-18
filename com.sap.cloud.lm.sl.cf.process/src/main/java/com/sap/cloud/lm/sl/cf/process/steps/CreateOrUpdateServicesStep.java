@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -23,9 +21,9 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -50,9 +48,8 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("createOrUpdateServicesStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge {
-
-    static final Logger LOGGER = LoggerFactory.getLogger(CreateOrUpdateServicesStep.class);
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -72,33 +69,34 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws SLException, FileStorageException {
 
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
         try {
-            info(context, Messages.CREATING_OR_UPDATING_SERVICES, LOGGER);
+            getStepLogger().info(Messages.CREATING_OR_UPDATING_SERVICES);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
             Map<String, List<String>> defaultTags = defaultTagsDetector.computeDefaultTags(client);
-            debug(context, "Default tags: " + JsonUtil.toJson(defaultTags, true), LOGGER);
+            getStepLogger().debug("Default tags: " + JsonUtil.toJson(defaultTags, true));
 
             List<CloudService> existingServices = client.getServices();
             Map<String, CloudService> existingServicesMap = getServicesMap(existingServices);
-            debug(context, "Existing services: " + existingServicesMap.keySet(), LOGGER);
+            getStepLogger().debug("Existing services: " + existingServicesMap.keySet());
 
             List<CloudServiceExtended> services = StepsUtil.getServicesToCreate(context);
             Map<String, List<ServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(context);
 
             Map<String, ServiceOperationType> triggeredServiceOperations = createOrUpdateServices(context, client, services,
                 existingServicesMap, serviceKeys, defaultTags);
+            getStepLogger().debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
             StepsUtil.setTriggeredServiceOperations(context, triggeredServiceOperations);
 
-            debug(context, Messages.SERVICES_CREATED_OR_UPDATED, LOGGER);
+            getStepLogger().debug(Messages.SERVICES_CREATED_OR_UPDATED);
             return ExecutionStatus.SUCCESS;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, Messages.ERROR_CREATING_SERVICES, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_CREATING_SERVICES);
             throw e;
         } catch (SLException e) {
-            error(context, Messages.ERROR_CREATING_SERVICES, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_CREATING_SERVICES);
             throw e;
         }
     }
@@ -139,7 +137,7 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
             return;
         }
         List<ServiceKey> existingServiceKeys = serviceOperationExecutor.executeServiceOperation(service,
-            () -> clientExtensions.getServiceKeys(service.getName()));
+            () -> clientExtensions.getServiceKeys(service.getName()), getStepLogger());
 
         if (existingServiceKeys == null) {
             return;
@@ -150,20 +148,20 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
         List<ServiceKey> serviceKeysToDelete = getServiceKeysToDelete(serviceKeys, existingServiceKeys);
 
         if (canDeleteServiceKeys(context)) {
-            deleteServiceKeys(context, clientExtensions, serviceKeysToDelete);
+            deleteServiceKeys(clientExtensions, serviceKeysToDelete);
             // Recreate the service keys, which should be updated, as direct update is not supported
             // by the controller:
-            deleteServiceKeys(context, clientExtensions, serviceKeysToUpdate);
-            createServiceKeys(context, clientExtensions, serviceKeysToUpdate);
+            deleteServiceKeys(clientExtensions, serviceKeysToUpdate);
+            createServiceKeys(clientExtensions, serviceKeysToUpdate);
         } else {
             serviceKeysToDelete.forEach((key) -> {
-                warn(context, format(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getService().getName()), LOGGER);
+                getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getService().getName());
             });
             serviceKeysToUpdate.forEach((key) -> {
-                warn(context, format(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(), key.getService().getName()), LOGGER);
+                getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(), key.getService().getName());
             });
         }
-        createServiceKeys(context, clientExtensions, serviceKeysToCreate);
+        createServiceKeys(clientExtensions, serviceKeysToCreate);
     }
 
     private boolean canDeleteServiceKeys(DelegateExecution context) {
@@ -203,21 +201,21 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
         return Objects.equals(key1.getParameters(), key2.getParameters()) && Objects.equals(key1.getName(), key2.getName());
     }
 
-    private void deleteServiceKeys(DelegateExecution context, ClientExtensions client, List<ServiceKey> serviceKeys) {
-        serviceKeys.stream().forEach(key -> deleteServiceKey(context, client, key));
+    private void deleteServiceKeys(ClientExtensions client, List<ServiceKey> serviceKeys) {
+        serviceKeys.stream().forEach(key -> deleteServiceKey(client, key));
     }
 
-    private void createServiceKeys(DelegateExecution context, ClientExtensions client, List<ServiceKey> serviceKeys) {
-        serviceKeys.stream().forEach(key -> createServiceKey(context, client, key));
+    private void createServiceKeys(ClientExtensions client, List<ServiceKey> serviceKeys) {
+        serviceKeys.stream().forEach(key -> createServiceKey(client, key));
     }
 
-    private void createServiceKey(DelegateExecution context, ClientExtensions client, ServiceKey key) {
-        info(context, format(Messages.CREATING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService().getName()), LOGGER);
+    private void createServiceKey(ClientExtensions client, ServiceKey key) {
+        getStepLogger().info(Messages.CREATING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService().getName());
         client.createServiceKey(key.getService().getName(), key.getName(), JsonUtil.toJson(key.getParameters()));
     }
 
-    private void deleteServiceKey(DelegateExecution context, ClientExtensions client, ServiceKey key) {
-        info(context, format(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService().getName()), LOGGER);
+    private void deleteServiceKey(ClientExtensions client, ServiceKey key) {
+        getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService().getName());
         client.deleteServiceKey(key.getService().getName(), key.getName());
     }
 
@@ -227,96 +225,97 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
         // Set service parameters if a file containing their values exists:
         String fileName = StepsUtil.getResourceFileName(context, service.getResourceName());
         if (fileName != null) {
-            debug(context, format(Messages.SETTING_SERVICE_PARAMETERS, service.getName(), fileName), LOGGER);
+            getStepLogger().debug(Messages.SETTING_SERVICE_PARAMETERS, service.getName(), fileName);
             String appArchiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
             setServiceParameters(context, service, appArchiveId, fileName);
         }
 
         if (existingService == null) {
-            serviceOperationExecutor.executeServiceOperation(service, () -> createService(context, client, service));
+            serviceOperationExecutor.executeServiceOperation(service, () -> createService(context, client, service), getStepLogger());
             return ServiceOperationType.CREATE;
         }
 
-        debug(context, format(Messages.SERVICE_ALREADY_EXISTS, service.getName()), LOGGER);
-        List<ServiceAction> actions = determineActions(context, client, service, existingService, defaultTags);
+        getStepLogger().debug(Messages.SERVICE_ALREADY_EXISTS, service.getName());
+        List<ServiceAction> actions = determineActions(client, service, existingService, defaultTags);
         if (actions.contains(ServiceAction.ACTION_RECREATE)) {
             boolean deleteAllowed = (boolean) context.getVariable(Constants.PARAM_DELETE_SERVICES);
             if (!deleteAllowed) {
-                warn(context, format(Messages.WILL_NOT_RECREATE_SERVICE, service.getName()), LOGGER);
+                getStepLogger().warn(Messages.WILL_NOT_RECREATE_SERVICE, service.getName());
                 return null;
             }
-            serviceOperationExecutor.executeServiceOperation(service, () -> deleteService(context, client, service));
-            serviceOperationExecutor.executeServiceOperation(service, () -> createService(context, client, service));
+            serviceOperationExecutor.executeServiceOperation(service, () -> deleteService(context, client, service), getStepLogger());
+            serviceOperationExecutor.executeServiceOperation(service, () -> createService(context, client, service), getStepLogger());
             return ServiceOperationType.UPDATE;
         }
         ServiceOperationType type = null;
         if (actions.contains(ServiceAction.ACTION_UPDATE_CREDENTIALS)) {
-            serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceCredentials(context, client, service));
+            serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceCredentials(context, client, service),
+                getStepLogger());
             type = ServiceOperationType.UPDATE;
         }
         if (actions.contains(ServiceAction.ACTION_UPDATE_TAGS)) {
-            serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceTags(context, client, service));
+            serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceTags(context, client, service), getStepLogger());
             type = ServiceOperationType.UPDATE;
         }
         if (actions.isEmpty()) {
-            info(context, format(Messages.SERVICE_UNCHANGED, existingService.getName()), LOGGER);
+            getStepLogger().info(Messages.SERVICE_UNCHANGED, existingService.getName());
         }
         return type;
     }
 
-    private List<ServiceAction> determineActions(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service,
-        CloudService existingService, List<String> defaultTags) {
+    private List<ServiceAction> determineActions(CloudFoundryOperations client, CloudServiceExtended service, CloudService existingService,
+        List<String> defaultTags) {
         List<ServiceAction> actions = new ArrayList<>();
 
-        debug(context, "Determining action to be performed on existing service...", LOGGER);
+        getStepLogger().debug("Determining action to be performed on existing service...");
 
         // Check if the existing service should be updated or not
         if (shouldRecreate(service, existingService)) {
-            debug(context, "Service should be recreated", LOGGER);
-            debug(context, "New service: " + secureSerializer.toJson(service), LOGGER);
-            debug(context, "Existing service: " + secureSerializer.toJson(existingService), LOGGER);
+            getStepLogger().debug("Service should be recreated");
+            getStepLogger().debug("New service: " + secureSerializer.toJson(service));
+            getStepLogger().debug("Existing service: " + secureSerializer.toJson(existingService));
             return Arrays.asList(ServiceAction.ACTION_RECREATE);
         }
         if (!existingService.isUserProvided()) {
             CloudServiceInstance existingServiceInstance = client.getServiceInstance(service.getName());
             if (existingServiceInstance != null && shouldUpdateCredentials(service, existingServiceInstance.getCredentials())) {
-                debug(context, "Service parameters should be updated", LOGGER);
-                debug(context, "New parameters: " + secureSerializer.toJson(service.getCredentials()), LOGGER);
-                debug(context, "Existing service parameters: " + secureSerializer.toJson(existingServiceInstance.getCredentials()), LOGGER);
+                getStepLogger().debug("Service parameters should be updated");
+                getStepLogger().debug("New parameters: " + secureSerializer.toJson(service.getCredentials()));
+                getStepLogger().debug("Existing service parameters: " + secureSerializer.toJson(existingServiceInstance.getCredentials()));
                 actions.add(ServiceAction.ACTION_UPDATE_CREDENTIALS);
             }
         } else if (existingService.isUserProvided()) {
             CloudServiceInstance esi = client.getServiceInstance(service.getName());
             if (esi != null && shouldUpdateCredentials(service, esi.getCredentials())) {
-                debug(context, "User-provided service credentials should be updated", LOGGER);
-                debug(context, "New credentials: " + secureSerializer.toJson(service.getCredentials()), LOGGER);
-                debug(context, "Existing service instance credentials: " + secureSerializer.toJson(esi.getCredentials()), LOGGER);
+                getStepLogger().debug("User-provided service credentials should be updated");
+                getStepLogger().debug("New credentials: " + secureSerializer.toJson(service.getCredentials()));
+                getStepLogger().debug("Existing service instance credentials: " + secureSerializer.toJson(esi.getCredentials()));
                 actions.add(ServiceAction.ACTION_UPDATE_CREDENTIALS);
             }
         }
         if (shouldUpdateTags(service, existingService, defaultTags)) {
             CloudServiceExtended existingServiceExtended = (CloudServiceExtended) existingService;
-            debug(context, "Service tags should be updated", LOGGER);
-            debug(context, "New service tags: " + JsonUtil.toJson(service.getTags()), LOGGER);
-            debug(context, "Existing service tags: " + JsonUtil.toJson(existingServiceExtended.getTags()), LOGGER);
+            getStepLogger().debug("Service tags should be updated");
+            getStepLogger().debug("New service tags: " + JsonUtil.toJson(service.getTags()));
+            getStepLogger().debug("Existing service tags: " + JsonUtil.toJson(existingServiceExtended.getTags()));
             actions.add(ServiceAction.ACTION_UPDATE_TAGS);
         }
 
         if (actions.isEmpty()) {
-            debug(context, "Nothing to do, unable to detect changes", LOGGER);
+            getStepLogger().debug("Nothing to do, unable to detect changes");
         }
 
         return actions;
     }
 
     private void createService(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service) {
-        info(context, format(Messages.CREATING_SERVICE, service.getName()), LOGGER);
+        getStepLogger().info(Messages.CREATING_SERVICE, service.getName());
         if (service.isUserProvided()) {
             client.createUserProvidedService(service, service.getCredentials());
         } else {
             serviceCreator.createService(client, service, StepsUtil.getSpaceId(context));
         }
-        debug(context, format(Messages.SERVICE_CREATED, service.getName()), LOGGER);
+        getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
     }
 
     private void updateServiceTags(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service)
@@ -327,21 +326,21 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
         // https://www.pivotaltracker.com/n/projects/966314/stories/105674948
         if (clientExtensions == null || service.isUserProvided())
             return;
-        info(context, format(Messages.UPDATING_SERVICE_TAGS, service.getName()), LOGGER);
+        getStepLogger().info(Messages.UPDATING_SERVICE_TAGS, service.getName());
         clientExtensions.updateServiceTags(service.getName(), service.getTags());
-        debug(context, format(Messages.SERVICE_TAGS_UPDATED, service.getName()), LOGGER);
+        getStepLogger().debug(Messages.SERVICE_TAGS_UPDATED, service.getName());
     }
 
     private void updateServiceCredentials(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service)
         throws SLException {
         ClientExtensions clientExtensions = getClientExtensions(context);
-        info(context, format(Messages.UPDATING_SERVICE, service.getName()), LOGGER);
+        getStepLogger().info(Messages.UPDATING_SERVICE, service.getName());
         if (clientExtensions == null) {
             serviceCreator.updateServiceParameters(client, service.getName(), service.getCredentials());
         } else {
             updateServiceCredentialsViaClientExtensions(service, clientExtensions);
         }
-        debug(context, format(Messages.SERVICE_UPDATED, service.getName()), LOGGER);
+        getStepLogger().debug(Messages.SERVICE_UPDATED, service.getName());
     }
 
     private void updateServiceCredentialsViaClientExtensions(CloudServiceExtended service, ClientExtensions clientExtensions) {
@@ -361,7 +360,7 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
         CloudServiceInstance esi = client.getServiceInstance(service.getName());
         List<CloudServiceBinding> bindings = esi.getBindings();
         List<String> boundAppNames = getBoundAppNames(client, apps, appsToUndeploy, bindings);
-        debug(context, "Bound applications: " + boundAppNames, LOGGER);
+        getStepLogger().debug("Bound applications: " + boundAppNames);
 
         // Check if there are apps outside the current model that are bound to the service
         if (bindings.size() > boundAppNames.size()) {
@@ -369,10 +368,10 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
         }
 
         // Unbind bound apps from the service and finally delete the service
-        info(context, format(Messages.DELETING_SERVICE, service.getName()), LOGGER);
+        getStepLogger().info(Messages.DELETING_SERVICE, service.getName());
         boundAppNames.forEach(appName -> client.unbindService(appName, service.getName()));
         client.deleteService(service.getName());
-        debug(context, format(Messages.SERVICE_DELETED, service.getName()), LOGGER);
+        getStepLogger().debug(Messages.SERVICE_DELETED, service.getName());
     }
 
     private void setServiceParameters(DelegateExecution context, CloudServiceExtended service, final String appArchiveId,
@@ -438,11 +437,6 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
 
     private CloudApplication getApplication(CloudFoundryOperations client, CloudServiceBinding binding, List<CloudApplication> apps) {
         return apps.stream().filter(app -> app.getMeta().getGuid().equals(binding.getAppGuid())).findFirst().get();
-    }
-
-    private ClientExtensions getClientExtensions(DelegateExecution context) throws SLException {
-        ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
-        return clientExtensions;
     }
 
     private enum ServiceAction {

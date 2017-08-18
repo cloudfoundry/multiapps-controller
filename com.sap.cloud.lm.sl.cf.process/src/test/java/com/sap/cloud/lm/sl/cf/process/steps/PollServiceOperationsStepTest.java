@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static org.junit.Assert.assertEquals;
+
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -20,9 +22,10 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
+import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -59,7 +62,7 @@ public class PollServiceOperationsStepTest extends AbstractStepTest<PollServiceO
             },
             // (5) With failure and optional service:
             {
-                "poll-create-services-step-input-05.json", "Error creating service with name test-service-2: Something happened!"
+                "poll-create-services-step-input-05.json", "Error creating service \"test-service-2\": Something happened!"
             },
             // (6) With user provided service:
             {
@@ -71,11 +74,11 @@ public class PollServiceOperationsStepTest extends AbstractStepTest<PollServiceO
             },
             // (8) With failure on creation of service and update of service:
             {
-                "poll-create-services-step-input-08.json", "Error creating service with name test-service-2: Something happened!"
+                "poll-create-services-step-input-08.json", "Error creating service \"test-service-2\": Something happened!"
             },
             // (8) With failure on creation of service and no error description:
             {
-                "poll-create-services-step-input-09.json", "Error creating service with name test-service: " + Messages.DEFAULT_FAILED_OPERATION_DESCRIPTION
+                "poll-create-services-step-input-09.json", "Error creating service \"test-service\": " + Messages.DEFAULT_FAILED_OPERATION_DESCRIPTION
             },
 // @formatter:on
         });
@@ -100,9 +103,11 @@ public class PollServiceOperationsStepTest extends AbstractStepTest<PollServiceO
         context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         prepareServiceInstanceGetter();
         StepsUtil.setServicesToCreate(context, input.services);
+        StepsUtil.setTriggeredServiceOperations(context, input.triggeredServiceOperations);
         if (expectedExceptionMessage != null) {
             exception.expectMessage(expectedExceptionMessage);
         }
+        context.setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
         when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
     }
 
@@ -116,16 +121,17 @@ public class PollServiceOperationsStepTest extends AbstractStepTest<PollServiceO
 
     @Test
     public void test() throws Exception {
-        ExecutionStatus status = step.pollStatusInternal(context);
-        validateStatus(status);
+        step.execute(context);
+        validateStatus();
     }
 
-    private void validateStatus(ExecutionStatus status) {
-        input.expectedStatus.toString().equals(status);
+    private void validateStatus() {
+        assertEquals(input.expectedStatus, getExecutionStatus());
     }
 
     private static class StepInput {
         List<CloudServiceExtended> services;
+        Map<String, ServiceOperationType> triggeredServiceOperations;
         Map<String, Object> serviceInstanceResponse;
         String expectedStatus;
     }

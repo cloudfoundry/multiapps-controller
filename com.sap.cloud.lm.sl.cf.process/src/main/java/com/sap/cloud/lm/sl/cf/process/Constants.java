@@ -117,6 +117,7 @@ public final class Constants {
     public static final String VAR_SUBPROCESS_ID = "subProcessId";
     public static final String VAR_PLATFORM_TYPE = "platformType";
     public static final String VAR_SERVICES_TO_CREATE_COUNT = "servicesToCreateCount";
+    public static final String VAR_SERVICES_TO_POLL = "servicesToPoll";
 
     public static final String PARAM_TRANSFER_TYPE = "transferType";
     public static final String PARAM_DEPLOY_URI = "deployUri";

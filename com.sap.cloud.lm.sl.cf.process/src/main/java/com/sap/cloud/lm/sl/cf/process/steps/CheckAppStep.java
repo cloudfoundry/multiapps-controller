@@ -1,13 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +15,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("checkAppStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CheckAppStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CheckAppStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("checkAppTask").displayName("Check App").description("Check App").build();
@@ -28,34 +25,34 @@ public class CheckAppStep extends AbstractXS2ProcessStep {
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
 
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context:
         CloudApplication app = StepsUtil.getApp(context);
 
         try {
-            info(context, format(Messages.CHECKING_APP, app.getName()), LOGGER);
+            getStepLogger().info(Messages.CHECKING_APP, app.getName());
 
-            CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+            CloudFoundryOperations client = getCloudFoundryClient(context);
 
             // Check if an application with this name already exists, and store it in the context:
             CloudApplication existingApp = getApplication(client, app.getName());
             StepsUtil.setExistingApp(context, existingApp);
 
             if (existingApp == null) {
-                info(context, format(Messages.APP_DOES_NOT_EXIST, app.getName()), LOGGER);
+                getStepLogger().info(Messages.APP_DOES_NOT_EXIST, app.getName());
             } else {
-                info(context, format(Messages.APP_EXISTS, app.getName()), LOGGER);
+                getStepLogger().info(Messages.APP_EXISTS, app.getName());
             }
 
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, format(Messages.ERROR_CHECKING_APP, app.getName()), e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_CHECKING_APP, app.getName());
             throw e;
-        } catch (CloudFoundryException e) {
-            SLException ex = StepsUtil.createException(e);
-            error(context, format(Messages.ERROR_CHECKING_APP, app.getName()), ex, LOGGER);
-            throw ex;
+        } catch (CloudFoundryException cfe) {
+            SLException e = StepsUtil.createException(cfe);
+            getStepLogger().error(e, Messages.ERROR_CHECKING_APP, app.getName());
+            throw e;
         }
     }
 

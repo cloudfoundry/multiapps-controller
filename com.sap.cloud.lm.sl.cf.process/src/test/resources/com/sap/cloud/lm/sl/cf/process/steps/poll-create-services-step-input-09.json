@@ -7,6 +7,9 @@
       "version": "test"
     }
   ],
+  "triggeredServiceOperations": {
+    "test-service": "CREATE"
+  },
   "serviceInstanceResponse": {
     "test-service": {
       "last_operation": {
@@ -14,6 +17,5 @@
         "state": "failed"
       }
     }
-  },
-  "expectedStatus": "RUNNING"
+  }
 }

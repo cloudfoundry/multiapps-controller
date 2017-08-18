@@ -58,8 +58,7 @@ public class ServiceInstanceGetter extends CustomControllerClient {
     private void validateServiceInstanceResponse(Map<String, Object> serviceInstancesResponse) {
         List<Map<String, Object>> resources = getResourcesFromResponse(serviceInstancesResponse);
         Assert.notNull(resources, "The response of finding a service instance should contain a 'resources' element");
-        Assert.isTrue(resources.size() == 1, "The response of finding a service instance should not have only one resource element");
-
+        Assert.isTrue(resources.size() <= 1, "The response of finding a service instance should not have more than one resource element");
     }
 
     @SuppressWarnings("unchecked")

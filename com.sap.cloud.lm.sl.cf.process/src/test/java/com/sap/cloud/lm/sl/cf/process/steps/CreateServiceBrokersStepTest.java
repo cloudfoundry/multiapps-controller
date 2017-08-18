@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +33,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
 
 @RunWith(Parameterized.class)
 public class CreateServiceBrokersStepTest extends AbstractStepTest<CreateServiceBrokersStep> {
@@ -168,8 +165,7 @@ public class CreateServiceBrokersStepTest extends AbstractStepTest<CreateService
 
         assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
         if (expectedWarningMessage != null) {
-            List<String> warningMessages = getWarningMessages();
-            assertTrue(warningMessages.contains(expectedWarningMessage));
+            Mockito.verify(stepLogger).warn(expectedWarningMessage);
         }
 
         List<CloudServiceBrokerExtended> actuallyCreatedServiceBrokers = StepsUtil.getServiceBrokersToCreate(context);
@@ -179,14 +175,6 @@ public class CreateServiceBrokersStepTest extends AbstractStepTest<CreateService
         Collections.sort(expectedServiceBrokersToCreate, (broker1, broker2) -> broker1.getName().compareTo(broker2.getName()));
 
         assertEquals(JsonUtil.toJson(expectedServiceBrokersToCreate, true), JsonUtil.toJson(actuallyCreatedServiceBrokers, true));
-    }
-
-    private List<String> getWarningMessages() {
-        ArgumentCaptor<ProgressMessage> progressMessageCaptor = ArgumentCaptor.forClass(ProgressMessage.class);
-        Mockito.verify(progressMessageService, Mockito.atLeast(0)).add(progressMessageCaptor.capture());
-        List<ProgressMessage> progressMessages = progressMessageCaptor.getAllValues();
-        return progressMessages.stream().filter(message -> message.getType() == ProgressMessageType.WARNING).map(
-            message -> message.getText()).collect(Collectors.toList());
     }
 
     private void loadParameters() throws Exception {

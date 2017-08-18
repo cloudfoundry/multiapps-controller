@@ -1,14 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -24,9 +22,8 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("registerServiceUrlsStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RegisterServiceUrlsStep extends AbstractXS2ProcessStep {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RegisterServiceUrlsStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("registerServiceUrlsTask").displayName("Register Service URLs").description(
@@ -36,51 +33,49 @@ public class RegisterServiceUrlsStep extends AbstractXS2ProcessStep {
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
 
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
         try {
-            info(context, Messages.REGISTERING_SERVICE_URLS, LOGGER);
+            getStepLogger().info(Messages.REGISTERING_SERVICE_URLS);
 
-            ClientExtensions clientExtensions = getClientExtensions(context, LOGGER);
+            ClientExtensions clientExtensions = getClientExtensions(context);
             if (clientExtensions == null) {
-                warn(context, Messages.CLIENT_DOES_NOT_SUPPORT_EXTENSIONS, LOGGER);
+                getStepLogger().warn(Messages.CLIENT_DOES_NOT_SUPPORT_EXTENSIONS);
                 return ExecutionStatus.SUCCESS;
             }
 
-            List<ServiceUrl> serviceUrlsToRegister = getServiceUrlsToRegister(StepsUtil.getAppsToDeploy(context), context);
-            debug(context, format(Messages.SERVICE_URLS, JsonUtil.toJson(serviceUrlsToRegister, true)), LOGGER);
+            List<ServiceUrl> serviceUrlsToRegister = getServiceUrlsToRegister(StepsUtil.getAppsToDeploy(context));
+            getStepLogger().debug(Messages.SERVICE_URLS, JsonUtil.toJson(serviceUrlsToRegister, true));
 
             for (ServiceUrl serviceUrl : serviceUrlsToRegister) {
                 registerServiceUrl(context, serviceUrl, clientExtensions);
             }
 
             StepsUtil.setServiceUrlsToRegister(context, serviceUrlsToRegister);
-            debug(context, Messages.SERVICE_URLS_REGISTERED, LOGGER);
+            getStepLogger().debug(Messages.SERVICE_URLS_REGISTERED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, Messages.ERROR_REGISTERING_SERVICE_URLS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_REGISTERING_SERVICE_URLS);
             throw e;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            error(context, Messages.ERROR_REGISTERING_SERVICE_URLS, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_REGISTERING_SERVICE_URLS);
             throw e;
         }
     }
 
-    private List<ServiceUrl> getServiceUrlsToRegister(List<CloudApplicationExtended> appsToDeploy, DelegateExecution context)
-        throws SLException {
+    private List<ServiceUrl> getServiceUrlsToRegister(List<CloudApplicationExtended> appsToDeploy) throws SLException {
         List<ServiceUrl> serviceUrlsToRegister = new ArrayList<>();
         for (CloudApplicationExtended app : appsToDeploy) {
-            ServiceUrl serviceUrl = getServiceUrlToRegister(app, context);
+            ServiceUrl serviceUrl = getServiceUrlToRegister(app);
             if (serviceUrl != null) {
-                debug(context, format(Messages.CONSTRUCTED_SERVICE_URL_FROM_APPLICATION, serviceUrl.getServiceName(), app.getName()),
-                    LOGGER);
+                getStepLogger().debug(Messages.CONSTRUCTED_SERVICE_URL_FROM_APPLICATION, serviceUrl.getServiceName(), app.getName());
                 serviceUrlsToRegister.add(serviceUrl);
             }
         }
         return serviceUrlsToRegister;
     }
 
-    private ServiceUrl getServiceUrlToRegister(CloudApplicationExtended app, DelegateExecution context) throws SLException {
+    private ServiceUrl getServiceUrlToRegister(CloudApplicationExtended app) throws SLException {
         ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
         if (!attributesGetter.getAttribute(SupportedParameters.REGISTER_SERVICE_URL, Boolean.class, false)) {
             return null;
@@ -99,15 +94,14 @@ public class RegisterServiceUrlsStep extends AbstractXS2ProcessStep {
 
     private void registerServiceUrl(DelegateExecution context, ServiceUrl serviceUrl, ClientExtensions clientExtensions) {
         try {
-            info(context, format(Messages.REGISTERING_SERVICE_URL, serviceUrl.getUrl(), serviceUrl.getServiceName()), LOGGER);
+            getStepLogger().info(Messages.REGISTERING_SERVICE_URL, serviceUrl.getUrl(), serviceUrl.getServiceName());
             clientExtensions.registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
-            debug(context, format(Messages.REGISTERED_SERVICE_URL, serviceUrl.getUrl(), serviceUrl.getServiceName()), LOGGER);
+            getStepLogger().debug(Messages.REGISTERED_SERVICE_URL, serviceUrl.getUrl(), serviceUrl.getServiceName());
         } catch (CloudFoundryException e) {
             switch (e.getStatusCode()) {
                 case FORBIDDEN:
                     if (shouldSucceed(context)) {
-                        warn(context, format(Messages.REGISTER_OF_SERVICE_URL_FAILED_403, serviceUrl.getUrl(), serviceUrl.getServiceName()),
-                            LOGGER);
+                        getStepLogger().warn(Messages.REGISTER_OF_SERVICE_URL_FAILED_403, serviceUrl.getUrl(), serviceUrl.getServiceName());
                         return;
                     }
                 default:

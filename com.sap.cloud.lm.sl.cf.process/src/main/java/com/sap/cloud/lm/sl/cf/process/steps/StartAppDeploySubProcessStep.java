@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -12,6 +14,7 @@ import com.sap.cloud.lm.sl.slp.model.AsyncStepMetadata;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("startAppDeploySubProcessStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StartAppDeploySubProcessStep extends AbstractXS2SubProcessStarterStep {
 
     public static StepMetadata getMetadata() {

@@ -62,6 +62,7 @@ public final class Messages {
     public static final String ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3 = "Attribute \"{0}\" of application \"{1}\" is of type {2} instead of {3}!";
     public static final String ILLEGAL_DESIRED_STATE = "Illegal desired application state: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_STATE = "Illegal service operation state: {0}";
+    public static final String ILLEGAL_SERVICE_OPERATION_TYPE = "Illegal service operation type: {0}";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_NOT_SET = "Environment variable \"{0}\" not set";

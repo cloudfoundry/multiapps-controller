@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.MessageFormat;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -22,8 +21,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -42,6 +41,7 @@ import com.sap.cloud.lm.sl.slp.resources.Configuration;
 
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
 @Component("processGitSourceStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
 
     private static final String SKIP_SSL_GIT_CONFIG = ".skipSslGitConfig";
@@ -52,7 +52,6 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
     public static final String META_INF_PATH = "META-INF";
     private static final String MANIFEST_PATH = "MANIFEST.MF";
     private static final String MTAD_PATH = "mtad.yaml";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessGitSourceStep.class);
 
     public static StepMetadata getMetadata() {
         return StepMetadata.builder().id("processGitSourceTask").displayName("Process Git Source").description(
@@ -61,9 +60,9 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        logActivitiTask(context, LOGGER);
+        getStepLogger().logActivitiTask();
         try {
-            info(context, Messages.DOWNLOADING_DEPLOYABLE, LOGGER);
+            getStepLogger().info(Messages.DOWNLOADING_DEPLOYABLE);
 
             final String gitUri = getGitUri(context);
             final String gitRepoPath = (String) context.getVariable(Constants.PARAM_GIT_REPO_PATH);
@@ -78,10 +77,10 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
             try {
 
                 GitRepoCloner cloner = createCloner(context);
-                info(context, MessageFormat.format(Messages.CLONING_REPOSITORY, gitUri), LOGGER);
+                getStepLogger().info(Messages.CLONING_REPOSITORY, gitUri);
                 cloner.cloneRepo(gitUri, reposDir);
                 final Path mtaRepoPath = reposDir.resolve(gitRepoPath).normalize();
-                mtarZip = zipRepoContent(context, mtaRepoPath);
+                mtarZip = zipRepoContent(mtaRepoPath);
                 uploadZipToDB(context, mtarZip);
             } finally {
                 try {
@@ -98,10 +97,10 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
             }
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            error(context, e.getMessage(), LOGGER);
+            getStepLogger().error(e.getMessage());
             throw e;
         } catch (GitAPIException | IOException | FileStorageException e) {
-            error(context, Messages.ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_DOWNLOADING_DEPLOYABLE_FROM_GIT);
             throw new SLException(e, Messages.ERROR_PROCESSING_GIT_MTA_SOURCE);
         }
     }
@@ -112,13 +111,13 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
         cloner.setRefName((String) context.getVariable(Constants.PARAM_GIT_REF));
         cloner.setGitConfigFilePath(generateGitConfigFilepath(context.getProcessInstanceId()));
         cloner.setSkipSslValidation((boolean) context.getVariable(Constants.PARAM_GIT_SKIP_SSL));
-        String userName = StepsUtil.determineCurrentUser(context, LOGGER, processLoggerProviderFactory);
+        String userName = StepsUtil.determineCurrentUser(context, getStepLogger());
         String token;
         try {
             token = clientProvider.getValidToken(userName).getValue();
             cloner.setCredentials(userName, token);
         } catch (SLException e) {
-            error(context, Messages.ERROR_RETRIEVING_OAUT_TOKEN, e, LOGGER);
+            getStepLogger().error(e, Messages.ERROR_RETRIEVING_OAUT_TOKEN);
             throw e;
         }
         return cloner;
@@ -165,19 +164,19 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
     }
 
     private CloudInfoExtended getCloudInfoExtended(DelegateExecution context) throws SLException {
-        return (CloudInfoExtended) getCloudFoundryClient(context, LOGGER).getCloudInfo();
+        return (CloudInfoExtended) getCloudFoundryClient(context).getCloudInfo();
     }
 
     private boolean isClientExtensionsAvailable(DelegateExecution context) throws SLException {
-        CloudFoundryOperations client = getCloudFoundryClient(context, LOGGER);
+        CloudFoundryOperations client = getCloudFoundryClient(context);
         return client.getCloudInfo() instanceof CloudInfoExtended;
     }
 
-    protected Path zipRepoContent(DelegateExecution context, final Path mtaPath) throws IOException, SLException {
-        info(context, Messages.COMPRESSING_MTA_CONTENT, LOGGER);
-        debug(context, "Zipping content of repo dir" + mtaPath.toAbsolutePath(), LOGGER);
+    protected Path zipRepoContent(final Path mtaPath) throws IOException, SLException {
+        getStepLogger().info(Messages.COMPRESSING_MTA_CONTENT);
+        getStepLogger().debug("Zipping content of repo dir" + mtaPath.toAbsolutePath());
         if (directoryContainsManifest(mtaPath)) {
-            info(context, "Detected manifest, will zip the provided directory and deploy it", LOGGER);
+            getStepLogger().info("Detected manifest, will zip the provided directory and deploy it");
             return zipMtaFolder(mtaPath);
         } else {
             MtaArchiveBuilder mtaBuilder = new MtaArchiveBuilder(mtaPath);
@@ -187,8 +186,8 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
 
     protected void uploadZipToDB(DelegateExecution context, final Path mtarZip) throws SLException, FileStorageException, IOException {
         InputStream mtarInputStream = null;
-        info(context, Messages.UPLOADING_MTAR, LOGGER);
-        debug(context, "uploading file " + mtarZip.toAbsolutePath().toString() + " to DB", LOGGER);
+        getStepLogger().info(Messages.UPLOADING_MTAR);
+        getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath().toString() + " to DB");
         try {
             Configuration configuration = ConfigurationUtil.getSlpConfiguration();
             String spaceId = StepsUtil.getSpaceId(context);
@@ -202,7 +201,7 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
         } finally {
             IOUtils.closeQuietly(mtarInputStream);
         }
-        debug(context, Messages.MTAR_UPLOADED, LOGGER);
+        getStepLogger().debug(Messages.MTAR_UPLOADED);
     }
 
     protected Path zipMtaFolder(final Path mtaPath) throws IOException {
@@ -260,4 +259,5 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
         org.eclipse.jgit.util.FileUtils.delete(clonedRepoDir.toFile(),
             org.eclipse.jgit.util.FileUtils.RETRY | org.eclipse.jgit.util.FileUtils.RECURSIVE);
     }
+
 }

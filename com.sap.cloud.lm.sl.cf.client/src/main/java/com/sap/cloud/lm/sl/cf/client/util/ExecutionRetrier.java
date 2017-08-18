@@ -46,21 +46,10 @@ public class ExecutionRetrier {
     }
 
     public void executeWithRetry(Runnable runnable, HttpStatus... httpStatusesToIgnore) {
-        for (int i = 1; i < retryCount; i++) {
-            try {
-                runnable.run();
-                return;
-            } catch (ResourceAccessException e) {
-                LOGGER.warn(e.getMessage(), e);
-            } catch (CloudFoundryException e) {
-                if (!shouldIgnoreException(e, httpStatusesToIgnore)) {
-                    throw e;
-                }
-                LOGGER.warn("Retrying failed request with status: " + e.getStatusCode() + " and message: " + e.getMessage());
-            }
-            sleep(waitTimeBetweenRetriesInMillis);
-        }
-        runnable.run();
+        executeWithRetry(() -> {
+            runnable.run();
+            return null;
+        } , httpStatusesToIgnore);
     }
 
     private boolean shouldIgnoreException(CloudFoundryException ex, HttpStatus... httpStatusesToIgnore) {
