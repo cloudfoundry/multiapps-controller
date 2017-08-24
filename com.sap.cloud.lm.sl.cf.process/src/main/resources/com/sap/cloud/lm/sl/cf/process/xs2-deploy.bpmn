@@ -155,7 +155,7 @@
     <serviceTask id="pollServiceOperationsTask" name="Poll Service Operations" activiti:async="true" activiti:delegateExpression="${pollServiceOperationsStep}"></serviceTask>
     <sequenceFlow id="flow101" sourceRef="pollServiceOperationsTask" targetRef="areServiceOperationsDoneGateway"></sequenceFlow>
     <exclusiveGateway id="areServiceOperationsDoneGateway" name="Are Service Operations Done Gateway" default="waitForServiceOperationsToBeDoneFlow"></exclusiveGateway>
-    <intermediateCatchEvent id="pollServicesStatusTimer" name="TimerCatchEvent">
+    <intermediateCatchEvent id="pollServiceOperationsTimer" name="Poll Service Operations Timer">
       <timerEventDefinition>
         <timeDuration>PT10S</timeDuration>
       </timerEventDefinition>
@@ -163,8 +163,8 @@
     <sequenceFlow id="serviceOperationsDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="prepareAppsDeploymentTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_CreateOrUpdateServicesStep == "SUCCESS")}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="waitForServiceOperationsToBeDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="pollServicesStatusTimer"></sequenceFlow>
-    <sequenceFlow id="flow104" sourceRef="pollServicesStatusTimer" targetRef="pollServiceOperationsTask"></sequenceFlow>
+    <sequenceFlow id="waitForServiceOperationsToBeDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="pollServiceOperationsTimer"></sequenceFlow>
+    <sequenceFlow id="flow104" sourceRef="pollServiceOperationsTimer" targetRef="pollServiceOperationsTask"></sequenceFlow>
     <sequenceFlow id="retryServiceOperationsFlow" name="On Retry" sourceRef="areServiceOperationsDoneGateway" targetRef="createOrUpdateServicesTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_CreateOrUpdateServicesStep == "LOGICAL_RETRY")}]]></conditionExpression>
     </sequenceFlow>
@@ -330,7 +330,7 @@
       <bpmndi:BPMNShape bpmnElement="areServiceOperationsDoneGateway" id="BPMNShape_areServiceOperationsDoneGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="557.0" y="229.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="pollServicesStatusTimer" id="BPMNShape_pollServicesStatusTimer">
+      <bpmndi:BPMNShape bpmnElement="pollServiceOperationsTimer" id="BPMNShape_pollServiceOperationsTimer">
         <omgdc:Bounds height="35.0" width="35.0" x="560.0" y="295.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
