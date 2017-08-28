@@ -77,8 +77,7 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
             Future<?> future = asyncTaskExecutor.submit(getUploadAppStepRunnable(context, app, client, clientExtensions));
             asyncTaskExecutor.schedule(getUploadAppStepRunnableKiller(context, future), uploadAppTimeoutSeconds, TimeUnit.SECONDS);
-        } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
             throw e;
         }
@@ -293,11 +292,13 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
                 }
             } catch (SLException | FileStorageException e) {
                 getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-                throw new IllegalStateException(e.getMessage(), e);
+                logException(context, e);
+                throw new SLException(e.getMessage(), e);
             } catch (CloudFoundryException cfe) {
                 SLException e = StepsUtil.createException(cfe);
                 getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-                throw new IllegalStateException(e.getMessage(), e);
+                logException(context, e);
+                throw e;
             } catch (Throwable e) {
                 Throwable eWithMessage = getWithProperMessage(e);
                 logException(context, eWithMessage);

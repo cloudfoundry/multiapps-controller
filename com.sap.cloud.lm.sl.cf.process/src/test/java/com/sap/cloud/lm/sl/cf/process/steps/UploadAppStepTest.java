@@ -82,7 +82,7 @@ public class UploadAppStepTest {
         @Test(expected = SLException.class)
         public void testPollStatus2() throws Exception {
             when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq(ORG_NAME), eq(SPACE_NAME), anyString())).thenThrow(
-                new CloudFoundryException(HttpStatus.BAD_REQUEST));
+                new SLException(new CloudFoundryException(HttpStatus.BAD_REQUEST)));
             step.pollStatus(context);
         }
 
@@ -189,11 +189,11 @@ public class UploadAppStepTest {
         public void loadParameters() throws Exception {
             if (expectedIOExceptionMessage != null) {
                 expectedException.expectMessage(expectedIOExceptionMessage);
-                expectedException.expect(IllegalStateException.class);
+                expectedException.expect(SLException.class);
             }
             if (expectedCFExceptionMessage != null) {
                 expectedException.expectMessage(expectedCFExceptionMessage);
-                expectedException.expect(IllegalStateException.class);
+                expectedException.expect(SLException.class);
             }
         }
 
