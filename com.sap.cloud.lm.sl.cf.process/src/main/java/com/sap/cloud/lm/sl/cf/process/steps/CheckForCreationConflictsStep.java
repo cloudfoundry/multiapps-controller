@@ -114,7 +114,7 @@ public class CheckForCreationConflictsStep extends AbstractXS2ProcessStep {
             }
         }
         if (!namesOfBoundStandaloneApplications.isEmpty()) {
-            throw new SLException(Messages.SERVICE_ASSOCIATED_WITH_OTHER_APPS, serviceToCreate.getName(),
+            getStepLogger().warn(Messages.SERVICE_ASSOCIATED_WITH_OTHER_APPS, serviceToCreate.getName(),
                 String.join(", ", namesOfBoundStandaloneApplications));
         }
         if (!idsOfMtasThatOwnTheService.isEmpty()) {
