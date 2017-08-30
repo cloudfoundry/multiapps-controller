@@ -59,7 +59,7 @@ public class CheckForCreationConflictsStepTest extends AbstractStepTest<CheckFor
             },
             // (2) Services to deploy exist, not part of the deployed MTA, have bound applications -> expect exception:
             {
-                "check-for-creation-conflicts-step-input-3.json", MessageFormat.format(Messages.SERVICE_ASSOCIATED_WITH_OTHER_APPS, "service-1", "application-1, application-2"), false,
+                "check-for-creation-conflicts-step-input-3.json", null, true,
             },
             // (3) Services to deploy exist, part of the deployed MTA, don't have bound applications -> should be OK:
             {
