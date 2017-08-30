@@ -167,7 +167,7 @@ public class SystemParametersBuilder {
             putPortRoutingParameters(module, moduleParameters, moduleSystemParameters);
         } else {
             boolean isStandardPort = UriUtil.isStandardPort(routerPort, targetUrl.getProtocol());
-            String defaultUri = isStandardPort ? DEFAULT_URI_HOST_PLACEHOLDER : DEFAULT_URI_HOST_PLACEHOLDER + getRouterPort();
+            String defaultUri = isStandardPort ? DEFAULT_URI_HOST_PLACEHOLDER : DEFAULT_URI_HOST_PLACEHOLDER + ":" + getRouterPort();
             if (shouldReserveTemporaryRoutes()) {
                 String defaultIdleUri = isStandardPort ? DEFAULT_IDLE_URI_HOST_PLACEHOLDER
                     : DEFAULT_IDLE_URI_HOST_PLACEHOLDER + getRouterPort();
