@@ -111,12 +111,12 @@ public class UndeployAppStep extends AbstractXS2ProcessStep {
 
     private void deleteApplicationRoute(CloudApplication app, List<CloudRoute> routes, String uri, CloudFoundryOperations client) {
         getStepLogger().info(Messages.DELETING_ROUTE, uri);
-        CloudRoute route = UriUtil.findRoute(routes, uri);
+        boolean isPortBasedRouting = isPortBasedRouting(client);
+        CloudRoute route = UriUtil.findRoute(routes, uri, isPortBasedRouting);
         if (route.getAppsUsingRoute() > 1) {
             return;
         }
-        boolean portBasedRouting = isPortBasedRouting(client);
-        new ClientHelper(client).deleteRoute(uri, portBasedRouting);
+        new ClientHelper(client).deleteRoute(uri, isPortBasedRouting);
         getStepLogger().debug(Messages.ROUTE_DELETED, uri);
     }
 

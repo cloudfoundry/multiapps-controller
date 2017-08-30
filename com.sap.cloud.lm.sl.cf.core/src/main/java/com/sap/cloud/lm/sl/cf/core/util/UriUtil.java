@@ -106,13 +106,18 @@ public class UriUtil {
         return protocol.equals("http") && port == STANDARD_HTTP_PORT || protocol.equals("https") && port == STANDARD_HTTPS_PORT;
     }
 
-    public static CloudRoute findRoute(List<CloudRoute> routes, String uri) {
-        return routes.stream().filter(route -> routeMatchesUri(route, uri)).findAny().orElseThrow(
+    public static CloudRoute findRoute(List<CloudRoute> routes, String uri, boolean isPortBasedRouting) {
+        return routes.stream().filter(route -> routeMatchesUri(route, uri, isPortBasedRouting)).findAny().orElseThrow(
             () -> new IllegalStateException("No matching route found for URI: " + uri));
     }
 
-    public static boolean routeMatchesUri(CloudRoute route, String uri) {
-        Pair<String, String> hostAndDomain = UriUtil.getHostAndDomain(uri);
+    public static boolean routeMatchesUri(CloudRoute route, String uri, boolean isPortBasedRouting) {
+        Pair<String, String> hostAndDomain;
+        if (isPortBasedRouting) {
+            hostAndDomain = UriUtil.getHostAndDomain(uri);
+        } else {
+            hostAndDomain = UriUtil.getHostAndDomain(UriUtil.removePort(uri));
+        }
         String host = hostAndDomain._1;
         String domain = hostAndDomain._2;
         return route.getHost().equals(host) && route.getDomain().getName().equals(domain);

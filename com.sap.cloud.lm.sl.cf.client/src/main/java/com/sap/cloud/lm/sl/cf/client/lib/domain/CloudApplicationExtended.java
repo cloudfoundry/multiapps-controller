@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.Staging;
 
 public class CloudApplicationExtended extends CloudApplication {
@@ -13,6 +14,7 @@ public class CloudApplicationExtended extends CloudApplication {
     private List<String> idleUris;
     private Map<String, Map<String, Object>> bindingParameters;
     private List<CloudTask> tasks;
+    private List<CloudRoute> routes;
 
     public CloudApplicationExtended(Meta meta, String name) {
         super(meta, name);
@@ -65,4 +67,11 @@ public class CloudApplicationExtended extends CloudApplication {
         this.tasks = tasks;
     }
 
+    public List<CloudRoute> getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(List<CloudRoute> routes) {
+        this.routes = routes;
+    }
 }
