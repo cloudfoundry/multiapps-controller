@@ -1,6 +1,8 @@
 {
   "processId": "process-instance-id",
-  "processType": "UNDEPLOY",
+  "processType": {
+    "name": "UNDEPLOY"
+  },
   "startTime": {
     "dateTime": {
       "date": {

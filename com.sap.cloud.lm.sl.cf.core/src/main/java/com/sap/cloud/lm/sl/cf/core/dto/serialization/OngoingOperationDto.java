@@ -5,8 +5,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
-
 @XmlRootElement(name = "ongoing-operation")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OngoingOperationDto {
@@ -15,7 +13,7 @@ public class OngoingOperationDto {
     private String processId;
 
     @XmlElement(name = "process-type")
-    private ProcessType processType;
+    private String processType;
 
     @XmlElement(name = "started-at")
     private String startedAt;
@@ -29,33 +27,33 @@ public class OngoingOperationDto {
     @XmlElement(name = "user")
     private String user;
 
-    @XmlElement(name = "state")
-    private String state;
-
     @XmlElement(name = "acquired-lock")
     private boolean acquiredLock;
+
+    @XmlElement(name = "state")
+    private String state;
 
     protected OngoingOperationDto() {
         // Required by JAXB
     }
 
-    public OngoingOperationDto(String processId, ProcessType processType, String startedAt, String spaceId, String mtaId, String user,
-        String state, boolean acquiredLock) {
+    public OngoingOperationDto(String processId, String processType, String startedAt, String spaceId, String mtaId, String user,
+        boolean acquiredLock, String state) {
         this.processId = processId;
         this.processType = processType;
         this.startedAt = startedAt;
         this.spaceId = spaceId;
         this.mtaId = mtaId;
         this.user = user;
-        this.state = state;
         this.acquiredLock = acquiredLock;
+        this.state = state;
     }
 
     public String getProcessId() {
         return processId;
     }
 
-    public ProcessType getProcessType() {
+    public String getProcessType() {
         return processType;
     }
 
@@ -75,12 +73,12 @@ public class OngoingOperationDto {
         return user;
     }
 
-    public String getState() {
-        return state;
-    }
-
     public boolean hasAcquiredLock() {
         return acquiredLock;
+    }
+
+    public String getState() {
+        return state;
     }
 
 }

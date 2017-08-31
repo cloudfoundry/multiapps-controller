@@ -28,7 +28,6 @@ public abstract class AbstractXS2ProcessStep extends AbstractSLProcessStep {
     protected TaskExtensionService taskExtensionService;
     @Inject
     private StepLogger.Factory stepLoggerFactory;
-
     private StepLogger stepLogger;
 
     @Override
@@ -51,7 +50,7 @@ public abstract class AbstractXS2ProcessStep extends AbstractSLProcessStep {
         return stepLogger;
     }
 
-    private StepLogger createStepLogger(DelegateExecution context) {
+    protected StepLogger createStepLogger(DelegateExecution context) {
         return stepLoggerFactory.create(context, progressMessageService, processLoggerProviderFactory, logger);
     }
 

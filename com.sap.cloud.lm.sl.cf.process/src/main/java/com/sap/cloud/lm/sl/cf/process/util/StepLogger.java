@@ -21,12 +21,12 @@ import com.sap.cloud.lm.sl.slp.services.ProcessLoggerProviderFactory;
  */
 public class StepLogger {
 
-    private static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
+    protected static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
 
-    private DelegateExecution context;
-    private ProgressMessageService progressMessageService;
-    private ProcessLoggerProviderFactory processLoggerProviderFactory;
-    private Logger simpleStepLogger;
+    protected DelegateExecution context;
+    protected ProgressMessageService progressMessageService;
+    protected ProcessLoggerProviderFactory processLoggerProviderFactory;
+    protected Logger simpleStepLogger;
 
     public StepLogger(DelegateExecution context, ProgressMessageService progressMessageService,
         ProcessLoggerProviderFactory processLoggerProviderFactory, Logger simpleStepLogger) {

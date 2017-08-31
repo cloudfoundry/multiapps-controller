@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.OngoingOperationDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.OngoingOperationsDto;
+import com.sap.cloud.lm.sl.cf.core.helpers.OngoingOperationFactory;
 import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
 import com.sap.cloud.lm.sl.cf.core.model.OperationsBean;
 import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
@@ -56,6 +57,12 @@ public class OngoingOperationsResource {
 
     @Inject
     private ActivitiServiceFactory activitiServiceFactory;
+
+    @Inject
+    private ProcessTypeToServiceMetadataMapper processTypeToServiceMetadataMapper;
+
+    @Inject
+    private OngoingOperationFactory ongoingOperationFactory;
 
     @GET
     public OngoingOperationsDto getOngoingOperations(@BeanParam OperationsBean operationsBean) throws SLException {
@@ -130,7 +137,8 @@ public class OngoingOperationsResource {
     }
 
     private List<OngoingOperationDto> wrap(List<OngoingOperation> ongoingOperations) throws SLException {
-        return ongoingOperations.stream().map(operation -> toOngoingOperationDto(operation)).collect(Collectors.toList());
+        return ongoingOperations.stream().map(operation -> ongoingOperationFactory.toSerializationDto(operation)).collect(
+            Collectors.toList());
     }
 
     private List<OngoingOperation> filterExistingOngoingOperations(List<OngoingOperation> ongoingOperations) {
@@ -144,7 +152,7 @@ public class OngoingOperationsResource {
         OngoingOperation ongoingOperation = dao.findRequired(processId);
         if (getProcessForOperation(ongoingOperation) != null && ongoingOperation.getSpaceId().equals(spaceId)) {
             addState(ongoingOperation);
-            return toOngoingOperationDto(ongoingOperation);
+            return ongoingOperationFactory.toSerializationDto(ongoingOperation);
         }
         throw new NotFoundException(Messages.ONGOING_OPERATION_NOT_FOUND, processId, spaceId);
     }
@@ -152,12 +160,6 @@ public class OngoingOperationsResource {
     protected void addState(OngoingOperation ongoingOperation) throws SLException {
         SlpTaskState state = getOngoingOperationState(ongoingOperation);
         ongoingOperation.setFinalState(state);
-    }
-
-    protected OngoingOperationDto toOngoingOperationDto(OngoingOperation ongoingOperation) throws SLException {
-        return new OngoingOperationDto(ongoingOperation.getProcessId(), ongoingOperation.getProcessType(), ongoingOperation.getStartedAt(),
-            ongoingOperation.getSpaceId(), ongoingOperation.getMtaId(), ongoingOperation.getUser(),
-            ongoingOperation.getFinalState().toString(), ongoingOperation.hasAcquiredLock());
     }
 
     protected SlpTaskState getOngoingOperationState(OngoingOperation ongoingOperation) throws SLException {
@@ -187,7 +189,7 @@ public class OngoingOperationsResource {
     }
 
     private ActivitiService getActivitiService(ProcessType processType) throws SLException {
-        return activitiServiceFactory.createActivitiService(ProcessTypeToServiceMetadataMapper.getServiceMetadata(processType));
+        return activitiServiceFactory.createActivitiService(processTypeToServiceMetadataMapper.getServiceMetadata(processType));
     }
 
     protected String getSpaceId() throws SLException {

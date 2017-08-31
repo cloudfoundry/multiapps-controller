@@ -17,7 +17,7 @@
     </persistence-unit>
     <persistence-unit name="OngoingOperationManagement" transaction-type="RESOURCE_LOCAL">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <class>com.sap.cloud.lm.sl.cf.core.model.OngoingOperation</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.OngoingOperationDto</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />

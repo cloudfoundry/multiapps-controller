@@ -1,6 +1,8 @@
 {
   "processId": "process-instance-id",
-  "processType": "DEPLOY",
+  "processType": {
+    "name": "DEPLOY"
+  },
   "startTime": {
     "dateTime": {
       "date": {

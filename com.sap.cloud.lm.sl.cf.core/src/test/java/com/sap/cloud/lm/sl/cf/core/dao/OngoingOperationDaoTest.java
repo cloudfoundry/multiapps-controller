@@ -16,8 +16,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.google.gson.reflect.TypeToken;
+import com.sap.cloud.lm.sl.cf.core.helpers.OngoingOperationFactory;
 import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
 import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation.SlpTaskStates;
+import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.Callable;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Runnable;
@@ -25,7 +27,6 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
 public class OngoingOperationDaoTest {
-
 
     private static enum Operation {
         ADD, REMOVE, MERGE, FIND, FIND_ALL, FIND_ALL_IN_SPACE, FIND_LAST_IN_SPACE, FIND_ACTIVE_IN_SPACE, FIND_FINISHED_IN_SPACE
@@ -223,13 +224,16 @@ public class OngoingOperationDaoTest {
     @After
     public void clearDatabase() throws Throwable {
         for (OngoingOperation ongoingOperation : dao.findAll()) {
-            dao.remove(ongoingOperation);
+            dao.remove(ongoingOperation.getProcessId());
         }
     }
 
     private static OngoingOperationDao createDao() {
         OngoingOperationDao dao = new OngoingOperationDao();
-        dao.emf = Persistence.createEntityManagerFactory("OngoingOperationManagement");
+        OngoingOperationDtoDao dtoDao = new OngoingOperationDtoDao();
+        dtoDao.emf = Persistence.createEntityManagerFactory("OngoingOperationManagement");
+        dao.dao = dtoDao;
+        dao.ongoingOperationFactory = new OngoingOperationFactory();
         return dao;
     }
 

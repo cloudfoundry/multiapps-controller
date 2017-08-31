@@ -3,26 +3,8 @@ package com.sap.cloud.lm.sl.cf.core.model;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-
 import com.sap.lmsl.slp.SlpTaskState;
 
-@Entity
-@Table(name = "ongoing_operation")
-@NamedQueries({
-    @NamedQuery(name = "find_mta_lock", query = "SELECT oo FROM OngoingOperation oo WHERE oo.mtaId = :mtaId AND oo.spaceId = :spaceId AND oo.acquiredLock = true"),
-    @NamedQuery(name = "find_all", query = "SELECT oo FROM OngoingOperation oo"),
-    @NamedQuery(name = "find_all_in_space", query = "SELECT oo FROM OngoingOperation oo WHERE oo.spaceId = :spaceId"),
-    @NamedQuery(name = "find_all_in_space_desc", query = "SELECT oo FROM OngoingOperation oo WHERE oo.spaceId = :spaceId order by oo.startedAt DESC"),
-    @NamedQuery(name = "find_all_active_in_space", query = "SELECT oo FROM OngoingOperation oo WHERE oo.spaceId = :spaceId AND oo.finalState is NULL"),
-    @NamedQuery(name = "find_all_finished_in_space", query = "SELECT oo FROM OngoingOperation oo WHERE oo.spaceId = :spaceId AND oo.finalState is NOT NULL") })
 public class OngoingOperation {
 
     public static class SlpTaskStates {
@@ -36,36 +18,14 @@ public class OngoingOperation {
         }
     }
 
-    @Id
-    @Column(name = "process_id")
     private String processId;
-
-    @Column(name = "process_type")
-    @Enumerated(EnumType.STRING)
     private ProcessType processType;
-
-    @Column(name = "started_at")
     private String startedAt;
-
-    @Column(name = "space_id")
     private String spaceId;
-
-    @Column(name = "mta_id")
     private String mtaId;
-
-    @Column(name = "userx")
     private String user;
-
-    @Column(name = "acquired_lock")
     private boolean acquiredLock;
-
-    @Column(name = "final_state")
-    @Enumerated(EnumType.STRING)
     private SlpTaskState finalState;
-
-    protected OngoingOperation() {
-        // Required by JPA
-    }
 
     public OngoingOperation(String processId, ProcessType processType, String startedAt, String spaceId, String mtaId, String user,
         boolean acquiredLock, SlpTaskState finalState) {
@@ -142,4 +102,5 @@ public class OngoingOperation {
     public void setFinalState(SlpTaskState finalState) {
         this.finalState = finalState;
     }
+
 }
