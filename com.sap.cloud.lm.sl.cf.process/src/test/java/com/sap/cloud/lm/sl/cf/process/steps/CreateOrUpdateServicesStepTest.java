@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,8 +27,8 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKey;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyImpl;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -49,6 +48,8 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
     private DefaultTagsDetector defaultTagsDetector;
     @Mock
     private ServiceCreator serviceCreator;
+    @Mock
+    private ServiceUpdater serviceUpdater;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -71,7 +72,7 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
             },
             // (3) Existing services are part of the MTA, there are external applications bound to them and they should be updated:
             {
-                "create-or-update-services-step-input-4.json", MessageFormat.format(Messages.CANT_DELETE_SERVICE, "service-1"),
+                "create-or-update-services-step-input-4.json", null,
             },
             // (4) Existing services are not relevant to the MTA:
             {
@@ -241,9 +242,23 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
     private void validateClient() {
         validateServicesToDelete();
         validateServicesToCreate();
+        validateServicesToBeUpdated();
         validateServiceKeysToCreate();
         validateServiceKeysToDelete();
         validateServiceTagsToUpdate();
+    }
+
+    private void validateServicesToBeUpdated() {
+        for (CloudServiceExtended service : existingServiceInstances.keySet()) {
+            if (shouldHaveBeenUpdated(service)) {
+                Mockito.verify(serviceUpdater).updateServicePlan(client, service.getName(),
+                    findService(service.getName(), stepInput.services).getPlan());
+            }
+        }
+    }
+
+    private boolean shouldHaveBeenUpdated(CloudServiceExtended existingService) {
+        return !areEqual(existingService.getPlan(), findService(existingService.getName(), stepInput.services).getPlan());
     }
 
     private void validateServicesToDelete() {
@@ -311,9 +326,6 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
             return false;
         }
         if (!areEqual(existingService.getName(), service.getName())) {
-            return false;
-        }
-        if (!areEqual(existingService.getPlan(), service.getPlan())) {
             return false;
         }
         if (!areEqual(existingService.getProvider(), service.getProvider())) {

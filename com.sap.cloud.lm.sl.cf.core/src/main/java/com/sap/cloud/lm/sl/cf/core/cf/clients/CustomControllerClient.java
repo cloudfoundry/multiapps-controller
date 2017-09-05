@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-public class CustomControllerClient {
+public abstract class CustomControllerClient {
 
     @Inject
     private RestTemplateFactory restTemplateFactory;

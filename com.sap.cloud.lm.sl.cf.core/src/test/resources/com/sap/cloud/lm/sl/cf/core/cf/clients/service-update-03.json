@@ -1,0 +1,19 @@
+{
+  "service": {
+    "resourceName": "test",
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.test",
+    "label": "some-not-existing-label",
+    "plan": "test-new-plan"
+    },
+    
+  "existingService": {
+    "resourceName": "test",
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.test",
+    "label": "some-label",
+    "plan": "test-plan"
+    }
+}

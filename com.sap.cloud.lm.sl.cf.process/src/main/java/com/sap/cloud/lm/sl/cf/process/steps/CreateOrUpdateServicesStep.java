@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKey;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -65,6 +68,10 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
 
     @Autowired
     protected ServiceCreator serviceCreator;
+
+    @Autowired
+    @Qualifier("serviceUpdater")
+    protected ServiceUpdater serviceUpdater;
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws SLException, FileStorageException {
@@ -248,6 +255,11 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
             return ServiceOperationType.UPDATE;
         }
         ServiceOperationType type = null;
+        if (actions.contains(ServiceAction.ACTION_UPDATE_SERVICE_PLAN)) {
+            serviceOperationExecutor.executeServiceOperation(service, () -> updateServicePlan(context, client, service), getStepLogger());
+            type = ServiceOperationType.UPDATE;
+        }
+
         if (actions.contains(ServiceAction.ACTION_UPDATE_CREDENTIALS)) {
             serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceCredentials(context, client, service),
                 getStepLogger());
@@ -257,10 +269,18 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
             serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceTags(context, client, service), getStepLogger());
             type = ServiceOperationType.UPDATE;
         }
+
         if (actions.isEmpty()) {
             getStepLogger().info(Messages.SERVICE_UNCHANGED, existingService.getName());
         }
+
         return type;
+    }
+
+    private void updateServicePlan(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service) {
+        getStepLogger().debug(
+            MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(), service.getPlan()));
+        serviceUpdater.updateServicePlan(client, service.getName(), service.getPlan());
     }
 
     private List<ServiceAction> determineActions(CloudFoundryOperations client, CloudServiceExtended service, CloudService existingService,
@@ -276,23 +296,22 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
             getStepLogger().debug("Existing service: " + secureSerializer.toJson(existingService));
             return Arrays.asList(ServiceAction.ACTION_RECREATE);
         }
-        if (!existingService.isUserProvided()) {
-            CloudServiceInstance existingServiceInstance = client.getServiceInstance(service.getName());
-            if (existingServiceInstance != null && shouldUpdateCredentials(service, existingServiceInstance.getCredentials())) {
-                getStepLogger().debug("Service parameters should be updated");
-                getStepLogger().debug("New parameters: " + secureSerializer.toJson(service.getCredentials()));
-                getStepLogger().debug("Existing service parameters: " + secureSerializer.toJson(existingServiceInstance.getCredentials()));
-                actions.add(ServiceAction.ACTION_UPDATE_CREDENTIALS);
-            }
-        } else if (existingService.isUserProvided()) {
-            CloudServiceInstance esi = client.getServiceInstance(service.getName());
-            if (esi != null && shouldUpdateCredentials(service, esi.getCredentials())) {
-                getStepLogger().debug("User-provided service credentials should be updated");
-                getStepLogger().debug("New credentials: " + secureSerializer.toJson(service.getCredentials()));
-                getStepLogger().debug("Existing service instance credentials: " + secureSerializer.toJson(esi.getCredentials()));
-                actions.add(ServiceAction.ACTION_UPDATE_CREDENTIALS);
-            }
+
+        if (shouldUpdatePlan(service, existingService)) {
+            getStepLogger().debug("Service plan should be updated");
+            getStepLogger().debug(MessageFormat.format("New service plan: {0}", service.getPlan()));
+            getStepLogger().debug(MessageFormat.format("Existing service plan: {0}", existingService.getPlan()));
+            actions.add(ServiceAction.ACTION_UPDATE_SERVICE_PLAN);
         }
+
+        CloudServiceInstance existingServiceInstance = client.getServiceInstance(service.getName());
+        if (existingServiceInstance != null && shouldUpdateCredentials(service, existingServiceInstance.getCredentials())) {
+            getStepLogger().debug("Service parameters should be updated");
+            getStepLogger().debug("New parameters: " + secureSerializer.toJson(service.getCredentials()));
+            getStepLogger().debug("Existing service parameters: " + secureSerializer.toJson(existingServiceInstance.getCredentials()));
+            actions.add(ServiceAction.ACTION_UPDATE_CREDENTIALS);
+        }
+
         if (shouldUpdateTags(service, existingService, defaultTags)) {
             CloudServiceExtended existingServiceExtended = (CloudServiceExtended) existingService;
             getStepLogger().debug("Service tags should be updated");
@@ -301,11 +320,11 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
             actions.add(ServiceAction.ACTION_UPDATE_TAGS);
         }
 
-        if (actions.isEmpty()) {
-            getStepLogger().debug("Nothing to do, unable to detect changes");
-        }
-
         return actions;
+    }
+
+    private boolean shouldUpdatePlan(CloudServiceExtended service, CloudService existingService) {
+        return !Objects.equals(service.getPlan(), existingService.getPlan());
     }
 
     private void createService(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service) {
@@ -336,7 +355,7 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
         ClientExtensions clientExtensions = getClientExtensions(context);
         getStepLogger().info(Messages.UPDATING_SERVICE, service.getName());
         if (clientExtensions == null) {
-            serviceCreator.updateServiceParameters(client, service.getName(), service.getCredentials());
+            serviceUpdater.updateServiceParameters(client, service.getName(), service.getCredentials());
         } else {
             updateServiceCredentialsViaClientExtensions(service, clientExtensions);
         }
@@ -402,9 +421,8 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
 
     private boolean shouldRecreate(CloudServiceExtended service, CloudService existingService) {
         boolean haveDifferentTypes = service.isUserProvided() ^ existingService.isUserProvided();
-        boolean haveDifferentPlans = !Objects.equals(service.getPlan(), existingService.getPlan());
         boolean haveDifferentLabels = !Objects.equals(service.getLabel(), existingService.getLabel());
-        return haveDifferentTypes || haveDifferentPlans || haveDifferentLabels;
+        return haveDifferentTypes || haveDifferentLabels;
     }
 
     private boolean shouldUpdateTags(CloudServiceExtended service, CloudService existingService, List<String> defaultTags) {
@@ -440,7 +458,7 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
     }
 
     private enum ServiceAction {
-        ACTION_UPDATE_CREDENTIALS, ACTION_RECREATE, ACTION_UPDATE_TAGS,
+        ACTION_UPDATE_CREDENTIALS, ACTION_RECREATE, ACTION_UPDATE_TAGS, ACTION_UPDATE_SERVICE_PLAN
     }
 
     @Override

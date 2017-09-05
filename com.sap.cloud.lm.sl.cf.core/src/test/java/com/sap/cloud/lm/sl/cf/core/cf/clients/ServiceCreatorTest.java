@@ -37,14 +37,14 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
 public class ServiceCreatorTest {
-    private static final String CONTROLLER_ENDPOINT = "https://api.cf.sap.com";
-    private static final String SPACE_ID = "TEST_SPACE";
-    private static final UUID SERVICE_PLAN_GUID = UUID.randomUUID();
-    private static final String SERVICE_NAME = "name";
-    private static final String SPACE_GUID = "space_guid";
-    private static final String SERVICE_PARAMETERS = "parameters";
-    private static final String CREATE_SERVICE_URL = "/v2/service_instances?accepts_incomplete=false";
-    private static final String SERVICE_PLAN = "test-plan";
+    protected static final String CONTROLLER_ENDPOINT = "https://api.cf.sap.com";
+    protected static final String SPACE_ID = "TEST_SPACE";
+    protected static final UUID SERVICE_PLAN_GUID = UUID.randomUUID();
+    protected static final String SERVICE_NAME = "name";
+    protected static final String SPACE_GUID = "space_guid";
+    protected static final String SERVICE_PARAMETERS = "parameters";
+    protected static final String CREATE_SERVICE_URL = "/v2/service_instances?accepts_incomplete=false";
+    protected static final String SERVICE_PLAN = "test-plan";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -55,43 +55,43 @@ public class ServiceCreatorTest {
 // @formatter:off
             // (0) Service with credentials 
             {
-                "service-01.json", null
+                "service-01.json", null, null
             },
             // (1) Service without credentials
             {
-                "service-02.json", null
+                "service-02.json", null, null
             },
             // (2) Service doesn't specify label
             {
-                "service-03.json", "Service label must not be null"
+                "service-03.json", "Service label must not be null", IllegalArgumentException.class
             },
             // (3) Service doesn't specify name
             {
-                "service-04.json", "Service name must not be null"
+                "service-04.json", "Service name must not be null", IllegalArgumentException.class
             },
             // (4) Service doesn't specify plan
             {
-                "service-05.json", "Service plan must not be null"
+                "service-05.json", "Service plan must not be null", IllegalArgumentException.class
             },
             // (5) Service plan doesn't exist
             {
-                "service-06.json", "Service plan different-plan for service test-service not found"
+                "service-06.json", "Service plan different-plan for service test-service not found", SLException.class
             }
 // @formatter:on
         });
     }
 
     @Mock
-    private CloudEntityResourceMapper resourceMapper;
+    protected CloudEntityResourceMapper resourceMapper;
 
     @Mock
-    private RestTemplate restTemplate;
+    protected RestTemplate restTemplate;
 
     @Mock
     private RestTemplateFactory restTemplateFactory;
 
     @Mock
-    private CloudFoundryOperations client;
+    protected CloudFoundryOperations client;
 
     @InjectMocks
     private ServiceCreator serviceCreator = new ServiceCreator() {
@@ -101,13 +101,15 @@ public class ServiceCreatorTest {
         }
     };
 
-    private StepInput input;
+    protected StepInput input;
     private String expectedExceptionMessage;
+    private Class<? extends RuntimeException> expectedExceptionClass;
 
-    public ServiceCreatorTest(String inputLocation, String expected) throws ParsingException, IOException {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, ServiceCreatorTest.class), StepInput.class);
+    public ServiceCreatorTest(String inputLocation, String expected, Class<? extends RuntimeException> expectedExceptionClass)
+        throws ParsingException, IOException {
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, ServiceCreatorTest.class), getStepinput());
         this.expectedExceptionMessage = expected;
-
+        this.expectedExceptionClass = expectedExceptionClass;
     }
 
     @Before
@@ -115,8 +117,8 @@ public class ServiceCreatorTest {
 
         MockitoAnnotations.initMocks(this);
         setUpException();
-        CloudServiceOffering offering = new CloudServiceOffering(null, input.getService().getLabel());
-        offering.addCloudServicePlan(new CloudServicePlan(new Meta(SERVICE_PLAN_GUID, null, null), SERVICE_PLAN));
+        CloudServiceOffering offering = new CloudServiceOffering(null, getServiceLabel());
+        offering.addCloudServicePlan(new CloudServicePlan(new Meta(SERVICE_PLAN_GUID, null, null), getCloudServicePlan()));
 
         Map<String, Object> resourceMap = new HashMap<>();
         List<Map<String, Object>> resourcesList = new ArrayList<>();
@@ -131,25 +133,37 @@ public class ServiceCreatorTest {
         Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
     }
 
-    private String getUrl(String path, URL cloudControllerUrl) {
+    protected String getServiceLabel() {
+        return input.getService().getLabel();
+    }
+
+    protected String getCloudServicePlan() {
+        return SERVICE_PLAN;
+    }
+
+    protected String getUrl(String path, URL cloudControllerUrl) {
         return cloudControllerUrl + (path.startsWith("/") ? path : "/" + path);
     }
 
     private void setUpException() {
         if (expectedExceptionMessage != null) {
-            expectedException.expect(SLException.class);
+            expectedException.expect(getExpectedExceptionClass());
             expectedException.expectMessage(expectedExceptionMessage);
         }
     }
 
+    protected Class<? extends RuntimeException> getExpectedExceptionClass() {
+        return expectedExceptionClass;
+    }
+
     @Test
-    public void testCreateService() throws RestClientException, MalformedURLException {
+    public void testExecuteServiceOperation() throws RestClientException, MalformedURLException {
         serviceCreator.createService(client, input.getService(), SPACE_ID);
 
         validateRestCall();
     }
 
-    private void validateRestCall() throws RestClientException, MalformedURLException {
+    protected void validateRestCall() throws RestClientException, MalformedURLException {
         Map<String, Object> serviceRequest = new HashMap<String, Object>();
         serviceRequest.put(SPACE_GUID, SPACE_ID);
         serviceRequest.put(SERVICE_NAME, input.getService().getName());
@@ -158,10 +172,15 @@ public class ServiceCreatorTest {
         Mockito.verify(restTemplate).postForObject(getUrl(CREATE_SERVICE_URL, new URL(CONTROLLER_ENDPOINT)), serviceRequest, String.class);
     }
 
-    private static class StepInput {
+    protected Class<? extends StepInput> getStepinput() {
+        return StepInput.class;
+    }
+
+    protected static class StepInput {
         private CloudServiceExtended service;
 
         public CloudServiceExtended getService() {
+            service.setMeta(new Meta(SERVICE_PLAN_GUID, null, null));
             return service;
         }
     }
