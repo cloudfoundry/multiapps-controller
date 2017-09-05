@@ -75,5 +75,6 @@ public class Messages {
     public static final String CANT_GET_TASKS_FOR_APP = "Could not get tasks for application \"{0}\"";
     public static final String CANT_RUN_TASK_ON_APP = "Could not run task \"{0}\" on application \"{1}\"";
     public static final String CANT_CANCEL_TASK = "Could not cancel task with GUID \"{0}\"";
+    public static final String CANT_UPDATE_SERVICE_PLAN = "Could not update service plan of service \"{0}\": \"{1}\"";
 
 }

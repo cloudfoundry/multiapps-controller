@@ -352,22 +352,9 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
 
     private void updateServiceCredentials(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service)
         throws SLException {
-        ClientExtensions clientExtensions = getClientExtensions(context);
         getStepLogger().info(Messages.UPDATING_SERVICE, service.getName());
-        if (clientExtensions == null) {
-            serviceUpdater.updateServiceParameters(client, service.getName(), service.getCredentials());
-        } else {
-            updateServiceCredentialsViaClientExtensions(service, clientExtensions);
-        }
+        serviceUpdater.updateServiceParameters(client, service.getName(), service.getCredentials());
         getStepLogger().debug(Messages.SERVICE_UPDATED, service.getName());
-    }
-
-    private void updateServiceCredentialsViaClientExtensions(CloudServiceExtended service, ClientExtensions clientExtensions) {
-        if (service.isUserProvided()) {
-            clientExtensions.updateUserProvidedServiceCredentials(service.getName(), service.getCredentials());
-        } else {
-            clientExtensions.updateServiceParameters(service.getName(), service.getCredentials());
-        }
     }
 
     private void deleteService(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service) throws SLException {

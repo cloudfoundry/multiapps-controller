@@ -66,7 +66,6 @@
         <protobuf-java.version>3.1.0</protobuf-java.version>
         <jackson.version>2.5.0</jackson.version>
         <semver4j.version>2.0.1</semver4j.version>
-        <xsrt.version>1.0.60</xsrt.version>
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <xs.java.version>1.0.0</xs.java.version>
         <java.container.security.version>0.19.1</java.container.security.version>
@@ -732,47 +731,6 @@
                 <groupId>com.vdurmont</groupId>
                 <artifactId>semver4j</artifactId>
                 <version>${semver4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.xs.onpremise.runtime</groupId>
-                <artifactId>xsrt-client-api</artifactId>
-                <version>${xsrt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.xs.onpremise.runtime</groupId>
-                <artifactId>xsrt-client-impl</artifactId>
-                <version>${xsrt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.xs.onpremise.runtime</groupId>
-                <artifactId>xsrt-core</artifactId>
-                <version>${xsrt.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.ini4j.Wini</groupId>
-                        <artifactId>ini4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.glassfish.jersey.containers</groupId>
-                        <artifactId>jersey-container-grizzly2-http</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.xs.onpremise.runtime</groupId>
-                <artifactId>xsrt-tracing-api</artifactId>
-                <version>${xsrt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.xs.onpremise.runtime</groupId>
-                <artifactId>xsrt-utils</artifactId>
-                <version>${xsrt.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.sap</groupId>
-                        <artifactId>sapjvm-api</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>

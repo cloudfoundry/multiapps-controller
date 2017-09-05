@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.StartingInfo;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
@@ -117,5 +118,14 @@ public interface ClientExtensions {
      * @return the cancelled task
      */
     CloudTask cancelTask(UUID taskId) throws UnsupportedOperationException;
+
+    /**
+     * Update the service plan for an existing service.
+     * 
+     * @param serviceName the name of the service instance to update
+     * @param planName the new service plan
+     * @throws CloudFoundryException if there was an error
+     */
+    void updateServicePlan(String serviceName, String planName);
 
 }
