@@ -1,5 +1,6 @@
 [
   {
+    "serviceAlternatives": [],
     "resourceName": "pricing-db-service",
     "credentials": {},
     "tags": [],

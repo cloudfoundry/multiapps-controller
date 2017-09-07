@@ -9,7 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
@@ -26,6 +29,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -39,6 +43,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class ServiceCreatorTest {
     protected static final String CONTROLLER_ENDPOINT = "https://api.cf.sap.com";
     protected static final String SPACE_ID = "TEST_SPACE";
+    protected static final String SERVICE_PLAN_ENDING = "_service_plan";
     protected static final UUID SERVICE_PLAN_GUID = UUID.randomUUID();
     protected static final String SERVICE_NAME = "name";
     protected static final String SPACE_GUID = "space_guid";
@@ -76,6 +81,22 @@ public class ServiceCreatorTest {
             // (5) Service plan doesn't exist
             {
                 "service-06.json", "Service plan different-plan for service test-service not found", SLException.class
+            },
+            // (6) Service has defined alternatives and default offering is matching
+            {
+                "service-07.json",  null, null
+            },
+            // (7) Service has defined alternatives and alternative is used because default offering does not exist
+            {
+                "service-08.json",  null, null
+            },
+            // (8) Service has defined alternatives and alternative is used because creating with default offering fails
+            {
+                "service-09.json",  null, null
+            },
+            // (9) Service has defined alternatives but nothing exist
+            {
+                "service-10.json",  "Could not create service \"com.sap.sample.mta.test\"" , CloudFoundryException.class
             }
 // @formatter:on
         });
@@ -88,7 +109,7 @@ public class ServiceCreatorTest {
     protected RestTemplate restTemplate;
 
     @Mock
-    private RestTemplateFactory restTemplateFactory;
+    protected RestTemplateFactory restTemplateFactory;
 
     @Mock
     protected CloudFoundryOperations client;
@@ -104,6 +125,7 @@ public class ServiceCreatorTest {
     protected StepInput input;
     private String expectedExceptionMessage;
     private Class<? extends RuntimeException> expectedExceptionClass;
+    private Map<String, Map<String, Object>> serviceRequests = new HashMap<String, Map<String, Object>>();
 
     public ServiceCreatorTest(String inputLocation, String expected, Class<? extends RuntimeException> expectedExceptionClass)
         throws ParsingException, IOException {
@@ -114,23 +136,64 @@ public class ServiceCreatorTest {
 
     @Before
     public void setUp() throws MalformedURLException {
-
         MockitoAnnotations.initMocks(this);
         setUpException();
-        CloudServiceOffering offering = new CloudServiceOffering(null, getServiceLabel());
-        offering.addCloudServicePlan(new CloudServicePlan(new Meta(SERVICE_PLAN_GUID, null, null), getCloudServicePlan()));
+        setUpExistingOfferings();
+        setUpServiceRequests();
+    }
 
-        Map<String, Object> resourceMap = new HashMap<>();
+    private void setUpServiceRequests() throws RestClientException, MalformedURLException {
+        List<String> requestedServiceOfferings = new ArrayList<String>(Arrays.asList(getServiceLabel()));
+        List<String> serviceAlternatives = input.getService().getServiceAlternatives();
+        if (!CollectionUtils.isEmpty(serviceAlternatives)) {
+            requestedServiceOfferings.addAll(1, serviceAlternatives);
+        }
+
+        for (String requestedServiceOffering : requestedServiceOfferings) {
+            Map<String, Object> serviceRequest = new HashMap<String, Object>();
+            serviceRequest.put(SPACE_GUID, SPACE_ID);
+            serviceRequest.put(SERVICE_NAME, input.getService().getName());
+            serviceRequest.put("service_plan_guid", getUUID(requestedServiceOffering));
+            serviceRequest.put(SERVICE_PARAMETERS, input.getService().getCredentials());
+            serviceRequests.put(requestedServiceOffering, serviceRequest);
+        }
+
+        if (input.getDefaultServiceOfferingHttpReturnCode() != 0) {
+            HttpStatus httpStatusCode = HttpStatus.valueOf(input.getDefaultServiceOfferingHttpReturnCode());
+            Mockito.when(restTemplate.postForObject(getUrl("/v2/service_instances?accepts_incomplete=false", new URL(CONTROLLER_ENDPOINT)),
+                serviceRequests.get(getServiceLabel()), String.class)).thenThrow(new CloudFoundryException(httpStatusCode));
+        }
+
+    }
+
+    protected void setUpExistingOfferings() throws MalformedURLException {
+        List<String> existingServiceOfferingNames = input.getExistingServiceOfferings();
+        if (existingServiceOfferingNames == null) {
+            existingServiceOfferingNames = Arrays.asList(getServiceLabel());
+        }
+
         List<Map<String, Object>> resourcesList = new ArrayList<>();
-        resourcesList.add(new HashMap<>());
-        resourceMap.put("resources", resourcesList);
-        Mockito.when(resourceMapper.mapResource(new HashMap<>(), CloudServiceOffering.class)).thenReturn(offering);
+        Map<String, Object> resourceMap = new HashMap<>();
+        for (String existingServiceOfferingName : existingServiceOfferingNames) {
+            CloudServiceOffering offering = new CloudServiceOffering(null, existingServiceOfferingName);
+            offering.addCloudServicePlan(
+                new CloudServicePlan(new Meta(getUUID(existingServiceOfferingName), null, null), getCloudServicePlan()));
+            Map<String, Object> nextResourceMap = new HashMap<String, Object>();
+            nextResourceMap.put(existingServiceOfferingName, null);
+            resourcesList.add(nextResourceMap);
+            Mockito.when(resourceMapper.mapResource(nextResourceMap, CloudServiceOffering.class)).thenReturn(offering);
+        }
 
+        resourceMap.put("resources", resourcesList);
         Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_ENDPOINT));
         Mockito.when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)),
             String.class)).thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
 
         Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
+
+        List<CloudServiceOffering> existingServiceOfferings = existingServiceOfferingNames.stream().map(
+            existingServiceOfferingName -> new CloudServiceOffering(null, existingServiceOfferingName)).collect(Collectors.toList());
+        Mockito.when(client.getServiceOfferings()).thenReturn(existingServiceOfferings);
     }
 
     protected String getServiceLabel() {
@@ -145,7 +208,7 @@ public class ServiceCreatorTest {
         return cloudControllerUrl + (path.startsWith("/") ? path : "/" + path);
     }
 
-    private void setUpException() {
+    protected void setUpException() {
         if (expectedExceptionMessage != null) {
             expectedException.expect(getExpectedExceptionClass());
             expectedException.expectMessage(expectedExceptionMessage);
@@ -164,12 +227,8 @@ public class ServiceCreatorTest {
     }
 
     protected void validateRestCall() throws RestClientException, MalformedURLException {
-        Map<String, Object> serviceRequest = new HashMap<String, Object>();
-        serviceRequest.put(SPACE_GUID, SPACE_ID);
-        serviceRequest.put(SERVICE_NAME, input.getService().getName());
-        serviceRequest.put("service_plan_guid", SERVICE_PLAN_GUID);
-        serviceRequest.put(SERVICE_PARAMETERS, input.getService().getCredentials());
-        Mockito.verify(restTemplate).postForObject(getUrl(CREATE_SERVICE_URL, new URL(CONTROLLER_ENDPOINT)), serviceRequest, String.class);
+        Mockito.verify(restTemplate).postForObject(getUrl(CREATE_SERVICE_URL, new URL(CONTROLLER_ENDPOINT)),
+            serviceRequests.get(input.getService().getLabel()), String.class);
     }
 
     protected Class<? extends StepInput> getStepinput() {
@@ -178,10 +237,25 @@ public class ServiceCreatorTest {
 
     protected static class StepInput {
         private CloudServiceExtended service;
+        private List<String> existingServiceOfferings;
+        private int defaultServiceOfferingHttpReturnCode;
 
         public CloudServiceExtended getService() {
-            service.setMeta(new Meta(SERVICE_PLAN_GUID, null, null));
+            service.setMeta(new Meta(getUUID(service.getLabel()), null, null));
             return service;
         }
+
+        public List<String> getExistingServiceOfferings() {
+            return existingServiceOfferings;
+        }
+
+        public int getDefaultServiceOfferingHttpReturnCode() {
+            return defaultServiceOfferingHttpReturnCode;
+        }
+
+    }
+
+    protected static UUID getUUID(String existingServiceOfferingName) {
+        return UUID.nameUUIDFromBytes((existingServiceOfferingName + SERVICE_PLAN_ENDING).getBytes());
     }
 }

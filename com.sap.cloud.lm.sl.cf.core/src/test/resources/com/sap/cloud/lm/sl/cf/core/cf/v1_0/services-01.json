@@ -1,5 +1,6 @@
 [
   {
+    "serviceAlternatives": [],
     "resourceName": "test",
     "credentials": {
       "password": "test-pass",
