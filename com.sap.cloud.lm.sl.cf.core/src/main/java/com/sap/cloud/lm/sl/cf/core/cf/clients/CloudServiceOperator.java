@@ -40,7 +40,7 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
                 }
             }
         }
-        throw new SLException(MessageFormat.format("Service plan {0} for service {1} not found", service.getPlan(), service.getName()));
+        throw new SLException(MessageFormat.format("Service plan {0} for service {1} not found", newServicePlan, service.getName()));
     }
 
     protected List<CloudServiceOffering> filterByVersion(List<CloudServiceOffering> offerings, CloudService service) {

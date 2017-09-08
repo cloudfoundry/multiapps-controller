@@ -46,7 +46,7 @@ public class ServiceUpdaterTest extends ServiceCreatorTest {
             },
             // (2) With non-existing service plan
             {
-                "service-update-03.json", "Service plan test-plan for service com.sap.sample.mta.test not found", SLException.class
+                "service-update-03.json", "Service plan test-new-plan for service com.sap.sample.mta.test not found", SLException.class
             }
 // @formatter:on
         });
