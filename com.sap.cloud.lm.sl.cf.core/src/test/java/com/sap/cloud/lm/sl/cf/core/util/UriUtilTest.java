@@ -2,15 +2,20 @@ package com.sap.cloud.lm.sl.cf.core.util;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.util.Arrays;
 
+import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sap.cloud.lm.sl.common.ParsingException;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
+import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Enclosed.class)
 public class UriUtilTest {
@@ -206,7 +211,57 @@ public class UriUtilTest {
             String actualUri = UriUtil.getUriWithoutScheme(uri);
             assertEquals(expectedUri, actualUri);
         }
+    }
 
+    @RunWith(Parameterized.class)
+    public static class routeMatchesUriTest {
+
+        private CloudRoute routeInput;
+        private String uri;
+        private boolean isPortBasedRouting;
+        private boolean expectedResult;
+
+        @Parameters
+        public static Iterable<Object[]> getParameters() {
+            return Arrays.asList(new Object[][] {
+// @formatter:off
+                // (00) Test with host-based uri and with port
+                {
+                    "uri-util-input-00.json", "https://valid-host.valid-domain:4000" , false, true
+                },
+                // (01) Test with port-based uri
+                {
+                    "uri-util-input-01.json", "https://valid-domain:4000" , true, true
+                },
+                // (02) Test with host-based uri and with port
+                {
+                    "uri-util-input-02.json", "https://valid-host.valid-domain:4000" , true, false
+                },
+                // (03) Test with host-based uri and no port
+                {
+                    "uri-util-input-03.json", "https://valid-host.valid-domain" , false, true
+                },
+                // (04) Test with port-based uri
+                {
+                    "uri-util-input-04.json", "https://valid-domain:4000" , true, false
+                }
+// @formatter:on
+            });
+        }
+
+        public routeMatchesUriTest(String routeInput, String uri, boolean isPortBasedRouting, boolean expectedResult)
+            throws ParsingException, IOException {
+            this.routeInput = JsonUtil.fromJson(TestUtil.getResourceAsString(routeInput, UriUtil.class), CloudRoute.class);
+            this.uri = uri;
+            this.isPortBasedRouting = isPortBasedRouting;
+            this.expectedResult = expectedResult;
+        }
+
+        @Test
+        public void testRouteMatchesUri() {
+            boolean actualResult = UriUtil.routeMatchesUri(routeInput, uri, isPortBasedRouting);
+            assertEquals(expectedResult, actualResult);
+        }
     }
 
 }
