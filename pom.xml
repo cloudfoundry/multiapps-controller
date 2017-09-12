@@ -85,7 +85,7 @@
         <vulas.version>1.0.6</vulas.version>
         <activiti.common.version>1.28.0</activiti.common.version>
         <slp.version>1.2.3</slp.version>
-        <com.sap.cloud.lm.sl.version>1.48.0-SNAPSHOT</com.sap.cloud.lm.sl.version>
+        <com.sap.cloud.lm.sl.open.version>1.48.0-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
     </properties>
 
     <modules>
@@ -807,36 +807,31 @@
             <dependency>
                 <groupId>com.sap.cloud.lm.sl</groupId>
                 <artifactId>com.sap.cloud.lm.sl.common</artifactId>
-                <version>${com.sap.cloud.lm.sl.version}</version>
+                <version>${com.sap.cloud.lm.sl.open.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl</groupId>
                 <artifactId>com.sap.cloud.lm.sl.common</artifactId>
-                <version>${com.sap.cloud.lm.sl.version}</version>
+                <version>${com.sap.cloud.lm.sl.open.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl</groupId>
                 <artifactId>com.sap.cloud.lm.sl.slp</artifactId>
-                <version>${com.sap.cloud.lm.sl.version}</version>
+                <version>${com.sap.cloud.lm.sl.open.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl</groupId>
                 <artifactId>com.sap.cloud.lm.sl.mta</artifactId>
-                <version>${com.sap.cloud.lm.sl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>com.sap.cloud.lm.sl.cts</artifactId>
-                <version>${com.sap.cloud.lm.sl.version}</version>
+                <version>${com.sap.cloud.lm.sl.open.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl</groupId>
                 <artifactId>com.sap.cloud.lm.sl.slp</artifactId>
-                <version>${com.sap.cloud.lm.sl.version}</version>
+                <version>${com.sap.cloud.lm.sl.open.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.servlet</groupId>
@@ -846,18 +841,8 @@
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>com.sap.cloud.lm.sl.slp.client</artifactId>
-                <version>${com.sap.cloud.lm.sl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
                 <artifactId>com.sap.cloud.lm.sl.persistence</artifactId>
-                <version>${com.sap.cloud.lm.sl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>com.sap.cloud.lm.sl.persistence.vsi</artifactId>
-                <version>${com.sap.cloud.lm.sl.version}</version>
+                <version>${com.sap.cloud.lm.sl.open.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl.cf</groupId>
