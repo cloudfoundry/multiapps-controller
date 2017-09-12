@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "repository": {
-    "url": "git@github.wdf.sap.corp:xs2-samples/nodejs-hello-world.git"
+    "url": "git@example.com:xs2-samples/nodejs-hello-world.git"
   },
   "dependencies": {
     "async": "1.4.2",

@@ -30,14 +30,14 @@ modules:
 resources:
   - name: shine-database
     properties:
-      host: mo-7d51329cb.dmzmo.sap.corp
+      host: example.com
       port: 30015
       user: JOHNDOE 
       password: Test1234
-      url: "jdbc:sap://mo-7d51329cb.dmzmo.sap.corp:30015/"
+      url: "jdbc:sap://example.com:30015/"
       driver: com.sap.db.jdbc.Driver
 
   - name: hana
     properties:
-      url: "http://mo-390917f44.mo.sap.corp:3000/"
+      url: "http://example.com:3000/"
       

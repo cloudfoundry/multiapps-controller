@@ -7,7 +7,7 @@ applications:
   env:
     destinations: >
       [
-        {"name":"sapui5", "url":"https://sapui5.netweaver.ondemand.com", "proxyHost":"proxy.wdf.sap.corp", "proxyPort":"8080"},
+        {"name":"sapui5", "url":"https://sapui5.netweaver.ondemand.com", "proxyHost":"proxy.example.com", "proxyPort":"8080"},
         {"name":"che", "url":"http://sofd60245639a:53030"}
       ]
   services:

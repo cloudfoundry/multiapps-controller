@@ -21,7 +21,7 @@ resources:
 
   - name: r3
     parameters:
-      host: lddbjb3.wdf.sap.corp
+      host: example.com
       port: 30015
       user: XS2SHINE 
       password: Abcd1234

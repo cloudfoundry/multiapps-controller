@@ -25,7 +25,7 @@
       "R1_SERVICE\u003dhana",
       "R1_SERVICE_NAME\u003dr1",
       "R1_SERVICE_PLAN\u003dhdi-shared",
-      "R3_CREDENTIALS\u003d{ user: XS2SHINE, password: Abcd1234, url: jdbc:sap://lddbjb3.wdf.sap.corp:30015/?currentschema\u003dSAP_HANA_DEMO, driver: com.sap.db.jdbc.Driver }\n",
+      "R3_CREDENTIALS\u003d{ user: XS2SHINE, password: Abcd1234, url: jdbc:sap://example.com:30015/?currentschema\u003dSAP_HANA_DEMO, driver: com.sap.db.jdbc.Driver }\n",
       "R3_SERVICE_NAME\u003dr3"
     ],
     "instances": 2,

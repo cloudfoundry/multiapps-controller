@@ -1,15 +1,15 @@
 {
     "uaa": {
-        "url" : "https://sap-login.cfapps.neo.ondemand.com",
+        "url" : "https://example.com",
         "clientid" : "xs2.java",
         "clientsecret" : "javaclientsecret",
         "xsappname" : "node-hello-world"
     },
     "hana": {
-        "host": "mo-080afaf0e.mo.sap.corp",
+        "host": "example.com",
         "port": "30015",
         "user": "NODEJS_HELLOWORLD_APP",
-        "password": "ABcd1234",
+        "password": "pass",
         "schema": "NODEJS_HELLOWORLD_RTC"
     }
 }

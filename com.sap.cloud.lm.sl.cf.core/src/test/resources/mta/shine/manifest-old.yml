@@ -4,13 +4,13 @@ applications:
     host: i027947-shine
     memory: 756MB
     path: archive/web.zip
-    buildpack: git://github.wdf.sap.corp/xs2/approuter-buildpack.git
+    buildpack: git://github.example.com/xs2/approuter-buildpack.git
     env:
       destinations: >
         [
-          {"name":"hana", "url":"http://mo-390917f44.mo.sap.corp:3000/"},
-          {"name":"xsjs", "url":"http://i027947-shine-xsjs.cf.sap-cf.com"},
-          {"name":"xsodata", "url":"http://i027947-shine-odata.cf.sap-cf.com"},
+          {"name":"hana", "url":"http://example.com:3000/"},
+          {"name":"xsjs", "url":"http://shine-xsjs.cf.sap-cf.com"},
+          {"name":"xsodata", "url":"http://shine-odata.cf.sap-cf.com"},
           {"name":"ui5", "url":"https://sapui5.netweaver.ondemand.com"}
         ]
 
@@ -27,7 +27,7 @@ applications:
     host: i027947-shine-odata
     memory: 256M
     path: archive/shine-odata.war
-    buildpack: git://github.wdf.sap.corp/xs2-java/java-buildpack.git
+    buildpack: git://github.example.com/xs2-java/java-buildpack.git
     env:
       TARGET_RUNTIME: tomcat
       SERVICE_TO_JNDI_NAME_MAPPING: >
@@ -36,4 +36,4 @@ applications:
       - shine-database
 
 #Prerequisites:
-#cf create-user-provided-service shine-database -p '{ "host":"mo-7d51329cb.dmzmo.sap.corp", "port":"30015", "user":"JOHNDOE", "password":"Test1234", "url":"jdbc:sap://mo-7d51329cb.dmzmo.sap.corp:30015/","driver":"com.sap.db.jdbc.Driver"}'      
+#cf create-user-provided-service shine-database -p '{ "host":"example.com", "port":"30015", "user":"JOHNDOE", "password":"Test1234", "url":"jdbc:sap://example.com:30015/","driver":"com.sap.db.jdbc.Driver"}'      

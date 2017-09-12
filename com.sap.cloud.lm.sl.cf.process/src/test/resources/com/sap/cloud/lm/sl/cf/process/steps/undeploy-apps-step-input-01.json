@@ -2,11 +2,11 @@
   "portBasedRouting": true,
   "appsToDelete": [
     {
-      "uris": ["http://routerhost.sap.corp:1112"],
+      "uris": ["http://routerhost.example.com:1112"],
       "name": "test-app-db"
     },
     {
-      "uris": ["http://routerhost.sap.corp:1113"],
+      "uris": ["http://routerhost.example.com:1113"],
       "name": "test-app-ui"
     }
   ],
@@ -15,7 +15,7 @@
       {
         "host": "1112",
         "domain": {
-          "name": "routerhost.sap.corp"
+          "name": "routerhost.example.com"
         },
         appsUsingRoute: 1
       }
@@ -24,7 +24,7 @@
       {
         "host": "1113",
         "domain": {
-          "name": "routerhost.sap.corp"
+          "name": "routerhost.example.com"
         },
         appsUsingRoute: 1
       }

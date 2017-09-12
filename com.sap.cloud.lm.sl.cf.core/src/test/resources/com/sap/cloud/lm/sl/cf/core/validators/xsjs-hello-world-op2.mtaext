@@ -11,7 +11,7 @@ modules:
     requires:
       - name: ui5
         properties:
-          proxyHost: proxy.wdf.sap.corp
+          proxyHost: proxy.example.com
           proxyPort: "8080"
 
   - name: xsjs-hello-world-backend

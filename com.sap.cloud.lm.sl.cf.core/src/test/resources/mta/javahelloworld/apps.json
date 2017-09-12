@@ -2,7 +2,7 @@
   {
     "moduleName": "java-hello-world-db",
     "extendedStaging": {
-      "buildpackUrl": "git://github.wdf.sap.corp/xs2/hdi-deploy-buildpack.git"
+      "buildpackUrl": "git://github.example.com/xs2/hdi-deploy-buildpack.git"
     },
     "idleUris": [],
     "tasks": [],
@@ -28,7 +28,7 @@
   {
     "moduleName": "java-hello-world-backend",
     "extendedStaging": {
-      "buildpackUrl": "git://github.wdf.sap.corp/xs2-java/java-buildpack.git"
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
     },
     "idleUris": [],
     "tasks": [],

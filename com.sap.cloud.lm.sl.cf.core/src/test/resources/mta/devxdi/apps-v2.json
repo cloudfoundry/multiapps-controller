@@ -2,7 +2,7 @@
   {
     "moduleName": "di-core",
     "extendedStaging": {
-      "buildpackUrl": "git://github.wdf.sap.corp/xs2-java/java-buildpack.git"
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
     },
     "idleUris": [],
     "tasks": [],
@@ -65,7 +65,7 @@
   {
     "moduleName": "di-runner",
     "extendedStaging": {
-      "buildpackUrl": "git://github.wdf.sap.corp/xs2-java/java-buildpack.git"
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
     },
     "idleUris": [],
     "tasks": [],

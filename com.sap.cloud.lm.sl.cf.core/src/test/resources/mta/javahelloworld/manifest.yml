@@ -4,7 +4,7 @@ applications:
     host: i027947-java-hello-world
     path: archive/web.zip
     memory: 768M
-    buildpack: git://github.wdf.sap.corp/xs2/approuter-buildpack.git
+    buildpack: git://github.example.com/xs2/approuter-buildpack.git
     env:
       destinations: >
         [
@@ -17,7 +17,7 @@ applications:
     memory: 512M
     instances: 1
     path: archive/java-hello-world.war
-    buildpack: git://github.wdf.sap.corp/xs2-java/java-buildpack.git
+    buildpack: git://github.example.com/xs2-java/java-buildpack.git
     env:
       TARGET_RUNTIME: tomee
     services:
@@ -26,7 +26,7 @@ applications:
   - name: java-hello-world-db
     path: archive/db.zip
     memory: 256M
-    buildpack: git://github.wdf.sap.corp/xs2/hdi-deploy-buildpack.git
+    buildpack: git://github.example.com/xs2/hdi-deploy-buildpack.git
     no-route: true
     services:
       - java-hdi-container

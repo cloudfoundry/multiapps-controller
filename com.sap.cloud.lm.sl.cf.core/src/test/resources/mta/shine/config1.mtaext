@@ -31,11 +31,11 @@ resources:
   - name: shine-database
     properties:
       config:
-        host: lddbjb3.wdf.sap.corp
+        host: example.com
         port: 30015
         user: XS2SHINE
         password: Abcd1234
-        url: "jdbc:sap://lddbjb3.wdf.sap.corp:30015/?currentschema=SAP_HANA_DEMO"
+        url: "jdbc:sap://example.com:30015/?currentschema=SAP_HANA_DEMO"
         driver: com.sap.db.jdbc.Driver
 
   - name: uaa

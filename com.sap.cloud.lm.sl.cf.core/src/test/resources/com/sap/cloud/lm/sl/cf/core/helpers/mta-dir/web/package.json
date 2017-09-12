@@ -1,7 +1,7 @@
 {
     "name": "node-hello-world-approuter",
     "dependencies": {
-       "approuter": "git://github.wdf.sap.corp/xs2/approuter.js"
+       "approuter": "git://example.com/xs2/approuter.js"
     },
     "scripts": {
         "start": "node node_modules/approuter/approuter.js"

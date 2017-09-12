@@ -2,8 +2,8 @@
 applications:
 - name: di-core
   path: core.war
-  buildpack: git://github.wdf.sap.corp/xs2-java/xs2javabuildpack
-  host: i027947-di-core
+  buildpack: git://github.example.com/xs2-java/xs2javabuildpack
+  host: di-core
   memory: 512M
   instances: 1
   env:
@@ -47,11 +47,11 @@ applications:
     
 - name: di-runner
   path: runner.war
-  buildpack: git://github.wdf.sap.corp/xs2-java/xs2javabuildpack
-  host: i027947-di-runner
+  buildpack: git://github.example.com/xs2-java/xs2javabuildpack
+  host: di-runner
   env:
     TARGET_RUNTIME: tomcat
     JBP_CONFIG_TOMCAT: "[tomcat: {version: 7.0.+}]"
-    DI_CORE_URL: "http://i027947-di-core.cfapps.neo.ondemand.com"
+    DI_CORE_URL: "http://di-core.cfapps.neo.ondemand.com"
   services:
     - uaa

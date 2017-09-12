@@ -2,11 +2,11 @@
   "portBasedRouting":false,
   "appsToDelete": [
     {
-      "uris": ["https://test-app-db.wsv.xs2tests-wdf.sap.corp"],
+      "uris": ["https://test-app-db.example.com"],
       "name": "test-app-db"
     },
     {
-      "uris": ["https://test-app-ui.wsv.xs2tests-wdf.sap.corp"],
+      "uris": ["https://test-app-ui.example.com"],
       "name": "test-app-ui"
     }
   ],
@@ -15,7 +15,7 @@
       {
         "host": "test-app-db",
         "domain": {
-          "name": "wsv.xs2tests-wdf.sap.corp"
+          "name": "example.com"
         },
         appsUsingRoute: 1
       }
@@ -24,7 +24,7 @@
       {
         "host": "test-app-ui",
         "domain": {
-          "name": "wsv.xs2tests-wdf.sap.corp"
+          "name": "example.com"
         },
         appsUsingRoute: 1
       }

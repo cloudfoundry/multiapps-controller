@@ -1,7 +1,7 @@
 {
   "name": "deploy",
   "dependencies": {
-    "deploy": "git://github.wdf.sap.corp/xs2/hdideploy.js"
+    "deploy": "git://example.com/xs2/hdideploy.js"
   },
   "private": true,
   "scripts": {

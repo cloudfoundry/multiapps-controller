@@ -63,21 +63,21 @@
             {
                 "name": "java.tomcat",
                 "properties": {
-                    "buildpack": "git://github.wdf.sap.corp/xs2-java/java-buildpack.git",
+                    "buildpack": "git://github.example.com/xs2-java/java-buildpack.git",
                     "TARGET_RUNTIME": "tomcat"
                 }
             },
             {
                 "name": "java.tomee",
                 "properties": {
-                    "buildpack": "git://github.wdf.sap.corp/xs2-java/java-buildpack.git",
+                    "buildpack": "git://github.example.com/xs2-java/java-buildpack.git",
                     "TARGET_RUNTIME": "tomee"
                 }
             },
             {
                 "name": "com.sap.xs.hdi",
                 "properties": {
-                    "buildpack": "git://github.wdf.sap.corp/xs2/hdi-deploy-buildpack.git",
+                    "buildpack": "git://github.example.com/xs2/hdi-deploy-buildpack.git",
                     "no-route": true,
                     "memory": "256M",
                     "execute-app": true,

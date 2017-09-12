@@ -1,4 +1,4 @@
 [
   {"name":"nodejs", "url":"http://localhost:3000"},
-  {"name":"ui5", "url":"https://sapui5.netweaver.ondemand.com", "proxyHost":"proxy.wdf.sap.corp", "proxyPort":"8080"}
+  {"name":"ui5", "url":"https://example.com", "proxyHost":"example.com", "proxyPort":"8080"}
 ]

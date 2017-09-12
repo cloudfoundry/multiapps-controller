@@ -60,7 +60,7 @@
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world\"\n]",
       "MTA_SERVICES\u003d[]",
-      "destinations\u003d[\n  {\n    \"name\": \"xsjs\",\n    \"url\": \"http://{xsa-placeholder-domain-default}:55001\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"proxyHost\": \"proxy.wdf.sap.corp\",\n    \"proxyPort\": \"8080\",\n    \"url\": \"https://sapui5.netweaver.ondemand.com\"\n  }\n]"
+      "destinations\u003d[\n  {\n    \"name\": \"xsjs\",\n    \"url\": \"http://{xsa-placeholder-domain-default}:55001\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"proxyHost\": \"proxy.example.com\",\n    \"proxyPort\": \"8080\",\n    \"url\": \"https://sapui5.netweaver.ondemand.com\"\n  }\n]"
     ],
     "instances": 0,
     "memory": 128,

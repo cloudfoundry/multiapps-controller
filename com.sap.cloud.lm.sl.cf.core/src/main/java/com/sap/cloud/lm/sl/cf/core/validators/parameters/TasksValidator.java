@@ -41,7 +41,7 @@ public class TasksValidator implements ParameterValidator {
         } catch (ParsingException e) {
             // TODO: If we just return 'false' here, then the real cause of the issue would be lost. Refactor ParameterValidators so that
             // their validate methods throw an exception with a descriptive message, instead of just returning 'true' or 'false'.
-            // (https://sapjira.wdf.sap.corp/browse/LMCROSSITXSADEPLOY-237)
+            // LMCROSSITXSADEPLOY-237
             LOGGER.error("Error validating tasks: " + e.getMessage());
             return false;
         }

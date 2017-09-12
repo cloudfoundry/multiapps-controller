@@ -3,10 +3,10 @@
     "resourceName": "shine-database",
     "credentials": {
       "driver": "com.sap.db.jdbc.Driver",
-      "host": "lddbjb3.wdf.sap.corp",
+      "host": "example.com",
       "password": "Abcd1234",
       "port": 30015,
-      "url": "jdbc:sap://lddbjb3.wdf.sap.corp:30015/?currentschema=SAP_HANA_DEMO",
+      "url": "jdbc:sap://example.com:30015/?currentschema=SAP_HANA_DEMO",
       "user": "XS2SHINE"
     },
     "tags": [],
