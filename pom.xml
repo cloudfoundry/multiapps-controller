@@ -15,8 +15,6 @@
         <version>8.1.0</version>
     </parent>
 
-    <url>https://projectportal.neo.ondemand.com/projects/com.sap.cloud.lm.sl.cf</url>
-
     <repositories>
         <repository>
             <id>lib</id>
