@@ -27,6 +27,11 @@ public class PrepareToRestartServiceBrokersStep extends AbstractProcessStep {
 
         List<CloudApplicationExtended> serviceBrokersToRestart = StepsUtil.getServiceBrokerSubscribersToRestart(context);
         prepareServiceBrokersToRestart(context, serviceBrokersToRestart);
+
+        context.setVariable(Constants.REBUILD_APP_ENV, false);
+        context.setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
+        context.setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
+
         return ExecutionStatus.SUCCESS;
 
     }
