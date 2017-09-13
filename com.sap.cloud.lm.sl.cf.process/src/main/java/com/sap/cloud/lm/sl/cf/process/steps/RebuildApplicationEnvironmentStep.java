@@ -42,6 +42,8 @@ public class RebuildApplicationEnvironmentStep extends AbstractProcessStep {
                 deployedModuleNames);
             CloudApplicationExtended app = StepsUtil.getApp(context);
             CloudApplicationExtended modifiedApp = findApplication(modifiedApps, app.getName());
+            app.setUris(modifiedApp.getUris());
+            app.setIdleUris(modifiedApp.getIdleUris());
             app.setEnv(MapUtil.upcastUnmodifiable(modifiedApp.getEnvAsMap()));
             getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, JsonUtil.toJson(app, true));
             StepsUtil.setApp(context, app);

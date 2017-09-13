@@ -40,6 +40,10 @@ public class PrepareAppsDeploymentStep extends AbstractProcessStep {
         context.setVariable(Constants.VAR_UPLOAD_APP_TIMEOUT, configuration.getUploadAppTimeout());
         context.setVariable(Constants.VAR_PLATFORM_TYPE, configuration.getPlatformType().toString());
 
+        context.setVariable(Constants.REBUILD_APP_ENV, true);
+        context.setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
+        context.setVariable(Constants.EXECUTE_ONE_OFF_TASKS, true);
+
         return ExecutionStatus.SUCCESS;
     }
 
