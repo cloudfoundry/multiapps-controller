@@ -3,9 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.function.Supplier;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -18,8 +15,6 @@ import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 
-@Component("blueGreenRenameStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BlueGreenRenameStep extends AbstractProcessStep {
 
     private static final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
@@ -44,6 +39,7 @@ public class BlueGreenRenameStep extends AbstractProcessStep {
                 if (deployedMtaColor != null) {
                     getStepLogger().info(Messages.DEPLOYED_MTA_COLOR, deployedMtaColor);
                     mtaColor = deployedMtaColor.getAlternativeColor();
+                    context.setVariable("deployedMtaColor", deployedMtaColor);
                 } else {
                     mtaColor = DEFAULT_MTA_COLOR;
                 }
@@ -61,6 +57,8 @@ public class BlueGreenRenameStep extends AbstractProcessStep {
             ApplicationColorAppender appender = handlerFactory.getApplicationColorAppender(deployedMtaColor, mtaColor);
             descriptor.accept(appender);
             StepsUtil.setUnresolvedDeploymentDescriptor(context, descriptor);
+
+            context.setVariable("mtaColor", mtaColor);
 
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {

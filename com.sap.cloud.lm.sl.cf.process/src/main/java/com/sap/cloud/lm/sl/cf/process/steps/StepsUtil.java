@@ -254,7 +254,7 @@ public class StepsUtil {
         return new HandlerFactory(majorSchemaVersion, minorSchemaVersion);
     }
 
-    static String getRequiredStringParameter(DelegateExecution context, String variableName) throws SLException {
+    public static String getRequiredStringParameter(DelegateExecution context, String variableName) throws SLException {
         String value = (String) context.getVariable(variableName);
         if (value == null || value.isEmpty()) {
             throw new SLException(Messages.REQUIRED_PARAMETER_IS_MISSING, variableName);
@@ -445,7 +445,7 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_STARTED_TASK, GsonHelper.getAsBinaryJson(task));
     }
 
-    static void setAppsToRestart(DelegateExecution context, List<String> apps) {
+    public static void setAppsToRestart(DelegateExecution context, List<String> apps) {
         context.setVariable(Constants.VAR_APPS_TO_RESTART, GsonHelper.getAsBinaryJson(apps.toArray(new String[] {})));
     }
 
@@ -474,7 +474,7 @@ public class StepsUtil {
         return ContextUtil.getArrayVariableAsList(context, Constants.VAR_SERVICES_TO_DELETE);
     }
 
-    static void setServicesToDelete(DelegateExecution context, List<String> services) {
+    public static void setServicesToDelete(DelegateExecution context, List<String> services) {
         ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_SERVICES_TO_DELETE, services);
     }
 
@@ -640,12 +640,12 @@ public class StepsUtil {
         return resolver;
     }
 
-    static DeploymentDescriptor getDeploymentDescriptor(DelegateExecution context) {
+    public static DeploymentDescriptor getDeploymentDescriptor(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR);
         return parseDeploymentDescriptor(context, binaryJson);
     }
 
-    static DeploymentDescriptor getUnresolvedDeploymentDescriptor(DelegateExecution context) {
+    public static DeploymentDescriptor getUnresolvedDeploymentDescriptor(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR);
         return parseDeploymentDescriptor(context, binaryJson);
     }
@@ -672,7 +672,7 @@ public class StepsUtil {
         }
     }
 
-    static void setUnresolvedDeploymentDescriptor(DelegateExecution context, DeploymentDescriptor descriptor) {
+    public static void setUnresolvedDeploymentDescriptor(DelegateExecution context, DeploymentDescriptor descriptor) {
         context.setVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR, getBinaryJsonForMtaModel().marshal(descriptor));
     }
 
@@ -726,7 +726,7 @@ public class StepsUtil {
         return tasks.get(index);
     }
 
-    static CloudApplicationExtended getAppToRestart(DelegateExecution context) {
+    public static CloudApplicationExtended getAppToRestart(DelegateExecution context) {
         List<String> appsToRestart = StepsUtil.getAppsToRestart(context);
         int index = (Integer) context.getVariable(Constants.VAR_APPS_INDEX);
         final String appToRestartName = appsToRestart.get(index);
@@ -866,7 +866,7 @@ public class StepsUtil {
         getAppLogger(context, appName, processLoggerProviderFactory).debug(getPrefix(logger) + "[" + appName + "] " + message);
     }
 
-    static SLException createException(CloudFoundryException e) {
+    public static SLException createException(CloudFoundryException e) {
         return new SLException(e, Messages.CF_ERROR, e.getMessage());
     }
 
