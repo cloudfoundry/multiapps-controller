@@ -46,5 +46,11 @@
         
         <bean id="operationsApi" class="com.sap.cloud.lm.sl.cf.web.api.OperationsApi" />
         
+        <bean id="blueGreenRenameStep" class="com.sap.cloud.lm.sl.cf.process.steps.BlueGreenRenameStep" scope="prototype"/>
+        
+        <bean id="buildCloudDeployModelStep" class="com.sap.cloud.lm.sl.cf.process.steps.BuildCloudDeployModelStep" scope="prototype"/>
+        
+        <bean id="processDescriptorStep" class="com.sap.cloud.lm.sl.cf.process.steps.ProcessDescriptorStep" scope="prototype" />
     </beans>
 </beans>
+ 

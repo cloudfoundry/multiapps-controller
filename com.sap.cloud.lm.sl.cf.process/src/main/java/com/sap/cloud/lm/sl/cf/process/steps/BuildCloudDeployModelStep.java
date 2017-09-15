@@ -9,9 +9,6 @@ import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -31,8 +28,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 
-@Component("buildCloudDeployModelStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BuildCloudDeployModelStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();

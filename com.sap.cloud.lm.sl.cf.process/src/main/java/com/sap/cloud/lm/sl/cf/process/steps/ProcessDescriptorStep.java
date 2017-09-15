@@ -7,9 +7,6 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -31,8 +28,6 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
-@Component("processDescriptorStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessDescriptorStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
