@@ -1,6 +1,9 @@
 [
   {
     "processId": "100",
+    "processType": {
+      "name": "DEPLOY"
+    },
     "startedAt": "10:11:12",
     "spaceId": "testProcessSpaceId",
     "mtaId": "testMtaId",
@@ -10,6 +13,9 @@
   },
   {
     "processId": "200",
+    "processType": {
+      "name": "UNDEPLOY"
+    },
     "startedAt": "10:11:12",
     "spaceId": "testProcessSpaceId",
     "mtaId": "testMtaId",

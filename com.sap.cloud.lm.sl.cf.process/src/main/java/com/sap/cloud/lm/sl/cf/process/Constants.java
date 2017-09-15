@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.process;
 
 import java.util.concurrent.TimeUnit;
 
-public final class Constants {
+public class Constants {
 
     public static final String DEPLOY_SERVICE_ID = "xs2-deploy";
     public static final String BLUE_GREEN_DEPLOY_SERVICE_ID = "xs2-bg-deploy";
@@ -113,17 +113,9 @@ public final class Constants {
     public static final String VAR_TRIGGERED_SERVICE_OPERATIONS = "triggeredServiceOperations";
     public static final String VAR_CORRELATION_ID = "correlationId";
     public static final String VAR_APP_TO_DEPLOY = "appToDeploy";
-    public static final String VAR_FILE_INFO_LIST = "fileInfoList";
     public static final String VAR_SUBPROCESS_ID = "subProcessId";
     public static final String VAR_PLATFORM_TYPE = "platformType";
     public static final String VAR_SERVICES_TO_CREATE_COUNT = "servicesToCreateCount";
     public static final String VAR_SERVICES_TO_POLL = "servicesToPoll";
-
-    public static final String PARAM_TRANSFER_TYPE = "transferType";
-    public static final String PARAM_DEPLOY_URI = "deployUri";
-    public static final String PARAM_APPLICATION_TYPE = "applType";
-    public static final String PARAM_FILE_LIST = "fileList";
-    public static final String PARAM_USERNAME = "userId";
-    public static final String PARAM_PASSWORD = "password";
 
 }

@@ -108,7 +108,7 @@ public class BootstrapServlet extends HttpServlet {
         ActivitiFacade.getInstance().init(processEngine);
     }
 
-    private void initializeServices() {
+    protected void initializeServices() {
         ServiceRegistry.getInstance().addService(XS2DeployService.getMetadata());
         ServiceRegistry.getInstance().addService(XS2BlueGreenDeployService.getMetadata());
         ServiceRegistry.getInstance().addService(XS2UndeployService.getMetadata());
@@ -134,8 +134,7 @@ public class BootstrapServlet extends HttpServlet {
         }
     }
 
-    private static boolean targetExists(DescriptorHandler handler, List<PersistentObject<? extends Target>> existingTargets,
-        Target target) {
+    private boolean targetExists(DescriptorHandler handler, List<PersistentObject<? extends Target>> existingTargets, Target target) {
         List<Target> rawTargets = new ArrayList<>();
         for (PersistentObject<? extends Target> t : existingTargets) {
             rawTargets.add(t.getObject());

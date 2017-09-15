@@ -15,9 +15,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
+import com.sap.cloud.lm.sl.cf.core.helpers.OngoingOperationFactory;
 import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
 import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation.SlpTaskStates;
 import com.sap.cloud.lm.sl.cf.core.model.OperationsBean;
@@ -41,7 +45,8 @@ public class OngoingOperationsResourceTest {
 
     @Parameters
     public static List<Object[]> getParameters() throws Exception {
-        return Arrays.asList(new Object[][] {
+        return Arrays.asList(
+            new Object[][] {
       //@formatter:off
                 // (0)
                 { 
@@ -133,6 +138,8 @@ public class OngoingOperationsResourceTest {
     private static class GetOngoingOperationTest extends TestCase<GetOngoingOperationTestInput> {
         @Mock
         private OngoingOperationDao dao;
+        @Spy
+        private OngoingOperationFactory ongoingOperationFactory;
         @InjectMocks
         private OngoingOperationsResourceMock resource;
 
@@ -147,7 +154,7 @@ public class OngoingOperationsResourceTest {
 
                 return resource.getOngoingOperation(input.getId());
 
-            }, expected, getClass());
+            } , expected, getClass());
 
         }
 
@@ -162,6 +169,8 @@ public class OngoingOperationsResourceTest {
     private static class GetAllOngoingOperationsTest extends TestCase<GetAllOngoingOperationsTestInput> {
         @Mock
         private OngoingOperationDao dao;
+        @Spy
+        private OngoingOperationFactory ongoingOperationFactory;
         @InjectMocks
         private OngoingOperationsResourceMock resource;
 
@@ -176,7 +185,7 @@ public class OngoingOperationsResourceTest {
 
                 return resource.getOngoingOperations(input.getFilter()).getOngoingOperations();
 
-            }, expected, getClass());
+            } , expected, getClass());
 
         }
 
@@ -190,7 +199,16 @@ public class OngoingOperationsResourceTest {
         private void prepareDao() {
             when(dao.findAllInSpace(Mockito.anyString())).thenReturn(input.getOperations());
 
-            when(dao.findOperationsByStatus(Mockito.anyList(), Mockito.anyString())).thenCallRealMethod();
+            when(dao.findOperationsByStatus(Mockito.anyList(), Mockito.anyString())).thenAnswer(new Answer<List<OngoingOperation>>() {
+
+                @Override
+                public List<OngoingOperation> answer(InvocationOnMock invocation) throws Throwable {
+                    List<SlpTaskState> requestedStates = (List<SlpTaskState>) invocation.getArguments()[0];
+                    return input.getOperations().stream().filter(operation -> requestedStates.contains(operation.getFinalState())).collect(
+                        Collectors.toList());
+                }
+
+            });
 
             when(dao.findActiveOperations(Mockito.anyString(), Mockito.anyList())).thenReturn(
                 input.getOperations().stream().filter(op -> SlpTaskStates.getActiveSlpTaskStates().contains(op.getFinalState())).collect(
