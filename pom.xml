@@ -70,7 +70,7 @@
         <vulas.version>1.0.6</vulas.version>
         <activiti.common.version>1.28.0</activiti.common.version>
         <slp.version>1.2.3</slp.version>
-        <com.sap.cloud.lm.sl.open.version>1.48.0</com.sap.cloud.lm.sl.open.version>
+        <com.sap.cloud.lm.sl.open.version>1.49.0-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
     </properties>
 
     <modules>
