@@ -19,6 +19,7 @@
     "services": [
       "uaa"
     ],
+    "staging": {},
     "uris": [
       "i027947-webide.cfapps.neo.ondemand.com"
     ],

@@ -19,6 +19,7 @@
     "services": [
       "com.sap.xs2.samples.javahelloworld.uaa"
     ],
+    "staging": {},
     "uris": [
       "i027947-java-hello-world.cfapps.neo.ondemand.com"
     ],

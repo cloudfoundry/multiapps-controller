@@ -19,6 +19,7 @@
     "services": [
       "uaa"
     ],
+    "staging": {},
     "uris": [
       "sofd60245639a:53035"
     ],

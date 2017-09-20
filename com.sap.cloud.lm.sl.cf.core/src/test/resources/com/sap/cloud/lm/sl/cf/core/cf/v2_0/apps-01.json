@@ -24,6 +24,7 @@
     "services": [
       "bar"
     ],
+    "staging": {},
     "uris": [
       "foo.cfapps.neo.ondemand.com/test"
     ],

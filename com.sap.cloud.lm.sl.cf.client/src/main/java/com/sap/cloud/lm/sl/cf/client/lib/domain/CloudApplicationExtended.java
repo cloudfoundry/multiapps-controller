@@ -51,6 +51,7 @@ public class CloudApplicationExtended extends CloudApplication {
 
     @Override
     public void setStaging(Staging staging) {
+        super.setStaging(staging);
         this.extendedStaging = (StagingExtended) staging;
     }
 

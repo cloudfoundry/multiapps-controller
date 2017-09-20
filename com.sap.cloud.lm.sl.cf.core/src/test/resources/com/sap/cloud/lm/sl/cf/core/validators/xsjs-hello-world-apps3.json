@@ -18,6 +18,7 @@
     "services": [
       "xsjs-hdi-container"
     ],
+    "staging": {},
     "uris": [],
     "meta": {},
     "name": "xsjs-hello-world-db"
@@ -42,6 +43,7 @@
       "uaa",
       "xsjs-hdi-container"
     ],
+    "staging": {},
     "uris": [
       "sofd60245639a:51000",
       "sofd60245639a:51001"
@@ -69,6 +71,7 @@
     "services": [
       "uaa"
     ],
+    "staging": {},
     "uris": [
       "sofd60245639a:55000"
     ],

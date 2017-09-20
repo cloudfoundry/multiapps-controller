@@ -17,6 +17,7 @@
     "memory": 0,
     "runningInstances": 0,
     "services": [],
+    "staging": {},
     "uris": [
       "sofd60245639a:52001/test-route"
     ],

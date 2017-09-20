@@ -21,6 +21,9 @@
     "services": [
       "xsjs-hdi-container"
     ],
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2/hdi-deploy-buildpack.git"
+    },
     "uris": [],
     "meta": {},
     "name": "xsjs-hello-world-db"
@@ -45,6 +48,7 @@
       "uaa",
       "xsjs-hdi-container"
     ],
+    "staging": {},
     "uris": [
       "i027947-xsjs-hello-world-backend.cfapps.neo.ondemand.com"
     ],
@@ -71,6 +75,7 @@
     "services": [
       "uaa"
     ],
+    "staging": {},
     "uris": [
       "i027947-xsjs-hello-world.cfapps.neo.ondemand.com"
     ],

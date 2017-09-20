@@ -26,6 +26,7 @@
       "uaa",
       "di-core-hdi"
     ],
+    "staging": {},
     "uris": [
       "sofd60245639a:53030"
     ],
@@ -57,6 +58,9 @@
     "services": [
       "uaa"
     ],
+    "staging": {
+      "buildpackUrl": "http://sofd60245639a:53030/system/builderbp.git/"
+    },
     "uris": [
       "sofd60245639a:53031"
     ],
@@ -87,6 +91,7 @@
     "services": [
       "uaa"
     ],
+    "staging": {},
     "uris": [
       "sofd60245639a:53033"
     ],

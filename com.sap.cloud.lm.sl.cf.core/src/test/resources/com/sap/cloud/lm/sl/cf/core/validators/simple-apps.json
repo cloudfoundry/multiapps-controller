@@ -16,6 +16,7 @@
     "memory": 0,
     "runningInstances": 0,
     "services": [],
+    "staging": {},
     "uris": [
       "sofd60245639a:55000"
     ],

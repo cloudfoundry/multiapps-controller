@@ -19,6 +19,7 @@
     "services": [
       "pricing-db-service"
     ],
+    "staging": {},
     "uris": [
       "pricing-db.cfapps.neo.ondemand.com"
     ],
@@ -48,6 +49,9 @@
     "services": [
       "pricing-db-service"
     ],
+    "staging": {
+      "buildpackUrl": "nodejs-test"
+    },
     "uris": [
       "api.bestprice.sap.com"
     ],
@@ -74,6 +78,7 @@
     "services": [
       "internal-odata-service"
     ],
+    "staging": {},
     "uris": [
       "www.bestprice.sap.com"
     ],

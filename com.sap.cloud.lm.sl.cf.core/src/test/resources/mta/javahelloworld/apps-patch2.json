@@ -19,6 +19,7 @@
     "services": [
       "uaa"
     ],
+    "staging": {},
     "uris": [
       "i027947-java-hello-world.cfapps.neo.ondemand.com"
     ],

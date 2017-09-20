@@ -27,6 +27,9 @@
       "uaa",
       "di-core-hdi"
     ],
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
     "uris": [
       "i027947-di-core.cfapps.neo.ondemand.com/test"
     ],
@@ -57,6 +60,9 @@
     "services": [
       "uaa"
     ],
+    "staging": {
+      "buildpackUrl": "http://i027947-di-core.cfapps.neo.ondemand.com/system/builderbp.git/"
+    },
     "uris": [
       "i027947-di-builder.cfapps.neo.ondemand.com"
     ],
@@ -88,6 +94,9 @@
     "services": [
       "uaa"
     ],
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
     "uris": [
       "i027947-di-runner.cfapps.neo.ondemand.com"
     ],

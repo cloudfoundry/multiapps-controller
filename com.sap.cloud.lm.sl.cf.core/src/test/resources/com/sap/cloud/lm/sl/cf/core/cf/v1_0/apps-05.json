@@ -17,6 +17,7 @@
     "memory": 0,
     "runningInstances": 0,
     "services": [],
+    "staging": {},
     "uris": [
       "module-1.sofd60245639a"
     ],

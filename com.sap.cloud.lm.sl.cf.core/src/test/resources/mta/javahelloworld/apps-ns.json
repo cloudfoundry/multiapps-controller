@@ -21,6 +21,9 @@
     "services": [
       "com.sap.xs2.samples.javahelloworld.java-hd7ef77536"
     ],
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2/hdi-deploy-buildpack.git"
+    },
     "uris": [],
     "meta": {},
     "name": "com.sap.xs2.samples.javahelloworld.java-hello-world-db"
@@ -48,6 +51,9 @@
       "com.sap.xs2.samples.javahelloworld.uaa",
       "com.sap.xs2.samples.javahelloworld.java-hd7ef77536"
     ],
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
     "uris": [
       "i027947-java-hello-world-backend.cfapps.neo.ondemand.com"
     ],
@@ -74,6 +80,7 @@
     "services": [
       "com.sap.xs2.samples.javahelloworld.uaa"
     ],
+    "staging": {},
     "uris": [
       "i027947-java-hello-world.cfapps.neo.ondemand.com"
     ],

@@ -27,6 +27,7 @@
       "existing-service",
       "existing-resource-named-service"
     ],
+    "staging": {},
     "uris": [
       "module-1.sofd60245639a"
     ],

@@ -18,6 +18,7 @@
     "services": [
       "java-hdi-container"
     ],
+    "staging": {},
     "uris": [],
     "meta": {},
     "name": "java-hello-world-db"
@@ -43,6 +44,7 @@
       "uaa",
       "java-hdi-container"
     ],
+    "staging": {},
     "uris": [
       "sofd60245639a:52001"
     ],
@@ -69,6 +71,7 @@
     "services": [
       "uaa"
     ],
+    "staging": {},
     "uris": [
       "java-hello-world.sofd60245639a"
     ],

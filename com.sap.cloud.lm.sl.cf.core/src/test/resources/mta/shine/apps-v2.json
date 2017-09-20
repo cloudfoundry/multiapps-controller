@@ -20,6 +20,7 @@
       "uaa",
       "shine-database"
     ],
+    "staging": {},
     "uris": [
       "i027947-shine-xsjs.cfapps.neo.ondemand.com"
     ],
@@ -50,6 +51,9 @@
       "uaa",
       "shine-database"
     ],
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
     "uris": [
       "i027947-shine-odata.cfapps.neo.ondemand.com"
     ],
@@ -76,6 +80,7 @@
     "services": [
       "uaa"
     ],
+    "staging": {},
     "uris": [
       "i027947-shine.cfapps.neo.ondemand.com"
     ],
