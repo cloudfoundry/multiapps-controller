@@ -3,7 +3,10 @@
     "filter": {
         "providerId": "mta-2:provided-dependency-1",
         "providerNid": "mta",
-        "targetSpace": "initial initial",
+        "targetSpace": {
+          "space": "initial",
+          "org": "initial"
+        },
         "providerVersion": "2.0.0"
     },
     "configurationEntries": [
@@ -12,7 +15,10 @@
         "providerNid": "mta",
         "providerId": "mta-2:provided-dependency-1",
         "providerVersion": "2.0.0",
-        "targetSpace": "initial initial",
+        "targetSpace": {
+          "space": "initial",
+          "org": "initial"
+        },
         "content":"{\"bar\": \"bar\",\"foo\": \"foo\"}"
       }
     ]

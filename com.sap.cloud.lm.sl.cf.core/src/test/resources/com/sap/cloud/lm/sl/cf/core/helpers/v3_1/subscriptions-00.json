@@ -6,7 +6,10 @@
       "providerId": "com.sap.other.mta",
       "requiredContent": {},
       "providerNid": "mta",
-      "targetSpace": "SAP",
+      "targetSpace": {
+        "space": "SPACE",
+        "org": "ORG"
+      },
       "providerVersion": "1.0.0"
     },
     "spaceId": "SPACE_ID_1",

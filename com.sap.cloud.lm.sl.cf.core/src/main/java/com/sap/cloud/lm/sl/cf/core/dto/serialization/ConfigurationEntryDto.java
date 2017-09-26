@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
 @XmlRootElement(name = "configuration-entry")
@@ -31,6 +32,9 @@ public class ConfigurationEntryDto {
     @XmlElement(name = "target-space")
     private String targetSpace;
 
+    @XmlElement(name = "provider-target")
+    private CloudTarget cloudTarget;
+
     @XmlElement
     private String content;
 
@@ -42,13 +46,13 @@ public class ConfigurationEntryDto {
         // Required by JPA and JAXB.
     }
 
-    public ConfigurationEntryDto(long id, String providerNid, String providerId, String providerVersion, String targetSpace,
+    public ConfigurationEntryDto(long id, String providerNid, String providerId, String providerVersion, CloudTarget cloudTarget,
         String content, List<CloudTarget> visibility) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
         this.providerVersion = providerVersion;
-        this.targetSpace = targetSpace;
+        this.cloudTarget = cloudTarget;
         this.content = content;
         this.visibility = visibility;
     }
@@ -58,7 +62,7 @@ public class ConfigurationEntryDto {
         this.providerNid = getNotNull(entry.getProviderNid());
         this.providerId = entry.getProviderId();
         this.providerVersion = getNotNull(entry.getProviderVersion());
-        this.targetSpace = entry.getTargetSpace();
+        this.cloudTarget = entry.getTargetSpace();
         this.content = entry.getContent();
         this.visibility = entry.getVisibility();
     }
@@ -87,12 +91,17 @@ public class ConfigurationEntryDto {
         return content;
     }
 
+    public CloudTarget getCloudTarget() {
+        return cloudTarget;
+    }
+
     public List<CloudTarget> getVisibility() {
         return visibility;
     }
 
     public ConfigurationEntry toConfigurationEntry() {
-        return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)), targetSpace,
+        CloudTarget target = cloudTarget == null ? ConfigurationUtil.createImplicitCloudTarget(targetSpace) : cloudTarget;
+        return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)), target,
             content, visibility);
     }
 
@@ -104,7 +113,7 @@ public class ConfigurationEntryDto {
     }
 
     private String getOriginal(String source) {
-        if (source == null || source.equals(PersistenceMetadata.NOT_AVAILABLE)) {
+        if (source == null || PersistenceMetadata.NOT_AVAILABLE.equals(source)) {
             return null;
         }
         return source;
@@ -116,5 +125,4 @@ public class ConfigurationEntryDto {
         }
         return source.toString();
     }
-
 }

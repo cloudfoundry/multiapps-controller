@@ -77,11 +77,14 @@ public class DetectTargetStep extends AbstractXS2ProcessStep {
                 targetName = computeDefaultTargetName(context);
                 context.setVariable(Constants.PARAM_TARGET_NAME, targetName);
             }
+            
+            String space = (String) context.getVariable(Constants.VAR_SPACE);
+            String org = (String) context.getVariable(Constants.VAR_ORG);
 
             List<Target> targets = targetsSupplier.apply(handlerFactory);
             getStepLogger().debug(Messages.PLATFORMS, new SecureSerializationFacade().toJson(targets));
 
-            Target implicitTarget = handlerFactory.getDeployTargetFactory().create(targetName, platforms.get(0).getName());
+            Target implicitTarget = handlerFactory.getDeployTargetFactory().create(org, space, platforms.get(0).getName());
             DescriptorHandler descriptorHandler = handlerFactory.getDescriptorHandler();
 
             Target target = CloudModelBuilderUtil.findTarget(descriptorHandler, targets, targetName, implicitTarget);

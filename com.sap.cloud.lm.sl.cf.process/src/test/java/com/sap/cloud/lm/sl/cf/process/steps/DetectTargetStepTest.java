@@ -108,15 +108,11 @@ public class DetectTargetStepTest extends AbstractStepTest<DetectTargetStep> {
             {
                 new StepInput(""  , "platforms-01.json", "platform-types-01.json", "initial", "initial", 1, 0), new SuccessfulStepOutput("initial initial", "R:platform-03.json.json", "R:platform-type-01.json.json"),
             },
-            // (5) Platform does not exist:
-            {
-                new StepInput("ZE_PLATFORM", "platforms-03.json", "platform-types-01.json", "initial", "initial", 1, 0), new FailedStepOutput("Unknown target \"ZE_PLATFORM\""),
-            },
-            // (6) Platform organization does not match the organization from the process's context:
+            // (5) Platform organization does not match the organization from the process's context:
             {
                 new StepInput("ZE_PLATFORM", "platforms-01.json", "platform-types-01.json", "initi@l", "initial", 1, 0), new FailedStepOutput("Deploy target organization \"initial\" does not match the organization \"initi@l\" specified in the URL"),
             },
-            // (7) Platform space does not match the space from the process's context:
+            // (6) Platform space does not match the space from the process's context:
             {
                 new StepInput("ZE_PLATFORM", "platforms-01.json", "platform-types-01.json", "initial", "initi@l", 1, 0), new FailedStepOutput("Deploy target space \"initial\" does not match the space \"initi@l\" specified in the URL"),
             },

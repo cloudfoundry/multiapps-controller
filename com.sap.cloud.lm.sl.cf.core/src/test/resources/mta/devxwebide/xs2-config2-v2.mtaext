@@ -2,7 +2,7 @@ _schema-version: "2.0.0"
 ID: com.sap.devx.webide.xs2-config1
 extends: com.sap.devx.webide
 
-targets: ["ORG_NAME SPACE_NAME"]
+targets: [XS2-INITIAL]
 
 modules:
   - name: webide

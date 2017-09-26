@@ -1,30 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <xs:element name="configuration-entry" type="configuration-entry-type" />
+	<xs:element name="configuration-entry" type="configuration-entry-type" />
 
-    <xs:complexType name="configuration-entry-type">
-        <xs:all>
-            <xs:element name="provider-nid" type="xs:string" minOccurs="0" />
-            <xs:element name="target-space" type="xs:string" />
-            <xs:element name="provider-version" type="xs:string" minOccurs="0" />
-            <xs:element name="provider-id" type="xs:string" />
-            <xs:element name="content" type="xs:string" />
-            <xs:element name="visibility" minOccurs="0">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="target" type="target" maxOccurs="unbounded" minOccurs="0" />
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-        </xs:all>
-    </xs:complexType>
+	<xs:complexType name="configuration-entry-type">
+		<xs:all>
+			<xs:element name="provider-nid" type="xs:string"
+				minOccurs="0" />
 
-    <xs:complexType name="target">
-        <xs:all>
-            <xs:element name="org" type="xs:string" />
-            <xs:element name="space" type="xs:string" minOccurs="0" />
-        </xs:all>
-    </xs:complexType>
+			<xs:element name="target-space" type="xs:string"
+				minOccurs="0"  maxOccurs="1"/>
+			<xs:element name="provider-target" minOccurs="0"  maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="org" type="xs:string" />
+						<xs:element name="space" type="xs:string" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="provider-version" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="provider-id" type="xs:string" />
+			<xs:element name="content" type="xs:string" />
+			<xs:element name="visibility" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="target" type="target" maxOccurs="unbounded"
+							minOccurs="0" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="target">
+		<xs:all>
+			<xs:element name="org" type="xs:string" />
+			<xs:element name="space" type="xs:string" minOccurs="0" />
+		</xs:all>
+	</xs:complexType>
 
 </xs:schema>

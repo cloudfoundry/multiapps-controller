@@ -63,7 +63,9 @@
         {
           "providerId": "com.sap.sample.mta.plugin",
           "providerNid": "mta",
-          "targetSpace": "sap",
+          "targetSpace": {
+             "space": "sap"
+          },
           "providerVersion": "1.0.0",
           "content": "{\"plugin_name\":\"plugin\"}"
         }

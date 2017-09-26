@@ -17,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.model.ParametersContainer;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
@@ -71,7 +70,7 @@ public class ConfigurationEntriesCloudModelBuilder {
         String providerNid = ConfigurationEntriesUtil.PROVIDER_NID;
         String providerId = ConfigurationEntriesUtil.computeProviderId(deploymentDescriptor.getId(), providedDependency.getName());
         Version version = Version.parseVersion(deploymentDescriptor.getVersion());
-        String target = ConfigurationEntriesUtil.computeTargetSpace(new Pair<>(orgName, spaceName));
+        CloudTarget target = new CloudTarget(orgName, spaceName);
         String content = JsonUtil.toJson(providedDependency.getProperties());
         List<CloudTarget> visibility = getVisibilityTargets(providedDependency);
         return new ConfigurationEntry(providerNid, providerId, version, target, content, visibility);

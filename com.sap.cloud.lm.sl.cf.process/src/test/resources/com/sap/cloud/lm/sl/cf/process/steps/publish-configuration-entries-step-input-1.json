@@ -4,14 +4,20 @@
       "providerNid": "mta",
       "providerId": "mta-2:provided-dependency-1",
       "providerVersion": "1.0.0",
-      "targetSpace": "test test",
+      "targetSpace": {
+    		"space":"test",
+    		"org": "test"
+  	  },
       "content": "foo"
     },
     {
       "providerNid": "mta",
       "providerId": "mta-2:provided-dependency-2",
       "providerVersion": "1.0.0",
-      "targetSpace": "test test",
+      "targetSpace": {
+    		"space": "test",
+    		"org": "test"
+  	  },
       "content": "bar"
     }
   ],
@@ -20,14 +26,20 @@
       "providerNid": "mta",
       "providerId": "mta-2:provided-dependency-1",
       "providerVersion": "1.0.0",
-      "targetSpace": "test test",
+      "targetSpace": {
+    		"space": "test",
+    		"org": "test"
+  	  },
       "content": "foo"
     },
     {
       "providerNid": "mta",
       "providerId": "mta-2:provided-dependency-2",
       "providerVersion": "1.0.0",
-      "targetSpace": "test test",
+      "targetSpace": {
+    		"space": "test",
+    		"org": "test"
+  	  },
       "content": "bar"
     }
   ]

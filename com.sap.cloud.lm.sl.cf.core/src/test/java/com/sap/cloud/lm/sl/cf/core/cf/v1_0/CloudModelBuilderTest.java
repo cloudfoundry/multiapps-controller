@@ -332,8 +332,7 @@ public class CloudModelBuilderTest {
         DescriptorHandler handler = getDescriptorHandler();
 
         String targetName = extensionDescriptor.getDeployTargets().get(0);
-        Target implicitTarget = getDeployTargetFactory().create(targetName, platforms.get(0).getName());
-        Target target = handler.findTarget(targets, targetName, implicitTarget);
+        Target target = handler.findTarget(targets, targetName, null);
         Platform platform = handler.findPlatform(platforms, target.getType());
 
         deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Arrays.asList(extensionDescriptor))._1;

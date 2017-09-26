@@ -5,7 +5,10 @@
     "providerNid": "N/A",
     "providerId": "com.sap.mta.test",
     "providerVersion": "N/A",
-    "targetSpace": "sap",
+    "cloudTarget": {
+      "space": "sap",
+      "org": "org"
+    },
     "content": "{type:prod}"
   }
 }

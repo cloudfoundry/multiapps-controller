@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -80,7 +81,7 @@ public class ConfigurationSubscriptionFactoryTest {
     }
 
     private ConfigurationFilter createDummyFilter() {
-        return new ConfigurationFilter("mta", "com.sap.other.mta", "1.0.0", "SAP", Collections.emptyMap());
+        return new ConfigurationFilter("mta", "com.sap.other.mta", "1.0.0", new CloudTarget("ORG", "SPACE"), Collections.emptyMap());
     }
 
     protected ConfigurationSubscriptionFactory getConfigurationSubscriptionFactory() {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
 import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonAdapter;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
@@ -22,7 +23,8 @@ public class ConfigurationEntry {
     private Version providerVersion;
 
     @Expose
-    private String targetSpace;
+    @SerializedName("targetSpace")
+    private CloudTarget targetSpace;
 
     @Expose
     private String content;
@@ -30,7 +32,7 @@ public class ConfigurationEntry {
     @Expose
     private List<CloudTarget> visibility;
 
-    public ConfigurationEntry(long id, String providerNid, String providerId, Version providerVersion, String targetSpace, String content,
+    public ConfigurationEntry(long id, String providerNid, String providerId, Version providerVersion, CloudTarget targetSpace, String content,
         List<CloudTarget> visibility) {
         this.id = id;
         this.providerNid = providerNid;
@@ -41,7 +43,7 @@ public class ConfigurationEntry {
         this.visibility = visibility;
     }
 
-    public ConfigurationEntry(String providerNid, String providerId, Version providerVersion, String targetSpace, String content,
+    public ConfigurationEntry(String providerNid, String providerId, Version providerVersion, CloudTarget targetSpace, String content,
         List<CloudTarget> cloudTargets) {
         this(0, providerNid, providerId, providerVersion, targetSpace, content, cloudTargets);
     }
@@ -54,7 +56,7 @@ public class ConfigurationEntry {
         return providerNid;
     }
 
-    public String getTargetSpace() {
+    public CloudTarget getTargetSpace() {
         return targetSpace;
     }
 

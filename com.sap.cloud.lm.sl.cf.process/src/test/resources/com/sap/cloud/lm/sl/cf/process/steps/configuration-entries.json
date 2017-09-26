@@ -4,7 +4,10 @@
     "providerNid": "mta",
     "providerId": "mta-1:provided-dependency-1",
     "providerVersion": "0.1.0",
-    "targetSpace": "test test",
+    "targetSpace": {
+    	"space":"test",
+    	"org": "test"
+  	},
     "content": "foo"
   },
   {
@@ -12,7 +15,10 @@
     "providerNid": "mta",
     "providerId": "mta-1:provided-dependency-2",
     "providerVersion": "0.1.0",
-    "targetSpace": "test test",
+    "targetSpace": {
+    	"space":"test",
+    	"org": "test"
+  	},
     "content": "bar"
   }
 ]

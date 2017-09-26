@@ -34,7 +34,7 @@ public final class Messages {
     public static final String DEPLOY_TARGET_ALREADY_EXISTS = "Deploy target with name \"{0}\" already exists";
     public static final String DEPLOY_TARGET_NOT_FOUND = "Deploy target with id \"{0}\" does not exist";
     public static final String DEPLOY_TARGET_WITH_NAME_NOT_FOUND = "Deploy target with name \"{0}\" does not exist";
-    public static final String CONFIGURATION_ENTRY_ALREADY_EXISTS = "Configuration entry with namespace ID \"{0}\", ID \"{1}\", version \"{2}\" and target space \"{3}\" already exists";
+    public static final String CONFIGURATION_ENTRY_ALREADY_EXISTS = "Configuration entry with namespace ID \"{0}\", ID \"{1}\", version \"{2}\", target org \"{3}\" and target space \"{4}\", already exists";
     public static final String CONFIGURATION_SUBSCRIPTION_ALREADY_EXISTS = "Configuration subscription for MTA \"{0}\", app \"{1}\" and resource \"{2}\" already exists in space \"{3}\"";
     public static final String CONFIGURATION_ENTRY_NOT_FOUND = "Configuration entry with ID \"{0}\" does not exist";
     public static final String CONFIGURATION_SUBSCRIPTION_NOT_FOUND = "Configuration subscription with ID \"{0}\" does not exist";

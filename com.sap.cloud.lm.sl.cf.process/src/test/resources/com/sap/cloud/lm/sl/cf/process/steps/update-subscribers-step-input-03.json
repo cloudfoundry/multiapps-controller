@@ -60,14 +60,18 @@
         {
           "providerId": "com.sap.sample.mta.plugin-01",
           "providerNid": "mta",
-          "targetSpace": "sap",
+          "targetSpace": {
+             "space": "sap"
+          },
           "providerVersion": "1.0.0",
           "content": "{\"plugin_name\":\"plugin-01\"}"
         },
         {
           "providerId": "com.sap.sample.mta.plugin-02",
           "providerNid": "mta",
-          "targetSpace": "sap",
+          "targetSpace": {
+             "space": "sap"
+          },
           "providerVersion": "1.0.0",
           "content": "{\"plugin_name\":\"plugin-02\"}"
         }

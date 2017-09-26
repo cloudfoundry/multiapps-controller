@@ -6,39 +6,35 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+
 public class ConfigurationTargetFilterTest {
 
     @Test
     public void test() {
-        assertTrue(TARGET_WILDCARD_FILTER.apply("a b", "a b"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("a b", "* b"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("a b", "a *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("a b", "* *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply(". b", ". b"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("a .", "* *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("ala bala", "* *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("ala bala", "* *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("al a b ala", "* *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("al a b ala", "* *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("al*a bala", "al*a *"));// TODO
-        assertTrue(TARGET_WILDCARD_FILTER.apply("ala bal*a", "ala *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("ala bal*a", "* bal*a")); // TODO
-        assertTrue(TARGET_WILDCARD_FILTER.apply("ala bal*a", "ala bal*a"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("* ala", "* *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("* ala", "* ala"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("ala *", "ala *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("al a *", "al a *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("al a b ala", "al a b *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("al a b ala", "al a *"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("al a b ala", "* b ala"));
-        assertTrue(TARGET_WILDCARD_FILTER.apply("al a b ala", "* a b ala"));
-        assertFalse(TARGET_WILDCARD_FILTER.apply("a b", "a c"));
-        assertFalse(TARGET_WILDCARD_FILTER.apply("a b", "c b"));
-        assertFalse(TARGET_WILDCARD_FILTER.apply("a b", "c c"));
-        assertFalse(TARGET_WILDCARD_FILTER.apply("a b", "* c"));
-        assertFalse(TARGET_WILDCARD_FILTER.apply("a b", "c *"));
-        assertFalse(TARGET_WILDCARD_FILTER.apply("ala bala", "a b"));
-        assertFalse(TARGET_WILDCARD_FILTER.apply("a b", "ala bala"));
+
+        assertTrue(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("org", "space")));
+        assertTrue(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org org", "space space s"), getCloudTarget("org org", "space space s")));
+        assertTrue(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("*", "space")));
+        assertTrue(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("org", "*")));
+        assertTrue(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("*", "*")));
+        assertTrue(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org org or", "space"), getCloudTarget("org org or", "*")));
+        assertTrue(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space space"), getCloudTarget("*", "space space")));
+        assertTrue(TARGET_WILDCARD_FILTER.apply(getCloudTarget("or*g *o", "*spac*e"), getCloudTarget("or*g *o", "*spac*e")));
+
+        assertFalse(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("org", "diffspace")));
+        assertFalse(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("difforg", "diffspace")));
+        assertFalse(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("difforg", "space")));
+        assertFalse(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("difforg", "space")));
+        assertFalse(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space sp"), getCloudTarget("org", "space space")));
+        assertFalse(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org org", "space"), getCloudTarget("org org ", "space")));
+        assertFalse(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("difforg ", "*")));
+        assertFalse(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("org o", "*")));
+        assertFalse(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("*", "diffspace")));
+        assertFalse(TARGET_WILDCARD_FILTER.apply(getCloudTarget("org", "space"), getCloudTarget("*", "space diff")));
     }
 
+    private CloudTarget getCloudTarget(String org, String space) {
+        return new CloudTarget(org, space);
+    }
 }

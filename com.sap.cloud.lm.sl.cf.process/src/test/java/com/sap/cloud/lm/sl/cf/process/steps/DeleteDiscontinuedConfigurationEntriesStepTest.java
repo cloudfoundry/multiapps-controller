@@ -19,13 +19,13 @@ import org.mockito.Mockito;
 
 import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -73,8 +73,8 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends AbstractStep
     public void setUp() throws Exception {
         prepareContext();
 
-        String newTarget = ConfigurationEntriesUtil.computeTargetSpace(new Pair<>(stepInput.org, stepInput.space));
-        String oldTarget = stepInput.spaceId;
+        CloudTarget newTarget = new CloudTarget(stepInput.org, stepInput.space);
+        CloudTarget oldTarget = new CloudTarget(null, stepInput.spaceId);
 
         Mockito.when(
             configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, newTarget, null, stepInput.mtaId)).thenReturn(

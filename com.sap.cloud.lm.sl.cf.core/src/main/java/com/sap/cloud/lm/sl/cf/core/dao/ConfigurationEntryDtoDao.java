@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto.FieldNames;
 import com.sap.cloud.lm.sl.cf.core.filters.TargetWildcardFilter;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.NamedQueries;
 import com.sap.cloud.lm.sl.common.ConflictException;
@@ -35,7 +37,7 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 @Component
 public class ConfigurationEntryDtoDao {
 
-    public static final BiFunction<String, String, Boolean> TARGET_WILDCARD_FILTER = new TargetWildcardFilter();
+    public static final BiFunction<CloudTarget, CloudTarget, Boolean> TARGET_WILDCARD_FILTER = new TargetWildcardFilter();
 
     @Autowired
     @Qualifier("configurationEntryEntityManagerFactory")
@@ -51,7 +53,7 @@ public class ConfigurationEntryDtoDao {
             });
         } catch (RollbackException e) {
             throw new ConflictException(e, Messages.CONFIGURATION_ENTRY_ALREADY_EXISTS, entry.getProviderNid(), entry.getProviderId(),
-                entry.getProviderVersion(), entry.getTargetSpace());
+                entry.getProviderVersion(), entry.getTargetOrg(), entry.getTargetSpace());
         }
     }
 
@@ -71,7 +73,7 @@ public class ConfigurationEntryDtoDao {
         } catch (RollbackException e) {
             ConfigurationEntryDto entry = merge(find(id), entryDelta);
             throw new ConflictException(e, Messages.CONFIGURATION_ENTRY_ALREADY_EXISTS, entry.getProviderNid(), entry.getProviderId(),
-                entry.getProviderVersion(), entry.getTargetSpace());
+                entry.getProviderVersion(), entry.getTargetOrg(), entry.getTargetSpace());
         }
     }
 
@@ -97,7 +99,7 @@ public class ConfigurationEntryDtoDao {
         });
     }
 
-    public List<ConfigurationEntryDto> find(String providerNid, String providerId, String targetSpace,
+    public List<ConfigurationEntryDto> find(String providerNid, String providerId, CloudTarget targetSpace,
         Map<String, Object> requiredProperties, String mtaId) {
         return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
 
@@ -106,7 +108,7 @@ public class ConfigurationEntryDtoDao {
         });
     }
 
-    private List<ConfigurationEntryDto> findInternal(String providerNid, String providerId, String targetSpace,
+    private List<ConfigurationEntryDto> findInternal(String providerNid, String providerId, CloudTarget targetSpace,
         Map<String, Object> requiredProperties, String mtaId, EntityManager manager) {
 
         TypedQuery<ConfigurationEntryDto> query = createQuery(providerNid, providerId, targetSpace, mtaId, manager);
@@ -135,7 +137,7 @@ public class ConfigurationEntryDtoDao {
         });
     }
 
-    private TypedQuery<ConfigurationEntryDto> createQuery(String providerNid, String providerId, String targetSpace, String mtaId,
+    private TypedQuery<ConfigurationEntryDto> createQuery(String providerNid, String providerId, CloudTarget targetSpace, String mtaId,
         EntityManager manager) {
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         CriteriaQuery<ConfigurationEntryDto> query = builder.createQuery(ConfigurationEntryDto.class);
@@ -145,9 +147,13 @@ public class ConfigurationEntryDtoDao {
         if (providerNid != null) {
             predicates.add(builder.equal(root.get(FieldNames.PROVIDER_NID), providerNid));
         }
-        if (targetSpace != null && !targetSpace.matches(TargetWildcardFilter.ANY_TARGET_REGEX)) {
-            predicates.add(builder.equal(root.get(FieldNames.TARGET_SPACE), targetSpace));
+        if (targetSpace != null && !StringUtils.isEmpty(targetSpace.getSpace())) {
+            predicates.add(builder.equal(root.get(FieldNames.TARGET_SPACE), targetSpace.getSpace()));
+            if (!StringUtils.isEmpty(targetSpace.getOrg())) {
+                predicates.add(builder.equal(root.get(FieldNames.TARGET_ORG), targetSpace.getOrg()));
+            }
         }
+
         if (providerId != null) {
             predicates.add(builder.equal(root.get(FieldNames.PROVIDER_ID), providerId));
         } else if (mtaId != null) {
@@ -166,10 +172,11 @@ public class ConfigurationEntryDtoDao {
     }
 
     private List<ConfigurationEntryDto> filter(List<ConfigurationEntryDto> entries, Map<String, Object> requiredProperties,
-        String requestedSpace) {
+        CloudTarget requestedSpace) {
         Stream<ConfigurationEntryDto> stream = entries.stream();
         stream = stream.filter((entry) -> CONTENT_FILTER.apply(entry.getContent(), requiredProperties));
-        stream = stream.filter((entry) -> TARGET_WILDCARD_FILTER.apply(entry.getTargetSpace(), requestedSpace));
+        stream = stream.filter(
+            (entry) -> TARGET_WILDCARD_FILTER.apply(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()), requestedSpace));
         return stream.collect(Collectors.toList());
     }
 
@@ -177,11 +184,12 @@ public class ConfigurationEntryDtoDao {
         long id = existingEntry.getId();
         String providerNid = CommonUtil.merge(existingEntry.getProviderNid(), removeDefault(entry.getProviderNid()), null);
         String providerId = CommonUtil.merge(existingEntry.getProviderId(), entry.getProviderId(), null);
+        String targetOrg = CommonUtil.merge(existingEntry.getTargetOrg(), entry.getTargetOrg(), null);
         String targetSpace = CommonUtil.merge(existingEntry.getTargetSpace(), entry.getTargetSpace(), null);
         String providerVersion = CommonUtil.merge(existingEntry.getProviderVersion(), removeDefault(entry.getProviderVersion()), null);
         String content = CommonUtil.merge(existingEntry.getContent(), entry.getContent(), null);
         String visibility = CommonUtil.merge(existingEntry.getVisibility(), entry.getVisibility(), null);
-        return new ConfigurationEntryDto(id, providerNid, providerId, providerVersion, targetSpace, content, visibility);
+        return new ConfigurationEntryDto(id, providerNid, providerId, providerVersion, targetOrg, targetSpace, content, visibility);
     }
 
     private String removeDefault(String value) {

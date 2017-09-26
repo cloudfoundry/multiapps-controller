@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -35,7 +36,7 @@ public class MtaArchiveValidatorTest {
 
     private static final long MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB
 
-    private static final String XS2_PLATFORM_NAME = "initial initial";
+    private static final String XS2_PLATFORM_NAME = "XS2-INITIAL";
     private static final String XS2_USERNAME = "bootstrap";
     private static final String XS2_DEFAULT_DOMAIN = "sofd60245639a";
     private static final String XS2_TARGET_URL = "http://localhost:9999";
@@ -56,7 +57,7 @@ public class MtaArchiveValidatorTest {
             // (00)
             { "simple.mtar",                 null,                          XS2_PLATFORM_NAME, XS2_USERNAME, XS2_DEFAULT_DOMAIN, PlatformType.XS2, XS2_TARGET_URL,       XS2_AUTHORIZATION_ENDPOINT,       "",80,  "simple-apps.json",                 "simple-services.json",                 null,                MAX_MTA_DESCRIPTOR_SIZE, true , },
             // (01)
-            { "placeholders.mtar",           "placeholders-op.mtaext",      XS2_PLATFORM_NAME, XS2_USERNAME, XS2_DEFAULT_DOMAIN, PlatformType.XS2, XS2_TARGET_URL_HTTPS, XS2_AUTHORIZATION_ENDPOINT_HTTPS, "",443, "placeholders-apps.json",           "placeholders-services.json",           null,                MAX_MTA_DESCRIPTOR_SIZE, true , },
+            { "placeholders.mtar",           "placeholders-op.mtaext",      "initial initial", XS2_USERNAME, XS2_DEFAULT_DOMAIN, PlatformType.XS2, XS2_TARGET_URL_HTTPS, XS2_AUTHORIZATION_ENDPOINT_HTTPS, "",443, "placeholders-apps.json",           "placeholders-services.json",           null,                MAX_MTA_DESCRIPTOR_SIZE, true , },
             // (02)
             { "placeholders.mtar",           "placeholders-cf.mtaext",      CF_PLATFORM_NAME,  CF_USERNAME,  CF_DEFAULT_DOMAIN,  PlatformType.CF,  CF_TARGET_URL,        CF_AUTHORIZATION_ENDPOINT,        "",443, "placeholders-apps2.json",          "placeholders-services.json",           null,                MAX_MTA_DESCRIPTOR_SIZE, false, },
             // (03)
@@ -70,7 +71,7 @@ public class MtaArchiveValidatorTest {
             // (07)
             { "cross-mta-dependencies.mtar", null,                          XS2_PLATFORM_NAME, XS2_USERNAME, XS2_DEFAULT_DOMAIN, PlatformType.XS2, XS2_TARGET_URL,       XS2_AUTHORIZATION_ENDPOINT,       "",80,  "cross-mta-dependencies-apps.json", "cross-mta-dependencies-services.json", "deployed-mta.json", MAX_MTA_DESCRIPTOR_SIZE, true , },
             // (08)
-            { "placeholders.mtar",           "placeholders-op.mtaext",      XS2_PLATFORM_NAME, XS2_USERNAME, XS2_DEFAULT_DOMAIN, PlatformType.XS2, XS2_TARGET_URL_HTTPS, XS2_AUTHORIZATION_ENDPOINT_HTTPS, "",443, "placeholders-apps3.json",          "placeholders-services.json",           null,                MAX_MTA_DESCRIPTOR_SIZE, false, },
+            { "placeholders.mtar",           "placeholders-op.mtaext",      "initial initial", XS2_USERNAME, XS2_DEFAULT_DOMAIN, PlatformType.XS2, XS2_TARGET_URL_HTTPS, XS2_AUTHORIZATION_ENDPOINT_HTTPS, "",443, "placeholders-apps3.json",          "placeholders-services.json",           null,                MAX_MTA_DESCRIPTOR_SIZE, false, },
             // @formatter:on
         });
     }
@@ -129,7 +130,7 @@ public class MtaArchiveValidatorTest {
 
     private void prepareConfigurationDao() {
         dao = Mockito.mock(ConfigurationEntryDao.class);
-        Mockito.when(dao.find("mta", "mta-sample:provides-dependency", "0.0.1", "initial initial", null, null, null)).thenReturn(
+        Mockito.when(dao.find("mta", "mta-sample:provides-dependency", "0.0.1", new CloudTarget("initial", "initial"), null, null, null)).thenReturn(
             Arrays.asList(new ConfigurationEntry(0, "mta", "mta-sample:provides-dependency",
                 com.sap.cloud.lm.sl.mta.model.Version.parseVersion("0.0.1"), null, "{\"baz\":\"baz\",\"bar\":\"bar\", \"foo\":\"foo\"}",
                 null)));

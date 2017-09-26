@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration-entry>
     <provider-id>com.sap.mta.test</provider-id>
-    <target-space>sap</target-space>
+    <target-space>org sap</target-space>
     <content>{type:prod}</content>
 </configuration-entry>

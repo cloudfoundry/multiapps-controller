@@ -5,7 +5,10 @@
       "providerNid": "mta",
       "providerId": "test:foo",
       "providerVersion": "0.1.0",
-      "targetSpace": "some-org some-space",
+      "targetSpace": {
+        "space": "some-space",
+        "org": "some-org"
+      },
       "content": "{}",
       "visibility": [
         {
@@ -21,7 +24,10 @@
       "providerNid": "mta",
       "providerId": "test:baz",
       "providerVersion": "0.1.0",
-      "targetSpace": "some-org some-space",
+      "targetSpace": {
+        "space": "some-space",
+        "org": "some-org"
+      },
       "content": "{}",
       "visibility": [
         {

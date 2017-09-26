@@ -2,7 +2,7 @@ _schema-version: "2.0.0"
 ID: com.sap.xs2.samples.xsjshelloworld.config1 
 extends: com.sap.xs2.samples.xsjshelloworld
 
-target-platforms: [initial initial]
+target-platforms: [XS2-INITIAL]
 
 modules:
   - name: xsjs-hello-world

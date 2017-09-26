@@ -5,7 +5,10 @@
         "providerNid": "mta",
         "providerId": "com.sap.example.mta:foo",
         "providerVersion": "1.0.0",
-        "targetSpace": "myorg SAP",
+        "targetSpace": {
+     		"space": "myorg",
+      		"org": "SAP"
+   		},
         "content": "{}"
     },
     {
@@ -13,7 +16,10 @@
         "providerNid": "mta",
         "providerId": "com.sap.example.mta:bar",
         "providerVersion": "1.0.0",
-        "targetSpace": "myorg SAP",
+        "targetSpace": {
+     		"space": "myorg",
+      		"org": "SAP"
+   		},
         "content": "{}"
     }],
     "allEntriesForMtaWithOldTarget": [{
@@ -21,7 +27,9 @@
         "providerNid": "mta",
         "providerId": "com.sap.example.mta:baz",
         "providerVersion": "1.0.0",
-        "targetSpace": "1",
+        "targetSpace": {
+     		"space": "1"
+   		},
         "content": "{}"
     },
     {
@@ -29,7 +37,9 @@
         "providerNid": "mta",
         "providerId": "com.sap.example.mta:qux",
         "providerVersion": "1.0.0",
-        "targetSpace": "1",
+        "targetSpace": {
+     		"space": "1"
+   		},
         "content": "{}"
     }],
     "publishedEntries": [
@@ -38,7 +48,10 @@
         "providerNid": "mta",
         "providerId": "com.sap.example.mta:bar",
         "providerVersion": "1.0.0",
-        "targetSpace": "myorg SAP",
+        "targetSpace": {
+     		"space": "myorg",
+      		"org": "SAP"
+   		},
         "content": "{}"
     },
     {
@@ -46,7 +59,9 @@
         "providerNid": "mta",
         "providerId": "com.sap.example.mta:baz",
         "providerVersion": "1.0.0",
-        "targetSpace": "1",
+        "targetSpace": {
+     		"space": "1"
+   		},
         "content": "{}"
     }],
     "space": "SAP",

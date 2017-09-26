@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -19,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
@@ -46,8 +46,8 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends AbstractXS2Proce
         String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
         String org = StepsUtil.getOrg(context);
         String space = StepsUtil.getSpace(context);
-        String newTarget = ConfigurationEntriesUtil.computeTargetSpace(new Pair<String, String>(org, space));
-        String oldTarget = StepsUtil.getSpaceId(context);
+        CloudTarget newTarget = new CloudTarget(org, space);
+        CloudTarget oldTarget = new CloudTarget(null, StepsUtil.getSpaceId(context));
 
         List<ConfigurationEntry> publishedConfigurationEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, activitiFacade);
 
@@ -66,7 +66,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends AbstractXS2Proce
         return ExecutionStatus.SUCCESS;
     }
 
-    private List<ConfigurationEntry> getEntriesToDelete(String mtaId, String newTarget, String oldTarget,
+    private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget newTarget, CloudTarget oldTarget,
         List<ConfigurationEntry> publishedEntries) {
         List<ConfigurationEntry> entriesWithNewTargetFormat = getEntriesToDelete(mtaId, newTarget, publishedEntries);
         /**
@@ -80,13 +80,13 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends AbstractXS2Proce
         return ListUtil.merge(entriesWithNewTargetFormat, entriesWithOldTargetFormat);
     }
 
-    private List<ConfigurationEntry> getEntriesToDelete(String mtaId, String target, List<ConfigurationEntry> publishedEntries) {
+    private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget target, List<ConfigurationEntry> publishedEntries) {
         List<ConfigurationEntry> allEntriesForCurrentMta = getEntries(mtaId, target);
         List<Long> publishedEntryIds = getEntryIds(publishedEntries);
         return allEntriesForCurrentMta.stream().filter((entry) -> !publishedEntryIds.contains(entry.getId())).collect(Collectors.toList());
     }
 
-    private List<ConfigurationEntry> getEntries(String mtaId, String target) {
+    private List<ConfigurationEntry> getEntries(String mtaId, CloudTarget target) {
         return configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, target, null, mtaId);
     }
 

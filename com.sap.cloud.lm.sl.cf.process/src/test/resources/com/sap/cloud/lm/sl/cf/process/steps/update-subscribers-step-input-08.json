@@ -63,7 +63,9 @@
         {
           "providerId": "plugin-01",
           "providerNid": "mta",
-          "targetSpace": "sap",
+          "targetSpace": {
+             "space": "sap"
+          },
           "providerVersion": "1.0.0",
           "content": "{\"plugin_name\":\"plugin-01\"}"
         }
@@ -126,7 +128,9 @@
         {
           "providerId": "plugin-02",
           "providerNid": "mta",
-          "targetSpace": "sap",
+          "targetSpace": {
+             "space": "sap"
+          },
           "providerVersion": "1.0.0",
           "content": "{\"plugin_url\":\"https://localhost:30030\"}"
         }

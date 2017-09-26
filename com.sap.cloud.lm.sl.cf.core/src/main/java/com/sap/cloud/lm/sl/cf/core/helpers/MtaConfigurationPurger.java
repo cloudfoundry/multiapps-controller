@@ -17,12 +17,12 @@ import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class MtaConfigurationPurger {
 
@@ -40,7 +40,7 @@ public class MtaConfigurationPurger {
     }
 
     public void purge(String org, String space) {
-        String targetSpace = getTargetSpace(org, space);
+        CloudTarget targetSpace = new CloudTarget(org, space);
         String targetId = new ClientHelper(client).computeSpaceId(org, space);
         List<CloudApplication> existingApps = getExistingApps();
         purgeConfigurationSubscriptions(targetId, existingApps);
@@ -68,7 +68,7 @@ public class MtaConfigurationPurger {
         subscriptionDao.remove(subscription.getId());
     }
 
-    private void purgeConfigurationEntries(String targetSpace, List<CloudApplication> apps) {
+    private void purgeConfigurationEntries(CloudTarget targetSpace, List<CloudApplication> apps) {
         LOGGER.info(MessageFormat.format(Messages.PURGING_ENTRIES, targetSpace));
 
         List<ConfigurationEntry> entries = getConfigurationEntries(targetSpace);
@@ -118,15 +118,11 @@ public class MtaConfigurationPurger {
         }
     }
 
-    private String getTargetSpace(String org, String space) {
-        return ConfigurationEntriesUtil.computeTargetSpace(new Pair<String, String>(org, space));
-    }
-
     private String computeProviderId(DeployedMtaMetadata mtaMetadata, String providedDependencyName) {
         return ConfigurationEntriesUtil.computeProviderId(mtaMetadata.getId(), providedDependencyName);
     }
 
-    private List<ConfigurationEntry> getConfigurationEntries(String targetSpace) {
+    private List<ConfigurationEntry> getConfigurationEntries(CloudTarget targetSpace) {
         return entryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, targetSpace, null, null);
     }
 

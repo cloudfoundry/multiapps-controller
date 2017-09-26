@@ -25,12 +25,12 @@ public class ConfigurationEntryDao {
     private static final BiFunction<ConfigurationEntry, String, Boolean> VERSION_FILTER = new VersionFilter();
     private static final BiFunction<ConfigurationEntry, List<CloudTarget>, Boolean> VISIBILITY_FILTER = new VisibilityFilter();
 
-    public List<ConfigurationEntry> find(String nid, String id, String version, String target, Map<String, Object> requiredProperties,
+    public List<ConfigurationEntry> find(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
         String mtaId, List<CloudTarget> cloudTargets) {
         return filter(toConfigurationEntries(dao.find(nid, id, target, requiredProperties, mtaId)), version, cloudTargets);
     }
 
-    public List<ConfigurationEntry> find(String nid, String id, String version, String target, Map<String, Object> requiredProperties,
+    public List<ConfigurationEntry> find(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
         String mtaId) {
         return find(nid, id, version, target, requiredProperties, mtaId, null);
     }
