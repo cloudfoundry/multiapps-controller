@@ -16,14 +16,20 @@
       "providerNid": "mta",
       "providerId": "com.sap.sample.mta:foo",
       "providerVersion": "0.2.0",
-      "targetSpace": "myorg SAP"
+      "targetSpace": {
+         "space": "SAP",
+         "org": "myorg"
+       }
     },
     {
       "id": 1,
       "providerNid": "mta",
       "providerId": "com.sap.sample.mta:bar",
       "providerVersion": "0.2.0",
-      "targetSpace": "myorg SAP"
+      "targetSpace": {
+         "space": "SAP",
+         "org": "myorg"
+       }
     }
   ]
 }

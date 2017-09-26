@@ -4,7 +4,10 @@
       "requiredContent": {
         "type": "com.acme.plugin"
       },
-      "targetSpace": "initial initial"
+    "targetSpace": {
+        "space": "initial",
+        "org": "initial"
+      }
     },
     "configurationEntries": [
       {
@@ -12,7 +15,10 @@
         "providerNid": "mta",
         "providerId": "mta-2:provided-dependency",
         "providerVersion": "2.0.0",
-        "targetSpace": "initial initial",
+        "targetSpace": {
+          "space": "initial",
+          "org": "initial"
+        },
         "content": "{\"type\": \"com.acme.plugin\", \"plugin_name\": \"plugin-1\", \"url\": \"https://localhost:52010\"}"
       },
       {
@@ -20,7 +26,10 @@
         "providerNid": "mta",
         "providerId": "mta-3:provided-dependency",
         "providerVersion": "1.2.0",
-        "targetSpace": "initial initial",
+        "targetSpace": {
+          "space": "initial",
+          "org": "initial"
+        },
         "content": "{\"type\": \"com.acme.plugin\", \"plugin_name\": \"plugin-2\", \"url\": \"https://localhost:52011\"}"
       }
     ]

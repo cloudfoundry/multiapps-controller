@@ -24,8 +24,9 @@ import org.mockito.MockitoAnnotations;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto;
+import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationFilterDto;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -53,11 +54,11 @@ public class ConfigurationEntriesResourceTest {
             },
             // (1)
             {
-                new PostRequestTest(new PostRequestTestInput("configuration-entry-02.xml"), "E:cvc-complex-type.2.4.b: The content of element configuration-entry is not complete"),
+               new PostRequestTest(new PostRequestTestInput("configuration-entry-02.xml"), "E:cvc-complex-type.2.4.b: The content of element configuration-entry is not complete"),
             },
             // (2)
             {
-                new PostRequestTest(new PostRequestTestInput("configuration-entry-03.xml"), "E:cvc-complex-type.2.4.b: The content of element configuration-entry is not complete"),
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-03.xml"), "E:Target does not contain 'org' and 'space' parameters"),
             },
             // (3)
             {
@@ -65,40 +66,57 @@ public class ConfigurationEntriesResourceTest {
             },
             // (4)
             {
-                new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-05.json"), "R:configuration-entries-resource-test-output-05.json"),
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-05.xml"), "E:Target does not contain 'org' and 'space' parameters"),
             },
             // (5)
             {
-                new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-06.json"), "R:configuration-entries-resource-test-output-06.json"),
+                new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-05.json"), "R:configuration-entries-resource-test-output-05.json"),
             },
             // (6)
             {
-                new DeleteRequestTest(new DeleteRequestTestInput(100), "R:configuration-entries-resource-test-output-07.json"),
-            },
+                new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-06.json"), "R:configuration-entries-resource-test-output-06.json"),
+           },
             // (7)
             {
-                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("foo:bar", "baz:qux"), "R:parsed-properties-01.json"), "R:configuration-entries-resource-test-output-08.json"),
+                new DeleteRequestTest(new DeleteRequestTestInput(100), "R:configuration-entries-resource-test-output-07.json"),
             },
             // (8)
             {
-                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-09.xml"), "R:configuration-entries-resource-test-output-09.json"),
+                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("foo:bar", "baz:qux"), "R:parsed-properties-01.json"), "R:configuration-entries-resource-test-output-08.json"),
             },
             // (9)
             {
-                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-10.xml"), "R:configuration-entries-resource-test-output-10.json"),
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-09.xml"), "R:configuration-entries-resource-test-output-09.json"),
             },
             // (10)
             {
-                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-11.xml"), "E:A configuration entry's id cannot be updated"),
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-10.xml"), "R:configuration-entries-resource-test-output-10.json"),
             },
             // (11)
             {
-                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("{\"foo\":\"bar\",\"baz\":\"qux\"}"), "R:parsed-properties-01.json"), "R:configuration-entries-resource-test-output-08.json"),
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-11.xml"), "E:A configuration entry's id cannot be updated"),
             },
             // (12)
             {
+                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("{\"foo\":\"bar\",\"baz\":\"qux\"}"), "R:parsed-properties-01.json"), "R:configuration-entries-resource-test-output-08.json"),
+            },
+            // (13)
+            {
                 new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("a"), "R:parsed-properties-01.json"), "E:Could not parse content query parameter as JSON or list"),
             },
+            // (14)
+            {
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-06.xml"), "R:configuration-entries-resource-test-output-01.json"),
+            },
+            // (15)
+            {
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-12.xml"), "R:configuration-entries-resource-test-output-09.json"),
+            },
+            // (16)
+            {
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-07.xml"), "R:configuration-entries-resource-test-output-01.json"),
+            },
+            
 // @formatter:on
         });
     }
@@ -132,13 +150,14 @@ public class ConfigurationEntriesResourceTest {
 
         private List<String> requiredContent;
         private Map<String, Object> parsedRequiredContent;
-
+        
         public SearchRequestTestInput(List<String> requiredContent, String parsedRequiredContentLocation) throws Exception {
             this.requiredContent = requiredContent;
             this.parsedRequiredContent = JsonUtil.convertJsonToMap(
                 SearchRequestTestInput.class.getResourceAsStream(parsedRequiredContentLocation), new TypeToken<Map<String, String>>() {
                 }.getType());
         }
+
 
         public Map<String, Object> getParsedRequiredContent() {
             return parsedRequiredContent;
@@ -147,7 +166,6 @@ public class ConfigurationEntriesResourceTest {
         public List<String> getRequiredContent() {
             return requiredContent;
         }
-
     }
 
     private static class PostRequestTestInput extends TestInput {
@@ -233,7 +251,11 @@ public class ConfigurationEntriesResourceTest {
 
         @Override
         protected void test() throws Exception {
+
             TestUtil.test(() -> {
+                ConfigurationEntryDto dto = getDto();
+                ConfigurationEntryMatcher entryMatcher = new ConfigurationEntryMatcher(dto);
+                when(dao.add(argThat(entryMatcher))).thenReturn(dto.toConfigurationEntry());
 
                 return new RestResponse(resource.createConfigurationEntry(input.getEntryXml()));
 
@@ -243,10 +265,6 @@ public class ConfigurationEntriesResourceTest {
         @Override
         protected void setUp() throws Exception {
             MockitoAnnotations.initMocks(this);
-            ConfigurationEntryDto dto = getDto();
-
-            ConfigurationEntryMatcher entryMatcher = new ConfigurationEntryMatcher(dto);
-            when(dao.add(argThat(entryMatcher))).thenReturn(dto.toConfigurationEntry());
         }
 
         private ConfigurationEntryDto getDto() throws Exception {
@@ -256,7 +274,6 @@ public class ConfigurationEntriesResourceTest {
         private ConfigurationEntryDto provideDefaultsForFields(ConfigurationEntryDto dto) {
             return new ConfigurationEntryDto(dto.toConfigurationEntry());
         }
-
     }
 
     private static class PutRequestTest extends TestCase<PutRequestTestInput> {
@@ -300,7 +317,7 @@ public class ConfigurationEntriesResourceTest {
     private static class SearchRequestTest extends TestCase<SearchRequestTestInput> {
 
         private static final String PROVIDER_NID = "N";
-        private static final String TARGET = "S";
+        private static final CloudTarget TARGET_SPACE = new CloudTarget("O", "S");
         private static final String PROVIDER_VERSION = "V";
         private static final String PROVIDER_ID = "I";
 
@@ -324,7 +341,7 @@ public class ConfigurationEntriesResourceTest {
             TestUtil.test(() -> {
 
                 return new RestResponse(resource.getConfigurationEntries(
-                    new ConfigurationFilterDto(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION, TARGET, input.getRequiredContent())));
+                    new ConfigurationFilterDto(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION, TARGET_SPACE, input.getRequiredContent())));
 
             }, expected, getClass());
         }
@@ -336,10 +353,9 @@ public class ConfigurationEntriesResourceTest {
             when(userInfo.getName()).thenReturn("");
             when(clientProvider.getCloudFoundryClient("")).thenReturn(client);
             when(client.getSpaces()).thenReturn(Collections.emptyList());
-            when(dao.find(eq(PROVIDER_NID), eq(PROVIDER_ID), eq(PROVIDER_VERSION), eq(TARGET), eq(input.getParsedRequiredContent()), any(),
-                any())).thenReturn(Collections.emptyList());
+            when(dao.find(eq(PROVIDER_NID), eq(PROVIDER_ID), eq(PROVIDER_VERSION), eq(TARGET_SPACE),
+                eq(input.getParsedRequiredContent()), any(), any())).thenReturn(Collections.emptyList());
         }
-
     }
 
     private static class DeleteRequestTest extends TestCase<DeleteRequestTestInput> {

@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.jar.Manifest;
@@ -30,8 +32,8 @@ import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorMock;
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.DeployTargetFactory;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -45,10 +47,12 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Target.TargetBuilder;
 
 //used by DevX
 public class MtaArchiveValidator {
 
+    private static final String IMPLICIT_PLATFORM_NAME_PATTERN = "\\S+\\s+\\S+";
     private static final Logger LOGGER = LoggerFactory.getLogger(MtaArchiveValidator.class);
 
     private static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB
@@ -172,9 +176,9 @@ public class MtaArchiveValidator {
 
         // Determine target and platform
         DescriptorHandler handler = handlerFactory.getDescriptorHandler();
-        DeployTargetFactory factory = handlerFactory.getDeployTargetFactory();
-        Target implicitTarget = factory.create(platformName, platforms.get(0).getName());
+        Target implicitTarget = createTarget(platformName, platforms.get(0).getName());
         Target target = CloudModelBuilderUtil.findTarget(handler, targets, platformName, implicitTarget);
+        
         LOGGER.debug(format("Target: {0}", JsonUtil.toJson(target, true)));
         Platform platform = CloudModelBuilderUtil.findPlatform(handler, platforms, target);
         LOGGER.debug(format("Platform: {0}", JsonUtil.toJson(platform, true)));
@@ -236,5 +240,22 @@ public class MtaArchiveValidator {
             mtaArchiveModules);
         LOGGER.debug(format("Cloud services: {0}", JsonUtil.toJson(services, true)));
     }
+    
+    public Target createTarget(String targetName, String targetType){
+        
+        TargetBuilder targetBuilder = new TargetBuilder();
+        if(targetName == null || !targetName.matches(IMPLICIT_PLATFORM_NAME_PATTERN)){
+            return null;
+        }
+        Map<String, Object> properties = new HashMap<>();
+        String[] orgAndSpace = targetName.split("\\s+", 2);
 
+        properties.put(SupportedParameters.ORG, orgAndSpace[0]);
+        properties.put(SupportedParameters.SPACE, orgAndSpace[1]);
+        targetBuilder.setName(targetName);
+        targetBuilder.setParameters(properties);
+        targetBuilder.setType(targetType);
+
+        return targetBuilder.build();
+    }
 }

@@ -2,6 +2,9 @@
   "providerNid": "n-7",
   "providerId": "id-7",
   "providerVersion": "7.0.0",
-  "targetSpace": "s-7",
+  "targetSpace": {
+    "space": "space",
+    "org": "org"
+  },
   "content": "{\"type\": \"prod\"}"
 }

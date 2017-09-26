@@ -1,5 +1,8 @@
 {
   "id": 0,
   "providerId": "com.sap.mta.test",
-  "targetSpace": "sap"
+  "targetSpace": {
+     "space": "sap",
+     "org": "org"
+  }
 }

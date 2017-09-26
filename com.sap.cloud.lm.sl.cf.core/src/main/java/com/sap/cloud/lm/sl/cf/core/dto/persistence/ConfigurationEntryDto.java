@@ -47,6 +47,7 @@ public class ConfigurationEntryDto {
         public static final String PROVIDER_ID = "providerId";
         public static final String PROVIDER_VERSION = "providerVersion";
         public static final String PROVIDER_NID = "providerNid";
+        public static final String TARGET_ORG = "targetOrg";
         public static final String TARGET_SPACE = "targetSpace";
         public static final String CONTENT = "content";
         public static final String VISIBILITY = "visibility";
@@ -71,6 +72,10 @@ public class ConfigurationEntryDto {
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_VERSION, nullable = false)
     private String providerVersion;
 
+    @XmlElement(name = "target-org")
+    @Column(name = TableColumnNames.CONFIGURATION_ENTRY_TARGET_ORG, nullable = false)
+    private String targetOrg;
+
     @XmlElement(name = "target-space")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_TARGET_SPACE, nullable = false)
     private String targetSpace;
@@ -89,12 +94,13 @@ public class ConfigurationEntryDto {
         // Required by JPA and JAXB.
     }
 
-    public ConfigurationEntryDto(long id, String providerNid, String providerId, String providerVersion, String targetSpace, String content,
-        String visibility) {
+    public ConfigurationEntryDto(long id, String providerNid, String providerId, String providerVersion, String targetOrg,
+        String targetSpace, String content, String visibility) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
         this.providerVersion = providerVersion;
+        this.targetOrg = targetOrg;
         this.targetSpace = targetSpace;
         this.content = content;
         this.visibility = visibility;
@@ -105,7 +111,8 @@ public class ConfigurationEntryDto {
         this.providerNid = getNotNull(entry.getProviderNid());
         this.providerId = entry.getProviderId();
         this.providerVersion = getNotNull(entry.getProviderVersion());
-        this.targetSpace = entry.getTargetSpace();
+        this.targetSpace = entry.getTargetSpace() == null ? null : entry.getTargetSpace().getSpace();
+        this.targetOrg = entry.getTargetSpace() == null ? null : entry.getTargetSpace().getOrg();
         this.content = entry.getContent();
         this.visibility = entry.getVisibility() == null ? null : JsonUtil.toJson(entry.getVisibility());
     }
@@ -120,6 +127,10 @@ public class ConfigurationEntryDto {
 
     public String getTargetSpace() {
         return targetSpace;
+    }
+    
+    public String getTargetOrg(){
+        return targetOrg;
     }
 
     public String getProviderId() {
@@ -139,7 +150,7 @@ public class ConfigurationEntryDto {
     }
 
     public ConfigurationEntry toConfigurationEntry() {
-        return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)), targetSpace,
+        return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)), new CloudTarget(targetOrg, targetSpace),
             content, getParsedVisibility(visibility));
     }
 

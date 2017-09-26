@@ -45,6 +45,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.MtaConfigurationPurger;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
@@ -165,11 +166,14 @@ public class ConfigurationEntriesResource {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     public Response createConfigurationEntry(String xml) throws SLException {
+        
         ConfigurationEntryDto dto = parseDto(xml, CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION);
-
-        ConfigurationEntry result = entryDao.add(dto.toConfigurationEntry());
+        ConfigurationEntry configurationEntry = dto.toConfigurationEntry();
+        if (configurationEntry.getTargetSpace() == null) {
+            throw new ParsingException(Messages.ORG_SPACE_NOT_SPECIFIED_2);
+        }
+        ConfigurationEntry result = entryDao.add(configurationEntry);
         return Response.status(Response.Status.CREATED).entity(new ConfigurationEntryDto(result)).build();
-
         // TODO: check if this would work fine:
         // return Response.status(Response.Status.CREATED).entity(dto).build();
     }
@@ -220,8 +224,8 @@ public class ConfigurationEntriesResource {
         String providerVersion = bean.getProviderVersion();
         String providerNid = bean.getProviderNid();
         Map<String, Object> content = parseContentFilterParameter(bean.getContent());
-        String targetSpace = bean.getTargetSpace();
-        return new ConfigurationFilter(providerNid, providerId, providerVersion, targetSpace, content);
+        CloudTarget target = bean.getCloudTarget() == null ? ConfigurationUtil.createImplicitCloudTarget(bean.getTargetSpace()) : bean.getCloudTarget();
+        return new ConfigurationFilter(providerNid, providerId, providerVersion, target, content);
     }
 
     @Path("/purge")

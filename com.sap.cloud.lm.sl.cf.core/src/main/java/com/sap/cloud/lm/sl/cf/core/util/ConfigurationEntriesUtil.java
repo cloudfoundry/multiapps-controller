@@ -33,13 +33,19 @@ public class ConfigurationEntriesUtil {
     public static List<ConfigurationEntry> findConfigurationEntries(ConfigurationEntryDao dao, ConfigurationFilter filter,
         List<CloudTarget> cloudTargets) {
         String providerNid = filter.getProviderNid();
-        String targetSpace = filter.getTargetSpace();
+        String org = null;
+        String space = null;
+        CloudTarget targetSpace = filter.getTargetSpace();
+        if(targetSpace != null){
+            org=targetSpace.getOrg();
+            space = targetSpace.getSpace();
+        }
         String providerVersion = filter.getProviderVersion();
         String providerId = filter.getProviderId();
 
         Map<String, Object> requiredContent = filter.getRequiredContent();
-        LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, space {}, content {}, visibleTargets {}",
-            providerNid, providerId, providerVersion, targetSpace, requiredContent, cloudTargets);
+        LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, org {}, space {}, content {}, visibleTargets {}",
+            providerNid, providerId, providerVersion, org, space, requiredContent, cloudTargets);
         List<ConfigurationEntry> result = dao.find(providerNid, providerId, providerVersion, targetSpace, requiredContent, null,
             cloudTargets);
         if (!result.isEmpty()) {
@@ -61,7 +67,7 @@ public class ConfigurationEntriesUtil {
             return Collections.emptyList();
         }
 
-        String target = computeTargetSpace(new Pair<>(deployServiceOrgName, globalConfigSpace));
+        CloudTarget target = new CloudTarget(deployServiceOrgName, globalConfigSpace);
         LOGGER.debug(
             "searching for configuration entries with provider nid {}, id {}, version {}, global config space space {}, content {}, visibleTargets {}",
             providerNid, providerId, providerVersion, target, requiredContent, cloudTargets);

@@ -3,7 +3,10 @@
     "providerNid": "n-2",
     "providerId": "id-2",
     "providerVersion": "1.0.0",
-    "targetSpace": "s-1",
+    "targetSpace": {
+      "space": "space-1",
+      "org": "org-1"
+    },
     "content": "{\"type\": \"prod\"}",
     "visibility": [
       {

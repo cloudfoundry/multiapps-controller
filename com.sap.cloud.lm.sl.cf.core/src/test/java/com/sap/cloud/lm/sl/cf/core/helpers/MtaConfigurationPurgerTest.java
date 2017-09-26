@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
@@ -34,7 +35,8 @@ public class MtaConfigurationPurgerTest {
     private static final String APPLICATION_NAME_TO_REMOVE = "app-to-remove";
     private static final String RESOURCE_LOCATION = "application-env-01.json";
 
-    private final static String TARGET_SPACE = "org space";
+    private final static String TARGET_SPACE = "space";
+    private final static String TARGET_ORG = "org";
 
     @Mock
     CloudFoundryOperations client;
@@ -79,8 +81,8 @@ public class MtaConfigurationPurgerTest {
         configurationEntries.add(createEntry(ENTRY_ID_TO_REMOVE, "remove:true"));
         configurationEntries.add(createEntry(ENTRY_ID_TO_KEEP_1, "anatz:dependency-1"));
         configurationEntries.add(createEntry(ENTRY_ID_TO_KEEP_2, "anatz:dependency-2"));
-        Mockito.when(entryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, TARGET_SPACE, null, null)).thenReturn(
-            configurationEntries);
+        Mockito.when(entryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, new CloudTarget(TARGET_ORG, TARGET_SPACE), null,
+            null)).thenReturn(configurationEntries);
     }
 
     private void initConfigurationSubscriptionsMock() {
@@ -104,8 +106,8 @@ public class MtaConfigurationPurgerTest {
     }
 
     private ConfigurationEntry createEntry(int id, String providerId) {
-        return new ConfigurationEntry(id, ConfigurationEntriesUtil.PROVIDER_NID, providerId, Version.parseVersion("1.0.0"), TARGET_SPACE,
-            null, null);
+        return new ConfigurationEntry(id, ConfigurationEntriesUtil.PROVIDER_NID, providerId, Version.parseVersion("1.0.0"),
+            new CloudTarget(TARGET_ORG, TARGET_SPACE), null, null);
     }
 
 }

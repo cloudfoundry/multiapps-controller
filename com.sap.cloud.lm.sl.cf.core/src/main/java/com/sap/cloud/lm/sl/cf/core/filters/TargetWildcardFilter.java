@@ -1,37 +1,29 @@
 package com.sap.cloud.lm.sl.cf.core.filters;
 
-import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.TARGET_DELIMITER;
-
 import java.util.function.BiFunction;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class TargetWildcardFilter implements BiFunction<String, String, Boolean> {
-    public static final String ANY_TARGET_WILDCARD = "\\*";
-    public static final String ANY_ORG_REGEX = "(" + ANY_TARGET_WILDCARD + TARGET_DELIMITER + ")(.*)"; // '* space'
-    public static final String ANY_SPACE_REGEX = "(.*)(" + TARGET_DELIMITER + ANY_TARGET_WILDCARD + ")";// 'org *'
-    public static final String ANY_TARGET_REGEX = "(" + ANY_ORG_REGEX + ")|(" + ANY_SPACE_REGEX + ")";
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+
+public class TargetWildcardFilter implements BiFunction<CloudTarget, CloudTarget, Boolean> {
+    public static final String ANY_TARGET_WILDCARD = "*";
 
     @Override
-    public Boolean apply(String actualEntryTarget, String requestedTarget) {
-        if (requestedTarget == null) {
-            return true;
-        }
-        Matcher spaceMatcher = Pattern.compile(ANY_SPACE_REGEX).matcher(requestedTarget);
-        Matcher orgMatcher = Pattern.compile(ANY_ORG_REGEX).matcher(requestedTarget);
+    public Boolean apply(CloudTarget actualEntryTarget, CloudTarget requestedTarget) {
 
-        if (!orgMatcher.matches() && !spaceMatcher.matches()) {
-            return actualEntryTarget.equals(requestedTarget);
-        }
-        if (orgMatcher.matches() && spaceMatcher.matches()) {
-            // * *
+        if (requestedTarget == null
+            || ANY_TARGET_WILDCARD.equals(requestedTarget.getOrg()) && ANY_TARGET_WILDCARD.equals(requestedTarget.getSpace())) {
             return true;
         }
-        if (orgMatcher.matches()) {
-            // * abc
-            return actualEntryTarget.endsWith(TARGET_DELIMITER + orgMatcher.group(2));
+
+        if (ANY_TARGET_WILDCARD.equals(requestedTarget.getOrg())) {
+            return actualEntryTarget.getSpace().equals(requestedTarget.getSpace());
         }
-        // abc *
-        return actualEntryTarget.startsWith(spaceMatcher.group(1) + TARGET_DELIMITER);
+
+        if (ANY_TARGET_WILDCARD.equals(requestedTarget.getSpace())) {
+            return actualEntryTarget.getOrg().equals(requestedTarget.getOrg());
+        }
+
+        return actualEntryTarget.getOrg().equals(requestedTarget.getOrg())
+            && actualEntryTarget.getSpace().equals(requestedTarget.getSpace());
     }
 }

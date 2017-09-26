@@ -1,5 +1,8 @@
 {
   "providerId": "id-8",
-  "targetSpace": "s-8",
+  "targetSpace": {
+    "space": "space-8",
+    "org": "org-8"
+  },
   "content": "not-a-json"
 }

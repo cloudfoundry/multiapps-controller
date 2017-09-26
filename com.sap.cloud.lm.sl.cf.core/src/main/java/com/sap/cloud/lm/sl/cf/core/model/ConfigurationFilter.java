@@ -6,6 +6,7 @@ import java.util.function.BiFunction;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 
@@ -18,18 +19,19 @@ public class ConfigurationFilter {
     @Expose
     private String providerNid;
     @Expose
-    private String targetSpace;
+    @SerializedName("targetSpace")
+    private CloudTarget targetSpace;
     @Expose
     private String providerVersion;
 
     private transient boolean strictTargetSpace;
 
-    public ConfigurationFilter(String providerNid, String providerId, String providerVersion, String targetSpace,
+    public ConfigurationFilter(String providerNid, String providerId, String providerVersion, CloudTarget targetSpace,
         Map<String, Object> requiredContent) {
         this(providerNid, providerId, providerVersion, targetSpace, requiredContent, true);
     }
 
-    public ConfigurationFilter(String providerNid, String providerId, String providerVersion, String targetSpace,
+    public ConfigurationFilter(String providerNid, String providerId, String providerVersion, CloudTarget targetSpace,
         Map<String, Object> requiredContent, boolean strictTargetSpace) {
         this.providerId = providerId;
         this.requiredContent = requiredContent;
@@ -51,7 +53,7 @@ public class ConfigurationFilter {
         return providerNid;
     }
 
-    public String getTargetSpace() {
+    public CloudTarget getTargetSpace() {
         return targetSpace;
     }
 

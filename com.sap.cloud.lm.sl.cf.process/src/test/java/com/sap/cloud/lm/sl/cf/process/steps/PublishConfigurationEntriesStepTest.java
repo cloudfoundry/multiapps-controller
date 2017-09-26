@@ -81,7 +81,8 @@ public class PublishConfigurationEntriesStepTest extends AbstractStepTest<Publis
     public void prepareDao() throws Exception {
         for (ConfigurationEntry entry : exisitingConfigurationEntries) {
             Mockito.when(configurationEntryDaoMock.find(Mockito.matches(entry.getProviderNid()), Mockito.matches(entry.getProviderId()),
-                Mockito.matches(entry.getProviderVersion().toString()), Mockito.matches(entry.getTargetSpace()), Mockito.any(),
+                Mockito.matches(entry.getProviderVersion().toString()),
+                Mockito.eq(entry.getTargetSpace()), Mockito.any(),
                 Mockito.eq(null))).thenReturn(Arrays.asList(entry));
         }
     }

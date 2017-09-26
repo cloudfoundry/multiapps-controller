@@ -14,6 +14,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "configuration-filter")
 public class ConfigurationFilterDto {
@@ -34,6 +36,9 @@ public class ConfigurationFilterDto {
     @QueryParam(TARGET_SPACE)
     private String targetSpace;
 
+    @XmlElement(name = "provider-target")
+    private CloudTarget cloudTarget;
+
     @XmlElement(name = "provider-version")
     @QueryParam(VERSION)
     private String providerVersion;
@@ -42,12 +47,12 @@ public class ConfigurationFilterDto {
         // Required by JAX-RS.
     }
 
-    public ConfigurationFilterDto(String providerNid, String providerId, String version, String targetSpace, List<String> content) {
+    public ConfigurationFilterDto(String providerNid, String providerId, String version, CloudTarget cloudTarget, List<String> content) {
         this.providerId = providerId;
         this.providerVersion = version;
         this.content = content;
         this.providerNid = providerNid;
-        this.targetSpace = targetSpace;
+        this.cloudTarget = cloudTarget;
     }
 
     public String getProviderId() {
@@ -70,4 +75,7 @@ public class ConfigurationFilterDto {
         return content;
     }
 
+    public CloudTarget getCloudTarget() {
+        return cloudTarget;
+    }
 }

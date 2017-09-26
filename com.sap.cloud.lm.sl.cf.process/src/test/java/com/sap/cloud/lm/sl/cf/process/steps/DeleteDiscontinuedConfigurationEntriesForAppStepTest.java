@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -116,7 +117,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     private void prepareDao() {
         Mockito.when(dao.find(Mockito.eq(ConfigurationEntriesUtil.PROVIDER_NID), Mockito.eq(null), Mockito.eq(input.mtaVersion),
             Mockito.any(), Mockito.eq(null), Mockito.eq(input.mtaId))).thenAnswer((invocation) -> {
-                String target = (String) invocation.getArguments()[3];
+                CloudTarget target = (CloudTarget) invocation.getArguments()[3];
                 return input.existingEntries.stream().filter(entry -> entry.getTargetSpace().equals(target)).collect(Collectors.toList());
             });
     }

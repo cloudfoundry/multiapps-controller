@@ -15,6 +15,7 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -22,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteDiscontinuedConfigurationEntriesForAppStep")
@@ -54,8 +54,8 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends AbstractXS
         List<String> providedDependencyNames = mtaMetadata.getProvidedDependencyNames();
         String org = StepsUtil.getOrg(context);
         String space = StepsUtil.getSpace(context);
-        String newTarget = ConfigurationEntriesUtil.computeTargetSpace(new Pair<String, String>(org, space));
-        String oldTarget = StepsUtil.getSpaceId(context);
+        CloudTarget newTarget = new CloudTarget(org, space);
+        CloudTarget oldTarget = new CloudTarget(null, StepsUtil.getSpaceId(context));
         String oldMtaVersion = mtaMetadata.getMtaMetadata().getVersion().toString();
         List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntries(context);
 
@@ -75,7 +75,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends AbstractXS
         return ExecutionStatus.SUCCESS;
     }
 
-    private List<ConfigurationEntry> getEntriesToDelete(String mtaId, String mtaVersion, String newTarget, String oldTarget,
+    private List<ConfigurationEntry> getEntriesToDelete(String mtaId, String mtaVersion, CloudTarget newTarget, CloudTarget oldTarget,
         List<String> providedDependencyNames, List<ConfigurationEntry> publishedEntries) {
         List<ConfigurationEntry> entriesWithNewTargetFormat = getEntries(mtaId, mtaVersion, newTarget);
         /**
@@ -115,7 +115,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends AbstractXS
         return providerIds.stream().anyMatch(providerId -> entry.getProviderId().equals(providerId));
     }
 
-    private List<ConfigurationEntry> getEntries(String mtaId, String mtaVersion, String target) {
+    private List<ConfigurationEntry> getEntries(String mtaId, String mtaVersion, CloudTarget target) {
         return configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, mtaVersion, target, null, mtaId);
     }
 

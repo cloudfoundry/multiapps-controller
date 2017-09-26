@@ -11,14 +11,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.common.ParsingException;
@@ -745,4 +749,36 @@ public class ConfigurationUtil {
         return gatherUsageStatistics;
     }
 
+    public static CloudTarget createImplicitCloudTarget(String targetSpace) {
+
+        if (targetSpace == null) {
+            return null;
+        }
+        Pattern whitespacePattern = Pattern.compile("\\S+\\s+\\S+");
+        Matcher matcher = whitespacePattern.matcher(targetSpace);
+
+        if (!matcher.find()) {
+            throw new ParsingException("Target does not contain 'org' and 'space' parameters");
+        }
+
+        String[] orgAndSpace = targetSpace.split("\\s+");
+        CloudTarget cloudTarget = new CloudTarget(orgAndSpace[0], orgAndSpace[1]);
+
+        return cloudTarget;
+    }
+
+    public static CloudTarget splitTargetSpaceValue(String value) {
+        if (StringUtils.isEmpty(value)) {
+            return new CloudTarget("", "");
+        }
+
+        Pattern whitespacePattern = Pattern.compile("\\s+");
+        Matcher matcher = whitespacePattern.matcher(value);
+        if (!matcher.find()) {
+            return new CloudTarget("", value);
+        }
+
+        String[] orgSpace = value.split("\\s+", 2);
+        return new CloudTarget(orgSpace[0], orgSpace[1]);
+    }
 }
