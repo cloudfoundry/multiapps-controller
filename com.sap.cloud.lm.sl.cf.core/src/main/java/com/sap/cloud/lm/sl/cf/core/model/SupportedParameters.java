@@ -102,7 +102,6 @@ public class SupportedParameters {
     public static final String SERVICE_NAME = "service-name";
     public static final String SERVICE = "service";
     public static final String SERVICE_PLAN = "service-plan";
-    public static final String SERVICE_ALTERNATIVES = "service-alternatives";
     public static final String SERVICE_PROVIDER = "service-provider";
     public static final String SERVICE_VERSION = "service-version";
     public static final String SERVICE_CONFIG = "config";
@@ -140,10 +139,10 @@ public class SupportedParameters {
             MEMORY, INSTANCES, NO_HOSTNAME, NO_ROUTE, IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS)));
 
     public static final Set<String> SERVICE_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE,
-        SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER, SERVICE_VERSION, SERVICE_CONFIG, SERVICE_CONFIG_PATH, SERVICE_TAGS)));
+        SERVICE_PLAN, SERVICE_PROVIDER, SERVICE_VERSION, SERVICE_CONFIG, SERVICE_CONFIG_PATH, SERVICE_TAGS)));
 
-    public static final Set<String> APP_ATTRIBUTES = Collections.unmodifiableSet(
-        new HashSet<>(Arrays.asList(EXECUTE_APP, SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID, REGISTER_SERVICE_URL,
+    public static final Set<String> APP_ATTRIBUTES = Collections.unmodifiableSet(new HashSet<>(
+        Arrays.asList(EXECUTE_APP, SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID, REGISTER_SERVICE_URL,
             REGISTER_SERVICE_URL_SERVICE_NAME, REGISTER_SERVICE_URL_SERVICE_URL, CREATE_SERVICE_BROKER, SERVICE_BROKER_NAME,
             SERVICE_BROKER_USER, SERVICE_BROKER_PASSWORD, SERVICE_BROKER_URL, SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START)));
 

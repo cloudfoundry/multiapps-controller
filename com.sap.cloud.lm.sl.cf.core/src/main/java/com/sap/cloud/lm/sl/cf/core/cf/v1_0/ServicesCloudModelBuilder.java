@@ -79,15 +79,13 @@ public class ServicesCloudModelBuilder {
     protected CloudServiceExtended createManagedService(String serviceName, boolean isOptional, Map<String, Object> properties)
         throws ContentException {
         String label = (String) properties.get(SupportedParameters.SERVICE);
-        List<String> serviceAlternatives = (List<String>) properties.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
-            Collections.emptyList());
         String plan = (String) properties.get(SupportedParameters.SERVICE_PLAN);
         String provider = (String) properties.get(SupportedParameters.SERVICE_PROVIDER);
         String version = (String) properties.get(SupportedParameters.SERVICE_VERSION);
         List<String> serviceTags = (List<String>) properties.getOrDefault(SupportedParameters.SERVICE_TAGS, Collections.emptyList());
         Map<String, Object> credentials = getServiceConfigParameters(properties, serviceName);
 
-        return createCloudService(serviceName, label, serviceAlternatives, plan, provider, version, isOptional, credentials, serviceTags);
+        return createCloudService(serviceName, label, plan, provider, version, isOptional, credentials, serviceTags);
     }
 
     protected CloudServiceExtended createUserProvidedService(String serviceName, boolean isOptional, Map<String, Object> properties)
@@ -97,7 +95,7 @@ public class ServicesCloudModelBuilder {
         if (label != null) {
             LOGGER.warn(MessageFormat.format(Messages.IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE, label, serviceName));
         }
-        return createCloudService(serviceName, null, null, null, null, null, isOptional, credentials, Collections.emptyList());
+        return createCloudService(serviceName, null, null, null, null, isOptional, credentials, Collections.emptyList());
     }
 
     @SuppressWarnings("unchecked")
@@ -118,11 +116,10 @@ public class ServicesCloudModelBuilder {
             serviceConfig.getClass().getSimpleName());
     }
 
-    protected CloudServiceExtended createCloudService(String name, String label, List<String> serviceAlternatives, String plan,
-        String provider, String version, boolean isOptional, Map<String, Object> credentials, List<String> serviceTags) {
+    protected CloudServiceExtended createCloudService(String name, String label, String plan, String provider, String version,
+        boolean isOptional, Map<String, Object> credentials, List<String> serviceTags) {
         CloudServiceExtended service = new CloudServiceExtended(null, name);
         service.setLabel(label);
-        service.setServiceAlternatives(serviceAlternatives);
         service.setPlan(plan);
         service.setProvider(provider);
         service.setVersion(version);

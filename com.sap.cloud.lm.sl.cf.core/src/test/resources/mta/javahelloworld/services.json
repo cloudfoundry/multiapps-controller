@@ -1,6 +1,5 @@
 [
   {
-    "serviceAlternatives": [],
     "resourceName": "java-hdi-container",
     "credentials": {},
     "tags": [],

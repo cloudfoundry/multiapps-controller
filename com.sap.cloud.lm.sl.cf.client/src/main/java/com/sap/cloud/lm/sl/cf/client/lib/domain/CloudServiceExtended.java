@@ -7,7 +7,6 @@ import org.cloudfoundry.client.lib.domain.CloudService;
 
 public class CloudServiceExtended extends CloudService {
 
-    private List<String> serviceAlternatives;
     private String resourceName;
     private Map<String, Object> credentials;
     private List<String> tags;
@@ -19,14 +18,6 @@ public class CloudServiceExtended extends CloudService {
 
     public CloudServiceExtended(Meta meta, String name) {
         super(meta, name);
-    }
-
-    public List<String> getServiceAlternatives() {
-        return serviceAlternatives;
-    }
-
-    public void setServiceAlternatives(List<String> serviceAlternatives) {
-        this.serviceAlternatives = serviceAlternatives;
     }
 
     public String getResourceName() {
