@@ -24,12 +24,14 @@ The result from the build of this component is a WAR file which is the deployabl
 
 # Configuration
 The CF MTA deploy service is run as a standard application in [Cloud Foundry](https://www.cloudfoundry.org/). Thus, it uses the widely adopted environment-based configuration mechanism. The configuration file for the application is located at [manifest.yml](https://github.com/SAP/cf-mta-deploy-service/blob/master/com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml). There could be configured the following:
-Env var name | Sample value | Description
+
+Env Variable Name | Sample Value | Description 
 --- | --- | ---
 XS_TARGET_URL | http://api.bosh-lite.com | Cloud Foundry API URL.
 PLATFORMS_V2 | see [manifest.yml](https://github.com/SAP/cf-mta-deploy-service/blob/master/com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) | Contains the configuration of the MTA module and resource types. MTA module types are mapped to Cloud Foundry buildpacks and default application parameters, whereas MTA resource types are usually mapped to Cloud Foundry services with concrete service plans and parameters. This is for MTA spec v2.
 PLATFORMS_V3 | see [manifest.yml](https://github.com/SAP/cf-mta-deploy-service/blob/master/com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) | Same as PLATFORMS_V2, but this is for MTA spec v3.
 DB_TYPE | POSTGRESQL | The used persistence type. Currently only PostgreSQL is supported.
+SKIP_SSL_VALIDATION | true | Skips SSL certificate validation.
 
 
 # Building
