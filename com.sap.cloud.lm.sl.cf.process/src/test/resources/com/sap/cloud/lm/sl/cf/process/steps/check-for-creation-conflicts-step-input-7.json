@@ -1,0 +1,26 @@
+{
+  "appsToDeploy": [
+    {
+      "name": "application-1"
+    },
+    {
+      "name": "application-2"
+    }
+  ],
+  "existingApps": [
+    {
+      "name": "application-1"
+    },
+    {
+      "name": "application-2"
+    }
+  ],
+  "appsFromDeployedMta": [ 
+    {
+      "name": "application-1"
+    },
+    {
+      "name": "application-2"
+    }
+  ]
+}

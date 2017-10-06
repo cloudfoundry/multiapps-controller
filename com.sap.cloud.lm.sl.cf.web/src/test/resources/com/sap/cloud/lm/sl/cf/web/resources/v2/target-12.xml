@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<deployTarget>
+    <name>XSA-INITIAL</name>
+    <type>XSA</type>
+    <parameters>
+      <entry>
+        <key>org</key>
+        <value>initial</value>
+      </entry>
+      <entry>
+        <key>space</key>
+        <value>initial</value>
+      </entry>
+    </parameters>
+    <moduleTypes>
+      <moduleType>
+        <name>com/sap/static-content</name>
+        <properties/>
+        <parameters/>
+      </moduleType>
+    </moduleTypes>
+    <resourceTypes/>
+</deployTarget>

@@ -1,0 +1,60 @@
+{
+  "id": "com.sap.sample.mta",
+  "version": "1.0.0",
+  "schemaVersion": "1.0.0",
+  "modules1_0": [
+    {
+      "name": "foo",
+      "type": "foo",
+      "properties": {
+        "app-name": "localhost.foo",
+        "domain": "localhost",
+        "host": "foo-initial-initial",
+        "port": 52002,
+        "property": "{xsa-placeholder-domain-default}.foo"
+      },
+      "requiredDependencies1_0": [
+        "bar",
+        "baz"
+      ],
+      "providedDependencies1_0": []
+    },
+    {
+      "name": "bar",
+      "type": "bar",
+      "properties": {},
+      "requiredDependencies1_0": [],
+      "providedDependencies1_0": [
+        {
+          "name": "bar",
+          "groups": [],
+          "properties": {
+            "buildpack": "http://localhost:52002/buildpack"
+          }
+        },
+        {
+          "name": "baz",
+          "groups": [],
+          "properties": {
+            "command": "http://localhost:8888 install",
+            "test_1": "{xsa-placeholder-protocol}",
+            "test_2": "{xsa-placeholder-endpoint-authorization}"
+          }
+        }
+      ]
+    }
+  ],
+  "resources1_0": [
+    {
+      "name": "qux",
+      "type": "qux",
+      "groups": [],
+      "properties": {
+        "service-name": "http.qux",
+        "service-plan": "http",
+        "test_3": "{xsa-placeholder-protocol}.qux"
+      }
+    }
+  ],
+  "properties": {}
+}

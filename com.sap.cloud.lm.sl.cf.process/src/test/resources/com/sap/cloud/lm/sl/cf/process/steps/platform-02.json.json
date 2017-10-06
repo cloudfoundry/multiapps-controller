@@ -1,0 +1,10 @@
+{
+  "parameters": {
+    "org": "initial",
+    "space": "initial"
+  },
+  "platformModuleTypes2_0": [],
+  "platformResourceTypes2_0": [],
+  "name": "ZE_PLATFORM",
+  "type": "XS2"
+}

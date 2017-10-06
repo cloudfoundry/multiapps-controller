@@ -1,0 +1,35 @@
+[
+  {
+    "providerNid": "mta",
+    "providerId": "com.sap.example.mta:foo",
+    "providerVersion": "0.1.0",
+    "targetSpace": "myorg SAP",
+    "content": "{\"type\": \"test\"}",
+    "visibility": [
+      {
+        "space": "*",
+        "org": "myorg"
+      }
+    ]
+  },
+  {
+    "providerNid": "mta",
+    "providerId": "com.sap.example.mta:bar",
+    "providerVersion": "0.1.0",
+    "targetSpace": "myorg SAP",
+    "content": "{\"type\": \"test\"}",
+    "visibility": [
+      {
+        "space": "*",
+        "org": "myorg"
+      }
+    ]
+  },
+  {
+    "providerNid": "mta",
+    "providerId": "anatz:foo",
+    "providerVersion": "0.1.0",
+    "targetSpace": "myorg SAP",
+    "content": "{\"type\": \"anatz\"}"
+  }
+]

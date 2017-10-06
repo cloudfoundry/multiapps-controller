@@ -1,0 +1,24 @@
+[
+  {
+    "processId": "1",
+    "processType": {
+      "name": "DEPLOY"
+    },
+    "startedAt": "2016-04-27T10:29:27.074Z[UTC]",
+    "spaceId": "1234",
+    "mtaId": "1",
+    "acquiredLock": false,
+    "finalState": "SLP_TASK_STATE_FINISHED"
+  },
+  {
+    "processId": "3",
+    "processType": {
+      "name": "DEPLOY"
+    },
+    "startedAt": "2016-04-27T10:31:27.074Z[UTC]",
+    "spaceId": "1234",
+    "mtaId": "3",
+    "acquiredLock": false,
+    "finalState": "SLP_TASK_STATE_FINISHED"
+  }
+]

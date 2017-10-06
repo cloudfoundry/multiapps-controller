@@ -1,0 +1,30 @@
+[
+  {
+    "serviceAlternatives": [],
+    "resourceName": "java-hdi-container",
+    "credentials": {},
+    "tags": [],
+    "isOptional": false,
+    "isManaged": true,
+    "label": "hana",
+    "plan": "hdi-shared",
+    "meta": {},
+    "name": "java-hdi-container"
+  },
+  {
+    "resourceName": "uaa",
+    "credentials": {
+      "clientid": "xs2.java",
+      "clientsecret": "javaclientsecret",
+      "tags": [
+        "xsuaa"
+      ],
+      "url": "http://sap-login.cfapps.neo.ondemand.com"
+    },
+    "tags": [],
+    "isOptional": false,
+    "isManaged": true,
+    "meta": {},
+    "name": "uaa"
+  }
+]

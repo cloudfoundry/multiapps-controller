@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="com.sap.cloud.lm.sl.cf.web">
+        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
+        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <dependent-module archiveName="com.sap.cloud.lm.sl.mta-1.50.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/com.sap.cloud.lm.sl.mta/com.sap.cloud.lm.sl.mta">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="com.sap.cloud.lm.sl.common-1.50.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/com.sap.cloud.lm.sl.common/com.sap.cloud.lm.sl.common">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="com.sap.cloud.lm.sl.persistence-1.50.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/com.sap.cloud.lm.sl.persistence/com.sap.cloud.lm.sl.persistence">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="com.sap.cloud.lm.sl.cf.core-1.46.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/com.sap.cloud.lm.sl.cf.core/com.sap.cloud.lm.sl.cf.core">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="com.sap.cloud.lm.sl.slp-1.50.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/com.sap.cloud.lm.sl.slp/com.sap.cloud.lm.sl.slp">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="com.sap.cloud.lm.sl.cf.client-1.46.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/com.sap.cloud.lm.sl.cf.client/com.sap.cloud.lm.sl.cf.client">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="com.sap.cloud.lm.sl.cf.process-1.46.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/com.sap.cloud.lm.sl.cf.process/com.sap.cloud.lm.sl.cf.process">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="com.sap.activiti.common-1.30.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/com.sap.activiti.common/com.sap.activiti.common">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="com.sap.cloud.lm.sl.cf.web"/>
+        <property name="java-output-path" value="/com.sap.cloud.lm.sl.cf.web/target/classes"/>
+    </wb-module>
+</project-modules>

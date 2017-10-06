@@ -1,0 +1,23 @@
+[
+  {
+    "resourceName": "uaa",
+    "credentials": {},
+    "tags": [],
+    "isOptional": false,
+    "isManaged": false,
+    "meta": {},
+    "name": "uaa"
+  },
+  {
+    "serviceAlternatives": [],
+    "resourceName": "di-core-hdi",
+    "credentials": {},
+    "tags": [],
+    "isOptional": false,
+    "isManaged": true,
+    "label": "hana",
+    "plan": "hdi-shared",
+    "meta": {},
+    "name": "di-core-hdi"
+  }
+]

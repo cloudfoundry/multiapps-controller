@@ -1,0 +1,63 @@
+{
+  "modules2_0": [
+    {
+      "requiredDependencies2_0": [
+        {
+          "name": "plugins",
+          "list": "plugins",
+          "properties": {},
+          "parameters": {
+            "managed": true
+          }
+        },
+        {
+          "name": "bar",
+          "properties": {},
+          "parameters": {}
+        }
+      ],
+      "providedDependencies2_0": [
+        {
+          "isPublic": true,
+          "name": "foo",
+          "properties": {}
+        }
+      ],
+      "parameters": {},
+      "name": "foo",
+      "type": "foo",
+      "properties": {
+        "test_1": "YO",
+        "test_2": "YO...~{plugins/name}",
+        "test_3": "~{plugins/name}"
+      }
+    },
+    {
+      "requiredDependencies2_0": [],
+      "providedDependencies2_0": [
+        {
+          "isPublic": true,
+          "name": "bar",
+          "properties": {
+            "baz": "YO"
+          }
+        }
+      ],
+      "parameters": {},
+      "name": "bar",
+      "type": "bar",
+      "properties": {}
+    }
+  ],
+  "resources2_0": [
+    {
+      "parameters": {},
+      "name": "plugins",
+      "type": "configuration",
+      "properties": {}
+    }
+  ],
+  "parameters": {},
+  "id": "com.sap.example.mta",
+  "version": "1.0.0"
+}

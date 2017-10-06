@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_oauth_access_token_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_target_platform_v1_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_target_platform_v2_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_target_platform_v3_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_ongoing_operation_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_audit_log_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_configuration_subscription_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-rename_user_column_in_ongoing_operation_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_configuration_registry_table.xml" />
+    <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_ongoing_operation_table_add_final_state_column.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_context_extension_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-rename_target_platform_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_id_column_to_deploy_target_tables.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_visible_in_column.xml" />
+</databaseChangeLog>

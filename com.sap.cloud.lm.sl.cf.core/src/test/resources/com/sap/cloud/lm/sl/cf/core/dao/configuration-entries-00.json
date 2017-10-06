@@ -1,0 +1,16 @@
+[
+  {
+    "providerId": "com.sap.sample.mta.provider:provider",
+    "providerNid": "mta",
+    "targetSpace": "sap",
+    "providerVersion": "2.0.0",
+    "content": "{\"type\":\"com.acme.notification\"}"
+  },
+  {
+    "providerId": "com.sap.sample.mta.provider:provider",
+    "providerNid": "mta",
+    "targetSpace": "sap",
+    "providerVersion": "2.0.0",
+    "content": "{\"type\":\"com.acme.plugin\"}"
+  }
+]

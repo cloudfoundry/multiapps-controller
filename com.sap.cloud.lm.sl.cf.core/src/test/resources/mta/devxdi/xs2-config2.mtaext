@@ -1,0 +1,44 @@
+ID: com.sap.devx.di.xs2-config1
+extends: com.sap.devx.di
+
+target-platforms: [XS2-INITIAL]
+
+modules:
+  - name: di-core
+    properties:
+      port: 53030
+      memory: 512M
+      instances: 1
+      XS_PATH: /usr/sap/xs2runtime/bin/xs
+      DI_FS_ROOT: /usr/sap/xs2work
+    provides:
+      - name: di-core-genbuilder-buildpack
+        properties:
+          buildpack: "http://sofd60245639a:53030/system/builderbp.git/"
+      - name: di-core-url
+        properties:
+          DI_URL: "http://sofd60245639a:53030"
+
+  - name: di-builder
+    properties:
+      port: 53031
+      memory: 512M
+      instances: 1
+      XS_PATH: /usr/sap/xs2runtime/bin/xs
+
+  - name: di-runner
+    properties:
+      port: 53033
+      memory: 512M
+      instances: 1
+      XS_PATH: /usr/sap/xs2runtime/bin/xs
+
+resources:
+ - name: ui5-content-url
+   properties:
+     UI5_CONTENT_URL: "http://sofd60245639a:53055"
+
+ - name: di-core-hdi
+   properties:
+     foo: test1
+     bar: test2

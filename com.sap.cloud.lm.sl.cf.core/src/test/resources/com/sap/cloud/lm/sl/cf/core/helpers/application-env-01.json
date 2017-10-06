@@ -1,0 +1,21 @@
+{
+  "MTA_METADATA":
+    {
+      "id": "anatz",
+      "version": "1.0.0"
+    },
+  "MTA_SERVICES":
+    [
+      "hana-schema",
+      "portal-sbss"
+    ],
+  "MTA_MODULE_PROVIDED_DEPENDENCIES":
+    [
+      "dependency-1",
+      "dependency-2"
+    ],
+  "MTA_MODULE_METADATA":
+    {
+      "name": "sap-portal-services"
+    }
+}

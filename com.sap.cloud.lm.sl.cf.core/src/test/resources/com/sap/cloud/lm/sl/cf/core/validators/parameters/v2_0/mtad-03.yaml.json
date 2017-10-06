@@ -1,0 +1,49 @@
+{
+  "modules2_0": [
+    {
+      "requiredDependencies2_0": [],
+      "providedDependencies2_0": [
+        {
+          "isPublic": true,
+          "name": "foo",
+          "properties": {}
+        }
+      ],
+      "parameters": {
+        "host": "com-sap-test-foo"
+      },
+      "name": "foo",
+      "type": "foo",
+      "properties": {}
+    },
+    {
+      "requiredDependencies2_0": [],
+      "providedDependencies2_0": [
+        {
+          "isPublic": true,
+          "name": "bar",
+          "properties": {}
+        }
+      ],
+      "parameters": {
+        "domain": "com.sap.test.foo"
+      },
+      "name": "bar",
+      "type": "bar",
+      "properties": {}
+    }
+  ],
+  "resources2_0": [
+    {
+      "parameters": {
+        "host": ".com.sap.test.foo"
+      },
+      "name": "baz",
+      "properties": {}
+    }
+  ],
+  "parameters": {},
+  "id": "com.sap.test",
+  "version": "1.0",
+  "schemaVersion": "2.0.0"
+}

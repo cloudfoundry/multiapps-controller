@@ -1,0 +1,27 @@
+{
+  "credentials_1": "~{foo/user}|~{foo/pass}",
+  "credentials_2": [
+    "~{bar.0/user}|~{bar.0/pass}"
+  ],
+  "credentials_3": {
+    "pass": "~{foo/pass}",
+    "user": "~{foo/user}"
+  },
+  "credentials_4": {
+    "pass": [
+      "~{bar.0/pass}"
+    ],
+    "user": [
+      "~{bar.0/user}"
+    ]
+  },
+  "name_1": "~{foo/name}",
+  "name_2": [
+    "~{bar.0/name}"
+  ],
+  "test": "test",
+  "url_1": "${protocol}://~{foo/name}.com",
+  "url_2": [
+    "${protocol}://~{bar.0/name}.com"
+  ]
+}

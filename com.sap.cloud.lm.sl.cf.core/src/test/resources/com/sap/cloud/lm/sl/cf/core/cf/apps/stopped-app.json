@@ -1,0 +1,6 @@
+{
+  "name": "foo",
+  "instances": 3,
+  "runningInstances": 0,
+  "state": "STOPPED"
+}

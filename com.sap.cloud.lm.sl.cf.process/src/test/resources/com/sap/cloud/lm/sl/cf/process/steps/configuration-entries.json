@@ -1,0 +1,18 @@
+[
+  {
+    "id": 55,
+    "providerNid": "mta",
+    "providerId": "mta-1:provided-dependency-1",
+    "providerVersion": "0.1.0",
+    "targetSpace": "test test",
+    "content": "foo"
+  },
+  {
+    "id": 66,
+    "providerNid": "mta",
+    "providerId": "mta-1:provided-dependency-2",
+    "providerVersion": "0.1.0",
+    "targetSpace": "test test",
+    "content": "bar"
+  }
+]

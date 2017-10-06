@@ -1,0 +1,22 @@
+[
+  {
+    "processId": "300",
+    "processType": "undeploy",
+    "startedAt": "10:11:12",
+    "spaceId": "testProcessSpaceId",
+    "mtaId": "testMtaId",
+    "user": "testUser",
+    "acquiredLock": false,
+    "state": "SLP_TASK_STATE_RUNNING"
+  },
+  {
+    "processId": "400",
+    "processType": "blue-green-deploy",
+    "startedAt": "10:11:12",
+    "spaceId": "testProcessSpaceId",
+    "mtaId": "testMtaId",
+    "user": "testUser",
+    "acquiredLock": false,
+    "state": "SLP_TASK_STATE_RUNNING"
+  }
+]

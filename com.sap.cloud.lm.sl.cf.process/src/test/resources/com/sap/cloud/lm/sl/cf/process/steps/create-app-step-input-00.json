@@ -1,0 +1,21 @@
+{
+  "applications": [
+    {
+      "name": "application-1",
+      "instances": 1,
+      "memory": 128,
+      "diskQuota": 0,
+      "env": [],
+      "services": []
+    },
+    {
+      "name": "application-2",
+      "instances": 3,
+      "memory": 512,
+      "diskQuota": 0,
+      "env": [],
+      "services": []
+    }
+  ],
+  "applicationIndex": 1
+}

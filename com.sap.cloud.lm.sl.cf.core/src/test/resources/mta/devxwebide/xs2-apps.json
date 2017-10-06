@@ -1,0 +1,29 @@
+[
+  {
+    "moduleName": "webide",
+    "extendedStaging": {},
+    "idleUris": [],
+    "tasks": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"sofd60245639a:53035\"]}",
+      "MTA_METADATA={\"id\":\"com.sap.devx.webide\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"webide\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"webide\"]",
+      "MTA_SERVICES=[]",
+      "destinations=[{\"name\":\"sapui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://sofd60245639a:53030\"}]"
+    ],
+    "instances": 0,
+    "memory": 128,
+    "runningInstances": 0,
+    "services": [
+      "uaa"
+    ],
+    "staging": {},
+    "uris": [
+      "sofd60245639a:53035"
+    ],
+    "meta": {},
+    "name": "webide"
+  }
+]

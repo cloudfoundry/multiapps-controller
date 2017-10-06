@@ -1,0 +1,135 @@
+[
+    {
+        "name": "XS2",
+        "module-types": [
+            {
+                "name": "javascript.nodejs"
+            },
+            {
+                "name": "java.tomcat",
+                "properties": {
+                    "TARGET_RUNTIME": "tomcat"
+                }
+            },
+            {
+                "name": "java.tomee",
+                "properties": {
+                    "TARGET_RUNTIME": "tomee"
+                }
+            },
+            {
+                "name": "com.sap.xs.hdi",
+                "parameters": {
+                    "no-route": true,
+                    "memory": "256M",
+                    "execute-app": false
+                }
+            }
+        ],
+        "resource-types": [
+            {
+                "name": "com.sap.xs.hdi-container",
+                "parameters": {
+                    "service": "hana",
+                    "service-plan": "hdi-shared"
+                }
+            },
+            {
+                "name": "org.cloudfoundry.user-provided-service",
+                "parameters": { 
+                    "type": "user-provided-service"
+                } 
+            },
+            {
+                "name": "org.cloudfoundry.existing-service",
+                "parameters": { 
+                    "type": "existing-service"
+                } 
+            },
+            {
+               "name": "mta-provides-dependency",
+               "parameters": {
+                   "type": "mta-provides-dependency"
+               }
+            },
+            {
+               "name": "configuration",
+               "parameters": {
+                   "type": "configuration"
+               }
+            }
+        ]
+    },
+    {
+        "name": "CLOUD-FOUNDRY",
+        "module-types": [
+            {
+                "name": "javascript.nodejs"
+            },
+            {
+                "name": "java.tomcat",
+                "parameters": {
+                    "buildpack": "git://github.example.com/xs2-java/java-buildpack.git"
+                },
+                "properties": {
+                    "TARGET_RUNTIME": "tomcat"
+                }
+            },
+            {
+                "name": "java.tomee",
+                "parameters": {
+                    "buildpack": "git://github.example.com/xs2-java/java-buildpack.git"
+                },
+                "properties": {
+                    "TARGET_RUNTIME": "tomee"
+                }
+            },
+            {
+                "name": "com.sap.xs.hdi",
+                "parameters": {
+                    "buildpack": "git://github.example.com/xs2/hdi-deploy-buildpack.git",
+                    "no-route": true,
+                    "memory": "256M",
+                    "execute-app": true,
+                    "success-marker": "STDOUT:Deployment done",
+                    "failure-marker": "STDERR:Deployment failed",
+                    "stop-app": true,
+                    "check-deploy-id": true
+                }
+            }
+        ],
+        "resource-types": [
+            {
+                "name": "com.sap.xs.hdi-container",
+                "parameters": {
+                    "service": "hana",
+                    "service-plan": "hdi-shared"
+                }
+            },
+            {
+                "name": "org.cloudfoundry.user-provided-service",
+                "parameters": { 
+                    "type": "user-provided-service"
+                } 
+            },
+            {
+                "name": "org.cloudfoundry.existing-service",
+                "parameters": { 
+                    "type": "existing-service"
+                } 
+            },
+            {
+               "name": "mta-provides-dependency",
+               "parameters": {
+                   "type": "mta-provides-dependency"
+               }
+            },
+            {
+               "name": "configuration",
+               "parameters": {
+                   "type": "configuration"
+               }
+            }
+        ]
+    }
+]

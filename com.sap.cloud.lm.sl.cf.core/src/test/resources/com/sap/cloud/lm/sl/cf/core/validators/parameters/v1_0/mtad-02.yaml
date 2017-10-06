@@ -1,0 +1,8 @@
+ID: com.sap.test
+version: "1.0"
+
+modules:
+  - name: foo
+    type: foo
+    properties:
+      port: -1

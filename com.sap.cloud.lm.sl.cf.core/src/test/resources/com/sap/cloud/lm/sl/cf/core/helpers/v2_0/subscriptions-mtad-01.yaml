@@ -1,0 +1,22 @@
+ID: com.sap.example.mta
+version: 1.0.0
+
+modules:
+  - name: foo
+    type: foo
+    properties:
+      plugin_names: ~{plugins/name}
+      other_property: other_property_value
+    parameters:
+      host: ~{plugins/name}
+    requires:
+      - name: plugins
+        list: plugins
+        parameters:
+          managed: false
+        properties:
+          names: ~{name}
+
+resources:
+  - name: plugins
+    type: configuration

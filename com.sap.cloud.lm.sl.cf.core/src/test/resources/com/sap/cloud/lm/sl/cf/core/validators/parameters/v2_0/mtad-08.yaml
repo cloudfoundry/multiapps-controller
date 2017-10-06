@@ -1,0 +1,13 @@
+ID: com.sap.test
+version: "1.0"
+
+modules:
+  - name: foo
+    type: foo
+    requires:
+       - name: bar
+         parameters:
+           host: _123_abc
+
+  - name: bar
+    type: bar

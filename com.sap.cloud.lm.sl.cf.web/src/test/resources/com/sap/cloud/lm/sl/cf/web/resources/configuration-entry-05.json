@@ -1,0 +1,8 @@
+{
+  "id": 0,
+  "providerNid": "mta",
+  "providerId": "com.sap.mta.test",
+  "providerVersion": "10.0.0",
+  "targetSpace": "sap",
+  "content": "json"
+}

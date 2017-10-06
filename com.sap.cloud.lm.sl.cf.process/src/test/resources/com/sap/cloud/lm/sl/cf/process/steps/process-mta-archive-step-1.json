@@ -1,0 +1,14 @@
+    {
+        "archiveFileLocations": [
+          "process-archive-step-test-1.mtar"
+        ],
+        "expectedModules": [
+            "test-module2", "test-module1"
+        ],
+        "expectedResources": [
+            "test-resource1"
+        ],
+        "expectedRequiredDependencies": [
+            "test-dependency1"
+        ]
+      }

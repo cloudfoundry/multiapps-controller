@@ -1,0 +1,12 @@
+ID: com.sap.mta.test
+version: 1.0.0
+
+modules:
+  - name: app-1
+    type: javascript.nodejs
+
+  - name: app-2
+    type: javascript.nodejs
+
+  - name: app-3
+    type: javascript.nodejs

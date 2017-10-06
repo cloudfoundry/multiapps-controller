@@ -1,0 +1,18 @@
+ID: com.sap.test
+version: "1.0"
+
+modules:
+  - name: foo
+    type: foo
+    properties:
+      host: .com.sap.test.foo
+
+  - name: bar
+    type: bar
+    properties:
+      domain: com.sap.test.foo
+
+resources:
+  - name: baz
+    properties:
+      host: .com.sap.test.foo

@@ -1,0 +1,11 @@
+[
+  {
+    "processId": "1",
+    "processType": {
+      "name": "DEPLOY"
+    },
+    "spaceId": "1234",
+    "mtaId": "1",
+    "acquiredLock": false
+  }
+]

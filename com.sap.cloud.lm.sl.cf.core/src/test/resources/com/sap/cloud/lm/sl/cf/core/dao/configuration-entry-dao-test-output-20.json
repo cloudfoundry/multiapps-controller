@@ -1,0 +1,28 @@
+[
+  {
+    "providerNid": "n-2",
+    "providerId": "id-2",
+    "providerVersion": "1.0.0",
+    "targetSpace": "s-1",
+    "content": "{\"type\": \"prod\"}",
+    "visibility": [
+      {
+        "space": "*",
+        "org": "*"
+      }
+    ]
+  },
+  {
+    "providerNid": "n-2",
+    "providerId": "id-2",
+    "providerVersion": "2.0.0",
+    "targetSpace": "s-1",
+    "content": "{\"type\": \"prod\"}",
+    "visibility": [
+      {
+        "space": "space2",
+        "org": "org2"
+      }
+    ]
+  }
+]

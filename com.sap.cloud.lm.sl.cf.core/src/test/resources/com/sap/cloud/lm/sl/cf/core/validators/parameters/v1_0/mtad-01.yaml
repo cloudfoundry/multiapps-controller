@@ -1,0 +1,25 @@
+ID: com.sap.test
+version: "1.0"
+
+modules:
+  - name: foo
+    type: foo
+    provides:
+      - name: bar
+        properties:
+          test: bar
+    properties:
+      port: 30030
+      memory: 512
+
+  - name: baz
+    type: baz
+    properties:
+      domain: com.sap.test.foo
+      memory: 256
+
+resources:
+  - name: qux
+    properties:
+      test: test
+      port: -100

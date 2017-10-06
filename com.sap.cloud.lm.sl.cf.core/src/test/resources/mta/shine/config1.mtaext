@@ -1,0 +1,47 @@
+ID: com.sap.xs2.samples.shine.config1
+extends: com.sap.xs2.samples.shine
+
+target-platforms: [CF-TRIAL]
+
+modules:
+  - name: shine
+    properties:
+      host: i027947-shine
+      memory: 128M
+
+  - name: shine-xsjs
+    properties:
+      host: i027947-shine-xsjs
+      memory: 256M
+    provides:
+      - name: xsjs
+        properties:
+          url: "http://i027947-shine-xsjs.cfapps.neo.ondemand.com"
+
+  - name: shine-odata
+    properties:
+      host: i027947-shine-odata
+      memory: 256M
+    provides:
+      - name: xsodata
+        properties:
+          url: "http://i027947-shine-odata.cfapps.neo.ondemand.com"
+
+resources:
+  - name: shine-database
+    properties:
+      config:
+        host: example.com
+        port: 30015
+        user: XS2SHINE
+        password: Abcd1234
+        url: "jdbc:sap://example.com:30015/?currentschema=SAP_HANA_DEMO"
+        driver: com.sap.db.jdbc.Driver
+
+  - name: uaa
+    properties:
+      config:
+        clientid: xs2.java
+        clientsecret: javaclientsecret
+        url: "http://sap-login.cfapps.neo.ondemand.com"
+        tags: [xsuaa]

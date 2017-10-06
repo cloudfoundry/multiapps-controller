@@ -1,0 +1,9 @@
+{
+  "code": 10001,
+  "error_code": "CF-ServiceBrokerBadResponse",
+  "http": {
+    "uri": "https://internal-xsuaa.authentication.sap.hana.ondemand.com/v2/service_instances/138ccbb0-deb3-4d77-91eb-686e24f31fa9",
+    "method": "PUT",
+    "status": 500
+  }
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "resourceName": "shine-database",
+    "credentials": {
+      "driver": "com.sap.db.jdbc.Driver",
+      "host": "example.com",
+      "password": "Abcd1234",
+      "port": 30015,
+      "url": "jdbc:sap://example.com:30015/?currentschema=SAP_HANA_DEMO",
+      "user": "XS2SHINE"
+    },
+    "tags": [],
+    "isOptional": false,
+    "isManaged": true,
+    "meta": {},
+    "name": "shine-database"
+  },
+  {
+    "resourceName": "uaa",
+    "credentials": {
+      "clientid": "xs2.java",
+      "clientsecret": "javaclientsecret",
+      "tags": [
+        "xsuaa"
+      ],
+      "url": "http://sap-login.cfapps.neo.ondemand.com"
+    },
+    "tags": [],
+    "isOptional": false,
+    "isManaged": true,
+    "meta": {},
+    "name": "uaa"
+  }
+]

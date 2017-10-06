@@ -1,0 +1,51 @@
+applications:
+  - name: web-server
+    path: ./web-server
+    host: www
+    domain: bestprice.sap.com
+    env:
+      mta-id: com.sap.mta.sample
+      mta-version: 1.2.1-beta+20150403144937853
+      internal-odata: >
+        {"odata.svc_root":"odata/"}
+      com.sap.scv.header: >
+        {"name":"SAP_CLOUD_PRICEOPT 1.2"}
+      docu-url: "http://help.sap.com/saphelp_nw74/en/5c"
+      default-locale: "zho"
+    services:
+      - internal-odata-service
+      
+  - name: pricing
+    path: ./pricing
+    host: api
+    domain: bestprice.sap.com
+    buildpack: nodejs-test
+    env:
+      mta-id: com.sap.mta.sample
+      mta-version: 1.2.1-beta+20150403144937853
+      com.sap.scv.header: >
+        {"name":"SAP_CLOUD_PRICEOPT 1.2"}
+      price-optimization: ""
+      competitor-data: >
+        {"url":"https://marketwatch.il/v2/", "application-key":"25892e17-80f6-415f-9c65-7395632f0223", "secret-key":"cd171f7c-560d-4a62-8d65-16b87419a58c"}
+      docu-url: "http://help.sap.com/saphelp_nw74/en/5c"
+      default-locale: "zho"
+    services:
+      - pricing-db-service
+        
+  - name: pricing-db
+    path: ./pricing-db
+    env:
+      mta-id: com.sap.mta.sample
+      mta-version: 1.2.1-beta+20150403144937853
+      com.sap.scv.header: >
+        {"name":"SAP_CLOUD_PRICEOPT_DB 1.2"}  
+      docu-url: "http://help.sap.com/saphelp_nw74/en/5c"
+      default-locale: "zho"
+    services:
+      - pricing-db-service
+---
+    
+#Prerequisites:
+#cf create-service hdi-hana hdi-shared pricing-db-service
+#cf create-user-provided-service internal-odata-service -p '{"username":"technicalUser","password":"shfzj86g"}'

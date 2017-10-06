@@ -1,0 +1,12 @@
+[
+  {
+    "serviceAlternatives": [],
+    "resourceName": "bar",
+    "credentials": {},
+    "tags": [],
+    "isOptional": false,
+    "isManaged": true,
+    "meta": {},
+    "name": "bar"
+  }
+]

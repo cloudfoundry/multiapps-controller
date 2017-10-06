@@ -1,0 +1,72 @@
+{
+  "modules2_0": [
+    {
+      "requiredDependencies2_0": [
+        {
+          "name": "plugins.0",
+          "list": "plugins",
+          "properties": {
+            "plugin_name": "~{plugin_name}",
+            "url": "~{url}"
+          },
+          "parameters": {}
+        },
+        {
+          "name": "plugins.1",
+          "list": "plugins",
+          "properties": {
+            "plugin_name": "~{plugin_name}",
+            "url": "~{url}"
+          },
+          "parameters": {}
+        }
+      ],
+      "providedDependencies2_0": [
+        {
+          "isPublic": true,
+          "name": "framework",
+          "properties": {}
+        }
+      ],
+      "parameters": {},
+      "name": "framework",
+      "type": "javascript.nodejs",
+      "properties": {}
+    }
+  ],
+  "resources2_0": [
+    {
+      "parameters": {
+        "filter": {
+          "type": "com.acme.plugin"
+        }
+      },
+      "name": "plugins.0",
+      "properties": {
+        "baz": "qux",
+        "foo": "bar",
+        "plugin_name": "plugin-1",
+        "type": "com.acme.plugin",
+        "url": "https://localhost:52010"
+      }
+    },
+    {
+      "parameters": {
+        "filter": {
+          "type": "com.acme.plugin"
+        }
+      },
+      "name": "plugins.1",
+      "properties": {
+        "baz": "qux",
+        "foo": "bar",
+        "plugin_name": "plugin-2",
+        "type": "com.acme.plugin",
+        "url": "https://localhost:52011"
+      }
+    }
+  ],
+  "parameters": {},
+  "id": "mta-1",
+  "version": "1.0.0"
+}

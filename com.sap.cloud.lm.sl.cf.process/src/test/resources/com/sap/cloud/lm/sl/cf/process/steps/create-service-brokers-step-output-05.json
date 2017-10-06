@@ -1,0 +1,11 @@
+{
+  "createdServiceBrokers": [
+    {
+      "url": "http://localhost:3030",
+      "username": "bar",
+      "meta": {},
+      "name": "foo-broker"
+    }
+  ],
+  "updatedServiceBrokers": []
+}

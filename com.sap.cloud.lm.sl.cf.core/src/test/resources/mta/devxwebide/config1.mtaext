@@ -1,0 +1,20 @@
+ID: com.sap.devx.webide.config1
+extends: com.sap.devx.webide
+
+target-platforms: [CF-TRIAL]
+
+modules:
+  - name: webide
+    properties:
+      host: i027947-webide
+      memory: 128M
+
+resources:
+  - name: sapui5
+    properties:
+      url: "https://sapui5.netweaver.ondemand.com"
+      
+  - name: che
+    properties:
+      url: "http://i027947-di-core.cfapps.neo.ondemand.com"
+  

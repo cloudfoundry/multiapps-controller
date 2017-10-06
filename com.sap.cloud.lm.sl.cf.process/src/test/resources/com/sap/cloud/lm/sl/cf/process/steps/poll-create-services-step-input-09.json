@@ -1,0 +1,21 @@
+{
+  "services": [
+    {
+      "name": "test-service",
+      "plan": "test",
+      "provider": "test",
+      "version": "test"
+    }
+  ],
+  "triggeredServiceOperations": {
+    "test-service": "CREATE"
+  },
+  "serviceInstanceResponse": {
+    "test-service": {
+      "last_operation": {
+        "type": "create",
+        "state": "failed"
+      }
+    }
+  }
+}

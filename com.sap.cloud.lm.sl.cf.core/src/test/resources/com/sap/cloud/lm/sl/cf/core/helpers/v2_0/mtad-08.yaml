@@ -1,0 +1,32 @@
+ID: mta-1
+version: 1.0.0
+
+modules:
+  - name: framework
+    type: javascript.nodejs
+    parameters:
+      app-name: framework
+    properties:
+      urls: ~{plugins/url}
+    provides:
+      - name: framework
+        properties:
+          urls: ~{plugins/url}
+    requires:
+      - name: plugins
+        list: plugins
+        parameters:
+          managed: true
+        properties:
+          plugin_name: ~{plugin_name}
+          url: ~{url}
+
+resources:
+  - name: plugins
+    type: configuration
+    parameters:
+      filter:
+        type: com.acme.plugin
+    properties:
+      foo: bar
+      baz: qux

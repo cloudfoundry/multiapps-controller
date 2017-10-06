@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+	<changeSet author="sap.com" id="add_id_column_to_deploy_target_tables">
+		<createSequence sequenceName="deploy_target_sequence" startValue="1" incrementBy="1" />
+		<addColumn tableName="deploy_target_v1">
+			<column name="ID" type="BIGINT" />
+		</addColumn>
+		<addColumn tableName="deploy_target_v2">
+			<column name="ID" type="BIGINT" />
+		</addColumn>
+		<addColumn tableName="deploy_target_v3">
+			<column name="ID" type="BIGINT" />
+		</addColumn>
+	</changeSet>
+	<changeSet author="sap.com" id="fill_id_for_existing_deploy_target_tables">
+	    <!-- postgres, working only on cf so far, has no data in those tables as the functionality is not accessible-->
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<dbms type="postgresql" />
+			</not>
+		</preConditions>
+		<update tableName="deploy_target_v1">
+			<column name="ID" valueComputed="deploy_target_sequence.NEXTVAL" />
+		</update>
+		<update tableName="deploy_target_v2">
+			<column name="ID" valueComputed="deploy_target_sequence.NEXTVAL" />
+		</update>
+		<update tableName="deploy_target_v3">
+			<column name="ID" valueComputed="deploy_target_sequence.NEXTVAL" />
+		</update>
+	</changeSet>
+	<changeSet author="sap.com" id="change_pk_for_deploy_target_tables">
+		<dropPrimaryKey constraintName="target_platform_v1_pk" tableName="deploy_target_v1" />
+		<dropPrimaryKey constraintName="target_platform_v2_pk" tableName="deploy_target_v2" />
+		<dropPrimaryKey constraintName="target_platform_v3_pk" tableName="deploy_target_v3" />
+		<addUniqueConstraint columnNames="name" constraintName="deploy_target_v1_unique_name" tableName="deploy_target_v1" />
+		<addUniqueConstraint columnNames="name" constraintName="deploy_target_v2_unique_name" tableName="deploy_target_v2" />
+		<addUniqueConstraint columnNames="name" constraintName="deploy_target_v3_unique_name" tableName="deploy_target_v3" />
+		<addNotNullConstraint columnName="ID" columnDataType="BIGINT" tableName="deploy_target_v1" />
+		<addNotNullConstraint columnName="ID" columnDataType="BIGINT" tableName="deploy_target_v2" />
+		<addNotNullConstraint columnName="ID" columnDataType="BIGINT" tableName="deploy_target_v3" />
+		<addPrimaryKey tableName="deploy_target_v1" columnNames="ID" />
+		<addPrimaryKey tableName="deploy_target_v2" columnNames="ID" />
+		<addPrimaryKey tableName="deploy_target_v3" columnNames="ID" />
+		<!-- v1 rename -->
+		<update tableName="deploy_target_v1">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'deploy-target>', 'deployTarget>')" />
+		</update>
+		<update tableName="deploy_target_v1">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-types>', 'moduleTypes>')" />
+		</update>
+		<update tableName="deploy_target_v1">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-types>', 'resourceTypes>')" />
+		</update>
+		<update tableName="deploy_target_v1">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-type>', 'moduleType>')" />
+		</update>
+		<update tableName="deploy_target_v1">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-type>', 'resourceType>')" />
+		</update>
+		<update tableName="deploy_target_v1">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-types/>', 'moduleTypes/>')" />
+		</update>
+		<update tableName="deploy_target_v1">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-types/>', 'resourceTypes/>')" />
+		</update>
+		<update tableName="deploy_target_v1">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-type/>', 'moduleType/>')" />
+		</update>
+		<update tableName="deploy_target_v1">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-type/>', 'resourceType/>')" />
+		</update>
+		<!-- v2 rename -->
+		<update tableName="deploy_target_v2">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'deploy-target>', 'deployTarget>')" />
+		</update>
+		<update tableName="deploy_target_v2">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-types>', 'moduleTypes>')" />
+		</update>
+		<update tableName="deploy_target_v2">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-types>', 'resourceTypes>')" />
+		</update>
+		<update tableName="deploy_target_v2">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-type>', 'moduleType>')" />
+		</update>
+		<update tableName="deploy_target_v2">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-type>', 'resourceType>')" />
+		</update>
+		<update tableName="deploy_target_v2">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-types/>', 'moduleTypes/>')" />
+		</update>
+		<update tableName="deploy_target_v2">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-types/>', 'resourceTypes/>')" />
+		</update>
+		<update tableName="deploy_target_v2">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-type/>', 'moduleType/>')" />
+		</update>
+		<update tableName="deploy_target_v2">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-type/>', 'resourceType/>')" />
+		</update>
+		<!-- v3 rename -->
+		<update tableName="deploy_target_v3">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'deploy-target>', 'deployTarget>')" />
+		</update>
+		<update tableName="deploy_target_v3">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-types>', 'moduleTypes>')" />
+		</update>
+		<update tableName="deploy_target_v3">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-types>', 'resourceTypes>')" />
+		</update>
+		<update tableName="deploy_target_v3">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-type>', 'moduleType>')" />
+		</update>
+		<update tableName="deploy_target_v3">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-type>', 'resourceType>')" />
+		</update>
+		<update tableName="deploy_target_v3">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-types/>', 'moduleTypes/>')" />
+		</update>
+		<update tableName="deploy_target_v3">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-types/>', 'resourceTypes/>')" />
+		</update>
+		<update tableName="deploy_target_v3">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'module-type/>', 'moduleType/>')" />
+		</update>
+		<update tableName="deploy_target_v3">
+			<column name="XML_CONTENT" valueComputed="REPLACE(XML_CONTENT, 'resource-type/>', 'resourceType/>')" />
+		</update>
+	</changeSet>
+</databaseChangeLog>

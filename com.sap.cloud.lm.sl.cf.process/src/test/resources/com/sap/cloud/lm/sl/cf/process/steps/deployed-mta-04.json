@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "id": "test",
+    "version": "0.1.0"
+  },
+  "modules": [
+    {
+      "moduleName": "d",
+      "appName": "d",
+      "services": [],
+      "providedDependencyNames": []
+    },
+    {
+      "moduleName": "e",
+      "appName": "e",
+      "services": [],
+      "providedDependencyNames": []
+    }
+  ],
+  "services": []
+}

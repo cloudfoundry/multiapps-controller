@@ -1,0 +1,42 @@
+{
+  "id": "com.sap.test",
+  "version": "1.0",
+  "modules": [
+    {
+      "parameters": {},
+      "name": "foo",
+      "type": "foo",
+      "properties": {},
+      "requiredDependencies": [
+        {
+          "name": "bar",
+          "properties": {},
+          "parameters": {
+            "host": "123-abc"
+          }
+        }
+      ],
+      "providedDependencies": [
+        {
+          "name": "foo",
+          "properties": {}
+        }
+      ]
+    },
+    {
+      "parameters": {},
+      "name": "bar",
+      "type": "bar",
+      "properties": {},
+      "requiredDependencies": [],
+      "providedDependencies": [
+        {
+          "name": "bar",
+          "properties": {}
+        }
+      ]
+    }
+  ],
+  "resources": [],
+  "properties": {}
+}

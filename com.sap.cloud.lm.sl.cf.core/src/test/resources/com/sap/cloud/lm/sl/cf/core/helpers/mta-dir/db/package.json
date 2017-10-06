@@ -1,0 +1,10 @@
+{
+  "name": "deploy",
+  "dependencies": {
+    "deploy": "git://example.com/xs2/hdideploy.js"
+  },
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/node-hdi-deploy/deploy.js"
+  }
+}

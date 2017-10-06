@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "id": "test",
+    "version": "0.1.0"
+  },
+  "modules": [
+    {
+      "moduleName": "a",
+      "appName": "a",
+      "services": [],
+      "providedDependencyNames": [
+        "p-1",
+        "p-2",
+        "p-5"
+      ]
+    },
+    {
+      "moduleName": "b",
+      "appName": "b",
+      "services": [],
+      "providedDependencyNames": [
+        "p-3",
+        "p-6"
+      ]
+    },
+    {
+      "moduleName": "c",
+      "appName": "c",
+      "services": [],
+      "providedDependencyNames": [
+        "p-4"
+      ]
+    },
+    {
+      "moduleName": "d",
+      "appName": "d",
+      "services": [],
+      "providedDependencyNames": [
+        "p-7",
+        "p-8"
+      ]
+    },
+    {
+      "moduleName": "e",
+      "appName": "e",
+      "services": [],
+      "providedDependencyNames": []
+    }
+  ],
+  "services": []
+}

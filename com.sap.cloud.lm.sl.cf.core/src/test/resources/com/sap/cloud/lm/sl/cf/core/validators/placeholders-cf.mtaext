@@ -1,0 +1,29 @@
+_schema-version: 2.0.0
+ID: myapp.config1 
+extends: myapp
+
+target-platforms: [CF-TRIAL]
+
+modules:
+  - name: m1
+    parameters:
+      memory: 128M
+
+  - name: m2
+    parameters:
+      disk-quota: 1G
+      instances: 2
+
+resources:
+  - name: r2
+    parameters:
+      service-name: uaa
+
+  - name: r3
+    parameters:
+      host: example.com
+      port: 30015
+      user: XS2SHINE 
+      password: Abcd1234
+      url: "jdbc:sap://${host}:${port}/?currentschema=SAP_HANA_DEMO"
+      driver: com.sap.db.jdbc.Driver

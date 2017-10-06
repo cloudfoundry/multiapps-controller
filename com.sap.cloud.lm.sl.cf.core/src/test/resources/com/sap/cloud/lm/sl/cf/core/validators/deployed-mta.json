@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "id": "mta-sample",
+    "version": "0.0.1"
+  },
+  "modules": [
+    {
+      "moduleName": "module",
+      "appName": "module",
+      "providedDependencies": [
+        {
+          "name": "provides-dependency",
+          "properties": {
+            "bar": "bar",
+            "foo": "foo"
+          },
+          "groups": []
+        }
+      ],
+      "uris": []
+    }
+  ],
+  "services":[]
+}

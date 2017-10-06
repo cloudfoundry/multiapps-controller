@@ -1,0 +1,24 @@
+{
+  "servicesToDeploy": [
+    {
+      "name": "service-1"
+    },
+    {
+      "name": "service-2"
+    }
+  ],
+  "appsToDeploy": [
+    {
+      "name": "application-1",
+      "boundServices": [
+        "service-1"
+      ]
+    },
+    {
+      "name": "application-2",
+      "boundServices": [
+        "service-2"
+      ]
+    }
+  ]
+}

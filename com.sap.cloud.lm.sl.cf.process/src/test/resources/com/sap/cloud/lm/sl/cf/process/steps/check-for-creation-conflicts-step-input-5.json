@@ -1,0 +1,40 @@
+{
+  "servicesToDeploy": [
+    {
+      "name": "service-1"
+    },
+    {
+      "name": "service-2"
+    }
+  ],
+  "existingServices": [
+    {
+      "name": "service-1"
+    },
+    {
+      "name": "service-2"
+    }
+  ],
+  "existingApps": [
+    {
+      "name": "application-1",
+      "boundServices": [
+        "service-1"
+      ]
+    },
+    {
+      "name": "application-2",
+      "boundServices": [
+        "service-2"
+      ]
+    }
+  ],
+  "servicesFromDeployedMta": [
+    {
+      "name": "service-1"
+    },
+    {
+      "name": "service-2"
+    }
+  ]
+}

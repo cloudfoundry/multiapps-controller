@@ -1,0 +1,34 @@
+{
+    "xsappname": "node-hello-world",
+    "scopes": [
+               {
+               "name": "$XSAPPNAME.Display",
+               "description": "display"
+               },
+               {
+               "name": "$XSAPPNAME.Edit",
+               "description": "edit"
+               },
+               {
+               "name": "$XSAPPNAME.Delete",
+               "description": "delete"
+               }
+               ],
+    "role-templates": [
+                       {
+                       "name": "Viewer",
+                       "description": "View all books",
+                       "scope-references": [
+                                            "$XSAPPNAME.Display"
+                                            ]
+                       },
+                       {
+                       "name": "Editor",
+                       "description": "Edit and Delete the books",
+                       "scope-references": [
+                                            "$XSAPPNAME.Edit",
+                                            "$XSAPPNAME.Delete"
+                                            ]
+                       }
+                       ]
+}

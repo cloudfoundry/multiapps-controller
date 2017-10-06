@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="configuration-filter" type="configuration-filter-type" />
+
+    <xs:complexType name="configuration-filter-type">
+        <xs:all>
+            <xs:element name="target-space" type="xs:string" minOccurs="0" />
+            <xs:element name="provider-nid" type="xs:string" minOccurs="0" />
+            <xs:element name="provider-version" type="xs:string" minOccurs="0" />
+            <xs:element name="content" type="xs:string" minOccurs="0" />
+            <xs:element name="provider-id" type="xs:string" minOccurs="0" />
+        </xs:all>
+    </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,64 @@
+[
+  {
+    "mtaId": "com.sap.sample.mta.framework",
+    "filter": {
+      "requiredContent": {
+        "type": "com.acme.plugin"
+      }
+    },
+    "spaceId": "sap",
+    "appName": "framework",
+    "moduleDto": {
+      "name": "framework",
+      "properties": {},
+      "providedDependencies": [],
+      "requiredDependencies": [
+        {
+          "name": "plugin",
+          "list": "plugin",
+          "properties": {
+            "plugin_name": "~{plugin_name}"
+          }
+        }
+      ]
+    },
+    "resourceDto": {
+      "name": "plugin",
+      "properties": {
+        "foo": "foo",
+        "bar": "bar",
+        "baz": "baz"
+      }
+    }
+  },
+  {
+    "mtaId": "com.sap.sample.mta.test-3",
+    "filter": {
+      "requiredContent": {
+        "type": "com.acme.notification"
+      }
+    },
+    "spaceId": "sap",
+    "appName": "test-3",
+    "moduleDto": {
+      "name": "test-3",
+      "properties": {},
+      "providedDependencies": [],
+      "requiredDependencies": [
+        {
+          "name": "test",
+          "list": "test",
+          "properties": {
+            "plugin_name": "~{plugin_name}"
+          }
+        }
+      ]
+    },
+    "resourceDto": {
+      "name": "test",
+      "properties": {
+        "foo": "foo"
+      }
+    }
+  }
+]

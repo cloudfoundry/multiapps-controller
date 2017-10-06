@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<target-platform>
+    <name>XS@-INITI@L</name>
+    <type>XSA</type>
+    <parameters>
+      <entry>
+        <key>org</key>
+        <value>initial</value>
+      </entry>
+      <entry>
+        <key>space</key>
+        <value>initial</value>
+      </entry>
+    </parameters>
+    <module-types/>
+    <resource-types/>
+</target-platform>

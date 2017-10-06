@@ -1,0 +1,140 @@
+{
+  "subscriptionsToCreate": [
+    {
+      "mtaId": "com.sap.sample.mta.test-1",
+      "filter": {
+        "requiredContent": {
+          "type": "com.acme.plugin"
+        }
+      },
+      "spaceId": "test-1",
+      "appName": "test-1",
+      "moduleDto": {
+        "name": "test-1",
+        "properties": {},
+        "providedDependencies": [],
+        "requiredDependencies": [
+          {
+            "name": "plugin",
+            "list": "plugin",
+            "properties": {
+              "foo": "~{foo}",
+              "bar": "~{bar}",
+              "baz": "~{baz}"
+            }
+          }
+        ]
+      },
+      "resourceDto": {
+        "name": "plugin",
+        "properties": {
+          "foo": "foo"
+        }
+      }
+    },
+    {
+      "mtaId": "com.sap.sample.mta.test-2",
+      "filter": {
+        "requiredContent": {
+          "providerId": "com.sap.sample.mta.test-1:test-1",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0"
+        }
+      },
+      "spaceId": "test-2",
+      "appName": "test-2",
+      "moduleDto": {
+        "name": "test-2",
+        "properties": {},
+        "providedDependencies": [],
+        "requiredDependencies": [
+          {
+            "name": "test",
+            "list": "list",
+            "properties": {
+              "foo": "~{foo}",
+              "bar": "~{bar}",
+              "baz": "~{baz}"
+            }
+          }
+        ]
+      },
+      "resourceDto": {
+        "name": "test",
+        "properties": {
+          "foo": "foo"
+        }
+      }
+    }
+  ],
+  "subscriptionsToUpdate": [
+    {
+      "mtaId": "com.sap.sample.mta.test-3",
+      "filter": {
+        "requiredContent": {
+          "type": "com.acme.plugin"
+        }
+      },
+      "spaceId": "test-3",
+      "appName": "test-3",
+      "moduleDto": {
+        "name": "test-3",
+        "properties": {},
+        "providedDependencies": [],
+        "requiredDependencies": [
+          {
+            "name": "plugin",
+            "list": "plugin",
+            "properties": {
+              "foo": "~{foo}",
+              "bar": "~{bar}",
+              "baz": "~{baz}"
+            }
+          }
+        ]
+      },
+      "resourceDto": {
+        "name": "plugin",
+        "properties": {
+          "foo": "foo"
+        }
+      }
+    },
+    {
+      "mtaId": "com.sap.sample.mta.test-4",
+      "filter": {
+        "requiredContent": {
+          "providerId": "com.sap.sample.mta.test-3:test-3",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0"
+        }
+      },
+      "spaceId": "test-4",
+      "appName": "test-4",
+      "moduleDto": {
+        "name": "test-4",
+        "properties": {},
+        "providedDependencies": [],
+        "requiredDependencies": [
+          {
+            "name": "test",
+            "list": "list",
+            "properties": {
+              "foo": "~{foo}",
+              "bar": "~{bar}",
+              "baz": "~{baz}"
+            }
+          }
+        ]
+      },
+      "resourceDto": {
+        "name": "test",
+        "properties": {
+          "foo": "foo"
+        }
+      }
+    }
+  ]
+}

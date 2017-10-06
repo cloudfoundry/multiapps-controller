@@ -1,0 +1,15 @@
+_schema-version: "2.0.0"
+ID: com.sap.xs2.test
+version: 0.1.0
+
+modules:
+  - name: foo
+    type: foo
+    requires:
+      - name: bar
+        parameters:
+          config: test
+
+resources:
+  - name: bar
+    type: bar

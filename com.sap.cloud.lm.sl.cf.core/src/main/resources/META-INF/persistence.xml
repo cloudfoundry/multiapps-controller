@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+    version="2.0">
+    <persistence-unit name="ConfigurationSubscriptionManagement" transaction-type="RESOURCE_LOCAL">
+        <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationSubscriptionDto</class>
+        <properties>
+            <property name="openjpa.Log" value="slf4j" />
+        </properties>
+    </persistence-unit>
+    <persistence-unit name="OngoingOperationManagement" transaction-type="RESOURCE_LOCAL">
+        <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.OngoingOperationDto</class>
+        <properties>
+            <property name="openjpa.Log" value="slf4j" />
+        </properties>
+    </persistence-unit>
+    <persistence-unit name="ConfigurationEntryManagement" transaction-type="RESOURCE_LOCAL">
+        <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto</class>
+        <properties>
+            <property name="openjpa.Log" value="slf4j" />
+        </properties>
+    </persistence-unit>
+    <persistence-unit name="DeployTargetManagement" transaction-type="RESOURCE_LOCAL">
+        <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v1.DeployTargetDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v2.DeployTargetDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.v3.DeployTargetDto</class>
+        <properties>
+            <property name="openjpa.Log" value="slf4j" />
+        </properties>
+    </persistence-unit>
+    <persistence-unit name="ContextExtensionmManagement" transaction-type="RESOURCE_LOCAL">
+        <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+        <class>com.sap.cloud.lm.sl.cf.core.model.ContextExtension</class>
+        <properties>
+            <property name="openjpa.Log" value="slf4j" />
+        </properties>
+    </persistence-unit>
+</persistence>

@@ -1,0 +1,65 @@
+---
+applications:
+- name: deploy-service
+  host: deploy-service
+  memory: 1024M
+  instances: 1
+  path: ../${project.build.finalName}.war
+  buildpack: java_buildpack
+  services:
+    - deploy-service-database
+  env:
+    VERSION: ${project.version}
+    XS_TYPE: CF
+    XS_TARGET_URL: http://api.bosh-lite.com
+    DB_TYPE: POSTGRESQL
+    PLATFORMS: >
+      []
+    PLATFORMS_V2: &V2_LIKE_PLATFORMS >
+      [
+        {
+          "name": "CLOUD-FOUNDRY",
+          "module-types": [
+            { "name": "custom" },
+            { "name": "javascript.nodejs" },
+            { "name": "java", "parameters": { "buildpack": "java_buildpack" }},
+            { "name": "java.tomcat", "parameters": { "buildpack": "java_buildpack" }, "properties": { "TARGET_RUNTIME": "tomcat" }},
+            { "name": "java.tomee",  "parameters": { "buildpack": "java_buildpack" }, "properties": { "TARGET_RUNTIME": "tomee" }},
+            { "name": "staticfile", "parameters": { "buildpack": "staticfile_buildpack" }},
+            { "name": "ruby", "parameters": { "buildpack": "ruby_buildpack" }},
+            { "name": "nodejs", "parameters": { "buildpack": "nodejs_buildpack" }},
+            { "name": "go", "parameters": { "buildpack": "go_buildpack" }},
+            { "name": "python", "parameters": { "buildpack": "python_buildpack" }},
+            { "name": "php", "parameters": { "buildpack": "php_buildpack" }},
+            { "name": "binary", "parameters": { "buildpack": "binary_buildpack" }},
+            { "name": "dotnet_core", "parameters": { "buildpack": "dotnet_core_buildpack" }}
+          ],
+          "resource-types": [
+            { "name": "mongodb", "parameters": { "service": "mongodb", "service-plan": "v3.0-dev" }},
+            { "name": "postgresql", "parameters": { "service": "postgresql", "service-plan": "v9.4-dev" }},
+            { "name": "rabbitmq", "parameters": { "service": "rabbitmq", "service-plan": "v3.6-dev" }},
+            { "name": "redis", "parameters": { "service": "redis", "service-plan": "v3.0-dev" }},
+            { "name": "influxdb", "parameters": { "service": "influxdb", "service-plan": "v0.13-container" }},
+            { "name": "org.cloudfoundry.user-provided-service", "parameters": { "type": "user-provided-service" }},
+            { "name": "org.cloudfoundry.managed-service", "parameters": { "type": "managed-service" }},
+            { "name": "org.cloudfoundry.existing-service", "parameters": { "type": "existing-service" }},
+            { "name": "mta-provided", "parameters": { "type": "mta-provides-dependency" }},
+            { "name": "configuration", "parameters": { "type": "configuration" }},
+            { "name": "autoscaler", "parameters": { "service": "autoscaler", "service-plan": "lite" }},
+            { "name": "application-logs", "parameters": { "service": "application-logs", "service-plan": "lite" }},
+            { "name": "connectivity", "parameters": { "service": "connectivity", "service-plan": "lite" }},
+            { "name": "feature-flags", "parameters": { "service": "feature-flags", "service-plan": "trial" }},
+            { "name": "metering", "parameters": { "service": "metering", "service-plan": "standard" }},
+            { "name": "ml-foundation-services", "parameters": { "service": "ml-foundation-services", "service-plan": "lite" }},
+            { "name": "objectstore", "parameters": { "service": "objectstore", "service-plan": "s3-standard" }}
+          ]
+        }
+      ]
+    PLATFORMS_V3: *V2_LIKE_PLATFORMS
+    TARGETS: >
+      []
+    TARGETS_V2: >
+      []
+    TARGETS_V3: >
+      []
+    SKIP_SSL_VALIDATION: true

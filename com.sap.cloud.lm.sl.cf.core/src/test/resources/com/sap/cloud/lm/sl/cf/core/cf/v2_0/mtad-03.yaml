@@ -1,0 +1,15 @@
+_schema-version: "2.0.0"
+ID: com.sap.sample.mta
+version: 0.1.0
+
+modules:
+  - name: module-1
+    type: java.tomee
+    parameters:
+      app-name: application-1
+      host: test-host
+      route-path: /test
+  - name: module-2
+    type: java.tomee
+    parameters:
+      app-name: application-2

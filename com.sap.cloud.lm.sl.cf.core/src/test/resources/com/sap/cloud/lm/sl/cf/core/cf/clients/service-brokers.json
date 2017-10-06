@@ -1,0 +1,30 @@
+[
+  {
+    "spaceGuid": "1d43e64d-ed64-43dd-9046-11f422bd407b",
+    "url": "https://foo.com/url-2",
+    "username": "auth_username-2",
+    "meta": {
+      "guid": "90a413fd-a636-4133-8bfb-a94b07839e96",
+      "url": "/v2/service_brokers/90a413fd-a636-4133-8bfb-a94b07839e96"
+    },
+    "name": "name-85"
+  },
+  {
+    "url": "https://foo.com/url-3",
+    "username": "auth_username-3",
+    "meta": {
+      "guid": "a3419c34-477f-4279-9ccc-4e4ac4b3dfac",
+      "url": "/v2/service_brokers/a3419c34-477f-4279-9ccc-4e4ac4b3dfac"
+    },
+    "name": "name-86"
+  },
+  {
+    "url": "https://foo.com/url-4",
+    "username": "auth_username-4",
+    "meta": {
+      "guid": "96736210-67dc-47bf-9dad-718847dd3f50",
+      "url": "/v2/service_brokers/96736210-67dc-47bf-9dad-718847dd3f50"
+    },
+    "name": "name-87"
+  }
+]

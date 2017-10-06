@@ -1,0 +1,28 @@
+{
+  "services": [
+    {
+      "name": "service-1",
+      "label": "label-1",
+      "plan": "service-1",
+      "tags":[]
+    },
+    {
+      "name": "service-2",
+      "tags":[]
+    }
+  ],
+  "applications": [
+    {
+      "name": "application-1",
+      "boundServices": [
+        "service-1"
+      ]
+    },
+    {
+      "name": "application-2",
+      "boundServices": [
+        "service-2"
+      ]
+    }
+  ]
+}

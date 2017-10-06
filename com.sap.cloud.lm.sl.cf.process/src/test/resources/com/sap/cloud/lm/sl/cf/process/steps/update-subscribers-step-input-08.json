@@ -1,0 +1,153 @@
+{
+  "currentSpace": {
+    "organization": {
+      "meta": {},
+      "name": "sap"
+    },
+    "meta": {},
+    "name": "sap"
+  },
+  "subscribersToUpdate": [
+    {
+      "subscription": {
+        "mtaId": "foo",
+        "filter": {
+          "requiredContent": {
+            "type": "com.acme.plugins-1"
+          }
+        },
+        "spaceId": "xsa",
+        "appName": "foo",
+        "moduleDto": {
+          "name": "foo",
+          "properties": {},
+          "providedDependencies": [
+            {
+              "name": "foo",
+              "properties": {}
+            }
+          ],
+          "requiredDependencies": [
+            {
+              "name": "plugins",
+              "list": "plugins",
+              "properties": {
+                "name": "~{plugin_name}"
+              }
+            }
+          ]
+        },
+        "resourceDto": {
+          "name": "plugins",
+          "properties": {}
+        }
+      },
+      "app": {
+        "meta": {
+          "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
+        },
+        "name": "foo",
+        "env": [
+          "test=this-property-should-remain-in-the-env-after-the-update"
+        ],
+        "space": {
+          "organization": {
+            "meta": {},
+            "name": "xsa"
+          },
+          "meta": {},
+          "name": "xsa"
+        }
+      },
+      "relevantPublishedEntries": [
+        {
+          "providerId": "plugin-01",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0",
+          "content": "{\"plugin_name\":\"plugin-01\"}"
+        }
+      ],
+      "relevantDeletedEntries": [],
+      "relevantExistingEntries": []
+    },
+    {
+      "subscription": {
+        "mtaId": "foo",
+        "filter": {
+          "requiredContent": {
+            "type": "com.acme.plugins-2"
+          }
+        },
+        "spaceId": "xsa",
+        "appName": "foo",
+        "moduleDto": {
+          "name": "foo",
+          "properties": {},
+          "providedDependencies": [
+            {
+              "name": "foo",
+              "properties": {}
+            }
+          ],
+          "requiredDependencies": [
+            {
+              "name": "urls",
+              "list": "urls",
+              "properties": {
+                "url": "~{plugin_url}"
+              }
+            }
+          ]
+        },
+        "resourceDto": {
+          "name": "urls",
+          "properties": {}
+        }
+      },
+      "app": {
+        "meta": {
+          "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
+        },
+        "name": "foo",
+        "env": [
+          "test=this-property-should-remain-in-the-env-after-the-update"
+        ],
+        "space": {
+          "organization": {
+            "meta": {},
+            "name": "xsa"
+          },
+          "meta": {},
+          "name": "xsa"
+        }
+      },
+      "relevantPublishedEntries": [
+        {
+          "providerId": "plugin-02",
+          "providerNid": "mta",
+          "targetSpace": "sap",
+          "providerVersion": "1.0.0",
+          "content": "{\"plugin_url\":\"https://localhost:30030\"}"
+        }
+      ],
+      "relevantDeletedEntries": [],
+      "relevantExistingEntries": []
+    }
+  ],
+  "userRoles": [
+    {
+      "space": {
+        "organization": {
+          "meta": {},
+          "name": "xsa"
+        },
+        "meta": {},
+        "name": "xsa"
+      },
+      "permissions": [
+        "READ", "WRITE"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<target-platform>
+    <properties>
+        <entry>
+          <key>org</key>
+          <value>initial</value>
+        </entry>
+        <entry>
+          <key>space</key>
+          <value>initial</value>
+        </entry>
+    </properties>
+</target-platform>

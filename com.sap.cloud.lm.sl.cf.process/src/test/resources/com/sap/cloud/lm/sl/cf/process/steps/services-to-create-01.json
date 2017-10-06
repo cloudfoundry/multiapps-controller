@@ -1,0 +1,12 @@
+[
+  {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "resource-1"
+  },
+  {
+    "isOptional": false,
+    "isManaged": true,
+    "name": "resource-2"
+  }
+]

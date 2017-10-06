@@ -1,0 +1,59 @@
+_schema-version: "2.0.0"
+ID: com.sap.xs2.samples.shine
+version: 0.1.0
+
+modules:
+  - name: shine
+    type: javascript.nodejs
+    requires:
+      - name: uaa
+      - name: xsjs
+        group: destinations
+        properties:
+          name: xsjs
+          url: ~{url}
+      - name: xsodata
+        group: destinations
+        properties:
+          name: xsodata
+          url: ~{url}
+      - name: ui5
+        group: destinations
+        properties:
+          name: ui5
+          url: ~{url}
+
+  - name: shine-xsjs
+    type: javascript.nodejs
+    provides:
+    - name: xsjs
+      properties:
+        url:
+    requires:
+      - name: uaa
+      - name: shine-database
+        properties:
+          HANA_SERVICE_NAME: shine-database
+
+  - name: shine-odata
+    type: java.tomcat
+    provides:
+    - name: xsodata
+      properties:
+        url:
+    requires:
+      - name: uaa
+      - name: shine-database
+        properties:
+          SERVICE_TO_JNDI_NAME_MAPPING: "{\"shine-database\":\"jdbc/DefaultDB\"}"
+
+resources:
+  - name: shine-database
+    type: org.cloudfoundry.user-provided-service
+
+  - name: uaa
+    type: org.cloudfoundry.user-provided-service
+
+  - name: ui5
+    properties:
+      url: "https://sapui5.netweaver.ondemand.com"

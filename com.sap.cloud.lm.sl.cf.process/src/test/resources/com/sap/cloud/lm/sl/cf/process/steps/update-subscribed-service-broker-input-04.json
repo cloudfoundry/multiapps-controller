@@ -1,0 +1,11 @@
+{
+	"brokerApplication":{
+		"name": "test-application",
+        "brokerName": "test-broker",
+        "brokerUrl": "test-roker-url",
+        "brokerPassword": "test-borker-password",
+        "brokerUser": "test-broker-username"
+	},
+	"brokerFromClient": {
+	}
+}

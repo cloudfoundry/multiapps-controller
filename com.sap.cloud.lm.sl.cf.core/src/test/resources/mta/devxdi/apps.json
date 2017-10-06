@@ -1,0 +1,106 @@
+[
+  {
+    "moduleName": "di-core",
+    "extendedStaging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
+    "idleUris": [],
+    "tasks": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-core.cfapps.neo.ondemand.com/test\"]}",
+      "JAVA_OPTS=-Daccess.logging.enabled=false -Dhttp.port=$VCAP_APP_PORT -Djava.io.tmpdir=$TMPDIR",
+      "JBP_CONFIG_SAPJVM_MEMORY_SIZES=metaspace:128m..",
+      "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
+      "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"di-core\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"di-core-genbuilder-buildpack\",\"di-core-url\"]",
+      "MTA_PROPERTIES={\"route-path\":\"/test\"}",
+      "MTA_SERVICES=[\"di-core-hdi\"]",
+      "SERVICE_TO_JNDI_NAME_MAPPING={\"di-core-hdi\":\"jdbc/DefaultDB\"}\n",
+      "TARGET_RUNTIME=tomcat"
+    ],
+    "instances": 1,
+    "memory": 512,
+    "runningInstances": 0,
+    "services": [
+      "uaa",
+      "di-core-hdi"
+    ],
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
+    "uris": [
+      "i027947-di-core.cfapps.neo.ondemand.com/test"
+    ],
+    "meta": {},
+    "name": "di-core"
+  },
+  {
+    "moduleName": "di-builder",
+    "extendedStaging": {
+      "buildpackUrl": "http://i027947-di-core.cfapps.neo.ondemand.com/system/builderbp.git/"
+    },
+    "idleUris": [],
+    "tasks": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-builder.cfapps.neo.ondemand.com\"]}",
+      "DI_URL=http://i027947-di-core.cfapps.neo.ondemand.com",
+      "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
+      "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"di-builder\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_SERVICES=[]",
+      "TARGET_RUNTIME=tomcat"
+    ],
+    "instances": 1,
+    "memory": 512,
+    "runningInstances": 0,
+    "services": [
+      "uaa"
+    ],
+    "staging": {
+      "buildpackUrl": "http://i027947-di-core.cfapps.neo.ondemand.com/system/builderbp.git/"
+    },
+    "uris": [
+      "i027947-di-builder.cfapps.neo.ondemand.com"
+    ],
+    "meta": {},
+    "name": "di-builder"
+  },
+  {
+    "moduleName": "di-runner",
+    "extendedStaging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
+    "idleUris": [],
+    "tasks": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-runner.cfapps.neo.ondemand.com\"]}",
+      "DI_URL=http://i027947-di-core.cfapps.neo.ondemand.com",
+      "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
+      "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"di-runner\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_SERVICES=[]",
+      "TARGET_RUNTIME=tomcat",
+      "UI5_CONTENT_URL=http://i027947-ui5-content.cfapps.neo.ondemand.com"
+    ],
+    "instances": 1,
+    "memory": 512,
+    "runningInstances": 0,
+    "services": [
+      "uaa"
+    ],
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
+    "uris": [
+      "i027947-di-runner.cfapps.neo.ondemand.com"
+    ],
+    "meta": {},
+    "name": "di-runner"
+  }
+]

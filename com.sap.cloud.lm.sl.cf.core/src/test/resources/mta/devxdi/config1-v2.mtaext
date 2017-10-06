@@ -1,0 +1,33 @@
+_schema-version: "2.0.0"
+ID: com.sap.devx.di.config1 
+extends: com.sap.devx.di
+
+target-platforms: [CF-TRIAL]
+
+modules:
+  - name: di-core
+    parameters:
+      host: i027947-di-core
+      memory: 512M
+      instances: 1
+    provides:
+      - name: di-core-url
+        properties:
+          url: "http://i027947-di-core.cfapps.neo.ondemand.com"
+          
+  - name: di-builder
+    parameters:
+      host: i027947-di-builder
+      memory: 512M
+      instances: 1
+          
+  - name: di-runner
+    parameters:
+      host: i027947-di-runner
+      memory: 512M
+      instances: 1
+      
+resources:
+ - name: ui5-content-url
+   properties:
+     url: "http://i027947-ui5-content.cfapps.neo.ondemand.com"

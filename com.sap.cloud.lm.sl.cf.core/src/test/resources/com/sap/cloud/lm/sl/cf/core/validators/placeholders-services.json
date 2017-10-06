@@ -1,0 +1,32 @@
+[
+  {
+    "serviceAlternatives": [],
+    "resourceName": "r1",
+    "credentials": {},
+    "tags": [],
+    "isOptional": false,
+    "isManaged": true,
+    "label": "hana",
+    "plan": "hdi-shared",
+    "meta": {},
+    "name": "r1"
+  },
+  {
+    "resourceName": "r2",
+    "credentials": {},
+    "tags": [],
+    "isOptional": false,
+    "isManaged": false,
+    "meta": {},
+    "name": "uaa"
+  },
+  {
+    "resourceName": "r3",
+    "credentials": {},
+    "tags": [],
+    "isOptional": false,
+    "isManaged": true,
+    "meta": {},
+    "name": "r3"
+  }
+]

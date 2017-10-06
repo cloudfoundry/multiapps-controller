@@ -1,0 +1,80 @@
+[
+  {
+    "moduleName": "xsjs-hello-world-db",
+    "extendedStaging": {},
+    "idleUris": [],
+    "tasks": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [],\n  \"execute-app\": false\n}",
+      "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
+      "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-db\"\n}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world-db\"\n]",
+      "MTA_SERVICES\u003d[\n  \"xsjs-hdi-container\"\n]"
+    ],
+    "instances": 0,
+    "memory": 256,
+    "runningInstances": 0,
+    "services": [
+      "xsjs-hdi-container"
+    ],
+    "staging": {},
+    "uris": [],
+    "meta": {},
+    "name": "xsjs-hello-world-db"
+  },
+  {
+    "moduleName": "xsjs-hello-world-backend",
+    "extendedStaging": {},
+    "idleUris": [],
+    "tasks": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:55001\"\n  ]\n}",
+      "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
+      "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-backend\"\n}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs\",\n  \"xsjs-hello-world-backend\"\n]",
+      "MTA_SERVICES\u003d[\n  \"xsjs-hdi-container\"\n]"
+    ],
+    "instances": 0,
+    "memory": 128,
+    "runningInstances": 0,
+    "services": [
+      "uaa",
+      "xsjs-hdi-container"
+    ],
+    "staging": {},
+    "uris": [
+      "sofd60245639a:55001"
+    ],
+    "meta": {},
+    "name": "xsjs-hello-world-backend"
+  },
+  {
+    "moduleName": "xsjs-hello-world",
+    "extendedStaging": {},
+    "idleUris": [],
+    "tasks": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:55000\"\n  ]\n}",
+      "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
+      "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world\"\n}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world\"\n]",
+      "MTA_SERVICES\u003d[]",
+      "destinations\u003d[\n  {\n    \"name\": \"xsjs\",\n    \"url\": \"http://{xsa-placeholder-domain-default}:55001\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"proxyHost\": \"proxy.example.com\",\n    \"proxyPort\": \"8080\",\n    \"url\": \"https://sapui5.netweaver.ondemand.com\"\n  }\n]"
+    ],
+    "instances": 0,
+    "memory": 128,
+    "runningInstances": 0,
+    "services": [
+      "uaa"
+    ],
+    "staging": {},
+    "uris": [
+      "sofd60245639a:55000"
+    ],
+    "meta": {},
+    "name": "xsjs-hello-world"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "applications": [
+    {
+      "name" : "test-app-1",
+      "attributes" : {
+        "register-service-url" : true,
+        "service-name": "test-service",
+        "service-url" : "test-service-url"
+      }
+    }
+  ]
+}

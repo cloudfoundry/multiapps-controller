@@ -1,0 +1,84 @@
+{
+  "id": "com.sap.xs2.samples.helloworld",
+  "version": "0.1.0",
+  "modules1_0": [
+    {
+      "name": "node-hello-world",
+      "type": "javascript.nodejs",
+      "properties": {
+        "app-name": "node-hello-world-blue",
+        "port": 50050
+      },
+      "requiredDependencies1_0": [
+        "uaa",
+        "nodejs",
+        "ui5"
+      ],
+      "providedDependencies1_0": []
+    },
+    {
+      "name": "node-hello-world-backend",
+      "type": "javascript.nodejs",
+      "properties": {
+        "app-name": "node-hello-world-backend-blue"
+      },
+      "requiredDependencies1_0": [
+        "uaa",
+        "db",
+        "nodejs-hdi-container"
+      ],
+      "providedDependencies1_0": [
+        {
+          "name": "nodejs",
+          "groups": [
+            "destinations"
+          ],
+          "properties": {
+            "url": "https://nodejs.hana.ondemand.com"
+          }
+        }
+      ]
+    },
+    {
+      "name": "node-hello-world-db",
+      "type": "com.sap.xs.hdi",
+      "properties": {
+        "app-name": "node-hello-world-db-blue"
+      },
+      "requiredDependencies1_0": [
+        "nodejs-hdi-container"
+      ],
+      "providedDependencies1_0": [
+        {
+          "name": "db",
+          "groups": [],
+          "properties": {}
+        }
+      ]
+    }
+  ],
+  "resources1_0": [
+    {
+      "name": "nodejs-hdi-container",
+      "type": "com.sap.xs.hdi-container",
+      "groups": [],
+      "properties": {}
+    },
+    {
+      "name": "uaa",
+      "type": "org.cloudfoundry.existing-service",
+      "groups": [],
+      "properties": {}
+    },
+    {
+      "name": "ui5",
+      "groups": [
+        "destinations"
+      ],
+      "properties": {
+        "url": "https://sapui5.hana.ondemand.com"
+      }
+    }
+  ],
+  "properties": {}
+}

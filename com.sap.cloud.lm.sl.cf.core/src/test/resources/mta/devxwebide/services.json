@@ -1,0 +1,11 @@
+[
+  {
+    "resourceName": "uaa",
+    "credentials": {},
+    "tags": [],
+    "isOptional": false,
+    "isManaged": false,
+    "meta": {},
+    "name": "uaa"
+  }
+]

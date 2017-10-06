@@ -1,0 +1,28 @@
+[
+  {
+    "filter": {
+        "providerId": "mta-2:provided-dependency-3",
+        "providerNid": "mta",
+        "targetSpace": "initial initial",
+        "providerVersion": "2.0.0"
+    },
+    "configurationEntries": [
+      {
+        "id": 0,
+        "providerNid": "mta",
+        "providerId": "mta-2:provided-dependency-1",
+        "providerVersion": "2.0.0",
+        "targetSpace": "initial initial",
+        "content":"{\"bar\": \"bar\",\"foo\": \"foo\"}"
+      },
+      {
+        "id": 0,
+        "providerNid": "mta",
+        "providerId": "mta-2:provided-dependency-1",
+        "providerVersion": "2.0.0",
+        "targetSpace": "initial SAP",
+        "content":"{}"
+      }
+    ]
+  }
+]

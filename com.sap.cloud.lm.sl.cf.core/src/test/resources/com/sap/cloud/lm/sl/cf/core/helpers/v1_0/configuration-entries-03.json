@@ -1,0 +1,11 @@
+[
+  {
+    "filter": {
+        "providerId": "mta-3:provided-dependency-1",
+        "providerNid": "mta",
+        "targetSpace": "initial initial",
+        "providerVersion": "2.0.0"
+    },
+    "configurationEntries": []
+  }
+]

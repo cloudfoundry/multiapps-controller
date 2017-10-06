@@ -1,0 +1,13 @@
+[
+  {
+    "resourceName": "techical-user-provider",
+    "credentials": {
+      "password": "test-password",
+      "url": "test-url",
+      "user": "test-user"
+    },
+    "tags": [],
+    "meta": {},
+    "name": "com.sap.sample.mta.techical-user-provider"
+  }
+]

@@ -1,0 +1,13 @@
+[
+  {
+    "name": "foo",
+    "command": "echo ${test}",
+    "env": {
+      "test": "test"
+    }
+  },
+  {
+    "name": "bar",
+    "command": "echo bar"
+  }
+]

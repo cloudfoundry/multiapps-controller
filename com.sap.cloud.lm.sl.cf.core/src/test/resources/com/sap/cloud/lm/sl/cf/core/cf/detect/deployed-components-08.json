@@ -1,0 +1,35 @@
+{
+  "mtas": [
+    {
+      "metadata": {
+        "id": "com.sap.example.mta",
+        "version": "0.0.0-unknown"
+      },
+      "modules": [
+        {
+          "moduleName": "foo",
+          "appName": "foo",
+          "services": [],
+          "providedDependencyNames": [],
+          "deployAttributes": {}
+        },
+        {
+          "moduleName": "bar",
+          "appName": "bar",
+          "services": [],
+          "providedDependencyNames": [],
+          "deployAttributes": {}
+        },
+        {
+          "moduleName": "baz",
+          "appName": "baz",
+          "services": [],
+          "providedDependencyNames": [],
+          "deployAttributes": {}
+        }
+      ],
+      "services": []
+    }
+  ],
+  "standaloneApps": []
+}

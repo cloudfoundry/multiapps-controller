@@ -1,0 +1,26 @@
+ID: com.sap.example.mta
+version: 1.0.0
+
+modules:
+  - name: foo
+    type: foo
+    properties:
+      test_1: ~{bar/baz}
+      test_2: ~{bar/baz}...~{plugins/name}
+      test_3: ~{plugins/name}
+    requires:
+      - name: plugins
+        list: plugins
+        parameters:
+          managed: true
+      - name: bar
+  - name: bar
+    type: bar
+    provides:
+      - name: bar
+        properties:
+          baz: YO
+
+resources:
+  - name: plugins
+    type: configuration

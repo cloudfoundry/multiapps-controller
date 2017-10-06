@@ -1,0 +1,18 @@
+[  
+  {  
+    "name":"ZE_PLATFORM",
+    "type":"XS2",
+    "parameters":{  
+      "org":"initial",
+      "space":"initial"
+    }
+  },
+  {  
+    "name":"CF_PLATFORM",
+    "type":"CF",
+    "parameters":{  
+      "org":"initial",
+      "space":"initial"
+    }
+  }
+]
