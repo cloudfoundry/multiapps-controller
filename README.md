@@ -27,7 +27,8 @@ The CF MTA deploy service is run as a standard application in [Cloud Foundry](ht
 Env var name | Sample value | Description
 --- | --- | ---
 XS_TARGET_URL | http://api.bosh-lite.com | Cloud Foundry API URL.
-PLATFORMS_V2 | see [manifest.yml](https://github.com/SAP/cf-mta-deploy-service/blob/master/com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) | Contains the configuration of the MTA module and resource types. MTA module types are mapped to Cloud Foundry buildpacks and default application parameters, whereas MTA resource types are usually mapped to Cloud Foundry services with concrete service plans and parameters.
+PLATFORMS_V2 | see [manifest.yml](https://github.com/SAP/cf-mta-deploy-service/blob/master/com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) | Contains the configuration of the MTA module and resource types. MTA module types are mapped to Cloud Foundry buildpacks and default application parameters, whereas MTA resource types are usually mapped to Cloud Foundry services with concrete service plans and parameters. This is for MTA spec v2.
+PLATFORMS_V3 | see [manifest.yml](https://github.com/SAP/cf-mta-deploy-service/blob/master/com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) | Same as PLATFORMS_V2, but this is for MTA spec v3.
 DB_TYPE | POSTGRESQL | The used persistence type. Currently only PostgreSQL is supported.
 
 
@@ -54,7 +55,7 @@ Push the CF MTA deploy service application to Cloud Foundry by running the follo
 $ cf push -f target/manifests/manifest.yml
 ```
 After the push operation completes then the CF MTA deploy service should be up and running.
-## Use via CF MTA plugin
+## Usage via CF MTA plugin
 In order to use the CF MTA deploy service you should install the [CF MTA plugin](https://github.com/SAP/cf-mta-plugin), so follow the instructions in the [Download and installation](https://github.com/SAP/cf-mta-plugin#download-and-installation) section there. For the set of supported operations and examples refer to the [Usage](https://github.com/SAP/cf-mta-plugin#usage) section.
 
 # How to obtain support
