@@ -1,4 +1,7 @@
 # cf-mta-deploy-service
+
+[![Build Status](https://travis-ci.org/SAP/cf-mta-deploy-service.svg?branch=master)](https://travis-ci.org/SAP/cf-mta-deploy-service)
+
 MTA deploy service for [Cloud Foundry](https://www.cloudfoundry.org/) is based on the [Multi-Target Application (MTA)](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) model in which CF applications are modelled as modules, while CF services as resources. The MTA model enables the delivery of packaged applications, where any target specific configuration could be specified on deployment time without changing application code.
 CF MTA deploy service provides the possibility to operate (deploy, update, undeploy) [MTA](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) modeled applications via a single command, while ensuring the consistency and completeness of the different application components.
 
