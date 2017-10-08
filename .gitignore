@@ -1,0 +1,13 @@
+bin/
+target/
+.project
+.classpath
+.settings
+.bpmn
+*.zip
+*.war
+*.log
+.pmd
+mta-assembly
+.DS_Store
+!com.sap.cloud.lm.sl.cf.process/src/test/resources/com/sap/cloud/lm/sl/cf/process/steps/web.zip
