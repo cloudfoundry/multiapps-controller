@@ -47,10 +47,13 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServicesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
+import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -845,6 +848,21 @@ public class StepsUtil {
 
     public static String getIndexedStepName(DelegateExecution context) {
         return (String) context.getVariable(com.sap.cloud.lm.sl.slp.Constants.INDEXED_STEP_NAME);
+    }
+
+    static ErrorType getErrorType(String processId, ContextExtensionDao contextExtensionDao) {
+        ContextExtension errorTypeExtension = contextExtensionDao.find(processId, Constants.VAR_ERROR_TYPE);
+        if (errorTypeExtension == null || errorTypeExtension.getValue() == null) {
+            return null;
+        }
+        return ErrorType.valueOf(errorTypeExtension.getValue());
+    }
+
+    static void setErrorType(String processId, ContextExtensionDao contextExtensionDao, ErrorType errorType) {
+        if (errorType == null) {
+            return;
+        }
+        contextExtensionDao.addOrUpdate(processId, Constants.VAR_ERROR_TYPE, errorType.toString());
     }
 
     static void appLog(DelegateExecution context, String appName, String message, Logger logger,

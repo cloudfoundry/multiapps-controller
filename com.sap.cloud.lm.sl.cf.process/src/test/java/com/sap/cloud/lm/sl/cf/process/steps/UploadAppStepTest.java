@@ -40,7 +40,6 @@ import org.springframework.http.HttpStatus;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
@@ -63,8 +62,6 @@ public class UploadAppStepTest {
 
         @Mock
         protected ScheduledExecutorService asyncTaskExecutor;
-        @Mock
-        private ContextExtensionDao dao;
 
         @Before
         public void setUp() throws Exception {
@@ -104,8 +101,6 @@ public class UploadAppStepTest {
         private ClientExtensions cfExtensions;
         @Mock
         private CloudFoundryOperations client;
-        @Mock
-        protected ContextExtensionDao contextExtensionDao;
 
         @Parameters
         public static Iterable<Object[]> getParameters() {

@@ -21,6 +21,7 @@ import com.sap.activiti.common.impl.AbstractActivitiStep;
 import com.sap.activiti.common.impl.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
@@ -50,6 +51,8 @@ public abstract class AbstractStepTest<T extends AbstractActivitiStep> {
     protected ProcessLogsPersistenceService processLogsPersistenceService;
     @Mock
     protected ProgressMessageService progressMessageService;
+    @Mock
+    protected ContextExtensionDao contextExtensionDao;
     @Mock
     protected AbstractFileService fileService;
     @Mock

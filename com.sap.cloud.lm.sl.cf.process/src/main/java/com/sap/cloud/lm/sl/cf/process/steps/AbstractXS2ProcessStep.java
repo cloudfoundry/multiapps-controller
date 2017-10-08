@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -26,6 +27,8 @@ public abstract class AbstractXS2ProcessStep extends AbstractSLProcessStep {
     protected CloudFoundryClientProvider clientProvider;
     @Inject
     protected TaskExtensionService taskExtensionService;
+    @Inject
+    protected ContextExtensionDao contextExtensionDao;
     @Inject
     private StepLogger.Factory stepLoggerFactory;
     private StepLogger stepLogger;
@@ -73,7 +76,7 @@ public abstract class AbstractXS2ProcessStep extends AbstractSLProcessStep {
     @Override
     protected SLProcessStepHelper getStepHelper() {
         if (stepHelper == null) {
-            stepHelper = new XS2ProcessStepHelper(getProgressMessageService(), getProcessLoggerProvider(), this);
+            stepHelper = new XS2ProcessStepHelper(getProgressMessageService(), getProcessLoggerProvider(), this, contextExtensionDao);
         }
         return stepHelper;
     }
