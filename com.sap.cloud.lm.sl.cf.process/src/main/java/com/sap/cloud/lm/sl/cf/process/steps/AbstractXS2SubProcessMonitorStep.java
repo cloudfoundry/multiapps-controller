@@ -6,6 +6,7 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.runtime.Job;
 
 import com.sap.activiti.common.ExecutionStatus;
+import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
@@ -23,37 +24,47 @@ public abstract class AbstractXS2SubProcessMonitorStep extends AbstractXS2Proces
         }
     }
 
+    private HistoricProcessInstance getSubProcess(DelegateExecution context, String subProcessId) {
+        HistoryService historyService = context.getEngineServices().getHistoryService();
+        return historyService.createHistoricProcessInstanceQuery().processInstanceId(subProcessId).singleResult();
+    }
+
     private ExecutionStatus getSubProcessStatus(HistoricProcessInstance subProcess, DelegateExecution context) throws MonitoringException {
+        ErrorType errorType = getSubProcessErrorType(subProcess);
+        getStepLogger().debug(Messages.ERROR_TYPE_OF_SUBPROCESS, subProcess.getId(), errorType);
         Job executionJob = context.getEngineServices().getManagementService().createJobQuery().processInstanceId(
             subProcess.getId()).singleResult();
         if (executionJob == null) {
-            return getFinishedProcessStatus(subProcess, context);
+            return getFinishedProcessStatus(subProcess, context, errorType);
         }
 
         if (executionJob.getExceptionMessage() == null) {
             return ExecutionStatus.RUNNING;
         }
-        return onError(context);
+        return onError(context, errorType);
     }
 
-    protected abstract ExecutionStatus onError(DelegateExecution context) throws MonitoringException;
-
-    private ExecutionStatus getFinishedProcessStatus(HistoricProcessInstance subProcess, DelegateExecution context)
+    private ExecutionStatus getFinishedProcessStatus(HistoricProcessInstance subProcess, DelegateExecution context, ErrorType errorType)
         throws MonitoringException {
         if (subProcess.getEndTime() == null) {
             return ExecutionStatus.RUNNING;
         }
         if (subProcess.getDeleteReason() == null) {
-            return ExecutionStatus.SUCCESS;
+            return onSuccess(context);
         }
-        return onAborted(context);
+        return onAbort(context, errorType);
     }
 
-    protected abstract ExecutionStatus onAborted(DelegateExecution context) throws MonitoringException;
+    private ErrorType getSubProcessErrorType(HistoricProcessInstance subProcess) {
+        return StepsUtil.getErrorType(subProcess.getId(), contextExtensionDao);
+    }
 
-    private HistoricProcessInstance getSubProcess(DelegateExecution context, String subProcessId) {
-        HistoryService hisotryService = context.getEngineServices().getHistoryService();
-        return hisotryService.createHistoricProcessInstanceQuery().processInstanceId(subProcessId).singleResult();
+    protected abstract ExecutionStatus onError(DelegateExecution context, ErrorType errorType) throws MonitoringException;
+
+    protected abstract ExecutionStatus onAbort(DelegateExecution context, ErrorType errorType) throws MonitoringException;
+
+    protected ExecutionStatus onSuccess(DelegateExecution context) {
+        return ExecutionStatus.SUCCESS;
     }
 
 }

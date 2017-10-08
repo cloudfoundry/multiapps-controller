@@ -29,7 +29,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
 import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
 import com.sap.cloud.lm.sl.cf.client.util.StreamUtil;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
@@ -58,9 +57,6 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
     @Inject
     protected ScheduledExecutorService asyncTaskExecutor;
-
-    @Inject
-    protected ContextExtensionDao contextExtensionDao;
 
     @Override
     protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws FileStorageException, SLException {
