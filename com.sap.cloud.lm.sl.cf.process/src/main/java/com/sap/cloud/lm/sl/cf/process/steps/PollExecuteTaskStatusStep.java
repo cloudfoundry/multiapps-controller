@@ -6,8 +6,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -16,6 +19,7 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -25,6 +29,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge {
 
     protected Supplier<Long> currentTimeSupplier = () -> System.currentTimeMillis();
+
+    @Inject
+    private RecentLogsRetriever recentLogsRetriever;
 
     @Override
     public String getLogicalStepName() {
@@ -69,6 +76,7 @@ public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge 
         public ExecutionStatus execute() {
             CloudTask.State currentState = getCurrentState();
             reportCurrentState(currentState);
+            saveAppLogs();
             return handleCurrentState(currentState);
         }
 
@@ -86,6 +94,11 @@ public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge 
 
         private void reportCurrentState(CloudTask.State currentState) {
             getStepLogger().info(Messages.TASK_EXECUTION_STATUS, currentState.toString().toLowerCase());
+        }
+
+        private void saveAppLogs() {
+            CloudFoundryOperations client = getCloudFoundryClient(context);
+            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
         }
 
         private ExecutionStatus handleCurrentState(CloudTask.State currentState) {

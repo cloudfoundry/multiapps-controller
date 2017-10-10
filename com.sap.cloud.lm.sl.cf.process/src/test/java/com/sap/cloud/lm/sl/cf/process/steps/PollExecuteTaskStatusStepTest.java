@@ -13,14 +13,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Mock;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @RunWith(Parameterized.class)
 public class PollExecuteTaskStatusStepTest extends AbstractStepTest<PollExecuteTaskStatusStep> {
+
+    @Mock
+    private RecentLogsRetriever recentLogsRetriever;
 
     private static final int START_TIMEOUT = 900;
     private static final String TASK_NAME = "foo";
