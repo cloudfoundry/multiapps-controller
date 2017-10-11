@@ -1,0 +1,10 @@
+language: java
+notifications:
+  email:
+    recipients:
+      - DL_563CD7577BCF844DBD000037@exchange.sap.corp
+    on_success: change
+    on_failure: always
+script:
+   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean install; fi'
+   - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy --settings .travis.settings.xml; fi'
