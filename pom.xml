@@ -53,15 +53,15 @@
         <jackson-asl.version>1.9.13</jackson-asl.version>
         <liquibase.version>3.4.1</liquibase.version>
         <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
-        <cloudfoundry.client.version>1.1.4.RELEASE-sap-02</cloudfoundry.client.version>
+        <cloudfoundry.client.version>1.1.4.RELEASE-sap-02-SNAPSHOT</cloudfoundry.client.version>
         <protobuf-java.version>3.1.0</protobuf-java.version>
         <jackson.version>2.5.0</jackson.version>
         <semver4j.version>2.0.1</semver4j.version>
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <xs.java.version>1.0.0</xs.java.version>
         <java.container.security.version>0.19.1</java.container.security.version>
-        <activiti.common.version>1.30.0</activiti.common.version>
-        <slp.version>1.2.3</slp.version>
+        <activiti.common.version>1.30.0-SNAPSHOT</activiti.common.version>
+        <slp.version>1.2.4-SNAPSHOT</slp.version>
         <com.sap.cloud.lm.sl.open.version>1.50.0-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
@@ -70,6 +70,50 @@
         <module>com.sap.cloud.lm.sl.cf.process</module>
         <module>com.sap.cloud.lm.sl.cf.web</module>
     </modules>
+    
+    <organization>
+        <name>SAP SE</name>
+        <url>http://www.sap.com</url>
+    </organization>
+    
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
+    <scm>
+        <connection>scm:git:git@github.com:SAP/cloud-mta-java-common.git</connection>
+        <developerConnection>scm:git:git@github.com:SAP/cloud-mta-java-common.git</developerConnection>
+        <url>git@github.com:SAP/cloud-mta-java-common.git</url>
+  </scm>
+    
+    <developers>
+        <developer>
+            <id>nvvalchev</id>
+            <name>Nikolay Valchev</name>
+            <email>nikolay.valchev@sap.com</email>
+            <organization>${organization.name}</organization>
+            <organizationUrl>${organization.url}</organizationUrl>
+        </developer>
+        <developer>
+            <id>nictas</id>
+            <name>Alexander Tsvetkovv</name>
+            <email>aleksandar.tsvetkov@sap.com</email>
+            <organization>${organization.name}</organization>
+            <organizationUrl>${organization.url}</organizationUrl>
+        </developer>
+        <developer>
+            <id>enchobelezirev</id>
+            <name>Encho Belezirev</name>
+            <email>encho.belezirev@sap.com</email>
+            <organization>${organization.name}</organization>
+            <organizationUrl>${organization.url}</organizationUrl>
+        </developer>
+    </developers>
+    
     <build>
         <pluginManagement>
             <plugins>
@@ -827,6 +871,18 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+    
     <profiles>
         <profile>
             <id>default</id>
@@ -836,7 +892,7 @@
             <dependencyManagement>
                 <dependencies>
                     <dependency>
-                        <groupId>org.cloudfoundry</groupId>
+                        <groupId>com.sap.cloud.lm.sl</groupId>
                         <artifactId>cloudfoundry-client-lib</artifactId>
                         <version>${cloudfoundry.client.version}</version>
                         <exclusions>
@@ -860,6 +916,91 @@
                     </dependency>
                 </dependencies>
             </dependencyManagement>
+        </profile>
+        <profile>
+            <id>release</id>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sap.cloud.lm.sl</groupId>
+                        <artifactId>cloudfoundry-client-lib</artifactId>
+                        <version>${cloudfoundry.client.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.apache.tomcat.embed</groupId>
+                                <artifactId>tomcat-embed-core</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.apache.tomcat.embed</groupId>
+                                <artifactId>tomcat-embed-websocket</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.apache.tomcat</groupId>
+                                <artifactId>tomcat-juli</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>com.esotericsoftware.yamlbeans</groupId>
+                                <artifactId>yamlbeans</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>2.5</version>
+                        <configuration>
+                            <autoVersionSubmodules>true</autoVersionSubmodules>
+                            <useReleaseProfile>false</useReleaseProfile>
+                            <releaseProfiles>release</releaseProfiles>
+                            <goals>deploy</goals>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
