@@ -64,6 +64,10 @@ In order to use the CF MTA deploy service you should install the [CF MTA plugin]
 # How to obtain support
 If you need any support, have any question or have found a bug, please report it in the [GitHub bug tracking system](https://github.com/SAP/cf-mta-deploy-service/issues). We shall get back to you.
 
+# Further reading
+Presentations, documents, and tutorials:
+[Managing Distributed Cloud Native Applications Made Easy (CF Summit EU 2017 slides)](https://www.slideshare.net/NikolayValchev/managing-distributedcloudapps-80697059)
+
 # License
 Copyright (c) 2017 SAP SE or an SAP affiliate company. All rights reserved.
 This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the [LICENSE](https://github.com/SAP/cf-mta-deploy-service/blob/master/LICENSE) file.
