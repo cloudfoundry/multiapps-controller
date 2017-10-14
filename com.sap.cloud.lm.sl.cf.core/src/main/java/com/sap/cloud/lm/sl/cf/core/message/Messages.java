@@ -89,8 +89,8 @@ public final class Messages {
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type not specified in environment, using default \"{0}\"";
     public static final String XS_TARGET_URL_NOT_SPECIFIED = "XS target URL not specified in environment, using default \"{0}\"";
     public static final String DB_TYPE_NOT_SPECIFIED = "Database type not specified in environment, using default \"{0}\"";
-    public static final String PLATFORM_TYPES_NOT_SPECIFIED = "Platform types not specified in environment, using default \"{0}\"";
     public static final String PLATFORMS_NOT_SPECIFIED = "Platforms not specified in environment, using default \"{0}\"";
+    public static final String TARGETS_NOT_SPECIFIED = "Targets not specified in environment, using default \"{0}\"";
     public static final String MAX_UPLOAD_SIZE_NOT_SPECIFIED = "Max upload size not specified in environment, using default \"{0}\"";
     public static final String MAX_MTA_DESCRIPTOR_SIZE_NOT_SPECIFIED = "Max mta descriptor size not specified in environment, using default \"{0}\"";
     public static final String SPACE_ID_NOT_SPECIFIED = "Space ID not specified in environment, using default \"{0}\"";
@@ -105,8 +105,8 @@ public final class Messages {
     public static final String XS_TYPE = "XS type: {0}";
     public static final String XS_TARGET_URL = "XS target URL: {0}";
     public static final String DB_TYPE = "Database type: {0}";
-    public static final String PLATFORM_TYPES = "Platform types: {0}";
     public static final String PLATFORMS = "Platforms: {0}";
+    public static final String TARGETS = "Targets: {0}";
     public static final String MAX_UPLOAD_SIZE = "Max upload size: {0}";
     public static final String MAX_MTA_DESCRIPTOR_SIZE = "Max mta descriptor size: {0}";
     public static final String SCAN_UPLOADS = "Scan uploads: {0}";

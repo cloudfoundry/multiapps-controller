@@ -84,8 +84,8 @@ public class ConfigurationUtil {
     static final PlatformType DEFAULT_TYPE = PlatformType.XS2;
     static final URL DEFAULT_TARGET_URL = url("http://localhost:9999");
     static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.DEFAULTDB;
-    static final List<Platform> DEFAULT_PLATFORM_TYPES = Collections.emptyList();
-    static final List<Target> DEFAULT_PLATFORMS = Collections.emptyList();
+    static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
+    static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
     static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4GB
     static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1MB
     static final Boolean DEFAULT_SCAN_UPLOADS = false;
@@ -507,14 +507,14 @@ public class ConfigurationUtil {
         try {
             if (json != null) {
                 List<Platform> result = parser.parsePlatformsJson(json);
-                LOGGER.info(format(Messages.PLATFORM_TYPES, JsonUtil.toJson(result, true)));
+                LOGGER.info(format(Messages.PLATFORMS, JsonUtil.toJson(result, true)));
                 return result;
             }
-            LOGGER.warn(format(Messages.PLATFORM_TYPES_NOT_SPECIFIED, DEFAULT_PLATFORM_TYPES));
+            LOGGER.warn(format(Messages.PLATFORMS_NOT_SPECIFIED, DEFAULT_PLATFORMS));
         } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_PLATFORMS, json, DEFAULT_PLATFORM_TYPES), e);
+            LOGGER.warn(format(Messages.INVALID_PLATFORMS, json, DEFAULT_PLATFORMS), e);
         }
-        return DEFAULT_PLATFORM_TYPES;
+        return DEFAULT_PLATFORMS;
     }
 
     static List<Target> getTargets(String json) {
@@ -525,14 +525,14 @@ public class ConfigurationUtil {
         try {
             if (json != null) {
                 List<Target> result = parser.parseTargetsJson(json);
-                LOGGER.info(format(Messages.PLATFORMS, new SecureSerializationFacade().toJson(result)));
+                LOGGER.info(format(Messages.TARGETS, new SecureSerializationFacade().toJson(result)));
                 return result;
             }
-            LOGGER.info(format(Messages.PLATFORMS_NOT_SPECIFIED, DEFAULT_PLATFORMS));
+            LOGGER.info(format(Messages.TARGETS_NOT_SPECIFIED, DEFAULT_TARGETS));
         } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_TARGETS, json, DEFAULT_PLATFORMS), e);
+            LOGGER.warn(format(Messages.INVALID_TARGETS, json, DEFAULT_TARGETS), e);
         }
-        return DEFAULT_PLATFORMS;
+        return DEFAULT_TARGETS;
     }
 
     static Long getMaxUploadSize(String value) {
