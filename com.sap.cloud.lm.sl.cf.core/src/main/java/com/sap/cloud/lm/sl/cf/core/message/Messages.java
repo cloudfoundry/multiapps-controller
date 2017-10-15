@@ -108,13 +108,13 @@ public final class Messages {
     public static final String PLATFORMS = "Platforms: {0}";
     public static final String TARGETS = "Targets: {0}";
     public static final String MAX_UPLOAD_SIZE = "Max upload size: {0}";
-    public static final String MAX_MTA_DESCRIPTOR_SIZE = "Max mta descriptor size: {0}";
+    public static final String MAX_MTA_DESCRIPTOR_SIZE = "Max MTA descriptor size: {0}";
     public static final String SCAN_UPLOADS = "Scan uploads: {0}";
     public static final String SPACE_ID = "Space ID: {0}";
     public static final String ORG_NAME = "Org Name: {0}";
     public static final String DUMMY_TOKENS_ENABLED = "Dummy tokens enabled: {0}";
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";
-    public static final String ADMIN_USERNAME = "Superuser username: {0}";
+    public static final String ADMIN_USERNAME = "Admin username: {0}";
     public static final String USE_XS_AUDIT_LOGGING = "Use XSA audit logging: {0}";
     public static final String XS_CLIENT_CORE_THREADS = "Platform client core pool size: {0}";
     public static final String XS_CLIENT_MAX_THREADS = "Platform client max threads: {0}";

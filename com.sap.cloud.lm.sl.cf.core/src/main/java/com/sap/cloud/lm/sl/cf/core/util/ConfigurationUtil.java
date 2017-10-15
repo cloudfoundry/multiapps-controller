@@ -45,38 +45,38 @@ public class ConfigurationUtil {
     }
 
     // Environment variables
-    private static final String CFG_TYPE = "XS_TYPE";
-    private static final String CFG_TARGET_URL = "XS_TARGET_URL"; // Mandatory
-    private static final String CFG_DB_TYPE = "DB_TYPE";
-    private static final String CFG_PLATFORMS = "PLATFORMS"; // Mandatory
-    private static final String CFG_PLATFORMS_V2 = "PLATFORMS_V2"; // Mandatory
-    private static final String CFG_PLATFORMS_V3 = "PLATFORMS_V3"; // Mandatory
-    private static final String CFG_TARGETS = "TARGETS";
-    private static final String CFG_TARGETS_V2 = "TARGETS_V2";
-    private static final String CFG_TARGETS_V3 = "TARGETS_V3";
-    private static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
-    private static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
-    private static final String CFG_SCAN_UPLOADS = "SCAN_UPLOADS";
-    private static final String CFG_USE_XS_AUDIT_LOGGING = "USE_XS_AUDIT_LOGGING";
-    private static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
-    private static final String CFG_DUMMY_TOKENS_ENABLED = "DUMMY_TOKENS_ENABLED";
-    private static final String CFG_BASIC_AUTH_ENABLED = "BASIC_AUTH_ENABLED";
-    private static final String CFG_ADMIN_USERNAME = "ADMIN_USERNAME";
-    private static final String CFG_XS_CLIENT_CORE_THREADS = "XS_CLIENT_CORE_THREADS";
-    private static final String CFG_XS_CLIENT_MAX_THREADS = "XS_CLIENT_MAX_THREADS";
-    private static final String CFG_XS_CLIENT_QUEUE_CAPACITY = "XS_CLIENT_QUEUE_CAPACITY";
-    private static final String CFG_XS_CLIENT_KEEP_ALIVE = "XS_CLIENT_KEEP_ALIVE";
-    private static final String CFG_ASYNC_EXECUTOR_CORE_THREADS = "ASYNC_EXECUTOR_CORE_THREADS";
-    private static final String CFG_CONTROLLER_POLLING_INTERVAL = "CONTROLLER_POLLING_INTERVAL";
-    private static final String CFG_UPLOAD_APP_TIMEOUT = "UPLOAD_APP_TIMEOUT";
-    private static final String CFG_SKIP_SSL_VALIDATION = "SKIP_SSL_VALIDATION";
-    private static final String CFG_XS_PLACEHOLDERS_SUPPORTED = "XS_PLACEHOLDER_SUPPORT_TEST";
-    private static final String CFG_VERSION = "VERSION";
-    private static final String CFG_CHANGE_LOG_LOCK_WAIT_TIME = "CHANGE_LOG_LOCK_WAIT_TIME";
-    private static final String CFG_CHANGE_LOG_LOCK_DURATION = "CHANGE_LOG_LOCK_DURATION";
-    private static final String CFG_CHANGE_LOG_LOCK_ATTEMPTS = "CHANGE_LOG_LOCK_ATTEMPTS";
-    private static final String CFG_GLOBAL_CONFIG_SPACE = "GLOBAL_CONFIG_SPACE";
-    private static final String CFG_GATHER_USAGE_STATISTICS = "GATHER_USAGE_STATISTICS";
+    static final String CFG_TYPE = "XS_TYPE";
+    static final String CFG_TARGET_URL = "XS_TARGET_URL"; // Mandatory
+    static final String CFG_DB_TYPE = "DB_TYPE";
+    static final String CFG_PLATFORMS = "PLATFORMS"; // Mandatory
+    static final String CFG_PLATFORMS_V2 = "PLATFORMS_V2"; // Mandatory
+    static final String CFG_PLATFORMS_V3 = "PLATFORMS_V3"; // Mandatory
+    static final String CFG_TARGETS = "TARGETS";
+    static final String CFG_TARGETS_V2 = "TARGETS_V2";
+    static final String CFG_TARGETS_V3 = "TARGETS_V3";
+    static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
+    static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
+    static final String CFG_SCAN_UPLOADS = "SCAN_UPLOADS";
+    static final String CFG_USE_XS_AUDIT_LOGGING = "USE_XS_AUDIT_LOGGING";
+    static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
+    static final String CFG_DUMMY_TOKENS_ENABLED = "DUMMY_TOKENS_ENABLED";
+    static final String CFG_BASIC_AUTH_ENABLED = "BASIC_AUTH_ENABLED";
+    static final String CFG_ADMIN_USERNAME = "ADMIN_USERNAME";
+    static final String CFG_XS_CLIENT_CORE_THREADS = "XS_CLIENT_CORE_THREADS";
+    static final String CFG_XS_CLIENT_MAX_THREADS = "XS_CLIENT_MAX_THREADS";
+    static final String CFG_XS_CLIENT_QUEUE_CAPACITY = "XS_CLIENT_QUEUE_CAPACITY";
+    static final String CFG_XS_CLIENT_KEEP_ALIVE = "XS_CLIENT_KEEP_ALIVE";
+    static final String CFG_ASYNC_EXECUTOR_CORE_THREADS = "ASYNC_EXECUTOR_CORE_THREADS";
+    static final String CFG_CONTROLLER_POLLING_INTERVAL = "CONTROLLER_POLLING_INTERVAL";
+    static final String CFG_UPLOAD_APP_TIMEOUT = "UPLOAD_APP_TIMEOUT";
+    static final String CFG_SKIP_SSL_VALIDATION = "SKIP_SSL_VALIDATION";
+    static final String CFG_XS_PLACEHOLDERS_SUPPORTED = "XS_PLACEHOLDER_SUPPORT_TEST";
+    static final String CFG_VERSION = "VERSION";
+    static final String CFG_CHANGE_LOG_LOCK_WAIT_TIME = "CHANGE_LOG_LOCK_WAIT_TIME";
+    static final String CFG_CHANGE_LOG_LOCK_DURATION = "CHANGE_LOG_LOCK_DURATION";
+    static final String CFG_CHANGE_LOG_LOCK_ATTEMPTS = "CHANGE_LOG_LOCK_ATTEMPTS";
+    static final String CFG_GLOBAL_CONFIG_SPACE = "GLOBAL_CONFIG_SPACE";
+    static final String CFG_GATHER_USAGE_STATISTICS = "GATHER_USAGE_STATISTICS";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -86,18 +86,19 @@ public class ConfigurationUtil {
     static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.DEFAULTDB;
     static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
     static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
-    static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4GB
-    static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1MB
+    static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
+    static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
     static final Boolean DEFAULT_SCAN_UPLOADS = false;
+    static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
     static final String DEFAULT_SPACE_ID = "";
     static final Integer DEFAULT_ROUTER_PORT = ConfigurationUtil.getTargetURL().getProtocol().equals("http") ? 80 : 443;
-    private static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
-    private static final Integer DEFAULT_XS_CLIENT_CORE_THREADS = 2;
-    private static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
-    private static final Integer DEFAULT_XS_CLIENT_QUEUE_CAPACITY = 8;
-    private static final Integer DEFAULT_XS_CLIENT_KEEP_ALIVE = 60;
-    private static final Boolean DEFAULT_STATISTICS_USAGE = false;
-
+    static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
+    static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
+    static final String DEFAULT_ADMIN_USERNAME = "";
+    static final Integer DEFAULT_XS_CLIENT_CORE_THREADS = 2;
+    static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
+    static final Integer DEFAULT_XS_CLIENT_QUEUE_CAPACITY = 8;
+    static final Integer DEFAULT_XS_CLIENT_KEEP_ALIVE = 60;
     /*
      * In async local operations there are usually two threads. One does the actual work, while the other waits for a specific amount of
      * time and then terminates the first if it is still alive (thus introducing a time-out period for the entire operation).
@@ -106,8 +107,7 @@ public class ConfigurationUtil {
      * that the 'worker' thread and the 'killer' thread can be executed simultaneously. Otherwise, the time-out behaviour introduced by the
      * 'killer' thread would not work, as it would not be executed until after the 'worker' thread has already been executed.
      */
-    private static final Integer DEFAULT_ASYNC_EXECUTOR_CORE_THREADS = 10;
-
+    static final Integer DEFAULT_ASYNC_EXECUTOR_CORE_THREADS = 10;
     /**
      * The minimum duration for an Activiti timer is 5 seconds, because when the job manager schedules a new timer, it checks whether that
      * timer should fire in the next 5 seconds. If so, it hints the job executor that it should execute that timer ASAP. However, there is
@@ -118,11 +118,14 @@ public class ConfigurationUtil {
      * 
      * @see org.activiti.engine.impl.persistence.entity.JobEntityManager#schedule()
      */
-    private static final Integer DEFAULT_CONTROLLER_POLLING_INTERVAL = 6; // 6 second(s)
-    private static final Integer DEFAULT_UPLOAD_APP_TIMEOUT = 30 * 60; // 30 minute(s)
-    private static final Integer DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME = 1; // 1 minute(s)
-    private static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
-    private static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
+    static final Integer DEFAULT_CONTROLLER_POLLING_INTERVAL = 6; // 6 second(s)
+    static final Integer DEFAULT_UPLOAD_APP_TIMEOUT = 30 * 60; // 30 minute(s)
+    static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
+    static final String DEFAULT_VERSION = "N/A";
+    static final Integer DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME = 1; // 1 minute(s)
+    static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
+    static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
+    static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
 
     // Type names
     private static final Map<String, PlatformType> TYPE_NAMES = createTypeNames();
@@ -168,15 +171,14 @@ public class ConfigurationUtil {
         getPlatformType();
         getTargetURL();
         getDatabaseType();
-        getPlatforms();
-        getTargets();
         getMaxUploadSize();
         getMaxMtaDescriptorSize();
         shouldScanUploads();
-        isUseXSAuditLogging();
+        shouldUseXSAuditLogging();
         getSpaceGuid();
         getOrgName();
         getRouterPort();
+        getDeployServiceUrl();
         areDummyTokensEnabled();
         isBasicAuthEnabled();
         getAdminUsername();
@@ -190,7 +192,6 @@ public class ConfigurationUtil {
         shouldSkipSslValidation();
         areXsPlaceholdersSupported();
         getVersion();
-        getDeployServiceUrl();
         getChangeLogLockWaitTime();
         getChangeLogLockDuration();
         getChangeLogLockAttempts();
@@ -302,9 +303,9 @@ public class ConfigurationUtil {
         return scanUploads;
     }
 
-    public static Boolean isUseXSAuditLogging() {
+    public static Boolean shouldUseXSAuditLogging() {
         if (useXSAuditLogging == null) {
-            useXSAuditLogging = isUseXSAuditLogging(System.getenv(CFG_USE_XS_AUDIT_LOGGING));
+            useXSAuditLogging = shouldUseXSAuditLogging(System.getenv(CFG_USE_XS_AUDIT_LOGGING));
         }
         return useXSAuditLogging;
     }
@@ -323,26 +324,18 @@ public class ConfigurationUtil {
         return orgName;
     }
 
-    private static String getOrgName(String json) {
-        try {
-            Map<String, Object> vcapApplication = JsonUtil.convertJsonToMap(json);
-            Object orgName = vcapApplication.get("organization_name");
-            if (orgName != null) {
-                LOGGER.info(format(Messages.ORG_NAME, orgName));
-                return orgName.toString();
-            }
-            LOGGER.warn(format(Messages.SPACE_ID_NOT_SPECIFIED, DEFAULT_SPACE_ID));
-        } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION, json), e);
-        }
-        return null;
-    }
-
     public static int getRouterPort() {
         if (routerPort == null) {
             routerPort = getRouterPort(getEnv(CFG_VCAP_APPLICATION));
         }
         return routerPort;
+    }
+
+    public static String getDeployServiceUrl() {
+        if (deployServiceUrl == null) {
+            deployServiceUrl = getDeployServiceUrl(getEnv(CFG_VCAP_APPLICATION));
+        }
+        return deployServiceUrl;
     }
 
     public static Boolean areDummyTokensEnabled() {
@@ -408,6 +401,13 @@ public class ConfigurationUtil {
         return controllerPollingInterval;
     }
 
+    public static int getUploadAppTimeout() {
+        if (uploadAppTimeout == null) {
+            uploadAppTimeout = getUploadAppTimeout(System.getenv(CFG_UPLOAD_APP_TIMEOUT));
+        }
+        return uploadAppTimeout;
+    }
+
     public static Boolean shouldSkipSslValidation() {
         if (skipSslValidation == null) {
             skipSslValidation = shouldSkipSslValidation(System.getenv(CFG_SKIP_SSL_VALIDATION));
@@ -429,13 +429,6 @@ public class ConfigurationUtil {
         return version;
     }
 
-    public static String getDeployServiceUrl() {
-        if (deployServiceUrl == null) {
-            deployServiceUrl = getDeployServiceUrl(System.getenv(CFG_VCAP_APPLICATION));
-        }
-        return deployServiceUrl;
-    }
-
     public static Integer getChangeLogLockWaitTime() {
         if (changeLogLockWaitTime == null) {
             changeLogLockWaitTime = getChangeLogLockWaitTime(System.getenv(CFG_CHANGE_LOG_LOCK_WAIT_TIME));
@@ -455,6 +448,20 @@ public class ConfigurationUtil {
             changeLogLockAttempts = getChangeLogLockAttempts(System.getenv(CFG_CHANGE_LOG_LOCK_ATTEMPTS));
         }
         return changeLogLockAttempts;
+    }
+
+    public static String getGlobalConfigSpace() {
+        if (globalConfigSpace == null) {
+            globalConfigSpace = System.getenv(CFG_GLOBAL_CONFIG_SPACE);
+        }
+        return globalConfigSpace;
+    }
+
+    public static Boolean shouldGatherUsageStatistics() {
+        if (gatherUsageStatistics == null) {
+            gatherUsageStatistics = shouldGatherUsageStatistics(System.getenv(CFG_GATHER_USAGE_STATISTICS));
+        }
+        return gatherUsageStatistics;
     }
 
     static PlatformType getPlatformType(String type) {
@@ -549,7 +556,7 @@ public class ConfigurationUtil {
         return getBoolean(value, DEFAULT_SCAN_UPLOADS, Messages.SCAN_UPLOADS);
     }
 
-    static Boolean isUseXSAuditLogging(String value) {
+    static Boolean shouldUseXSAuditLogging(String value) {
         return getBoolean(value, DEFAULT_USE_XS_AUDIT_LOGGING, Messages.USE_XS_AUDIT_LOGGING);
     }
 
@@ -566,6 +573,21 @@ public class ConfigurationUtil {
             LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION_SPACE_ID, json, DEFAULT_SPACE_ID), e);
         }
         return DEFAULT_SPACE_ID;
+    }
+
+    static String getOrgName(String json) {
+        try {
+            Map<String, Object> vcapApplication = JsonUtil.convertJsonToMap(json);
+            Object orgName = vcapApplication.get("organization_name");
+            if (orgName != null) {
+                LOGGER.info(format(Messages.ORG_NAME, orgName));
+                return orgName.toString();
+            }
+            LOGGER.warn(format(Messages.SPACE_ID_NOT_SPECIFIED, DEFAULT_SPACE_ID));
+        } catch (ParsingException e) {
+            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION, json), e);
+        }
+        return null;
     }
 
     static Integer getRouterPort(String json) {
@@ -599,7 +621,7 @@ public class ConfigurationUtil {
         return null;
     }
 
-    private static List<String> getApplicationUris(Map<String, Object> vcapApplication) {
+    static List<String> getApplicationUris(Map<String, Object> vcapApplication) {
         for (String urisKey : VCAP_APPLICATION_URIS_KEYS) {
             List<String> uris = CommonUtil.cast(vcapApplication.get(urisKey));
             if (!CommonUtil.isNullOrEmpty(uris)) {
@@ -610,15 +632,15 @@ public class ConfigurationUtil {
     }
 
     static Boolean areDummyTokensEnabled(String value) {
-        return getBoolean(value, false, Messages.DUMMY_TOKENS_ENABLED);
+        return getBoolean(value, DEFAULT_DUMMY_TOKENS_ENABLED, Messages.DUMMY_TOKENS_ENABLED);
     }
 
     static Boolean isBasicAuthEnabled(String value) {
-        return getBoolean(value, false, Messages.BASIC_AUTH_ENABLED);
+        return getBoolean(value, DEFAULT_BASIC_AUTH_ENABLED, Messages.BASIC_AUTH_ENABLED);
     }
 
     static String getAdminUsername(String value) {
-        return getString(value, "", Messages.ADMIN_USERNAME);
+        return getString(value, DEFAULT_ADMIN_USERNAME, Messages.ADMIN_USERNAME);
     }
 
     static Integer getXsClientCoreThreads(String value) {
@@ -650,7 +672,7 @@ public class ConfigurationUtil {
     }
 
     static Boolean shouldSkipSslValidation(String value) {
-        return getBoolean(value, false, Messages.SKIP_SSL_VALIDATION);
+        return getBoolean(value, DEFAULT_SKIP_SSL_VALIDATION, Messages.SKIP_SSL_VALIDATION);
     }
 
     static Boolean areXsPlaceholdersSupported(String value) {
@@ -660,7 +682,7 @@ public class ConfigurationUtil {
     }
 
     static String getVersion(String version) {
-        return getString(version, "N/A", Messages.DS_VERSION);
+        return getString(version, DEFAULT_VERSION, Messages.DS_VERSION);
     }
 
     static Integer getChangeLogLockWaitTime(String value) {
@@ -673,6 +695,10 @@ public class ConfigurationUtil {
 
     static Integer getChangeLogLockAttempts(String value) {
         return getPositiveInt(value, DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS, Messages.CHANGE_LOG_LOCK_ATTEMPTS);
+    }
+
+    static Boolean shouldGatherUsageStatistics(String value) {
+        return getBoolean(value, DEFAULT_GATHER_USAGE_STATISTICS, Messages.GATHER_STATISTICS);
     }
 
     private static String getString(String value, String defaultValue, String message) {
@@ -724,31 +750,6 @@ public class ConfigurationUtil {
         }
     }
 
-    public static int getUploadAppTimeout() {
-        if (uploadAppTimeout == null) {
-            uploadAppTimeout = getUploadAppTimeout(System.getenv(CFG_UPLOAD_APP_TIMEOUT));
-        }
-        return uploadAppTimeout;
-    }
-
-    public static String getGlobalConfigSpace() {
-        if (globalConfigSpace == null) {
-            globalConfigSpace = System.getenv(CFG_GLOBAL_CONFIG_SPACE);
-        }
-        return globalConfigSpace;
-    }
-
-    static Boolean shouldGatherUsageStatistics(String value) {
-        return getBoolean(value, DEFAULT_STATISTICS_USAGE, Messages.GATHER_STATISTICS);
-    }
-
-    public static Boolean shouldGatherUsageStatistics() {
-        if (gatherUsageStatistics == null) {
-            gatherUsageStatistics = shouldGatherUsageStatistics(System.getenv(CFG_GATHER_USAGE_STATISTICS));
-        }
-        return gatherUsageStatistics;
-    }
-
     public static CloudTarget createImplicitCloudTarget(String targetSpace) {
 
         if (targetSpace == null) {
@@ -781,4 +782,5 @@ public class ConfigurationUtil {
         String[] orgSpace = value.split("\\s+", 2);
         return new CloudTarget(orgSpace[0], orgSpace[1]);
     }
+
 }
