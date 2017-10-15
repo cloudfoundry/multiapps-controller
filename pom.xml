@@ -60,8 +60,8 @@
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <xs.java.version>1.0.0</xs.java.version>
         <java.container.security.version>0.19.1</java.container.security.version>
-        <activiti.common.version>1.30.0-SNAPSHOT</activiti.common.version>
-        <slp.version>1.2.4-SNAPSHOT</slp.version>
+        <activiti.common.version>1.30.0</activiti.common.version>
+        <slp.version>1.2.3</slp.version>
         <com.sap.cloud.lm.sl.open.version>1.50.0-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
@@ -70,12 +70,12 @@
         <module>com.sap.cloud.lm.sl.cf.process</module>
         <module>com.sap.cloud.lm.sl.cf.web</module>
     </modules>
-    
+
     <organization>
         <name>SAP SE</name>
         <url>http://www.sap.com</url>
     </organization>
-    
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -83,43 +83,44 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    
+
     <scm>
         <connection>scm:git:git@github.com:SAP/cloud-mta-java-common.git</connection>
         <developerConnection>scm:git:git@github.com:SAP/cloud-mta-java-common.git</developerConnection>
         <url>git@github.com:SAP/cloud-mta-java-common.git</url>
-  </scm>
-    
+    </scm>
+
     <developers>
         <developer>
             <id>nvvalchev</id>
             <name>Nikolay Valchev</name>
             <email>nikolay.valchev@sap.com</email>
-            <organization>${organization.name}</organization>
-            <organizationUrl>${organization.url}</organizationUrl>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
         </developer>
         <developer>
             <id>nictas</id>
             <name>Alexander Tsvetkovv</name>
             <email>aleksandar.tsvetkov@sap.com</email>
-            <organization>${organization.name}</organization>
-            <organizationUrl>${organization.url}</organizationUrl>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
         </developer>
         <developer>
             <id>enchobelezirev</id>
             <name>Encho Belezirev</name>
             <email>encho.belezirev@sap.com</email>
-            <organization>${organization.name}</organization>
-            <organizationUrl>${organization.url}</organizationUrl>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
         </developer>
     </developers>
-    
+
     <build>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.7.0</version>
                     <configuration>
                         <source>1.8</source>
                         <target>1.8</target>
@@ -128,6 +129,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.20.1</version>
                     <configuration>
                         <runOrder>random</runOrder>
                     </configuration>
@@ -167,6 +169,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
                 <configuration>
                     <skip>false</skip>
                 </configuration>
@@ -871,7 +874,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -882,7 +885,7 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-    
+
     <profiles>
         <profile>
             <id>default</id>
@@ -989,7 +992,7 @@
                         </executions>
                     </plugin>
                     <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
                         <version>2.5</version>
                         <configuration>
