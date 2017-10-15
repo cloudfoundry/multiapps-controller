@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class ConfigUtilTest {
+public class ConfigurationUtilTest {
 
     private static final String VCAP_APPLICATION_JSON = "{\"instance_id\":\"d827d1f2-d4c1-462a-ab9d-5bf828706d63\","
         + "\"application_name\":\"deploy-service\"," + "\"started_at_timestamp\":\"1437740774167\","
