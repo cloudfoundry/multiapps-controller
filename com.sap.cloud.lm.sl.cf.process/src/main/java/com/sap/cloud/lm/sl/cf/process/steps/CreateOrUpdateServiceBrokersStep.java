@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -26,7 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokersGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -40,7 +39,8 @@ public class CreateOrUpdateServiceBrokersStep extends AbstractProcessStep {
     @Inject
     private ServiceBrokersGetter serviceBrokersGetter;
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-    protected Supplier<PlatformType> platformTypeSupplier = () -> ConfigurationUtil.getPlatformType();
+    @Inject
+    private Configuration configuration;
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -139,7 +139,7 @@ public class CreateOrUpdateServiceBrokersStep extends AbstractProcessStep {
 
     private String getServiceBrokerSpaceGuid(DelegateExecution context, String serviceBrokerName,
         ApplicationAttributesGetter attributesGetter) {
-        PlatformType platformType = platformTypeSupplier.get();
+        PlatformType platformType = configuration.getPlatformType();
         boolean isSpaceScoped = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_SPACE_SCOPED, Boolean.class, false);
         if (platformType == PlatformType.XS2 && isSpaceScoped) {
             getStepLogger().warn(

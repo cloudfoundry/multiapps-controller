@@ -154,7 +154,7 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
     }
 
     private void prepareClient() {
-        step.platformTypeSupplier = () -> stepInput.platform;
+        Mockito.when(configuration.getPlatformType()).thenReturn(stepInput.platform);
         for (SimpleService simpleService : stepInput.services) {
             CloudServiceExtended service = simpleService.toCloudServiceExtended();
             if (!service.isOptional()) {

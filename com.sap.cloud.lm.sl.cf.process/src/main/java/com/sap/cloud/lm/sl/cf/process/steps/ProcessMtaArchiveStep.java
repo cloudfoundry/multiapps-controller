@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
@@ -33,6 +33,8 @@ public class ProcessMtaArchiveStep extends AbstractProcessStep {
 
     @Inject
     private OperationDao ongoingOperationDao;
+    @Inject
+    private Configuration configuration;
 
     protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = (dao) -> new ProcessConflictPreventer(
         ongoingOperationDao);
@@ -63,7 +65,7 @@ public class ProcessMtaArchiveStep extends AbstractProcessStep {
         FileDownloadProcessor deploymentDescriptorProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId,
             appArchiveStream -> {
                 // Set deployment descriptor string in the context
-                String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, ConfigurationUtil.getMaxMtaDescriptorSize());
+                String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
                 StepsUtil.setDeploymentDescriptorString(context, descriptorString);
             });
         fileService.processFileContent(deploymentDescriptorProcessor);

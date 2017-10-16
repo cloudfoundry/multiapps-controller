@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -37,7 +36,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -65,7 +64,8 @@ public class CreateAppStep extends AbstractProcessStep {
     @Autowired(required = false)
     ServiceBindingCreator serviceBindingCreator;
 
-    protected Supplier<PlatformType> platformTypeSupplier = () -> ConfigurationUtil.getPlatformType();
+    @Autowired
+    protected Configuration configuration;
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException, FileStorageException {
@@ -95,7 +95,7 @@ public class CreateAppStep extends AbstractProcessStep {
             // If the application doesn't exist, create it:
             if (existingApp == null) {
                 client.createApplication(appName, staging, diskQuota, memory, uris, Collections.emptyList());
-                if (platformTypeSupplier.get() == PlatformType.CF) {
+                if (configuration.getPlatformType() == PlatformType.CF) {
                     applicationStagingUpdater.updateApplicationStaging(client, appName, staging);
                 }
             }

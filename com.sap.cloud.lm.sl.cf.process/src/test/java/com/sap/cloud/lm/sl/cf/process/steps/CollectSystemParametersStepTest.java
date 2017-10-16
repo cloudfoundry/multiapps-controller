@@ -32,6 +32,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorMock;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -189,8 +190,10 @@ public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSys
     }
 
     private void prepareContext() throws Exception {
-        step.platformTypeSupplier = () -> input.xsType;
-        step.areXsPlaceholdersSupportedSupplier = () -> input.areXsPlaceholdersSupported;
+        when(configuration.getPlatformType()).thenReturn(input.xsType);
+        when(configuration.getTargetURL()).thenReturn(Configuration.DEFAULT_TARGET_URL);
+        when(configuration.getRouterPort()).thenReturn(Configuration.DEFAULT_HTTP_ROUTER_PORT);
+        when(configuration.areXsPlaceholdersSupported()).thenReturn(input.areXsPlaceholdersSupported);
         step.credentialsGeneratorSupplier = () -> credentialsGenerator;
         step.timestampSupplier = () -> DEFAULT_TIMESTAMP;
 

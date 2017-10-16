@@ -15,6 +15,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.inject.Inject;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -28,7 +30,7 @@ import org.springframework.stereotype.Component;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveBuilder;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -36,7 +38,6 @@ import com.sap.cloud.lm.sl.cf.process.util.GitRepoCloner;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.util.Configuration;
 
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
 @Component("processGitSourceStep")
@@ -51,6 +52,9 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
     public static final String META_INF_PATH = "META-INF";
     private static final String MANIFEST_PATH = "MANIFEST.MF";
     private static final String MTAD_PATH = "mtad.yaml";
+
+    @Inject
+    private Configuration configuration;
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -183,12 +187,13 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
         getStepLogger().info(Messages.UPLOADING_MTAR);
         getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath().toString() + " to DB");
         try {
-            Configuration configuration = ConfigurationUtil.getConfiguration();
+            com.sap.cloud.lm.sl.persistence.util.Configuration fileConfiguration = configuration.getFileConfiguration();
             String spaceId = StepsUtil.getSpaceId(context);
             mtarInputStream = Files.newInputStream(mtarZip);
             String serviceId = StepsUtil.getServiceId(context);
             String mtarName = mtarZip.getFileName().toString();
-            FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, configuration.getFileUploadProcessor(), mtarInputStream);
+            FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, fileConfiguration.getFileUploadProcessor(),
+                mtarInputStream);
             String uploadedMtarId = entry.getId();
             StepsUtil.setArchiveFileId(context, uploadedMtarId);
         } finally {

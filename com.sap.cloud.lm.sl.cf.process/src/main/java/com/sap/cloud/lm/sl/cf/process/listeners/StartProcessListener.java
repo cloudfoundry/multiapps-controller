@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToServiceMetadataMapper;
@@ -39,6 +39,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private ProcessTypeParser processTypeParser;
     @Inject
     private ProcessTypeToServiceMetadataMapper processTypeToServiceMetadataMapper;
+    @Inject
+    private Configuration configuration;
 
     @Override
     protected void notifyInternal(DelegateExecution context) throws SLException {
@@ -57,7 +59,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     }
 
     private void logProcessEnvironment() {
-        Map<String, String> environment = ConfigurationUtil.getFilteredEnv();
+        Map<String, String> environment = configuration.getFilteredEnv();
         getStepLogger().debug(Messages.PROCESS_ENVIRONMENT, JsonUtil.toJson(environment, true));
     }
 

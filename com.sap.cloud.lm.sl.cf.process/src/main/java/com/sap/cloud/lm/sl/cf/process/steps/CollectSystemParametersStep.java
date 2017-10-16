@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -18,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
@@ -26,7 +27,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -41,9 +42,10 @@ public class CollectSystemParametersStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
+    @Inject
+    private Configuration configuration;
+
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = () -> new CredentialsGenerator();
-    protected Supplier<PlatformType> platformTypeSupplier = () -> ConfigurationUtil.getPlatformType();
-    protected Supplier<Boolean> areXsPlaceholdersSupportedSupplier = () -> ConfigurationUtil.areXsPlaceholdersSupported();
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
 
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -121,10 +123,10 @@ public class CollectSystemParametersStep extends AbstractProcessStep {
         boolean useNamespaces = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES);
 
         String authorizationEndpoint = client.getCloudInfo().getAuthorizationEndpoint();
-        int routerPort = ConfigurationUtil.getRouterPort();
+        int routerPort = configuration.getRouterPort();
         String user = (String) context.getVariable(Constants.VAR_USER);
 
-        URL targetUrl = ConfigurationUtil.getTargetURL();
+        URL targetUrl = configuration.getTargetURL();
 
         String deployServiceUrl = getDeployServiceUrl(client);
         Map<String, Object> xsPlaceholderReplacementValues = buildXsPlaceholderReplacementValues(defaultDomainName, authorizationEndpoint,
@@ -132,10 +134,10 @@ public class CollectSystemParametersStep extends AbstractProcessStep {
         StepsUtil.setXsPlaceholderReplacementValues(context, xsPlaceholderReplacementValues);
         XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(context);
 
-        boolean areXsPlaceholdersSupported = areXsPlaceholdersSupportedSupplier.get();
+        boolean areXsPlaceholdersSupported = configuration.areXsPlaceholdersSupported();
 
         SystemParametersBuilder systemParametersBuilder = new SystemParametersBuilder(platformName, StepsUtil.getOrg(context),
-            StepsUtil.getSpace(context), user, defaultDomainName, platformTypeSupplier.get(), targetUrl, authorizationEndpoint,
+            StepsUtil.getSpace(context), user, defaultDomainName, configuration.getPlatformType(), targetUrl, authorizationEndpoint,
             deployServiceUrl, routerPort, portBasedRouting, reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices,
             deployedMta, credentialsGeneratorSupplier.get(), majorSchemaVersion, areXsPlaceholdersSupported, xsPlaceholderResolver,
             timestampSupplier);
@@ -159,7 +161,7 @@ public class CollectSystemParametersStep extends AbstractProcessStep {
         if (info instanceof CloudInfoExtended) {
             return ((CloudInfoExtended) info).getDeployServiceUrl();
         }
-        return ConfigurationUtil.getDeployServiceUrl();
+        return configuration.getDeployServiceUrl();
     }
 
     private void determineIsVersionAccepted(DelegateExecution context, DeploymentDescriptor descriptor, PortAllocator portAllocator) {

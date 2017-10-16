@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.DeployTargetDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.DeployTargetsDto;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ParsingException;
@@ -56,6 +56,8 @@ public abstract class DeployTargetsResource<Tgt extends Target, SDto extends Dep
 
     @Inject
     private CloudFoundryClientProvider clientProvider;
+    @Inject
+    private Configuration configuration;
 
     @Context
     protected HttpServletRequest request;
@@ -156,7 +158,7 @@ public abstract class DeployTargetsResource<Tgt extends Target, SDto extends Dep
     protected void ensureUserIsAuthorized(String action) {
         if (!disableAuthorization) {
             AuthorizationChecker.ensureUserIsAuthorized(request, clientProvider, SecurityContextUtil.getUserInfo(),
-                ConfigurationUtil.getSpaceGuid(), action);
+                configuration.getSpaceGuid(), action);
         }
     }
 

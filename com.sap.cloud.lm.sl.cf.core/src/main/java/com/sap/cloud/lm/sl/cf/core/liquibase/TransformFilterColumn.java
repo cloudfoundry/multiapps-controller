@@ -14,7 +14,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
 import liquibase.exception.CustomChangeException;
 import liquibase.exception.DatabaseException;
@@ -61,7 +61,7 @@ public class TransformFilterColumn extends AbstractDataTransformationChange {
                 continue;
             }
 
-            CloudTarget cloudTarget = ConfigurationUtil.splitTargetSpaceValue(targetSpaceJsonElement.getAsString());
+            CloudTarget cloudTarget = ConfigurationEntriesUtil.splitTargetSpaceValue(targetSpaceJsonElement.getAsString());
             JsonElement cloudTargetJsonElement = new Gson().toJsonTree(cloudTarget);
             filterJsonObject.add(TARGET_SPACE, cloudTargetJsonElement);
             transformedData.put(entry.getKey(), filterJsonObject.toString());

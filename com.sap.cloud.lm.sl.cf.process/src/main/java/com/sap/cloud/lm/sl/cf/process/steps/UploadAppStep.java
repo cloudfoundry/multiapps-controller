@@ -32,7 +32,7 @@ import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
 import com.sap.cloud.lm.sl.cf.client.util.StreamUtil;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -52,6 +52,8 @@ public class UploadAppStep extends AbstractProcessStep {
     protected ScheduledExecutorService asyncTaskExecutor;
     @Inject
     protected ActivitiFacade activitiFacade;
+    @Inject
+    protected Configuration configuration;
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws FileStorageException, SLException {
@@ -61,8 +63,10 @@ public class UploadAppStep extends AbstractProcessStep {
 
         try {
             getStepLogger().info(Messages.UPLOADING_APP, app.getName());
-            int uploadAppTimeoutSeconds = ConfigurationUtil.getUploadAppTimeout();
+
+            int uploadAppTimeoutSeconds = configuration.getUploadAppTimeout();
             getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadAppTimeoutSeconds);
+
             CloudFoundryOperations client = getCloudFoundryClient(context);
             ClientExtensions clientExtensions = getClientExtensions(context);
 
@@ -300,7 +304,7 @@ public class UploadAppStep extends AbstractProcessStep {
                 outputVariables.put(getStatusVariable(), status.name());
                 LOGGER.getLoggerImpl().info(
                     format("Attempting to signal process with id:{0} with variables : {1}", processId, outputVariables));
-                signalWaitTask(context.getProcessInstanceId(), outputVariables, ConfigurationUtil.getUploadAppTimeout() * 1000);
+                signalWaitTask(context.getProcessInstanceId(), outputVariables, configuration.getUploadAppTimeout() * 1000);
             }
             getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", context.getProcessInstanceId());
         };

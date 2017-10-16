@@ -9,7 +9,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
 public class TransformFilterColumnTest {
 
@@ -18,19 +18,19 @@ public class TransformFilterColumnTest {
     @Test
     public void testSplitTargetSpaceValue() {
 
-        CloudTarget targetSpace = ConfigurationUtil.splitTargetSpaceValue("org space");
+        CloudTarget targetSpace = ConfigurationEntriesUtil.splitTargetSpaceValue("org space");
         assertEquals("org", targetSpace.getOrg());
         assertEquals("space", targetSpace.getSpace());
 
-        targetSpace = ConfigurationUtil.splitTargetSpaceValue("orgspace");
+        targetSpace = ConfigurationEntriesUtil.splitTargetSpaceValue("orgspace");
         assertEquals("", targetSpace.getOrg());
         assertEquals("orgspace", targetSpace.getSpace());
 
-        targetSpace = ConfigurationUtil.splitTargetSpaceValue("org test space sap");
+        targetSpace = ConfigurationEntriesUtil.splitTargetSpaceValue("org test space sap");
         assertEquals("org", targetSpace.getOrg());
         assertEquals("test space sap", targetSpace.getSpace());
 
-        targetSpace = ConfigurationUtil.splitTargetSpaceValue("");
+        targetSpace = ConfigurationEntriesUtil.splitTargetSpaceValue("");
         assertEquals("", targetSpace.getOrg());
         assertEquals("", targetSpace.getSpace());
     }

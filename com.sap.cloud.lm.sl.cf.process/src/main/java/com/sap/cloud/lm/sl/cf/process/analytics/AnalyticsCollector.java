@@ -17,7 +17,7 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
@@ -50,9 +50,10 @@ public class AnalyticsCollector {
 
     @Inject
     private AbstractFileService fileService;
+    @Inject
+    private Configuration configuration;
 
     Supplier<Long> endTimeSupplier = () -> System.currentTimeMillis();
-    Supplier<String> targetUrlSupplier = () -> ConfigurationUtil.getTargetURL().toString();
     Supplier<ZoneId> timeZoneSupplier = () -> ZoneId.systemDefault();
 
     public AnalyticsData collectAttributes(DelegateExecution context) throws SLException {
@@ -64,7 +65,7 @@ public class AnalyticsCollector {
         String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
         String org = StepsUtil.getOrg(context);
         String space = StepsUtil.getSpace(context);
-        String targetUrl = targetUrlSupplier.get();
+        String targetUrl = configuration.getTargetURL().toString();
 
         Map<String, Object> commonProcessVariables = collectCommonProcessVariables(context);
 

@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -35,9 +35,6 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetectTargetStep extends AbstractProcessStep {
 
-    protected Function<HandlerFactory, List<Platform>> platformsSupplier = (handlerFactory) -> ConfigurationUtil.getPlatforms(
-        handlerFactory.getConfigurationParser(), handlerFactory.getMajorVersion());
-
     @Inject
     private com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDao deployTargetDaoV1;
 
@@ -46,6 +43,9 @@ public class DetectTargetStep extends AbstractProcessStep {
 
     @Inject
     private com.sap.cloud.lm.sl.cf.core.dao.v3.DeployTargetDao deployTargetDaoV3;
+
+    @Inject
+    private Configuration configuration;
 
     protected Function<HandlerFactory, List<Target>> targetsSupplier = (handlerFactory) -> {
         DeployTargetDao<?, ?> targetDao = handlerFactory.getDeployTargetDao(deployTargetDaoV1, deployTargetDaoV2, deployTargetDaoV3);
@@ -61,7 +61,8 @@ public class DetectTargetStep extends AbstractProcessStep {
         try {
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
 
-            List<Platform> platforms = platformsSupplier.apply(handlerFactory);
+            List<Platform> platforms = configuration.getPlatforms(handlerFactory.getConfigurationParser(),
+                handlerFactory.getMajorVersion());
             getStepLogger().debug(Messages.PLATFORM_TYPES, JsonUtil.toJson(platforms, true));
             if (platforms == null || platforms.isEmpty()) {
                 throw new NotFoundException(Messages.NO_PLATFORMS_CONFIGURED);

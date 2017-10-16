@@ -45,7 +45,8 @@ import com.sap.cloud.lm.sl.cf.core.helpers.MtaConfigurationPurger;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
@@ -224,7 +225,7 @@ public class ConfigurationEntriesResource {
         String providerVersion = bean.getProviderVersion();
         String providerNid = bean.getProviderNid();
         Map<String, Object> content = parseContentFilterParameter(bean.getContent());
-        CloudTarget target = bean.getCloudTarget() == null ? ConfigurationUtil.createImplicitCloudTarget(bean.getTargetSpace())
+        CloudTarget target = bean.getCloudTarget() == null ? ConfigurationEntriesUtil.createImplicitCloudTarget(bean.getTargetSpace())
             : bean.getCloudTarget();
         return new ConfigurationFilter(providerNid, providerId, providerVersion, target, content);
     }

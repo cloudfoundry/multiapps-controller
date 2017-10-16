@@ -62,7 +62,7 @@ public class UpdateAppStep extends CreateAppStep {
             // Update the application
             if (hasChanged(staging, existingApp.getStaging())) {
                 getStepLogger().debug("Updating staging of application \"{0}\"", appName);
-                if (platformTypeSupplier.get() == PlatformType.CF) {
+                if (configuration.getPlatformType() == PlatformType.CF) {
                     applicationStagingUpdater.updateApplicationStaging(client, appName, staging);
                 } else {
                     client.updateApplicationStaging(appName, staging);

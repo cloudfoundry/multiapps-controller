@@ -129,6 +129,7 @@ public final class Messages {
     public static final String CHANGE_LOG_LOCK_WAIT_TIME = "Change log lock wait time: {0}";
     public static final String CHANGE_LOG_LOCK_DURATION = "Change log lock duration: {0}";
     public static final String CHANGE_LOG_LOCK_ATTEMPTS = "Change log lock attempts: {0}";
+    public static final String GLOBAL_CONFIG_SPACE = "Global config space: {0}";
     public static final String GATHER_STATISTICS = "Gather statistics: {0}";
 
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION = "About to perform action \"{0}\"";

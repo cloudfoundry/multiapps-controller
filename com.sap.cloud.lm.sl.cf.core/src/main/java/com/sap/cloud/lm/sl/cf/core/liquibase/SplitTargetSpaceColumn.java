@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
 import liquibase.exception.CustomChangeException;
 import liquibase.exception.DatabaseException;
@@ -36,7 +36,7 @@ public class SplitTargetSpaceColumn extends AbstractDataTransformationChange {
     @Override
     public void customUpdate(PreparedStatement preparedStatement, Entry<Long, String> entry) throws SQLException {
 
-        CloudTarget cloudTarget = ConfigurationUtil.splitTargetSpaceValue(entry.getValue());
+        CloudTarget cloudTarget = ConfigurationEntriesUtil.splitTargetSpaceValue(entry.getValue());
         preparedStatement.setString(1, cloudTarget.getOrg());
         preparedStatement.setString(2, cloudTarget.getSpace());
         preparedStatement.setLong(3, entry.getKey());

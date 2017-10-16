@@ -19,6 +19,7 @@ import org.mockito.Spy;
 
 import com.sap.activiti.common.impl.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToServiceMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
@@ -55,6 +56,8 @@ public class StartProcessListenerTest {
     private ProcessTypeParser processTypeParser;
     @Spy
     private ProcessTypeToServiceMetadataMapper processTypeToServiceMetadataMapper = new ProcessTypeToServiceMetadataMapper();
+    @Mock
+    private Configuration configuration;
 
     @InjectMocks
     private StartProcessListener listener = new StartProcessListener();

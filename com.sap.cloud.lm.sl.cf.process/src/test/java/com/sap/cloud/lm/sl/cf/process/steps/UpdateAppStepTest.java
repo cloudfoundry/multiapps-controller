@@ -200,7 +200,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
 
         prepareServicesToBind();
 
-        step.platformTypeSupplier = () -> platform;
+        Mockito.when(configuration.getPlatformType()).thenReturn(platform);
 
         prepareExistingServiceBindings();
     }

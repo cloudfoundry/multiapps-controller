@@ -20,11 +20,13 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 import com.sap.cloud.lm.sl.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
 @RunWith(Parameterized.class)
 public class ValidateDeployParametersStepTest extends AbstractStepTest<ValidateDeployParametersStep> {
@@ -79,6 +81,14 @@ public class ValidateDeployParametersStepTest extends AbstractStepTest<ValidateD
         prepareExpectedException();
         prepareFileService();
         prepareArchiveMerger();
+        prepareConfiguration();
+    }
+
+    private void prepareConfiguration() {
+        Mockito.when(configuration.getMaxMtaDescriptorSize()).thenReturn(Configuration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+        Mockito.when(configuration.getFileConfiguration()).thenReturn(
+            new DefaultConfiguration(Configuration.DEFAULT_MAX_UPLOAD_SIZE, Configuration.DEFAULT_SCAN_UPLOADS));
+
     }
 
     @Test

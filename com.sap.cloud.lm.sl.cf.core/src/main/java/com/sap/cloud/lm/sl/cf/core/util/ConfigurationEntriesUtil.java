@@ -3,7 +3,10 @@ package com.sap.cloud.lm.sl.cf.core.util;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
+import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class ConfigurationEntriesUtil {
@@ -62,8 +66,8 @@ public class ConfigurationEntriesUtil {
 
     public static List<ConfigurationEntry> findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryDao dao, String providerNid,
         String providerVersion, String providerId, Map<String, Object> requiredContent, List<CloudTarget> cloudTargets) {
-        String globalConfigSpace = ConfigurationUtil.getGlobalConfigSpace();
-        String deployServiceOrgName = ConfigurationUtil.getOrgName();
+        String globalConfigSpace = Configuration.getInstance().getGlobalConfigSpace();
+        String deployServiceOrgName = Configuration.getInstance().getOrgName();
         if (deployServiceOrgName == null || globalConfigSpace == null) {
             return Collections.emptyList();
         }
@@ -77,6 +81,38 @@ public class ConfigurationEntriesUtil {
 
     public static String computeTargetSpace(CloudTarget target) {
         return target.getOrg() + TARGET_DELIMITER + target.getSpace();
+    }
+
+    public static CloudTarget createImplicitCloudTarget(String targetSpace) {
+        if (targetSpace == null) {
+            return null;
+        }
+        Pattern whitespacePattern = Pattern.compile("\\S+\\s+\\S+");
+        Matcher matcher = whitespacePattern.matcher(targetSpace);
+
+        if (!matcher.find()) {
+            throw new ParsingException("Target does not contain 'org' and 'space' parameters");
+        }
+
+        String[] orgAndSpace = targetSpace.split("\\s+");
+        CloudTarget cloudTarget = new CloudTarget(orgAndSpace[0], orgAndSpace[1]);
+
+        return cloudTarget;
+    }
+
+    public static CloudTarget splitTargetSpaceValue(String value) {
+        if (StringUtils.isEmpty(value)) {
+            return new CloudTarget("", "");
+        }
+
+        Pattern whitespacePattern = Pattern.compile("\\s+");
+        Matcher matcher = whitespacePattern.matcher(value);
+        if (!matcher.find()) {
+            return new CloudTarget("", value);
+        }
+
+        String[] orgSpace = value.split("\\s+", 2);
+        return new CloudTarget(orgSpace[0], orgSpace[1]);
     }
 
 }

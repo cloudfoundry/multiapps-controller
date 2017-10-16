@@ -6,8 +6,8 @@ import java.sql.Statement;
 import java.text.MessageFormat;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil.DatabaseType;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration.DatabaseType;
 import com.sap.cloud.lm.sl.persistence.util.JdbcUtil;
 
 import liquibase.database.Database;
@@ -28,7 +28,7 @@ public class DropConfigurationRegistryUniqueConstraint extends AbstractChange {
 
     @Override
     public void setUp() throws SetupException {
-        DatabaseType databaseType = ConfigurationUtil.getDatabaseType();
+        DatabaseType databaseType = Configuration.getInstance().getDatabaseType();
         switch (databaseType) {
             case POSTGRESQL:
                 searchQuery = POSTGRESQL_SEARCH_QUERY;

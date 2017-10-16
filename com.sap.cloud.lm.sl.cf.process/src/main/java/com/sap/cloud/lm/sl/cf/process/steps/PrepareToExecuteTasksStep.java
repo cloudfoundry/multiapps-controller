@@ -2,6 +2,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.OneOffTasksSupportChecker;
@@ -20,6 +22,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Component("prepareToExecuteTasksStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PrepareToExecuteTasksStep extends AbstractProcessStep {
+
+    @Inject
+    private Configuration configuration;
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) {
@@ -49,7 +54,7 @@ public class PrepareToExecuteTasksStep extends AbstractProcessStep {
         context.setVariable(Constants.VAR_TASKS_INDEX, 0);
         context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
 
-        context.setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, ConfigurationUtil.getControllerPollingInterval());
+        context.setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
 
         return ExecutionStatus.SUCCESS;
     }

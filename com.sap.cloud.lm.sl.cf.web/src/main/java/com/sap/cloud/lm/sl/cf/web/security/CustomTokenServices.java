@@ -31,7 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.SSLUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -46,13 +46,15 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     @Qualifier("tokenStore")
     TokenStore tokenStore;
 
+    private Configuration configuration = Configuration.getInstance();
+
     private RestOperations restTemplate;
 
     private Pair<String, String> tokenKey;
 
     public CustomTokenServices() {
         restTemplate = new RestTemplate();
-        if (ConfigurationUtil.shouldSkipSslValidation()) {
+        if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
     }
@@ -105,7 +107,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
         OAuth2AccessToken token = tokenStore.readAccessToken(tokenString);
         if (token == null) {
             // Create a new token from the received token string
-            if (ConfigurationUtil.areDummyTokensEnabled() && tokenString.equals(TokenUtil.DUMMY_TOKEN)) {
+            if (configuration.areDummyTokensEnabled() && tokenString.equals(TokenUtil.DUMMY_TOKEN)) {
                 token = TokenUtil.createDummyToken("dummy", SecurityUtil.CLIENT_ID);
             } else {
                 token = TokenUtil.createToken(tokenString);
@@ -139,7 +141,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     }
 
     private void verify(String tokenString) {
-        if (ConfigurationUtil.areDummyTokensEnabled() && tokenString.equals(TokenUtil.DUMMY_TOKEN)) {
+        if (configuration.areDummyTokensEnabled() && tokenString.equals(TokenUtil.DUMMY_TOKEN)) {
             return;
         }
         JwtHelper.decodeAndVerify(tokenString, getSignatureVerifier(getCachedTokenKey()));
@@ -171,7 +173,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     }
 
     private void refreshTokenKey() {
-        Pair<String, String> tempTokenKey = readTokenKey(readTokenEndpoint(ConfigurationUtil.getTargetURL()), null);
+        Pair<String, String> tempTokenKey = readTokenKey(readTokenEndpoint(configuration.getTargetURL()), null);
         tokenKey = tempTokenKey;
     }
 
