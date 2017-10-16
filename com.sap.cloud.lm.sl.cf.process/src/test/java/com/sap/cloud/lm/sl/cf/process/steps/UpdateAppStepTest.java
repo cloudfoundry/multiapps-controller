@@ -5,6 +5,7 @@ import static org.mockito.Matchers.eq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
+import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,8 +26,10 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
@@ -34,13 +38,15 @@ import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
 public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
 
     private final StepInput input;
-
+    private final String expectedExceptionMessage;
+    
     private List<String> notRequiredServices = new ArrayList<>();
     private List<String> expectedServicesToBind = new ArrayList<>();
 
@@ -59,65 +65,77 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                "update-app-step-input-1.json", PlatformType.XS2
+                "update-app-step-input-1.json", null, PlatformType.XS2
             },
             {
-                "update-app-step-input-2.json", PlatformType.XS2
+                "update-app-step-input-2.json", null, PlatformType.XS2
             },
             {
-                "update-app-step-input-3.json", PlatformType.CF
+                "update-app-step-input-3.json", null, PlatformType.CF
             },
             {
-                "update-app-step-input-4.json", PlatformType.XS2
+                "update-app-step-input-4.json", null, PlatformType.XS2
             },
             {
-                "update-app-step-input-5.json", PlatformType.CF
+                "update-app-step-input-5.json", null, PlatformType.CF
             },
             {
-                "update-app-step-input-6.json", PlatformType.XS2
+                "update-app-step-input-6.json", null, PlatformType.XS2
             },
             {
-                "update-app-step-input-7.json", PlatformType.XS2
+                "update-app-step-input-7.json", null, PlatformType.XS2
             },
             {
-                "update-app-step-input-8.json", PlatformType.CF
+                "update-app-step-input-8.json", null, PlatformType.CF
             },
             {
-                "update-app-step-input-9.json", PlatformType.XS2
+                "update-app-step-input-9.json", null, PlatformType.XS2
             },
             {
-                "update-app-step-input-10.json", PlatformType.XS2
+                "update-app-step-input-10.json", null, PlatformType.XS2
             },
             {
-                "update-app-step-input-11.json", PlatformType.CF
+                "update-app-step-input-11.json", null, PlatformType.CF
             },
             // Existing app has binding with null parameters and defined service binding is without parameters
             {
-                "update-app-step-input-12.json", PlatformType.CF
+                "update-app-step-input-12.json", null, PlatformType.CF
             },
             // Existing app has binding with empty parameters and defined service binding is without parameters
             {
-                "update-app-step-input-13.json", PlatformType.CF
+                "update-app-step-input-13.json", null, PlatformType.CF
             },
             // Existing app has binding with parameters and defined service binding is without parameters
             {
-                "update-app-step-input-14.json", PlatformType.CF
+                "update-app-step-input-14.json", null, PlatformType.CF
             },
             // Existing app has binding with null parameters and defined service binding is with defined parameters
             {
-                "update-app-step-input-15.json", PlatformType.CF
+                "update-app-step-input-15.json", null, PlatformType.CF
+            },
+            // Service keys to inject are specified
+            {
+                "update-app-step-input-16.json", null, PlatformType.XS2
+            },
+            // Service keys to inject are specified but does not exist
+            {
+                "update-app-step-input-17.json", "nable to retrieve required service key element \"expected-service-key\" for service \"existing-service-1\"", PlatformType.XS2
             },
 // @formatter:on
         });
     }
 
-    public UpdateAppStepTest(String input, PlatformType platform) throws Exception {
+    public UpdateAppStepTest(String input, String expectedExceptionMessage, PlatformType platform) throws Exception {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, UpdateAppStepTest.class), StepInput.class);
         this.platform = platform;
+        this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
     @Before
     public void setUp() throws Exception {
+        if (expectedExceptionMessage != null) {
+            expectedException.expectMessage(expectedExceptionMessage);
+        }
         prepareContext();
         prepareClient();
     }
@@ -197,6 +215,11 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
             Mockito.when(cloudServiceInstance.getBindings()).thenReturn(serviceBindings);
             Mockito.when(client.getServiceInstance(serviceName)).thenReturn(cloudServiceInstance);
         }
+
+        for (String serviceName : input.existingServiceKeys.keySet()) {
+            List<ServiceKey> serviceKeys = input.existingServiceKeys.get(serviceName);
+            Mockito.when(client.getServiceKeys(eq(serviceName))).thenReturn(ListUtil.upcast(serviceKeys));
+        }
     }
 
     private List<CloudServiceExtended> mapToCloudServices() {
@@ -264,13 +287,15 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
         StepsUtil.setTriggeredServiceOperations(context, Collections.emptyMap());
         context.setVariable(Constants.VAR_APPS_INDEX, 0);
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
-
+        byte[] serviceKeysToInjectByteArray = GsonHelper.getAsBinaryJson(new HashMap<>());
+        context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
 
     private static class StepInput {
         SimpleApplication application;
         SimpleApplication existingApplication;
         Map<String, List<SimpleBinding>> existingServiceBindings;
+        Map<String, List<ServiceKey>> existingServiceKeys = new HashMap<>();
         boolean updateStaging;
         boolean updateMemory;
         boolean updateDiskQuota;
@@ -294,6 +319,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
         String name;
         List<String> services;
         Map<String, Map<String, Object>> bindingParameters;
+        List<ServiceKeyToInject> serviceKeysToInject;
         String command;
         List<String> uris;
         String buildpackUrl;
@@ -306,8 +332,9 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
                 AppState.STARTED);
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
-            cloudApp.setStaging(new StagingExtended(command, buildpackUrl, null, 0, "none", null));
             cloudApp.setBindingParameters(bindingParameters);
+            cloudApp.setStaging(new StagingExtended(command, buildpackUrl, null, 0, "none", null));
+            cloudApp.setServiceKeysToInject(serviceKeysToInject);
             return cloudApp;
         }
 

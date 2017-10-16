@@ -12,20 +12,25 @@ import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
+import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
+import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
@@ -43,6 +48,7 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("createAppStep")
@@ -50,6 +56,9 @@ import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 public class CreateAppStep extends AbstractXS2ProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+
+    @Inject
+    private ActivitiFacade activitiFacade;
 
     @Autowired
     protected ApplicationStagingUpdater applicationStagingUpdater;
@@ -95,8 +104,12 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
                     applicationStagingUpdater.updateApplicationStaging(client, appName, staging);
                 }
             }
+
+            injectServiceKeysCredentialsInAppEnv(context, client, app, env);
+
             // In all cases, update its environment:
             client.updateApplicationEnv(appName, env);
+
             if (existingApp == null) {
                 for (String serviceName : services) {
                     Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
@@ -116,6 +129,47 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
             getStepLogger().error(e, Messages.ERROR_CREATING_APP, app.getName());
             throw e;
         }
+    }
+
+    protected void injectServiceKeysCredentialsInAppEnv(DelegateExecution context, CloudFoundryOperations client,
+        CloudApplicationExtended app, Map<String, String> appEnv) {
+        Map<String, String> appServiceKeysCredentials = new HashMap<String, String>();
+        for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
+            String serviceKeyCredentials = JsonUtil.toJson(getServiceKeyCredentials(client, serviceKeyToInject), true);
+            appEnv.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
+            appServiceKeysCredentials.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
+        }
+        app.setEnv(MapUtil.upcast(appEnv));
+
+        updateContextWithServiceKeysCredentials(context, client, app, appServiceKeysCredentials);
+    }
+
+    private void updateContextWithServiceKeysCredentials(DelegateExecution context, CloudFoundryOperations client,
+        CloudApplicationExtended app, Map<String, String> appServiceKeysCredentials) {
+        Map<String, Map<String, String>> serviceKeysCredentialsToInject = StepsUtil.getServiceKeysCredentialsToInject(context);
+        serviceKeysCredentialsToInject.put(app.getName(), appServiceKeysCredentials);
+
+        // Update current process context
+        StepsUtil.setApp(context, app);
+        StepsUtil.setServiceKeysCredentialsToInject(context, serviceKeysCredentialsToInject);
+
+        // Update parent process context
+        Map<String, Object> parentProcessVariablesToOverride = new HashMap<String, Object>();
+        byte[] serviceKeysToInjectByteArray = GsonHelper.getAsBinaryJson(serviceKeysCredentialsToInject);
+        parentProcessVariablesToOverride.put(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
+        String parentProcessId = StepsUtil.getParentProcessId(context);
+        activitiFacade.setRuntimeVariables(parentProcessId, parentProcessVariablesToOverride);
+    }
+
+    private Map<String, Object> getServiceKeyCredentials(CloudFoundryOperations client, ServiceKeyToInject serviceKeyToInject) {
+        List<ServiceKey> existingServiceKeys = client.getServiceKeys(serviceKeyToInject.getServiceName());
+        for (ServiceKey existingServiceKey : existingServiceKeys) {
+            if (existingServiceKey.getName().equals(serviceKeyToInject.getServiceKeyName())) {
+                return existingServiceKey.getCredentials();
+            }
+        }
+        throw new SLException(Messages.ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT, serviceKeyToInject.getServiceKeyName(),
+            serviceKeyToInject.getServiceName());
     }
 
     protected Map<String, Map<String, Object>> getBindingParameters(DelegateExecution context, CloudApplicationExtended app)

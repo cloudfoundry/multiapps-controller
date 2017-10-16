@@ -20,7 +20,8 @@
         "bar=bar",
         "baz=baz"
       ],
-      "services": []
+      "services": [],
+      "serviceKeysToInject": []
     }
   ],
   "applicationIndex": 0

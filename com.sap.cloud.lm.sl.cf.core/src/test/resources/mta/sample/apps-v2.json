@@ -4,14 +4,15 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"pricing-db.cfapps.neo.ondemand.com\"]}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"pricing-db\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"pricing-db\"]",
-      "MTA_PROPERTIES={\"default-locale\":\"zho\"}",
-      "MTA_SERVICES=[\"pricing-db-service\"]"
+      "MTA_SERVICES=[\"pricing-db-service\"]",
+      "default-locale=zho"
     ],
     "instances": 0,
     "memory": 0,
@@ -33,14 +34,18 @@
     },
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"api.bestprice.sap.com\"]}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"pricing\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"internal-odata\",\"pricing\"]",
-      "MTA_PROPERTIES={\"application-key\":\"25892e17-80f6-415f-9c65-7395632f0223\",\"default-locale\":\"zho\",\"docu-url\":\"http://help.sap.com/saphelp_nw74/en/5c\",\"secret-key\":\"cd171f7c-560d-4a62-8d65-16b87419a58c\"}",
       "MTA_SERVICES=[\"pricing-db-service\"]",
+      "application-key=25892e17-80f6-415f-9c65-7395632f0223",
+      "default-locale=zho",
+      "docu-url=http://help.sap.com/saphelp_nw74/en/5c",
+      "secret-key=cd171f7c-560d-4a62-8d65-16b87419a58c",
       "url=https://marketwatch.il/v2/"
     ],
     "instances": 0,
@@ -63,14 +68,17 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"www.bestprice.sap.com\"]}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"web-server\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"web-server\"]",
-      "MTA_PROPERTIES={\"default-locale\":\"zho\",\"docu-url\":\"http://help.sap.com/saphelp_nw74/en/5c\",\"odata.svc_root\":\"odata/\"}",
-      "MTA_SERVICES=[\"internal-odata-service\"]"
+      "MTA_SERVICES=[\"internal-odata-service\"]",
+      "default-locale=zho",
+      "docu-url=http://help.sap.com/saphelp_nw74/en/5c",
+      "odata.svc_root=odata/"
     ],
     "instances": 0,
     "memory": 0,

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Component;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKey;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.DomainsCloudModelBuilder;
@@ -78,6 +78,7 @@ public class BuildCloudDeployModelStep extends AbstractXS2ProcessStep {
                 deployedModuleNames);
             getStepLogger().debug(Messages.APPS_TO_DEPLOY, secureSerializer.toJson(apps));
             StepsUtil.setAppsToDeploy(context, apps);
+            StepsUtil.setServiceKeysCredentialsToInject(context, new HashMap<>());
 
             // Build public provided dependencies list and save them in the context:
             ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(context);

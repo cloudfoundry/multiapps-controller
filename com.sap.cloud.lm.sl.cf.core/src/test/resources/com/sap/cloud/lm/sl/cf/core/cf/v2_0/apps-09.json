@@ -20,6 +20,7 @@
         "name": "task-2"
       }
     ],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-1.sofd60245639a\"],\"no-start\":true}",
@@ -44,6 +45,7 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-2.sofd60245639a\"]}",
@@ -68,6 +70,7 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-3.sofd60245639a\"]}",
@@ -92,6 +95,7 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-4.sofd60245639a\"],\"no-start\":false}",

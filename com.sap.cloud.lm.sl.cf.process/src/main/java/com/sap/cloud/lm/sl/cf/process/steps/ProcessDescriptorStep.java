@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceType;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
@@ -69,7 +69,7 @@ public class ProcessDescriptorStep extends AbstractXS2ProcessStep {
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
             Target target = StepsUtil.getTarget(context);
             Platform platform = StepsUtil.getPlatform(context);
-            ResourceTypeFinder resourceHelper = handlerFactory.getResourceTypeFinder(ServiceType.USER_PROVIDED.toString());
+            ResourceTypeFinder resourceHelper = handlerFactory.getResourceTypeFinder(ResourceType.USER_PROVIDED_SERVICE.toString());
             platform.accept(resourceHelper);
 
             MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, platform, target,

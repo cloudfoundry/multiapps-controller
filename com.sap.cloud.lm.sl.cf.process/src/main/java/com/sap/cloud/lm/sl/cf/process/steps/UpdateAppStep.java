@@ -90,6 +90,7 @@ public class UpdateAppStep extends CreateAppStep {
                 appPropertiesChanged = true;
             }
             appPropertiesChanged = updateApplicationServices(app, existingApp, client, context) ? true : appPropertiesChanged;
+            injectServiceKeysCredentialsInAppEnv(context, client, app, env);
             updateAppDigest(env, existingApp.getEnvAsMap());
             if (!env.equals(existingApp.getEnvAsMap())) {
                 getStepLogger().debug("Updating env of application \"{0}\"", appName);

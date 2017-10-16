@@ -4,6 +4,7 @@
 		"services":[
 			"test-service-1", "test-service-2" 
 		],
+		"serviceKeysToInject": [],
 		"command":"test-command",
 		"uris":[
 			"test-uri-1", "test-uri-2"
@@ -16,6 +17,7 @@
 	"existingApplication" : {
 		"name":"test-app-1",
 		"services":[],
+		"serviceKeysToInject": [],
 		"command":"",
 		"uris":[],
 		"buildpackUrl":"",

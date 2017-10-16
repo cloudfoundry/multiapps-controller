@@ -4,6 +4,7 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:55000\"\n  ]\n}",

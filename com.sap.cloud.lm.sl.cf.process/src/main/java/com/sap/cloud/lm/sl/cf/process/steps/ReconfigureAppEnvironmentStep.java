@@ -63,7 +63,7 @@ public class ReconfigureAppEnvironmentStep extends AbstractXS2ProcessStep {
             List<CloudApplicationExtended> targetApps = StepsUtil.getAppsToDeploy(context);
 
             List<String> changedAppNames = new ArrayList<>();
-            copyAppEnvironments(updatedApps, targetApps, changedAppNames);
+            copyAppEnvironments(context, updatedApps, targetApps, changedAppNames);
             getStepLogger().debug(Messages.APPS_WITH_ENVS_TO_RECONFIGURE_0, secureSerializer.toJson(changedAppNames));
             updateAppEnvironments(context, targetApps, changedAppNames);
             StepsUtil.setAppsToDeploy(context, updatedApps);
@@ -97,18 +97,38 @@ public class ReconfigureAppEnvironmentStep extends AbstractXS2ProcessStep {
         }
     }
 
-    private void copyAppEnvironments(List<CloudApplicationExtended> updatedApps, List<CloudApplicationExtended> targetApps,
-        List<String> changedApps) {
+    private void copyAppEnvironments(DelegateExecution context, List<CloudApplicationExtended> updatedApps,
+        List<CloudApplicationExtended> targetApps, List<String> changedApps) {
+        Map<String, Map<String, String>> serviceKeysToInject = StepsUtil.getServiceKeysCredentialsToInject(context);
         for (CloudApplicationExtended updatedApp : updatedApps) {
             final String appName = updatedApp.getName();
             CloudApplicationExtended targetApp = targetApps.stream().filter((app) -> app.getName().equals(appName)).findFirst().get();
-            Map<String, String> newEnvironment = updatedApp.getEnvAsMap();
-            if (!newEnvironment.equals(targetApp.getEnvAsMap())) {
+            Map<String, String> updatedAppEnv = updatedApp.getEnvAsMap();
+            Map<String, String> targetAppEnv = targetApp.getEnvAsMap();
+
+            enrichAppEnvWithServiceKeysCredentials(appName, updatedAppEnv, targetAppEnv, serviceKeysToInject);
+
+            if (!updatedAppEnv.equals(targetAppEnv)) {
                 Map<Object, Object> newEnv = new HashMap<Object, Object>();
-                newEnvironment.forEach((key, value) -> newEnv.put(key, value));
+                updatedAppEnv.forEach((key, value) -> newEnv.put(key, value));
                 targetApp.setEnv(newEnv);
                 changedApps.add(appName);
             }
+        }
+    }
+
+    private void enrichAppEnvWithServiceKeysCredentials(String appName, Map<String, String> updatedAppEnv, Map<String, String> targetAppEnv,
+        Map<String, Map<String, String>> serviceKeysToInject) {
+        if (serviceKeysToInject == null) {
+            return;
+        }
+        Map<String, String> appServiceKeysToInject = serviceKeysToInject.get(appName);
+        if (appServiceKeysToInject == null) {
+            return;
+        }
+        for (String appServiceKeyToInject : appServiceKeysToInject.keySet()) {
+            updatedAppEnv.put(appServiceKeyToInject, appServiceKeysToInject.get(appServiceKeyToInject));
+            targetAppEnv.put(appServiceKeyToInject, appServiceKeysToInject.get(appServiceKeyToInject));
         }
     }
 

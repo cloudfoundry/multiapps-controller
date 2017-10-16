@@ -4,6 +4,7 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-1.sofd60245639a\"],\"service-broker-password\":\"4d@U$mIb8j9FLwL&\",\"service-broker-user\":\"JUSJ@UOf35K&Q9CY\"}",

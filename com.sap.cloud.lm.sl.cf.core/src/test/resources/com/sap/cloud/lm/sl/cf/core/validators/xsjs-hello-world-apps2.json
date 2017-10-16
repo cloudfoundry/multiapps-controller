@@ -6,6 +6,7 @@
     },
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES\u003d{\n  \"check-deploy-id\": true,\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [],\n  \"execute-app\": true,\n  \"failure-marker\": \"STDERR:Deployment failed\",\n  \"stop-app\": true,\n  \"success-marker\": \"STDOUT:Deployment done\"\n}",
@@ -33,6 +34,7 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"i027947-xsjs-hello-world-backend.cfapps.neo.ondemand.com\"\n  ]\n}",
@@ -60,6 +62,7 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"i027947-xsjs-hello-world.cfapps.neo.ondemand.com\"\n  ]\n}",

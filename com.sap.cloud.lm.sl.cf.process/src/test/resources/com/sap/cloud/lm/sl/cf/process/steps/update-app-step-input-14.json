@@ -4,6 +4,7 @@
 		"services":[
 			"test-service-1"
 		],
+		"serviceKeysToInject": [],
 		"bindingParameters": {},
 		"command":"test-command",
 		"uris":[
@@ -19,6 +20,7 @@
 		"services":[
   			"test-service-1"
 		],
+		"serviceKeysToInject": [],
 		"command":"",
 		"uris":[
 			"test-uri-3", "test-uri-4"
