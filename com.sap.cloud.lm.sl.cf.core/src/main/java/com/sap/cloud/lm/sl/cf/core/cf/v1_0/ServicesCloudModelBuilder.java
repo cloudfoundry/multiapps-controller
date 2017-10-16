@@ -51,7 +51,7 @@ public class ServicesCloudModelBuilder {
 
     protected CloudServiceExtended getService(Resource resource) throws SLException {
         Map<String, Object> parameters = propertiesAccessor.getParameters(resource);
-        ServiceType serviceType = getServiceType(parameters);
+        ResourceType serviceType = getServiceType(parameters);
         boolean isOptionalResource = isOptionalResource(resource);
         CloudServiceExtended service = createService(parameters, cloudServiceNameMapper.mapServiceName(resource, serviceType),
             isOptionalResource, serviceType);
@@ -66,12 +66,12 @@ public class ServicesCloudModelBuilder {
     }
 
     protected CloudServiceExtended createService(Map<String, Object> properties, String serviceName, boolean isOptionalResource,
-        ServiceType serviceType) throws ContentException {
-        if (serviceType.equals(ServiceType.MANAGED)) {
+        ResourceType serviceType) throws ContentException {
+        if (serviceType.equals(ResourceType.MANAGED_SERVICE)) {
             return createManagedService(serviceName, isOptionalResource, properties);
-        } else if (serviceType.equals(ServiceType.USER_PROVIDED)) {
+        } else if (serviceType.equals(ResourceType.USER_PROVIDED_SERVICE)) {
             return createUserProvidedService(serviceName, isOptionalResource, properties);
-        } else if (serviceType.equals(ServiceType.EXISTING)) {
+        } else if (serviceType.equals(ResourceType.EXISTING_SERVICE)) {
             return createExistingService(serviceName, isOptionalResource, properties);
         }
         return null;

@@ -22,12 +22,12 @@ public class CloudServiceNameMapper {
         this.deploymentDescriptor = deploymentDescriptor;
     }
 
-    public String mapServiceName(Resource resource, ServiceType serviceType) throws SLException {
+    public String mapServiceName(Resource resource, ResourceType serviceType) throws SLException {
         Map<String, Object> parameters = propertiesAccessor.getParameters(resource);
         String overwritingName = (String) parameters.get(SupportedParameters.SERVICE_NAME);
 
         String shortServiceName = overwritingName != null ? overwritingName : resource.getName();
-        if (serviceType.equals(ServiceType.EXISTING)) {
+        if (serviceType.equals(ResourceType.EXISTING_SERVICE)) {
             return shortServiceName;
         }
         return getServiceName(shortServiceName);

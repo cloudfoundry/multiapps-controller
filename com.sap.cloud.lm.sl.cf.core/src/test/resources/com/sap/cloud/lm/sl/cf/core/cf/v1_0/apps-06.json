@@ -4,15 +4,16 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-1.sofd60245639a/bar\"]}",
       "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
-      "MTA_PROPERTIES={\"route-path\":\"/bar\"}",
       "MTA_SERVICES=[\"com.sap.sample.mta.user-provided-renamed\",\"com.sap.sample.mta.user-provided-service\",\"com.sap.sample.mta.user-provider-resource-7ef941fc\",\"com.sap.sample.mta.random-service-renamed\",\"com.sap.sample.mta.random-service\",\"com.sap.sample.mta.random-resource-named-service\"]",
-      "TARGET_RUNTIME=tomee"
+      "TARGET_RUNTIME=tomee",
+      "route-path=/bar"
     ],
     "instances": 0,
     "memory": 0,

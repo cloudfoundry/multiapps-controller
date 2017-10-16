@@ -46,7 +46,7 @@ public class ServiceKeysCloudModelBuilder {
 
     @SuppressWarnings("unchecked")
     protected ServiceKeyImpl getServiceKey(Resource resource, Map<String, Object> serviceKeyMap) {
-        String serviceKeyName = (String) serviceKeyMap.get(SupportedParameters.SERVICE_KEY_NAME);
+        String serviceKeyName = (String) serviceKeyMap.get(SupportedParameters.SERVICE_SERVICE_KEY_NAME);
         Map<String, Object> parameters = (Map<String, Object>) serviceKeyMap.get(SupportedParameters.SERVICE_KEY_CONFIG);
         if (parameters == null) {
             parameters = Collections.emptyMap();

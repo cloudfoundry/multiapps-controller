@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceType;
+import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -75,16 +77,36 @@ public class CloudModelBuilderUtil {
     }
 
     public static boolean isService(Resource resource) {
-        return resource.getType() != null; // Typed resource = service;
+        if (resource.getType() == null) {
+            return false;
+        }
+        return !ResourceType.EXISTING_SERVICE_KEY.toString().equals(getResourceType(resource));
+    }
+
+    public static boolean isServiceKey(Resource resource) {
+        if (resource.getType() == null) {
+            return false;
+        }
+        return ResourceType.EXISTING_SERVICE_KEY.toString().equals(getResourceType(resource));
+    }
+
+    private static String getResourceType(Resource resource) {
+        HandlerFactory handlerFactory = new HandlerFactory(1);
+        if (resource instanceof com.sap.cloud.lm.sl.mta.model.v2_0.Resource) {
+            handlerFactory = new HandlerFactory(2);
+        }
+        PropertiesAccessor propertiesAccessor = handlerFactory.getPropertiesAccessor();
+        Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
+        return (String) resourceParameters.get(SupportedParameters.TYPE);
     }
 
     public static <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
         return parser.parse(parametersList);
     }
 
-    public static ServiceType getServiceType(Map<String, Object> properties) {
-        String type = (String) properties.getOrDefault(SupportedParameters.TYPE, ServiceType.MANAGED.toString());
-        return ServiceType.get(type);
+    public static ResourceType getServiceType(Map<String, Object> properties) {
+        String type = (String) properties.getOrDefault(SupportedParameters.TYPE, ResourceType.MANAGED_SERVICE.toString());
+        return ResourceType.get(type);
     }
 
 }

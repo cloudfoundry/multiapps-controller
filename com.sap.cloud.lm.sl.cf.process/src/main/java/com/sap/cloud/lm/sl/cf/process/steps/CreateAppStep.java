@@ -26,6 +26,8 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKey;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
@@ -94,8 +96,12 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
                     applicationStagingUpdater.updateApplicationStaging(client, appName, staging);
                 }
             }
+
+            injectServiceKeysInAppEnv(context, client, app, env);
+            
             // In all cases, update its environment:
             client.updateApplicationEnv(appName, env);
+
             if (existingApp == null) {
                 for (String serviceName : services) {
                     Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
@@ -115,6 +121,32 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
             getStepLogger().error(e, Messages.ERROR_CREATING_APP, app.getName());
             throw e;
         }
+    }
+
+    protected void injectServiceKeysInAppEnv(DelegateExecution context, CloudFoundryOperations client,
+        CloudApplicationExtended app, Map<String, String> newAppEnv) {
+        // TODO: Do not use client extensions when the CF Java Client we use supports managing of
+        // service keys.
+        ClientExtensions clientExtensions = getClientExtensions(context);
+        if (clientExtensions == null) {
+            return;
+        }
+        for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
+            newAppEnv.put(serviceKeyToInject.getEnvVarName(), JsonUtil.toJson(getServiceKeyCredentials(clientExtensions, serviceKeyToInject), true));
+        }
+        app.setEnv(MapUtil.upcast(newAppEnv));
+        StepsUtil.setApp(context, app);
+    }
+
+    private Map<String, Object> getServiceKeyCredentials(ClientExtensions clientExtensions, ServiceKeyToInject serviceKeyToInject) {
+        List<ServiceKey> existingServiceKeys = clientExtensions.getServiceKeys(serviceKeyToInject.getServiceName());
+        for (ServiceKey existingServiceKey : existingServiceKeys) {
+            if (existingServiceKey.getName().equals(serviceKeyToInject.getServiceKeyName())) {
+                return existingServiceKey.getCredentials();
+            }
+        }
+        throw new SLException(Messages.ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT, serviceKeyToInject.getServiceKeyName(),
+            serviceKeyToInject.getServiceName());
     }
 
     protected Map<String, Map<String, Object>> getBindingParameters(DelegateExecution context, CloudApplicationExtended app)

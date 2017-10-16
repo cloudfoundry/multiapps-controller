@@ -97,6 +97,7 @@ public class SupportedParameters {
     public static final String SERVICE_BINDING_CONFIG = "config";
     public static final String SERVICE_BINDING_CONFIG_PATH = "config-path";
     public static final String MANAGED = "managed";
+    public static final String ENV_VAR_NAME = "env-var-name";
 
     // Resource / resource type parameters:
     public static final String SERVICE_NAME = "service-name";
@@ -109,8 +110,10 @@ public class SupportedParameters {
     public static final String SERVICE_CONFIG_PATH = "config-path";
     public static final String SERVICE_TAGS = "service-tags";
     public static final String SERVICE_KEYS = "service-keys";
-    public static final String SERVICE_KEY_NAME = "name";
+    public static final String SERVICE_SERVICE_KEY_NAME = "name";
     public static final String SERVICE_KEY_CONFIG = "config";
+    public static final String SERVICE_KEY_NAME = "service-key-name";
+    public static final String SERVICE_KEY_SERVICE_NAME = "service-name";
     public static final String DEFAULT_CONTAINER_NAME = "default-container-name";
     public static final String DEFAULT_XS_APP_NAME = "default-xsappname";
     public static final String TYPE = "type";

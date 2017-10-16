@@ -1,0 +1,46 @@
+{
+  "applications": [
+    {
+      "name": "application-1",
+      "staging": {
+        "command": "command-1",
+        "buildpackUrl": "buildpackUrl-1",
+        "healthCheckType": "none"
+      },
+      "instances": 1,
+      "memory": 0,
+      "diskQuota": 512,
+      "uris": [
+        "http://localhost:9999",
+        "http://localhost:8888",
+        "http://localhost:7777"
+      ],
+      "env": [
+        "foo=foo",
+        "bar=bar",
+        "baz=baz",
+        "serviceKeyCredentials={\n  \"user\": \"service-key-user\",\n  \"password\": \"service-key-password\"\n}"
+      ],
+      "services": [],
+      "serviceKeysToInject": [
+        {
+          "envVarName": "serviceKeyCredentials",
+          "serviceName": "existing-service",
+          "serviceKeyName": "service-key-1"
+        }
+      ]
+    }
+  ],
+  "applicationIndex": 0,
+  "existingServiceKeys" : {
+  	"existing-service": [
+        {
+          "name": "service-key-1",
+          "credentials": {
+            "user": "service-key-user",
+            "password": "service-key-password"
+          }
+        }
+    ]
+  }
+}
