@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceType;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
 import com.sap.cloud.lm.sl.common.util.Callable;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 @RunWith(Parameterized.class)
 public class UserProvidedResourceResolverTest {
 
-    protected static final String USER_PROVIDED_SERVICE_TYPE = ServiceType.USER_PROVIDED.toString();
+    protected static final String USER_PROVIDED_SERVICE_TYPE = ResourceType.USER_PROVIDED_SERVICE.toString();
 
     private String descriptorLocation;
     private String targetLocation;

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
+import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -32,6 +34,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -77,6 +80,13 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
             // (5) Binding parameters exist, but the services do not and service-2 is optional - so no exception should be thrown:
             {
                 "create-app-step-input-05.json", null, PlatformType.CF,
+            },
+            // (6) Service keys to inject are specified:
+            { "create-app-step-input-06.json", null, PlatformType.XS2 },
+            // (7) Service keys to inject are specified but not exist:
+            { "create-app-step-input-07.json",
+                "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service\"",
+                PlatformType.XS2
             },
 // @formatter:on
         });
@@ -126,6 +136,8 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
         StepsUtil.setServicesToBind(context, mapToCloudServiceExtended());
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
         context.setVariable(Constants.VAR_APPS_INDEX, stepInput.applicationIndex);
+        byte[] serviceKeysToInjectByteArray = GsonHelper.getAsBinaryJson(new HashMap<>());
+        context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
 
     private List<CloudServiceExtended> mapToCloudServiceExtended() {
@@ -155,6 +167,11 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
             Mockito.doThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 "Something happened!")).when((ClientExtensions) client).bindService(Mockito.eq(appName), Mockito.eq(serviceName),
                     Mockito.any());
+        }
+
+        for (String serviceName : stepInput.existingServiceKeys.keySet()) {
+            List<ServiceKey> serviceKeys = stepInput.existingServiceKeys.get(serviceName);
+            Mockito.when(client.getServiceKeys(eq(serviceName))).thenReturn(ListUtil.upcast(serviceKeys));
         }
     }
 
@@ -193,6 +210,7 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
         int applicationIndex;
         PlatformType platform;
         Map<String, String> bindingErrors = new HashMap<>();
+        Map<String, List<ServiceKey>> existingServiceKeys = new HashMap<>();
     }
 
     private static class SimpleService {

@@ -8,11 +8,11 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.StartingInfo;
+import org.cloudfoundry.client.lib.domain.ServiceKey;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKey;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
 
@@ -61,8 +61,6 @@ public interface ClientExtensions {
      * @return info object used to get the upload progress
      */
     UploadInfo getUploadProgress(String uploadToken);
-
-    List<ServiceKey> getServiceKeys(String serviceName);
 
     ServiceKey createServiceKey(String serviceName, String serviceKey, String parameters);
 

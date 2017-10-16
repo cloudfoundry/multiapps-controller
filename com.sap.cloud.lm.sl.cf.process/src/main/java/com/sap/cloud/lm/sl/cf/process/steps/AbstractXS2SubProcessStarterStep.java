@@ -1,11 +1,14 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.runtime.ProcessInstance;
 
 import com.sap.activiti.common.ExecutionStatus;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
 
@@ -21,9 +24,10 @@ public abstract class AbstractXS2SubProcessStarterStep extends AbstractXS2Proces
 
             int nextIndex = (int) context.getVariable(getIndexVariable());
             context.setVariable(getIterationVariableName(), getIterationVariable(context, nextIndex));
+            Map<String, Object> parentProcessVariables = context.getVariables();
+            parentProcessVariables.put(Constants.VAR_PARENTPROCESS_ID, context.getProcessInstanceId());
             ProcessInstance subProcessInstance = actvitiFacade.startProcessInstance(userId, getProcessDefinitionKey(),
-                context.getVariables());
-
+                parentProcessVariables);
             StepsUtil.setSubProcessId(context, subProcessInstance.getProcessInstanceId());
 
             return ExecutionStatus.SUCCESS;

@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2_0;
 
+import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.ensureValidEnvName;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.mergeProperties;
 
@@ -15,9 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceType;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.UrisClassifier;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -40,6 +42,7 @@ import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Resource;
+import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder {
@@ -79,19 +82,20 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         List<String> customUris = new UrisClassifier(xsPlaceholderResolver).getCustomUris(deployedModule);
         List<String> fullResolvedUris = ListUtil.merge(resolvedUris, customUris);
         List<String> services = getApplicationServices(module, true);
+        List<ServiceKeyToInject> serviceKeys = getServicesKeysToInject(module);
         Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, uris, getApplicationServices(module, false),
             module.getProperties(), ((Module) module).getParameters());
         List<CloudTask> tasks = getTasks(parametersList);
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters((Module) module);
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, fullResolvedUris,
-            resolvedIdleUris, services, env, bindingParameters, tasks);
+            resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks);
     }
 
     protected CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota, int memory,
-        int instances, List<String> uris, List<String> idleUris, List<String> services, Map<Object, Object> env,
-        Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks) {
+        int instances, List<String> uris, List<String> idleUris, List<String> services, List<ServiceKeyToInject> serviceKeys,
+        Map<Object, Object> env, Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks) {
         CloudApplicationExtended app = super.createCloudApplication(name, moduleName, staging, diskQuota, memory, instances, uris, idleUris,
-            services, env, tasks);
+            services, serviceKeys, env, tasks);
         if (bindingParameters != null) {
             app.setBindingParameters(bindingParameters);
         }
@@ -155,7 +159,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     protected List<String> getApplicationServices(Module module, boolean addExisting) throws SLException {
         List<String> services = new ArrayList<>();
         for (RequiredDependency dependency : module.getRequiredDependencies2_0()) {
-            Pair<com.sap.cloud.lm.sl.mta.model.v1_0.Resource, ServiceType> pair = getApplicationService(dependency.getName());
+            Pair<com.sap.cloud.lm.sl.mta.model.v1_0.Resource, ResourceType> pair = getApplicationService(dependency.getName());
             if (pair != null && shouldAddServiceToList(pair._2, addExisting)) {
                 ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(pair._1, pair._2));
             }
@@ -164,12 +168,40 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     }
 
     @Override
-    protected Pair<com.sap.cloud.lm.sl.mta.model.v1_0.Resource, ServiceType> getApplicationService(String dependencyName) {
+    protected Pair<com.sap.cloud.lm.sl.mta.model.v1_0.Resource, ResourceType> getApplicationService(String dependencyName) {
         Resource resource = (Resource) getResource(dependencyName);
-        if (resource != null && CloudModelBuilderUtil.isService(resource)) {
-            ServiceType serviceType = CloudModelBuilderUtil.getServiceType(resource.getParameters());
+        if (resource != null && CloudModelBuilderUtil.isService(resource, propertiesAccessor)) {
+            ResourceType serviceType = CloudModelBuilderUtil.getResourceType(resource.getParameters());
             return new Pair<>(resource, serviceType);
         }
         return null;
     }
+
+    @Override
+    protected List<ServiceKeyToInject> getServicesKeysToInject(com.sap.cloud.lm.sl.mta.model.v1_0.Module module) {
+        return getServicesKeysToInject((Module) module);
+    }
+
+    protected List<ServiceKeyToInject> getServicesKeysToInject(Module module) {
+        List<ServiceKeyToInject> serviceKeysToInject = new ArrayList<>();
+        for (RequiredDependency dependency : module.getRequiredDependencies2_0()) {
+            ServiceKeyToInject serviceKey = getServiceKeyToInject(dependency);
+            ListUtil.addNonNull(serviceKeysToInject, serviceKey);
+        }
+        return serviceKeysToInject;
+    }
+
+    protected ServiceKeyToInject getServiceKeyToInject(RequiredDependency dependency) {
+        Resource resource = (Resource) getResource(dependency.getName());
+        if (resource != null && CloudModelBuilderUtil.isServiceKey(resource, propertiesAccessor)) {
+            Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
+            String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
+            String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
+            String envVarName = (String) dependency.getParameters().getOrDefault(SupportedParameters.ENV_VAR_NAME, serviceKeyName);
+            ensureValidEnvName(envVarName, configuration.shouldAllowInvalidEnvNames());
+            return new ServiceKeyToInject(envVarName, serviceName, serviceKeyName);
+        }
+        return null;
+    }
+
 }

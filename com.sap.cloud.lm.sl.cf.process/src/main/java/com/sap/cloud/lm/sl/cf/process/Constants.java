@@ -72,6 +72,7 @@ public class Constants {
     public static final String VAR_SERVICES_TO_CREATE = "servicesToCreate";
     public static final String VAR_SERVICES_TO_BIND = "servicesToBind";
     public static final String VAR_SERVICE_KEYS_TO_CREATE = "serviceKeysToCreate";
+    public static final String VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT = "serviceKeysCredentialsToInject";
     public static final String VAR_APPS_TO_DEPLOY = "appsToDeploy";
     public static final String VAR_UPDATED_SUBSCRIBERS = "updatedSubscribers";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS = "updatedServiceBrokerSubscribers";
@@ -115,6 +116,7 @@ public class Constants {
     public static final String VAR_CORRELATION_ID = "correlationId";
     public static final String VAR_APP_TO_DEPLOY = "appToDeploy";
     public static final String VAR_SUBPROCESS_ID = "subProcessId";
+    public static final String VAR_PARENTPROCESS_ID = "parentProcessId";
     public static final String VAR_PLATFORM_TYPE = "platformType";
     public static final String VAR_SERVICES_TO_CREATE_COUNT = "servicesToCreateCount";
     public static final String VAR_SERVICES_TO_POLL = "servicesToPoll";

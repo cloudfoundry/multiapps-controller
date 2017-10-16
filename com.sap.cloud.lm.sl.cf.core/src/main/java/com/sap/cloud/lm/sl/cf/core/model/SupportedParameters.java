@@ -98,6 +98,7 @@ public class SupportedParameters {
     public static final String SERVICE_BINDING_CONFIG = "config";
     public static final String SERVICE_BINDING_CONFIG_PATH = "config-path";
     public static final String MANAGED = "managed";
+    public static final String ENV_VAR_NAME = "env-var-name";
 
     // Resource / resource type parameters:
     public static final String SERVICE_NAME = "service-name";
@@ -110,8 +111,9 @@ public class SupportedParameters {
     public static final String SERVICE_CONFIG_PATH = "config-path";
     public static final String SERVICE_TAGS = "service-tags";
     public static final String SERVICE_KEYS = "service-keys";
-    public static final String SERVICE_KEY_NAME = "name";
+    public static final String NAME = "name";
     public static final String SERVICE_KEY_CONFIG = "config";
+    public static final String SERVICE_KEY_NAME = "service-key-name";
     public static final String DEFAULT_CONTAINER_NAME = "default-container-name";
     public static final String DEFAULT_XS_APP_NAME = "default-xsappname";
     public static final String TYPE = "type";
@@ -141,7 +143,7 @@ public class SupportedParameters {
         MEMORY, INSTANCES, NO_HOSTNAME, NO_ROUTE, IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS)));
 
     public static final Set<String> SERVICE_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE,
-        SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER, SERVICE_VERSION, SERVICE_CONFIG, SERVICE_CONFIG_PATH, SERVICE_TAGS)));
+        SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER, SERVICE_VERSION, SERVICE_CONFIG, SERVICE_CONFIG_PATH, SERVICE_TAGS, SERVICE_KEY_NAME)));
 
     public static final Set<String> APP_ATTRIBUTES = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList(EXECUTE_APP, SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID, REGISTER_SERVICE_URL,

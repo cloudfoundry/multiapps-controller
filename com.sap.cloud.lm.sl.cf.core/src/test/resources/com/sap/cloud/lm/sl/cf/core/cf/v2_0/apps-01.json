@@ -10,6 +10,7 @@
       }
     },
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"foo.cfapps.neo.ondemand.com/test\"]}",
