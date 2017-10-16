@@ -26,6 +26,7 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -57,6 +58,7 @@ public class ProcessMtaArchiveStepTest extends AbstractStepTest<ProcessMtaArchiv
     public void setUp() throws Exception {
         prepareContext();
         prepareFileService();
+        when(configuration.getMaxMtaDescriptorSize()).thenReturn(Configuration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
     }
 
     private void prepareContext() {

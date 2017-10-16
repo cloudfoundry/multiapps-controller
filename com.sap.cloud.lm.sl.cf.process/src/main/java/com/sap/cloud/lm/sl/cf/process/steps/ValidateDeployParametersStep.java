@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -25,13 +27,15 @@ import com.sap.cloud.lm.sl.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.util.Configuration;
 
 @Component("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ValidateDeployParametersStep extends AbstractProcessStep {
 
     private static final String PART_POSTFIX = ".part.";
+
+    @Inject
+    private Configuration configuration;
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -81,7 +85,7 @@ public class ValidateDeployParametersStep extends AbstractProcessStep {
     }
 
     private void validateDescriptorSize(FileEntry file) throws SLException {
-        Long maxSizeLimit = ConfigurationUtil.getMaxMtaDescriptorSize();
+        Long maxSizeLimit = configuration.getMaxMtaDescriptorSize();
         if (file.getSize().compareTo(BigInteger.valueOf(maxSizeLimit)) > 0) {
             throw new SLException(com.sap.cloud.lm.sl.mta.message.Messages.ERROR_SIZE_OF_FILE_EXCEEDS_CONFIGURED_MAX_SIZE_LIMIT,
                 file.getSize().toString(), file.getName(), String.valueOf(maxSizeLimit.longValue()));
@@ -162,10 +166,10 @@ public class ValidateDeployParametersStep extends AbstractProcessStep {
     }
 
     private void persistMergedArchive(Path archivePath, DelegateExecution context) throws FileStorageException, IOException {
-        Configuration configuration = ConfigurationUtil.getConfiguration();
+        com.sap.cloud.lm.sl.persistence.util.Configuration fileConfiguration = configuration.getFileConfiguration();
         String name = archivePath.getFileName().toString();
         FileEntry uploadedArchive = fileService.addFile(StepsUtil.getSpaceId(context), StepsUtil.getServiceId(context), name,
-            configuration.getFileUploadProcessor(), archivePath.toFile());
+            fileConfiguration.getFileUploadProcessor(), archivePath.toFile());
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 

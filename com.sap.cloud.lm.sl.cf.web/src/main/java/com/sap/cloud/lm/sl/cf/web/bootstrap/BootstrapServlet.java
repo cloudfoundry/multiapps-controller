@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -58,17 +58,20 @@ public class BootstrapServlet extends HttpServlet {
     @Inject
     protected ProcessEngine processEngine;
 
+    @Inject
+    protected Configuration configuration;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         try {
             SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
-            ConfigurationUtil.load();
+            configuration.load();
             initializeProviders();
             initializeActiviti();
             addDeployTargets();
             initExtras();
-            ConfigurationUtil.logFullConfig();
+            configuration.logFullConfig();
             processEngine.getProcessEngineConfiguration().getJobExecutor().start();
             LOGGER.info(Messages.ALM_SERVICE_ENV_INITIALIZED);
         } catch (Exception e) {
@@ -112,7 +115,7 @@ public class BootstrapServlet extends HttpServlet {
     private void addDeployTargets(DeployTargetDao dao, ConfigurationParser parser, int majorVersion) {
         List<PersistentObject<? extends Target>> existingTargets = dao.findAll();
         DescriptorHandler handler = new DescriptorHandler();
-        for (Target target : ConfigurationUtil.getTargets(parser, majorVersion)) {
+        for (Target target : configuration.getTargets(parser, majorVersion)) {
             if (!targetExists(handler, existingTargets, target)) {
                 try {
                     dao.add(target);

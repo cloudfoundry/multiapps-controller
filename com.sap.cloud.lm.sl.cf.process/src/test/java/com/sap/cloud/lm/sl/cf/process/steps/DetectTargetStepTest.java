@@ -13,6 +13,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -163,7 +164,8 @@ public class DetectTargetStepTest extends AbstractStepTest<DetectTargetStep> {
         context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, input.minorSchemaVersion);
         context.setVariable(Constants.PARAM_TARGET_NAME, input.targetName);
 
-        step.platformsSupplier = (factory) -> loadPlatforms(configurationParser, input.platformTypesLocation, getClass());
+        Mockito.when(configuration.getPlatforms(Mockito.any(), Mockito.anyInt())).thenReturn(
+            loadPlatforms(configurationParser, input.platformTypesLocation, getClass()));
         step.targetsSupplier = (factory) -> loadTargets(configurationParser, input.platformsLocation, getClass());
     }
 

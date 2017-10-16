@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.cf.process.ProcessLogsPersistenceService;
@@ -60,6 +61,8 @@ public abstract class AbstractStepTest<T extends AbstractProcessStep> {
     protected CloudFoundryClientProvider clientProvider;
     @Mock
     protected ActivitiFacade activitiFacade;
+    @Mock
+    protected Configuration configuration;
     @InjectMocks
     protected T step = createStep();
 

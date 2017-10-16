@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.analytics;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
+import java.net.URL;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,6 +26,7 @@ import org.mockito.MockitoAnnotations;
 import com.sap.activiti.common.impl.MockDelegateExecution;
 import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -52,6 +54,8 @@ public class AnalyticsCollectorTest {
 
     @Mock
     protected AbstractFileService fileService;
+    @Mock
+    protected Configuration configuration;
 
     @InjectMocks
     protected AnalyticsCollector collector;
@@ -61,7 +65,7 @@ public class AnalyticsCollectorTest {
         MockitoAnnotations.initMocks(this);
         mockProcessStartTime();
         collector.endTimeSupplier = () -> 149543224L;
-        collector.targetUrlSupplier = () -> TARGET_URL;
+        when(configuration.getTargetURL()).thenReturn(new URL(TARGET_URL));
         collector.timeZoneSupplier = () -> ZoneId.of(TIME_ZONE);
         mockMtaSize();
         prepareContextForDeploy();
@@ -140,7 +144,7 @@ public class AnalyticsCollectorTest {
         when(context.getVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SERVICE_ID)).thenReturn(Constants.DEPLOY_SERVICE_ID);
         TestUtil.test(() -> {
             return collector.collectAttributes(context);
-        } , "R:AnalyticsDeploy.json", getClass());
+        }, "R:AnalyticsDeploy.json", getClass());
     }
 
     @Test
@@ -148,7 +152,7 @@ public class AnalyticsCollectorTest {
         when(context.getVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SERVICE_ID)).thenReturn(Constants.UNDEPLOY_SERVICE_ID);
         TestUtil.test(() -> {
             return collector.collectAttributes(context);
-        } , "R:AnalyticsUndeploy.json", getClass());
+        }, "R:AnalyticsUndeploy.json", getClass());
     }
 
 }

@@ -3,12 +3,12 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import java.text.MessageFormat;
 
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 
 public class SpaceGetterFactory {
 
     public SpaceGetter createSpaceGetter() {
-        PlatformType platformType = ConfigurationUtil.getPlatformType();
+        PlatformType platformType = Configuration.getInstance().getPlatformType();
         switch (platformType) {
             case XS2:
                 // TODO: Implement XSOptimizedSpaceGetter if necessary. For now, we haven't had any performance issues related to the

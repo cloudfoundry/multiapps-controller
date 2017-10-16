@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -42,6 +42,8 @@ public class PollStartAppStatusStep extends AbstractProcessStep {
 
     @Autowired
     protected RecentLogsRetriever recentLogsRetriever;
+    @Autowired
+    protected Configuration configuration;
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -193,7 +195,7 @@ public class PollStartAppStatusStep extends AbstractProcessStep {
     }
 
     private String getProtocolPrefix() {
-        return ConfigurationUtil.getTargetURL().getProtocol() + "://";
+        return configuration.getTargetURL().getProtocol() + "://";
     }
 
     @Override

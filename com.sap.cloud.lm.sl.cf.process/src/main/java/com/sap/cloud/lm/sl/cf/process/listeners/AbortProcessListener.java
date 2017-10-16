@@ -22,7 +22,7 @@ import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.ActivitiEventToDelegateExecutionAdapter;
 import com.sap.cloud.lm.sl.cf.process.analytics.AnalyticsCollector;
@@ -61,6 +61,8 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
      */
     @Inject
     private BeanProvider beanProvider;
+    @Inject
+    private Configuration configuration;
 
     @Override
     public boolean isFailOnException() {
@@ -98,7 +100,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         });
 
         new SafeExecutor().executeSafely(() -> {
-            if (ConfigurationUtil.shouldGatherUsageStatistics()) {
+            if (configuration.shouldGatherUsageStatistics()) {
                 collectAnalytics(event);
             }
             // TODO send generated statistics to statistics server.

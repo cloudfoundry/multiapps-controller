@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.ClientFactory;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -38,11 +38,14 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     @Qualifier("cloudFoundryClientFactory")
     ClientFactory cloudFoundryClientFactory;
+    
+    @Autowired
+    Configuration configuration;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        if (!ConfigurationUtil.isBasicAuthEnabled())
+        if (!configuration.isBasicAuthEnabled())
             throw new InsufficientAuthenticationException("Basic authentication is not enabled, use OAuth2");
 
         try {
@@ -57,7 +60,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             // If this works, consider the request authenticated
             OAuth2AccessToken token = (tokenProvider != null) ? tokenProvider.getToken() : null;
             if (token == null) {
-                if (ConfigurationUtil.areDummyTokensEnabled()) {
+                if (configuration.areDummyTokensEnabled()) {
                     token = TokenUtil.createDummyToken(userName, SecurityUtil.CLIENT_ID);
                 } else {
                     String message = "Null access token returned by cloud controller";

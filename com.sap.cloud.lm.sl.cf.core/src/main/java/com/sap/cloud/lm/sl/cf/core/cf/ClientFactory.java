@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf;
 
-import java.net.URL;
-
 import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.oauth2.OauthClient;
@@ -11,7 +9,6 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.auth.OauthClientExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
@@ -19,8 +16,6 @@ public abstract class ClientFactory {
 
     @Autowired
     protected TokenService tokenService;
-
-    protected final URL cloudControllerUrl = ConfigurationUtil.getTargetURL();
 
     public Pair<CloudFoundryOperations, TokenProvider> createClient(String userName, String password) {
         return createClient(createCredentials(userName, password));

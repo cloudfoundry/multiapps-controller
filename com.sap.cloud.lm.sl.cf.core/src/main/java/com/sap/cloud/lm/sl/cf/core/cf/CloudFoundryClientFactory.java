@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
@@ -12,42 +14,39 @@ import com.sap.cloud.lm.sl.cf.client.CloudFoundryClientExtended;
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryTokenProvider;
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class CloudFoundryClientFactory extends ClientFactory {
 
-    private boolean trustSelfSignedCertificates;
-
-    public CloudFoundryClientFactory() {
-        // Since the CF client cannot be told to skip the entire SSL validation - tell it to at least trust self signed certificates.
-        this.trustSelfSignedCertificates = ConfigurationUtil.shouldSkipSslValidation();
-    }
+    @Inject
+    private Configuration configuration;
 
     @Override
     protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials) {
-        CloudControllerClientFactory factory = new CloudControllerClientFactory(null, trustSelfSignedCertificates);
+        CloudControllerClientFactory factory = new CloudControllerClientFactory(null, configuration.shouldSkipSslValidation());
         OauthClient oauthClient = createOauthClient();
-        CloudControllerClient controllerClient = factory.newCloudController(cloudControllerUrl, credentials, null, oauthClient);
+        CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, null, oauthClient);
         return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
             new CloudFoundryTokenProvider(oauthClient));
     }
 
     @Override
     protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String org, String space) {
-        CloudControllerClientFactory factory = new CloudControllerClientFactory(null, trustSelfSignedCertificates);
+        CloudControllerClientFactory factory = new CloudControllerClientFactory(null, configuration.shouldSkipSslValidation());
         CloudSpace sessionSpace = getSessionSpace(credentials, org, space);
         OauthClient oauthClient = createOauthClient();
-        CloudControllerClient controllerClient = factory.newCloudController(cloudControllerUrl, credentials, sessionSpace, oauthClient);
+        CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace,
+            oauthClient);
         return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
             new CloudFoundryTokenProvider(oauthClient));
     }
 
     protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String spaceId) {
-        CloudControllerClientFactory factory = new CloudControllerClientFactory(null, trustSelfSignedCertificates);
+        CloudControllerClientFactory factory = new CloudControllerClientFactory(null, configuration.shouldSkipSslValidation());
         CloudSpace sessionSpace = getSessionSpace(credentials, spaceId);
         OauthClient oauthClient = createOauthClient();
-        CloudControllerClient controllerClient = factory.newCloudController(cloudControllerUrl, credentials, sessionSpace, oauthClient);
+        CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace, oauthClient);
         return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
             new CloudFoundryTokenProvider(oauthClient));
     }

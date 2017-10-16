@@ -12,7 +12,6 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
 @XmlRootElement(name = "configuration-entry")
@@ -91,7 +90,7 @@ public class ConfigurationEntryDto {
     }
 
     public ConfigurationEntry toConfigurationEntry() {
-        CloudTarget target = cloudTarget == null ? ConfigurationUtil.createImplicitCloudTarget(targetSpace) : cloudTarget;
+        CloudTarget target = cloudTarget == null ? ConfigurationEntriesUtil.createImplicitCloudTarget(targetSpace) : cloudTarget;
         return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)), target,
             content, visibility);
     }

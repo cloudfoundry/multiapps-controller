@@ -188,7 +188,7 @@ public class CreateOrUpdateServiceBrokersStepTest extends AbstractStepTest<Creat
         }
         context.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
         input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
-        step.platformTypeSupplier = () -> input.platformType;
+        Mockito.when(configuration.getPlatformType()).thenReturn(input.platformType);
     }
 
     private void prepareContext() {

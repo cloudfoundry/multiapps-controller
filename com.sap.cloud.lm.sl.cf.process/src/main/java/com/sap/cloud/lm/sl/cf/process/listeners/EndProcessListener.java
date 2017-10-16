@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.AnalyticsCollector;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
@@ -47,6 +47,9 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     @Inject
     protected CloudFoundryClientProvider clientProvider;
 
+    @Inject
+    private Configuration configuration;
+
     @Override
     protected void writeLogs(DelegateExecution context) throws IOException, FileStorageException {
         processLoggerProviderFactory.append(context, getLogDir());
@@ -54,7 +57,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
 
     @Override
     protected void notifyInternal(DelegateExecution context) throws SLException, FileStorageException {
-        if (ConfigurationUtil.shouldGatherUsageStatistics()) {
+        if (configuration.shouldGatherUsageStatistics()) {
             collectAnalytics(context);
         }
         // TODO send the generated statistics to statistics server

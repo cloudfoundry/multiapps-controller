@@ -11,18 +11,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.common.ParsingException;
@@ -33,12 +31,23 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.persistence.util.Configuration;
-import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
-public class ConfigurationUtil {
+@Component
+public class Configuration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+
+    private static final Configuration INSTANCE = new Configuration(new Environment());
+
+    public static Configuration getInstance() {
+        return INSTANCE;
+    }
+
+    private Environment environment;
+
+    Configuration(Environment environment) {
+        this.environment = environment;
+    }
 
     public enum DatabaseType {
         DEFAULTDB, HANA, POSTGRESQL
@@ -81,24 +90,25 @@ public class ConfigurationUtil {
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
     // Default values
-    static final PlatformType DEFAULT_TYPE = PlatformType.XS2;
-    static final URL DEFAULT_TARGET_URL = url("http://localhost:9999");
-    static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.DEFAULTDB;
-    static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
-    static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
-    static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
-    static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
-    static final Boolean DEFAULT_SCAN_UPLOADS = false;
-    static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
-    static final String DEFAULT_SPACE_ID = "";
-    static final Integer DEFAULT_ROUTER_PORT = ConfigurationUtil.getTargetURL().getProtocol().equals("http") ? 80 : 443;
-    static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
-    static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
-    static final String DEFAULT_ADMIN_USERNAME = "";
-    static final Integer DEFAULT_XS_CLIENT_CORE_THREADS = 2;
-    static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
-    static final Integer DEFAULT_XS_CLIENT_QUEUE_CAPACITY = 8;
-    static final Integer DEFAULT_XS_CLIENT_KEEP_ALIVE = 60;
+    public static final PlatformType DEFAULT_TYPE = PlatformType.XS2;
+    public static final URL DEFAULT_TARGET_URL = url("http://localhost:9999");
+    public static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.DEFAULTDB;
+    public static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
+    public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
+    public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
+    public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
+    public static final Boolean DEFAULT_SCAN_UPLOADS = false;
+    public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
+    public static final String DEFAULT_SPACE_ID = "";
+    public static final int DEFAULT_HTTP_ROUTER_PORT = 80;
+    public static final int DEFAULT_HTTPS_ROUTER_PORT = 443;
+    public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
+    public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
+    public static final String DEFAULT_ADMIN_USERNAME = "";
+    public static final Integer DEFAULT_XS_CLIENT_CORE_THREADS = 2;
+    public static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
+    public static final Integer DEFAULT_XS_CLIENT_QUEUE_CAPACITY = 8;
+    public static final Integer DEFAULT_XS_CLIENT_KEEP_ALIVE = 60;
     /*
      * In async local operations there are usually two threads. One does the actual work, while the other waits for a specific amount of
      * time and then terminates the first if it is still alive (thus introducing a time-out period for the entire operation).
@@ -107,7 +117,7 @@ public class ConfigurationUtil {
      * that the 'worker' thread and the 'killer' thread can be executed simultaneously. Otherwise, the time-out behaviour introduced by the
      * 'killer' thread would not work, as it would not be executed until after the 'worker' thread has already been executed.
      */
-    static final Integer DEFAULT_ASYNC_EXECUTOR_CORE_THREADS = 10;
+    public static final Integer DEFAULT_ASYNC_EXECUTOR_CORE_THREADS = 10;
     /**
      * The minimum duration for an Activiti timer is 5 seconds, because when the job manager schedules a new timer, it checks whether that
      * timer should fire in the next 5 seconds. If so, it hints the job executor that it should execute that timer ASAP. However, there is
@@ -118,14 +128,14 @@ public class ConfigurationUtil {
      * 
      * @see org.activiti.engine.impl.persistence.entity.JobEntityManager#schedule()
      */
-    static final Integer DEFAULT_CONTROLLER_POLLING_INTERVAL = 6; // 6 second(s)
-    static final Integer DEFAULT_UPLOAD_APP_TIMEOUT = 30 * 60; // 30 minute(s)
-    static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
-    static final String DEFAULT_VERSION = "N/A";
-    static final Integer DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME = 1; // 1 minute(s)
-    static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
-    static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
-    static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
+    public static final Integer DEFAULT_CONTROLLER_POLLING_INTERVAL = 6; // 6 second(s)
+    public static final Integer DEFAULT_UPLOAD_APP_TIMEOUT = 30 * 60; // 30 minute(s)
+    public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
+    public static final String DEFAULT_VERSION = "N/A";
+    public static final Integer DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME = 1; // 1 minute(s)
+    public static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
+    public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
+    public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
 
     // Type names
     private static final Map<String, PlatformType> TYPE_NAMES = createTypeNames();
@@ -137,37 +147,37 @@ public class ConfigurationUtil {
     }
 
     // Cached configuration settings
-    private static PlatformType platformType;
-    private static URL targetURL;
-    private static DatabaseType databaseType;
-    private static Long maxUploadSize;
-    private static Long maxMtaDescriptorSize;
-    private static Boolean scanUploads;
-    private static Boolean useXSAuditLogging;
-    private static String spaceGuid;
-    private static String orgName;
-    private static Integer routerPort;
-    private static Boolean dummyTokensEnabled;
-    private static Boolean basicAuthEnabled;
-    private static String adminUsername;
-    private static Integer xsClientCoreThreads;
-    private static Integer xsClientMaxThreads;
-    private static Integer xsClientQueueCapacity;
-    private static Integer xsClientKeepAlive;
-    private static Integer asyncExecutorCoreThreads;
-    private static Integer controllerPollingInterval;
-    private static Integer uploadAppTimeout;
-    private static Boolean skipSslValidation;
-    private static Boolean xsPlaceholdersSupported;
-    private static String version;
-    private static String deployServiceUrl;
-    private static Integer changeLogLockWaitTime;
-    private static Integer changeLogLockDuration;
-    private static Integer changeLogLockAttempts;
-    private static String globalConfigSpace;
-    private static Boolean gatherUsageStatistics;
+    private PlatformType platformType;
+    private URL targetURL;
+    private DatabaseType databaseType;
+    private Long maxUploadSize;
+    private Long maxMtaDescriptorSize;
+    private Boolean scanUploads;
+    private Boolean useXSAuditLogging;
+    private String spaceGuid;
+    private String orgName;
+    private Integer routerPort;
+    private Boolean dummyTokensEnabled;
+    private Boolean basicAuthEnabled;
+    private String adminUsername;
+    private Integer xsClientCoreThreads;
+    private Integer xsClientMaxThreads;
+    private Integer xsClientQueueCapacity;
+    private Integer xsClientKeepAlive;
+    private Integer asyncExecutorCoreThreads;
+    private Integer controllerPollingInterval;
+    private Integer uploadAppTimeout;
+    private Boolean skipSslValidation;
+    private Boolean xsPlaceholdersSupported;
+    private String version;
+    private String deployServiceUrl;
+    private Integer changeLogLockWaitTime;
+    private Integer changeLogLockDuration;
+    private Integer changeLogLockAttempts;
+    private String globalConfigSpace;
+    private Boolean gatherUsageStatistics;
 
-    public static void load() {
+    public void load() {
         getPlatformType();
         getTargetURL();
         getDatabaseType();
@@ -199,20 +209,20 @@ public class ConfigurationUtil {
         shouldGatherUsageStatistics();
     }
 
-    public static void logFullConfig() {
+    public void logFullConfig() {
         for (Map.Entry<String, String> envVariable : getFilteredEnv().entrySet()) {
             AuditLoggingProvider.getFacade().logConfig(envVariable.getKey(), envVariable.getValue());
         }
     }
 
-    public static Map<String, String> getFilteredEnv() {
+    public Map<String, String> getFilteredEnv() {
         Set<String> notSensitiveConfigVariables = getNotSensitiveConfigVariables();
-        Map<String, String> env = System.getenv();
+        Map<String, String> env = environment.getVariables();
         return env.entrySet().stream().filter(envVariable -> notSensitiveConfigVariables.contains(envVariable.getKey())).collect(
             Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private static Set<String> getNotSensitiveConfigVariables() {
+    private Set<String> getNotSensitiveConfigVariables() {
         return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_TARGET_URL, CFG_DB_TYPE, CFG_PLATFORMS, CFG_PLATFORMS_V2, CFG_PLATFORMS_V3,
             CFG_TARGETS, CFG_TARGETS_V2, CFG_TARGETS_V3, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_SCAN_UPLOADS,
             CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_ADMIN_USERNAME, CFG_XS_CLIENT_CORE_THREADS,
@@ -222,249 +232,250 @@ public class ConfigurationUtil {
             CFG_GATHER_USAGE_STATISTICS));
     }
 
-    public static Configuration getConfiguration() {
-        return new DefaultConfiguration(getMaxUploadSize(), shouldScanUploads());
+    public com.sap.cloud.lm.sl.persistence.util.Configuration getFileConfiguration() {
+        return new com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration(getMaxUploadSize(), shouldScanUploads());
     }
 
-    public static PlatformType getPlatformType() {
+    public PlatformType getPlatformType() {
         if (platformType == null) {
-            platformType = getPlatformType(System.getenv(CFG_TYPE));
+            platformType = getPlatformTypeFromEnvironment();
         }
         return platformType;
     }
 
-    public static URL getTargetURL() {
+    public URL getTargetURL() {
         if (targetURL == null) {
-            targetURL = getTargetURL(getEnv(CFG_TARGET_URL));
+            targetURL = getTargetURLFromEnvironment();
         }
         return targetURL;
     }
 
-    public static DatabaseType getDatabaseType() {
+    public DatabaseType getDatabaseType() {
         if (databaseType == null) {
-            databaseType = getDatabaseType(System.getenv(CFG_DB_TYPE));
+            databaseType = getDatabaseTypeFromEnvironment();
         }
         return databaseType;
     }
 
-    public static List<Platform> getPlatforms() {
+    public List<Platform> getPlatforms() {
         return getPlatforms(null, 1);
     }
 
-    public static List<Platform> getPlatforms(ConfigurationParser parser, int majorVersion) {
+    public List<Platform> getPlatforms(ConfigurationParser parser, int majorVersion) {
         switch (majorVersion) {
             case 1:
-                return getPlatforms(getEnv(CFG_PLATFORMS));
+                return parsePlatforms(environment.getVariable(CFG_PLATFORMS));
             case 2:
-                return getPlatforms(getEnv(CFG_PLATFORMS_V2), parser);
+                return parsePlatforms(environment.getVariable(CFG_PLATFORMS_V2), parser);
             case 3:
-                return getPlatforms(getEnv(CFG_PLATFORMS_V3), parser);
+                return parsePlatforms(environment.getVariable(CFG_PLATFORMS_V3), parser);
             default:
                 throw new UnsupportedOperationException();
         }
     }
 
-    public static List<? extends Target> getTargets() {
+    public List<? extends Target> getTargets() {
         return getTargets(null, 1);
     }
 
-    public static List<? extends Target> getTargets(ConfigurationParser parser, int majorVersion) {
+    public List<? extends Target> getTargets(ConfigurationParser parser, int majorVersion) {
         switch (majorVersion) {
             case 1:
-                return getTargets(System.getenv(CFG_TARGETS));
+                return parseTargets(environment.getVariable(CFG_TARGETS));
             case 2:
-                return getTargets(getEnv(CFG_TARGETS_V2), parser);
+                return parseTargets(environment.getVariable(CFG_TARGETS_V2), parser);
             case 3:
-                return getTargets(getEnv(CFG_TARGETS_V3), parser);
+                return parseTargets(environment.getVariable(CFG_TARGETS_V3), parser);
             default:
                 throw new UnsupportedOperationException();
         }
 
     }
 
-    public static Long getMaxUploadSize() {
+    public Long getMaxUploadSize() {
         if (maxUploadSize == null) {
-            maxUploadSize = getMaxUploadSize(System.getenv(CFG_MAX_UPLOAD_SIZE));
+            maxUploadSize = getMaxUploadSizeFromEnvironment();
         }
         return maxUploadSize;
     }
 
-    public static Long getMaxMtaDescriptorSize() {
+    public Long getMaxMtaDescriptorSize() {
         if (maxMtaDescriptorSize == null) {
-            maxMtaDescriptorSize = getMaxMtaDescriptorSize(System.getenv(CFG_MAX_MTA_DESCRIPTOR_SIZE));
+            maxMtaDescriptorSize = getMaxMtaDescriptorSizeFromEnvironment();
         }
         return maxMtaDescriptorSize;
     }
 
-    public static Boolean shouldScanUploads() {
+    public Boolean shouldScanUploads() {
         if (scanUploads == null) {
-            scanUploads = shouldScanUploads(System.getenv(CFG_SCAN_UPLOADS));
+            scanUploads = shouldScanUploadsFromEnvironment();
         }
         return scanUploads;
     }
 
-    public static Boolean shouldUseXSAuditLogging() {
+    public Boolean shouldUseXSAuditLogging() {
         if (useXSAuditLogging == null) {
-            useXSAuditLogging = shouldUseXSAuditLogging(System.getenv(CFG_USE_XS_AUDIT_LOGGING));
+            useXSAuditLogging = shouldUseXSAuditLoggingFromEnvironment();
         }
         return useXSAuditLogging;
     }
 
-    public static String getSpaceGuid() {
+    public String getSpaceGuid() {
         if (spaceGuid == null) {
-            spaceGuid = getSpaceGuid(getEnv(CFG_VCAP_APPLICATION));
+            spaceGuid = getSpaceGuidFromEnvironment();
         }
         return spaceGuid;
     }
 
-    public static String getOrgName() {
+    public String getOrgName() {
         if (orgName == null) {
-            orgName = getOrgName(getEnv(CFG_VCAP_APPLICATION));
+            orgName = getOrgNameFromEnvironment();
         }
         return orgName;
     }
 
-    public static int getRouterPort() {
+    public int getRouterPort() {
         if (routerPort == null) {
-            routerPort = getRouterPort(getEnv(CFG_VCAP_APPLICATION));
+            routerPort = getRouterPortFromEnvironment();
         }
         return routerPort;
     }
 
-    public static String getDeployServiceUrl() {
+    public String getDeployServiceUrl() {
         if (deployServiceUrl == null) {
-            deployServiceUrl = getDeployServiceUrl(getEnv(CFG_VCAP_APPLICATION));
+            deployServiceUrl = getDeployServiceUrlFromEnvironment();
         }
         return deployServiceUrl;
     }
 
-    public static Boolean areDummyTokensEnabled() {
+    public Boolean areDummyTokensEnabled() {
         if (dummyTokensEnabled == null) {
-            dummyTokensEnabled = areDummyTokensEnabled(System.getenv(CFG_DUMMY_TOKENS_ENABLED));
+            dummyTokensEnabled = areDummyTokensEnabledThroughEnvironment();
         }
         return dummyTokensEnabled;
     }
 
-    public static Boolean isBasicAuthEnabled() {
+    public Boolean isBasicAuthEnabled() {
         if (basicAuthEnabled == null) {
-            basicAuthEnabled = isBasicAuthEnabled(System.getenv(CFG_BASIC_AUTH_ENABLED));
+            basicAuthEnabled = isBasicAuthEnabledThroughEnvironment();
         }
         return basicAuthEnabled;
     }
 
-    public static String getAdminUsername() {
+    public String getAdminUsername() {
         if (adminUsername == null) {
-            adminUsername = getAdminUsername(System.getenv(CFG_ADMIN_USERNAME));
+            adminUsername = getAdminUsernameFromEnvironment();
         }
         return adminUsername;
     }
 
-    public static int getXsClientCoreThreads() {
+    public int getXsClientCoreThreads() {
         if (xsClientCoreThreads == null) {
-            xsClientCoreThreads = getXsClientCoreThreads(System.getenv(CFG_XS_CLIENT_CORE_THREADS));
+            xsClientCoreThreads = getXsClientCoreThreadsFromEnvironment();
         }
         return xsClientCoreThreads;
     }
 
-    public static int getXsClientMaxThreads() {
+    public int getXsClientMaxThreads() {
         if (xsClientMaxThreads == null) {
-            xsClientMaxThreads = getXsClientMaxThreads(System.getenv(CFG_XS_CLIENT_MAX_THREADS));
+            xsClientMaxThreads = getXsClientMaxThreadsFromEnvironment();
         }
         return xsClientMaxThreads;
     }
 
-    public static int getXsClientQueueCapacity() {
+    public int getXsClientQueueCapacity() {
         if (xsClientQueueCapacity == null) {
-            xsClientQueueCapacity = getXsClientQueueCapacity(System.getenv(CFG_XS_CLIENT_QUEUE_CAPACITY));
+            xsClientQueueCapacity = getXsClientQueueCapacityFromEnvironment();
         }
         return xsClientQueueCapacity;
     }
 
-    public static int getXsClientKeepAlive() {
+    public int getXsClientKeepAlive() {
         if (xsClientKeepAlive == null) {
-            xsClientKeepAlive = getXsClientKeepAlive(System.getenv(CFG_XS_CLIENT_KEEP_ALIVE));
+            xsClientKeepAlive = getXsClientKeepAliveFromEnvironment();
         }
         return xsClientKeepAlive;
     }
 
-    public static int getAsyncExecutorCoreThreads() {
+    public int getAsyncExecutorCoreThreads() {
         if (asyncExecutorCoreThreads == null) {
-            asyncExecutorCoreThreads = getAsyncExecutorCoreThreads(System.getenv(CFG_ASYNC_EXECUTOR_CORE_THREADS));
+            asyncExecutorCoreThreads = getAsyncExecutorCoreThreadsFromEnvironment();
         }
         return asyncExecutorCoreThreads;
     }
 
-    public static int getControllerPollingInterval() {
+    public int getControllerPollingInterval() {
         if (controllerPollingInterval == null) {
-            controllerPollingInterval = getControllerPollingInterval(System.getenv(CFG_CONTROLLER_POLLING_INTERVAL));
+            controllerPollingInterval = getControllerPollingIntervalFromEnvironment();
         }
         return controllerPollingInterval;
     }
 
-    public static int getUploadAppTimeout() {
+    public int getUploadAppTimeout() {
         if (uploadAppTimeout == null) {
-            uploadAppTimeout = getUploadAppTimeout(System.getenv(CFG_UPLOAD_APP_TIMEOUT));
+            uploadAppTimeout = getUploadAppTimeoutFromEnvironment();
         }
         return uploadAppTimeout;
     }
 
-    public static Boolean shouldSkipSslValidation() {
+    public Boolean shouldSkipSslValidation() {
         if (skipSslValidation == null) {
-            skipSslValidation = shouldSkipSslValidation(System.getenv(CFG_SKIP_SSL_VALIDATION));
+            skipSslValidation = shouldSkipSslValidationBasedOnEnvironment();
         }
         return skipSslValidation;
     }
 
-    public static Boolean areXsPlaceholdersSupported() {
+    public Boolean areXsPlaceholdersSupported() {
         if (xsPlaceholdersSupported == null) {
-            xsPlaceholdersSupported = areXsPlaceholdersSupported(System.getenv(CFG_XS_PLACEHOLDERS_SUPPORTED));
+            xsPlaceholdersSupported = areXsPlaceholdersSupportedBasedOnEnvironment();
         }
         return xsPlaceholdersSupported;
     }
 
-    public static String getVersion() {
+    public String getVersion() {
         if (version == null) {
-            version = getVersion(System.getenv(CFG_VERSION));
+            version = getVersionFromEnvironment();
         }
         return version;
     }
 
-    public static Integer getChangeLogLockWaitTime() {
+    public Integer getChangeLogLockWaitTime() {
         if (changeLogLockWaitTime == null) {
-            changeLogLockWaitTime = getChangeLogLockWaitTime(System.getenv(CFG_CHANGE_LOG_LOCK_WAIT_TIME));
+            changeLogLockWaitTime = getChangeLogLockWaitTimeFromEnvironment();
         }
         return changeLogLockWaitTime;
     }
 
-    public static Integer getChangeLogLockDuration() {
+    public Integer getChangeLogLockDuration() {
         if (changeLogLockDuration == null) {
-            changeLogLockDuration = getChangeLogLockDuration(System.getenv(CFG_CHANGE_LOG_LOCK_DURATION));
+            changeLogLockDuration = getChangeLogLockDurationFromEnvironment();
         }
         return changeLogLockDuration;
     }
 
-    public static Integer getChangeLogLockAttempts() {
+    public Integer getChangeLogLockAttempts() {
         if (changeLogLockAttempts == null) {
-            changeLogLockAttempts = getChangeLogLockAttempts(System.getenv(CFG_CHANGE_LOG_LOCK_ATTEMPTS));
+            changeLogLockAttempts = getChangeLogLockAttemptsFromEnvironment();
         }
         return changeLogLockAttempts;
     }
 
-    public static String getGlobalConfigSpace() {
+    public String getGlobalConfigSpace() {
         if (globalConfigSpace == null) {
-            globalConfigSpace = System.getenv(CFG_GLOBAL_CONFIG_SPACE);
+            globalConfigSpace = getGlobalConfigSpaceFromEnvironment();
         }
         return globalConfigSpace;
     }
 
-    public static Boolean shouldGatherUsageStatistics() {
+    public Boolean shouldGatherUsageStatistics() {
         if (gatherUsageStatistics == null) {
-            gatherUsageStatistics = shouldGatherUsageStatistics(System.getenv(CFG_GATHER_USAGE_STATISTICS));
+            gatherUsageStatistics = shouldGatherUsageStatisticsBasedOnEnvironment();
         }
         return gatherUsageStatistics;
     }
 
-    static PlatformType getPlatformType(String type) {
+    private PlatformType getPlatformTypeFromEnvironment() {
+        String type = environment.getVariable(CFG_TYPE);
         try {
             if (type != null) {
                 PlatformType result = TYPE_NAMES.containsKey(type) ? TYPE_NAMES.get(type) : PlatformType.valueOf(type);
@@ -478,7 +489,8 @@ public class ConfigurationUtil {
         return DEFAULT_TYPE;
     }
 
-    static URL getTargetURL(String targetURL) {
+    private URL getTargetURLFromEnvironment() {
+        String targetURL = environment.getVariable(CFG_TARGET_URL);
         try {
             if (targetURL != null) {
                 URL result = MiscUtil.getURL(targetURL);
@@ -492,7 +504,8 @@ public class ConfigurationUtil {
         return DEFAULT_TARGET_URL;
     }
 
-    static DatabaseType getDatabaseType(String type) {
+    private DatabaseType getDatabaseTypeFromEnvironment() {
+        String type = environment.getVariable(CFG_DB_TYPE);
         try {
             if (type != null) {
                 DatabaseType result = DatabaseType.valueOf(type);
@@ -506,11 +519,11 @@ public class ConfigurationUtil {
         return DEFAULT_DB_TYPE;
     }
 
-    static List<Platform> getPlatforms(String json) {
-        return getPlatforms(json, new ConfigurationParser());
+    private List<Platform> parsePlatforms(String json) {
+        return parsePlatforms(json, new ConfigurationParser());
     }
 
-    static List<Platform> getPlatforms(String json, ConfigurationParser parser) {
+    private List<Platform> parsePlatforms(String json, ConfigurationParser parser) {
         try {
             if (json != null) {
                 List<Platform> result = parser.parsePlatformsJson(json);
@@ -524,11 +537,11 @@ public class ConfigurationUtil {
         return DEFAULT_PLATFORMS;
     }
 
-    static List<Target> getTargets(String json) {
-        return getTargets(json, new ConfigurationParser());
+    private List<Target> parseTargets(String json) {
+        return parseTargets(json, new ConfigurationParser());
     }
 
-    static List<Target> getTargets(String json, ConfigurationParser parser) {
+    private List<Target> parseTargets(String json, ConfigurationParser parser) {
         try {
             if (json != null) {
                 List<Target> result = parser.parseTargetsJson(json);
@@ -542,58 +555,66 @@ public class ConfigurationUtil {
         return DEFAULT_TARGETS;
     }
 
-    static Long getMaxUploadSize(String value) {
+    private Long getMaxUploadSizeFromEnvironment() {
+        String value = environment.getVariable(CFG_MAX_UPLOAD_SIZE);
         return getLong(value, DEFAULT_MAX_UPLOAD_SIZE, Messages.MAX_UPLOAD_SIZE, Messages.MAX_UPLOAD_SIZE_NOT_SPECIFIED,
             Messages.INVALID_MAX_UPLOAD_SIZE);
     }
 
-    static Long getMaxMtaDescriptorSize(String value) {
+    private Long getMaxMtaDescriptorSizeFromEnvironment() {
+        String value = environment.getVariable(CFG_MAX_MTA_DESCRIPTOR_SIZE);
         return getLong(value, DEFAULT_MAX_MTA_DESCRIPTOR_SIZE, Messages.MAX_MTA_DESCRIPTOR_SIZE,
             Messages.MAX_MTA_DESCRIPTOR_SIZE_NOT_SPECIFIED, Messages.INVALID_MAX_MTA_DESCRIPTOR_SIZE);
     }
 
-    static Boolean shouldScanUploads(String value) {
+    private Boolean shouldScanUploadsFromEnvironment() {
+        String value = environment.getVariable(CFG_SCAN_UPLOADS);
         return getBoolean(value, DEFAULT_SCAN_UPLOADS, Messages.SCAN_UPLOADS);
     }
 
-    static Boolean shouldUseXSAuditLogging(String value) {
+    private Boolean shouldUseXSAuditLoggingFromEnvironment() {
+        String value = environment.getVariable(CFG_USE_XS_AUDIT_LOGGING);
         return getBoolean(value, DEFAULT_USE_XS_AUDIT_LOGGING, Messages.USE_XS_AUDIT_LOGGING);
     }
 
-    static String getSpaceGuid(String json) {
+    private String getSpaceGuidFromEnvironment() {
+        String vcapApplication = environment.getVariable(CFG_VCAP_APPLICATION);
         try {
-            Map<String, Object> vcapApplication = JsonUtil.convertJsonToMap(json);
-            Object spaceId = vcapApplication.get("space_id");
+            Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
+            Object spaceId = parsedVcapApplication.get("space_id");
             if (spaceId != null) {
                 LOGGER.info(format(Messages.SPACE_ID, spaceId));
                 return spaceId.toString();
             }
             LOGGER.warn(format(Messages.SPACE_ID_NOT_SPECIFIED, DEFAULT_SPACE_ID));
         } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION_SPACE_ID, json, DEFAULT_SPACE_ID), e);
+            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION_SPACE_ID, vcapApplication, DEFAULT_SPACE_ID), e);
         }
         return DEFAULT_SPACE_ID;
     }
 
-    static String getOrgName(String json) {
+    private String getOrgNameFromEnvironment() {
+        String vcapApplication = environment.getVariable(CFG_VCAP_APPLICATION);
         try {
-            Map<String, Object> vcapApplication = JsonUtil.convertJsonToMap(json);
-            Object orgName = vcapApplication.get("organization_name");
+            Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
+            Object orgName = parsedVcapApplication.get("organization_name");
             if (orgName != null) {
                 LOGGER.info(format(Messages.ORG_NAME, orgName));
                 return orgName.toString();
             }
             LOGGER.warn(format(Messages.SPACE_ID_NOT_SPECIFIED, DEFAULT_SPACE_ID));
         } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION, json), e);
+            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION, vcapApplication), e);
         }
         return null;
     }
 
-    static Integer getRouterPort(String json) {
+    private Integer getRouterPortFromEnvironment() {
+        int defaultRouterPort = computeDefaultRouterPort();
+        String vcapApplication = environment.getVariable(CFG_VCAP_APPLICATION);
         try {
-            Map<String, Object> vcapApplication = JsonUtil.convertJsonToMap(json);
-            List<String> uris = getApplicationUris(vcapApplication);
+            Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
+            List<String> uris = getApplicationUris(parsedVcapApplication);
             if (!CommonUtil.isNullOrEmpty(uris)) {
                 Pair<String, String> portAndDomain = UriUtil.getHostAndDomain(uris.get(0));
                 int port = Integer.parseInt(portAndDomain._1);
@@ -601,27 +622,32 @@ public class ConfigurationUtil {
                     return port;
                 }
             }
-            LOGGER.info(format(Messages.NO_APPLICATION_URIS_SPECIFIED, DEFAULT_ROUTER_PORT));
+            LOGGER.info(format(Messages.NO_APPLICATION_URIS_SPECIFIED, defaultRouterPort));
         } catch (ParsingException | NumberFormatException e) {
-            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION_ROUTER_PORT, json, DEFAULT_ROUTER_PORT), e);
+            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION_ROUTER_PORT, vcapApplication, defaultRouterPort), e);
         }
-        return DEFAULT_ROUTER_PORT;
+        return defaultRouterPort;
     }
 
-    static String getDeployServiceUrl(String json) {
+    private int computeDefaultRouterPort() {
+        return getTargetURL().getProtocol().equals("http") ? DEFAULT_HTTP_ROUTER_PORT : DEFAULT_HTTPS_ROUTER_PORT;
+    }
+
+    private String getDeployServiceUrlFromEnvironment() {
+        String vcapApplication = environment.getVariable(CFG_VCAP_APPLICATION);
         try {
-            Map<String, Object> vcapApplication = JsonUtil.convertJsonToMap(json);
-            List<String> uris = getApplicationUris(vcapApplication);
+            Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
+            List<String> uris = getApplicationUris(parsedVcapApplication);
             if (!CommonUtil.isNullOrEmpty(uris)) {
                 return uris.get(0);
             }
         } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION_DEPLOY_SERVICE_URI, json), e);
+            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION_DEPLOY_SERVICE_URI, vcapApplication), e);
         }
         return null;
     }
 
-    static List<String> getApplicationUris(Map<String, Object> vcapApplication) {
+    private List<String> getApplicationUris(Map<String, Object> vcapApplication) {
         for (String urisKey : VCAP_APPLICATION_URIS_KEYS) {
             List<String> uris = CommonUtil.cast(vcapApplication.get(urisKey));
             if (!CommonUtil.isNullOrEmpty(uris)) {
@@ -631,83 +657,105 @@ public class ConfigurationUtil {
         return null;
     }
 
-    static Boolean areDummyTokensEnabled(String value) {
+    private Boolean areDummyTokensEnabledThroughEnvironment() {
+        String value = environment.getVariable(CFG_DUMMY_TOKENS_ENABLED);
         return getBoolean(value, DEFAULT_DUMMY_TOKENS_ENABLED, Messages.DUMMY_TOKENS_ENABLED);
     }
 
-    static Boolean isBasicAuthEnabled(String value) {
+    private Boolean isBasicAuthEnabledThroughEnvironment() {
+        String value = environment.getVariable(CFG_BASIC_AUTH_ENABLED);
         return getBoolean(value, DEFAULT_BASIC_AUTH_ENABLED, Messages.BASIC_AUTH_ENABLED);
     }
 
-    static String getAdminUsername(String value) {
+    private String getAdminUsernameFromEnvironment() {
+        String value = environment.getVariable(CFG_ADMIN_USERNAME);
         return getString(value, DEFAULT_ADMIN_USERNAME, Messages.ADMIN_USERNAME);
     }
 
-    static Integer getXsClientCoreThreads(String value) {
+    private Integer getXsClientCoreThreadsFromEnvironment() {
+        String value = environment.getVariable(CFG_XS_CLIENT_CORE_THREADS);
         return getPositiveInt(value, DEFAULT_XS_CLIENT_CORE_THREADS, Messages.XS_CLIENT_CORE_THREADS);
     }
 
-    static Integer getXsClientMaxThreads(String value) {
+    private Integer getXsClientMaxThreadsFromEnvironment() {
+        String value = environment.getVariable(CFG_XS_CLIENT_MAX_THREADS);
         return getPositiveInt(value, DEFAULT_XS_CLIENT_MAX_THREADS, Messages.XS_CLIENT_MAX_THREADS);
     }
 
-    static Integer getXsClientQueueCapacity(String value) {
+    private Integer getXsClientQueueCapacityFromEnvironment() {
+        String value = environment.getVariable(CFG_XS_CLIENT_QUEUE_CAPACITY);
         return getPositiveInt(value, DEFAULT_XS_CLIENT_QUEUE_CAPACITY, Messages.XS_CLIENT_QUEUE_CAPACITY);
     }
 
-    static int getXsClientKeepAlive(String value) {
+    private int getXsClientKeepAliveFromEnvironment() {
+        String value = environment.getVariable(CFG_XS_CLIENT_KEEP_ALIVE);
         return getPositiveInt(value, DEFAULT_XS_CLIENT_KEEP_ALIVE, Messages.XS_CLIENT_KEEP_ALIVE);
     }
 
-    static Integer getAsyncExecutorCoreThreads(String value) {
+    private Integer getAsyncExecutorCoreThreadsFromEnvironment() {
+        String value = environment.getVariable(CFG_ASYNC_EXECUTOR_CORE_THREADS);
         return getPositiveInt(value, DEFAULT_ASYNC_EXECUTOR_CORE_THREADS, Messages.ASYNC_EXECUTOR_CORE_THREADS);
     }
 
-    static int getControllerPollingInterval(String value) {
+    private int getControllerPollingIntervalFromEnvironment() {
+        String value = environment.getVariable(CFG_CONTROLLER_POLLING_INTERVAL);
         return getPositiveInt(value, DEFAULT_CONTROLLER_POLLING_INTERVAL, Messages.CONTROLLER_POLLING_INTERVAL);
     }
 
-    static int getUploadAppTimeout(String value) {
+    private int getUploadAppTimeoutFromEnvironment() {
+        String value = environment.getVariable(CFG_UPLOAD_APP_TIMEOUT);
         return getPositiveInt(value, DEFAULT_UPLOAD_APP_TIMEOUT, Messages.UPLOAD_APP_TIMEOUT);
     }
 
-    static Boolean shouldSkipSslValidation(String value) {
+    private Boolean shouldSkipSslValidationBasedOnEnvironment() {
+        String value = environment.getVariable(CFG_SKIP_SSL_VALIDATION);
         return getBoolean(value, DEFAULT_SKIP_SSL_VALIDATION, Messages.SKIP_SSL_VALIDATION);
     }
 
-    static Boolean areXsPlaceholdersSupported(String value) {
+    private Boolean areXsPlaceholdersSupportedBasedOnEnvironment() {
+        String value = environment.getVariable(CFG_XS_PLACEHOLDERS_SUPPORTED);
         boolean result = (value != null) && (!value.equals(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER));
         LOGGER.info(format(Messages.XS_PLACEHOLDERS_SUPPORTED, result));
         return result;
     }
 
-    static String getVersion(String version) {
+    private String getVersionFromEnvironment() {
+        String version = environment.getVariable(CFG_VERSION);
         return getString(version, DEFAULT_VERSION, Messages.DS_VERSION);
     }
 
-    static Integer getChangeLogLockWaitTime(String value) {
+    private Integer getChangeLogLockWaitTimeFromEnvironment() {
+        String value = environment.getVariable(CFG_CHANGE_LOG_LOCK_WAIT_TIME);
         return getPositiveInt(value, DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME, Messages.CHANGE_LOG_LOCK_WAIT_TIME);
     }
 
-    static Integer getChangeLogLockDuration(String value) {
+    private Integer getChangeLogLockDurationFromEnvironment() {
+        String value = environment.getVariable(CFG_CHANGE_LOG_LOCK_DURATION);
         return getPositiveInt(value, DEFAULT_CHANGE_LOG_LOCK_DURATION, Messages.CHANGE_LOG_LOCK_DURATION);
     }
 
-    static Integer getChangeLogLockAttempts(String value) {
+    private Integer getChangeLogLockAttemptsFromEnvironment() {
+        String value = environment.getVariable(CFG_CHANGE_LOG_LOCK_ATTEMPTS);
         return getPositiveInt(value, DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS, Messages.CHANGE_LOG_LOCK_ATTEMPTS);
     }
 
-    static Boolean shouldGatherUsageStatistics(String value) {
+    private String getGlobalConfigSpaceFromEnvironment() {
+        String value = environment.getVariable(CFG_GLOBAL_CONFIG_SPACE);
+        return getString(value, null, Messages.GLOBAL_CONFIG_SPACE);
+    }
+
+    private Boolean shouldGatherUsageStatisticsBasedOnEnvironment() {
+        String value = environment.getVariable(CFG_GATHER_USAGE_STATISTICS);
         return getBoolean(value, DEFAULT_GATHER_USAGE_STATISTICS, Messages.GATHER_STATISTICS);
     }
 
-    private static String getString(String value, String defaultValue, String message) {
+    private String getString(String value, String defaultValue, String message) {
         String result = (value != null) ? value : defaultValue;
         LOGGER.info(format(message, result));
         return result;
     }
 
-    private static Integer getPositiveInt(String value, Integer defaultValue, String message) {
+    private Integer getPositiveInt(String value, Integer defaultValue, String message) {
         Integer result = (value != null) ? Integer.valueOf(value) : defaultValue;
         if (result <= 0)
             result = Integer.MAX_VALUE;
@@ -715,13 +763,13 @@ public class ConfigurationUtil {
         return result;
     }
 
-    private static Boolean getBoolean(String value, Boolean defaultValue, String message) {
+    private Boolean getBoolean(String value, Boolean defaultValue, String message) {
         Boolean result = (value != null) ? Boolean.valueOf(value) : defaultValue;
         LOGGER.info(format(message, result));
         return result;
     }
 
-    private static Long getLong(String value, Long defaultValue, String message, String notSpecifiedMessage, String invalidMessage) {
+    private Long getLong(String value, Long defaultValue, String message, String notSpecifiedMessage, String invalidMessage) {
         try {
             if (value != null) {
                 Long result = Long.valueOf(value);
@@ -735,52 +783,12 @@ public class ConfigurationUtil {
         return defaultValue;
     }
 
-    private static String getEnv(String env) {
-        String value = System.getenv(env);
-        if (value == null)
-            LOGGER.warn(format(Messages.ENVIRONMENT_VARIABLE_NOT_SET, env));
-        return value;
-    }
-
     private static URL url(String s) {
         try {
             return MiscUtil.getURL(s);
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    public static CloudTarget createImplicitCloudTarget(String targetSpace) {
-
-        if (targetSpace == null) {
-            return null;
-        }
-        Pattern whitespacePattern = Pattern.compile("\\S+\\s+\\S+");
-        Matcher matcher = whitespacePattern.matcher(targetSpace);
-
-        if (!matcher.find()) {
-            throw new ParsingException("Target does not contain 'org' and 'space' parameters");
-        }
-
-        String[] orgAndSpace = targetSpace.split("\\s+");
-        CloudTarget cloudTarget = new CloudTarget(orgAndSpace[0], orgAndSpace[1]);
-
-        return cloudTarget;
-    }
-
-    public static CloudTarget splitTargetSpaceValue(String value) {
-        if (StringUtils.isEmpty(value)) {
-            return new CloudTarget("", "");
-        }
-
-        Pattern whitespacePattern = Pattern.compile("\\s+");
-        Matcher matcher = whitespacePattern.matcher(value);
-        if (!matcher.find()) {
-            return new CloudTarget("", value);
-        }
-
-        String[] orgSpace = value.split("\\s+", 2);
-        return new CloudTarget(orgSpace[0], orgSpace[1]);
     }
 
 }
