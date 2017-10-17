@@ -44,7 +44,7 @@ public class ProcessMtaExtensionDescriptorsStep extends AbstractXS2ProcessStep {
             ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS,
                 getExtensionDescriptorsAsStrings(spaceId, extensionDescriptorFileIds));
         } catch (SLException e) {
-            getStepLogger().error(Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS);
+            getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS);
             throw e;
         }
         getStepLogger().debug(Messages.MTA_EXTENSION_DESCRIPTORS_PROCESSED);
