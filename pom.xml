@@ -53,7 +53,7 @@
         <jackson-asl.version>1.9.13</jackson-asl.version>
         <liquibase.version>3.4.1</liquibase.version>
         <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
-        <cloudfoundry.client.version>1.1.4.RELEASE-sap-02-SNAPSHOT</cloudfoundry.client.version>
+        <cloudfoundry.client.version>1.1.4.RELEASE-sap-03</cloudfoundry.client.version>
         <protobuf-java.version>3.1.0</protobuf-java.version>
         <jackson.version>2.5.0</jackson.version>
         <semver4j.version>2.0.1</semver4j.version>
@@ -952,6 +952,17 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>2.2.1</version>
@@ -968,6 +979,10 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>2.9.1</version>
+                        <configuration>
+                            <skip>false</skip>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
