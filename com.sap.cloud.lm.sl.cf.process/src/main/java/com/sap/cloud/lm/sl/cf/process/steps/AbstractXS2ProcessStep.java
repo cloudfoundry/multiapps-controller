@@ -6,9 +6,11 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
@@ -37,6 +39,7 @@ public abstract class AbstractXS2ProcessStep extends AbstractSLProcessStep {
     protected ExecutionStatus executeStep(DelegateExecution context) throws Exception {
         try {
             this.stepLogger = createStepLogger(context);
+            MDC.put(Constants.ATTR_CORRELATION_ID, StepsUtil.getCorrelationId(context));
             return executeStepInternal(context);
         } catch (MonitoringException e) {
             getStepLogger().errorWithoutProgressMessage(e.getMessage());
