@@ -27,4 +27,6 @@ public class Constants {
     public static final String ENV_DEPLOY_ATTRIBUTES = "DEPLOY_ATTRIBUTES";
     public static final String ENV_DEPLOY_ID = "DEPLOY_ID";
 
+    // Variables
+    public static final String ATTR_CORRELATION_ID = "correlation-id";
 }

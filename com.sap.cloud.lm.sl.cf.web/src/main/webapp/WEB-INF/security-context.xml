@@ -10,8 +10,8 @@
         http://www.springframework.org/schema/security/oauth2
         http://www.springframework.org/schema/security/spring-security-oauth2-1.0.xsd">
 
-    <sec:http pattern="/public/**" security="none"/>
-    
+    <sec:http pattern="/public/**" security="none" />
+
     <sec:http pattern="/**" create-session="ifRequired" entry-point-ref="delegatingAuthenticationEntryPoint"
         access-decision-manager-ref="accessDecisionManager" authentication-manager-ref="authenticationManager">
         <sec:anonymous enabled="false" />
@@ -27,6 +27,7 @@
         <sec:custom-filter ref="resourceServerFilter" before="PRE_AUTH_FILTER" />
         <sec:access-denied-handler ref="accessDeniedHandler" />
         <sec:custom-filter ref="csrfHeadersFilter" after="CSRF_FILTER" />
+        <sec:custom-filter ref="correlationIdFilter" position="FIRST" />
     </sec:http>
 
     <bean id="delegatingAuthenticationEntryPoint" class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
@@ -57,6 +58,8 @@
             </list>
         </constructor-arg>
     </bean>
+
+    <bean id="correlationIdFilter" class="com.sap.cloud.lm.sl.cf.web.resources.CorrelationIdFilter" />
 
     <oauth:web-expression-handler id="oauthWebExpressionHandler" />
 
