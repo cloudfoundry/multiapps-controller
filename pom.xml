@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.lm.sl.cf</groupId>
     <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
-    <version>1.46.0-SNAPSHOT</version>
+    <version>1.47.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LM SL CF Parent</name>
 
@@ -53,15 +53,15 @@
         <jackson-asl.version>1.9.13</jackson-asl.version>
         <liquibase.version>3.4.1</liquibase.version>
         <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
-        <cloudfoundry.client.version>1.1.4.RELEASE-sap-02-SNAPSHOT</cloudfoundry.client.version>
+        <cloudfoundry.client.version>1.1.4.RELEASE-sap-03</cloudfoundry.client.version>
         <protobuf-java.version>3.1.0</protobuf-java.version>
         <jackson.version>2.5.0</jackson.version>
         <semver4j.version>2.0.1</semver4j.version>
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <xs.java.version>1.0.0</xs.java.version>
         <java.container.security.version>0.19.1</java.container.security.version>
-        <activiti.common.version>1.30.0-SNAPSHOT</activiti.common.version>
-        <slp.version>1.2.4-SNAPSHOT</slp.version>
+        <activiti.common.version>1.30.0</activiti.common.version>
+        <slp.version>1.2.3</slp.version>
         <com.sap.cloud.lm.sl.open.version>1.50.0-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
@@ -70,12 +70,12 @@
         <module>com.sap.cloud.lm.sl.cf.process</module>
         <module>com.sap.cloud.lm.sl.cf.web</module>
     </modules>
-    
+
     <organization>
         <name>SAP SE</name>
         <url>http://www.sap.com</url>
     </organization>
-    
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -83,43 +83,86 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    
+
     <scm>
         <connection>scm:git:git@github.com:SAP/cloud-mta-java-common.git</connection>
         <developerConnection>scm:git:git@github.com:SAP/cloud-mta-java-common.git</developerConnection>
         <url>git@github.com:SAP/cloud-mta-java-common.git</url>
-  </scm>
-    
+    </scm>
+
     <developers>
         <developer>
             <id>nvvalchev</id>
             <name>Nikolay Valchev</name>
             <email>nikolay.valchev@sap.com</email>
-            <organization>${organization.name}</organization>
-            <organizationUrl>${organization.url}</organizationUrl>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
         </developer>
         <developer>
             <id>nictas</id>
-            <name>Alexander Tsvetkovv</name>
+            <name>Alexander Tsvetkov</name>
             <email>aleksandar.tsvetkov@sap.com</email>
-            <organization>${organization.name}</organization>
-            <organizationUrl>${organization.url}</organizationUrl>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
         </developer>
         <developer>
             <id>enchobelezirev</id>
             <name>Encho Belezirev</name>
             <email>encho.belezirev@sap.com</email>
-            <organization>${organization.name}</organization>
-            <organizationUrl>${organization.url}</organizationUrl>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
+        </developer>
+        <developer>
+            <id>ddonchev</id>
+            <name>Dimitar Donchev</name>
+            <email>dimitar.donchev@sap.com</email>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
+        </developer>
+        <developer>
+            <id>DenitsaKostova</id>
+            <name>Denitsa Petrova</name>
+            <email>denitsa.petrova@sap.com</email>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
+        </developer>
+        <developer>
+            <id>ttsokov</id>
+            <name>Tsvetan Tsokov</name>
+            <email>tsvetan.tsokov@sap.com</email>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
+        </developer>
+        <developer>
+            <id>monochronique</id>
+            <name>Mihail Tsonev</name>
+            <email>mihail.tsonev@sap.com</email>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
+        </developer>
+        <developer>
+            <id>boyan-velinov</id>
+            <name>Boyan Velinov</name>
+            <email>boyan.velinov@sap.com</email>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
+        </developer>
+        <developer>
+            <id>KristianShishoev</id>
+            <name>Kristian Shishoev</name>
+            <email>kristian.shishoev@sap.com</email>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
         </developer>
     </developers>
-    
+
     <build>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.7.0</version>
                     <configuration>
                         <source>1.8</source>
                         <target>1.8</target>
@@ -128,6 +171,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.20.1</version>
                     <configuration>
                         <runOrder>random</runOrder>
                     </configuration>
@@ -167,6 +211,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
                 <configuration>
                     <skip>false</skip>
                 </configuration>
@@ -871,7 +916,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -882,7 +927,7 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-    
+
     <profiles>
         <profile>
             <id>default</id>
@@ -949,6 +994,17 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>2.2.1</version>
@@ -965,6 +1021,10 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>2.9.1</version>
+                        <configuration>
+                            <skip>false</skip>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -989,7 +1049,7 @@
                         </executions>
                     </plugin>
                     <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
                         <version>2.5</version>
                         <configuration>

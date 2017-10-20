@@ -66,7 +66,8 @@ If you need any support, have any question or have found a bug, please report it
 
 # Further reading
 Presentations, documents, and tutorials:
-[Managing Distributed Cloud Native Applications Made Easy (CF Summit EU 2017 slides)](https://www.slideshare.net/NikolayValchev/managing-distributedcloudapps-80697059)
+- [Managing Distributed Cloud Native Applications Made Easy (CF Summit EU 2017 slides)](https://www.slideshare.net/NikolayValchev/managing-distributedcloudapps-80697059)
+- [Managing Distributed Cloud Native Applications Made Easy (CF Summit EU 2017 video)](https://www.youtube.com/watch?v=d07DZCuUXyk&feature=youtu.be)
 
 # License
 Copyright (c) 2017 SAP SE or an SAP affiliate company. All rights reserved.

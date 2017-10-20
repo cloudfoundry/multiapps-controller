@@ -173,7 +173,7 @@ public class ApplicationsCloudModelBuilder {
                 ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(pair._1, pair._2));
             }
         }
-        return services;
+        return ListUtil.removeDuplicates(services);
     }
 
     protected boolean shouldAddServiceToList(ServiceType serviceType, boolean addExisting) {
@@ -198,8 +198,8 @@ public class ApplicationsCloudModelBuilder {
     }
 
     protected static CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota,
-        int memory, int instances, List<String> uris, List<String> idleUris, List<String> services,
-        Map<Object, Object> env, List<CloudTask> tasks) {
+        int memory, int instances, List<String> uris, List<String> idleUris, List<String> services, Map<Object, Object> env,
+        List<CloudTask> tasks) {
         CloudApplicationExtended app = new CloudApplicationExtended(null, name);
         app.setModuleName(moduleName);
         app.setStaging(staging);

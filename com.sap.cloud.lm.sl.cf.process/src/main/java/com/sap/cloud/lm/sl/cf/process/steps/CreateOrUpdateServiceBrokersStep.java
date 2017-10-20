@@ -74,11 +74,11 @@ public class CreateOrUpdateServiceBrokersStep extends AbstractXS2ProcessStep {
             getStepLogger().debug(Messages.SERVICE_BROKERS_CREATED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
-            getStepLogger().error(Messages.ERROR_CREATING_SERVICE_BROKERS, e);
+            getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
             throw e;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            getStepLogger().error(Messages.ERROR_CREATING_SERVICE_BROKERS, e);
+            getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
             throw e;
         }
     }

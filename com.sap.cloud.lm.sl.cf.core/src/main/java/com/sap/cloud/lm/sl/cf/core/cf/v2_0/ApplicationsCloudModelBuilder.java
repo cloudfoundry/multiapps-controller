@@ -160,7 +160,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
                 ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(pair._1, pair._2));
             }
         }
-        return services;
+        return ListUtil.removeDuplicates(services);
     }
 
     @Override
