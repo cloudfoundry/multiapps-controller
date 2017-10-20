@@ -6,6 +6,7 @@
     },
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-core.cfapps.neo.ondemand.com\"]}",
@@ -42,6 +43,7 @@
     },
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-builder.cfapps.neo.ondemand.com\"]}",
@@ -75,6 +77,7 @@
     },
     "idleUris": [],
     "tasks": [],
+    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-runner.cfapps.neo.ondemand.com\"]}",

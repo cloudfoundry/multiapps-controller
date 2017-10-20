@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v1_0;
 
-import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.isValidName;
+import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.ensureValidEnvName;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertiesList;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.mergeProperties;
 
@@ -15,10 +15,8 @@ import java.util.stream.Collectors;
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.cf.core.util.NameUtil.NameRequirements;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -204,13 +202,8 @@ public class ApplicationEnvironmentCloudModelBuilder {
         Map<String, Object> result = new TreeMap<>();
         Map<String, Object> properties = new TreeMap<>();
         for (String key : env.keySet()) {
-            if (isValidName(key, NameRequirements.ENVIRONMENT_NAME_PATTERN)) {
-                result.put(key, env.get(key));
-            } else if (configuration.shouldAllowInvalidEnvNames()) {
-                properties.put(key, env.get(key));
-            } else {
-                throw new ContentException(Messages.INVALID_ENVIRONMENT_VARIABLE_NAME, key);
-            }
+            ensureValidEnvName(key, configuration.shouldAllowInvalidEnvNames());
+            result.put(key, env.get(key));
         }
         if (!properties.isEmpty()) {
             result.put(Constants.ENV_MTA_PROPERTIES, properties);

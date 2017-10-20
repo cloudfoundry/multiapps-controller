@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class NameUtil {
@@ -40,6 +41,13 @@ public class NameUtil {
 
     public static boolean isValidName(String name, String namePattern) {
         return name.matches(namePattern);
+    }
+
+    public static void ensureValidEnvName(String name, boolean shouldAllowInvalidEnvNames) {
+        if (name.matches(NameRequirements.ENVIRONMENT_NAME_PATTERN) || shouldAllowInvalidEnvNames) {
+            return;
+        }
+        throw new ContentException(Messages.INVALID_ENVIRONMENT_VARIABLE_NAME, name);
     }
 
     public static String getApplicationName(String moduleName, String mtaId, boolean useNamespaces) throws SLException {

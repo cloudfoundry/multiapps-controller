@@ -10,7 +10,10 @@ public class ServiceKeyImpl implements ServiceKey {
     private Map<String, Object> credentials;
     private String guid;
     private CloudService service;
-
+    
+    public ServiceKeyImpl() {
+    }
+    
     public ServiceKeyImpl(String name, Map<String, Object> parameters, Map<String, Object> credentials, String guid, CloudService service) {
         this.name = name;
         this.parameters = parameters;

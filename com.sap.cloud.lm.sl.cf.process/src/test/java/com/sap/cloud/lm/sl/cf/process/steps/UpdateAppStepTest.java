@@ -5,6 +5,7 @@ import static org.mockito.Matchers.eq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,8 +25,11 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyImpl;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
@@ -34,6 +38,7 @@ import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -90,6 +95,10 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
             },
             {
                 "update-app-step-input-11.json", PlatformType.CF
+            },
+            // Service keys to inject are specified
+            {
+                "update-app-step-input-12.json", PlatformType.XS2
             },
 // @formatter:on
         });
@@ -169,6 +178,11 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
             Mockito.when(cloudServiceInstance.getBindings()).thenReturn(createServiceBindings(Arrays.asList(input.application)));
             Mockito.when(client.getServiceInstance(serviceName)).thenReturn(cloudServiceInstance);
         }
+        
+        for (String serviceName : input.existingServiceKeys.keySet()) {
+            List<ServiceKeyImpl> serviceKeys = input.existingServiceKeys.get(serviceName);
+            Mockito.when(((ClientExtensions)client).getServiceKeys(eq(serviceName))).thenReturn(ListUtil.upcast(serviceKeys));
+        }
 
     }
 
@@ -216,6 +230,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
         SimpleApplication application;
         SimpleApplication existingApplication;
         SimpleBinding serviceBindings;
+        Map<String, List<ServiceKeyImpl>> existingServiceKeys = new HashMap<>();
         boolean updateStaging;
         boolean updateMemory;
         boolean updateDiskQuota;
@@ -238,6 +253,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
     private static class SimpleApplication {
         String name;
         List<String> services;
+        List<ServiceKeyToInject> serviceKeysToInject;
         String command;
         List<String> uris;
         String buildpackUrl;
@@ -251,6 +267,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
             cloudApp.setStaging(new StagingExtended(command, buildpackUrl, null, 0, "none"));
+            cloudApp.setServiceKeysToInject(serviceKeysToInject);
             return cloudApp;
         }
 

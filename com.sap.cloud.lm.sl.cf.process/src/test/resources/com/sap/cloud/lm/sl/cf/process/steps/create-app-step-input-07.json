@@ -21,8 +21,25 @@
         "baz=baz"
       ],
       "services": [],
-      "serviceKeysToInject": []
+      "serviceKeysToInject": [
+        {
+          "envVarName": "serviceKeyCredentials",
+          "serviceName": "existing-service",
+          "serviceKeyName": "expected-service-key"
+        }
+      ]
     }
   ],
-  "applicationIndex": 0
+  "applicationIndex": 0,
+  "existingServiceKeys" : {
+  	"existing-service": [
+        {
+          "name": "actual-service-key",
+          "credentials": {
+            "user": "service-key-user",
+            "password": "service-key-password"
+          }
+        }
+    ]
+  }
 }

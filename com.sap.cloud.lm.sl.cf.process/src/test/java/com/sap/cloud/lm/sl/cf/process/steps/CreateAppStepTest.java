@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyImpl;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
@@ -32,6 +33,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -77,6 +79,13 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
             // (5) Binding parameters exist, but the services do not and service-2 is optional - so no exception should be thrown:
             {
                 "create-app-step-input-05.json", null, PlatformType.CF,
+            },
+            // (6) Service keys to inject are specified:
+            { "create-app-step-input-06.json", null, PlatformType.XS2 },
+            // (7) Service keys to inject are specified but not exist:
+            { "create-app-step-input-07.json",
+                "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service\"",
+                PlatformType.XS2
             },
 // @formatter:on
         });
@@ -156,6 +165,11 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
                 "Something happened!")).when((ClientExtensions) client).bindService(Mockito.eq(appName), Mockito.eq(serviceName),
                     Mockito.any());
         }
+        
+        for (String serviceName : stepInput.existingServiceKeys.keySet()) {
+            List<ServiceKeyImpl> serviceKeys = stepInput.existingServiceKeys.get(serviceName);
+            Mockito.when(((ClientExtensions) client).getServiceKeys(eq(serviceName))).thenReturn(ListUtil.upcast(serviceKeys));
+        }
     }
 
     private void validateClient() {
@@ -193,6 +207,7 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
         int applicationIndex;
         PlatformType platform;
         Map<String, String> bindingErrors = new HashMap<>();
+        Map<String, List<ServiceKeyImpl>> existingServiceKeys = new HashMap<>();
     }
 
     private static class SimpleService {

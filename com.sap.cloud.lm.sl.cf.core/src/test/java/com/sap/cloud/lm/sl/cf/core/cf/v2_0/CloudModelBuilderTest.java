@@ -288,6 +288,24 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1_0.C
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-09.json", }
             },
+            // (26) Test inject service keys:
+            {
+                "mtad-10.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                false, false, true,
+                new String[] { "module-1" }, // mtaArchiveModules
+                new String[] { "module-1" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:apps-10.json", }
+            },
+            // (26) Test inject service keys fail with env names
+            {
+                "mtad-10.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                false, false, false,
+                new String[] { "module-1" }, // mtaArchiveModules
+                new String[] { "module-1" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "E:The name \"service-key-1\" is not a valid environment variable name" }
+            },
 // @formatter:on
         });
     }
