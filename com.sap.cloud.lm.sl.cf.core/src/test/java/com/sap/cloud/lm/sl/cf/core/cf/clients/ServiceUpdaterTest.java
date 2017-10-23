@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -86,7 +87,13 @@ public class ServiceUpdaterTest extends ServiceCreatorTest {
     }
 
     private void prepareClient() {
-        Mockito.when(client.getService(input.getService().getName())).thenReturn(((StepInput) input).getExistingService());
+        CloudService existingService = ((StepInput) input).getExistingService();
+        if (existingService != null) {
+            Mockito.when(client.getService(input.getService().getName())).thenReturn(existingService);
+        } else {
+            Mockito.when(client.getService(input.getService().getName())).thenThrow(
+                new CloudFoundryException(HttpStatus.NOT_FOUND, "Not Found", "Service '" + input.getService().getName() + "' not found."));
+        }
     }
 
     @Override

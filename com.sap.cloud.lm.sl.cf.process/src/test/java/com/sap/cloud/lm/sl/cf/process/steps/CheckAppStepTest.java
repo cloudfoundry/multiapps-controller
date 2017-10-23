@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -41,10 +39,6 @@ public class CheckAppStepTest extends AbstractStepTest<CheckAppStep> {
             // (1) Application exists:
             {
                 "check-app-step-input-2.json",
-            },
-            // (2) Client throws an exception with a 'not found' status code:
-            {
-                "check-app-step-input-3.json",
             },
 // @formatter:on
         });
@@ -73,7 +67,7 @@ public class CheckAppStepTest extends AbstractStepTest<CheckAppStep> {
 
     private void loadParameters() {
         application = stepInput.applications.get(stepInput.applications.size() - 1);
-        expectedResult = stepInput.isExistingApplication && !stepInput.throwException ? application : null;
+        expectedResult = stepInput.isExistingApplication ? application : null;
     }
 
     private void prepareContext() {
@@ -83,10 +77,10 @@ public class CheckAppStepTest extends AbstractStepTest<CheckAppStep> {
     }
 
     private void prepareClient() {
-        if (!stepInput.throwException) {
-            Mockito.when(client.getApplication(application.getName())).thenReturn(expectedResult);
+        if (stepInput.isExistingApplication) {
+            Mockito.when(client.getApplication(application.getName(), false)).thenReturn(expectedResult);
         } else {
-            Mockito.when(client.getApplication(application.getName())).thenThrow(new CloudFoundryException(HttpStatus.NOT_FOUND));
+            Mockito.when(client.getApplication(application.getName(), false)).thenReturn(null);
         }
     }
 
@@ -94,7 +88,6 @@ public class CheckAppStepTest extends AbstractStepTest<CheckAppStep> {
         boolean isExistingApplication;
         int applicationIndex;
         List<CloudApplicationExtended> applications;
-        boolean throwException;
     }
 
     @Override

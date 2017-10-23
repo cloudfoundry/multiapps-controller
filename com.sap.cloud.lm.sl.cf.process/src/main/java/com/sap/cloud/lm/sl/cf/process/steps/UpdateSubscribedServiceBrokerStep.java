@@ -35,8 +35,8 @@ public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrok
 
         try {
             CloudFoundryOperations client = getCloudFoundryClient(context);
-            CloudServiceBroker serviceBroker = client.getServiceBroker(broker.getName());
-            if (serviceBroker == null) {
+            CloudServiceBroker existingServiceBroker = client.getServiceBroker(broker.getName(), false);
+            if (existingServiceBroker == null) {
                 getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, broker.getName()));
             } else {
                 updateServiceBroker(context, broker, client);

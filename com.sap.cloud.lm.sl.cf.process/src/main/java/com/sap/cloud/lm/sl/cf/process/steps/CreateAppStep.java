@@ -86,7 +86,7 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
 
             // Check if an application with this name already exists (as a result of a previous
             // execution):
-            CloudApplication existingApp = getApplication(client, app.getName());
+            CloudApplication existingApp = client.getApplication(app.getName(), false);
             // If the application doesn't exist, create it:
             if (existingApp == null) {
                 client.createApplication(appName, staging, diskQuota, memory, uris, Collections.emptyList());
@@ -179,17 +179,6 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
                 MapUtil.mergeSafely(fileProvidedBindingParameters.get(serviceName), descriptorProvidedBindingParameters.get(serviceName)));
         }
         return bindingParameters;
-    }
-
-    private CloudApplication getApplication(CloudFoundryOperations client, String applicationName) {
-        try {
-            return client.getApplication(applicationName);
-        } catch (CloudFoundryException e) {
-            if (!e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                throw e;
-            }
-        }
-        return null;
     }
 
     private CloudServiceExtended findServiceCloudModel(List<CloudServiceExtended> servicesCloudModel, String serviceName) {

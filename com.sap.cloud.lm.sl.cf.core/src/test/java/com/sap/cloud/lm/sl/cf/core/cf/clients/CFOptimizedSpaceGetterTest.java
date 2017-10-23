@@ -21,7 +21,7 @@ public class CFOptimizedSpaceGetterTest extends CFOptimizedSpaceGetterBaseTest {
 
     @Test
     public void testFindSpaceWhenOrgDoesNotExist() {
-        when(client.getOrgByName(DUMMY, false)).thenReturn(null);
+        when(client.getOrganization(DUMMY, false)).thenReturn(null);
         assertNull(spaceGetter.findSpace(client, DUMMY, DUMMY));
     }
 

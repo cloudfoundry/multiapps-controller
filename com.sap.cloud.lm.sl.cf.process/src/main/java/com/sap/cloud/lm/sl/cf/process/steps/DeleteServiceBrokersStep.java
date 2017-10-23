@@ -9,9 +9,9 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -65,7 +65,8 @@ public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
         }
         String name = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_NAME, String.class, app.getName());
 
-        if (serviceBrokerExists(name, client) && !serviceBrokersToCreate.contains(name)) {
+        CloudServiceBroker serviceBroker = client.getServiceBroker(name, false);
+        if (serviceBroker != null && !serviceBrokersToCreate.contains(name)) {
             try {
                 getStepLogger().info(MessageFormat.format(Messages.DELETING_SERVICE_BROKER, name, app.getName()));
                 client.deleteServiceBroker(name);
@@ -82,18 +83,6 @@ public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
                 }
             }
         }
-    }
-
-    private boolean serviceBrokerExists(String serviceBrokerName, CloudFoundryOperations client) {
-        try {
-            client.getServiceBroker(serviceBrokerName);
-        } catch (CloudFoundryException e) {
-            if (e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                return false;
-            }
-            throw e;
-        }
-        return true;
     }
 
     private boolean shouldSucceed(DelegateExecution context) {

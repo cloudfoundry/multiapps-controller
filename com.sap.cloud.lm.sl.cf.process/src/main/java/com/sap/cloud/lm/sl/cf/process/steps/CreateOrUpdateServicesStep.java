@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -304,7 +305,7 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
             actions.add(ServiceAction.ACTION_UPDATE_SERVICE_PLAN);
         }
 
-        CloudServiceInstance existingServiceInstance = client.getServiceInstance(service.getName());
+        CloudServiceInstance existingServiceInstance = client.getServiceInstance(service.getName(), false);
         if (existingServiceInstance != null && shouldUpdateCredentials(service, existingServiceInstance.getCredentials())) {
             getStepLogger().debug("Service parameters should be updated");
             getStepLogger().debug("New parameters: " + secureSerializer.toJson(service.getCredentials()));

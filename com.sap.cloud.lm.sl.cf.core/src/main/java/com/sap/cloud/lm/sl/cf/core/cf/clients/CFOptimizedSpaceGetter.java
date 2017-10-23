@@ -39,7 +39,7 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
         RestTemplate restTemplate = restTemplateFactory.getRestTemplate(client);
         String url = getUrlForEndpoint(client, FIND_SPACE_ENDPOINT);
 
-        CloudOrganization org = client.getOrgByName(orgName, false);
+        CloudOrganization org = client.getOrganization(orgName, false);
         if (org == null) {
             return null;
         }

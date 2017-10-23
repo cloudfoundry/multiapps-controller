@@ -36,7 +36,7 @@ public class CheckAppStep extends AbstractXS2ProcessStep {
             CloudFoundryOperations client = getCloudFoundryClient(context);
 
             // Check if an application with this name already exists, and store it in the context:
-            CloudApplication existingApp = getApplication(client, app.getName());
+            CloudApplication existingApp = client.getApplication(app.getName(), false);
             StepsUtil.setExistingApp(context, existingApp);
 
             if (existingApp == null) {
@@ -54,17 +54,6 @@ public class CheckAppStep extends AbstractXS2ProcessStep {
             getStepLogger().error(e, Messages.ERROR_CHECKING_APP, app.getName());
             throw e;
         }
-    }
-
-    private CloudApplication getApplication(CloudFoundryOperations client, String appName) {
-        try {
-            return client.getApplication(appName);
-        } catch (CloudFoundryException e) {
-            if (!e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                throw e;
-            }
-        }
-        return null;
     }
 
 }

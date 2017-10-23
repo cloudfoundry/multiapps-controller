@@ -81,7 +81,7 @@ public class CFOptimizedSpaceGetterParameterizedTest extends CFOptimizedSpaceGet
 
     private void prepareControllerClient() throws Exception {
         CloudOrganization org = new CloudOrganization(new Meta(UUID.fromString("eed8e396-09f9-4fcc-8180-82de91dd626a"), null, null), DUMMY);
-        when(client.getOrgByName(DUMMY, false)).thenReturn(org);
+        when(client.getOrganization(DUMMY, false)).thenReturn(org);
     }
 
     @Test

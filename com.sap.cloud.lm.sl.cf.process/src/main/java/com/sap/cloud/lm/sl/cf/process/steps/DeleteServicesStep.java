@@ -55,13 +55,13 @@ public class DeleteServicesStep extends AbstractXS2ProcessStep {
 
     private void deleteServices(CloudFoundryOperations client, List<String> serviceNames) {
         for (String serviceName : serviceNames) {
-            attemptToDeleteService(client, serviceName);
+            deleteService(client, serviceName);
         }
     }
 
-    private void attemptToDeleteService(CloudFoundryOperations client, String serviceName) {
+    private void deleteService(CloudFoundryOperations client, String serviceName) {
         try {
-            deleteService(client, serviceName);
+            attemptToDeleteService(client, serviceName);
         } catch (CloudFoundryException e) {
             if (e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
                 getStepLogger().warn(e, Messages.COULD_NOT_DELETE_SERVICE, serviceName);
@@ -71,13 +71,8 @@ public class DeleteServicesStep extends AbstractXS2ProcessStep {
         }
     }
 
-    private void deleteService(CloudFoundryOperations client, String serviceName) {
+    private void attemptToDeleteService(CloudFoundryOperations client, String serviceName) {
         CloudServiceInstance serviceInstance = client.getServiceInstance(serviceName);
-        // Instead of throwing an exception, the CF client returns null if there is no service instance with the specified name.
-        if (serviceInstance == null) {
-            getStepLogger().warn(Messages.COULD_NOT_DELETE_SERVICE, serviceName);
-            return;
-        }
         List<CloudServiceBinding> bindings = serviceInstance.getBindings();
         if (bindings != null && bindings.size() > 0) {
             logBindings(bindings);

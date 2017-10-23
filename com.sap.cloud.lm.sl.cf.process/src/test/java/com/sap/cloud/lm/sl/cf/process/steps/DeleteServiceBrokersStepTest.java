@@ -138,11 +138,12 @@ public class DeleteServiceBrokersStepTest extends AbstractStepTest<DeleteService
     }
 
     private void prepareClient() {
-        Mockito.when(client.getServiceBroker(Mockito.anyString())).then(new Answer<CloudServiceBroker>() {
+        Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false))).then(new Answer<CloudServiceBroker>() {
             @Override
             public CloudServiceBroker answer(InvocationOnMock invocation) {
-                if (!input.existingServiceBrokers.contains(invocation.getArguments()[0])) {
-                    throw new CloudFoundryException(HttpStatus.NOT_FOUND);
+                String serviceBrokerName = (String) invocation.getArguments()[0];
+                if (input.existingServiceBrokers.contains(serviceBrokerName)) {
+                    return new CloudServiceBroker(null, serviceBrokerName, null, null, null);
                 }
                 return null;
             }
