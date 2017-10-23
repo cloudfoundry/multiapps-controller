@@ -11,6 +11,5 @@
     }
   ],
   "applicationIndex": 1,
-  "isExistingApplication": true,
-  "throwException": false
+  "isExistingApplication": true
 }

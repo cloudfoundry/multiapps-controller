@@ -4,12 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 
 public class ServiceBindingCreator extends CustomControllerClient {
@@ -28,9 +26,6 @@ public class ServiceBindingCreator extends CustomControllerClient {
         CloudApplication cloudApplication = client.getApplication(appName);
         UUID appGuid = cloudApplication.getMeta().getGuid();
         CloudService cloudService = client.getService(serviceName);
-        if (cloudService == null) {
-            throw new CloudFoundryException(HttpStatus.NOT_FOUND, "Not Found", "Service '" + serviceName + "' not found");
-        }
         UUID serviceGuid = cloudService.getMeta().getGuid();
         Map<String, Object> request = createServiceBindingRequest(appGuid, serviceGuid, parameters);
         RestTemplate restTemplate = getRestTemplate(client);

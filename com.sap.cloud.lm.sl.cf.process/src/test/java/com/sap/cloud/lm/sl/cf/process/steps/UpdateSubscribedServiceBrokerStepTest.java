@@ -86,9 +86,9 @@ public class UpdateSubscribedServiceBrokerStepTest extends AbstractStepTest<Upda
     }
 
     private void prepareClient() {
-        Mockito.when(client.getServiceBroker(Mockito.anyString())).thenReturn(null);
+        Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false))).thenReturn(null);
         if (input.brokerApplication.brokerName.equals(input.brokerFromClient.name)) {
-            Mockito.when(client.getServiceBroker(input.brokerFromClient.name)).thenReturn(input.brokerFromClient.toServiceBroker());
+            Mockito.when(client.getServiceBroker(input.brokerFromClient.name, false)).thenReturn(input.brokerFromClient.toServiceBroker());
         }
     }
 

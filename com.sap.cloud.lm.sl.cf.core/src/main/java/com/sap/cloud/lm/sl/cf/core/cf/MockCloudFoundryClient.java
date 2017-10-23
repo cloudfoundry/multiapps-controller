@@ -141,6 +141,11 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
     }
 
     @Override
+    public CloudSpace getSpace(String spaceName, boolean required) {
+        return new CloudSpace(createMeta(), spaceName, org);
+    }
+
+    @Override
     public void deleteSpace(String spaceName) {
     }
 
@@ -150,7 +155,12 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
     }
 
     @Override
-    public CloudOrganization getOrgByName(String orgName, boolean required) {
+    public CloudOrganization getOrganization(String orgName) {
+        return null;
+    }
+
+    @Override
+    public CloudOrganization getOrganization(String orgName, boolean required) {
         return null;
     }
 
@@ -190,7 +200,17 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
     }
 
     @Override
+    public CloudApplication getApplication(String appName, boolean required) {
+        return apps.get(appName);
+    }
+
+    @Override
     public CloudApplication getApplication(UUID guid) {
+        return null;
+    }
+
+    @Override
+    public CloudApplication getApplication(UUID guid, boolean required) {
         return null;
     }
 
@@ -379,6 +399,11 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
     }
 
     @Override
+    public CloudStack getStack(String name, boolean required) {
+        return null;
+    }
+
+    @Override
     public String getFile(String appName, int instanceIndex, String filePath) {
         return null;
     }
@@ -413,7 +438,17 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
     }
 
     @Override
+    public CloudService getService(String service, boolean required) {
+        return null;
+    }
+
+    @Override
     public CloudServiceInstance getServiceInstance(String service) {
+        return null;
+    }
+
+    @Override
+    public CloudServiceInstance getServiceInstance(String service, boolean required) {
         return null;
     }
 
@@ -433,6 +468,11 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
 
     @Override
     public CloudServiceBroker getServiceBroker(String name) {
+        return null;
+    }
+
+    @Override
+    public CloudServiceBroker getServiceBroker(String name, boolean required) {
         return null;
     }
 
@@ -552,7 +592,12 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
     }
 
     @Override
-    public CloudQuota getQuotaByName(String quotaName, boolean required) {
+    public CloudQuota getQuota(String quotaName) {
+        return null;
+    }
+
+    @Override
+    public CloudQuota getQuota(String quotaName, boolean required) {
         return null;
     }
 
@@ -584,6 +629,11 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
 
     @Override
     public CloudSecurityGroup getSecurityGroup(String securityGroupName) {
+        return null;
+    }
+
+    @Override
+    public CloudSecurityGroup getSecurityGroup(String securityGroupName, boolean required) {
         return null;
     }
 

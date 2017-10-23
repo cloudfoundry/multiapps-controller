@@ -140,16 +140,12 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
     private void detectApplicationFileDigestChanges(DelegateExecution context, CloudApplication app, File applicationFile,
         CloudFoundryOperations client) {
-        ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(
-            getExistingApplication(app.getName(), client));
+        CloudApplication existingApp = client.getApplication(app.getName());
+        ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(existingApp);
         String appNewFileDigest = applicationFileDigestDetector.detectNewAppFileDigest(applicationFile);
         String currentFileDigest = applicationFileDigestDetector.detectCurrentAppFileDigest();
         attemptToUpdateApplicationDigest(client, app, appNewFileDigest, currentFileDigest);
         updateContextExtension(context, hasAppFileDigestChanged(appNewFileDigest, currentFileDigest));
-    }
-
-    private CloudApplication getExistingApplication(String appName, CloudFoundryOperations client) {
-        return client.getApplication(appName);
     }
 
     private void attemptToUpdateApplicationDigest(CloudFoundryOperations client, CloudApplication app, String newFileDigest,

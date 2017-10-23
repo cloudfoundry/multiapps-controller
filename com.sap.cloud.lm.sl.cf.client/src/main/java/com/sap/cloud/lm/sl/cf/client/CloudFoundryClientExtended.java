@@ -150,8 +150,18 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     }
 
     @Override
+    public CloudApplication getApplication(String appName, boolean required) {
+        return executeWithRetry(() -> super.getApplication(appName, required));
+    }
+
+    @Override
     public CloudApplication getApplication(UUID appGuid) {
         return executeWithRetry(() -> super.getApplication(appGuid));
+    }
+
+    @Override
+    public CloudApplication getApplication(UUID appGuid, boolean required) {
+        return executeWithRetry(() -> super.getApplication(appGuid, required));
     }
 
     @Override
@@ -185,8 +195,13 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     }
 
     @Override
-    public CloudOrganization getOrgByName(String orgName, boolean required) {
-        return executeWithRetry(() -> super.getOrgByName(orgName, required));
+    public CloudOrganization getOrganization(String orgName) {
+        return executeWithRetry(() -> super.getOrganization(orgName));
+    }
+
+    @Override
+    public CloudOrganization getOrganization(String orgName, boolean required) {
+        return executeWithRetry(() -> super.getOrganization(orgName, required));
     }
 
     @Override
@@ -210,6 +225,11 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     }
 
     @Override
+    public CloudServiceBroker getServiceBroker(String name, boolean required) {
+        return executeWithRetry(() -> super.getServiceBroker(name, required));
+    }
+
+    @Override
     public List<CloudServiceBroker> getServiceBrokers() {
         return executeWithRetry(() -> super.getServiceBrokers(), HttpStatus.NOT_FOUND);
     }
@@ -220,6 +240,11 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     }
 
     @Override
+    public CloudServiceInstance getServiceInstance(String service, boolean required) {
+        return executeWithRetry(() -> super.getServiceInstance(service, required));
+    }
+
+    @Override
     public List<CloudDomain> getSharedDomains() {
         return executeWithRetry(() -> super.getSharedDomains(), HttpStatus.NOT_FOUND);
     }
@@ -227,6 +252,11 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     @Override
     public CloudSpace getSpace(String spaceName) {
         return executeWithRetry(() -> super.getSpace(spaceName));
+    }
+
+    @Override
+    public CloudSpace getSpace(String spaceName, boolean required) {
+        return executeWithRetry(() -> super.getSpace(spaceName, required));
     }
 
     @Override
@@ -356,6 +386,11 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     @Override
     public CloudService getService(String service) {
         return executeWithRetry(() -> super.getService(service));
+    }
+
+    @Override
+    public CloudService getService(String service, boolean required) {
+        return executeWithRetry(() -> super.getService(service, required));
     }
 
     @Override

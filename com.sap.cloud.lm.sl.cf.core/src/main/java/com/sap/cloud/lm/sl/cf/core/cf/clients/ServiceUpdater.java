@@ -3,10 +3,8 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudService;
-import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,7 +21,7 @@ public class ServiceUpdater extends CloudServiceOperator {
     }
 
     private void attemptToUpdateServicePlan(CloudFoundryOperations client, String serviceName, String servicePlan) {
-        CloudService service = getCloudService(client, serviceName);
+        CloudService service = client.getService(serviceName);
 
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = getCloudControllerUrl(client);
@@ -37,14 +35,6 @@ public class ServiceUpdater extends CloudServiceOperator {
         return client.getCloudControllerUrl().toString();
     }
 
-    private CloudService getCloudService(CloudFoundryOperations client, String serviceName) {
-        CloudService service = client.getService(serviceName);
-        if (service == null) {
-            throw new CloudFoundryException(HttpStatus.NOT_FOUND, "Not Found", "Service '" + serviceName + "' not found");
-        }
-        return service;
-    }
-
     public void updateServiceParameters(CloudFoundryOperations client, String serviceName, Map<String, Object> parameters) {
         new CustomControllerClientErrorHandler().handleErrorsAndWarnings(
             () -> attemptToUpdateServiceParameters(client, serviceName, parameters));
@@ -52,7 +42,7 @@ public class ServiceUpdater extends CloudServiceOperator {
 
     private void attemptToUpdateServiceParameters(CloudFoundryOperations client, String serviceName, Map<String, Object> parameters) {
         assertServiceAttributes(serviceName, parameters);
-        CloudService service = getCloudService(client, serviceName);
+        CloudService service = client.getService(serviceName);
 
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = getCloudControllerUrl(client);
