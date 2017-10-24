@@ -9,8 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
-import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
+import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.AnalyticsCollector;
@@ -18,13 +17,14 @@ import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.slp.util.AbstractProcessComponentUtil;
-import com.sap.lmsl.slp.SlpTaskState;
 
 @Component("endProcessListener")
 public class EndProcessListener extends AbstractXS2ProcessExecutionListener {
@@ -41,7 +41,7 @@ public class EndProcessListener extends AbstractXS2ProcessExecutionListener {
     private AbstractFileService fileService;
 
     @Inject
-    private OngoingOperationDao ongoingOperationDao;
+    private OperationDao ongoingOperationDao;
 
     @Inject
     protected CloudFoundryClientProvider clientProvider;
@@ -69,14 +69,14 @@ public class EndProcessListener extends AbstractXS2ProcessExecutionListener {
 
     private AnalyticsData collectAnalytics(DelegateExecution context) throws SLException {
         AnalyticsData model = analytics.collectAttributes(context);
-        model.setProcessFinalState(SlpTaskState.SLP_TASK_STATE_FINISHED);
+        model.setProcessFinalState(State.FINISHED);
         LOGGER.info(JsonUtil.toJson(model, true));
         return model;
     }
 
     protected void setOngoingOperationInFinishedState(String processInstanceId) throws NotFoundException {
-        OngoingOperation ongoingOperation = ongoingOperationDao.findRequired(processInstanceId);
-        ongoingOperation.setFinalState(SlpTaskState.SLP_TASK_STATE_FINISHED);
+        Operation ongoingOperation = ongoingOperationDao.findRequired(processInstanceId);
+        ongoingOperation.setState(State.FINISHED);
         ongoingOperationDao.merge(ongoingOperation);
     }
 

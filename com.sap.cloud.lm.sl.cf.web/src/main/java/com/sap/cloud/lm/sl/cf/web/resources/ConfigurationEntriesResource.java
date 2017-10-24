@@ -47,6 +47,9 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
+import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ParsingException;
@@ -241,6 +244,14 @@ public class ConfigurationEntriesResource {
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
         purger.purge(org, space);
         return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    public static void main(String[] args) {
+        Operation op = JsonUtil.fromJson(
+            "{\"processType\": {\"name\":\"UNDEPLOY\"},\"parameters\": {\"mtaId\": \"ztana-python\",\"deleteServices\": true,\"deleteServiceBrokers\": true,\"noRestartSubscribedApps\": true,\"noFailOnMissingPermissions\": true}}",
+            Operation.class);
+        System.out.println(JsonUtil.toJson(op, true));
+
     }
 
 }

@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
+import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
@@ -62,8 +63,6 @@ import com.sap.cloud.lm.sl.mta.resolvers.Reference;
 import com.sap.cloud.lm.sl.mta.resolvers.ReferencePattern;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
-import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -88,11 +87,6 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
     private static final String DUMMY_VERSION = "1.0.0";
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("updateSubscribersTask").displayName("Update Subscribers").description(
-            "Update Subscribers").build();
-    }
 
     protected BiFunction<CloudFoundryOperations, String, Pair<String, String>> orgAndSpaceCalculator = (client,
         spaceId) -> new ClientHelper(client).computeOrgAndSpace(spaceId);

@@ -35,6 +35,10 @@
         <property name="dataSource" ref="dataSource" />
         <property name="databaseDialect" ref="databaseDialect" />
     </bean>
+    
+    <bean id="logsService" class="com.sap.cloud.lm.sl.persistence.services.ProcessLogsService"
+        factory-method="getInstance">
+    </bean>
 
     <bean id="taskExtensionService" class="com.sap.cloud.lm.sl.slp.services.TaskExtensionService" factory-method="getInstance">
         <property name="dataSource" ref="dataSource" />
@@ -43,7 +47,7 @@
 
     <bean class="com.sap.cloud.lm.sl.cf.web.exec.ScheduledThreadPoolExecutorFactoryBean" />
 
-    <bean class="com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade" factory-method="getInstance" />
+    <bean class="com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade" factory-method="getInstance" />
 
     <bean class="com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider" factory-method="getInstance" />
 

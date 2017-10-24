@@ -36,8 +36,7 @@ import com.sap.cloud.lm.sl.cf.process.util.GitRepoCloner;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
-import com.sap.cloud.lm.sl.slp.resources.Configuration;
+import com.sap.cloud.lm.sl.persistence.util.Configuration;
 
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
 @Component("processGitSourceStep")
@@ -52,11 +51,6 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
     public static final String META_INF_PATH = "META-INF";
     private static final String MANIFEST_PATH = "MANIFEST.MF";
     private static final String MTAD_PATH = "mtad.yaml";
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("processGitSourceTask").displayName("Process Git Source").description(
-            "Process Git Source").build();
-    }
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -189,13 +183,12 @@ public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
         getStepLogger().info(Messages.UPLOADING_MTAR);
         getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath().toString() + " to DB");
         try {
-            Configuration configuration = ConfigurationUtil.getSlpConfiguration();
+            Configuration configuration = ConfigurationUtil.getConfiguration();
             String spaceId = StepsUtil.getSpaceId(context);
             mtarInputStream = Files.newInputStream(mtarZip);
             String serviceId = StepsUtil.getServiceId(context);
             String mtarName = mtarZip.getFileName().toString();
-            FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, configuration.getFileUploadProcessor(mtarName),
-                mtarInputStream);
+            FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, configuration.getFileUploadProcessor(), mtarInputStream);
             String uploadedMtarId = entry.getId();
             StepsUtil.setArchiveFileId(context, uploadedMtarId);
         } finally {

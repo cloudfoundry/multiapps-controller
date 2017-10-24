@@ -1,11 +1,11 @@
 [
   {
     "processId": "1",
-    "processType": {
-      "name": "DEPLOY"
-    },
+    "processType": "DEPLOY",
     "spaceId": "1234",
     "mtaId": "1",
-    "acquiredLock": false
+    "acquiredLock": false,
+    "messages": [],
+    "parameters": {}
   }
 ]

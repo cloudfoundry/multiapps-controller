@@ -32,4 +32,9 @@ public class MockClientFactory extends ClientFactory {
         };
     }
 
+    @Override
+    protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String spaceId) {
+        return createClient();
+    }
+
 }

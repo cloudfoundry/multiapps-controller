@@ -85,9 +85,13 @@
             <groupId>com.sap.cloud.lm.sl</groupId>
             <artifactId>com.sap.cloud.lm.sl.mta</artifactId>
         </dependency>
-    <dependency>
+    	<dependency>
             <groupId>com.sap.cloud.lm.sl.cf</groupId>
             <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sap.cloud.lm.sl.cf</groupId>
+            <artifactId>com.sap.cloud.lm.sl.cf.api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.lm.sl.cf</groupId>

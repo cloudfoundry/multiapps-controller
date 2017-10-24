@@ -3,14 +3,14 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import javax.inject.Inject;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
+import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 
 public class BeanProvider {
     private static BeanProvider INSTANCE = new BeanProvider();
 
     @Inject
-    private OngoingOperationDao ongoingOperationDao;
+    private OperationDao ongoingOperationDao;
 
     @Inject
     private CloudFoundryClientProvider clientProvider;
@@ -25,7 +25,7 @@ public class BeanProvider {
         return INSTANCE;
     }
 
-    public OngoingOperationDao getOngoingOperationDao() {
+    public OperationDao getOngoingOperationDao() {
         return ongoingOperationDao;
     }
 

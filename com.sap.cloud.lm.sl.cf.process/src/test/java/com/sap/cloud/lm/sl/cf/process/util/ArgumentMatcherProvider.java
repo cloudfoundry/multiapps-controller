@@ -7,7 +7,7 @@ import org.mockito.ArgumentMatcher;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
-import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class ArgumentMatcherProvider {
@@ -51,17 +51,17 @@ public class ArgumentMatcherProvider {
 
     }
 
-    private static class OngoingOperationMatcher extends ArgumentMatcher<OngoingOperation> {
+    private static class OperationMatcher extends ArgumentMatcher<Operation> {
 
-        private final OngoingOperation ongoingOperation;
+        private final Operation ongoingOperation;
 
-        public OngoingOperationMatcher(OngoingOperation oo) {
+        public OperationMatcher(Operation oo) {
             this.ongoingOperation = oo;
         }
 
         @Override
         public boolean matches(Object argument) {
-            OngoingOperation operation = (OngoingOperation) argument;
+            Operation operation = (Operation) argument;
             return ongoingOperation.getProcessId().equals(operation.getProcessId())
                 && ongoingOperation.getProcessType() == operation.getProcessType()
                 && ongoingOperation.getSpaceId().equals(operation.getSpaceId()) && ongoingOperation.getUser().equals(operation.getUser());
@@ -125,8 +125,8 @@ public class ArgumentMatcherProvider {
         return new ServiceMatcher(service);
     }
 
-    public static OngoingOperationMatcher getOngoingOpMatcher(OngoingOperation oo) {
-        return new OngoingOperationMatcher(oo);
+    public static OperationMatcher getOngoingOpMatcher(Operation oo) {
+        return new OperationMatcher(oo);
     }
 
     public static ConfigurationEntryMatcher getConfigurationEntryMatcher(String providerId, String version, String spaceId) {

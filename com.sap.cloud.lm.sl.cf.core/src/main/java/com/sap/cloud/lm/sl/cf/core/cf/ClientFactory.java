@@ -34,9 +34,15 @@ public abstract class ClientFactory {
         return createClient(createCredentials(token), org, space);
     }
 
+    public Pair<CloudFoundryOperations, TokenProvider> createClient(OAuth2AccessToken token, String spaceId) {
+        return createClient(createCredentials(token), spaceId);
+    }
+
     protected abstract Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials);
 
     protected abstract Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String org, String space);
+
+    protected abstract Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String spaceId);
 
     protected OauthClient createOauthClient() {
         return new OauthClientExtended(null, null, tokenService);

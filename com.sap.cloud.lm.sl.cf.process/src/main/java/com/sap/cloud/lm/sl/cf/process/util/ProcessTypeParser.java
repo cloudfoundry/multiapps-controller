@@ -3,9 +3,9 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component

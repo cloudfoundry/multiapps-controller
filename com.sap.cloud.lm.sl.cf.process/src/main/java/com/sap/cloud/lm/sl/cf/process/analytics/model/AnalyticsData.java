@@ -3,8 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.analytics.model;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
-import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
-import com.sap.lmsl.slp.SlpTaskState;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
+import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 public class AnalyticsData {
 
@@ -13,7 +13,7 @@ public class AnalyticsData {
     private ZonedDateTime startTime;
     private ZonedDateTime endTime;
     private long processDurationInSeconds;
-    private SlpTaskState processFinalState;
+    private State processFinalState;
     private String mtaId;
     private String org;
     private String space;
@@ -22,7 +22,7 @@ public class AnalyticsData {
     private Map<String, Object> processSpecificAttributes;
 
     public AnalyticsData(String processId, ProcessType processType, ZonedDateTime startTime, ZonedDateTime endTime,
-        long processDurationInSeconds, SlpTaskState processFinalState, String mtaId, String org, String space, String targetURL,
+        long processDurationInSeconds, State processFinalState, String mtaId, String org, String space, String targetURL,
         Map<String, Object> processSpecificAttributes) {
         this.processId = processId;
         this.processType = processType;
@@ -77,11 +77,11 @@ public class AnalyticsData {
         this.processDurationInSeconds = processDuration;
     }
 
-    public SlpTaskState getProcessFinalState() {
+    public State getProcessFinalState() {
         return processFinalState;
     }
 
-    public void setProcessFinalState(SlpTaskState processFinalState) {
+    public void setProcessFinalState(State processFinalState) {
         this.processFinalState = processFinalState;
     }
 

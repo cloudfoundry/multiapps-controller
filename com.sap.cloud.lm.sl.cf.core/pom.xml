@@ -219,6 +219,10 @@
             <groupId>com.sap.cloud.lm.sl.cf</groupId>
             <artifactId>com.sap.cloud.lm.sl.cf.client</artifactId>
         </dependency>
+                <dependency>
+            <groupId>com.sap.cloud.lm.sl.cf</groupId>
+            <artifactId>com.sap.cloud.lm.sl.cf.api</artifactId>
+        </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>

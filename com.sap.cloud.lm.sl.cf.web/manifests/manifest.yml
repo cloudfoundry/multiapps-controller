@@ -11,7 +11,7 @@ applications:
   env:
     VERSION: ${project.version}
     XS_TYPE: CF
-    XS_TARGET_URL: http://api.bosh-lite.com
+    XS_TARGET_URL: https://api.cf.sap.hana.ondemand.com
     DB_TYPE: POSTGRESQL
     CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
     PLATFORMS: >

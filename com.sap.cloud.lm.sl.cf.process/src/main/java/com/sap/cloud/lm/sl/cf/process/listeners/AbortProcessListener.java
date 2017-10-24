@@ -20,9 +20,8 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
+import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
-import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.ActivitiEventToDelegateExecutionAdapter;
@@ -32,12 +31,13 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Runnable;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.lmsl.slp.SlpTaskState;
 
 @Component("abortProcessListener")
 public class AbortProcessListener implements ActivitiEventListener, Serializable {
@@ -81,7 +81,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         });
 
         new SafeExecutor().executeSafely(() -> {
-            setOngoingOperationInAbortedState(correlationId);
+            setOperationInAbortedState(correlationId);
         });
 
         HistoryService historyService = event.getEngineServices().getHistoryService();
@@ -108,7 +108,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
 
     private AnalyticsData collectAnalytics(ActivitiEvent event) throws SLException {
         AnalyticsData model = analytics.collectAttributes(new ActivitiEventToDelegateExecutionAdapter(event));
-        model.setProcessFinalState(SlpTaskState.SLP_TASK_STATE_ABORTED);
+        model.setProcessFinalState(State.ABORTED);
         LOGGER.debug(JsonUtil.toJson(model, true));
         return model;
     }
@@ -124,9 +124,9 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         return event.getProcessInstanceId();
     }
 
-    protected void setOngoingOperationInAbortedState(String processInstanceId) throws NotFoundException {
-        OngoingOperation ongoingOperation = getOngoingOperationDao().findRequired(processInstanceId);
-        ongoingOperation.setFinalState(SlpTaskState.SLP_TASK_STATE_ABORTED);
+    protected void setOperationInAbortedState(String processInstanceId) throws NotFoundException {
+        Operation ongoingOperation = getOngoingOperationDao().findRequired(processInstanceId);
+        ongoingOperation.setState(State.ABORTED);
         getOngoingOperationDao().merge(ongoingOperation);
     }
 
@@ -170,7 +170,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
             Constants.PARAM_APP_ARCHIVE_ID);
 
         String spaceId = (String) getHistoricVarInstanceValue(historyService, processInstanceId,
-            com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SPACE_ID).getValue();
+            com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
         FileSweeper fileSweeper = new FileSweeper(spaceId, getBeanProvider().getFileService());
         fileSweeper.sweep(extensionDescriptorFileIds);
@@ -191,7 +191,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         return getBeanProvider().getCloudFoundryClientProvider();
     }
 
-    private OngoingOperationDao getOngoingOperationDao() {
+    private OperationDao getOngoingOperationDao() {
         return getBeanProvider().getOngoingOperationDao();
     }
 

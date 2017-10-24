@@ -39,5 +39,12 @@
         <bean id="applicationStagingStateGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingStateGetter" />
         
         <bean id="serviceUpdater" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater" />
+        
+        <bean id="filesApi" class="com.sap.cloud.lm.sl.cf.web.api.FilesApi" />
+        
+        <bean id="mtasApi" class="com.sap.cloud.lm.sl.cf.web.api.MtasApi" />
+        
+        <bean id="operationsApi" class="com.sap.cloud.lm.sl.cf.web.api.OperationsApi" />
+        
     </beans>
 </beans>

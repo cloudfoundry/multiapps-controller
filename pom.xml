@@ -61,6 +61,7 @@
         <xs.java.version>1.0.0</xs.java.version>
         <java.container.security.version>0.19.1</java.container.security.version>
         <activiti.common.version>1.30.0</activiti.common.version>
+        <swagger.version>1.5.16</swagger.version>
         <slp.version>1.2.3</slp.version>
         <com.sap.cloud.lm.sl.open.version>1.51.0</com.sap.cloud.lm.sl.open.version>
     </properties>
@@ -69,6 +70,7 @@
         <module>com.sap.cloud.lm.sl.cf.core</module>
         <module>com.sap.cloud.lm.sl.cf.process</module>
         <module>com.sap.cloud.lm.sl.cf.web</module>
+        <module>com.sap.cloud.lm.sl.cf.api</module>
     </modules>
 
     <organization>
@@ -235,6 +237,11 @@
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
+			<dependency>
+				<groupId>io.swagger</groupId>
+				<artifactId>swagger-annotations</artifactId>
+				<version>${swagger.version}</version>
+			</dependency>
             <dependency>
                 <groupId>org.apache.derby</groupId>
                 <artifactId>derby</artifactId>
@@ -883,6 +890,11 @@
             <dependency>
                 <groupId>com.sap.cloud.lm.sl.cf</groupId>
                 <artifactId>com.sap.cloud.lm.sl.cf.process</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+			<dependency>
+                <groupId>com.sap.cloud.lm.sl.cf</groupId>
+                <artifactId>com.sap.cloud.lm.sl.cf.api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
