@@ -2,18 +2,14 @@
   {
     "processId": "1",
     "spaceId": "1234",
-    "processType": {
-      "name": "DEPLOY"
-    },
+    "processType": "DEPLOY",
     "mtaId": "1",
     "acquiredLock": false
   },
   {
     "processId": "2",
     "spaceId": "12345",
-    "processType": {
-      "name": "BLUE_GREEN_DEPLOY"
-    },
+    "processType": "BLUE_GREEN_DEPLOY",
     "mtaId": "2",
     "acquiredLock": false
   }

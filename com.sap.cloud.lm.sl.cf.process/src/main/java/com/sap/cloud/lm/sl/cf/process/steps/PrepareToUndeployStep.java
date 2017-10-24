@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
-import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
+import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
@@ -28,9 +28,9 @@ public class PrepareToUndeployStep extends AbstractXS2ProcessStep {
     }
 
     @Inject
-    private OngoingOperationDao ongoingOperationDao;
+    private OperationDao ongoingOperationDao;
 
-    protected Function<OngoingOperationDao, ProcessConflictPreventer> conflictPreventerSupplier = (dao) -> new ProcessConflictPreventer(
+    protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = (dao) -> new ProcessConflictPreventer(
         ongoingOperationDao);
 
     @Override

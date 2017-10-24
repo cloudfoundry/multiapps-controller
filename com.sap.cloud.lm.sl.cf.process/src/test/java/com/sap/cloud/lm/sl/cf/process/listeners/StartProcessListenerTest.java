@@ -18,15 +18,15 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import com.sap.activiti.common.impl.MockDelegateExecution;
-import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
-import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
-import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
+import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToServiceMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -46,7 +46,7 @@ public class StartProcessListenerTest {
     public ExpectedException exception = ExpectedException.none();
 
     @Mock
-    private OngoingOperationDao dao;
+    private OperationDao dao;
     @Mock
     private StepLogger.Factory stepLoggerFactory;
     @Mock
@@ -114,7 +114,7 @@ public class StartProcessListenerTest {
     private void verifyOngoingOperationInsertion() throws SLException, ConflictException {
         String user = StepsUtil.determineCurrentUser(context, stepLogger);
         Mockito.verify(dao).add(Mockito.argThat(ArgumentMatcherProvider.getOngoingOpMatcher(
-            new OngoingOperation(processInstanceId, processType, null, SPACE_ID, null, user, false, null))));
+            new Operation(processInstanceId, processType, null, SPACE_ID, null, user, false, null))));
     }
 
 }

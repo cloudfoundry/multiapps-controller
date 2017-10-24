@@ -15,9 +15,9 @@
             <property name="openjpa.jdbc.DBDictionary" value="derby(NextSequenceQuery=VALUES NEXT VALUE FOR {0})" />
         </properties>
     </persistence-unit>
-    <persistence-unit name="OngoingOperationManagement" transaction-type="RESOURCE_LOCAL">
+    <persistence-unit name="OperationManagement" transaction-type="RESOURCE_LOCAL">
         <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.OngoingOperationDto</class>
+        <class>com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />

@@ -84,8 +84,8 @@
             <property name="persistenceUnitName" value="ConfigurationSubscriptionManagement" />
         </bean>
 
-        <bean id="ongoingOperationEntityManagerFactory" parent="baseEntityManagerFactory">
-            <property name="persistenceUnitName" value="OngoingOperationManagement" />
+        <bean id="operationEntityManagerFactory" parent="baseEntityManagerFactory">
+            <property name="persistenceUnitName" value="OperationManagement" />
         </bean>
 
         <bean id="deployTargetEntityManagerFactory" parent="baseEntityManagerFactory">

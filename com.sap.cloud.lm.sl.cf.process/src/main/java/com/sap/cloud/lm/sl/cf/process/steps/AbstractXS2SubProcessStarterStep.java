@@ -9,8 +9,8 @@ import org.activiti.engine.runtime.ProcessInstance;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
 
 public abstract class AbstractXS2SubProcessStarterStep extends AbstractXS2ProcessStepWithBridge {
 

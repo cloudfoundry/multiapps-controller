@@ -25,19 +25,13 @@ import com.sap.cloud.lm.sl.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
-import com.sap.cloud.lm.sl.slp.resources.Configuration;
+import com.sap.cloud.lm.sl.persistence.util.Configuration;
 
 @Component("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
 
     private static final String PART_POSTFIX = ".part.";
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("validateParametersTask").displayName("Validate Parameters").description(
-            "Validate Parameters").build();
-    }
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -168,10 +162,10 @@ public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
     }
 
     private void persistMergedArchive(Path archivePath, DelegateExecution context) throws FileStorageException, IOException {
-        Configuration configuration = ConfigurationUtil.getSlpConfiguration();
+        Configuration configuration = ConfigurationUtil.getConfiguration();
         String name = archivePath.getFileName().toString();
         FileEntry uploadedArchive = fileService.addFile(StepsUtil.getSpaceId(context), StepsUtil.getServiceId(context), name,
-            configuration.getFileUploadProcessor(name), archivePath.toFile());
+            configuration.getFileUploadProcessor(), archivePath.toFile());
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedArchive.getId());
     }
 

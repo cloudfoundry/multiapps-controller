@@ -36,7 +36,7 @@ public class AuthorizationChecker {
         }
     }
 
-    protected static void ensureUserIsAuthorized(HttpServletRequest request, CloudFoundryClientProvider clientProvider, UserInfo userInfo,
+    public static void ensureUserIsAuthorized(HttpServletRequest request, CloudFoundryClientProvider clientProvider, UserInfo userInfo,
         String spaceGuid, String action) {
         try {
             if (!AuthorizationUtil.checkPermissions(clientProvider, userInfo, spaceGuid, request.getMethod().equals(HttpMethod.GET))) {

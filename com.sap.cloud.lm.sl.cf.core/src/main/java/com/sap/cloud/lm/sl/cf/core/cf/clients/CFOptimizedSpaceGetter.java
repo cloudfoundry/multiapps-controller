@@ -35,6 +35,10 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToFindSpace(client, orgName, spaceName));
     }
 
+    public CloudSpace findSpace(CloudFoundryOperations client, String spaceId) {
+        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetSpace(client, spaceId));
+    }
+
     private CloudSpace attemptToFindSpace(CloudFoundryOperations client, String orgName, String spaceName) {
         RestTemplate restTemplate = restTemplateFactory.getRestTemplate(client);
         String url = getUrlForEndpoint(client, FIND_SPACE_ENDPOINT);

@@ -23,7 +23,8 @@ public final class Messages {
     public static final String PROPERTY_DOES_NOT_CONTAIN_KEY_VALUE_PAIR = "Property \"{0}\" does not contain a key value pair";
     public static final String COULD_NOT_PARSE_CONTENT_PARAMETER = "Could not parse content query parameter as JSON or list";
     public static final String COULD_NOT_PARSE_NUMBER = "Could not parse \"{0}\" to number";
-
+    public static final String MAX_UPLOAD_SIZE_EXCEEDED = "Cannot upload file, size is bigger than the configured maximum upload size \"{0}\" bytes";
+    
     // Audit log messages
 
     // ERROR log messages

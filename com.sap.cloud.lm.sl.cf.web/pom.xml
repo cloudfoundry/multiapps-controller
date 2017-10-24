@@ -180,6 +180,10 @@
             <groupId>com.sap.cloud.lm.sl.cf</groupId>
             <artifactId>com.sap.cloud.lm.sl.cf.process</artifactId>
         </dependency>
+        <dependency>
+        	<groupId>com.sap.cloud.lm.sl.cf</groupId>
+            <artifactId>com.sap.cloud.lm.sl.cf.api</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

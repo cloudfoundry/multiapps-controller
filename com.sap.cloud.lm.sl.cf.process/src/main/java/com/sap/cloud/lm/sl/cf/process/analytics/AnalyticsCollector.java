@@ -17,11 +17,11 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;

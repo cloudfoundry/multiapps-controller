@@ -11,18 +11,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
-import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
-import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
+import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToServiceMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.slp.model.ServiceMetadata;
 
 @Component("startProcessListener")
 public class StartProcessListener extends AbstractXS2ProcessExecutionListener {
@@ -33,7 +33,7 @@ public class StartProcessListener extends AbstractXS2ProcessExecutionListener {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     @Inject
-    private OngoingOperationDao ongoingOperationDao;
+    private OperationDao ongoingOperationDao;
     @Inject
     private ProcessTypeParser processTypeParser;
     @Inject
@@ -61,20 +61,18 @@ public class StartProcessListener extends AbstractXS2ProcessExecutionListener {
     }
 
     private void logProcessVariables(DelegateExecution context, ProcessType processType) {
-        ServiceMetadata serviceMetadata = processTypeToServiceMetadataMapper.getServiceMetadata(processType);
-        Map<String, Object> nonSensitiveVariables = StepsUtil.getNonSensitiveVariables(context, serviceMetadata);
-        getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(nonSensitiveVariables, true));
-
         getStepLogger().debug(Messages.CURRENT_USER, StepsUtil.determineCurrentUser(context, getStepLogger()));
         getStepLogger().debug(Messages.CLIENT_SPACE, StepsUtil.getSpace(context));
         getStepLogger().debug(Messages.CLIENT_ORG, StepsUtil.getOrg(context));
+        OperationMetadata operationMetadata = processTypeToServiceMetadataMapper.getServiceMetadata(processType);
+        getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(operationMetadata.getParameters(), true));
     }
 
     private void addOngoingOperation(DelegateExecution context, String correlationId, ProcessType processType) {
         String startedAt = FORMATTER.format(ZonedDateTime.now());
         String user = StepsUtil.determineCurrentUser(context, getStepLogger());
         String spaceId = StepsUtil.getSpaceId(context);
-        OngoingOperation process = new OngoingOperation(correlationId, processType, startedAt, spaceId, null, user, false, null);
+        Operation process = new Operation(correlationId, processType, startedAt, spaceId, null, user, false, null);
         ongoingOperationDao.add(process);
     }
 

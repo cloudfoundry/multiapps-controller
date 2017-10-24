@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
+import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -20,17 +21,10 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
-import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteDiscontinuedConfigurationEntriesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteDiscontinuedConfigurationEntriesStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("deleteDiscontinuedConfigurationEntriesTask").displayName(
-            "Delete Discontinued Configuration Entries").description("Delete Discontinued Configuration Entries").build();
-    }
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;

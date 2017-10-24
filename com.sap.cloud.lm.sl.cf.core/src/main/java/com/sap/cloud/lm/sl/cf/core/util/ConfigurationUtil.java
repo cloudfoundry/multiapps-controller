@@ -33,8 +33,8 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.slp.resources.Configuration;
-import com.sap.cloud.lm.sl.slp.resources.DefaultConfiguration;
+import com.sap.cloud.lm.sl.persistence.util.Configuration;
+import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
 public class ConfigurationUtil {
 
@@ -221,7 +221,7 @@ public class ConfigurationUtil {
             CFG_GATHER_USAGE_STATISTICS));
     }
 
-    public static Configuration getSlpConfiguration() {
+    public static Configuration getConfiguration() {
         return new DefaultConfiguration(getMaxUploadSize(), shouldScanUploads());
     }
 

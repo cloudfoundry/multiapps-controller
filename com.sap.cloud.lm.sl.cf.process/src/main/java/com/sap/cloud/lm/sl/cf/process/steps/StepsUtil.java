@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +30,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sap.activiti.common.util.ContextUtil;
 import com.sap.activiti.common.util.GsonHelper;
+import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
@@ -53,12 +53,12 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
-import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.BinaryJson;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -66,9 +66,6 @@ import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
-import com.sap.cloud.lm.sl.slp.model.ParameterMetadata;
-import com.sap.cloud.lm.sl.slp.model.ServiceMetadata;
 import com.sap.cloud.lm.sl.slp.services.ProcessLoggerProviderFactory;
 
 public class StepsUtil {
@@ -78,18 +75,6 @@ public class StepsUtil {
     private static org.apache.log4j.Logger getAppLogger(DelegateExecution context, String appName,
         ProcessLoggerProviderFactory processLoggerProviderFactory) {
         return processLoggerProviderFactory.getLoggerProvider(appName).getLogger(getCorrelationId(context), PARENT_LOGGER, appName);
-    }
-
-    public static Map<String, Object> getNonSensitiveVariables(DelegateExecution context, ServiceMetadata serviceMetadata) {
-        Map<String, Object> variables = context.getVariables();
-        Set<ParameterMetadata> parametersMetadata = serviceMetadata.getParameters();
-        Map<String, Object> result = new LinkedHashMap<>();
-        for (ParameterMetadata parameterMetadata : parametersMetadata) {
-            if (!parameterMetadata.isSecure()) {
-                result.put(parameterMetadata.getId(), variables.get(parameterMetadata.getId()));
-            }
-        }
-        return result;
     }
 
     static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,

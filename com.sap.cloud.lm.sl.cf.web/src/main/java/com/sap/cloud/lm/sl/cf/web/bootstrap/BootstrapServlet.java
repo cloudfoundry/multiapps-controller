@@ -18,15 +18,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
+import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
-import com.sap.cloud.lm.sl.cf.process.metadata.XS2BlueGreenDeployService;
-import com.sap.cloud.lm.sl.cf.process.metadata.XS2DeployService;
-import com.sap.cloud.lm.sl.cf.process.metadata.XS2UndeployService;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -34,8 +32,6 @@ import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.persistence.dialects.DatabaseDialect;
-import com.sap.cloud.lm.sl.slp.ServiceRegistry;
-import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
 
 public class BootstrapServlet extends HttpServlet {
 
@@ -70,7 +66,6 @@ public class BootstrapServlet extends HttpServlet {
             ConfigurationUtil.load();
             initializeProviders();
             initializeActiviti();
-            initializeServices();
             addDeployTargets();
             initExtras();
             ConfigurationUtil.logFullConfig();
@@ -106,12 +101,6 @@ public class BootstrapServlet extends HttpServlet {
 
     private void initializeActiviti() throws IOException {
         ActivitiFacade.getInstance().init(processEngine);
-    }
-
-    protected void initializeServices() {
-        ServiceRegistry.getInstance().addService(XS2DeployService.getMetadata());
-        ServiceRegistry.getInstance().addService(XS2BlueGreenDeployService.getMetadata());
-        ServiceRegistry.getInstance().addService(XS2UndeployService.getMetadata());
     }
 
     private void addDeployTargets() {

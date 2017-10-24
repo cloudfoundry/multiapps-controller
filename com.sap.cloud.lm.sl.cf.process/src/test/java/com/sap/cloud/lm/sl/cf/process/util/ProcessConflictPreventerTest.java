@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sap.cloud.lm.sl.cf.core.dao.OngoingOperationDao;
-import com.sap.cloud.lm.sl.cf.core.model.OngoingOperation;
-import com.sap.cloud.lm.sl.cf.core.model.ProcessType;
+import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class ProcessConflictPreventerTest {
@@ -19,7 +19,7 @@ public class ProcessConflictPreventerTest {
     private String testMtaId = "test-mta-id";
     private String testSpaceId = "test-space-id";
     private String testProcessId = "test-process-id";
-    private OngoingOperationDao daoMock;
+    private OperationDao daoMock;
     private ProcessConflictPreventer processConflictPreventerMock;
 
     @Before
@@ -32,7 +32,7 @@ public class ProcessConflictPreventerTest {
     public void testAttemptToAcquireLock() {
         try {
             when(daoMock.findProcessWithLock(testMtaId, testSpaceId)).thenReturn(
-                new OngoingOperation(testProcessId, ProcessType.DEPLOY, null, testSpaceId, testMtaId, "", false, null));
+                new Operation(testProcessId, ProcessType.DEPLOY, null, testSpaceId, testMtaId, "", false, null));
             processConflictPreventerMock.attemptToAcquireLock(testMtaId, testSpaceId, testProcessId);
             verify(daoMock).merge(daoMock.findRequired(testProcessId));
         } catch (SLException e) {
@@ -56,15 +56,15 @@ public class ProcessConflictPreventerTest {
         verify(daoMock).merge(daoMock.findRequired(testProcessId));
     }
 
-    private OngoingOperationDao getOngoingOperationDaoMock() throws SLException {
-        OngoingOperationDao daoMock = mock(OngoingOperationDao.class);
+    private OperationDao getOngoingOperationDaoMock() throws SLException {
+        OperationDao daoMock = mock(OperationDao.class);
         when(daoMock.findRequired(testProcessId)).thenReturn(
-            new OngoingOperation(testProcessId, ProcessType.DEPLOY, "", "", testMtaId, "", false, null));
+            new Operation(testProcessId, ProcessType.DEPLOY, "", "", testMtaId, "", false, null));
         return daoMock;
     }
 
     private class ProcessConflictPreventerMock extends ProcessConflictPreventer {
-        public ProcessConflictPreventerMock(OngoingOperationDao dao) {
+        public ProcessConflictPreventerMock(OperationDao dao) {
             super(dao);
         }
     }
