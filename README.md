@@ -59,7 +59,7 @@ $ cf push -f target/manifests/manifest.yml
 ```
 After the push operation completes then the CF MTA deploy service should be up and running.
 ## Usage via CF MTA plugin
-In order to use the CF MTA deploy service you should install the [CF MTA plugin](https://github.com/SAP/cf-mta-plugin), so follow the instructions in the [Download and installation](https://github.com/SAP/cf-mta-plugin#download-and-installation) section there. For the set of supported operations and examples refer to the [Usage](https://github.com/SAP/cf-mta-plugin#usage) section.
+In order to use the CF MTA deploy service you should install the [CF MTA plugin](https://github.com/SAP/cf-mta-plugin), so follow the instructions in the [Download and installation](https://github.com/SAP/cf-mta-plugin#download-and-installation) section there. For the set of supported operations and examples refer to the [Usage](https://github.com/SAP/cf-mta-plugin#usage) section. You could use a modified [spring-music](https://github.com/nvvalchev/spring-music) application, which is extended and adapted to the MTA model.
 
 # How to obtain support
 If you need any support, have any question or have found a bug, please report it in the [GitHub bug tracking system](https://github.com/SAP/cf-mta-deploy-service/issues). We shall get back to you.
