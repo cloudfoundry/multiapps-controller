@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+    <changeSet author="sap.com" id="add_new_configuration_registry_unique_constraint">
+        <addUniqueConstraint tableName="configuration_registry" constraintName="configuration_registry_uq"
+            columnNames="provider_nid, provider_id, provider_version, target_space, target_org" />
+    </changeSet>
+</databaseChangeLog>

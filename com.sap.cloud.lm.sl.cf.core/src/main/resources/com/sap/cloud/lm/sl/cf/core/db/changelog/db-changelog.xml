@@ -16,8 +16,15 @@
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_context_extension_table.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-rename_target_platform_table.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_id_column_to_deploy_target_tables.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_visible_in_column.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_target_org_column.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_split_target_space_column.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-update_configuration_subscription_table_update_filter_column.xml" /> 
+    <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_visible_in_column.xml" />
+    <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_target_org_column.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_configuration_registry_unique_constraint.xml" />
+    <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_new_configuration_registry_unique_constraint.xml" />
+    <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_split_target_space_column.xml" />
+    <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-update_configuration_subscription_table_update_filter_column.xml" />
 </databaseChangeLog>

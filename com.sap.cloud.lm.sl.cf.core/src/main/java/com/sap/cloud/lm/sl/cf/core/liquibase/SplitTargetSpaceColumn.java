@@ -7,18 +7,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 
 import liquibase.exception.CustomChangeException;
 import liquibase.exception.DatabaseException;
 
-public class SplitTargetSpaceColumn extends AbstractLiquibaseCustomChange {
+public class SplitTargetSpaceColumn extends AbstractDataTransformationChange {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SplitTargetSpaceColumn.class);
     private static final String TABLE_NAME = "CONFIGURATION_REGISTRY";
     private static final String SEARCH_QUERY = "Select ID, TARGET_SPACE from CONFIGURATION_REGISTRY";
     private static final String UPDATE_QUERY = "UPDATE CONFIGURATION_REGISTRY SET TARGET_ORG=?, TARGET_SPACE=? WHERE ID=?";
@@ -31,32 +28,30 @@ public class SplitTargetSpaceColumn extends AbstractLiquibaseCustomChange {
             long id = query.getLong("ID");
             String targetSpace = query.getString("TARGET_SPACE");
             result.put(id, targetSpace);
-            LOGGER.debug(String.format("Retrieve data from row ID: '%s' and TARGET_SPACE: '%s'", id, targetSpace));
+            logger.debug(String.format("Retrieve data from row ID: '%s' and TARGET_SPACE: '%s'", id, targetSpace));
         }
         return result;
     }
-    
+
     @Override
     public void customUpdate(PreparedStatement preparedStatement, Entry<Long, String> entry) throws SQLException {
-        
+
         CloudTarget cloudTarget = ConfigurationUtil.splitTargetSpaceValue(entry.getValue());
         preparedStatement.setString(1, cloudTarget.getOrg());
         preparedStatement.setString(2, cloudTarget.getSpace());
         preparedStatement.setLong(3, entry.getKey());
 
         preparedStatement.addBatch();
-        LOGGER.debug(String.format("Executed update for row ID: '%s' , TARGET_ORG: '%s' , TARGET_SPACE: '%s'", entry.getKey(),
+        logger.debug(String.format("Executed update for row ID: '%s' , TARGET_ORG: '%s' , TARGET_SPACE: '%s'", entry.getKey(),
             cloudTarget.getOrg(), cloudTarget.getSpace()));
     }
 
+    @Override
     public String getSearchQuery() {
         return SEARCH_QUERY;
     }
 
-    public Logger getLogger() {
-        return LOGGER;
-    }
-
+    @Override
     public String getTableName() {
         return TABLE_NAME;
     }
@@ -69,5 +64,10 @@ public class SplitTargetSpaceColumn extends AbstractLiquibaseCustomChange {
     @Override
     public String getUpdateQuery() {
         return UPDATE_QUERY;
+    }
+
+    @Override
+    public String getConfirmationMessage() {
+        return Messages.SPLIT_TARGET_SPACE_COLUMN;
     }
 }
