@@ -36,15 +36,16 @@ public class ConfigurationEntriesUtil {
         String org = null;
         String space = null;
         CloudTarget targetSpace = filter.getTargetSpace();
-        if(targetSpace != null){
-            org=targetSpace.getOrg();
+        if (targetSpace != null) {
+            org = targetSpace.getOrg();
             space = targetSpace.getSpace();
         }
         String providerVersion = filter.getProviderVersion();
         String providerId = filter.getProviderId();
 
         Map<String, Object> requiredContent = filter.getRequiredContent();
-        LOGGER.debug("searching for configuration entries with provider nid {}, id {}, version {}, org {}, space {}, content {}, visibleTargets {}",
+        LOGGER.debug(
+            "searching for configuration entries with provider nid {}, id {}, version {}, org {}, space {}, content {}, visibleTargets {}",
             providerNid, providerId, providerVersion, org, space, requiredContent, cloudTargets);
         List<ConfigurationEntry> result = dao.find(providerNid, providerId, providerVersion, targetSpace, requiredContent, null,
             cloudTargets);
@@ -74,8 +75,8 @@ public class ConfigurationEntriesUtil {
         return dao.find(providerNid, providerId, providerVersion, target, requiredContent, null, cloudTargets);
     }
 
-    public static String computeTargetSpace(Pair<String, String> target) {
-        return target._1 + TARGET_DELIMITER + target._2;
+    public static String computeTargetSpace(CloudTarget target) {
+        return target.getOrg() + TARGET_DELIMITER + target.getSpace();
     }
 
 }

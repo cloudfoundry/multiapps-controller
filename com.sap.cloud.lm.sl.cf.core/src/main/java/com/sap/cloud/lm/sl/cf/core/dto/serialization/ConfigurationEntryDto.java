@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
+import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
@@ -46,22 +47,12 @@ public class ConfigurationEntryDto {
         // Required by JPA and JAXB.
     }
 
-    public ConfigurationEntryDto(long id, String providerNid, String providerId, String providerVersion, CloudTarget cloudTarget,
-        String content, List<CloudTarget> visibility) {
-        this.id = id;
-        this.providerNid = providerNid;
-        this.providerId = providerId;
-        this.providerVersion = providerVersion;
-        this.cloudTarget = cloudTarget;
-        this.content = content;
-        this.visibility = visibility;
-    }
-
     public ConfigurationEntryDto(ConfigurationEntry entry) {
         this.id = entry.getId();
         this.providerNid = getNotNull(entry.getProviderNid());
         this.providerId = entry.getProviderId();
         this.providerVersion = getNotNull(entry.getProviderVersion());
+        this.targetSpace = entry.getTargetSpace() == null ? null : ConfigurationEntriesUtil.computeTargetSpace(entry.getTargetSpace());
         this.cloudTarget = entry.getTargetSpace();
         this.content = entry.getContent();
         this.visibility = entry.getVisibility();
