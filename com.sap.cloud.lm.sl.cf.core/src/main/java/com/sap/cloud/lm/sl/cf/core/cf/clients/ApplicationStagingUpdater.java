@@ -15,6 +15,7 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
 
     private static final String V2_APPS_ENDPOINT = "/v2/apps/{guid}";
     private static final String HEALTH_CHECK_TYPE_PARAMETER = "health_check_type";
+    private static final String HEALTH_CHECK_HTTP_ENDPOINT_PARAMETER = "health_check_http_endpoint";
     private static final String HEALTH_CHECK_TIMEOUT_PARAMETER = "health_check_timeout";
     private static final String COMMAND_PARAMETER = "command";
     private static final String BUILDPACK_PARAMETER = "buildpack";
@@ -48,6 +49,9 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
         }
         if (staging.getHealthCheckType() != null) {
             stagingParameters.put(HEALTH_CHECK_TYPE_PARAMETER, staging.getHealthCheckType());
+        }
+        if (staging.getHealthCheckHttpEndpoint() != null) {
+            stagingParameters.put(HEALTH_CHECK_HTTP_ENDPOINT_PARAMETER, staging.getHealthCheckHttpEndpoint());
         }
         return stagingParameters;
     }

@@ -291,6 +291,33 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-07.json", }
             },
+            // (23) With 'health-check-type' set to 'port':
+            { 
+                "mtad-health-check-type-port.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
+                false, false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:apps-with-health-check-type-port.json", }
+            },
+            // (24) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
+            { 
+                "mtad-health-check-type-http-with-endpoint.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
+                false, false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:apps-with-health-check-type-http-with-endpoint.json", }
+            },
+            // (24) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
+            { 
+                "mtad-health-check-type-http-without-endpoint.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
+                false, false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:apps-with-health-check-type-http-without-endpoint.json", }
+            },
 // @formatter:on
         });
     }

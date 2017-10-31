@@ -49,6 +49,7 @@ public class SupportedParameters {
     public static final String STACK = "stack";
     public static final String HEALTH_CHECK_TIMEOUT = "health-check-timeout";
     public static final String HEALTH_CHECK_TYPE = "health-check-type";
+    public static final String HEALTH_CHECK_HTTP_ENDPOINT = "health-check-http-endpoint";
     public static final String DISK_QUOTA = "disk-quota";
     public static final String MEMORY = "memory";
     public static final String INSTANCES = "instances";
@@ -135,9 +136,9 @@ public class SupportedParameters {
     public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID, MTA_VERSION, MTA_PROVIDES_DEPENDENCY)));
 
-    public static final Set<String> APP_PROPS = Collections.unmodifiableSet(new HashSet<>(
-        Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN, DOMAINS, PORT, PORTS, COMMAND, BUILDPACK, STACK, HEALTH_CHECK_TIMEOUT, IDLE_HOST,
-            MEMORY, INSTANCES, NO_HOSTNAME, NO_ROUTE, IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS)));
+    public static final Set<String> APP_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN,
+        DOMAINS, PORT, PORTS, COMMAND, BUILDPACK, HEALTH_CHECK_TYPE, HEALTH_CHECK_HTTP_ENDPOINT, STACK, HEALTH_CHECK_TIMEOUT, IDLE_HOST,
+        MEMORY, INSTANCES, NO_HOSTNAME, NO_ROUTE, IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS)));
 
     public static final Set<String> SERVICE_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE,
         SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER, SERVICE_VERSION, SERVICE_CONFIG, SERVICE_CONFIG_PATH, SERVICE_TAGS)));

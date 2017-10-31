@@ -250,7 +250,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
                 AppState.STARTED);
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
-            cloudApp.setStaging(new StagingExtended(command, buildpackUrl, null, 0, "none"));
+            cloudApp.setStaging(new StagingExtended(command, buildpackUrl, null, 0, "none", null));
             return cloudApp;
         }
 
