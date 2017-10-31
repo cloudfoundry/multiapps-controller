@@ -100,6 +100,9 @@ public class ApplicationStagingUpdaterTest {
         if (staging.getHealthCheckType() != null) {
             stagingParameters.put("health_check_type", staging.getHealthCheckType());
         }
+        if (staging.getHealthCheckHttpEndpoint() != null) {
+            stagingParameters.put("health_check_http_endpoint", staging.getHealthCheckHttpEndpoint());
+        }
         return stagingParameters;
     }
 
@@ -113,9 +116,10 @@ public class ApplicationStagingUpdaterTest {
         String command;
         int healthCheckTimeout;
         String healthCheckType;
+        String healthCheckHttpEndpoint;
 
         StagingExtended toStagingExtended() {
-            return new StagingExtended(command, buildpackUrl, null, healthCheckTimeout, healthCheckType);
+            return new StagingExtended(command, buildpackUrl, null, healthCheckTimeout, healthCheckType, healthCheckHttpEndpoint);
         }
     }
 

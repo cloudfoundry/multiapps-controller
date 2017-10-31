@@ -3,7 +3,8 @@
 		"buildpackUrl": "test-buildpack",
 		"command": "test-command",
 		"healthCheckTimeout": 10,
-		"healthCheckType": "none"
+		"healthCheckType": "http",
+		"healthCheckHttpEndpoint": "/health"
 	},
 	"application": {
 		"appName": "testApp"
