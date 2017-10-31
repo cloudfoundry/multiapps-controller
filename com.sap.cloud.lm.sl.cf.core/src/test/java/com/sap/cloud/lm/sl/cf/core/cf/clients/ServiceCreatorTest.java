@@ -80,7 +80,7 @@ public class ServiceCreatorTest {
             },
             // (5) Service plan doesn't exist
             {
-                "service-06.json", "Service plan different-plan for service test-service not found", SLException.class
+                "service-06.json", "Could not create service instance test-service. Service plan different-plan for service some-label not found", SLException.class
             },
             // (6) Service has defined alternatives and default offering is matching
             {

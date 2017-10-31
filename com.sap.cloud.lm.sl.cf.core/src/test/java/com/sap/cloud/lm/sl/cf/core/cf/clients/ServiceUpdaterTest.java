@@ -52,7 +52,7 @@ public class ServiceUpdaterTest extends ServiceCreatorTest {
             },
             // (2) With non-existing service plan
             {
-                "service-update-03.json", "Service plan test-new-plan for service com.sap.sample.mta.test not found", SLException.class
+                "service-update-03.json", "Could not create service instance com.sap.sample.mta.test. Service plan test-new-plan for service some-label not found", SLException.class
             }
 // @formatter:on
         });
