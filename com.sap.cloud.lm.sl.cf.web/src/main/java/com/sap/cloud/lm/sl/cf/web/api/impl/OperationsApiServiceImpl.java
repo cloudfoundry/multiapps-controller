@@ -38,6 +38,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Message;
 import com.sap.cloud.lm.sl.cf.web.api.model.MessageType;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
+import com.sap.cloud.lm.sl.cf.web.api.model.ParameterTypeFactory;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
@@ -91,7 +92,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             return Response.status(Status.BAD_REQUEST).entity("Action " + actionId + " not recognised!").build();
         }
         action.executeAction(operationId);
-        return Response.ok().build();
+        return Response.accepted().header("Location", getLocationHeader(operationId)).build();
     }
 
     @Override
@@ -121,14 +122,16 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         String processDefinitionKey = getProcessDefinitionKey(operation);
         addServiceParameters(operation, spaceGuid);
         addDefaultParameters(operation, spaceGuid);
-        ProcessInstance instance = activitiFacade.startProcess(userId, processDefinitionKey, operation.getParameters());
-        return Response.accepted().header("Location", getLocationHeader(instance)).build();
+        addParameterValues(operation);
+        ProcessInstance processInstance = activitiFacade.startProcess(userId, processDefinitionKey, operation.getParameters());
+        return Response.accepted().header("Location", getLocationHeader(processInstance.getProcessInstanceId())).build();
     }
 
     @Override
     public Response getMtaOperation(String operationId, String embed, SecurityContext securityContext, String spaceGuid) {
         Operation operation = dao.findRequired(operationId);
-        if (embed.equals("messages")) {
+        addState(operation);
+        if ("messages".equals(embed)) {
             operation.setMessages(getOperationMessages(operation));
         }
         return Response.ok().entity(operation).build();
@@ -197,7 +200,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private HistoricProcessInstance getHistoricInstance(Operation ongoingOperation, String processDefinitionKey) {
-        return activitiFacade.getHistoricProcessInstance(processDefinitionKey, ongoingOperation.getSpaceId(),
+        return activitiFacade.getHistoricProcessInstanceBySpaceId(processDefinitionKey, ongoingOperation.getSpaceId(),
             ongoingOperation.getProcessId());
     }
 
@@ -271,15 +274,23 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private void addDefaultParameters(Operation operation, String spaceGuid) {
         Map<String, Object> parameters = operation.getParameters();
         Set<ParameterMetadata> serviceParameters = metadataMapper.getServiceMetadata(operation.getProcessType()).getParameters();
-        for (ParameterMetadata parameter : serviceParameters) {
-            if (!parameters.containsKey(parameter.getId()) && parameter.getDefaultValue() != null) {
-                parameters.put(parameter.getId(), parameter.getDefaultValue());
+        for (ParameterMetadata serviceParameter : serviceParameters) {
+            if (!parameters.containsKey(serviceParameter.getId()) && serviceParameter.getDefaultValue() != null) {
+                parameters.put(serviceParameter.getId(), serviceParameter.getDefaultValue());
             }
         }
     }
 
-    private String getLocationHeader(ProcessInstance instance) {
-        return "operations/" + instance.getProcessInstanceId() + "?embed=messages";
+    private void addParameterValues(Operation operation) {
+        Map<String, Object> parameters = operation.getParameters();
+        Set<ParameterMetadata> serviceParameters = metadataMapper.getServiceMetadata(operation.getProcessType()).getParameters();
+        ParameterTypeFactory parameterTypeFactory = new ParameterTypeFactory(parameters, serviceParameters);
+        parameters.putAll(parameterTypeFactory.getParametersValues());
+        operation.setParameters(parameters);
+    }
+
+    private String getLocationHeader(String processInstanceId) {
+        return "operations/" + processInstanceId + "?embed=messages";
     }
 
     protected String getAuthenticatedUser(SecurityContext securityContext) {
@@ -300,7 +311,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private List<Message> getOperationMessages(Operation operation) {
         List<ProgressMessage> progressMessages = ProgressMessageService.getInstance().findByProcessId(operation.getProcessId());
-        return progressMessages.stream().map(message -> getMessage(message)).collect(Collectors.toList());
+        return progressMessages.stream().filter(message -> message.getType() != ProgressMessageType.TASK_STARTUP).map(
+            message -> getMessage(message)).collect(Collectors.toList());
     }
 
     private Message getMessage(ProgressMessage progressMessage) {

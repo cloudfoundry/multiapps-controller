@@ -40,7 +40,7 @@ public class CFCloudFoundryClientFactory extends CloudFoundryClientFactory {
             new CloudFoundryTokenProvider(factory.getOauthClient()));
     }
 
-    private CloudSpace getSessionSpace(CloudCredentials credentials, String orgName, String spaceName) {
+    protected CloudSpace getSessionSpace(CloudCredentials credentials, String orgName, String spaceName) {
         // There are two constructors, which can be used to create a CF client. The first accepts a session space object. The second accepts
         // the org and space names of the session space and attempts to compute it from them. The computation operation is implemented in an
         // incredibly inefficient way, however. This is why here, we create a client without a session space (null) and we use it to compute

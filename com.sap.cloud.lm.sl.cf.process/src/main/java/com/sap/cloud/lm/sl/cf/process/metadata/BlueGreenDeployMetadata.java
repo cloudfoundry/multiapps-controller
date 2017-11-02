@@ -12,6 +12,7 @@ public class BlueGreenDeployMetadata {
 
     private final static Set<ParameterMetadata> PARAMS = new HashSet<ParameterMetadata>();
 
+    // TODO: for each of the params put the type...
     static {
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_APP_ARCHIVE_ID).build());
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_TARGET_NAME).build());

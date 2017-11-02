@@ -11,6 +11,7 @@ public class UndeployMetadata {
 
     private final static Set<ParameterMetadata> PARAMS = new HashSet<ParameterMetadata>();
 
+    // TODO: for each of the params put the type...
     static {
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICES).defaultValue(false).build());
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICE_BROKERS).defaultValue(false).build());
