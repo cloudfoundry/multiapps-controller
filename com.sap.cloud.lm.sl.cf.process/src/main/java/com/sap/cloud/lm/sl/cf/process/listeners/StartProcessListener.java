@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -20,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
+import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -65,7 +67,19 @@ public class StartProcessListener extends AbstractXS2ProcessExecutionListener {
         getStepLogger().debug(Messages.CLIENT_SPACE, StepsUtil.getSpace(context));
         getStepLogger().debug(Messages.CLIENT_ORG, StepsUtil.getOrg(context));
         OperationMetadata operationMetadata = processTypeToServiceMetadataMapper.getServiceMetadata(processType);
-        getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(operationMetadata.getParameters(), true));
+        Map<String, Object> processVariables = findProcessVariables(context, operationMetadata);
+        getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(processVariables, true));
+    }
+
+    private Map<String, Object> findProcessVariables(DelegateExecution context, OperationMetadata operationMetadata) {
+        Map<String, Object> result = new HashMap<>();
+        for (ParameterMetadata parameterMetadata : operationMetadata.getParameters()) {
+            if (context.hasVariable(parameterMetadata.getId())) {
+                Object variableValue = context.getVariable(parameterMetadata.getId());
+                result.put(parameterMetadata.getId(), variableValue);
+            }
+        }
+        return result;
     }
 
     private void addOngoingOperation(DelegateExecution context, String correlationId, ProcessType processType) {

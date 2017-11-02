@@ -63,7 +63,8 @@ public class ActivitiFacade {
         }
     }
 
-    public HistoricProcessInstance getHistoricProcessInstance(String processDefinitionKey, String spaceId, String processInstanceId) {
+    public HistoricProcessInstance getHistoricProcessInstanceBySpaceId(String processDefinitionKey, String spaceId,
+        String processInstanceId) {
         HistoricProcessInstanceQuery query = engine.getHistoryService().createHistoricProcessInstanceQuery().processDefinitionKey(
             processDefinitionKey).variableValueEquals(Constants.VARIABLE_NAME_SPACE_ID, spaceId).excludeSubprocesses(
                 true).processInstanceId(processInstanceId);
@@ -71,9 +72,28 @@ public class ActivitiFacade {
         return query.singleResult();
     }
 
+    public HistoricProcessInstance getHistoricProcessInstanceByProcessInstanceId(String processInstanceId) {
+        return engine.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+
+    }
+
     public State getOngoingOperationState(Operation ongoingOperation) {
         Job executionJob = engine.getManagementService().createJobQuery().processInstanceId(ongoingOperation.getProcessId()).singleResult();
-        return executionJob.getExceptionMessage() != null ? State.ERROR : State.RUNNING;
+        if (executionJob != null) {
+            return executionJob.getExceptionMessage() != null ? State.ERROR : State.RUNNING;
+        }
+        return State.ACTION_REQUIRED;
+        // List<HistoricActivityInstance> receiveTasksInSubProcesses = new ArrayList<>();
+        // List<String> subProcessIds = getActiveHistoricSubProcessIds(ongoingOperation.getProcessId());
+        // for (String subProcessId : subProcessIds) {
+        // receiveTasksInSubProcesses.addAll(getHistoricActivities("receiveTask", subProcessId));
+        // }
+        // return receiveTasksInSubProcesses != null && !receiveTasksInSubProcesses.isEmpty() ? State.ACTION_REQUIRED :
+    }
+
+    public List<HistoricActivityInstance> getHistoricActivities(String activityType, String processInstanceId) {
+        return engine.getHistoryService().createHistoricActivityInstanceQuery().activityType(activityType).processInstanceId(
+            processInstanceId).orderByHistoricActivityInstanceStartTime().asc().list();
     }
 
     public List<String> getHistoricSubProcessIds(String superProcessId) {

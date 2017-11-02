@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import org.glassfish.jersey.jackson.JacksonFeature;
+
 import com.sap.cloud.lm.sl.cf.web.api.CsrfTokenApi;
 import com.sap.cloud.lm.sl.cf.web.api.FilesApi;
 import com.sap.cloud.lm.sl.cf.web.api.InfoApi;
@@ -27,6 +29,7 @@ public class CFMtaApplication extends Application {
         classes.add(CFExceptionMapper.class);
         classes.add(CsrfTokenApi.class);
         classes.add(InfoApi.class);
+        classes.add(JacksonFeature.class);
         return classes;
     }
 

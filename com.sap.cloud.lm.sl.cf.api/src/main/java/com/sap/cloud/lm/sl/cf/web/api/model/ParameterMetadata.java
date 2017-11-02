@@ -1,10 +1,13 @@
 package com.sap.cloud.lm.sl.cf.web.api.model;
 
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
+
 public class ParameterMetadata {
 
     private String id;
     private Object defaultValue;
     private Boolean required;
+    private ParameterType type;
 
     public String getId() {
         return id;
@@ -18,6 +21,26 @@ public class ParameterMetadata {
         return required;
     }
 
+    public ParameterType getType() {
+        return type;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setDefaultValue(Object defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    public void setRequired(Boolean required) {
+        this.required = required;
+    }
+
+    public void setType(ParameterType type) {
+        this.type = type;
+    }
+
     public static ParameterMetadataBuilder builder() {
         return new ParameterMetadataBuilder();
     }
@@ -28,11 +51,14 @@ public class ParameterMetadata {
         private Boolean required;
         private Object defaultValue;
 
+        private ParameterType type;
+
         public ParameterMetadata build() {
             ParameterMetadata result = new ParameterMetadata();
-            result.id = id;
-            result.required = required != null ? required : false;
-            result.defaultValue = defaultValue;
+            result.setId(id);
+            result.setRequired(CommonUtil.getOrDefault(required, false));
+            result.setDefaultValue(defaultValue);
+            result.setType(type);
             return result;
         }
 
@@ -50,6 +76,15 @@ public class ParameterMetadata {
             this.defaultValue = defaultValue;
             return this;
         }
+
+        public ParameterMetadataBuilder type(ParameterType type) {
+            this.type = type;
+            return this;
+        }
+    }
+
+    public enum ParameterType {
+        STRING, INTEGER, BOOLEAN
     }
 
 }
