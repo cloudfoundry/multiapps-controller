@@ -193,7 +193,7 @@ public class UpdateAppStep extends CreateAppStep {
                 bindService(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
                 continue;
             }
-            Map<String, Object> existingBindingParameters = existingBindingForApplication.getBindingOptions();
+            Map<String, Object> existingBindingParameters = getBindingParametersOrDefault(existingBindingForApplication);
             if (!Objects.equals(existingBindingParameters, bindingParametersForCurrentService)) {
                 unbindService(existingApp.getName(), serviceName, client, context);
                 bindService(context, client, app.getName(), serviceName, bindingParametersForCurrentService);

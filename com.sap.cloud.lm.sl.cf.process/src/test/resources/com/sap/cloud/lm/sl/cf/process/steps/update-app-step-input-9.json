@@ -27,19 +27,19 @@
 		"instances" : 0,
 		"diskQuota":0
 	},
-	"services": [
-		{
-			"name":"existing-service-1"
-		},
-		{
-			"name":"existing-service-2"
-		},
-		{
-			"name":"existing-service-3"
-		}
-	],
-	"serviceBindings": {
-		"applicationName": "test-app-1"
+	"existingServiceBindings": {
+		"test-service-1" : [
+		 	{
+				"applicationName": "test-app-1",
+				"bindingOptions":{}	
+			}
+		],
+		"test-service-2" : [
+		 	{
+				"applicationName": "test-app-1",
+				"bindingOptions":{}	
+			}
+		]
 	},
 	"updateStaging":"true",
 	"updateMemory":"true",

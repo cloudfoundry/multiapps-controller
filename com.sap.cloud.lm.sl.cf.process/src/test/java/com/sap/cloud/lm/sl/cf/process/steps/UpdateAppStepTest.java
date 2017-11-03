@@ -91,6 +91,22 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
             {
                 "update-app-step-input-11.json", PlatformType.CF
             },
+            // Existing app has binding with null parameters and defined service binding is without parameters
+            {
+                "update-app-step-input-12.json", PlatformType.CF
+            },
+            // Existing app has binding with empty parameters and defined service binding is without parameters
+            {
+                "update-app-step-input-13.json", PlatformType.CF
+            },
+            // Existing app has binding with parameters and defined service binding is without parameters
+            {
+                "update-app-step-input-14.json", PlatformType.CF
+            },
+            // Existing app has binding with null parameters and defined service binding is with defined parameters
+            {
+                "update-app-step-input-15.json", PlatformType.CF
+            },
 // @formatter:on
         });
     }
@@ -144,8 +160,14 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
     }
 
     private void validateBindServices() {
-        for (String servicesToBind : expectedServicesToBind) {
-            Mockito.verify(client).bindService(input.existingApplication.name, servicesToBind);
+        Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp().getBindingParameters();
+        for (String serviceToBind : expectedServicesToBind) {
+            if (currentBindingParameters != null && currentBindingParameters.get(serviceToBind) != null) {
+                Mockito.verify(clientExtensions).bindService(input.existingApplication.name, serviceToBind,
+                    currentBindingParameters.get(serviceToBind));
+            } else {
+                Mockito.verify(client).bindService(input.existingApplication.name, serviceToBind);
+            }
         }
     }
 
@@ -162,14 +184,19 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
 
         step.platformTypeSupplier = () -> platform;
 
-        for (String serviceName : input.application.services) {
-            CloudServiceExtended service = mapToCloudService(serviceName);
-            Mockito.when(client.getService(serviceName)).thenReturn(service);
+        prepareExistingServiceBindings();
+    }
+
+    private void prepareExistingServiceBindings() {
+        for (String serviceName : input.existingServiceBindings.keySet()) {
             CloudServiceInstance cloudServiceInstance = Mockito.mock(CloudServiceInstance.class);
-            Mockito.when(cloudServiceInstance.getBindings()).thenReturn(createServiceBindings(Arrays.asList(input.application)));
+            List<CloudServiceBinding> serviceBindings = new ArrayList<CloudServiceBinding>();
+            for (SimpleBinding simpleBinding : input.existingServiceBindings.get(serviceName)) {
+                serviceBindings.add(simpleBinding.toCloudServiceBinding());
+            }
+            Mockito.when(cloudServiceInstance.getBindings()).thenReturn(serviceBindings);
             Mockito.when(client.getServiceInstance(serviceName)).thenReturn(cloudServiceInstance);
         }
-
     }
 
     private List<CloudServiceExtended> mapToCloudServices() {
@@ -182,21 +209,49 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
 
     private void prepareServicesToBind() {
         for (String service : this.input.application.services) {
-            if (this.input.serviceBindings.applicationName == this.input.application.name
-                || this.input.serviceBindings.bindingOptions != null || !this.input.existingApplication.services.contains(service)) {
+            if (!this.input.existingApplication.services.contains(service)) {
                 expectedServicesToBind.add(service);
+                continue;
+            }
+            SimpleBinding existingBindingForApplication = getExistingBindingForApplication(service, this.input.existingApplication.name);
+            if (existingBindingForApplication == null) {
+                expectedServicesToBind.add(service);
+                continue;
+            }
+
+            Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp().getBindingParameters();
+
+            boolean existingBindingParametersAreEmptyOrNull = existingBindingForApplication.bindingOptions == null
+                || existingBindingForApplication.bindingOptions.isEmpty();
+
+            boolean currentBindingParametersAreNull = currentBindingParameters == null || currentBindingParameters.get(service) == null;
+
+            if (!existingBindingParametersAreEmptyOrNull && (currentBindingParametersAreNull
+                || !existingBindingForApplication.bindingOptions.equals(currentBindingParameters.get(service)))) {
+                expectedServicesToBind.add(service);
+                continue;
+            }
+            if (!currentBindingParametersAreNull
+                && !currentBindingParameters.get(service).equals(existingBindingForApplication.bindingOptions)) {
+                expectedServicesToBind.add(service);
+                continue;
             }
         }
-    }
-
-    private List<CloudServiceBinding> createServiceBindings(List<SimpleApplication> boundApplications) {
-        return Arrays.asList(this.input.serviceBindings.toCloudServiceBinding());
     }
 
     private void prepareDiscontinuedServices() {
         List<String> discontinuedServices = input.existingApplication.services.stream().filter(
             (service) -> !input.application.services.contains(service)).collect(Collectors.toList());
         notRequiredServices.addAll(discontinuedServices);
+    }
+
+    private SimpleBinding getExistingBindingForApplication(String service, String application) {
+        for (SimpleBinding simpleBinding : this.input.existingServiceBindings.get(service)) {
+            if (application.equals(simpleBinding.applicationName)) {
+                return simpleBinding;
+            }
+        }
+        return null;
     }
 
     private void prepareContext() {
@@ -215,7 +270,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
     private static class StepInput {
         SimpleApplication application;
         SimpleApplication existingApplication;
-        SimpleBinding serviceBindings;
+        Map<String, List<SimpleBinding>> existingServiceBindings;
         boolean updateStaging;
         boolean updateMemory;
         boolean updateDiskQuota;
@@ -238,6 +293,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
     private static class SimpleApplication {
         String name;
         List<String> services;
+        Map<String, Map<String, Object>> bindingParameters;
         String command;
         List<String> uris;
         String buildpackUrl;
@@ -251,6 +307,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
             cloudApp.setStaging(new StagingExtended(command, buildpackUrl, null, 0, "none", null));
+            cloudApp.setBindingParameters(bindingParameters);
             return cloudApp;
         }
 

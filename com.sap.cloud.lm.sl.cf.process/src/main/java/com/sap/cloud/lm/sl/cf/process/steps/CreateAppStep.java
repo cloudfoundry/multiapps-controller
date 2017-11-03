@@ -16,10 +16,10 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -35,6 +35,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
@@ -231,6 +232,11 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
     protected static Map<String, Object> getBindingParametersForService(String serviceName,
         Map<String, Map<String, Object>> bindingParameters) {
         return (bindingParameters == null) ? null : bindingParameters.get(serviceName);
+    }
+
+    protected static Map<String, Object> getBindingParametersOrDefault(CloudServiceBinding cloudServiceBinding) {
+        Map<String, Object> bindingParameters = cloudServiceBinding.getBindingOptions();
+        return (CommonUtil.isNullOrEmpty(bindingParameters)) ? null : bindingParameters;
     }
 
 }
