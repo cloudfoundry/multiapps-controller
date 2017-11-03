@@ -25,10 +25,10 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.services.TypedServiceOperationState;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.cf.services.TypedServiceOperationState;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
@@ -122,7 +122,7 @@ public class PollServiceOperationsStep extends AbstractXS2ProcessStepWithBridge 
         CloudServiceExtended service) {
         Map<String, Object> cloudServiceInstance = serviceOperationExecutor.executeServiceOperation(service, () -> {
             return serviceInstanceGetter.getServiceInstance(client, service.getName(), StepsUtil.getSpaceId(context));
-        } , getStepLogger());
+        }, getStepLogger());
 
         validateCloudServiceInstance(service, cloudServiceInstance);
         if (cloudServiceInstance == null) {

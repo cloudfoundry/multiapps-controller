@@ -71,7 +71,7 @@ public class ProcessDescriptorStep extends AbstractXS2ProcessStep {
             Platform platform = StepsUtil.getPlatform(context);
             ResourceTypeFinder resourceHelper = handlerFactory.getResourceTypeFinder(ResourceType.USER_PROVIDED_SERVICE.toString());
             platform.accept(resourceHelper);
-
+            getStepLogger().debug(Messages.TARGET, target);
             MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, platform, target,
                 StepsUtil.getSystemParameters(context), configurationEntryDao, getSpaceIdSupplier(client),
                 new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)));

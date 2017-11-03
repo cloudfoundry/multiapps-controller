@@ -10,6 +10,9 @@ import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -22,6 +25,8 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
 public class ConfigurationReferencesResolver extends Visitor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationReferencesResolver.class);
 
     protected ConfigurationReferenceResolver configurationResolver;
     protected ConfigurationEntryDao dao;
@@ -80,11 +85,12 @@ public class ConfigurationReferencesResolver extends Visitor {
         }
     }
 
-    protected void makeSureIsResolvedToSingleResource(String resolvedResourceName, List<Resource> resultingResourcess)
+    protected void makeSureIsResolvedToSingleResource(String resolvedResourceName, List<Resource> resultingResources)
         throws ContentException {
-        if (resultingResourcess.size() > 1) {
+        if (resultingResources.size() > 1) {
+            LOGGER.debug(Messages.MULTIPLE_CONFIGURATION_ENTRIES, resolvedResourceName, resultingResources);
             throw new ContentException(format(Messages.MULTIPLE_CONFIGURATION_ENTRIES_WERE_FOUND, resolvedResourceName));
-        } else if (resultingResourcess.isEmpty()) {
+        } else if (resultingResources.isEmpty()) {
             throw new ContentException(format(Messages.NO_CONFIGURATION_ENTRIES_WERE_FOUND, resolvedResourceName));
         }
     }

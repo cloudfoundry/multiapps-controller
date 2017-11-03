@@ -15,6 +15,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteSubscriptionsStep")
@@ -36,6 +37,7 @@ public class DeleteSubscriptionsStep extends AbstractXS2ProcessStep {
         getStepLogger().info(Messages.DELETING_SUBSCRIPTIONS);
 
         List<ConfigurationSubscription> subscriptionsToDelete = StepsUtil.getSubscriptionsToDelete(context);
+        getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, JsonUtil.toJson(subscriptionsToDelete, true));
         for (ConfigurationSubscription subscription : subscriptionsToDelete) {
             try {
                 dao.remove(subscription.getId());

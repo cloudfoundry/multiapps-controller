@@ -38,7 +38,6 @@ public class DeleteServicesStep extends AbstractXS2ProcessStep {
             CloudFoundryOperations client = getCloudFoundryClient(context);
 
             List<String> servicesToDelete = StepsUtil.getServicesToDelete(context);
-
             deleteServices(client, servicesToDelete);
 
             getStepLogger().debug(Messages.SERVICES_DELETED);

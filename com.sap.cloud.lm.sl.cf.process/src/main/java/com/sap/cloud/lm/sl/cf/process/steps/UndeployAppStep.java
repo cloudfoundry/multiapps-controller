@@ -46,7 +46,6 @@ public class UndeployAppStep extends AbstractXS2ProcessStep {
         getStepLogger().logActivitiTask();
         try {
             CloudApplication appToUndeploy = StepsUtil.getAppToUndeploy(context);
-
             CloudFoundryOperations client = getCloudFoundryClient(context);
 
             cancelRunningTasksIfTasksAreSupported(appToUndeploy, client);
@@ -107,6 +106,7 @@ public class UndeployAppStep extends AbstractXS2ProcessStep {
         List<CloudRoute> appRoutes = applicationRoutesGetter.getRoutes(client, app.getName());
         client.updateApplicationUris(app.getName(), Collections.emptyList());
         app.getUris().stream().forEach(uri -> deleteApplicationRoute(app, appRoutes, uri, client));
+        getStepLogger().debug(Messages.DELETED_APP_ROUTES, app.getName());
     }
 
     private void deleteApplicationRoute(CloudApplication app, List<CloudRoute> routes, String uri, CloudFoundryOperations client) {

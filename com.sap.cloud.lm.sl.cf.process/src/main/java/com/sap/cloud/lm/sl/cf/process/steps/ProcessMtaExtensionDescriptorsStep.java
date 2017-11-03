@@ -42,7 +42,7 @@ public class ProcessMtaExtensionDescriptorsStep extends AbstractXS2ProcessStep {
             String spaceId = StepsUtil.getSpaceId(context);
 
             ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS,
-                getExtensionDescriptorsAsStrings(spaceId, extensionDescriptorFileIds));
+                getExtensionDescriptors(spaceId, extensionDescriptorFileIds));
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS);
             throw e;
@@ -51,7 +51,7 @@ public class ProcessMtaExtensionDescriptorsStep extends AbstractXS2ProcessStep {
         return ExecutionStatus.SUCCESS;
     }
 
-    private List<String> getExtensionDescriptorsAsStrings(String spaceId, List<String> fileIds) throws SLException {
+    private List<String> getExtensionDescriptors(String spaceId, List<String> fileIds) throws SLException {
         try {
             final List<String> extensionDescriptorStrings = new ArrayList<String>();
 
@@ -65,6 +65,7 @@ public class ProcessMtaExtensionDescriptorsStep extends AbstractXS2ProcessStep {
                 fileService.processFileContent(
                     new DefaultFileDownloadProcessor(spaceId, extensionDescriptorFileId, extensionDescriptorProcessor));
             }
+            getStepLogger().debug(Messages.EXTENSION_DESCRIPTOR, extensionDescriptorStrings);
             return extensionDescriptorStrings;
         } catch (FileStorageException e) {
             throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_EXTENSION_DESCRIPTOR);

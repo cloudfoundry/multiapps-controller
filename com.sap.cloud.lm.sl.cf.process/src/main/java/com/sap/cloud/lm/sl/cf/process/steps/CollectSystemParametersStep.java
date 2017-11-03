@@ -67,6 +67,7 @@ public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
             String defaultDomainName = getDefaultDomain(client);
             getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
             boolean portBasedRouting = isPortBasedRouting(client);
+            getStepLogger().debug(Messages.PORT_BASED_ROUTING, portBasedRouting);
             if (portBasedRouting) {
                 portAllocator = clientProvider.getPortAllocator(client, defaultDomainName);
             }

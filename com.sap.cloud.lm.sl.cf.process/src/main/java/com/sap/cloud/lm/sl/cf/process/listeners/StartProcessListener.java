@@ -64,6 +64,10 @@ public class StartProcessListener extends AbstractXS2ProcessExecutionListener {
         ServiceMetadata serviceMetadata = processTypeToServiceMetadataMapper.getServiceMetadata(processType);
         Map<String, Object> nonSensitiveVariables = StepsUtil.getNonSensitiveVariables(context, serviceMetadata);
         getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(nonSensitiveVariables, true));
+
+        getStepLogger().debug(Messages.CURRENT_USER, StepsUtil.determineCurrentUser(context, getStepLogger()));
+        getStepLogger().debug(Messages.CLIENT_SPACE, StepsUtil.getSpace(context));
+        getStepLogger().debug(Messages.CLIENT_ORG, StepsUtil.getOrg(context));
     }
 
     private void addOngoingOperation(DelegateExecution context, String correlationId, ProcessType processType) {

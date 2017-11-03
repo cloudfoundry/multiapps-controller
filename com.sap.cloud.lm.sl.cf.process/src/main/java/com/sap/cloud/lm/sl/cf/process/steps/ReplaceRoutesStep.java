@@ -62,6 +62,7 @@ public class ReplaceRoutesStep extends AbstractXS2ProcessStep {
         existingUris.removeAll(uris);
         for (String idleUri : existingUris) {
             deleteRoute(idleUri, portBasedRouting, client);
+            getStepLogger().debug(Messages.ROUTE_DELETED, idleUri);
         }
     }
 
