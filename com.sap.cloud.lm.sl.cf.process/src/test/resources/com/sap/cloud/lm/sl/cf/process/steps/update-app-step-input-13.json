@@ -1,0 +1,44 @@
+{
+	"application" : {
+		"name":"test-app-1",
+		"services":[
+			"test-service-1"
+		],
+		"bindingParameters": {},
+		"command":"test-command",
+		"uris":[
+			"test-uri-1", "test-uri-2"
+		],
+		"buildpackUrl":"",
+		"memory" : 256,
+		"instances" : 1,
+		"diskQuota":0
+	},
+	"existingApplication" : {
+		"name":"test-app-1",
+		"services":[
+  			"test-service-1"
+		],
+		"command":"",
+		"uris":[
+			"test-uri-3", "test-uri-4"
+		],
+		"buildpackUrl":"",
+		"memory" : 0,
+		"instances" : 0,
+		"diskQuota":0
+	},
+	"existingServiceBindings": {
+		"test-service-1" : [
+		 	{
+				"applicationName": "test-app-1",
+				"bindingOptions": {}
+			}
+		]
+	},
+	"updateStaging":"true",
+	"updateMemory":"true",
+	"updateDiskQuota":"false",
+	"updateUris":"true",
+	"updateEnv":"false"
+}

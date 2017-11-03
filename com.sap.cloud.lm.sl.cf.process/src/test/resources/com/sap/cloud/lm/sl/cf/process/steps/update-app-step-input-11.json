@@ -25,19 +25,12 @@
 		"instances" : 0,
 		"diskQuota":0
 	},
-	"services": [
-		{
-			"name":"existing-service-1"
-		},
-		{
-			"name":"existing-service-2"
-		},
-		{
-			"name":"existing-service-3"
-		}
-	],
-	"serviceBindings": {
-		"applicationName": "brum"
+	"existingServiceBindings": {
+		"test-service-1" : [
+		 	{
+				"applicationName": "brum"
+			}
+		]
 	},
 	"updateStaging":"true",
 	"updateMemory":"true",
