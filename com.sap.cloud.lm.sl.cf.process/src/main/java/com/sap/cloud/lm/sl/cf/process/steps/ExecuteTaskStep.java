@@ -16,17 +16,10 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.AsyncStepMetadata;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("executeTaskStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ExecuteTaskStep extends AbstractXS2ProcessStepWithBridge {
-
-    public static StepMetadata getMetadata() {
-        return AsyncStepMetadata.builder().id("executeTaskTask").displayName("Execute Task").description("Execute Task").pollTaskId(
-            "pollExecuteTaskStatusTask").childrenVisible(true).build();
-    }
+public class ExecuteTaskStep extends AbstractProcessStep {
 
     protected Supplier<Long> currentTimeSupplier = () -> System.currentTimeMillis();
 
@@ -36,7 +29,7 @@ public class ExecuteTaskStep extends AbstractXS2ProcessStepWithBridge {
     }
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
         getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(context);

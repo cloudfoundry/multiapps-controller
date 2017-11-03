@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 
 @Component("deleteDiscontinuedConfigurationEntriesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteDiscontinuedConfigurationEntriesStep extends AbstractXS2ProcessStep {
+public class DeleteDiscontinuedConfigurationEntriesStep extends AbstractProcessStep {
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;

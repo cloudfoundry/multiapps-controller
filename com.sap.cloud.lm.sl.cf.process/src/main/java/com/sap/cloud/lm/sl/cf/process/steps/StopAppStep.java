@@ -12,15 +12,10 @@ import org.springframework.stereotype.Component;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("stopAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StopAppStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("stopAppTask").displayName("Stop App").description("Stop App").build();
-    }
+public class StopAppStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

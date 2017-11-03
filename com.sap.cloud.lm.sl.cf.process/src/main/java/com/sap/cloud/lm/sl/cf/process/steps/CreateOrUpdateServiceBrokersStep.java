@@ -30,11 +30,10 @@ import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("createOrUpdateServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateOrUpdateServiceBrokersStep extends AbstractXS2ProcessStep {
+public class CreateOrUpdateServiceBrokersStep extends AbstractProcessStep {
 
     @Inject
     private ServiceBrokerCreator serviceBrokerCreator;
@@ -42,11 +41,6 @@ public class CreateOrUpdateServiceBrokersStep extends AbstractXS2ProcessStep {
     private ServiceBrokersGetter serviceBrokersGetter;
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
     protected Supplier<PlatformType> platformTypeSupplier = () -> ConfigurationUtil.getPlatformType();
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("createOrUpdateServiceBrokersTask").displayName("Create Or Update Service Brokers").description(
-            "Create Or Update Service Brokers").build();
-    }
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

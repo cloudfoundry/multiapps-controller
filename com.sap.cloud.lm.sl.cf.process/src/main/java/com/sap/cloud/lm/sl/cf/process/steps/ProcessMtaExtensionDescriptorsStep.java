@@ -21,16 +21,10 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("processMtaExtensionDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ProcessMtaExtensionDescriptorsStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("processExtensionDescriptorsTask").displayName("Process Extension Descriptors").description(
-            "Process Extension Descriptors").build();
-    }
+public class ProcessMtaExtensionDescriptorsStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

@@ -18,10 +18,10 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("pollUploadAppStatusStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollUploadAppStatusStep extends AbstractXS2ProcessStepWithBridge {
+public class PollUploadAppStatusStep extends AbstractProcessStep {
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
         getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context

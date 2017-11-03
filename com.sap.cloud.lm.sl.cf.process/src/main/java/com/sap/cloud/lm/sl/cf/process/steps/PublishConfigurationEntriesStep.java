@@ -20,21 +20,15 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PublishConfigurationEntriesStep extends AbstractXS2ProcessStep {
+public class PublishConfigurationEntriesStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
     ConfigurationEntryDao configurationEntryDao;
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("publishProvidedDependenciesTask").displayName("Publish Provided Dependencies").description(
-            "Publish Provided Dependencies").build();
-    }
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

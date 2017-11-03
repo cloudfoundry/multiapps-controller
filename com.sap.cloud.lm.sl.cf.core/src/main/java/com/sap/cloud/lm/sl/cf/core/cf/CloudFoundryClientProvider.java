@@ -114,7 +114,7 @@ public class CloudFoundryClientProvider {
         try {
             return getClientFromCache(token, spaceGuid, processId);
         } catch (CloudFoundryException e) {
-            throw new SLException(e, Messages.CANT_CREATE_CLIENT_2, spaceGuid, "asd");
+            throw new SLException(e, Messages.CANT_CREATE_CLIENT_FOR_SPACE_ID, spaceGuid);
         }
     }
 
@@ -123,7 +123,7 @@ public class CloudFoundryClientProvider {
         try {
             return getClientFromCache(token, spaceGuid);
         } catch (CloudFoundryException e) {
-            throw new SLException(e, Messages.CANT_CREATE_CLIENT_2, spaceGuid, "asd");
+            throw new SLException(e, Messages.CANT_CREATE_CLIENT_FOR_SPACE_ID, spaceGuid);
         }
     }
 

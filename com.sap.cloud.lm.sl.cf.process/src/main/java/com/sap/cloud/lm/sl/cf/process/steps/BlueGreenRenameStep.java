@@ -17,17 +17,12 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("blueGreenRenameStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class BlueGreenRenameStep extends AbstractXS2ProcessStep {
+public class BlueGreenRenameStep extends AbstractProcessStep {
 
     private static final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("blueGreenRenameTask").displayName("Blue Green Rename").description("Blue Green Rename").build();
-    }
 
     protected Supplier<ApplicationColorDetector> colorDetectorSupplier = () -> new ApplicationColorDetector();
 

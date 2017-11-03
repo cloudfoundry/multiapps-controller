@@ -23,16 +23,10 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteDiscontinuedConfigurationEntriesForAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteDiscontinuedConfigurationEntriesForAppStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("deleteDiscontinuedConfigurationEntriesForAppTask").displayName(
-            "Delete Discontinued Configuration Entries For App").description("Delete Discontinued Configuration Entries For App").build();
-    }
+public class DeleteDiscontinuedConfigurationEntriesForAppStep extends AbstractProcessStep {
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;

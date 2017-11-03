@@ -29,6 +29,7 @@ public class ActivitiFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActivitiFacade.class);
     private static final int DEFAULT_ABORT_TIMEOUT_MS = 30000;
+    private static final long GET_EXECUTION_RETRY_INTERVAL_MS = 100;
 
     private ProcessEngine engine;
 
@@ -83,12 +84,6 @@ public class ActivitiFacade {
             return executionJob.getExceptionMessage() != null ? State.ERROR : State.RUNNING;
         }
         return State.ACTION_REQUIRED;
-        // List<HistoricActivityInstance> receiveTasksInSubProcesses = new ArrayList<>();
-        // List<String> subProcessIds = getActiveHistoricSubProcessIds(ongoingOperation.getProcessId());
-        // for (String subProcessId : subProcessIds) {
-        // receiveTasksInSubProcesses.addAll(getHistoricActivities("receiveTask", subProcessId));
-        // }
-        // return receiveTasksInSubProcesses != null && !receiveTasksInSubProcesses.isEmpty() ? State.ACTION_REQUIRED :
     }
 
     public List<HistoricActivityInstance> getHistoricActivities(String activityType, String processInstanceId) {
@@ -181,6 +176,44 @@ public class ActivitiFacade {
         }
     }
 
+    public void signal(String userId, String processId, String activityId, Map<String, Object> variables, long timeoutInMillis) {
+        String executionId = getExecutionId(processId, activityId, timeoutInMillis);
+        LOGGER.info(format("Found execution with id:{0} for process with id:{1} and activity id:{2}", executionId, processId, activityId));
+        try {
+            engine.getIdentityService().setAuthenticatedUserId(userId);
+            engine.getRuntimeService().signal(executionId, variables);
+        } catch (Exception e) { // NOSONAR
+            LOGGER.error(format("Failed to signal execution with id:{0} for process with id:{1} and activity id:{2}", executionId,
+                processId, activityId), e);
+            throw e;
+        } finally {
+            engine.getIdentityService().setAuthenticatedUserId(null);
+        }
+
+    }
+
+    private String getExecutionId(String processId, String activityId, long timeoutInMillis) {
+        long deadline = System.currentTimeMillis() + timeoutInMillis;
+        while (true) {
+            Execution execution = engine.getRuntimeService().createExecutionQuery().processInstanceId(processId).activityId(
+                activityId).singleResult();
+            if (execution != null && execution.getParentId() != null) {
+                return execution.getId();
+            }
+            if (isPastDeadline(deadline)) {
+                IllegalStateException timeoutException = new IllegalStateException(
+                    format(Messages.PROCESS_STEP_NOT_REACHED_BEFORE_TIMEOUT, activityId, processId));
+                LOGGER.error(timeoutException.toString(), timeoutException);
+                throw timeoutException;
+            }
+            try {
+                Thread.sleep(GET_EXECUTION_RETRY_INTERVAL_MS);
+            } catch (InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+    }
+
     public void deleteProcessInstance(String userId, String processInstanceId, String deleteReason) {
         try {
             engine.getIdentityService().setAuthenticatedUserId(userId);
@@ -210,6 +243,10 @@ public class ActivitiFacade {
 
     protected boolean isPastDeadline(long deadline) {
         return System.currentTimeMillis() >= deadline;
+    }
+
+    public void setRuntimeVariables(String processInstanceId, Map<String, Object> variables) {
+        engine.getRuntimeService().setVariables(processInstanceId, variables);
     }
 
 }

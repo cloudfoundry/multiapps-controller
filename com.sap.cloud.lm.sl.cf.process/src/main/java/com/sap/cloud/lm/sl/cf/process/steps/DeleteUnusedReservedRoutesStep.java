@@ -21,16 +21,10 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteUnusedReservedRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteUnusedReservedRoutesStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("deleteUnusedReservedRoutesTask").displayName("Delete Unused Reserved Ports").description(
-            "Delete Unused Reserved Ports").build();
-    }
+public class DeleteUnusedReservedRoutesStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

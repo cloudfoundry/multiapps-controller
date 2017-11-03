@@ -48,20 +48,14 @@ import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("createOrUpdateServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge {
+public class CreateOrUpdateServicesStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("createOrUpdateServicesTask").displayName("Create Or Update Services").description(
-            "Create Or Update Services").children(Arrays.asList(PollServiceOperationsStep.getMetadata())).build();
-    }
 
     @Autowired
     protected DefaultTagsDetector defaultTagsDetector;
@@ -74,7 +68,7 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
     protected ServiceUpdater serviceUpdater;
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws SLException, FileStorageException {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException, FileStorageException {
 
         getStepLogger().logActivitiTask();
         try {
@@ -457,5 +451,4 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
     public String getLogicalStepName() {
         return CreateOrUpdateServicesStep.class.getSimpleName();
     }
-
 }

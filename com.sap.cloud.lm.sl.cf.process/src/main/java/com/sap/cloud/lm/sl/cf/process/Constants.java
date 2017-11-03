@@ -121,5 +121,8 @@ public class Constants {
     public static final String VAR_SERVICES_TO_CREATE_COUNT = "servicesToCreateCount";
     public static final String VAR_SERVICES_TO_POLL = "servicesToPoll";
     public static final String VAR_ERROR_TYPE = "errorType";
+    public static final String PROCESS_ABORTED = "__PROCESS_ABORTED";
+    public static final String INDEXED_STEP_NAME = "__INDEXED_STEP_NAME";
+    public static final String RETRY_STEP_NAME = "__RETRY_STEP_NAME";
 
 }

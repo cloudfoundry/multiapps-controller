@@ -30,15 +30,10 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("detectTargetStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetectTargetStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("detectTargetTask").displayName("Detect Target").description("Detect Target").build();
-    }
+public class DetectTargetStep extends AbstractProcessStep {
 
     protected Function<HandlerFactory, List<Platform>> platformsSupplier = (handlerFactory) -> ConfigurationUtil.getPlatforms(
         handlerFactory.getConfigurationParser(), handlerFactory.getMajorVersion());

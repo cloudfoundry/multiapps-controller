@@ -15,16 +15,10 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("createSubscriptionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateSubscriptionsStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("createSubscriptionsTask").displayName("Create Subscriptions").description(
-            "Create Subscriptions").build();
-    }
+public class CreateSubscriptionsStep extends AbstractProcessStep {
 
     @Inject
     private ConfigurationSubscriptionDao dao;

@@ -16,16 +16,10 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteSubscriptionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteSubscriptionsStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("deleteSubscriptionsTask").displayName("Delete Subscriptions").description(
-            "Delete Subscriptions").build();
-    }
+public class DeleteSubscriptionsStep extends AbstractProcessStep {
 
     @Inject
     private ConfigurationSubscriptionDao dao;

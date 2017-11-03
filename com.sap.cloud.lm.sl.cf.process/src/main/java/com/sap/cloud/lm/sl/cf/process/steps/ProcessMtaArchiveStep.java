@@ -26,21 +26,16 @@ import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("processMtaArchiveStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ProcessMtaArchiveStep extends AbstractXS2ProcessStep {
+public class ProcessMtaArchiveStep extends AbstractProcessStep {
 
     @Inject
     private OperationDao ongoingOperationDao;
 
     protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = (dao) -> new ProcessConflictPreventer(
         ongoingOperationDao);
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("processArchiveTask").displayName("Process Archive").description("Process Archive").build();
-    }
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

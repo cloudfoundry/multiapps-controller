@@ -16,9 +16,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class PollRestartServiceBrokerStatusStep extends PollStartAppStatusStep {
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
         try {
-            ExecutionStatus status = super.pollStatusInternal(context);
+            ExecutionStatus status = super.executeStepInternal(context);
             if (status.equals(ExecutionStatus.LOGICAL_RETRY)) {
                 status = ExecutionStatus.SUCCESS;
             }

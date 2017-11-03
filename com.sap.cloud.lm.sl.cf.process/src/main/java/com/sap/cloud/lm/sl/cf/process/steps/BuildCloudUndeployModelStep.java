@@ -23,21 +23,15 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("buildCloudUndeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class BuildCloudUndeployModelStep extends AbstractXS2ProcessStep {
+public class BuildCloudUndeployModelStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
     private ConfigurationSubscriptionDao dao;
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("buildUndeployModelTask").displayName("Build Undeploy Model").description(
-            "Build Undeploy Model").build();
-    }
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

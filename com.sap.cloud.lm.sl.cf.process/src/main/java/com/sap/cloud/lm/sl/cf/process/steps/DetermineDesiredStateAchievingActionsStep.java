@@ -21,16 +21,10 @@ import com.sap.cloud.lm.sl.cf.core.cf.apps.UnchangedApplicationActionCalculator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("determineDesiredStateAchievingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetermineDesiredStateAchievingActionsStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("determineDesiredStateAchievingActionsTask").displayName(
-            "Determine Desired State Achieving Actions").description("Determine Desired State Achieving Actions").build();
-    }
+public class DetermineDesiredStateAchievingActionsStep extends AbstractProcessStep {
 
     protected Supplier<ApplicationStartupStateCalculator> appStateCalculatorSupplier = () -> new ApplicationStartupStateCalculator();
 

@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("pollExecuteTaskStatusStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge {
+public class PollExecuteTaskStatusStep extends AbstractProcessStep {
 
     protected Supplier<Long> currentTimeSupplier = () -> System.currentTimeMillis();
 
@@ -44,7 +44,7 @@ public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge 
     }
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
         getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(context);
@@ -98,7 +98,7 @@ public class PollExecuteTaskStatusStep extends AbstractXS2ProcessStepWithBridge 
 
         private void saveAppLogs() {
             CloudFoundryOperations client = getCloudFoundryClient(context);
-            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
+            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
         }
 
         private ExecutionStatus handleCurrentState(CloudTask.State currentState) {

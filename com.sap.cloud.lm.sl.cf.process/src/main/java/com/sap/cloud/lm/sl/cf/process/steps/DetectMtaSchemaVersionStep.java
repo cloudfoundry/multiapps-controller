@@ -15,16 +15,10 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.MtaSchemaVersionDetector;
 import com.sap.cloud.lm.sl.mta.model.SupportedVersions;
 import com.sap.cloud.lm.sl.mta.model.Version;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("detectMtaSchemaVersionStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetectMtaSchemaVersionStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("detectSchemaVersionTask").displayName("Detect Schema Version").description(
-            "Detect Schema Version").build();
-    }
+public class DetectMtaSchemaVersionStep extends AbstractProcessStep {
 
     protected Supplier<MtaSchemaVersionDetector> detectorSupplier = () -> new MtaSchemaVersionDetector();
 

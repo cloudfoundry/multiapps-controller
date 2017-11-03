@@ -158,6 +158,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
         </dependency>
+		<dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+        </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -179,16 +183,6 @@
             <artifactId>liquibase-slf4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.lmsl.slp</groupId>
-            <artifactId>com.sap.lmsl.slp.java</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.ws.rs</groupId>
-                    <artifactId>javax.ws.rs</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>
             <artifactId>com.sap.cloud.lm.sl.common</artifactId>
         </dependency>
@@ -200,16 +194,6 @@
         <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>
             <artifactId>com.sap.cloud.lm.sl.persistence</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.slp</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sap.hcp.oss.org.activiti</groupId>
-                    <artifactId>activiti-engine</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>

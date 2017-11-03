@@ -25,16 +25,10 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("pollExecuteAppStatusStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollExecuteAppStatusStep extends AbstractXS2ProcessStepWithBridge {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("pollExecuteAppStatusTask").displayName("Poll Execute App Status").description(
-            "Poll Execute App Status").build();
-    }
+public class PollExecuteAppStatusStep extends AbstractProcessStep {
 
     enum AppExecutionStatus {
         EXECUTING, SUCCEEDED, FAILED
@@ -52,12 +46,12 @@ public class PollExecuteAppStatusStep extends AbstractXS2ProcessStepWithBridge {
     }
 
     @Override
-    protected String getIndexVariable() {
+    public String getIndexVariable() {
         return Constants.VAR_APPS_INDEX;
     }
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
         getStepLogger().logActivitiTask();
         CloudApplication app = getNextApp(context);
         ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
@@ -127,13 +121,13 @@ public class PollExecuteAppStatusStep extends AbstractXS2ProcessStepWithBridge {
             // Application execution failed
             String message = format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status._2);
             getStepLogger().error(message);
-            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
+            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
             setRetryMessage(context, message);
             return ExecutionStatus.LOGICAL_RETRY;
         } else if (status._1.equals(AppExecutionStatus.SUCCEEDED)) {
             // Application executed successfully
             getStepLogger().info(Messages.APP_EXECUTED, app.getName());
-            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
+            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
             // Stop the application if specified
             boolean stopApp = attributesGetter.getAttribute(SupportedParameters.STOP_APP, Boolean.class, false);
             if (stopApp) {
@@ -147,7 +141,7 @@ public class PollExecuteAppStatusStep extends AbstractXS2ProcessStepWithBridge {
             if (StepsUtil.hasTimedOut(context, () -> System.currentTimeMillis())) {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
                 getStepLogger().error(message);
-                StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
+                StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
                 setRetryMessage(context, message);
                 return ExecutionStatus.LOGICAL_RETRY;
             }

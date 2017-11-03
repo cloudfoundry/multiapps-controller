@@ -26,16 +26,10 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("pollStartAppStatusStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollStartAppStatusStep extends AbstractXS2ProcessStepWithBridge {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("pollStartAppStatusTask").displayName("Poll Start App Status").description(
-            "Poll Start App Status").build();
-    }
+public class PollStartAppStatusStep extends AbstractProcessStep {
 
     @Override
     public String getLogicalStepName() {
@@ -50,7 +44,7 @@ public class PollStartAppStatusStep extends AbstractXS2ProcessStepWithBridge {
     protected RecentLogsRetriever recentLogsRetriever;
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
         getStepLogger().logActivitiTask();
 
         CloudApplication app = getAppToPoll(context);
@@ -118,7 +112,7 @@ public class PollStartAppStatusStep extends AbstractXS2ProcessStepWithBridge {
     private ExecutionStatus checkStartupStatus(DelegateExecution context, CloudFoundryOperations client, CloudApplication app,
         StartupStatus status) throws SLException {
 
-        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
+        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
         if (status.equals(StartupStatus.CRASHED) || status.equals(StartupStatus.FLAPPING)) {
             // Application failed to start
             String message = format(Messages.ERROR_STARTING_APP_2, app.getName(), getMessageForStatus(status));

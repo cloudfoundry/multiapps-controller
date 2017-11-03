@@ -101,7 +101,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends AbstractStepTest<Upda
 
     @Test
     public void testExecute() throws Exception {
-        step.executeStep(context);
+        step.execute(context);
 
         validateExecution();
     }

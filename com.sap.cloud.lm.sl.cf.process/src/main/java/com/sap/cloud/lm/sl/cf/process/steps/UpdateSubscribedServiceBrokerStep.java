@@ -15,16 +15,10 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("updateSubscribedServiceBrokerStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrokersStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("updateSubscribedServiceBrokerTask").displayName(
-            "Update Subscribed Service Broker Step").description("Update Subscribed Service Broker Step").build();
-    }
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

@@ -17,15 +17,10 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("prepareToUndeployStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToUndeployStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("prepareToUndeployTask").displayName("Prepare Undeploy").description("Prepare Undeploy").build();
-    }
+public class PrepareToUndeployStep extends AbstractProcessStep {
 
     @Inject
     private OperationDao ongoingOperationDao;

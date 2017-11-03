@@ -30,18 +30,12 @@ import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("processDescriptorStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ProcessDescriptorStep extends AbstractXS2ProcessStep {
+public class ProcessDescriptorStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("processDescriptorTask").displayName("Process Descriptor Step").description(
-            "Process Descriptor Step").build();
-    }
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;

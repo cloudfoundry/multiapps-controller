@@ -71,7 +71,8 @@ public class UploadAppStepTest {
 
         @Test
         public void testPollStatus1() throws Exception {
-            ExecutionStatus status = step.pollStatus(context);
+            step.createStepLogger(context);
+            ExecutionStatus status = step.executeStepInternal(context);
 
             assertEquals(ExecutionStatus.RUNNING.toString(), status.toString());
         }
@@ -80,7 +81,7 @@ public class UploadAppStepTest {
         public void testPollStatus2() throws Exception {
             when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq(ORG_NAME), eq(SPACE_NAME), anyString())).thenThrow(
                 new SLException(new CloudFoundryException(HttpStatus.BAD_REQUEST)));
-            step.pollStatus(context);
+            step.execute(context);
         }
 
         @Override
@@ -194,7 +195,7 @@ public class UploadAppStepTest {
 
         public void prepareContext() throws Exception {
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
-            context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
+            context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             StepsUtil.setModuleFileName(context, APP_NAME, APP_FILE);
             StepsUtil.setAppPropertiesChanged(context, false);
         }

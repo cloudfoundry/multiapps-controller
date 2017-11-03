@@ -11,23 +11,15 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.AsyncStepMetadata;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("restartServiceBrokerSubscriberStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
-    public static StepMetadata getMetadata() {
-        return AsyncStepMetadata.builder().id("restartServiceBrokerSubscriberTask").displayName(
-            "Restart Service Broker Subscriber").description("Restart Service Broker Subscriber").pollTaskId(
-                "pollServiceBrokerRestartStatusTask").build();
-    }
-
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
         try {
-            return super.pollStatusInternal(context);
+            return super.executeStepInternal(context);
         } catch (CloudFoundryException e) {
             getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_SUBSCRIBER_RESTART, getAppToStart(context).getName());
             return ExecutionStatus.SUCCESS;

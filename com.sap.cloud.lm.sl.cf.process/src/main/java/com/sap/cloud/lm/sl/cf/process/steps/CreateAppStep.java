@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.activiti.common.util.GsonHelper;
+import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -48,12 +49,10 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("createAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateAppStep extends AbstractXS2ProcessStep {
+public class CreateAppStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -65,10 +64,6 @@ public class CreateAppStep extends AbstractXS2ProcessStep {
 
     @Autowired(required = false)
     ServiceBindingCreator serviceBindingCreator;
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("createAppTask").displayName("Create App").description("Create App").build();
-    }
 
     protected Supplier<PlatformType> platformTypeSupplier = () -> ConfigurationUtil.getPlatformType();
 

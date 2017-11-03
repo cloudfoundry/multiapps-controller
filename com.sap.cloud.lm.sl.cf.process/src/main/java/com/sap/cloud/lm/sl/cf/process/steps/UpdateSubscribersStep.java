@@ -66,7 +66,7 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 @Component("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
+public class UpdateSubscribersStep extends AbstractProcessStep {
 
     /*
      * This schema version will be used only for the handling of the subscription entities and it should always be the same as the latest
@@ -115,7 +115,7 @@ public class UpdateSubscribersStep extends AbstractXS2ProcessStep {
             for (ConfigurationSubscription subscription : subscriptionsDao.findAll(updatedEntries)) {
                 Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientForCurrentSpace, subscription.getSpaceId());
                 if (orgAndSpace == null) {
-                    logger.warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
+                    LOGGER.getLoggerImpl().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                     continue;
                 }
                 CloudApplication updatedApplication = updateSubscriber(context, orgAndSpace, subscription);

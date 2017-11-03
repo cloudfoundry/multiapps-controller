@@ -35,11 +35,10 @@ import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("pollServiceOperationsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollServiceOperationsStep extends AbstractXS2ProcessStepWithBridge {
+public class PollServiceOperationsStep extends AbstractProcessStep {
 
     private static final String LAST_SERVICE_OPERATION = "last_operation";
     private static final String SERVICE_NAME = "name";
@@ -52,13 +51,8 @@ public class PollServiceOperationsStep extends AbstractXS2ProcessStepWithBridge 
 
     private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
 
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("pollServiceOperationsTask").displayName("Poll Service Operations Step").description(
-            "Poll Service Operations Step").build();
-    }
-
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().debug(Messages.POLLING_SERVICE_OPERATIONS);

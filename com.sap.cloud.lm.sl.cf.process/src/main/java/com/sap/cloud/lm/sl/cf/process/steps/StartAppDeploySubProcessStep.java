@@ -13,7 +13,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("startAppDeploySubProcessStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StartAppDeploySubProcessStep extends AbstractXS2SubProcessStarterStep {
+public class StartAppDeploySubProcessStep extends AbstractSubProcessStarterStep {
 
     protected String getIterationVariableName() {
         return Constants.VAR_APP_TO_DEPLOY;
