@@ -102,11 +102,6 @@ public class StepsUtil {
         StepLogger stepLogger, String org, String space) throws SLException {
         // Determine the current user
         String userName = determineCurrentUser(context, stepLogger);
-
-        stepLogger.debug(Messages.CURRENT_USER, userName);
-        stepLogger.debug(Messages.CLIENT_SPACE, space);
-        stepLogger.debug(Messages.CLIENT_ORG, org);
-
         return clientProvider.getCloudFoundryClient(userName, org, space, context.getProcessInstanceId());
     }
 
@@ -130,14 +125,16 @@ public class StepsUtil {
 
     public static String determineCurrentUser(DelegateExecution context, StepLogger stepLogger) throws SLException {
         String userId = Authentication.getAuthenticatedUserId();
-
+        String previousUser = (String) context.getVariable(Constants.VAR_USER);
         // Determine the current user
-        stepLogger.debug(Messages.AUTHENTICATED_USER_ID, userId);
+        if (userId != null && !userId.equals(previousUser)) {
+            stepLogger.debug(Messages.AUTHENTICATED_USER_ID, userId);
+            stepLogger.debug(Messages.PREVIOUS_USER, previousUser);
+        }
         if (userId == null) {
             // If the authenticated user cannot be determined,
             // use the user saved by the previous service task
-            userId = (String) context.getVariable(Constants.VAR_USER);
-            stepLogger.debug(Messages.PREVIOUS_USER, userId);
+            userId = previousUser;
             if (userId == null) {
                 // If there is no previous user, this must be the first service task
                 // Use the process initiator in this case
@@ -148,7 +145,6 @@ public class StepsUtil {
                 }
             }
         }
-
         // Set the current user in the context for use by later service tasks
         context.setVariable(Constants.VAR_USER, userId);
 

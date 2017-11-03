@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.slp.model.LoopStepMetadata;
 import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
@@ -27,6 +29,7 @@ public class PrepareToUndeployAppsStep extends AbstractXS2ProcessStep {
         getStepLogger().logActivitiTask();
 
         List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(context);
+        getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, JsonUtil.toJson(appsToUndeploy, true));
         prepareAppsToUndeploy(context, appsToUndeploy);
         return ExecutionStatus.SUCCESS;
 

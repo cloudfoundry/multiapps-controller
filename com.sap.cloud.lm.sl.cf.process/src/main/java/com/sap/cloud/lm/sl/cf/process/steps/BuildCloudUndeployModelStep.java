@@ -61,7 +61,10 @@ public class BuildCloudUndeployModelStep extends AbstractXS2ProcessStep {
             List<String> appNames = appsToDeploy.stream().map((app) -> app.getName()).collect(Collectors.toList());
 
             List<DeployedMtaModule> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames);
+            getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, secureSerializer.toJson(modulesToUndeploy));
+
             List<DeployedMtaModule> modulesToKeep = computeModulesToKeep(modulesToUndeploy, deployedMta);
+            getStepLogger().debug(Messages.MODULES_TO_KEEP, secureSerializer.toJson(modulesToKeep));
 
             List<ConfigurationSubscription> subscriptionsToDelete = computeSubscriptionsToDelete(subscriptionsToCreate, deployedMta,
                 StepsUtil.getSpaceId(context));

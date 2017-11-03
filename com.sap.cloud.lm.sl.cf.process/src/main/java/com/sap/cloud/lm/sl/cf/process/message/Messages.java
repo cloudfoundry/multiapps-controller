@@ -341,6 +341,7 @@ public class Messages {
     public static final String ORG_SPACE = "Organization: {0}, space: {1}";
     public static final String PLATFORM_TYPES = "Platform types: {0}";
     public static final String DEFAULT_DOMAIN = "Default domain: {0}";
+    public static final String PORT_BASED_ROUTING = "Port based routing: {0}";
     public static final String VERSION_RULE = "Version rule: {0}";
     public static final String SERVICE_BROKERS = "Service brokers: {0}";
     public static final String SERVICE_URLS = "Service URLs: {0}";
@@ -386,5 +387,14 @@ public class Messages {
     public static final String LAST_OPERATION_FOR_SERVICE = "Last operation for service \"{0}\": {1}";
     public static final String DELETING_CONTEXT_EXTENSION_WITH_ID_NAME_AND_VALUE_FOR_PROCESS = "Deleting context extension with ID \"{0}\", name \"{1}\" and value \"{2}\" for process \"{3}\"";
     public static final String ERROR_TYPE_OF_SUBPROCESS = "Error type of subprocess \"{0}\": {1}";
-
+    public static final String TARGET = "Target: {0}";
+    public static final String UPDATED_SERVICES = "Updated services: {0}";
+    public static final String UPLOAD_APP_TIMEOUT = "Upload app timeout in seconds: {0}";
+    public static final String MERGING_ARCHIVE_PART = "Merging archive part with ID \"{0}\", name \"{1}\"";
+    public static final String EXTENSION_DESCRIPTOR = "Еxtension descriptor/s: {0}";
+    public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
+    public static final String UPDATED_SUBSCRIBERS = "Updating subscriber: {0} ";
+    public static final String DELETED_APP_ROUTES = "App routes for applications \"{0}\" deleted";
+    public static final String MODULES_TO_UNDEPLOY = "Modules to undeploy: {0}";
+    public static final String MODULES_TO_KEEP = "Modules to keep: {0}";
 }

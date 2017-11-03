@@ -127,6 +127,7 @@ public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
         };
         try {
             for (FileEntry fileEntry : sortedParts) {
+                getStepLogger().debug(Messages.MERGING_ARCHIVE_PART, fileEntry.getId(), fileEntry.getName());
                 fileService.processFileContent(
                     new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), fileEntry.getId(), archivePartProcessor));
                 attemptToDeleteFilePart(fileEntry);

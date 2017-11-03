@@ -85,7 +85,7 @@ public class UpdateAppStep extends CreateAppStep {
                 appPropertiesChanged = true;
             }
             if (hasChanged(uris, existingApp.getUris())) {
-                getStepLogger().debug("Updating uris of application \"{0}\"", appName);
+                getStepLogger().debug("Updating uris of application \"{0}\" with uri: {1}", appName, uris);
                 client.updateApplicationUris(appName, uris);
                 appPropertiesChanged = true;
             }
@@ -93,6 +93,7 @@ public class UpdateAppStep extends CreateAppStep {
             updateAppDigest(env, existingApp.getEnvAsMap());
             if (!env.equals(existingApp.getEnvAsMap())) {
                 getStepLogger().debug("Updating env of application \"{0}\"", appName);
+                getStepLogger().debug("Updated env: {0}", JsonUtil.toJson(env, true));
                 client.updateApplicationEnv(appName, env);
                 appPropertiesChanged = true;
             }
@@ -168,6 +169,7 @@ public class UpdateAppStep extends CreateAppStep {
                 updatedServices.add(serviceName);
             }
         }
+        getStepLogger().debug(Messages.UPDATED_SERVICES, updatedServices);
         return updatedServices;
     }
 

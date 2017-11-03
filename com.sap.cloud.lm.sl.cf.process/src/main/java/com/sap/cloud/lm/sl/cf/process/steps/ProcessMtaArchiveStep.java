@@ -80,6 +80,8 @@ public class ProcessMtaArchiveStep extends AbstractXS2ProcessStep {
                 MtaArchiveHelper helper = getHelper(manifest);
                 helper.init();
 
+                getStepLogger().debug("MTA Archive ID: {0}", appArchiveId);
+
                 // Set MTA archive modules in the context
                 Map<String, String> mtaArchiveModules = helper.getMtaArchiveModules();
                 mtaArchiveModules.forEach((moduleName, fileName) -> StepsUtil.setModuleFileName(context, moduleName, fileName));

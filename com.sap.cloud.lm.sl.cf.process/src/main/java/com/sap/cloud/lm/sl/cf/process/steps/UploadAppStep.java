@@ -67,7 +67,7 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
         try {
             getStepLogger().info(Messages.UPLOADING_APP, app.getName());
             int uploadAppTimeoutSeconds = ConfigurationUtil.getUploadAppTimeout();
-
+            getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadAppTimeoutSeconds);
             CloudFoundryOperations client = getCloudFoundryClient(context);
             ClientExtensions clientExtensions = getClientExtensions(context);
 

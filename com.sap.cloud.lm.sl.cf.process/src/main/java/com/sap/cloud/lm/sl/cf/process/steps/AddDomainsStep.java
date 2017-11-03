@@ -37,6 +37,8 @@ public class AddDomainsStep extends AbstractXS2ProcessStep {
             getStepLogger().debug("Existing domains: " + existingDomainNames);
 
             List<String> customDomains = StepsUtil.getCustomDomains(context);
+            getStepLogger().debug("Custom domains: " + customDomains);
+
             addDomains(client, customDomains, existingDomainNames);
 
             getStepLogger().debug(Messages.DOMAINS_ADDED);

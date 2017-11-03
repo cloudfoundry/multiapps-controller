@@ -64,6 +64,7 @@ public final class Messages {
     public static final String ILLEGAL_SERVICE_OPERATION_STATE = "Illegal service operation state: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_TYPE = "Illegal service operation type: {0}";
     public static final String ILLEGAL_PROCESS_TYPE = "Illegal process type: {0}";
+    public static final String MULTIPLE_CONFIGURATION_ENTRIES = "Multiple configuration entries were found matching the filter specified in resource \"{0}\": \"{1}\"";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_NOT_SET = "Environment variable \"{0}\" not set";

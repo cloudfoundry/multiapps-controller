@@ -40,6 +40,7 @@ public class CreateSubscriptionsStep extends AbstractXS2ProcessStep {
 
             for (ConfigurationSubscription subscription : subscriptions) {
                 createSubscription(subscription);
+                getStepLogger().debug(Messages.CREATED_SUBSCRIPTION, subscription.getId());
             }
 
             getStepLogger().debug(Messages.SUBSCRIPTIONS_CREATED);

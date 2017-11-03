@@ -30,6 +30,7 @@ public class RestartUpdatedSubscribersStep extends AbstractXS2ProcessStep {
 
         List<CloudApplication> updatedSubscribers = StepsUtil.getUpdatedSubscribers(context);
         for (CloudApplication subscriber : updatedSubscribers) {
+            getStepLogger().debug(Messages.UPDATED_SUBSCRIBERS, subscriber.getName());
             restartSubscriber(context, subscriber);
         }
         return ExecutionStatus.SUCCESS;
