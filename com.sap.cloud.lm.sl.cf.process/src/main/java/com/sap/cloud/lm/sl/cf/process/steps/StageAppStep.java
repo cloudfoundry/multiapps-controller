@@ -13,17 +13,10 @@ import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.AsyncStepMetadata;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("stageAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StageAppStep extends AbstractXS2ProcessStepWithBridge {
-
-    public static StepMetadata getMetadata() {
-        return AsyncStepMetadata.builder().id("stageAppTask").displayName("Stage App").description("Stage App").pollTaskId(
-            "pollStageAppStatusTask").childrenVisible(true).build();
-    }
+public class StageAppStep extends AbstractProcessStep {
 
     @Override
     protected String getIndexVariable() {
@@ -31,7 +24,7 @@ public class StageAppStep extends AbstractXS2ProcessStepWithBridge {
     }
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
         getStepLogger().logActivitiTask();
 
         CloudApplication app = StepsUtil.getApp(context);

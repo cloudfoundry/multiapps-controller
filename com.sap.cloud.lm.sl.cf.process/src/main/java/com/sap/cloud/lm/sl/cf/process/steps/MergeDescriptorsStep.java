@@ -15,15 +15,10 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("mergeDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MergeDescriptorsStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("mergeDescriptorsTask").displayName("Merge Descriptors").description("Merge Descriptors").build();
-    }
+public class MergeDescriptorsStep extends AbstractProcessStep {
 
     protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform, Target target) {
         return new MtaDescriptorMerger(factory, platform, target);

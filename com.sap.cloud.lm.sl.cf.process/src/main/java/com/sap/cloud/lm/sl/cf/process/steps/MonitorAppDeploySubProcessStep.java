@@ -13,7 +13,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("monitorAppDeploySubProcessStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MonitorAppDeploySubProcessStep extends AbstractXS2SubProcessMonitorStep {
+public class MonitorAppDeploySubProcessStep extends AbstractSubProcessMonitorStep {
 
     @Override
     public String getLogicalStepName() {

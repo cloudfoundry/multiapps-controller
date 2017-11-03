@@ -10,10 +10,10 @@ import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-public abstract class AbstractXS2SubProcessMonitorStep extends AbstractXS2ProcessStepWithBridge {
+public abstract class AbstractSubProcessMonitorStep extends AbstractProcessStep {
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
         String subProcessId = StepsUtil.getSubProcessId(context);
         getStepLogger().debug(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId);
         try {

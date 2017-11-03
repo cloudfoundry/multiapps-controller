@@ -33,5 +33,4 @@ public class RetryActivitiAction extends ActivitiAction {
             LOGGER.error(Messages.ACTIVITI_JOB_RETRY_FAILED, e);
         }
     }
-
 }

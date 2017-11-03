@@ -19,16 +19,10 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("rebuildApplicationEnvironmentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RebuildApplicationEnvironmentStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("rebuildApplicationEnvironmentTask").displayName("Re-Build Application Environment").description(
-            "Re-Build Application Environment").build();
-    }
+public class RebuildApplicationEnvironmentStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {

@@ -26,7 +26,7 @@ public class ProcessTypeParser {
     }
 
     public static String getServiceId(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SERVICE_ID);
+        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SERVICE_ID);
     }
 
 }

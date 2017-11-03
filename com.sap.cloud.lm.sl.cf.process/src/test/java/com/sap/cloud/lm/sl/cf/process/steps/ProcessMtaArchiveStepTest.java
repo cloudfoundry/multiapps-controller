@@ -61,7 +61,7 @@ public class ProcessMtaArchiveStepTest extends AbstractStepTest<ProcessMtaArchiv
 
     private void prepareContext() {
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_APP_ARCHIVE_ID, FILE_ID);
-        context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         step.conflictPreventerSupplier = (dao) -> mock(ProcessConflictPreventer.class);
     }
 

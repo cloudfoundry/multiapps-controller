@@ -20,18 +20,12 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("detectDeployedMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetectDeployedMtaStep extends AbstractXS2ProcessStep {
+public class DetectDeployedMtaStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("detectDeployedMtaTask").displayName("Detect Deployed MTA").description(
-            "Detect Deployed MTA").build();
-    }
 
     protected Function<List<CloudApplication>, DeployedComponents> componentsDetector = (
         deployedApps) -> new DeployedComponentsDetector().detectAllDeployedComponents(deployedApps);

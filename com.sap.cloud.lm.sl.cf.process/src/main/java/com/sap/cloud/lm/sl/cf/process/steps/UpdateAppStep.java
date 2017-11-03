@@ -28,15 +28,10 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("updateAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UpdateAppStep extends CreateAppStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("updateAppTask").displayName("Update App").description("Update App").build();
-    }
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException, FileStorageException {

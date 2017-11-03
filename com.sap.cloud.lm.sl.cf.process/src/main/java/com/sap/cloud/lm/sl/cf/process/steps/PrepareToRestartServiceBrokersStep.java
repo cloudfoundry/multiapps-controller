@@ -11,19 +11,10 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.slp.model.LoopStepMetadata;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("prepareToRestartServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToRestartServiceBrokersStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return LoopStepMetadata.builder().id("prepareToRestartServiceBrokersTask").displayName(
-            "Prepare To Restart Service Brokers").description("Prepare To Restart Service Brokers").children(
-                RestartServiceBrokerSubscriberStep.getMetadata(), UpdateSubscribedServiceBrokerStep.getMetadata()).countVariable(
-                    Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT).build();
-    }
+public class PrepareToRestartServiceBrokersStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) {

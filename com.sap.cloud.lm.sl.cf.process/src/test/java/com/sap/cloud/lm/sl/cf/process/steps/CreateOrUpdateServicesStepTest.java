@@ -158,7 +158,7 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
 
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICES, true);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICE_KEYS, true);
-        context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         context.setVariable("servicesToCreateCount", 0);
         Mockito.when(defaultTagsDetector.computeDefaultTags(client)).thenReturn(stepInput.defaultTags);
     }

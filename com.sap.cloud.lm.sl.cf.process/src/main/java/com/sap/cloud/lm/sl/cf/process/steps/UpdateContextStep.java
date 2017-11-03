@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("updateContextStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UpdateContextStep extends AbstractXS2ProcessStep {
+public class UpdateContextStep extends AbstractProcessStep {
 
     @Inject
     ContextExtensionDao contextExtensionDao;

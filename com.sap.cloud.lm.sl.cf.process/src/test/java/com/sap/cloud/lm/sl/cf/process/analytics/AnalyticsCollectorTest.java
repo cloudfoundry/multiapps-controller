@@ -137,7 +137,7 @@ public class AnalyticsCollectorTest {
 
     @Test
     public void collectAttributesDeployTest() throws Exception {
-        when(context.getVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SERVICE_ID)).thenReturn(Constants.DEPLOY_SERVICE_ID);
+        when(context.getVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SERVICE_ID)).thenReturn(Constants.DEPLOY_SERVICE_ID);
         TestUtil.test(() -> {
             return collector.collectAttributes(context);
         } , "R:AnalyticsDeploy.json", getClass());
@@ -145,7 +145,7 @@ public class AnalyticsCollectorTest {
 
     @Test
     public void collectAttributesUndeployTest() throws Exception {
-        when(context.getVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SERVICE_ID)).thenReturn(Constants.UNDEPLOY_SERVICE_ID);
+        when(context.getVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SERVICE_ID)).thenReturn(Constants.UNDEPLOY_SERVICE_ID);
         TestUtil.test(() -> {
             return collector.collectAttributes(context);
         } , "R:AnalyticsUndeploy.json", getClass());

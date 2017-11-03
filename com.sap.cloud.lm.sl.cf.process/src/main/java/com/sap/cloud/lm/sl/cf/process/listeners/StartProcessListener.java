@@ -27,10 +27,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("startProcessListener")
-public class StartProcessListener extends AbstractXS2ProcessExecutionListener {
+public class StartProcessListener extends AbstractProcessExecutionListener {
 
-    private static final long serialVersionUID = -447062578903384602L;
-
+    private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessListener.class);
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 

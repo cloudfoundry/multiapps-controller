@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -24,12 +26,11 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.slp.util.AbstractProcessComponentUtil;
 
 @Component("endProcessListener")
-public class EndProcessListener extends AbstractXS2ProcessExecutionListener {
+public class EndProcessListener extends AbstractProcessExecutionListener {
 
-    private static final long serialVersionUID = 7588205099081551733L;
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EndProcessListener.class);
 
@@ -47,8 +48,8 @@ public class EndProcessListener extends AbstractXS2ProcessExecutionListener {
     protected CloudFoundryClientProvider clientProvider;
 
     @Override
-    public void writeLogs(DelegateExecution context) {
-        AbstractProcessComponentUtil.appendLogs(context, getProcessLoggerProviderFactory());
+    protected void writeLogs(DelegateExecution context) throws IOException, FileStorageException {
+        processLoggerProviderFactory.append(context, getLogDir());
     }
 
     @Override

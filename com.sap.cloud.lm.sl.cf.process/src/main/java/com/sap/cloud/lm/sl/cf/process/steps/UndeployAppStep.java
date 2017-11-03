@@ -25,16 +25,10 @@ import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.OneOffTasksSupportChecker;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("undeployAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UndeployAppStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("undeployAppTask").displayName("Undeploy Discontinued App").description(
-            "Undeploy Discontinued App").build();
-    }
+public class UndeployAppStep extends AbstractProcessStep {
 
     @Inject
     private OneOffTasksSupportChecker oneOffTasksSupportChecker;

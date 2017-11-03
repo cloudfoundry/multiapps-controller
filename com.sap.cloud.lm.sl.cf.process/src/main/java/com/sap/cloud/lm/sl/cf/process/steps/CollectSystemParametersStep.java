@@ -34,16 +34,10 @@ import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("collectSystemParametersStep") // rename to collect system parameters and allocate ports?
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CollectSystemParametersStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("collectSystemParametersTask").displayName("Collect System Parameters").description(
-            "Collect System Parameters").build();
-    }
+public class CollectSystemParametersStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

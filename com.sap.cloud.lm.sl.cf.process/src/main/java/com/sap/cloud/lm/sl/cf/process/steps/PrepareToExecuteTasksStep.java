@@ -16,17 +16,10 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.OneOffTasksSupportChecker;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.LoopStepMetadata;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("prepareToExecuteTasksStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToExecuteTasksStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return LoopStepMetadata.builder().id("prepareToExecuteTasksTask").displayName("Prepare To Execute Tasks").description(
-            "Prepare To Execute Tasks").children(ExecuteTaskStep.getMetadata()).countVariable(Constants.VAR_TASKS_COUNT).build();
-    }
+public class PrepareToExecuteTasksStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) {

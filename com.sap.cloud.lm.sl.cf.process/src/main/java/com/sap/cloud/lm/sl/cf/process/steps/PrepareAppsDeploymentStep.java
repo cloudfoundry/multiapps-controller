@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("prepareAppsDeploymentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareAppsDeploymentStep extends AbstractXS2ProcessStep {
+public class PrepareAppsDeploymentStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) {

@@ -41,7 +41,7 @@ import com.sap.cloud.lm.sl.persistence.util.Configuration;
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
 @Component("processGitSourceStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ProcessGitSourceStep extends AbstractXS2ProcessStep {
+public class ProcessGitSourceStep extends AbstractProcessStep {
 
     private static final String SKIP_SSL_GIT_CONFIG = ".skipSslGitConfig";
     private static final String PATH_SEPARATOR = "/";

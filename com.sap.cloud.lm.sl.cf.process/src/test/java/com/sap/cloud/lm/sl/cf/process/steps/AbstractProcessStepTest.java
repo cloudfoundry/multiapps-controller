@@ -20,10 +20,9 @@ import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 @RunWith(Parameterized.class)
-public class AbstractXS2ProcessStepWithBridgeTest extends AbstractStepTest<AbstractXS2ProcessStepWithBridgeTest.MockStep> {
+public class AbstractProcessStepTest extends AbstractStepTest<AbstractProcessStepTest.MockStep> {
 
     private static final String PROCESS_ID = "1234";
-    private static final String INDEX_VARIABLE_NAME = "indexVariable";
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -40,7 +39,7 @@ public class AbstractXS2ProcessStepWithBridgeTest extends AbstractStepTest<Abstr
     private Exception exceptionToSimulate;
     private ErrorType expectedErrorType;
 
-    public AbstractXS2ProcessStepWithBridgeTest(Exception exceptionToSimulate, ErrorType expectedErrorType) {
+    public AbstractProcessStepTest(Exception exceptionToSimulate, ErrorType expectedErrorType) {
         this.exceptionToSimulate = exceptionToSimulate;
         this.expectedErrorType = expectedErrorType;
     }
@@ -48,7 +47,6 @@ public class AbstractXS2ProcessStepWithBridgeTest extends AbstractStepTest<Abstr
     @Before
     public void setUp() {
         Mockito.when(context.getProcessInstanceId()).thenReturn(PROCESS_ID);
-        context.setVariable(INDEX_VARIABLE_NAME, 0);
     }
 
     @Test
@@ -62,18 +60,13 @@ public class AbstractXS2ProcessStepWithBridgeTest extends AbstractStepTest<Abstr
         }
     }
 
-    public static class MockStep extends AbstractXS2ProcessStepWithBridge {
+    public static class MockStep extends AbstractProcessStep {
 
         private Supplier<Exception> exceptionSupplier;
 
         @Override
-        protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception {
+        protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
             throw exceptionSupplier.get();
-        }
-
-        @Override
-        protected String getIndexVariable() {
-            return INDEX_VARIABLE_NAME;
         }
 
     }

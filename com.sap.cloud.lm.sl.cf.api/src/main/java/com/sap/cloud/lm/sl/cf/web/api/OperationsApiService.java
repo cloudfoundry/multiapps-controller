@@ -17,7 +17,7 @@ public interface OperationsApiService {
     
     public Response getMtaOperationLogContent(String operationId, String logId, SecurityContext securityContext, String spaceGuid);
 
-    public Response getMtaOperations(Integer last, List<String> status, SecurityContext securityContext, String spaceGuid);
+    public Response getMtaOperations(Integer last, List<String> state, SecurityContext securityContext, String spaceGuid);
 
     public Response getOperationActions(String operationId, SecurityContext securityContext, String spaceGuid);
 

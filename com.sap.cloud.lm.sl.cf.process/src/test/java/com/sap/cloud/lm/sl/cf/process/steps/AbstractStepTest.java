@@ -17,21 +17,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.impl.AbstractActivitiStep;
 import com.sap.activiti.common.impl.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.process.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
-import com.sap.cloud.lm.sl.slp.services.ProcessLoggerProviderFactory;
-import com.sap.cloud.lm.sl.slp.services.ProcessLogsPersistenceService;
-import com.sap.cloud.lm.sl.slp.services.TaskExtensionService;
 
-public abstract class AbstractStepTest<T extends AbstractActivitiStep> {
+public abstract class AbstractStepTest<T extends AbstractProcessStep> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStepTest.class);
 
@@ -55,8 +53,6 @@ public abstract class AbstractStepTest<T extends AbstractActivitiStep> {
     protected ContextExtensionDao contextExtensionDao;
     @Mock
     protected AbstractFileService fileService;
-    @Mock
-    protected TaskExtensionService taskExtensionService;
     @Mock(extraInterfaces = ClientExtensions.class)
     protected CloudFoundryOperations client;
     protected ClientExtensions clientExtensions;

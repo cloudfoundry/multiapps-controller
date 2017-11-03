@@ -6,18 +6,21 @@ import java.util.Set;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
+import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata.ParameterType;
 
 public class UndeployMetadata {
 
     private final static Set<ParameterMetadata> PARAMS = new HashSet<ParameterMetadata>();
 
-    // TODO: for each of the params put the type...
     static {
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICES).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICE_BROKERS).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_MTA_ID).required(true).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS).defaultValue(false).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICES).type(ParameterType.BOOLEAN).defaultValue(false).build());
+        PARAMS.add(
+            ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICE_BROKERS).type(ParameterType.BOOLEAN).defaultValue(false).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_MTA_ID).required(true).type(ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS).defaultValue(false).type(
+            ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS).defaultValue(false).type(
+            ParameterType.BOOLEAN).build());
     }
 
     public static OperationMetadata getMetadata() {

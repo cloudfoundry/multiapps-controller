@@ -39,7 +39,6 @@ import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 @Component
 public class FilesApiServiceImpl implements FilesApiService {
 
-    private static final String DEFAULT_FILE_NAMESPACE = "deploy";
     @Inject
     // The @Named annotation is needed for the Jersey-Spring integration in order to identify which
     // FileService managed instance (FileService or ProgressMessageService) to inject.
@@ -48,7 +47,7 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     public Response getMtaFiles(SecurityContext securityContext, String spaceGuid) {
         try {
-            List<FileEntry> entries = fileService.listFiles(spaceGuid, DEFAULT_FILE_NAMESPACE);
+            List<FileEntry> entries = fileService.listFiles(spaceGuid, null);
             List<FileMetadata> files = entries.stream().map(entry -> parseFileEntry(entry)).collect(Collectors.toList());
             return Response.ok().entity(files).build();
 
@@ -90,7 +89,7 @@ public class FilesApiServiceImpl implements FilesApiService {
             InputStream in = null;
             try {
                 in = item.openStream();
-                FileEntry entry = getFileService().addFile(spaceGuid, DEFAULT_FILE_NAMESPACE, item.getName(),
+                FileEntry entry = getFileService().addFile(spaceGuid, item.getName(),
                     getConfiguration().getFileUploadProcessor(), in);
                 uploadedFiles.add(entry);
             } finally {

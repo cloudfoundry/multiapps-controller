@@ -51,6 +51,7 @@ public class Messages {
     public static final String FAILED_SERVICE_UPDATE = "Updating service {0} failed: {1}";
     public static final String STEP_LOGGER_NOT_INITIALIZED = "Step logger is not initialized!";
     public static final String COULD_NOT_BIND_APP_TO_SERVICE = "Could not bind application \"{0}\" to service \"{1}\": {2}";
+    public static final String NO_RETRY_MESSAGE = "No retry message available";
 
     // Audit log messages
 
@@ -397,4 +398,15 @@ public class Messages {
     public static final String DELETED_APP_ROUTES = "App routes for applications \"{0}\" deleted";
     public static final String MODULES_TO_UNDEPLOY = "Modules to undeploy: {0}";
     public static final String MODULES_TO_KEEP = "Modules to keep: {0}";
+    public static final String REMOVING_ALL_LOGGERS_FOR_PROCESS = "Removing loggers {1} for process \"{0}\"...";
+    public static final String REMOVING_ALL_APPENDERS_FROM_LOGGER = "Removing all appenders from logger \"{0}\"...";
+    public static final String CREATING_APPENDER = "Creating appender for logger \"{0}\"...";
+    public static final String CREATING_LOGGER = "Creating logger \"{0}\"...";
+    public static final String COULD_NOT_PERSIST_LOGS_FILE = "Could not persist logs file: {0}";
+    public static final String PROCESS_WAS_ABORTED = "Process was aborted";
+    public static final String EXCEPTION_CAUGHT = "Exception caught";
+    public static final String UNEXPECTED_ERROR = "Unexpected error: {0}";
+    public static final String SAVING_ERROR_MESSAGE_FAILED = "Saving error message failed";
+    public static final String STEP_FINISHED = "Step \"{0}\" finished";
+
 }

@@ -17,15 +17,10 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("replaceRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ReplaceRoutesStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("replaceRoutesTask").displayName("Replace Routes").description("Replace Routes").build();
-    }
+public class ReplaceRoutesStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

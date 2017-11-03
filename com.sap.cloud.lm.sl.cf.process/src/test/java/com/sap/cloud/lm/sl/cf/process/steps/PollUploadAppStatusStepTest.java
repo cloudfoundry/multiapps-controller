@@ -108,7 +108,8 @@ public class PollUploadAppStatusStepTest extends AbstractStepTest<PollUploadAppS
     public void testPollStatus() throws Exception {
         Thread.sleep(1); // Simulate the time it takes to upload a file. Without this, some tests
                          // may fail on faster machines...
-        ExecutionStatus status = step.pollStatus(context);
+        step.createStepLogger(context);
+        ExecutionStatus status = step.executeStepInternal(context);
 
         assertEquals(expectedStatus.toString(), status.toString());
     }

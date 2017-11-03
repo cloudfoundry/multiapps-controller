@@ -21,13 +21,13 @@
         <property name="fileSystemFileService" ref="fileSystemFileService"></property>
     </bean>
 
-    <bean id="processLogsPersistenceService" class="com.sap.cloud.lm.sl.slp.services.ProcessLogsPersistenceService"
+    <bean id="processLogsPersistenceService" class="com.sap.cloud.lm.sl.cf.process.ProcessLogsPersistenceService"
         factory-method="getInstance">
         <property name="dataSource" ref="dataSource" />
         <property name="databaseDialect" ref="databaseDialect" />
     </bean>
 
-    <bean id="processLoggerProviderFactory" class="com.sap.cloud.lm.sl.slp.services.ProcessLoggerProviderFactory"
+    <bean id="processLoggerProviderFactory" class="com.sap.cloud.lm.sl.cf.process.ProcessLoggerProviderFactory"
         factory-method="getInstance" />
 
     <bean id="progressMessageService" class="com.sap.cloud.lm.sl.persistence.services.ProgressMessageService"
@@ -38,9 +38,6 @@
     
     <bean id="logsService" class="com.sap.cloud.lm.sl.persistence.services.ProcessLogsService"
         factory-method="getInstance">
-    </bean>
-
-    <bean id="taskExtensionService" class="com.sap.cloud.lm.sl.slp.services.TaskExtensionService" factory-method="getInstance">
         <property name="dataSource" ref="dataSource" />
         <property name="databaseDialect" ref="databaseDialect" />
     </bean>
@@ -50,9 +47,5 @@
     <bean class="com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade" factory-method="getInstance" />
 
     <bean class="com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider" factory-method="getInstance" />
-
-    <bean class="com.sap.cloud.lm.sl.slp.activiti.ActivitiService" scope="prototype" />
-    <bean class="com.sap.cloud.lm.sl.slp.activiti.ActiveActivitiProcess" scope="prototype" />
-    <bean class="com.sap.cloud.lm.sl.slp.activiti.FinishedActivitiProcess" scope="prototype" />
 
 </beans>

@@ -9,7 +9,7 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-public abstract class SetAppsUrisStep extends AbstractXS2ProcessStep {
+public abstract class SetAppsUrisStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) {

@@ -16,18 +16,12 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteServicesStep extends AbstractXS2ProcessStep {
+public class DeleteServicesStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("deleteServicesTask").displayName("Delete Discontinued Services").description(
-            "Delete Discontinued Services").build();
-    }
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

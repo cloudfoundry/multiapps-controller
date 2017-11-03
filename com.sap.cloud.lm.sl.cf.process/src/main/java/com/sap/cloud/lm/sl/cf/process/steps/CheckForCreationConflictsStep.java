@@ -31,16 +31,10 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("checkForCreationConflictsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CheckForCreationConflictsStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("checkForCreationConflictsTask").displayName("Check For Creation Conflicts").description(
-            "Check For Creation Conflicts").build();
-    }
+public class CheckForCreationConflictsStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {

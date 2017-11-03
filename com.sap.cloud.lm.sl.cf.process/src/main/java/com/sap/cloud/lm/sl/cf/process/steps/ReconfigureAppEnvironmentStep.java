@@ -23,20 +23,12 @@ import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.LoopStepMetadata;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("reconfigureAppEnvironmentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ReconfigureAppEnvironmentStep extends AbstractXS2ProcessStep {
+public class ReconfigureAppEnvironmentStep extends AbstractProcessStep {
 
     public static final String DEPLOY_ID_PREFIX = "deploy-";
-
-    public static StepMetadata getMetadata() {
-        return LoopStepMetadata.builder().id("reconfigureAppEnvironmentTask").displayName("Reconfigure App Environments").description(
-            "Reconfigures App Environments with live routing values").children(RestartAppStep.getMetadata()).countVariable(
-                Constants.VAR_APPS_TO_RESTART_COUNT).build();
-    }
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

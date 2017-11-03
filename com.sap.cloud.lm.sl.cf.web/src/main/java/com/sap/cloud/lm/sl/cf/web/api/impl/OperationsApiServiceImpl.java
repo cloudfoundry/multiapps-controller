@@ -72,9 +72,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsApiServiceImpl.class);
 
     @Override
-    public Response getMtaOperations(Integer last, List<String> status, SecurityContext securityContext, String spaceGuid) {
+    public Response getMtaOperations(Integer last, List<String> state, SecurityContext securityContext, String spaceGuid) {
 
-        List<State> states = getStates(status);
+        List<State> states = getStates(state);
 
         List<Operation> foundOperations = filterByQueryParameters(last, states, spaceGuid);
 
@@ -87,12 +87,15 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public Response executeOperationAction(String operationId, String actionId, SecurityContext securityContext, String spaceGuid) {
+        Operation operation = dao.findRequired(operationId);
+        List<String> availableOperations = getAvailableActions(operation);
         ActivitiAction action = ActivitiActionFactory.getAction(actionId, activitiFacade, getAuthenticatedUser(securityContext));
-        if (action == null) {
-            return Response.status(Status.BAD_REQUEST).entity("Action " + actionId + " not recognised!").build();
+        if (!availableOperations.contains(actionId)) {
+            return Response.status(Status.BAD_REQUEST).entity(
+                "Action " + actionId + " cannot be executed over operation " + operationId).build();
         }
         action.executeAction(operationId);
-        return Response.accepted().header("Location", getLocationHeader(operationId)).build();
+        return Response.accepted().header("Location", getLocationHeader(operationId, spaceGuid)).build();
     }
 
     @Override
@@ -124,7 +127,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         addDefaultParameters(operation, spaceGuid);
         addParameterValues(operation);
         ProcessInstance processInstance = activitiFacade.startProcess(userId, processDefinitionKey, operation.getParameters());
-        return Response.accepted().header("Location", getLocationHeader(processInstance.getProcessInstanceId())).build();
+        return Response.accepted().header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid)).build();
     }
 
     @Override
@@ -289,8 +292,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         operation.setParameters(parameters);
     }
 
-    private String getLocationHeader(String processInstanceId) {
-        return "operations/" + processInstanceId + "?embed=messages";
+    private String getLocationHeader(String processInstanceId, String spaceId) {
+        StringBuilder builder = new StringBuilder("spaces/");
+        return builder.append(spaceId).append("/operations/").append(processInstanceId).append("?embed=messages").toString();
     }
 
     protected String getAuthenticatedUser(SecurityContext securityContext) {

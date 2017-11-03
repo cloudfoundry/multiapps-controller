@@ -8,25 +8,25 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.runtime.ProcessInstance;
 
 import com.sap.activiti.common.ExecutionStatus;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 
-public abstract class AbstractXS2SubProcessStarterStep extends AbstractXS2ProcessStepWithBridge {
+public abstract class AbstractSubProcessStarterStep extends AbstractProcessStep {
 
     @Inject
     private ActivitiFacade actvitiFacade;
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
         try {
             String userId = StepsUtil.determineCurrentUser(context, getStepLogger());
 
-            int nextIndex = (int) context.getVariable(getIndexVariable());
+            int nextIndex = getStepIndex(context);
             context.setVariable(getIterationVariableName(), getIterationVariable(context, nextIndex));
             Map<String, Object> parentProcessVariables = context.getVariables();
             parentProcessVariables.put(Constants.VAR_PARENTPROCESS_ID, context.getProcessInstanceId());
-            ProcessInstance subProcessInstance = actvitiFacade.startProcessInstance(userId, getProcessDefinitionKey(),
+            ProcessInstance subProcessInstance = actvitiFacade.startProcess(userId, getProcessDefinitionKey(),
                 parentProcessVariables);
             StepsUtil.setSubProcessId(context, subProcessInstance.getProcessInstanceId());
 

@@ -6,36 +6,44 @@ import java.util.Set;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
+import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata.ParameterType;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 public class BlueGreenDeployMetadata {
 
     private final static Set<ParameterMetadata> PARAMS = new HashSet<ParameterMetadata>();
 
-    // TODO: for each of the params put the type...
     static {
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_APP_ARCHIVE_ID).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_TARGET_NAME).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_START).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_START_TIMEOUT).defaultValue(Constants.DEFAULT_START_TIMEOUT).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_UPLOAD_TIMEOUT).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_USE_NAMESPACES).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_ALLOW_INVALID_ENV_NAMES).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_VERSION_RULE).defaultValue(VersionRule.SAME_HIGHER.toString()).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICES).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICE_KEYS).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICE_BROKERS).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_FAIL_ON_CRASHED).defaultValue(true).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_MTA_ID).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_KEEP_FILES).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_URI).defaultValue("").build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_REF).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_REPO_PATH).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_SKIP_SSL).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS).defaultValue(false).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_APP_ARCHIVE_ID).type(ParameterType.STRING).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_TARGET_NAME).type(ParameterType.STRING).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID).type(ParameterType.STRING).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_START).defaultValue(false).type(ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_START_TIMEOUT).defaultValue(Constants.DEFAULT_START_TIMEOUT).type(
+            ParameterType.INTEGER).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_UPLOAD_TIMEOUT).type(ParameterType.INTEGER).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_USE_NAMESPACES).defaultValue(false).type(ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES).defaultValue(false).type(
+            ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_ALLOW_INVALID_ENV_NAMES).defaultValue(false).type(
+            ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_VERSION_RULE).defaultValue(VersionRule.SAME_HIGHER.toString()).type(
+            ParameterType.STRING).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICES).defaultValue(false).type(ParameterType.BOOLEAN).build());
+        PARAMS.add(
+            ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICE_KEYS).defaultValue(false).type(ParameterType.BOOLEAN).build());
+        PARAMS.add(
+            ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICE_BROKERS).defaultValue(false).type(ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_FAIL_ON_CRASHED).defaultValue(true).type(ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_MTA_ID).type(ParameterType.STRING).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_KEEP_FILES).defaultValue(false).type(ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS).defaultValue(false).type(
+            ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_URI).defaultValue("").type(ParameterType.STRING).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_REF).type(ParameterType.STRING).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_REPO_PATH).type(ParameterType.STRING).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_SKIP_SSL).defaultValue(false).type(ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS).defaultValue(false).type(
+            ParameterType.BOOLEAN).build());
 
         // Special blue green deploy parameters:
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_CONFIRM).defaultValue(false).build());

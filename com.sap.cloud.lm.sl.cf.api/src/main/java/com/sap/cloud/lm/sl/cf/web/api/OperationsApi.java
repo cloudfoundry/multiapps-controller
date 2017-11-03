@@ -108,8 +108,8 @@ public class OperationsApi {
     }, tags={  })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "OK", response = Operation.class, responseContainer = "List") })
-    public Response getMtaOperations( @ApiParam(value = "")  @QueryParam("last") Integer last,  @ApiParam(value = "")  @QueryParam("status") List<String> status) {
-        return delegate.getMtaOperations(last, status, securityContext, spaceGuid);
+    public Response getMtaOperations( @ApiParam(value = "")  @QueryParam("last") Integer last,  @ApiParam(value = "")  @QueryParam("state") List<String> state) {
+        return delegate.getMtaOperations(last, state, securityContext, spaceGuid);
     }
 
     @GET

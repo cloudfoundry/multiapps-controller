@@ -18,16 +18,10 @@ import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("startAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StartAppStep extends AbstractXS2ProcessStepWithBridge {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("startAppTask").displayName("Start App").description("Start App").children(
-            PollStageAppStatusOnCfStep.getMetadata(), PollStartAppStatusStep.getMetadata(), PollExecuteAppStatusStep.getMetadata()).build();
-    }
+public class StartAppStep extends AbstractProcessStep {
 
     @Override
     protected String getIndexVariable() {
@@ -35,7 +29,7 @@ public class StartAppStep extends AbstractXS2ProcessStepWithBridge {
     }
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
         getStepLogger().logActivitiTask();
 
         CloudApplication app = getAppToStart(context);
@@ -79,7 +73,7 @@ public class StartAppStep extends AbstractXS2ProcessStepWithBridge {
             return app2.getState().equals(AppState.STARTED);
         } catch (CloudFoundryException e) {
             if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                logger.warn(e.getMessage(), e);
+                LOGGER.getLoggerImpl().warn(e.getMessage(), e);
                 return false;
             }
             throw e;

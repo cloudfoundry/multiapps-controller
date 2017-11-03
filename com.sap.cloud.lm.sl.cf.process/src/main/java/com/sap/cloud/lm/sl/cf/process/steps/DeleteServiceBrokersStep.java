@@ -20,16 +20,10 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("deleteServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteServiceBrokersStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("deleteServiceBrokersTask").displayName("Delete Service Brokers").description(
-            "Delete Service Brokers").build();
-    }
+public class DeleteServiceBrokersStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

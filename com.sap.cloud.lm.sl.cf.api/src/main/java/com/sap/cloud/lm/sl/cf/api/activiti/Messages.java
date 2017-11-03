@@ -1,14 +1,15 @@
 package com.sap.cloud.lm.sl.cf.api.activiti;
 
 public class Messages {
-    
+
     // Exception messages
-    
+
     public static final String ABORT_OPERATION_TIMED_OUT = "Abort operation timed out";
     public static final String ACTIVITI_JOB_RETRY_FAILED = "Activiti job retry failed";
-    
+    public static final String PROCESS_STEP_NOT_REACHED_BEFORE_TIMEOUT = "Step \"{0}\" of process \"{1}\" not reached before timeout";
+
     // Warn messages
-    
+
     public static final String RETRYING_PROCESS_ABORT = "Abort of process \"{0}\" failed due to an optimistic locking exception. Retrying abort...";
 
     // Debug messages

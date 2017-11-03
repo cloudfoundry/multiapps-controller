@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.persistence.util.Configuration;
 
 @Component("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
+public class ValidateDeployParametersStep extends AbstractProcessStep {
 
     private static final String PART_POSTFIX = ".part.";
 
@@ -148,7 +148,7 @@ public class ValidateDeployParametersStep extends AbstractXS2ProcessStep {
         try {
             fileService.deleteFile(fileEntry.getSpace(), fileEntry.getId());
         } catch (FileStorageException e) {
-            logger.warn(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
+            LOGGER.getLoggerImpl().warn(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
         }
     }
 

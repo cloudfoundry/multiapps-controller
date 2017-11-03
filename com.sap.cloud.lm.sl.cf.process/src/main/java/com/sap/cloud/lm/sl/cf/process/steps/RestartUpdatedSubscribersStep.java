@@ -13,16 +13,10 @@ import org.springframework.stereotype.Component;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("restartUpdatedSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RestartUpdatedSubscribersStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("restartUpdatedSubscribersTask").displayName("Restart Updated Subscribers").description(
-            "Restart Updated Subscribers").build();
-    }
+public class RestartUpdatedSubscribersStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {

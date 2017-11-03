@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
+import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
@@ -39,27 +40,21 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.slp.activiti.ActivitiFacade;
-import com.sap.cloud.lm.sl.slp.model.AsyncStepMetadata;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("uploadAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
+public class UploadAppStep extends AbstractProcessStep {
 
     private static final String WAIT_TILL_UPLOAD_START_TASK_ID = "waitTillUploadStartTask";
     private static final String ARCHIVE_FILE_SEPARATOR = "/";
 
-    public static StepMetadata getMetadata() {
-        return AsyncStepMetadata.builder().id("uploadAppTask").displayName("Upload").description("Upload App").pollTaskId(
-            "pollUploadAppStatusTask").childrenVisible(true).build();
-    }
-
     @Inject
     protected ScheduledExecutorService asyncTaskExecutor;
+    @Inject
+    protected ActivitiFacade activitiFacade;
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws FileStorageException, SLException {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws FileStorageException, SLException {
         getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(context);
@@ -82,11 +77,11 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
 
     private Runnable getUploadAppStepRunnableKiller(DelegateExecution context, Future<?> future) {
         return () -> {
-            logger.warn(format(Messages.CANCELING_UPLOAD_ASYNC_THREAD, context.getProcessInstanceId()));
+            LOGGER.getLoggerImpl().warn(format(Messages.CANCELING_UPLOAD_ASYNC_THREAD, context.getProcessInstanceId()));
             if (future.cancel(true)) {
-                logger.warn(format(Messages.ASYNC_THREAD_CANCELLED, context.getProcessInstanceId()));
+                LOGGER.getLoggerImpl().warn(format(Messages.ASYNC_THREAD_CANCELLED, context.getProcessInstanceId()));
             } else {
-                logger.warn(format(Messages.ASYNC_THREAD_COMPLETED, context.getProcessInstanceId()));
+                LOGGER.getLoggerImpl().warn(format(Messages.ASYNC_THREAD_COMPLETED, context.getProcessInstanceId()));
             }
         };
     }
@@ -303,7 +298,8 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
                 }
             } finally {
                 outputVariables.put(getStatusVariable(), status.name());
-                logger.info(format("Attempting to signal process with id:{0} with variables : {1}", processId, outputVariables));
+                LOGGER.getLoggerImpl().info(
+                    format("Attempting to signal process with id:{0} with variables : {1}", processId, outputVariables));
                 signalWaitTask(context.getProcessInstanceId(), outputVariables, ConfigurationUtil.getUploadAppTimeout() * 1000);
             }
             getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", context.getProcessInstanceId());
@@ -311,7 +307,7 @@ public class UploadAppStep extends AbstractXS2ProcessStepWithBridge {
     }
 
     protected void signalWaitTask(String processId, Map<String, Object> outputVariables, int timeout) {
-        ActivitiFacade.getInstance().signal(null, processId, WAIT_TILL_UPLOAD_START_TASK_ID, outputVariables, timeout);
+        activitiFacade.signal(null, processId, WAIT_TILL_UPLOAD_START_TASK_ID, outputVariables, timeout);
     }
 
     @Override

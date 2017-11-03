@@ -108,7 +108,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
     private void prepareContext() {
         context.setVariable(Constants.VAR_ORG, input.org);
         context.setVariable(Constants.VAR_SPACE, input.space);
-        context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SERVICE_ID, input.spaceId);
+        context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SERVICE_ID, input.spaceId);
         StepsUtil.setExistingApp(context, input.existingApp);
         context.setVariable(Constants.PARAM_MTA_ID, input.mtaId);
         StepsUtil.setPublishedEntries(context, input.publishedEntries);

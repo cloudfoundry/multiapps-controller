@@ -19,16 +19,10 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.slp.model.StepMetadata;
 
 @Component("registerServiceUrlsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RegisterServiceUrlsStep extends AbstractXS2ProcessStep {
-
-    public static StepMetadata getMetadata() {
-        return StepMetadata.builder().id("registerServiceUrlsTask").displayName("Register Service URLs").description(
-            "Register Service URLs").build();
-    }
+public class RegisterServiceUrlsStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {

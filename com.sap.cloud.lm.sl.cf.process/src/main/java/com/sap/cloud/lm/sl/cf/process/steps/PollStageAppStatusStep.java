@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 
 @Component("pollStageAppStatusStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollStageAppStatusStep extends AbstractXS2ProcessStepWithBridge {
+public class PollStageAppStatusStep extends AbstractProcessStep {
 
     @Inject
     protected RecentLogsRetriever recentLogsRetriever;
@@ -44,7 +44,7 @@ public class PollStageAppStatusStep extends AbstractXS2ProcessStepWithBridge {
     }
 
     @Override
-    protected ExecutionStatus pollStatusInternal(DelegateExecution context) throws Exception {
+    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
         getStepLogger().logActivitiTask();
 
         CloudApplication app = StepsUtil.getApp(context);
@@ -121,7 +121,7 @@ public class PollStageAppStatusStep extends AbstractXS2ProcessStepWithBridge {
             // Application staging failed
             String message = format(Messages.ERROR_STAGING_APP_2, app.getName(), state._2);
             getStepLogger().error(message);
-            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
+            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
             setRetryMessage(context, message);
             return ExecutionStatus.LOGICAL_RETRY;
         } else {
@@ -129,7 +129,7 @@ public class PollStageAppStatusStep extends AbstractXS2ProcessStepWithBridge {
             if (StepsUtil.hasTimedOut(context, () -> System.currentTimeMillis())) {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
                 getStepLogger().error(message);
-                StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, logger, processLoggerProviderFactory);
+                StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
                 setRetryMessage(context, message);
                 return ExecutionStatus.LOGICAL_RETRY;
             }

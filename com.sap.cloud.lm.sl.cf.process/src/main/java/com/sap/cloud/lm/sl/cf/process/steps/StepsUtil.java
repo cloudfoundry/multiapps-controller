@@ -55,6 +55,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.BinaryJson;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -66,7 +67,6 @@ import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.slp.services.ProcessLoggerProviderFactory;
 
 public class StepsUtil {
 
@@ -274,11 +274,11 @@ public class StepsUtil {
     }
 
     public static String getSpaceId(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SPACE_ID);
+        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID);
     }
 
     public static void setSpaceId(DelegateExecution context, String spaceId) {
-        context.setVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SPACE_ID, spaceId);
+        context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID, spaceId);
     }
 
     static void validateSpace(String space, DelegateExecution context) throws SLException {
@@ -843,7 +843,7 @@ public class StepsUtil {
     }
 
     public static String getIndexedStepName(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.slp.Constants.INDEXED_STEP_NAME);
+        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.INDEXED_STEP_NAME);
     }
 
     static ErrorType getErrorType(String processId, ContextExtensionDao contextExtensionDao) {
@@ -894,7 +894,7 @@ public class StepsUtil {
     }
 
     public static String getServiceId(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.slp.Constants.VARIABLE_NAME_SERVICE_ID);
+        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SERVICE_ID);
     }
 
     public static final String DEPLOY_ID_PREFIX = "deploy-";
