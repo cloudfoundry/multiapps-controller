@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
@@ -9,7 +8,7 @@
     <parent>
         <groupId>com.sap.cloud.lm.sl.cf</groupId>
         <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
-        <version>1.48.0-SNAPSHOT</version>
+        <version>1.48.0</version>
     </parent>
 
     <build>
@@ -74,8 +73,7 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <tasks>
-                                <copy file="${project.build.outputDirectory}/enhance.xml" toFile="./enhance.xml"
-                                    overwrite="true" />
+                                <copy file="${project.build.outputDirectory}/enhance.xml" toFile="./enhance.xml" overwrite="true" />
                             </tasks>
                         </configuration>
                         <goals>
