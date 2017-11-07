@@ -68,14 +68,14 @@ public final class Messages {
     public static final String MULTIPLE_CONFIGURATION_ENTRIES = "Multiple configuration entries were found matching the filter specified in resource \"{0}\": \"{1}\"";
 
     // Warning messages
-    public static final String ENVIRONMENT_VARIABLE_NOT_SET = "Environment variable \"{0}\" not set";
+    public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET = "Environment variable \"{0}\" is not set";
+    public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
+    public static final String ENVIRONMENT_VARIABLE_VALUE_IS_NOT_A_VALID_LONG_USING_DEFAULT = "Environment variable \"{0}\" has a value of \"{1}\", which is not a valid long. Using default \"{2}\"...";
     public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\", using default \"{1}\"";
     public static final String INVALID_XS_TARGET_URL = "Invalid XS target URL \"{0}\", using default \"{1}\"";
     public static final String UNKNOWN_DB_TYPE = "Unknown database type \"{0}\", using default \"{1}\"";
     public static final String INVALID_PLATFORMS = "Invalid platforms \"{0}\", using default \"{1}\"";
     public static final String INVALID_TARGETS = "Invalid targets \"{0}\", using default \"{1}\"";
-    public static final String INVALID_MAX_UPLOAD_SIZE = "Invalid max upload size \"{0}\", using default \"{1}\"";
-    public static final String INVALID_MAX_MTA_DESCRIPTOR_SIZE = "Invalid max mta descriptor size \"{0}\", using default \"{1}\"";
     public static final String INVALID_VCAP_APPLICATION_SPACE_ID = "Invalid VCAP_APPLICATION \"{0}\", using default space ID \"{1}\"";
     public static final String INVALID_VCAP_APPLICATION = "Invalid VCAP_APPLICATION \"{0}\"";
     public static final String INVALID_VCAP_APPLICATION_DEPLOY_SERVICE_URI = "Could not determine deploy service URI from VCAP_APPLICATION \"{0}\"";

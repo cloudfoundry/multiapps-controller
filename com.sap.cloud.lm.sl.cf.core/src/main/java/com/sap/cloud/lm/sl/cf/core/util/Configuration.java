@@ -556,25 +556,27 @@ public class Configuration {
     }
 
     private Long getMaxUploadSizeFromEnvironment() {
-        String value = environment.getVariable(CFG_MAX_UPLOAD_SIZE);
-        return getLong(value, DEFAULT_MAX_UPLOAD_SIZE, Messages.MAX_UPLOAD_SIZE, Messages.MAX_UPLOAD_SIZE_NOT_SPECIFIED,
-            Messages.INVALID_MAX_UPLOAD_SIZE);
+        Long value = getLong(CFG_MAX_UPLOAD_SIZE, DEFAULT_MAX_UPLOAD_SIZE);
+        LOGGER.info(format(Messages.MAX_UPLOAD_SIZE, value));
+        return value;
     }
 
     private Long getMaxMtaDescriptorSizeFromEnvironment() {
-        String value = environment.getVariable(CFG_MAX_MTA_DESCRIPTOR_SIZE);
-        return getLong(value, DEFAULT_MAX_MTA_DESCRIPTOR_SIZE, Messages.MAX_MTA_DESCRIPTOR_SIZE,
-            Messages.MAX_MTA_DESCRIPTOR_SIZE_NOT_SPECIFIED, Messages.INVALID_MAX_MTA_DESCRIPTOR_SIZE);
+        Long value = getLong(CFG_MAX_MTA_DESCRIPTOR_SIZE, DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+        LOGGER.info(format(Messages.MAX_MTA_DESCRIPTOR_SIZE, value));
+        return value;
     }
 
     private Boolean shouldScanUploadsFromEnvironment() {
-        String value = environment.getVariable(CFG_SCAN_UPLOADS);
-        return getBoolean(value, DEFAULT_SCAN_UPLOADS, Messages.SCAN_UPLOADS);
+        Boolean value = getBoolean(CFG_SCAN_UPLOADS, DEFAULT_SCAN_UPLOADS);
+        LOGGER.info(format(Messages.SCAN_UPLOADS, value));
+        return value;
     }
 
     private Boolean shouldUseXSAuditLoggingFromEnvironment() {
-        String value = environment.getVariable(CFG_USE_XS_AUDIT_LOGGING);
-        return getBoolean(value, DEFAULT_USE_XS_AUDIT_LOGGING, Messages.USE_XS_AUDIT_LOGGING);
+        Boolean value = getBoolean(CFG_USE_XS_AUDIT_LOGGING, DEFAULT_USE_XS_AUDIT_LOGGING);
+        LOGGER.info(format(Messages.USE_XS_AUDIT_LOGGING, value));
+        return value;
     }
 
     private String getSpaceGuidFromEnvironment() {
@@ -658,58 +660,69 @@ public class Configuration {
     }
 
     private Boolean areDummyTokensEnabledThroughEnvironment() {
-        String value = environment.getVariable(CFG_DUMMY_TOKENS_ENABLED);
-        return getBoolean(value, DEFAULT_DUMMY_TOKENS_ENABLED, Messages.DUMMY_TOKENS_ENABLED);
+        Boolean value = getBoolean(CFG_DUMMY_TOKENS_ENABLED, DEFAULT_DUMMY_TOKENS_ENABLED);
+        LOGGER.info(format(Messages.DUMMY_TOKENS_ENABLED, value));
+        return value;
     }
 
     private Boolean isBasicAuthEnabledThroughEnvironment() {
-        String value = environment.getVariable(CFG_BASIC_AUTH_ENABLED);
-        return getBoolean(value, DEFAULT_BASIC_AUTH_ENABLED, Messages.BASIC_AUTH_ENABLED);
+        Boolean value = getBoolean(CFG_BASIC_AUTH_ENABLED, DEFAULT_BASIC_AUTH_ENABLED);
+        LOGGER.info(format(Messages.BASIC_AUTH_ENABLED, value));
+        return value;
     }
 
     private String getAdminUsernameFromEnvironment() {
-        String value = environment.getVariable(CFG_ADMIN_USERNAME);
-        return getString(value, DEFAULT_ADMIN_USERNAME, Messages.ADMIN_USERNAME);
+        String value = getString(CFG_ADMIN_USERNAME, DEFAULT_ADMIN_USERNAME);
+        LOGGER.info(format(Messages.ADMIN_USERNAME, value));
+        return value;
     }
 
     private Integer getXsClientCoreThreadsFromEnvironment() {
-        String value = environment.getVariable(CFG_XS_CLIENT_CORE_THREADS);
-        return getPositiveInt(value, DEFAULT_XS_CLIENT_CORE_THREADS, Messages.XS_CLIENT_CORE_THREADS);
+        Integer value = getPositiveInt(CFG_XS_CLIENT_CORE_THREADS, DEFAULT_XS_CLIENT_CORE_THREADS);
+        LOGGER.info(format(Messages.XS_CLIENT_CORE_THREADS, value));
+        return value;
     }
 
     private Integer getXsClientMaxThreadsFromEnvironment() {
-        String value = environment.getVariable(CFG_XS_CLIENT_MAX_THREADS);
-        return getPositiveInt(value, DEFAULT_XS_CLIENT_MAX_THREADS, Messages.XS_CLIENT_MAX_THREADS);
+        Integer value = getPositiveInt(CFG_XS_CLIENT_MAX_THREADS, DEFAULT_XS_CLIENT_MAX_THREADS);
+        LOGGER.info(format(Messages.XS_CLIENT_MAX_THREADS, value));
+        return value;
     }
 
     private Integer getXsClientQueueCapacityFromEnvironment() {
-        String value = environment.getVariable(CFG_XS_CLIENT_QUEUE_CAPACITY);
-        return getPositiveInt(value, DEFAULT_XS_CLIENT_QUEUE_CAPACITY, Messages.XS_CLIENT_QUEUE_CAPACITY);
+        Integer value = getPositiveInt(CFG_XS_CLIENT_QUEUE_CAPACITY, DEFAULT_XS_CLIENT_QUEUE_CAPACITY);
+        LOGGER.info(format(Messages.XS_CLIENT_QUEUE_CAPACITY, value));
+        return value;
     }
 
     private int getXsClientKeepAliveFromEnvironment() {
-        String value = environment.getVariable(CFG_XS_CLIENT_KEEP_ALIVE);
-        return getPositiveInt(value, DEFAULT_XS_CLIENT_KEEP_ALIVE, Messages.XS_CLIENT_KEEP_ALIVE);
+        int value = getPositiveInt(CFG_XS_CLIENT_KEEP_ALIVE, DEFAULT_XS_CLIENT_KEEP_ALIVE);
+        LOGGER.info(format(Messages.XS_CLIENT_KEEP_ALIVE, value));
+        return value;
     }
 
     private Integer getAsyncExecutorCoreThreadsFromEnvironment() {
-        String value = environment.getVariable(CFG_ASYNC_EXECUTOR_CORE_THREADS);
-        return getPositiveInt(value, DEFAULT_ASYNC_EXECUTOR_CORE_THREADS, Messages.ASYNC_EXECUTOR_CORE_THREADS);
+        Integer value = getPositiveInt(CFG_ASYNC_EXECUTOR_CORE_THREADS, DEFAULT_ASYNC_EXECUTOR_CORE_THREADS);
+        LOGGER.info(format(Messages.ASYNC_EXECUTOR_CORE_THREADS, value));
+        return value;
     }
 
     private int getControllerPollingIntervalFromEnvironment() {
-        String value = environment.getVariable(CFG_CONTROLLER_POLLING_INTERVAL);
-        return getPositiveInt(value, DEFAULT_CONTROLLER_POLLING_INTERVAL, Messages.CONTROLLER_POLLING_INTERVAL);
+        int value = getPositiveInt(CFG_CONTROLLER_POLLING_INTERVAL, DEFAULT_CONTROLLER_POLLING_INTERVAL);
+        LOGGER.info(format(Messages.CONTROLLER_POLLING_INTERVAL, value));
+        return value;
     }
 
     private int getUploadAppTimeoutFromEnvironment() {
-        String value = environment.getVariable(CFG_UPLOAD_APP_TIMEOUT);
-        return getPositiveInt(value, DEFAULT_UPLOAD_APP_TIMEOUT, Messages.UPLOAD_APP_TIMEOUT);
+        int value = getPositiveInt(CFG_UPLOAD_APP_TIMEOUT, DEFAULT_UPLOAD_APP_TIMEOUT);
+        LOGGER.info(format(Messages.UPLOAD_APP_TIMEOUT, value));
+        return value;
     }
 
     private Boolean shouldSkipSslValidationBasedOnEnvironment() {
-        String value = environment.getVariable(CFG_SKIP_SSL_VALIDATION);
-        return getBoolean(value, DEFAULT_SKIP_SSL_VALIDATION, Messages.SKIP_SSL_VALIDATION);
+        Boolean value = getBoolean(CFG_SKIP_SSL_VALIDATION, DEFAULT_SKIP_SSL_VALIDATION);
+        LOGGER.info(format(Messages.SKIP_SSL_VALIDATION, value));
+        return value;
     }
 
     private Boolean areXsPlaceholdersSupportedBasedOnEnvironment() {
@@ -720,65 +733,83 @@ public class Configuration {
     }
 
     private String getVersionFromEnvironment() {
-        String version = environment.getVariable(CFG_VERSION);
-        return getString(version, DEFAULT_VERSION, Messages.DS_VERSION);
+        String value = getString(CFG_VERSION, DEFAULT_VERSION);
+        LOGGER.info(format(Messages.DS_VERSION, value));
+        return value;
     }
 
     private Integer getChangeLogLockWaitTimeFromEnvironment() {
-        String value = environment.getVariable(CFG_CHANGE_LOG_LOCK_WAIT_TIME);
-        return getPositiveInt(value, DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME, Messages.CHANGE_LOG_LOCK_WAIT_TIME);
+        Integer value = getPositiveInt(CFG_CHANGE_LOG_LOCK_WAIT_TIME, DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME);
+        LOGGER.info(format(Messages.CHANGE_LOG_LOCK_WAIT_TIME, value));
+        return value;
     }
 
     private Integer getChangeLogLockDurationFromEnvironment() {
-        String value = environment.getVariable(CFG_CHANGE_LOG_LOCK_DURATION);
-        return getPositiveInt(value, DEFAULT_CHANGE_LOG_LOCK_DURATION, Messages.CHANGE_LOG_LOCK_DURATION);
+        Integer value = getPositiveInt(CFG_CHANGE_LOG_LOCK_DURATION, DEFAULT_CHANGE_LOG_LOCK_DURATION);
+        LOGGER.info(format(Messages.CHANGE_LOG_LOCK_DURATION, value));
+        return value;
     }
 
     private Integer getChangeLogLockAttemptsFromEnvironment() {
-        String value = environment.getVariable(CFG_CHANGE_LOG_LOCK_ATTEMPTS);
-        return getPositiveInt(value, DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS, Messages.CHANGE_LOG_LOCK_ATTEMPTS);
+        Integer value = getPositiveInt(CFG_CHANGE_LOG_LOCK_ATTEMPTS, DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS);
+        LOGGER.info(format(Messages.CHANGE_LOG_LOCK_ATTEMPTS, value));
+        return value;
     }
 
     private String getGlobalConfigSpaceFromEnvironment() {
-        String value = environment.getVariable(CFG_GLOBAL_CONFIG_SPACE);
-        return getString(value, null, Messages.GLOBAL_CONFIG_SPACE);
+        String value = getString(CFG_GLOBAL_CONFIG_SPACE, null);
+        LOGGER.info(format(Messages.GLOBAL_CONFIG_SPACE, value));
+        return value;
     }
 
     private Boolean shouldGatherUsageStatisticsBasedOnEnvironment() {
-        String value = environment.getVariable(CFG_GATHER_USAGE_STATISTICS);
-        return getBoolean(value, DEFAULT_GATHER_USAGE_STATISTICS, Messages.GATHER_STATISTICS);
+        Boolean value = getBoolean(CFG_GATHER_USAGE_STATISTICS, DEFAULT_GATHER_USAGE_STATISTICS);
+        LOGGER.info(format(Messages.GATHER_STATISTICS, value));
+        return value;
     }
 
-    private String getString(String value, String defaultValue, String message) {
-        String result = (value != null) ? value : defaultValue;
-        LOGGER.info(format(message, result));
-        return result;
+    private String getString(String name, String defaultValue) {
+        String value = environment.getVariable(name);
+        if (value != null) {
+            return value;
+        }
+        LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
+        return defaultValue;
     }
 
-    private Integer getPositiveInt(String value, Integer defaultValue, String message) {
-        Integer result = (value != null) ? Integer.valueOf(value) : defaultValue;
-        if (result <= 0)
+    private Integer getPositiveInt(String name, Integer defaultValue) {
+        String value = environment.getVariable(name);
+        Integer result = null;
+        if (value != null) {
+            result = Integer.parseInt(value);
+        } else {
+            LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
+            result = defaultValue;
+        }
+        if (result <= 0) {
             result = Integer.MAX_VALUE;
-        LOGGER.info(format(message, result));
+        }
         return result;
     }
 
-    private Boolean getBoolean(String value, Boolean defaultValue, String message) {
-        Boolean result = (value != null) ? Boolean.valueOf(value) : defaultValue;
-        LOGGER.info(format(message, result));
-        return result;
+    private Boolean getBoolean(String name, Boolean defaultValue) {
+        String value = environment.getVariable(name);
+        if (value != null) {
+            return Boolean.valueOf(value);
+        }
+        LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
+        return defaultValue;
     }
 
-    private Long getLong(String value, Long defaultValue, String message, String notSpecifiedMessage, String invalidMessage) {
+    private Long getLong(String name, Long defaultValue) {
+        String value = environment.getVariable(name);
         try {
             if (value != null) {
-                Long result = Long.valueOf(value);
-                LOGGER.info(format(message, result));
-                return result;
+                return Long.valueOf(value);
             }
-            LOGGER.info(format(notSpecifiedMessage, defaultValue));
+            LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
         } catch (NumberFormatException e) {
-            LOGGER.warn(format(invalidMessage, value, defaultValue), e);
+            LOGGER.warn(format(Messages.ENVIRONMENT_VARIABLE_VALUE_IS_NOT_A_VALID_LONG_USING_DEFAULT, name, value, defaultValue), e);
         }
         return defaultValue;
     }
