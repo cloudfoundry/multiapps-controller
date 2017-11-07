@@ -85,9 +85,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:SAP/cloud-mta-java-common.git</connection>
-        <developerConnection>scm:git:git@github.com:SAP/cloud-mta-java-common.git</developerConnection>
-        <url>git@github.com:SAP/cloud-mta-java-common.git</url>
+        <connection>scm:git:https://github.com/SAP/cf-mta-deploy-service.git</connection>
+        <developerConnection>scm:git:https://github.com/SAP/cf-mta-deploy-service.git</developerConnection>
+        <url>https://github.com/SAP/cf-mta-deploy-service.git</url>
     </scm>
 
     <developers>
