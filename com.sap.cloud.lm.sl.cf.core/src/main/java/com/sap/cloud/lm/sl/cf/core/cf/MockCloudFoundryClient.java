@@ -46,6 +46,7 @@ import org.cloudfoundry.client.lib.domain.CloudUser;
 import org.cloudfoundry.client.lib.domain.CrashesInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
+import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -710,6 +711,11 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
 
     @Override
     public Map<String, CloudUser> getOrganizationUsers(String arg0) {
+        return null;
+    }
+
+    @Override
+    public List<ServiceKey> getServiceKeys(String serviceName) {
         return null;
     }
 
