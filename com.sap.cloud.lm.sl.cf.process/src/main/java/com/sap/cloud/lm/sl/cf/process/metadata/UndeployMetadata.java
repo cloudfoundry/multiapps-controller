@@ -16,7 +16,7 @@ public class UndeployMetadata {
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICES).type(ParameterType.BOOLEAN).defaultValue(false).build());
         PARAMS.add(
             ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICE_BROKERS).type(ParameterType.BOOLEAN).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_MTA_ID).required(true).type(ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_MTA_ID).required(true).type(ParameterType.STRING).build());
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS).defaultValue(false).type(
             ParameterType.BOOLEAN).build());
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS).defaultValue(false).type(

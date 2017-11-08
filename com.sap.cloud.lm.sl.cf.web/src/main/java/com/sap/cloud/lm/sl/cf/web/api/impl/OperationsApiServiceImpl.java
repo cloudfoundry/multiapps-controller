@@ -101,6 +101,10 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public Response getMtaOperationLogs(String operationId, SecurityContext securityContext, String spaceGuid) {
         try {
+            Operation operation = dao.find(operationId);
+            if (operation == null) {
+                return Response.status(Status.NOT_FOUND).entity("Operation with id " + operationId + " not found").build();
+            }
             List<String> logIds = logsService.getLogNames(spaceGuid, operationId);
             List<Log> logs = logIds.stream().map(id -> new Log().id(id)).collect(Collectors.toList());
             return Response.ok().entity(logs).build();
