@@ -30,4 +30,6 @@ public class Constants {
     // Variables
     public static final String ATTR_CORRELATION_ID = "correlation-id";
 
+    //Numeric constants
+    public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l;
 }

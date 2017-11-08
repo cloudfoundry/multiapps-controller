@@ -55,13 +55,14 @@ public class SaveFileStreamToDirectoryTest {
     @Test
     public void testSaveStreamToDirectory() throws Exception {
         InputStream stream = StreamUtil.class.getResourceAsStream(mtar);
-        try (InputStreamProducer streamProducer = new InputStreamProducer(stream, fileName)) {
+        try (InputStreamProducer streamProducer = new InputStreamProducer(stream, fileName, 250 * 1024 * 1024 )) {
             InputStream streamToSave = streamProducer.getNextInputStream();
             String streamEntryName = streamProducer.getStreamEntryName();
             directoryPath = StreamUtil.getTempDirectory(fileName);
             while (streamToSave != null) {
                 if (!streamEntryName.endsWith("/")) {
-                    StreamUtil.saveStreamToDirectory(streamEntryName, fileName, directoryPath, streamToSave);
+                    StreamUtil streamUtil = new StreamUtil(streamToSave);
+                    streamUtil.saveStreamToDirectory(streamEntryName, fileName, directoryPath);
                 }
                 streamToSave = streamProducer.getNextInputStream();
                 streamEntryName = streamProducer.getStreamEntryName();

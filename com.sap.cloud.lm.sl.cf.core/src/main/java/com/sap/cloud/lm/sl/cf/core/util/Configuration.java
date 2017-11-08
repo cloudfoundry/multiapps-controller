@@ -67,6 +67,8 @@ public class Configuration {
     static final String CFG_TARGETS_V3 = "TARGETS_V3";
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
+    static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
+    static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
     static final String CFG_SCAN_UPLOADS = "SCAN_UPLOADS";
     static final String CFG_USE_XS_AUDIT_LOGGING = "USE_XS_AUDIT_LOGGING";
     static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
@@ -104,6 +106,8 @@ public class Configuration {
     public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
     public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
+    public static long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; //1MB
+    public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024l; // 1GB
     public static final Boolean DEFAULT_SCAN_UPLOADS = false;
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
     public static final String DEFAULT_SPACE_ID = "";
@@ -161,6 +165,8 @@ public class Configuration {
     private DatabaseType databaseType;
     private Long maxUploadSize;
     private Long maxMtaDescriptorSize;
+    private Long maxManifestSize;
+    private Long maxResourceFileSize;
     private Boolean scanUploads;
     private Boolean useXSAuditLogging;
     private String spaceGuid;
@@ -194,6 +200,8 @@ public class Configuration {
         getDatabaseType();
         getMaxUploadSize();
         getMaxMtaDescriptorSize();
+        getMaxManifestSize();
+        getMaxResourceFileSize();
         shouldScanUploads();
         shouldUseXSAuditLogging();
         getSpaceGuid();
@@ -237,12 +245,12 @@ public class Configuration {
 
     private Set<String> getNotSensitiveConfigVariables() {
         return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_TARGET_URL, CFG_DB_TYPE, CFG_PLATFORMS, CFG_PLATFORMS_V2, CFG_PLATFORMS_V3,
-            CFG_TARGETS, CFG_TARGETS_V2, CFG_TARGETS_V3, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_SCAN_UPLOADS,
-            CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_ADMIN_USERNAME, CFG_XS_CLIENT_CORE_THREADS,
-            CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY, CFG_XS_CLIENT_KEEP_ALIVE, CFG_ASYNC_EXECUTOR_CORE_THREADS,
-            CFG_CONTROLLER_POLLING_INTERVAL, CFG_UPLOAD_APP_TIMEOUT, CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION,
-            CFG_CHANGE_LOG_LOCK_WAIT_TIME, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
-            CFG_GATHER_USAGE_STATISTICS));
+            CFG_TARGETS, CFG_TARGETS_V2, CFG_TARGETS_V3, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE,
+            CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
+            CFG_ADMIN_USERNAME, CFG_XS_CLIENT_CORE_THREADS, CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY,
+            CFG_XS_CLIENT_KEEP_ALIVE, CFG_ASYNC_EXECUTOR_CORE_THREADS, CFG_CONTROLLER_POLLING_INTERVAL, CFG_UPLOAD_APP_TIMEOUT,
+            CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_WAIT_TIME,
+            CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS));
     }
 
     public com.sap.cloud.lm.sl.persistence.util.Configuration getFileConfiguration() {
@@ -317,6 +325,20 @@ public class Configuration {
             maxMtaDescriptorSize = getMaxMtaDescriptorSizeFromEnvironment();
         }
         return maxMtaDescriptorSize;
+    }
+    
+    public Long getMaxManifestSize() {
+        if(maxManifestSize == null){
+            maxManifestSize = getMaxManifestSizeFromEnviroment();
+        }
+        return maxManifestSize;
+    }
+    
+    public Long getMaxResourceFileSize() {
+        if(maxResourceFileSize == null){
+            maxResourceFileSize = getMaxResourceFileSizeFromEnviroment();
+        }
+        return maxResourceFileSize;
     }
 
     public Boolean shouldScanUploads() {
@@ -591,6 +613,18 @@ public class Configuration {
     private Long getMaxMtaDescriptorSizeFromEnvironment() {
         Long value = getLong(CFG_MAX_MTA_DESCRIPTOR_SIZE, DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
         LOGGER.info(format(Messages.MAX_MTA_DESCRIPTOR_SIZE, value));
+        return value;
+    }
+    
+    private Long getMaxManifestSizeFromEnviroment() {
+        Long value = getLong(CFG_MAX_MANIFEST_SIZE, DEFAULT_MAX_MANIFEST_SIZE);
+        LOGGER.info(format(Messages.MAX_MANIFEST_SIZE, value));
+        return value;
+    }
+    
+    private Long getMaxResourceFileSizeFromEnviroment(){
+        Long value = getLong(CFG_MAX_RESOURCE_FILE_SIZE, DEFAULT_MAX_RESOURCE_FILE_SIZE);
+        LOGGER.info(format(Messages.MAX_RESOURCE_FILE_SIZE, value));
         return value;
     }
 
@@ -881,5 +915,4 @@ public class Configuration {
             throw new IllegalStateException(e);
         }
     }
-
 }

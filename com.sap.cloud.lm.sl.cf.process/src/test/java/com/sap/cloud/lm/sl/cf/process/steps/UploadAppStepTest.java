@@ -40,6 +40,7 @@ import org.springframework.http.HttpStatus;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
@@ -244,11 +245,11 @@ public class UploadAppStepTest {
             }
 
             @Override
-            InputStreamProducer getInputStreamProducer(InputStream appArchiveStream, String fileName) throws SLException {
+            InputStreamProducer getInputStreamProducer(InputStream appArchiveStream, String fileName, long maxStreamSize) throws SLException {
                 if (!fileName.equals(APP_FILE)) {
-                    return super.getInputStreamProducer(appArchiveStream, fileName);
+                    return super.getInputStreamProducer(appArchiveStream, fileName, maxStreamSize);
                 }
-                return new InputStreamProducer(getClass().getResourceAsStream(APP_FILE), fileName) {
+                return new InputStreamProducer(getClass().getResourceAsStream(APP_FILE), fileName, Configuration.getInstance().getMaxResourceFileSize()) {
                     @Override
                     public InputStream getNextInputStream() {
                         return getClass().getResourceAsStream(APP_FILE);

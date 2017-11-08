@@ -96,7 +96,8 @@ public class UploadAppStep extends AbstractProcessStep {
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
                 File file = null;
-                try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName)) {
+                long maxStreamSize = Configuration.getInstance().getMaxResourceFileSize();
+                try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Start uploading application content
                     file = saveToFile(fileName, streamProducer);
                     detectApplicationFileDigestChanges(context, app, file, client);
@@ -120,7 +121,8 @@ public class UploadAppStep extends AbstractProcessStep {
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
                 File file = null;
-                try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName)) {
+                long maxStreamSize = Configuration.getInstance().getMaxResourceFileSize();
+                try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Upload application content
                     file = saveToFile(fileName, streamProducer);
                     detectApplicationFileDigestChanges(context, app, file, client);
@@ -171,10 +173,11 @@ public class UploadAppStep extends AbstractProcessStep {
         return new MonitorUploadStatusCallback(context, app, file);
     }
 
-    InputStreamProducer getInputStreamProducer(InputStream appArchiveStream, String fileName) throws SLException {
-        return new InputStreamProducer(appArchiveStream, fileName);
+    InputStreamProducer getInputStreamProducer(InputStream appArchiveStream, String fileName, long maxStreamSize) throws SLException {
+        return new InputStreamProducer(appArchiveStream, fileName, maxStreamSize);
     }
 
+    @SuppressWarnings("resource")
     protected File saveToFile(String fileName, InputStreamProducer streamProducer) throws IOException {
         InputStream stream = streamProducer.getNextInputStream();
         if (stream == null) {
@@ -182,19 +185,22 @@ public class UploadAppStep extends AbstractProcessStep {
         }
 
         String entryName = streamProducer.getStreamEntryName();
+        StreamUtil streamUtil = new StreamUtil(stream);
         if (isFile(fileName)) {
-            return StreamUtil.saveStreamToFile(entryName, stream);
+            return streamUtil.saveStreamToFile(entryName);
         }
 
         if (entryName.equals(fileName)) {
-            return StreamUtil.saveZipStreamToDirectory(fileName, stream);
+            return streamUtil.saveZipStreamToDirectory(fileName, Configuration.getInstance().getMaxResourceFileSize());
         }
         Path destinationDirectory = StreamUtil.getTempDirectory(fileName);
         while (stream != null) {
             if (!entryName.endsWith(ARCHIVE_FILE_SEPARATOR)) {
-                StreamUtil.saveStreamToDirectory(entryName, fileName, destinationDirectory, stream);
+                streamUtil.saveStreamToDirectory(entryName, fileName, destinationDirectory);
             }
+            //no need to close this stream because no new stream object is created
             stream = streamProducer.getNextInputStream();
+            streamUtil.setInputStream(stream);
             entryName = streamProducer.getStreamEntryName();
         }
         return destinationDirectory.toFile();

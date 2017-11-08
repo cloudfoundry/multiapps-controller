@@ -38,6 +38,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
@@ -379,7 +380,7 @@ public class CreateOrUpdateServicesStep extends AbstractProcessStep {
         FileContentProcessor parametersFileProcessor = new FileContentProcessor() {
             @Override
             public void processFileContent(InputStream appArchiveStream) throws SLException {
-                try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName)) {
+                try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, Configuration.getInstance().getMaxManifestSize())) {
                     mergeCredentials(service, is);
                 } catch (IOException e) {
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
