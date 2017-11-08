@@ -5,6 +5,9 @@ CF MTA deploy service provides the possibility to operate (deploy, update, undep
 
 
 # Components
+## com.sap.cloud.lm.sl.cf.api
+Contains the swagger-generated definitions of the REST API models and endpoints. The complete swagger definitions can be found at: https://app.swaggerhub.com/apis/SAP53/mtarest/1.0.0
+
 ## com.sap.cloud.lm.sl.cf.core
 Contains the domain model, persistence and other core services and utilities.
 
