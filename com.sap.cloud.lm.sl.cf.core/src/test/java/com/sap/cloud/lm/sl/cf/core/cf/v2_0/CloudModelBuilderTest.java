@@ -333,6 +333,24 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1_0.C
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "E:The name \"service-key-1\" is not a valid environment variable name" }
             },
+            // (31) With 'enable-ssh' set to true: 
+            {
+                "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                false, false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:apps-with-ssh-enabled-true.json", }
+            },
+            // (32) With 'enable-ssh' set to false: 
+            {
+                "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                false, false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:apps-with-ssh-enabled-false.json", }
+            }
 // @formatter:on
         });
     }

@@ -46,7 +46,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
 
     private final StepInput input;
     private final String expectedExceptionMessage;
-    
+
     private List<String> notRequiredServices = new ArrayList<>();
     private List<String> expectedServicesToBind = new ArrayList<>();
 
@@ -121,6 +121,10 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
             {
                 "update-app-step-input-17.json", "nable to retrieve required service key element \"expected-service-key\" for service \"existing-service-1\"", PlatformType.XS2
             },
+            // Test enable-ssh parameter
+            {
+                "update-app-step-input-18.json", null, PlatformType.CF
+            }
 // @formatter:on
         });
     }
@@ -170,7 +174,6 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
         if (input.updateEnv) {
             Mockito.verify(client).updateApplicationEnv(appName, cloudApp.getEnvAsMap());
         }
-
         if (platform == PlatformType.CF) {
             Mockito.verify(applicationUpdaterMock).updateApplicationStaging(eq(client), eq(cloudApp.getName()),
                 (StagingExtended) Matchers.argThat(ArgumentMatcherProvider.getStagingMatcher(cloudApp.getStaging())));
@@ -326,14 +329,15 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
         int memory;
         int instances;
         int diskQuota;
+        Boolean sshEnabled;
 
         CloudApplicationExtended toCloudApp() {
             CloudApplicationExtended cloudApp = new CloudApplicationExtended(name, command, buildpackUrl, memory, instances, uris, services,
                 AppState.STARTED);
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
+            cloudApp.setStaging(new StagingExtended(command, buildpackUrl, null, 0, "none", null, sshEnabled));
             cloudApp.setBindingParameters(bindingParameters);
-            cloudApp.setStaging(new StagingExtended(command, buildpackUrl, null, 0, "none", null));
             cloudApp.setServiceKeysToInject(serviceKeysToInject);
             return cloudApp;
         }
