@@ -24,7 +24,8 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         String healthCheckType = (String) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_TYPE, null);
         String healthCheckHttpEndpoint = (String) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
             getDefaultHealthCheckHttpEndpoint(healthCheckType));
-        return new StagingExtended(command, buildpack, stack, healthCheckTimeout, healthCheckType, healthCheckHttpEndpoint);
+        Boolean isSshEnabled = (Boolean) getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
+        return new StagingExtended(command, buildpack, stack, healthCheckTimeout, healthCheckType, healthCheckHttpEndpoint, isSshEnabled);
     }
 
     private String getDefaultHealthCheckHttpEndpoint(String healthCheckType) {

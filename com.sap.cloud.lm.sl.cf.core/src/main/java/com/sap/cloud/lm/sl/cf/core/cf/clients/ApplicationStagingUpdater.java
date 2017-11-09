@@ -19,6 +19,7 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
     private static final String HEALTH_CHECK_TIMEOUT_PARAMETER = "health_check_timeout";
     private static final String COMMAND_PARAMETER = "command";
     private static final String BUILDPACK_PARAMETER = "buildpack";
+    private static final String ENABLE_SSH_PARAMETER = "enable_ssh";
 
     public void updateApplicationStaging(CloudFoundryOperations client, String appName, StagingExtended staging) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToUpdateApplicationStaging(client, appName, staging));
@@ -52,6 +53,9 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
         }
         if (staging.getHealthCheckHttpEndpoint() != null) {
             stagingParameters.put(HEALTH_CHECK_HTTP_ENDPOINT_PARAMETER, staging.getHealthCheckHttpEndpoint());
+        }
+        if (staging.isSshEnabled() != null) {
+            stagingParameters.put(ENABLE_SSH_PARAMETER, staging.isSshEnabled());
         }
         return stagingParameters;
     }

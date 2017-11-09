@@ -327,7 +327,7 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-with-health-check-type-http-with-endpoint.json", }
             },
-            // (24) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
+            // (25) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
             { 
                 "mtad-health-check-type-http-without-endpoint.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, false,
@@ -336,6 +336,24 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-with-health-check-type-http-without-endpoint.json", }
             },
+            // (26) With 'enable-ssh' set to true: 
+            {
+                "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
+                false, false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:apps-with-ssh-enabled-true.json", }
+            },
+            // (27) With 'enable-ssh' set to false: 
+            {
+                "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
+                false, false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:apps-with-ssh-enabled-false.json", }
+            }
 // @formatter:on
         });
     }

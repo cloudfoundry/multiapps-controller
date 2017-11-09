@@ -103,6 +103,9 @@ public class ApplicationStagingUpdaterTest {
         if (staging.getHealthCheckHttpEndpoint() != null) {
             stagingParameters.put("health_check_http_endpoint", staging.getHealthCheckHttpEndpoint());
         }
+        if (staging.isSshEnabled() != null) {
+            stagingParameters.put("enable_ssh", staging.isSshEnabled());
+        }
         return stagingParameters;
     }
 
@@ -117,9 +120,11 @@ public class ApplicationStagingUpdaterTest {
         int healthCheckTimeout;
         String healthCheckType;
         String healthCheckHttpEndpoint;
+        boolean sshEnabled;
 
         StagingExtended toStagingExtended() {
-            return new StagingExtended(command, buildpackUrl, null, healthCheckTimeout, healthCheckType, healthCheckHttpEndpoint);
+            return new StagingExtended(command, buildpackUrl, null, healthCheckTimeout, healthCheckType, healthCheckHttpEndpoint,
+                sshEnabled);
         }
     }
 
