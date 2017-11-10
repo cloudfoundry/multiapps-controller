@@ -219,12 +219,13 @@ public class UpdateAppStep extends CreateAppStep {
         String stack = staging.getStack();
         Integer healthCheckTimeout = staging.getHealthCheckTimeout();
         String healthCheckType = staging.getHealthCheckType();
+        String healthCheckHttpEndpoint = staging.getHealthCheckHttpEndpoint();
         Boolean sshEnabled = staging.isSshEnabled();
         return (buildpackUrl != null && !buildpackUrl.equals(existingStaging.getBuildpackUrl()))
             || (command != null && !command.equals(existingStaging.getCommand()))
             || (stack != null && !stack.equals(existingStaging.getStack()))
             || (healthCheckTimeout != null && !healthCheckTimeout.equals(existingStaging.getHealthCheckTimeout()))
-            || (healthCheckType != null) || (sshEnabled != null);
+            || (healthCheckType != null) || (healthCheckHttpEndpoint != null) || (sshEnabled != null);
     }
 
     private boolean hasChanged(List<String> uris, List<String> existingUris) {
