@@ -261,7 +261,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             case RUNNING:
                 return new ArrayList<>(Arrays.asList("abort", "retry"));
             case ACTION_REQUIRED:
-                return new ArrayList<>(Arrays.asList("abort", "continue"));
+                return new ArrayList<>(Arrays.asList("abort", "resume"));
         }
 
         throw new IllegalStateException("State " + operationState.value() + " not recognised!");
