@@ -124,6 +124,14 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
             // Test enable-ssh parameter
             {
                 "update-app-step-input-18.json", null, PlatformType.CF
+            },
+            // Test if healthCheckType parameter is updated
+            {
+                "update-app-step-input-19.json", null, PlatformType.CF
+            },
+            // Test if healthCheckHttpEndpoint parameter is updated
+            {
+                "update-app-step-input-20.json", null, PlatformType.CF
             }
 // @formatter:on
         });
@@ -329,6 +337,8 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
         int memory;
         int instances;
         int diskQuota;
+        String healthCheckType;
+        String healthCheckHttpEndpoint;
         Boolean sshEnabled;
 
         CloudApplicationExtended toCloudApp() {
@@ -336,7 +346,8 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
                 AppState.STARTED);
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
-            cloudApp.setStaging(new StagingExtended(command, buildpackUrl, null, 0, "none", null, sshEnabled));
+            cloudApp.setStaging(
+                new StagingExtended(command, buildpackUrl, null, 0, "none", healthCheckType, healthCheckHttpEndpoint, sshEnabled));
             cloudApp.setBindingParameters(bindingParameters);
             cloudApp.setServiceKeysToInject(serviceKeysToInject);
             return cloudApp;
