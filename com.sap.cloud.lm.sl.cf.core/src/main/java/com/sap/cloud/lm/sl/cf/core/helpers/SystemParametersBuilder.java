@@ -170,7 +170,7 @@ public class SystemParametersBuilder {
             String defaultUri = isStandardPort ? DEFAULT_URI_HOST_PLACEHOLDER : DEFAULT_URI_HOST_PLACEHOLDER + ":" + getRouterPort();
             if (shouldReserveTemporaryRoutes()) {
                 String defaultIdleUri = isStandardPort ? DEFAULT_IDLE_URI_HOST_PLACEHOLDER
-                    : DEFAULT_IDLE_URI_HOST_PLACEHOLDER + getRouterPort();
+                    : DEFAULT_IDLE_URI_HOST_PLACEHOLDER + ":" + getRouterPort();
                 moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_URI,
                     appendRoutePathIfPresent(defaultIdleUri, moduleParameters));
                 defaultUri = defaultIdleUri;
