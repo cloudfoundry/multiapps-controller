@@ -46,7 +46,7 @@ public class BlueGreenDeployMetadata {
             ParameterType.BOOLEAN).build());
 
         // Special blue green deploy parameters:
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_CONFIRM).defaultValue(false).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_CONFIRM).type(ParameterType.BOOLEAN).defaultValue(false).build());
     }
 
     public static OperationMetadata getMetadata() {
