@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class Message {
 
     private Long id = null;
-    private String message = null;
+    private String text = null;
     private MessageType type = null;
 
     /**
@@ -31,19 +31,19 @@ public class Message {
 
     /**
      **/
-    public Message message(String message) {
-        this.message = message;
+    public Message text(String text) {
+        this.text = text;
         return this;
     }
 
     @ApiModelProperty(value = "")
-    @JsonProperty("message")
-    public String getMessage() {
-        return message;
+    @JsonProperty("text")
+    public String getText() {
+        return text;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setText(String text) {
+        this.text = text;
     }
 
     /**
@@ -64,7 +64,7 @@ public class Message {
     }
 
     @Override
-    public boolean equals(java.lang.Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -72,12 +72,12 @@ public class Message {
             return false;
         }
         Message message = (Message) o;
-        return Objects.equals(id, message.id) && Objects.equals(message, message.message) && Objects.equals(type, message.type);
+        return Objects.equals(id, message.id) && Objects.equals(text, message.text) && Objects.equals(type, message.type);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, message, type);
+        return Objects.hash(id, text, type);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class Message {
         sb.append("class Message {\n");
 
         sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    message: ").append(toIndentedString(message)).append("\n");
+        sb.append("    text: ").append(toIndentedString(text)).append("\n");
         sb.append("    type: ").append(toIndentedString(type)).append("\n");
         sb.append("}");
         return sb.toString();
@@ -95,7 +95,7 @@ public class Message {
     /**
      * Convert the given object to string with each line indented by 4 spaces (except the first line).
      */
-    private String toIndentedString(java.lang.Object o) {
+    private String toIndentedString(Object o) {
         if (o == null) {
             return "null";
         }

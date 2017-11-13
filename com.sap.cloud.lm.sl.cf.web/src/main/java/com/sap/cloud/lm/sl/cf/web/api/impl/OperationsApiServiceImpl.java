@@ -326,7 +326,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private Message getMessage(ProgressMessage progressMessage) {
         Message message = new Message();
         message.setId(progressMessage.getId());
-        message.setMessage(progressMessage.getText());
+        message.setText(progressMessage.getText());
         message.setType(getMessageType(progressMessage.getType()));
         return message;
 
