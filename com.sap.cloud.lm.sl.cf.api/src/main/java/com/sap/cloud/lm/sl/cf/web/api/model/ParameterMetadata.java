@@ -84,7 +84,7 @@ public class ParameterMetadata {
     }
 
     public enum ParameterType {
-        STRING, INTEGER, BOOLEAN
+        STRING, INTEGER, BOOLEAN, TABLE
     }
 
 }

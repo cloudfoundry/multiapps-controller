@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
-import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToServiceMetadataMapper;
+import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.web.api.OperationsApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Message;
@@ -43,6 +43,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
@@ -61,7 +62,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private OperationDao dao;
 
     @Inject
-    private ProcessTypeToServiceMetadataMapper metadataMapper;
+    private ProcessTypeToOperationMetadataMapper metadataMapper;
 
     @Inject
     private ProcessLogsService logsService;
@@ -73,16 +74,16 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public Response getMtaOperations(Integer last, List<String> state, SecurityContext securityContext, String spaceGuid) {
-
-        List<State> states = getStates(state);
-
-        List<Operation> foundOperations = filterByQueryParameters(last, states, spaceGuid);
-
-        List<Operation> existingOperations = filterExistingOngoingOperations(foundOperations);
-
-        addOngoingOperationsState(existingOperations);
-
+        List<Operation> existingOperations = getOperations(last, state, spaceGuid);
         return Response.ok().entity(existingOperations).build();
+    }
+
+    protected List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
+        List<State> states = getStates(statusList);
+        List<Operation> foundOperations = filterByQueryParameters(last, states, spaceGuid);
+        List<Operation> existingOperations = filterExistingOngoingOperations(foundOperations);
+        addOngoingOperationsState(existingOperations);
+        return existingOperations;
     }
 
     @Override
@@ -136,12 +137,20 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Override
     public Response getMtaOperation(String operationId, String embed, SecurityContext securityContext, String spaceGuid) {
+        Operation operation = getOperation(operationId, embed, spaceGuid);
+        return Response.ok().entity(operation).build();
+    }
+
+    protected Operation getOperation(String operationId, String embed, String spaceId) {
         Operation operation = dao.findRequired(operationId);
+        if (!isProcessFound(operation) || !operation.getSpaceId().equals(spaceId)) {
+            throw new NotFoundException(Messages.ONGOING_OPERATION_NOT_FOUND, operationId, spaceId);
+        }
         addState(operation);
         if ("messages".equals(embed)) {
             operation.setMessages(getOperationMessages(operation));
         }
-        return Response.ok().entity(operation).build();
+        return operation;
     }
 
     private List<State> getStates(List<String> statusList) {
@@ -212,7 +221,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private String getProcessDefinitionKey(Operation ongoingOperation) {
-        return metadataMapper.getServiceMetadata(ongoingOperation.getProcessType()).getActivitiProcessId();
+        return metadataMapper.getOperationMetadata(ongoingOperation.getProcessType()).getActivitiProcessId();
     }
 
     private void addOngoingOperationsState(List<Operation> existingOngoingOperations) {
@@ -280,7 +289,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private void addDefaultParameters(Operation operation, String spaceGuid) {
         Map<String, Object> parameters = operation.getParameters();
-        Set<ParameterMetadata> serviceParameters = metadataMapper.getServiceMetadata(operation.getProcessType()).getParameters();
+        Set<ParameterMetadata> serviceParameters = metadataMapper.getOperationMetadata(operation.getProcessType()).getParameters();
         for (ParameterMetadata serviceParameter : serviceParameters) {
             if (!parameters.containsKey(serviceParameter.getId()) && serviceParameter.getDefaultValue() != null) {
                 parameters.put(serviceParameter.getId(), serviceParameter.getDefaultValue());
@@ -290,7 +299,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private void addParameterValues(Operation operation) {
         Map<String, Object> parameters = operation.getParameters();
-        Set<ParameterMetadata> serviceParameters = metadataMapper.getServiceMetadata(operation.getProcessType()).getParameters();
+        Set<ParameterMetadata> serviceParameters = metadataMapper.getOperationMetadata(operation.getProcessType()).getParameters();
         ParameterTypeFactory parameterTypeFactory = new ParameterTypeFactory(parameters, serviceParameters);
         parameters.putAll(parameterTypeFactory.getParametersValues());
         operation.setParameters(parameters);

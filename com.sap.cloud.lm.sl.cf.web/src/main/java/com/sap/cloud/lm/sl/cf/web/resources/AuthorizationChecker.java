@@ -22,7 +22,7 @@ public class AuthorizationChecker {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationChecker.class);
 
-    protected static void ensureUserIsAuthorized(HttpServletRequest request, CloudFoundryClientProvider clientProvider, UserInfo userInfo,
+    public static void ensureUserIsAuthorized(HttpServletRequest request, CloudFoundryClientProvider clientProvider, UserInfo userInfo,
         String organization, String space, String action) {
         try {
             if (!AuthorizationUtil.checkPermissions(clientProvider, userInfo, organization, space,

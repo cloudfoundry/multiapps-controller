@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToServiceMetadataMapper;
+import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -38,7 +38,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     @Inject
     private ProcessTypeParser processTypeParser;
     @Inject
-    private ProcessTypeToServiceMetadataMapper processTypeToServiceMetadataMapper;
+    private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper;
     @Inject
     private Configuration configuration;
 
@@ -67,7 +67,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         getStepLogger().debug(Messages.CURRENT_USER, StepsUtil.determineCurrentUser(context, getStepLogger()));
         getStepLogger().debug(Messages.CLIENT_SPACE, StepsUtil.getSpace(context));
         getStepLogger().debug(Messages.CLIENT_ORG, StepsUtil.getOrg(context));
-        OperationMetadata operationMetadata = processTypeToServiceMetadataMapper.getServiceMetadata(processType);
+        OperationMetadata operationMetadata = processTypeToServiceMetadataMapper.getOperationMetadata(processType);
         Map<String, Object> processVariables = findProcessVariables(context, operationMetadata);
         getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(processVariables, true));
     }

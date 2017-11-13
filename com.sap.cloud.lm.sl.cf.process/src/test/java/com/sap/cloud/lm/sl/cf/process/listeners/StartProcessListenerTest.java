@@ -21,7 +21,7 @@ import com.sap.activiti.common.impl.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToServiceMetadataMapper;
+import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
@@ -55,7 +55,7 @@ public class StartProcessListenerTest {
     @Mock
     private ProcessTypeParser processTypeParser;
     @Spy
-    private ProcessTypeToServiceMetadataMapper processTypeToServiceMetadataMapper = new ProcessTypeToServiceMetadataMapper();
+    private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper = new ProcessTypeToOperationMetadataMapper();
     @Mock
     private Configuration configuration;
 
