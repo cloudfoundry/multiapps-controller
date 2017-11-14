@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
@@ -37,7 +38,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private OperationDao ongoingOperationDao;
     @Inject
     private ProcessTypeParser processTypeParser;
-    @Inject
+    @Autowired(required = false)
     private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper;
     @Inject
     private Configuration configuration;
@@ -67,12 +68,12 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         getStepLogger().debug(Messages.CURRENT_USER, StepsUtil.determineCurrentUser(context, getStepLogger()));
         getStepLogger().debug(Messages.CLIENT_SPACE, StepsUtil.getSpace(context));
         getStepLogger().debug(Messages.CLIENT_ORG, StepsUtil.getOrg(context));
-        OperationMetadata operationMetadata = processTypeToServiceMetadataMapper.getOperationMetadata(processType);
-        Map<String, Object> processVariables = findProcessVariables(context, operationMetadata);
+        Map<String, Object> processVariables = findProcessVariables(context, processType);
         getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(processVariables, true));
     }
 
-    private Map<String, Object> findProcessVariables(DelegateExecution context, OperationMetadata operationMetadata) {
+    protected Map<String, Object> findProcessVariables(DelegateExecution context, ProcessType processType) {
+        OperationMetadata operationMetadata = processTypeToServiceMetadataMapper.getOperationMetadata(processType);
         Map<String, Object> result = new HashMap<>();
         for (ParameterMetadata parameterMetadata : operationMetadata.getParameters()) {
             if (context.hasVariable(parameterMetadata.getId())) {
