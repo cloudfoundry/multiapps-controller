@@ -1,7 +1,6 @@
 [
   {
     "moduleName": "module-1",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [
       {
@@ -42,7 +41,6 @@
   },
   {
     "moduleName": "module-2",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -67,7 +65,6 @@
   },
   {
     "moduleName": "module-3",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

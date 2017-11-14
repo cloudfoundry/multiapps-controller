@@ -19,6 +19,7 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.Staging;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -31,7 +32,6 @@ import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
@@ -82,7 +82,7 @@ public class CreateAppStep extends AbstractProcessStep {
             // Get application parameters:
             String appName = app.getName();
             Map<String, String> env = app.getEnvAsMap();
-            StagingExtended staging = app.getStaging();
+            Staging staging = app.getStaging();
             Integer diskQuota = (app.getDiskQuota() != 0) ? app.getDiskQuota() : null;
             Integer memory = (app.getMemory() != 0) ? app.getMemory() : null;
             List<String> uris = app.getUris();

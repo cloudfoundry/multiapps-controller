@@ -1,10 +1,6 @@
 [
   {
     "moduleName": "foo",
-    "extendedStaging": {
-      "healthCheckType": "http",
-      "healthCheckHttpEndpoint": "/health"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

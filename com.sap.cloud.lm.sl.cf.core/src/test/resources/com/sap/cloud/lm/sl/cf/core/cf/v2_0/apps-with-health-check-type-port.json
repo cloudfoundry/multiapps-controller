@@ -1,9 +1,6 @@
 [
   {
     "moduleName": "foo",
-    "extendedStaging": {
-      "healthCheckType": "port"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

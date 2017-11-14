@@ -1,9 +1,6 @@
 [
   {
     "moduleName": "di-core",
-    "extendedStaging": {
-      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -38,9 +35,6 @@
   },
   {
     "moduleName": "di-builder",
-    "extendedStaging": {
-      "buildpackUrl": "http://i027947-di-core.cfapps.neo.ondemand.com/system/builderbp.git/"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -72,9 +66,6 @@
   },
   {
     "moduleName": "di-runner",
-    "extendedStaging": {
-      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

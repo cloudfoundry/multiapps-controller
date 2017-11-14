@@ -1,7 +1,6 @@
 [
   {
     "moduleName": "java-hello-world",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

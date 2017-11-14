@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.Staging;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
 public class StagingParametersParser implements ParametersParser<Staging> {
@@ -25,7 +24,14 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         String healthCheckHttpEndpoint = (String) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
             getDefaultHealthCheckHttpEndpoint(healthCheckType));
         Boolean isSshEnabled = (Boolean) getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
-        return new StagingExtended(command, buildpack, stack, healthCheckTimeout, healthCheckType, healthCheckHttpEndpoint, isSshEnabled);
+        return new Staging.StagingBuilder().command(command)
+            .buildpackUrl(buildpack)
+            .stack(stack)
+            .healthCheckTimeout(healthCheckTimeout)
+            .healthCheckType(healthCheckType)
+            .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+            .sshEnabled(isSshEnabled)
+            .build();
     }
 
     private String getDefaultHealthCheckHttpEndpoint(String healthCheckType) {

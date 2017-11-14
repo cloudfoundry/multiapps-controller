@@ -1,9 +1,6 @@
 [
   {
     "moduleName": "java-hello-world-db",
-    "extendedStaging": {
-      "buildpackUrl": "git://github.example.com/xs2/hdi-deploy-buildpack.git"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -31,9 +28,6 @@
   },
   {
     "moduleName": "java-hello-world-backend",
-    "extendedStaging": {
-      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -64,7 +58,6 @@
   },
   {
     "moduleName": "java-hello-world",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

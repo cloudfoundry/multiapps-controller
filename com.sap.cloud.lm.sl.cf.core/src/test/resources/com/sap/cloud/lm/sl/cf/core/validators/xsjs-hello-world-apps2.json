@@ -1,9 +1,6 @@
 [
   {
     "moduleName": "xsjs-hello-world-db",
-    "extendedStaging": {
-      "buildpackUrl": "git://github.example.com/xs2/hdi-deploy-buildpack.git"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -31,7 +28,6 @@
   },
   {
     "moduleName": "xsjs-hello-world-backend",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -59,7 +55,6 @@
   },
   {
     "moduleName": "xsjs-hello-world",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

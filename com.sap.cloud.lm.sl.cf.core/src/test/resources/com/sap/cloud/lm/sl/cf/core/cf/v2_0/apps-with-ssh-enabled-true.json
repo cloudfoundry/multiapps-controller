@@ -1,9 +1,6 @@
 [
   {
     "moduleName": "foo",
-    "extendedStaging": {
-      "sshEnabled": true
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
