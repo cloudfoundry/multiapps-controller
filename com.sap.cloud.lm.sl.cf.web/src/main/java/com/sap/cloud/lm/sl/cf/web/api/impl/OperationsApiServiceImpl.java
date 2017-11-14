@@ -78,7 +78,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return Response.ok().entity(existingOperations).build();
     }
 
-    protected List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
+    public List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
         List<State> states = getStates(statusList);
         List<Operation> foundOperations = filterByQueryParameters(last, states, spaceGuid);
         List<Operation> existingOperations = filterExistingOngoingOperations(foundOperations);
@@ -141,7 +141,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return Response.ok().entity(operation).build();
     }
 
-    protected Operation getOperation(String operationId, String embed, String spaceId) {
+    public Operation getOperation(String operationId, String embed, String spaceId) {
         Operation operation = dao.findRequired(operationId);
         if (!isProcessFound(operation) || !operation.getSpaceId().equals(spaceId)) {
             throw new NotFoundException(Messages.ONGOING_OPERATION_NOT_FOUND, operationId, spaceId);
