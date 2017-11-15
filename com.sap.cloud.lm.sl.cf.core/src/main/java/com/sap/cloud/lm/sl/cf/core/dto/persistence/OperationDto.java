@@ -28,6 +28,9 @@ public class OperationDto {
     @Column(name = "started_at")
     private String startedAt;
 
+    @Column(name = "ended_at")
+    private String endedAt;
+
     @Column(name = "space_id")
     private String spaceId;
 
@@ -47,11 +50,12 @@ public class OperationDto {
         // Required by JPA
     }
 
-    public OperationDto(String processId, String processType, String startedAt, String spaceId, String mtaId, String user,
+    public OperationDto(String processId, String processType, String startedAt, String endedAt, String spaceId, String mtaId, String user,
         boolean acquiredLock, String finalState) {
         this.processId = processId;
         this.processType = processType;
         this.startedAt = startedAt;
+        this.endedAt = endedAt;
         this.spaceId = spaceId;
         this.mtaId = mtaId;
         this.user = user;
@@ -69,6 +73,10 @@ public class OperationDto {
 
     public String getStartedAt() {
         return startedAt;
+    }
+
+    public String getEndedAt() {
+        return endedAt;
     }
 
     public String getSpaceId() {

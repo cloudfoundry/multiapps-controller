@@ -19,6 +19,7 @@ public class OperationFactory {
         return new Operation().processId(dto.getProcessId())
             .processType(toProcessType(dto.getProcessType()))
             .startedAt(toZonedDateTime(dto.getStartedAt()))
+            .endedAt(toZonedDateTime(dto.getEndedAt()))
             .spaceId(dto.getSpaceId())
             .mtaId(dto.getMtaId())
             .user(dto.getUser())
@@ -30,13 +31,14 @@ public class OperationFactory {
         String processId = operation.getProcessId();
         String processType = toString(operation.getProcessType());
         String startedAt = toString(operation.getStartedAt());
+        String endedAt = toString(operation.getEndedAt());
         String spaceId = operation.getSpaceId();
         String mtaId = operation.getMtaId();
         String user = operation.getUser();
         String state = toString(operation.getState());
         boolean acquiredLock = operation.hasAcquiredLock();
-        return new com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto(processId, processType, startedAt, spaceId, mtaId, user,
-            acquiredLock, state);
+        return new com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId,
+            user, acquiredLock, state);
     }
 
     protected State toState(String operationState) {
