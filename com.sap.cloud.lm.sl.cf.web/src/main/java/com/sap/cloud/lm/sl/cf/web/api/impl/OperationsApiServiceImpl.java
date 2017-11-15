@@ -81,7 +81,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
         List<State> states = getStates(statusList);
         List<Operation> foundOperations = filterByQueryParameters(last, states, spaceGuid);
-        List<Operation> existingOperations = filterExistingOngoingOperations(foundOperations);
+
+        List<Operation> existingOperations = filterExistingOperations(foundOperations);
+
         addOngoingOperationsState(existingOperations);
         return existingOperations;
     }
@@ -92,8 +94,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         List<String> availableOperations = getAvailableActions(operation);
         ActivitiAction action = ActivitiActionFactory.getAction(actionId, activitiFacade, getAuthenticatedUser(securityContext));
         if (!availableOperations.contains(actionId)) {
-            return Response.status(Status.BAD_REQUEST).entity(
-                "Action " + actionId + " cannot be executed over operation " + operationId).build();
+            return Response.status(Status.BAD_REQUEST)
+                .entity("Action " + actionId + " cannot be executed over operation " + operationId)
+                .build();
         }
         action.executeAction(operationId);
         return Response.accepted().header("Location", getLocationHeader(operationId, spaceGuid)).build();
@@ -144,7 +147,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public Operation getOperation(String operationId, String embed, String spaceId) {
         Operation operation = dao.findRequired(operationId);
         if (!isProcessFound(operation) || !operation.getSpaceId().equals(spaceId)) {
-            throw new NotFoundException(Messages.ONGOING_OPERATION_NOT_FOUND, operationId, spaceId);
+            throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_NOT_FOUND, operationId, spaceId);
         }
         addState(operation);
         if ("messages".equals(embed)) {
@@ -205,23 +208,22 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return operationsByStatus.subList(operationsByStatusSize - lastRequestedOperationsCount, operationsByStatusSize);
     }
 
-    private List<Operation> filterExistingOngoingOperations(List<Operation> ongoingOperations) {
-        return ongoingOperations.stream().filter(operation -> isProcessFound(operation)).collect(Collectors.toList());
+    private List<Operation> filterExistingOperations(List<Operation> operations) {
+        return operations.stream().filter(operation -> isProcessFound(operation)).collect(Collectors.toList());
     }
 
-    protected boolean isProcessFound(Operation ongoingOperation) throws SLException {
-        String processDefinitionKey = getProcessDefinitionKey(ongoingOperation);
-        HistoricProcessInstance historicInstance = getHistoricInstance(ongoingOperation, processDefinitionKey);
+    protected boolean isProcessFound(Operation operation) throws SLException {
+        String processDefinitionKey = getProcessDefinitionKey(operation);
+        HistoricProcessInstance historicInstance = getHistoricInstance(operation, processDefinitionKey);
         return historicInstance != null;
     }
 
-    private HistoricProcessInstance getHistoricInstance(Operation ongoingOperation, String processDefinitionKey) {
-        return activitiFacade.getHistoricProcessInstanceBySpaceId(processDefinitionKey, ongoingOperation.getSpaceId(),
-            ongoingOperation.getProcessId());
+    private HistoricProcessInstance getHistoricInstance(Operation operation, String processDefinitionKey) {
+        return activitiFacade.getHistoricProcessInstanceBySpaceId(processDefinitionKey, operation.getSpaceId(), operation.getProcessId());
     }
 
-    private String getProcessDefinitionKey(Operation ongoingOperation) {
-        return metadataMapper.getOperationMetadata(ongoingOperation.getProcessType()).getActivitiProcessId();
+    private String getProcessDefinitionKey(Operation operation) {
+        return metadataMapper.getOperationMetadata(operation.getProcessType()).getActivitiProcessId();
     }
 
     private void addOngoingOperationsState(List<Operation> existingOngoingOperations) {
@@ -328,8 +330,10 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private List<Message> getOperationMessages(Operation operation) {
         List<ProgressMessage> progressMessages = ProgressMessageService.getInstance().findByProcessId(operation.getProcessId());
-        return progressMessages.stream().filter(message -> message.getType() != ProgressMessageType.TASK_STARTUP).map(
-            message -> getMessage(message)).collect(Collectors.toList());
+        return progressMessages.stream()
+            .filter(message -> message.getType() != ProgressMessageType.TASK_STARTUP)
+            .map(message -> getMessage(message))
+            .collect(Collectors.toList());
     }
 
     private Message getMessage(ProgressMessage progressMessage) {

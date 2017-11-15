@@ -23,10 +23,10 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class PrepareToUndeployStep extends AbstractProcessStep {
 
     @Inject
-    private OperationDao ongoingOperationDao;
+    private OperationDao operationDao;
 
     protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = (dao) -> new ProcessConflictPreventer(
-        ongoingOperationDao);
+        operationDao);
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -43,7 +43,7 @@ public class PrepareToUndeployStep extends AbstractProcessStep {
             StepsUtil.setServiceUrlsToRegister(context, Collections.emptyList());
             StepsUtil.setSubscriptionsToCreate(context, Collections.emptyList());
 
-            conflictPreventerSupplier.apply(ongoingOperationDao).attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(context),
+            conflictPreventerSupplier.apply(operationDao).attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(context),
                 context.getProcessInstanceId());
 
             getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
