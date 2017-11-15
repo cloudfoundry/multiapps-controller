@@ -1,7 +1,6 @@
 [
   {
     "moduleName": "java-hello-world-db",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -26,7 +25,6 @@
   },
   {
     "moduleName": "java-hello-world-backend",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -55,7 +53,6 @@
   },
   {
     "moduleName": "java-hello-world",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

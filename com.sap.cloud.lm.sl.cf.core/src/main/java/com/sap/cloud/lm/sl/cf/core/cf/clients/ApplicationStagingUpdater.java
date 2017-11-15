@@ -6,9 +6,8 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.Staging;
 import org.springframework.stereotype.Component;
-
-import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 
 @Component
 public class ApplicationStagingUpdater extends CustomControllerClient {
@@ -21,11 +20,11 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
     private static final String BUILDPACK_PARAMETER = "buildpack";
     private static final String ENABLE_SSH_PARAMETER = "enable_ssh";
 
-    public void updateApplicationStaging(CloudFoundryOperations client, String appName, StagingExtended staging) {
+    public void updateApplicationStaging(CloudFoundryOperations client, String appName, Staging staging) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToUpdateApplicationStaging(client, appName, staging));
     }
 
-    private void attemptToUpdateApplicationStaging(CloudFoundryOperations client, String appName, StagingExtended staging) {
+    private void attemptToUpdateApplicationStaging(CloudFoundryOperations client, String appName, Staging staging) {
         String applicationsEndpoint = getApplicationsEndpoint(client.getCloudControllerUrl().toString());
         CloudApplication application = client.getApplication(appName);
         UUID applicationId = application.getMeta().getGuid();
@@ -37,7 +36,7 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
         return controllerUrl + V2_APPS_ENDPOINT;
     }
 
-    private Map<String, Object> createStagingParameters(StagingExtended staging) {
+    private Map<String, Object> createStagingParameters(Staging staging) {
         Map<String, Object> stagingParameters = new HashMap<>();
         if (staging.getBuildpackUrl() != null) {
             stagingParameters.put(BUILDPACK_PARAMETER, staging.getBuildpackUrl());

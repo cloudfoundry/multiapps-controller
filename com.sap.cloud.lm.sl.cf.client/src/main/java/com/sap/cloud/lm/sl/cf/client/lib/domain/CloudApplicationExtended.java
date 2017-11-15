@@ -5,12 +5,10 @@ import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
-import org.cloudfoundry.client.lib.domain.Staging;
 
 public class CloudApplicationExtended extends CloudApplication {
 
     private String moduleName;
-    private StagingExtended extendedStaging;
     private List<String> idleUris;
     private Map<String, Map<String, Object>> bindingParameters;
     private List<CloudTask> tasks;
@@ -48,17 +46,6 @@ public class CloudApplicationExtended extends CloudApplication {
 
     public void setBindingParameters(Map<String, Map<String, Object>> bindingParameters) {
         this.bindingParameters = bindingParameters;
-    }
-
-    @Override
-    public void setStaging(Staging staging) {
-        super.setStaging(staging);
-        this.extendedStaging = (StagingExtended) staging;
-    }
-
-    @Override
-    public StagingExtended getStaging() {
-        return this.extendedStaging;
     }
 
     public List<CloudTask> getTasks() {

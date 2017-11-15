@@ -1,7 +1,6 @@
 [
   {
     "moduleName": "m1",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

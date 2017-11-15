@@ -1,7 +1,6 @@
 [
   {
     "moduleName": "foo",
-    "extendedStaging": {},
     "idleUris": [],
     "bindingParameters": {
       "bar": {

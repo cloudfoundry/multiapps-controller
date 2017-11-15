@@ -1,7 +1,6 @@
 [
   {
     "moduleName": "pricing-db",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -29,9 +28,6 @@
   },
   {
     "moduleName": "pricing",
-    "extendedStaging": {
-      "buildpackUrl": "nodejs-test"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -65,7 +61,6 @@
   },
   {
     "moduleName": "web-server",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

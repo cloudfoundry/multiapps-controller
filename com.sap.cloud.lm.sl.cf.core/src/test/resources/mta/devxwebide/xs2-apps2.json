@@ -1,7 +1,6 @@
 [
   {
     "moduleName": "webide",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

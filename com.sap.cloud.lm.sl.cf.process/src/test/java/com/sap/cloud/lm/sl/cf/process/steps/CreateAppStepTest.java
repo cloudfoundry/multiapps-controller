@@ -27,7 +27,6 @@ import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
@@ -118,7 +117,7 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
     private void validateApplicationUpdate() {
         if (stepInput.platform == PlatformType.CF) {
             Mockito.verify(applicationUpdater).updateApplicationStaging(eq(client), eq(application.getName()),
-                (StagingExtended) eq(application.getStaging()));
+                eq(application.getStaging()));
         }
     }
 

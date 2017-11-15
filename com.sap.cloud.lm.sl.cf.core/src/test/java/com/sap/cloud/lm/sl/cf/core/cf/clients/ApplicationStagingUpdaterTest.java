@@ -9,6 +9,7 @@ import java.util.Map;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
+import org.cloudfoundry.client.lib.domain.Staging;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +21,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -59,7 +59,7 @@ public class ApplicationStagingUpdaterTest {
     private ApplicationStagingUpdater applicationStagingUpdater = new ApplicationStagingUpdater();
 
     private StepInput input;
-    private StagingExtended updateStaging;
+    private Staging updateStaging;
 
     public ApplicationStagingUpdaterTest(String inputLocation) throws Exception {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
@@ -71,7 +71,7 @@ public class ApplicationStagingUpdaterTest {
         Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_ENDPOINT));
         Mockito.when(client.getApplication(input.application.appName)).thenReturn(input.application.toCloudApp());
         Mockito.when(restTemplateFactory.getRestTemplate(Mockito.eq(client))).thenReturn(restTemplate);
-        updateStaging = input.staging.toStagingExtended();
+        updateStaging = input.staging.toStaging();
     }
 
     @Test
@@ -86,7 +86,7 @@ public class ApplicationStagingUpdaterTest {
             Mockito.eq(input.application.toCloudApp().getMeta().getGuid()));
     }
 
-    private Map<String, Object> getStagingMap(StagingExtended staging) {
+    private Map<String, Object> getStagingMap(Staging staging) {
         Map<String, Object> stagingParameters = new HashMap<>();
         if (staging.getBuildpackUrl() != null) {
             stagingParameters.put("buildpack", staging.getBuildpackUrl());
@@ -122,9 +122,14 @@ public class ApplicationStagingUpdaterTest {
         String healthCheckHttpEndpoint;
         boolean sshEnabled;
 
-        StagingExtended toStagingExtended() {
-            return new StagingExtended(command, buildpackUrl, null, healthCheckTimeout, healthCheckType, healthCheckHttpEndpoint,
-                sshEnabled);
+        Staging toStaging() {
+            return new Staging.StagingBuilder().command(command)
+                .buildpackUrl(buildpackUrl)
+                .healthCheckTimeout(healthCheckTimeout)
+                .healthCheckType(healthCheckType)
+                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                .sshEnabled(sshEnabled)
+                .build();
         }
     }
 

@@ -9,7 +9,7 @@ import org.cloudfoundry.client.lib.domain.Staging;
 public class CloudApplicationExtended extends CloudApplication {
 
     private String moduleName;
-    private StagingExtended extendedStaging;
+    private Staging staging;
     private List<String> idleUris;
     private Map<String, Map<String, Object>> bindingParameters;
     private List<CloudTask> tasks;
@@ -47,15 +47,6 @@ public class CloudApplicationExtended extends CloudApplication {
         this.bindingParameters = bindingParameters;
     }
 
-    @Override
-    public void setStaging(Staging staging) {
-        this.extendedStaging = (StagingExtended) staging;
-    }
-
-    @Override
-    public StagingExtended getStaging() {
-        return this.extendedStaging;
-    }
 
     public List<CloudTask> getTasks() {
         return tasks;

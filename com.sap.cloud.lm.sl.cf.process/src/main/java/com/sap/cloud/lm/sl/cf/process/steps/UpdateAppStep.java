@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
@@ -51,7 +50,7 @@ public class UpdateAppStep extends CreateAppStep {
 
             // Get application parameters
             String appName = app.getName();
-            StagingExtended staging = app.getStaging();
+            Staging staging = app.getStaging();
             Integer diskQuota = (app.getDiskQuota() != 0) ? app.getDiskQuota() : null;
             Integer memory = (app.getMemory() != 0) ? app.getMemory() : null;
             List<String> uris = app.getUris();
@@ -213,7 +212,7 @@ public class UpdateAppStep extends CreateAppStep {
         return null;
     }
 
-    private boolean hasChanged(StagingExtended staging, Staging existingStaging) {
+    private boolean hasChanged(Staging staging, Staging existingStaging) {
         String buildpackUrl = staging.getBuildpackUrl();
         String command = staging.getCommand();
         String stack = staging.getStack();
@@ -225,7 +224,9 @@ public class UpdateAppStep extends CreateAppStep {
             || (command != null && !command.equals(existingStaging.getCommand()))
             || (stack != null && !stack.equals(existingStaging.getStack()))
             || (healthCheckTimeout != null && !healthCheckTimeout.equals(existingStaging.getHealthCheckTimeout()))
-            || (healthCheckType != null) || (healthCheckHttpEndpoint != null) || (sshEnabled != null);
+            || (healthCheckType != null && !healthCheckType.equals(existingStaging.getHealthCheckType()))
+            || (healthCheckHttpEndpoint != null && !healthCheckHttpEndpoint.equals(existingStaging.getHealthCheckHttpEndpoint()))
+            || (sshEnabled != null && !sshEnabled.equals(existingStaging.isSshEnabled()));
     }
 
     private boolean hasChanged(List<String> uris, List<String> existingUris) {
@@ -233,5 +234,4 @@ public class UpdateAppStep extends CreateAppStep {
         Set<String> existingUrisSet = new HashSet<>(UriUtil.getUrisWithoutScheme(existingUris));
         return !urisSet.equals(existingUrisSet);
     }
-
 }

@@ -1,7 +1,6 @@
 [
   {
     "moduleName": "di-core",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -36,9 +35,6 @@
   },
   {
     "moduleName": "di-builder",
-    "extendedStaging": {
-      "buildpackUrl": "http://sofd60245639a:53030/system/builderbp.git/"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -71,7 +67,6 @@
   },
   {
     "moduleName": "di-runner",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

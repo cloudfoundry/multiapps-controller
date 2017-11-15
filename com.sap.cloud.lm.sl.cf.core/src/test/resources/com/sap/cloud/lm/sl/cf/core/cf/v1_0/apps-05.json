@@ -1,7 +1,6 @@
 [
   {
     "moduleName": "module-1",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],

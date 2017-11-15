@@ -15,6 +15,7 @@ import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.Staging;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +31,6 @@ import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.StagingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
@@ -184,7 +184,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
         }
         if (platform == PlatformType.CF) {
             Mockito.verify(applicationUpdaterMock).updateApplicationStaging(eq(client), eq(cloudApp.getName()),
-                (StagingExtended) Matchers.argThat(ArgumentMatcherProvider.getStagingMatcher(cloudApp.getStaging())));
+                Matchers.argThat(ArgumentMatcherProvider.getStagingMatcher(cloudApp.getStaging())));
         }
     }
 
@@ -274,8 +274,9 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
     }
 
     private void prepareDiscontinuedServices() {
-        List<String> discontinuedServices = input.existingApplication.services.stream().filter(
-            (service) -> !input.application.services.contains(service)).collect(Collectors.toList());
+        List<String> discontinuedServices = input.existingApplication.services.stream()
+            .filter((service) -> !input.application.services.contains(service))
+            .collect(Collectors.toList());
         notRequiredServices.addAll(discontinuedServices);
     }
 
@@ -346,8 +347,15 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
                 AppState.STARTED);
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
-            cloudApp.setStaging(
-                new StagingExtended(command, buildpackUrl, null, 0, "none", healthCheckType, healthCheckHttpEndpoint, sshEnabled));
+            cloudApp.setStaging(new Staging.StagingBuilder().command(command)
+                .buildpackUrl(buildpackUrl)
+                .stack(null)
+                .healthCheckTimeout(0)
+                .detectedBuildpack("none")
+                .healthCheckType(healthCheckType)
+                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                .sshEnabled(sshEnabled)
+                .build());
             cloudApp.setBindingParameters(bindingParameters);
             cloudApp.setServiceKeysToInject(serviceKeysToInject);
             return cloudApp;

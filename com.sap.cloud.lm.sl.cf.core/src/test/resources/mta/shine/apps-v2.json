@@ -1,7 +1,6 @@
 [
   {
     "moduleName": "shine-xsjs",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -30,9 +29,6 @@
   },
   {
     "moduleName": "shine-odata",
-    "extendedStaging": {
-      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
-    },
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -64,7 +60,6 @@
   },
   {
     "moduleName": "shine",
-    "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
