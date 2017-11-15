@@ -241,7 +241,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             return ongoingOperation.getState();
         }
         State state = computeState(ongoingOperation);
-        // Fixes bug XSBUG-2035: Inconsistency in 'ongoing_operations', 'act_hi_procinst' and 'act_ru_execution' tables
+        // Fixes bug XSBUG-2035: Inconsistency in 'operation', 'act_hi_procinst' and 'act_ru_execution' tables
         if (ongoingOperation.isAcquiredLock() && (state.equals(State.ABORTED) || state.equals(State.FINISHED))) {
             ongoingOperation.acquiredLock(false);
             ongoingOperation.setState(state);

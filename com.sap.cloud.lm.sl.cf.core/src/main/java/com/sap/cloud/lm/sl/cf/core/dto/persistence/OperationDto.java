@@ -8,7 +8,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ongoing_operation")
+@Table(name = "operation")
 @NamedQueries({
     @NamedQuery(name = "find_mta_lock", query = "SELECT o FROM OperationDto o WHERE o.mtaId = :mtaId AND o.spaceId = :spaceId AND o.acquiredLock = true"),
     @NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o"),
