@@ -22,6 +22,8 @@ public class Operation {
     private ProcessType processType = null;
     @JsonAdapter(ZonedDateTimeJsonAdapter.class)
     private ZonedDateTime startedAt = null;
+    @JsonAdapter(ZonedDateTimeJsonAdapter.class)
+    private ZonedDateTime endedAt = null;
     private String spaceId = null;
     private String mtaId = null;
     private String user = null;
@@ -32,6 +34,11 @@ public class Operation {
 
     /**
      **/
+    public Operation processId(String processId) {
+        this.processId = processId;
+        return this;
+    }
+
     @ApiModelProperty(value = "")
     @JsonProperty("processId")
     public String getProcessId() {
@@ -40,11 +47,6 @@ public class Operation {
 
     public void setProcessId(String processId) {
         this.processId = processId;
-    }
-
-    public Operation processId(String processId) {
-        this.processId = processId;
-        return this;
     }
 
     /**
@@ -79,6 +81,23 @@ public class Operation {
 
     public void setStartedAt(ZonedDateTime startedAt) {
         this.startedAt = startedAt;
+    }
+
+    /**
+     **/
+    public Operation endedAt(ZonedDateTime endedAt) {
+        this.endedAt = endedAt;
+        return this;
+    }
+
+    @ApiModelProperty(value = "")
+    @JsonProperty("endedAt")
+    public ZonedDateTime getEndedAt() {
+        return endedAt;
+    }
+
+    public void setEndedAt(ZonedDateTime endedAt) {
+        this.endedAt = endedAt;
     }
 
     /**
@@ -201,7 +220,7 @@ public class Operation {
     }
 
     @Override
-    public boolean equals(java.lang.Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -210,15 +229,15 @@ public class Operation {
         }
         Operation operation = (Operation) o;
         return Objects.equals(processId, operation.processId) && Objects.equals(processType, operation.processType)
-            && Objects.equals(startedAt, operation.startedAt) && Objects.equals(spaceId, operation.spaceId)
-            && Objects.equals(mtaId, operation.mtaId) && Objects.equals(user, operation.user)
+            && Objects.equals(startedAt, operation.startedAt) && Objects.equals(endedAt, operation.endedAt)
+            && Objects.equals(spaceId, operation.spaceId) && Objects.equals(mtaId, operation.mtaId) && Objects.equals(user, operation.user)
             && Objects.equals(acquiredLock, operation.acquiredLock) && Objects.equals(state, operation.state)
             && Objects.equals(messages, operation.messages) && Objects.equals(parameters, operation.parameters);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(processId, processType, startedAt, spaceId, mtaId, user, acquiredLock, state, messages, parameters);
+        return Objects.hash(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, state, messages, parameters);
     }
 
     @Override
@@ -229,6 +248,7 @@ public class Operation {
         sb.append("    processId: ").append(toIndentedString(processId)).append("\n");
         sb.append("    processType: ").append(toIndentedString(processType)).append("\n");
         sb.append("    startedAt: ").append(toIndentedString(startedAt)).append("\n");
+        sb.append("    endedAt: ").append(toIndentedString(endedAt)).append("\n");
         sb.append("    spaceId: ").append(toIndentedString(spaceId)).append("\n");
         sb.append("    mtaId: ").append(toIndentedString(mtaId)).append("\n");
         sb.append("    user: ").append(toIndentedString(user)).append("\n");
@@ -243,7 +263,7 @@ public class Operation {
     /**
      * Convert the given object to string with each line indented by 4 spaces (except the first line).
      */
-    private String toIndentedString(java.lang.Object o) {
+    private String toIndentedString(Object o) {
         if (o == null) {
             return "null";
         }

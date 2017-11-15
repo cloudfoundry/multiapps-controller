@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 import static java.text.MessageFormat.format;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
 
@@ -129,6 +130,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
     protected void setOperationInAbortedState(String processInstanceId) throws NotFoundException {
         Operation operation = getOperationDao().findRequired(processInstanceId);
         operation.setState(State.ABORTED);
+        operation.setEndedAt(ZonedDateTime.now());
         getOperationDao().merge(operation);
     }
 
@@ -185,8 +187,10 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
 
     protected HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
         String parameter) {
-        return historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstanceId).variableName(
-            parameter).singleResult();
+        return historyService.createHistoricVariableInstanceQuery()
+            .processInstanceId(processInstanceId)
+            .variableName(parameter)
+            .singleResult();
     }
 
     private CloudFoundryClientProvider getClientProvider() {
