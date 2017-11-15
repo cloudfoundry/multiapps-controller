@@ -129,7 +129,7 @@ public class Configuration {
      * @see org.activiti.engine.impl.persistence.entity.JobEntityManager#schedule()
      */
     public static final Integer DEFAULT_CONTROLLER_POLLING_INTERVAL = 6; // 6 second(s)
-    public static final Integer DEFAULT_UPLOAD_APP_TIMEOUT = 30 * 60; // 30 minute(s)
+    public static final Integer DEFAULT_UPLOAD_APP_TIMEOUT = 60 * 60; // 60 minute(s)
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
     public static final String DEFAULT_VERSION = "N/A";
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME = 1; // 1 minute(s)
