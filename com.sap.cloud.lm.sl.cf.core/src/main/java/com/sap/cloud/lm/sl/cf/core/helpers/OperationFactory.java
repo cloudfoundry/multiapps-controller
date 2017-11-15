@@ -15,15 +15,14 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 public class OperationFactory {
 
     public Operation fromPersistenceDto(OperationDto dto) {
-        String processId = dto.getProcessId();
-        ProcessType processType = toProcessType(dto.getProcessType());
-        String startedAt = dto.getStartedAt();
-        String spaceId = dto.getSpaceId();
-        String mtaId = dto.getMtaId();
-        String user = dto.getUser();
-        boolean acquiredLock = dto.hasAcquiredLock();
-        State finalState = toState(dto.getFinalState());
-        return new Operation(processId, processType, startedAt, spaceId, mtaId, user, acquiredLock, finalState);
+        return new Operation().processId(dto.getProcessId())
+            .processType(toProcessType(dto.getProcessType()))
+            .startedAt(dto.getStartedAt())
+            .spaceId(dto.getSpaceId())
+            .mtaId(dto.getMtaId())
+            .user(dto.getUser())
+            .acquiredLock(dto.hasAcquiredLock())
+            .state(toState(dto.getFinalState()));
     }
 
     public OperationDto toPersistenceDto(Operation ongoingOperation) {

@@ -31,8 +31,12 @@ public class ProcessConflictPreventerTest {
     @Test
     public void testAttemptToAcquireLock() {
         try {
-            when(daoMock.findProcessWithLock(testMtaId, testSpaceId)).thenReturn(
-                new Operation(testProcessId, ProcessType.DEPLOY, null, testSpaceId, testMtaId, "", false, null));
+            Operation operation = new Operation().processId(testProcessId)
+                .processType(ProcessType.DEPLOY)
+                .spaceId(testSpaceId)
+                .mtaId(testMtaId)
+                .acquiredLock(false);
+            when(daoMock.findProcessWithLock(testMtaId, testSpaceId)).thenReturn(operation);
             processConflictPreventerMock.attemptToAcquireLock(testMtaId, testSpaceId, testProcessId);
             verify(daoMock).merge(daoMock.findRequired(testProcessId));
         } catch (SLException e) {
@@ -58,8 +62,8 @@ public class ProcessConflictPreventerTest {
 
     private OperationDao getOngoingOperationDaoMock() throws SLException {
         OperationDao daoMock = mock(OperationDao.class);
-        when(daoMock.findRequired(testProcessId)).thenReturn(
-            new Operation(testProcessId, ProcessType.DEPLOY, "", "", testMtaId, "", false, null));
+        Operation operation = new Operation().processId(testProcessId).processType(ProcessType.DEPLOY).mtaId(testMtaId).acquiredLock(false);
+        when(daoMock.findRequired(testProcessId)).thenReturn(operation);
         return daoMock;
     }
 

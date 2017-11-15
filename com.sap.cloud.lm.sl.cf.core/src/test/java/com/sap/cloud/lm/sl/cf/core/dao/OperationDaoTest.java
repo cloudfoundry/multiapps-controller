@@ -126,7 +126,7 @@ public class OperationDaoTest {
             @Override
             public void run() throws Exception {
                 int currentOngoingOperationsCnt = dao.findAll().size();
-                Operation oo1 = new Operation(processId, null, null, null, null, null, false, null);
+                Operation oo1 = new Operation().processId(processId).acquiredLock(false);
                 dao.add(oo1);
 
                 assertEquals(currentOngoingOperationsCnt + 1, dao.findAll().size());
@@ -160,7 +160,7 @@ public class OperationDaoTest {
         TestUtil.test(new Runnable() {
             @Override
             public void run() throws Exception {
-                Operation oo1 = new Operation(processId, null, null, null, null, null, false, null);
+                Operation oo1 = new Operation().processId(processId).acquiredLock(false);
                 Operation oo2 = dao.findRequired(processId);
 
                 assertEquals(oo1.getProcessId(), oo2.getProcessId());
