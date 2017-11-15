@@ -27,23 +27,6 @@ public class Operation {
 
     /**
      **/
-
-    public Operation() {
-        // Default constructor required by jersey
-    }
-
-    public Operation(String processId, ProcessType processType, String startedAt, String spaceId, String mtaId, String user,
-        Boolean acquiredLock, State state) {
-        this.processId = processId;
-        this.processType = processType;
-        this.startedAt = startedAt;
-        this.spaceId = spaceId;
-        this.mtaId = mtaId;
-        this.user = user;
-        this.acquiredLock = acquiredLock;
-        this.state = state;
-    }
-
     @ApiModelProperty(value = "")
     @JsonProperty("processId")
     public String getProcessId() {

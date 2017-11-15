@@ -126,8 +126,13 @@ public class StartProcessListenerTest {
     private void verifyOngoingOperationInsertion() throws SLException, ConflictException {
         String user = StepsUtil.determineCurrentUser(context, stepLogger);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
-        Mockito.verify(dao).add(Mockito.argThat(GenericArgumentMatcher
-            .forObject(new Operation(processInstanceId, processType, formatter.format(START_TIME), SPACE_ID, null, user, false, null))));
+        Operation operation = new Operation().processId(processInstanceId)
+            .processType(processType)
+            .spaceId(SPACE_ID)
+            .startedAt(formatter.format(START_TIME))
+            .user(user)
+            .acquiredLock(false);
+        Mockito.verify(dao).add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
     }
 
 }

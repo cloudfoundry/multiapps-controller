@@ -86,10 +86,12 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     }
 
     private void addOngoingOperation(DelegateExecution context, String correlationId, ProcessType processType) {
-        String startedAt = FORMATTER.format(currentTimeSupplier.get());
-        String user = StepsUtil.determineCurrentUser(context, getStepLogger());
-        String spaceId = StepsUtil.getSpaceId(context);
-        Operation process = new Operation(correlationId, processType, startedAt, spaceId, null, user, false, null);
+        Operation process = new Operation().processId(correlationId)
+            .processType(processType)
+            .startedAt(FORMATTER.format(currentTimeSupplier.get()))
+            .spaceId(StepsUtil.getSpaceId(context))
+            .user(StepsUtil.determineCurrentUser(context, getStepLogger()))
+            .acquiredLock(false);
         ongoingOperationDao.add(process);
     }
 
