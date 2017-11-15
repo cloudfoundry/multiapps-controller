@@ -7,12 +7,12 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.process.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
+import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 /**

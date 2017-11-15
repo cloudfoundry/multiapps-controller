@@ -110,8 +110,8 @@ public class ValidateDeployParametersStepTest extends AbstractStepTest<ValidateD
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, stepInput.extDescriptorId);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_START_TIMEOUT, stepInput.startTimeout);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERSION_RULE, stepInput.versionRule);
-        context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
-        context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
+        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
+        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
     }
 
     private void prepareExpectedException() {

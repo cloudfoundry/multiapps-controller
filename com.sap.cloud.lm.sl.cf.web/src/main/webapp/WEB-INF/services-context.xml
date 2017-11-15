@@ -23,13 +23,13 @@
         <property name="fileSystemFileService" ref="fileSystemFileService"></property>
     </bean>
 
-    <bean id="processLogsPersistenceService" class="com.sap.cloud.lm.sl.cf.process.ProcessLogsPersistenceService"
+    <bean id="processLogsPersistenceService" class="com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService"
         factory-method="getInstance">
         <property name="dataSource" ref="dataSource" />
         <property name="databaseDialect" ref="databaseDialect" />
     </bean>
 
-    <bean id="processLoggerProviderFactory" class="com.sap.cloud.lm.sl.cf.process.ProcessLoggerProviderFactory"
+    <bean id="processLoggerProviderFactory" class="com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory"
         factory-method="getInstance" />
 
     <bean id="configuration" class="com.sap.cloud.lm.sl.cf.core.util.Configuration" factory-method="getInstance" />

@@ -129,7 +129,7 @@ public class AbortProcessListenerTest {
             protected HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
                 String parameter) {
                 switch (parameter) {
-                    case com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID:
+                    case com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID:
                         return createInstanceMock(SPACE_ID);
                     case Constants.PARAM_EXT_DESCRIPTOR_FILE_ID:
                         return createInstanceMock(extensionDescriptorIds);

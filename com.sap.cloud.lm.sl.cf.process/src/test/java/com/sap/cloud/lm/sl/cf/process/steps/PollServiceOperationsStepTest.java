@@ -100,7 +100,7 @@ public class PollServiceOperationsStepTest extends AbstractStepTest<PollServiceO
 
     @Before
     public void setUp() {
-        context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         prepareServiceInstanceGetter();
         StepsUtil.setServicesToCreate(context, input.services);
         StepsUtil.setTriggeredServiceOperations(context, input.triggeredServiceOperations);

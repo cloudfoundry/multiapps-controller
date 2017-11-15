@@ -103,7 +103,7 @@ public class StartProcessListenerTest {
         Mockito.when(context.getProcessInstanceId()).thenReturn(processInstanceId);
         Mockito.when(context.getVariables()).thenReturn(Collections.emptyMap());
         Mockito.when(processTypeParser.getProcessType(context)).thenReturn(processType);
-        context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         context.setVariable(Constants.VAR_USER, USER);
     }
 
