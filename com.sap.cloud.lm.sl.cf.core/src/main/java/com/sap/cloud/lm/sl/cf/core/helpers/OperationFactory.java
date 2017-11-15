@@ -33,7 +33,7 @@ public class OperationFactory {
         String mtaId = operation.getMtaId();
         String user = operation.getUser();
         String state = toString(operation.getState());
-        boolean acquiredLock = operation.isAcquiredLock();
+        boolean acquiredLock = operation.hasAcquiredLock();
         return new com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto(processId, processType, startedAt, spaceId, mtaId, user,
             acquiredLock, state);
     }

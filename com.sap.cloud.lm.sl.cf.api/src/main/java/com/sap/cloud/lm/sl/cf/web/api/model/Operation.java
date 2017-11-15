@@ -136,7 +136,7 @@ public class Operation {
 
     @ApiModelProperty(value = "")
     @JsonProperty("acquiredLock")
-    public Boolean isAcquiredLock() {
+    public Boolean hasAcquiredLock() {
         return acquiredLock;
     }
 
