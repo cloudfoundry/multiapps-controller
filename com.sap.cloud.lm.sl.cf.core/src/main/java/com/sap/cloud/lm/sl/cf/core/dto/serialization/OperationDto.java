@@ -18,6 +18,9 @@ public class OperationDto {
     @XmlElement(name = "started-at")
     private String startedAt;
 
+    @XmlElement(name = "ended-at")
+    private String endedAt;
+
     @XmlElement(name = "space-id")
     private String spaceId;
 
@@ -37,11 +40,12 @@ public class OperationDto {
         // Required by JAXB
     }
 
-    public OperationDto(String processId, String processType, String startedAt, String spaceId, String mtaId, String user,
+    public OperationDto(String processId, String processType, String startedAt, String endedAt, String spaceId, String mtaId, String user,
         boolean acquiredLock, String state) {
         this.processId = processId;
         this.processType = processType;
         this.startedAt = startedAt;
+        this.endedAt = endedAt;
         this.spaceId = spaceId;
         this.mtaId = mtaId;
         this.user = user;
@@ -59,6 +63,10 @@ public class OperationDto {
 
     public String getStartedAt() {
         return startedAt;
+    }
+
+    public String getEndedAt() {
+        return endedAt;
     }
 
     public String getSpaceId() {

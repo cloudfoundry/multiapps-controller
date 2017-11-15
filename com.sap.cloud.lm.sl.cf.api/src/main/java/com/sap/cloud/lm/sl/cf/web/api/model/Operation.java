@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.api.model;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +17,10 @@ public class Operation {
     private String processId = null;
     @JsonAdapter(ProcessTypeJsonAdapter.class)
     private ProcessType processType = null;
-    private String startedAt = null;
+    @JsonAdapter(ZonedDateTimeJsonAdapter.class)
+    private ZonedDateTime startedAt = null;
+    @JsonAdapter(ZonedDateTimeJsonAdapter.class)
+    private ZonedDateTime endedAt = null;
     private String spaceId = null;
     private String mtaId = null;
     private String user = null;
@@ -25,23 +29,28 @@ public class Operation {
     private List<Message> messages = new ArrayList<Message>();
     private Map<String, Object> parameters = new HashMap<String, Object>();
 
-    /**
-     **/
-
     public Operation() {
-        // Default constructor required by jersey
+
     }
 
-    public Operation(String processId, ProcessType processType, String startedAt, String spaceId, String mtaId, String user,
-        Boolean acquiredLock, State state) {
+    public Operation(String processId, ProcessType processType, ZonedDateTime startedAt, ZonedDateTime endedAt, String spaceId,
+        String mtaId, String user, boolean acquiredLock, State state) {
         this.processId = processId;
         this.processType = processType;
         this.startedAt = startedAt;
+        this.endedAt = endedAt;
         this.spaceId = spaceId;
         this.mtaId = mtaId;
         this.user = user;
         this.acquiredLock = acquiredLock;
         this.state = state;
+    }
+
+    /**
+     **/
+    public Operation processId(String processId) {
+        this.processId = processId;
+        return this;
     }
 
     @ApiModelProperty(value = "")
@@ -52,11 +61,6 @@ public class Operation {
 
     public void setProcessId(String processId) {
         this.processId = processId;
-    }
-
-    public Operation processId(String processId) {
-        this.processId = processId;
-        return this;
     }
 
     /**
@@ -78,19 +82,36 @@ public class Operation {
 
     /**
      **/
-    public Operation startedAt(String startedAt) {
+    public Operation startedAt(ZonedDateTime startedAt) {
         this.startedAt = startedAt;
         return this;
     }
 
     @ApiModelProperty(value = "")
     @JsonProperty("startedAt")
-    public String getStartedAt() {
+    public ZonedDateTime getStartedAt() {
         return startedAt;
     }
 
-    public void setStartedAt(String startedAt) {
+    public void setStartedAt(ZonedDateTime startedAt) {
         this.startedAt = startedAt;
+    }
+
+    /**
+     **/
+    public Operation endedAt(ZonedDateTime endedAt) {
+        this.endedAt = endedAt;
+        return this;
+    }
+
+    @ApiModelProperty(value = "")
+    @JsonProperty("endedAt")
+    public ZonedDateTime getEndedAt() {
+        return endedAt;
+    }
+
+    public void setEndedAt(ZonedDateTime endedAt) {
+        this.endedAt = endedAt;
     }
 
     /**
@@ -153,7 +174,7 @@ public class Operation {
 
     @ApiModelProperty(value = "")
     @JsonProperty("acquiredLock")
-    public Boolean isAcquiredLock() {
+    public Boolean hasAcquiredLock() {
         return acquiredLock;
     }
 
@@ -213,7 +234,7 @@ public class Operation {
     }
 
     @Override
-    public boolean equals(java.lang.Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -222,15 +243,15 @@ public class Operation {
         }
         Operation operation = (Operation) o;
         return Objects.equals(processId, operation.processId) && Objects.equals(processType, operation.processType)
-            && Objects.equals(startedAt, operation.startedAt) && Objects.equals(spaceId, operation.spaceId)
-            && Objects.equals(mtaId, operation.mtaId) && Objects.equals(user, operation.user)
+            && Objects.equals(startedAt, operation.startedAt) && Objects.equals(endedAt, operation.endedAt)
+            && Objects.equals(spaceId, operation.spaceId) && Objects.equals(mtaId, operation.mtaId) && Objects.equals(user, operation.user)
             && Objects.equals(acquiredLock, operation.acquiredLock) && Objects.equals(state, operation.state)
             && Objects.equals(messages, operation.messages) && Objects.equals(parameters, operation.parameters);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(processId, processType, startedAt, spaceId, mtaId, user, acquiredLock, state, messages, parameters);
+        return Objects.hash(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, state, messages, parameters);
     }
 
     @Override
@@ -241,6 +262,7 @@ public class Operation {
         sb.append("    processId: ").append(toIndentedString(processId)).append("\n");
         sb.append("    processType: ").append(toIndentedString(processType)).append("\n");
         sb.append("    startedAt: ").append(toIndentedString(startedAt)).append("\n");
+        sb.append("    endedAt: ").append(toIndentedString(endedAt)).append("\n");
         sb.append("    spaceId: ").append(toIndentedString(spaceId)).append("\n");
         sb.append("    mtaId: ").append(toIndentedString(mtaId)).append("\n");
         sb.append("    user: ").append(toIndentedString(user)).append("\n");
@@ -255,7 +277,7 @@ public class Operation {
     /**
      * Convert the given object to string with each line indented by 4 spaces (except the first line).
      */
-    private String toIndentedString(java.lang.Object o) {
+    private String toIndentedString(Object o) {
         if (o == null) {
             return "null";
         }

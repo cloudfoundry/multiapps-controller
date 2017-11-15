@@ -116,8 +116,8 @@ public class StartProcessListenerTest {
 
     private void verifyOngoingOperationInsertion() throws SLException, ConflictException {
         String user = StepsUtil.determineCurrentUser(context, stepLogger);
-        Mockito.verify(dao).add(Mockito.argThat(ArgumentMatcherProvider.getOngoingOpMatcher(
-            new Operation(processInstanceId, processType, null, SPACE_ID, null, user, false, null))));
+        Mockito.verify(dao).add(Mockito.argThat(ArgumentMatcherProvider
+            .getOngoingOpMatcher(new Operation(processInstanceId, processType, null, null, SPACE_ID, null, user, false, null))));
     }
 
 }

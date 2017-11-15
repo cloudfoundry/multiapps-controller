@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +30,6 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessListener.class);
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     @Inject
     private OperationDao ongoingOperationDao;
@@ -84,10 +82,10 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     }
 
     private void addOngoingOperation(DelegateExecution context, String correlationId, ProcessType processType) {
-        String startedAt = FORMATTER.format(ZonedDateTime.now());
+        ZonedDateTime startedAt = ZonedDateTime.now();
         String user = StepsUtil.determineCurrentUser(context, getStepLogger());
         String spaceId = StepsUtil.getSpaceId(context);
-        Operation process = new Operation(correlationId, processType, startedAt, spaceId, null, user, false, null);
+        Operation process = new Operation(correlationId, processType, startedAt, null, spaceId, null, user, false, null);
         ongoingOperationDao.add(process);
     }
 

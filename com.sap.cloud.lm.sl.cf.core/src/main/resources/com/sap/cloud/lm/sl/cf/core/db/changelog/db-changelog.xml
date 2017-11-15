@@ -28,4 +28,6 @@
     <include
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-update_configuration_subscription_table_update_filter_column.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_ongoing_operation_table_rename_slp_states.xml" />
+    <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_ongoing_operation_table_add_ended_at_column.xml" />
 </databaseChangeLog>
