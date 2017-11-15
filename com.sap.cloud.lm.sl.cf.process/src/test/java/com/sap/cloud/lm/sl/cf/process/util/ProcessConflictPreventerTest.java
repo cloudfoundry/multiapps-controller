@@ -24,7 +24,7 @@ public class ProcessConflictPreventerTest {
 
     @Before
     public void setUp() throws SLException {
-        daoMock = getOngoingOperationDaoMock();
+        daoMock = getOperationDaoMock();
         processConflictPreventerMock = new ProcessConflictPreventerMock(daoMock);
     }
 
@@ -60,7 +60,7 @@ public class ProcessConflictPreventerTest {
         verify(daoMock).merge(daoMock.findRequired(testProcessId));
     }
 
-    private OperationDao getOngoingOperationDaoMock() throws SLException {
+    private OperationDao getOperationDaoMock() throws SLException {
         OperationDao daoMock = mock(OperationDao.class);
         Operation operation = new Operation().processId(testProcessId).processType(ProcessType.DEPLOY).mtaId(testMtaId).acquiredLock(false);
         when(daoMock.findRequired(testProcessId)).thenReturn(operation);

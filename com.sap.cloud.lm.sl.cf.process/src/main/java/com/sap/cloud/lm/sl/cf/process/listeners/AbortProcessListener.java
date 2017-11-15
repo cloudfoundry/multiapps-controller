@@ -79,7 +79,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         String correlationId = getCorrelationId(event);
 
         new SafeExecutor().executeSafely(() -> {
-            new ProcessConflictPreventer(getOngoingOperationDao()).attemptToReleaseLock(correlationId);
+            new ProcessConflictPreventer(getOperationDao()).attemptToReleaseLock(correlationId);
         });
 
         new SafeExecutor().executeSafely(() -> {
@@ -127,9 +127,9 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
     }
 
     protected void setOperationInAbortedState(String processInstanceId) throws NotFoundException {
-        Operation ongoingOperation = getOngoingOperationDao().findRequired(processInstanceId);
-        ongoingOperation.setState(State.ABORTED);
-        getOngoingOperationDao().merge(ongoingOperation);
+        Operation operation = getOperationDao().findRequired(processInstanceId);
+        operation.setState(State.ABORTED);
+        getOperationDao().merge(operation);
     }
 
     protected void deleteAllocatedRoutes(HistoryService historyService, String processInstanceId) throws SLException {
@@ -193,8 +193,8 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         return getBeanProvider().getCloudFoundryClientProvider();
     }
 
-    private OperationDao getOngoingOperationDao() {
-        return getBeanProvider().getOngoingOperationDao();
+    private OperationDao getOperationDao() {
+        return getBeanProvider().getOperationDao();
     }
 
     private BeanProvider getBeanProvider() {

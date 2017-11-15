@@ -25,16 +25,17 @@ public class OperationFactory {
             .state(toState(dto.getFinalState()));
     }
 
-    public OperationDto toPersistenceDto(Operation ongoingOperation) {
-        String processId = ongoingOperation.getProcessId();
-        String processType = toString(ongoingOperation.getProcessType());
-        String startedAt = ongoingOperation.getStartedAt();
-        String spaceId = ongoingOperation.getSpaceId();
-        String mtaId = ongoingOperation.getMtaId();
-        String user = ongoingOperation.getUser();
-        String state = toString(ongoingOperation.getState());
-        boolean acquiredLock = ongoingOperation.isAcquiredLock();
-        return new OperationDto(processId, processType, startedAt, spaceId, mtaId, user, acquiredLock, state);
+    public com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto toPersistenceDto(Operation operation) {
+        String processId = operation.getProcessId();
+        String processType = toString(operation.getProcessType());
+        String startedAt = operation.getStartedAt();
+        String spaceId = operation.getSpaceId();
+        String mtaId = operation.getMtaId();
+        String user = operation.getUser();
+        String state = toString(operation.getState());
+        boolean acquiredLock = operation.isAcquiredLock();
+        return new com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto(processId, processType, startedAt, spaceId, mtaId, user,
+            acquiredLock, state);
     }
 
     protected State toState(String operationState) {

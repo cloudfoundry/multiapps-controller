@@ -74,11 +74,11 @@ public class StartProcessListenerTest {
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-            // (0) Create OngoingOperation for process undeploy
+            // (0) Create Operation for process undeploy
             {
                 "process-instance-id", ProcessType.UNDEPLOY, null
             },
-            // (1) Create OngoingOperation for process deploy
+            // (1) Create Operation for process deploy
             {
                 "process-instance-id", ProcessType.DEPLOY, null
             },
@@ -104,7 +104,7 @@ public class StartProcessListenerTest {
     public void testVerify() throws Exception {
         listener.notify(context);
 
-        verifyOngoingOperationInsertion();
+        verifyOperationInsertion();
     }
 
     private void prepareContext() {
@@ -123,7 +123,7 @@ public class StartProcessListenerTest {
         }
     }
 
-    private void verifyOngoingOperationInsertion() throws SLException, ConflictException {
+    private void verifyOperationInsertion() throws SLException, ConflictException {
         String user = StepsUtil.determineCurrentUser(context, stepLogger);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
         Operation operation = new Operation().processId(processInstanceId)

@@ -10,12 +10,12 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "ongoing_operation")
 @NamedQueries({
-    @NamedQuery(name = "find_mta_lock", query = "SELECT oo FROM OperationDto oo WHERE oo.mtaId = :mtaId AND oo.spaceId = :spaceId AND oo.acquiredLock = true"),
-    @NamedQuery(name = "find_all", query = "SELECT oo FROM OperationDto oo"),
-    @NamedQuery(name = "find_all_in_space", query = "SELECT oo FROM OperationDto oo WHERE oo.spaceId = :spaceId"),
-    @NamedQuery(name = "find_all_in_space_desc", query = "SELECT oo FROM OperationDto oo WHERE oo.spaceId = :spaceId order by oo.startedAt DESC"),
-    @NamedQuery(name = "find_all_active_in_space", query = "SELECT oo FROM OperationDto oo WHERE oo.spaceId = :spaceId AND oo.finalState is NULL"),
-    @NamedQuery(name = "find_all_finished_in_space", query = "SELECT oo FROM OperationDto oo WHERE oo.spaceId = :spaceId AND oo.finalState is NOT NULL") })
+    @NamedQuery(name = "find_mta_lock", query = "SELECT o FROM OperationDto o WHERE o.mtaId = :mtaId AND o.spaceId = :spaceId AND o.acquiredLock = true"),
+    @NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o"),
+    @NamedQuery(name = "find_all_in_space", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId"),
+    @NamedQuery(name = "find_all_in_space_desc", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId order by o.startedAt DESC"),
+    @NamedQuery(name = "find_all_active_in_space", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId AND o.finalState is NULL"),
+    @NamedQuery(name = "find_all_finished_in_space", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId AND o.finalState is NOT NULL") })
 public class OperationDto {
 
     @Id
