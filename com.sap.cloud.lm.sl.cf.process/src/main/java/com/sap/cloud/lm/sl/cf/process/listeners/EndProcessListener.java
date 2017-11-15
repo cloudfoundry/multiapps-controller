@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -81,6 +82,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     protected void setOngoingOperationInFinishedState(String processInstanceId) throws NotFoundException {
         Operation ongoingOperation = ongoingOperationDao.findRequired(processInstanceId);
         ongoingOperation.setState(State.FINISHED);
+        ongoingOperation.setEndedAt(ZonedDateTime.now());
         ongoingOperationDao.merge(ongoingOperation);
     }
 
