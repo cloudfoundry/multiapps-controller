@@ -8,9 +8,9 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component
-public class ProcessTypeToServiceMetadataMapper {
+public class ProcessTypeToOperationMetadataMapper {
 
-    public OperationMetadata getServiceMetadata(ProcessType processType) {
+    public OperationMetadata getOperationMetadata(ProcessType processType) {
         if (processType.equals(ProcessType.DEPLOY)) {
             return DeployMetadata.getMetadata();
         }

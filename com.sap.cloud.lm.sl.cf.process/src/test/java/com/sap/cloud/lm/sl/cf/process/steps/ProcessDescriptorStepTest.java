@@ -81,7 +81,7 @@ public class ProcessDescriptorStepTest extends AbstractStepTest<ProcessDescripto
         StepsUtil.setUnresolvedDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setXsPlaceholderReplacementValues(context, MapUtil.asMap(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER, 999));
 
-        context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
 
         StepsUtil.setPlatform(context, PLATFORM);
         StepsUtil.setTarget(context, TARGET);

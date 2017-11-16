@@ -21,7 +21,7 @@ import com.sap.activiti.common.impl.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToServiceMetadataMapper;
+import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
@@ -55,7 +55,7 @@ public class StartProcessListenerTest {
     @Mock
     private ProcessTypeParser processTypeParser;
     @Spy
-    private ProcessTypeToServiceMetadataMapper processTypeToServiceMetadataMapper = new ProcessTypeToServiceMetadataMapper();
+    private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper = new ProcessTypeToOperationMetadataMapper();
     @Mock
     private Configuration configuration;
 
@@ -103,7 +103,7 @@ public class StartProcessListenerTest {
         Mockito.when(context.getProcessInstanceId()).thenReturn(processInstanceId);
         Mockito.when(context.getVariables()).thenReturn(Collections.emptyMap());
         Mockito.when(processTypeParser.getProcessType(context)).thenReturn(processType);
-        context.setVariable(com.sap.cloud.lm.sl.cf.api.activiti.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         context.setVariable(Constants.VAR_USER, USER);
     }
 

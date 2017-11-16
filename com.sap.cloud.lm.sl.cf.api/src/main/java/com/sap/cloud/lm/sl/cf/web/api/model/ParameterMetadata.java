@@ -58,7 +58,7 @@ public class ParameterMetadata {
             result.setId(id);
             result.setRequired(CommonUtil.getOrDefault(required, false));
             result.setDefaultValue(defaultValue);
-            result.setType(type);
+            result.setType(CommonUtil.getOrDefault(type, ParameterType.STRING));
             return result;
         }
 
@@ -84,7 +84,7 @@ public class ParameterMetadata {
     }
 
     public enum ParameterType {
-        STRING, INTEGER, BOOLEAN
+        STRING, INTEGER, BOOLEAN, TABLE
     }
 
 }

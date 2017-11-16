@@ -24,10 +24,10 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.ProcessLoggerProviderFactory;
-import com.sap.cloud.lm.sl.cf.process.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 public abstract class AbstractStepTest<T extends AbstractProcessStep> {

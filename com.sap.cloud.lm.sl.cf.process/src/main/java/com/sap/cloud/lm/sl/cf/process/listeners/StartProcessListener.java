@@ -10,13 +10,13 @@ import javax.inject.Inject;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToServiceMetadataMapper;
+import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -26,7 +26,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-@Component("startProcessListener")
 public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private static final long serialVersionUID = 1L;
@@ -37,8 +36,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private OperationDao ongoingOperationDao;
     @Inject
     private ProcessTypeParser processTypeParser;
-    @Inject
-    private ProcessTypeToServiceMetadataMapper processTypeToServiceMetadataMapper;
+    @Autowired(required = false)
+    private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper;
     @Inject
     private Configuration configuration;
 
@@ -67,12 +66,12 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         getStepLogger().debug(Messages.CURRENT_USER, StepsUtil.determineCurrentUser(context, getStepLogger()));
         getStepLogger().debug(Messages.CLIENT_SPACE, StepsUtil.getSpace(context));
         getStepLogger().debug(Messages.CLIENT_ORG, StepsUtil.getOrg(context));
-        OperationMetadata operationMetadata = processTypeToServiceMetadataMapper.getServiceMetadata(processType);
-        Map<String, Object> processVariables = findProcessVariables(context, operationMetadata);
+        Map<String, Object> processVariables = findProcessVariables(context, processType);
         getStepLogger().debug(Messages.PROCESS_VARIABLES, JsonUtil.toJson(processVariables, true));
     }
 
-    private Map<String, Object> findProcessVariables(DelegateExecution context, OperationMetadata operationMetadata) {
+    protected Map<String, Object> findProcessVariables(DelegateExecution context, ProcessType processType) {
+        OperationMetadata operationMetadata = processTypeToServiceMetadataMapper.getOperationMetadata(processType);
         Map<String, Object> result = new HashMap<>();
         for (ParameterMetadata parameterMetadata : operationMetadata.getParameters()) {
             if (context.hasVariable(parameterMetadata.getId())) {
