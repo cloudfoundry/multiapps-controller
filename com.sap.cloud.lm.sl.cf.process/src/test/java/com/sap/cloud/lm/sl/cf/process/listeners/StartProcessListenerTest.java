@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Supplier;
@@ -125,11 +124,10 @@ public class StartProcessListenerTest {
 
     private void verifyOperationInsertion() throws SLException, ConflictException {
         String user = StepsUtil.determineCurrentUser(context, stepLogger);
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
         Operation operation = new Operation().processId(processInstanceId)
             .processType(processType)
             .spaceId(SPACE_ID)
-            .startedAt(formatter.format(START_TIME))
+            .startedAt(START_TIME)
             .user(user)
             .acquiredLock(false);
         Mockito.verify(dao).add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));

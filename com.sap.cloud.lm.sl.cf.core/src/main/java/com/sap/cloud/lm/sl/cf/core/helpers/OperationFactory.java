@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ public class OperationFactory {
     public Operation fromPersistenceDto(OperationDto dto) {
         return new Operation().processId(dto.getProcessId())
             .processType(toProcessType(dto.getProcessType()))
-            .startedAt(dto.getStartedAt())
+            .startedAt(toZonedDateTime(dto.getStartedAt()))
             .spaceId(dto.getSpaceId())
             .mtaId(dto.getMtaId())
             .user(dto.getUser())
@@ -28,7 +29,7 @@ public class OperationFactory {
     public com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto toPersistenceDto(Operation operation) {
         String processId = operation.getProcessId();
         String processType = toString(operation.getProcessType());
-        String startedAt = operation.getStartedAt();
+        String startedAt = toString(operation.getStartedAt());
         String spaceId = operation.getSpaceId();
         String mtaId = operation.getMtaId();
         String user = operation.getUser();
@@ -44,6 +45,14 @@ public class OperationFactory {
 
     protected String toString(State operationState) {
         return operationState == null ? null : operationState.toString();
+    }
+
+    protected ZonedDateTime toZonedDateTime(String zonedDateTime) {
+        return zonedDateTime == null ? null : ZonedDateTime.parse(zonedDateTime, Operation.DATE_TIME_FORMATTER);
+    }
+
+    protected String toString(ZonedDateTime zonedDateTime) {
+        return zonedDateTime == null ? null : Operation.DATE_TIME_FORMATTER.format(zonedDateTime);
     }
 
     protected String serializeProcessType(ProcessType processType) {
