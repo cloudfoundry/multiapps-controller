@@ -7,6 +7,7 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -19,7 +20,7 @@ import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
  * The purpose of this class is to group logging of progress messages and process logs in a single place.
  *
  */
-public class StepLogger {
+public class StepLogger implements UserMessageLogger {
 
     protected static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
 

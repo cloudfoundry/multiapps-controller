@@ -353,7 +353,7 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-with-ssh-enabled-false.json", }
-            }
+            },
 // @formatter:on
         });
     }
