@@ -102,4 +102,12 @@ public class CloudModelBuilderUtil {
         Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
         return (String) resourceParameters.get(SupportedParameters.TYPE);
     }
+    
+    public static Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor){
+        Set<String> deployedModuleNames = new TreeSet<>();
+        for (Module mtaModule : deploymentDescriptor.getModules1_0()) {
+            deployedModuleNames.add(mtaModule.getName());
+        }
+        return deployedModuleNames;
+    }
 }

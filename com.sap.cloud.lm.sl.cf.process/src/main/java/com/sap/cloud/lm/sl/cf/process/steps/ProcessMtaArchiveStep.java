@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.jar.Manifest;
 
@@ -94,11 +93,6 @@ public class ProcessMtaArchiveStep extends AbstractProcessStep {
                 Map<String, String> mtaArchiveResources = helper.getMtaArchiveResources();
                 mtaArchiveResources.forEach((resourceName, fileName) -> StepsUtil.setResourceFileName(context, resourceName, fileName));
                 getStepLogger().debug("MTA Archive Resources: {0}", mtaArchiveResources.keySet());
-
-                // Set MTA modules in the context
-                Set<String> mtaModules = helper.getMtaModules();
-                getStepLogger().debug("MTA Modules: {0}", mtaModules);
-                StepsUtil.setMtaModules(context, mtaModules);
             });
         fileService.processFileContent(manifestProcessor);
     }

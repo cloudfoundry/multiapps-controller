@@ -29,6 +29,7 @@ import com.sap.cloud.lm.sl.cf.core.parser.ParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.StagingParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.TaskParametersParser;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
@@ -58,6 +59,7 @@ public class ApplicationsCloudModelBuilder {
     protected CloudServiceNameMapper cloudServiceNameMapper;
     protected XsPlaceholderResolver xsPlaceholderResolver;
     protected DeployedMta deployedMta;
+    protected UserMessageLogger userMessageLogger;
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
@@ -65,6 +67,18 @@ public class ApplicationsCloudModelBuilder {
             new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor, xsPlaceholderResolver, new DescriptorHandler(),
                 deployId),
             deployedMta, systemParameters, xsPlaceholderResolver);
+    }
+
+    public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
+        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
+        UserMessageLogger userMessageLogger) {
+
+        this(new DescriptorHandler(), new PropertiesChainBuilder(deploymentDescriptor), deploymentDescriptor, configuration,
+            new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor, xsPlaceholderResolver, new DescriptorHandler(),
+                deployId),
+            deployedMta, systemParameters, xsPlaceholderResolver);
+
+        this.userMessageLogger = userMessageLogger;
     }
 
     public ApplicationsCloudModelBuilder(DescriptorHandler handler, PropertiesChainBuilder propertiesChainBuilder,
@@ -95,8 +109,12 @@ public class ApplicationsCloudModelBuilder {
         initializeModulesDependecyTypes(deploymentDescriptor);
         for (Module module : handler.getSortedModules(deploymentDescriptor, SupportedParameters.DEPENDENCY_TYPE, DEPENDECY_TYPE_HARD)) {
             if (!mtaModulesInArchive.contains(module.getName()) || module.getType() == null) {
+                if (deployedModules.contains(module.getName())){
+                    printMTAModuleNotFoundWarning(module.getName());
+                }
                 continue;
             }
+
             if (allMtaModules.contains(module.getName())) {
                 ListUtil.addNonNull(apps, getApplication(module));
                 unresolvedMtaModules.remove(module.getName());
@@ -109,6 +127,13 @@ public class ApplicationsCloudModelBuilder {
             throw new ContentException(Messages.UNRESOLVED_MTA_MODULES, unresolvedMtaModules);
         }
         return apps;
+    }
+
+    private void printMTAModuleNotFoundWarning(String moduleName) {
+
+        if (userMessageLogger != null) {
+            userMessageLogger.warn(Messages.NOT_DESCRIBED_MODULE, moduleName);
+        }
     }
 
     protected void initializeModulesDependecyTypes(DeploymentDescriptor deploymentDescriptor) {

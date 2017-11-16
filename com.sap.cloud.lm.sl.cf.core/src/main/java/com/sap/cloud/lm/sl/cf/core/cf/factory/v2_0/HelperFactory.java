@@ -23,6 +23,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2_0.DescriptorParametersValidator;
 import com.sap.cloud.lm.sl.mta.builders.v2_0.ParametersChainBuilder;
@@ -50,6 +51,14 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1_0.H
         XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
         return new ApplicationsCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor) deploymentDescriptor,
             configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId);
+    }
+    
+    @Override
+    public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
+        XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger userMessageLogger) {
+        return new ApplicationsCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor) deploymentDescriptor,
+            configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, userMessageLogger);
     }
 
     @Override

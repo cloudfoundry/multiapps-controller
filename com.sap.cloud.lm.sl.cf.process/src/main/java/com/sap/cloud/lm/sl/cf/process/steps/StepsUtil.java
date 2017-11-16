@@ -902,6 +902,12 @@ public class StepsUtil {
     public static final String DEPLOY_ID_PREFIX = "deploy-";
 
     static ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {
+
+        return getApplicationsCloudModelBuilder(context, null);
+    }
+    
+    static ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context, StepLogger stepLogger){
+        
         CloudModelConfiguration configuration = getCloudBuilderConfiguration(context, true);
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
 
@@ -915,7 +921,7 @@ public class StepsUtil {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
 
         return handlerFactory.getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, deployId);
+            xsPlaceholderResolver, deployId, stepLogger); 
     }
 
     static DomainsCloudModelBuilder getDomainsCloudModelBuilder(DelegateExecution context) {

@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v1_0.DescriptorParametersValidator;
 import com.sap.cloud.lm.sl.mta.mergers.v1_0.PlatformMerger;
@@ -36,6 +37,10 @@ public interface HelperFactoryConstructor {
     ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
         XsPlaceholderResolver xsPlaceholderResolver, String deployId);
+    
+    ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
+        XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger userMessageLogger);
 
     DomainsCloudModelBuilder getDomainsCloudModelBuilder(SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver,
         DeploymentDescriptor deploymentDescriptor);

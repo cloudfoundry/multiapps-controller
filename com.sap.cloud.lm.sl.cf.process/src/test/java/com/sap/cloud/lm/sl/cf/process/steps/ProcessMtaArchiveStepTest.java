@@ -136,7 +136,6 @@ public class ProcessMtaArchiveStepTest extends AbstractStepTest<ProcessMtaArchiv
                 input.expectedResources.stream().collect(Collectors.toMap(r -> r, Function.identity())));
             when(helper.getMtaRequiresDependencies()).thenReturn(
                 input.expectedRequiredDependencies.stream().collect(Collectors.toMap(d -> d, Function.identity())));
-            when(helper.getMtaModules()).thenReturn(input.expectedModules);
             try {
                 doAnswer(a -> null).when(helper).init();
             } catch (SLException e) {

@@ -156,8 +156,6 @@ public class MtaArchiveValidator {
         // Get module sets
         Set<String> mtaArchiveModules = mtaArchiveHelper.getMtaArchiveModules().keySet();
         LOGGER.debug(format("MTA Archive Modules: {0}", mtaArchiveModules));
-        Set<String> mtaModules = mtaArchiveHelper.getMtaModules();
-        LOGGER.debug(format("MTA Modules: {0}", mtaModules));
 
         // Get descriptor strings
         String deploymentDescriptorString = ArchiveHandler.getDescriptor(new ByteArrayInputStream(mtar), maxMtaDescriptorSize);
@@ -214,6 +212,10 @@ public class MtaArchiveValidator {
 
         // Merge DeploymentDescriptor and Platform
         handlerFactory.getPlatformMerger(platform).mergeInto(deploymentDescriptor);
+        
+        // Get MTA modules
+        Set<String> mtaModules = CloudModelBuilderUtil.getModuleNames(deploymentDescriptor);
+        LOGGER.debug(format("MTA Modules: {0}", mtaModules));
 
         XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
         xsPlaceholderResolver.setRouterPort(routerPort);

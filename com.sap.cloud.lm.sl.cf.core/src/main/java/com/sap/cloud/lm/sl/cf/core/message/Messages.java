@@ -65,6 +65,7 @@ public final class Messages {
     public static final String ILLEGAL_SERVICE_OPERATION_STATE = "Illegal service operation state: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_TYPE = "Illegal service operation type: {0}";
     public static final String MULTIPLE_CONFIGURATION_ENTRIES = "Multiple configuration entries were found matching the filter specified in resource \"{0}\": \"{1}\"";
+    public static final String NO_CONTENT_TO_DEPLOY = "No content to deploy";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET = "Environment variable \"{0}\" is not set";
@@ -85,7 +86,8 @@ public final class Messages {
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
     public static final String UNKNOWN_DB_TYPE_WILL_NOT_DROP_CONFIGURATION_REGISTRY_UNIQUE_CONSTRAINT = "Unknown database type: {0}. DropConfigurationRegistryUniqueConstraint will not be executed.";
     public static final String UNKNOWN_DB_TYPE_WILL_NOT_ALTER_OPERATION_TABLE_COLUMN_TYPES = "Unknown database type: {0}. AlterOperationTableTimestampStoringColumns will not be executed.";
-
+    public static final String NOT_DESCRIBED_MODULE = "MTA module \"{0}\" is found deployed, but it is not part of MTA manifest file";
+    
     // Info messages
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type not specified in environment, using default \"{0}\"";
     public static final String XS_TARGET_URL_NOT_SPECIFIED = "XS target URL not specified in environment, using default \"{0}\"";

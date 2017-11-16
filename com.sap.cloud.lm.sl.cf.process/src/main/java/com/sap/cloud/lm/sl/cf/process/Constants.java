@@ -55,8 +55,8 @@ public class Constants {
     public static final String VAR_MTA_REQUIRES_FILE_NAME_PREFIX = "mtaRequiresFileName_";
     public static final String VAR_MTA_RESOURCE_FILE_NAME_PREFIX = "mtaResourceFileName_";
     public static final String VAR_MTA_ARCHIVE_MODULES = "mtaArchiveModules";
-    public static final String VAR_MTA_MODULES = "mtaModules";
     public static final String VAR_NEW_MTA_VERSION = "newMtaVersion";
+    public static final String VAR_MTA_MODULES = "mtaModules";
 
     public static final String VAR_APP_STATE_ACTIONS_TO_EXECUTE = "appStateActionsToExecute";
     public static final String VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES = "xsPlaceholderReplacementValues";

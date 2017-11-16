@@ -15,6 +15,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
+import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
@@ -52,7 +53,7 @@ public class MtaArchiveHelperTest {
     @Test
     public void testModules() {
         Set<String> descriptorModules = getModulesNamesFromDescriptor();
-        Set<String> mtaModules = helper.getMtaModules();
+        Set<String> mtaModules = CloudModelBuilderUtil.getModuleNames(descriptor);
 
         assertEquals(descriptorModules.size(), mtaModules.size());
         for (String moduleName : mtaModules) {

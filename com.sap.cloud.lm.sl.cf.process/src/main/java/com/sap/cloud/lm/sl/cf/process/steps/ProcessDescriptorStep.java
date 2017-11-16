@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 import javax.inject.Inject;
@@ -21,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
@@ -83,6 +85,10 @@ public class ProcessDescriptorStep extends AbstractProcessStep {
             resolveXsPlaceholders(descriptor, xsPlaceholderResolver, handlerFactory.getMajorVersion());
 
             StepsUtil.setDeploymentDescriptor(context, descriptor);
+            // Set MTA modules in the context
+            Set<String> mtaModules = CloudModelBuilderUtil.getModuleNames(descriptor);
+            getStepLogger().debug("MTA Modules: {0}", mtaModules );
+            StepsUtil.setMtaModules(context, mtaModules);
 
             getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
                 secureSerializer.toJson(descriptor));
