@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.api.model;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,10 +15,13 @@ import io.swagger.annotations.ApiModelProperty;
 
 public class Operation {
 
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+
     private String processId = null;
     @JsonAdapter(ProcessTypeJsonAdapter.class)
     private ProcessType processType = null;
-    private String startedAt = null;
+    @JsonAdapter(ZonedDateTimeJsonAdapter.class)
+    private ZonedDateTime startedAt = null;
     private String spaceId = null;
     private String mtaId = null;
     private String user = null;
@@ -61,18 +66,18 @@ public class Operation {
 
     /**
      **/
-    public Operation startedAt(String startedAt) {
+    public Operation startedAt(ZonedDateTime startedAt) {
         this.startedAt = startedAt;
         return this;
     }
 
     @ApiModelProperty(value = "")
     @JsonProperty("startedAt")
-    public String getStartedAt() {
+    public ZonedDateTime getStartedAt() {
         return startedAt;
     }
 
-    public void setStartedAt(String startedAt) {
+    public void setStartedAt(ZonedDateTime startedAt) {
         this.startedAt = startedAt;
     }
 
