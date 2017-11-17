@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -12,10 +13,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 @Component
 public class OperationFactory {
-
-    private static final String DEPLOY_SERIALIZED_NAME = "deploy";
-    private static final String BLUE_GREEN_DEPLOY_SERIALIZED_NAME = "blue-green-deploy";
-    private static final String UNDEPLOY_SERIALIZED_NAME = "undeploy";
 
     public Operation fromPersistenceDto(OperationDto dto) {
         String processId = dto.getProcessId();
@@ -54,13 +51,13 @@ public class OperationFactory {
             return null;
         }
         if (processType.equals(ProcessType.DEPLOY)) {
-            return DEPLOY_SERIALIZED_NAME;
+            return Constants.DEPLOY_SERIALIZED_NAME;
         }
         if (processType.equals(ProcessType.BLUE_GREEN_DEPLOY)) {
-            return BLUE_GREEN_DEPLOY_SERIALIZED_NAME;
+            return Constants.BLUE_GREEN_DEPLOY_SERIALIZED_NAME;
         }
         if (processType.equals(ProcessType.UNDEPLOY)) {
-            return UNDEPLOY_SERIALIZED_NAME;
+            return Constants.UNDEPLOY_SERIALIZED_NAME;
         }
         throw new IllegalStateException(MessageFormat.format(Messages.ILLEGAL_PROCESS_TYPE, processType.toString()));
     }
@@ -70,11 +67,11 @@ public class OperationFactory {
             return null;
         }
         switch (processType) {
-            case DEPLOY_SERIALIZED_NAME:
+            case Constants.DEPLOY_SERIALIZED_NAME:
                 return ProcessType.DEPLOY;
-            case BLUE_GREEN_DEPLOY_SERIALIZED_NAME:
+            case Constants.BLUE_GREEN_DEPLOY_SERIALIZED_NAME:
                 return ProcessType.BLUE_GREEN_DEPLOY;
-            case UNDEPLOY_SERIALIZED_NAME:
+            case Constants.UNDEPLOY_SERIALIZED_NAME:
                 return ProcessType.UNDEPLOY;
             default:
                 throw new IllegalStateException(MessageFormat.format(Messages.ILLEGAL_PROCESS_TYPE, processType));
