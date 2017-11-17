@@ -5,6 +5,11 @@ public class Constants {
     public static final String UNIX_PATH_SEPARATOR = "/";
     public static final String MTA_ELEMENT_SEPARATOR = "/";
     public static final String MODULE_SEPARATOR = ",";
+    
+    // Serialized process types
+    public static final String DEPLOY_SERIALIZED_NAME = "deploy";
+    public static final String BLUE_GREEN_DEPLOY_SERIALIZED_NAME = "blue-green-deploy";
+    public static final String UNDEPLOY_SERIALIZED_NAME = "undeploy";
 
     // Metadata attributes:
     public static final String ATTR_ID = "id";
@@ -29,4 +34,5 @@ public class Constants {
 
     // Variables
     public static final String ATTR_CORRELATION_ID = "correlation-id";
+
 }
