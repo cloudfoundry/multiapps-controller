@@ -15,6 +15,7 @@ public abstract class AbstractDataTransformationChange<OriginalDataType, Transfo
     protected void executeInTransaction(JdbcConnection jdbcConnection) throws Exception {
         OriginalDataType retrievedData = retrieveData(jdbcConnection);
         TransformedDataType transformedData = transformData(retrievedData);
+        alterTable(jdbcConnection);
         updateTable(jdbcConnection, transformedData);
     }
 
@@ -45,6 +46,22 @@ public abstract class AbstractDataTransformationChange<OriginalDataType, Transfo
         }
     }
 
+    public void alterTable(JdbcConnection jdbcConnection) throws DatabaseException, SQLException {
+        for (String alterStatement : getAlterStatements()) {
+            executeStatement(jdbcConnection, alterStatement);
+        }
+    }
+
+    private void executeStatement(JdbcConnection jdbcConnection, String statement) throws DatabaseException, SQLException {
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = jdbcConnection.prepareStatement(statement);
+            preparedStatement.execute();
+        } finally {
+            JdbcUtil.closeQuietly(preparedStatement);
+        }
+    }
+
     public abstract TransformedDataType transformData(OriginalDataType retrievedData);
 
     public abstract OriginalDataType extractData(ResultSet resultSet) throws SQLException;
@@ -52,6 +69,10 @@ public abstract class AbstractDataTransformationChange<OriginalDataType, Transfo
     public abstract String getSelectStatement();
 
     public abstract String getUpdateStatement();
+
+    public String[] getAlterStatements() {
+        return new String[0];
+    }
 
     public abstract void setUpdateStatementParameters(PreparedStatement preparedStatement, TransformedDataType transformedData)
         throws SQLException;
