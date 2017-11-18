@@ -16,23 +16,14 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
-public class TransformFilterColumn extends AbstractDataTransformationChange {
+public class TransformFilterColumn extends AbstractDataTransformationChange<Map<Long, String>, Map<Long, String>> {
 
-    private static final String TABLE_NAME = "CONFIGURATION_SUBSCRIPTION";
     private static final String TARGET_SPACE = "targetSpace";
-    private static final String SELECT_STATEMENT = "Select ID, FILTER from CONFIGURATION_SUBSCRIPTION";
+    private static final String SELECT_STATEMENT = "SELECT ID, FILTER FROM CONFIGURATION_SUBSCRIPTION";
     private static final String UPDATE_STATEMENT = "UPDATE CONFIGURATION_SUBSCRIPTION SET FILTER=? WHERE ID=?";
 
     @Override
-    public void customUpdate(PreparedStatement preparedStatement, Map.Entry<Long, String> entry) throws SQLException {
-        preparedStatement.setString(1, entry.getValue());
-        preparedStatement.setLong(2, entry.getKey());
-        preparedStatement.addBatch();
-        logger.debug(String.format("Executed update for row ID: '%s' , FILTER: '%s'", entry.getKey(), entry.getValue()));
-    }
-
-    @Override
-    public Map<Long, String> customExtractData(ResultSet resultSet) throws SQLException {
+    public Map<Long, String> extractData(ResultSet resultSet) throws SQLException {
         Map<Long, String> result = new HashMap<>();
         while (resultSet.next()) {
             long id = resultSet.getLong("ID");
@@ -69,8 +60,13 @@ public class TransformFilterColumn extends AbstractDataTransformationChange {
     }
 
     @Override
-    public String getTableName() {
-        return TABLE_NAME;
+    public void setUpdateStatementParameters(PreparedStatement preparedStatement, Map<Long, String> transformedData) throws SQLException {
+        for (Map.Entry<Long, String> entry : transformedData.entrySet()) {
+            preparedStatement.setString(1, entry.getValue());
+            preparedStatement.setLong(2, entry.getKey());
+            preparedStatement.addBatch();
+            logger.debug(String.format("Executed update for row ID: '%s' , FILTER: '%s'", entry.getKey(), entry.getValue()));
+        }
     }
 
     @Override
@@ -87,4 +83,5 @@ public class TransformFilterColumn extends AbstractDataTransformationChange {
     public String getConfirmationMessage() {
         return Messages.TRANSFORMED_FILTER_COLUMN;
     }
+
 }
