@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.liquibase;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.sap.cloud.lm.sl.persistence.util.JdbcUtil;
@@ -21,14 +20,14 @@ public abstract class AbstractDataTransformationChange extends AbstractChange {
     }
 
     public Map<Long, String> retrieveData(JdbcConnection jdbcConnection) throws DatabaseException, SQLException {
-        Map<Long, String> result = new HashMap<Long, String>();
         PreparedStatement preparedStatement = null;
+        Map<Long, String> result = null;
 
         try {
-            preparedStatement = jdbcConnection.prepareStatement(getSearchQuery());
-            ResultSet query = preparedStatement.executeQuery();
-            result = customExtractData(query);
-            query.close();
+            preparedStatement = jdbcConnection.prepareStatement(getSelectStatement());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            result = customExtractData(resultSet);
+            resultSet.close();
             logger.debug(String.format("Executed select for table '%s' returned '%s' entries", getTableName(), result.size()));
         } finally {
             JdbcUtil.closeQuietly(preparedStatement);
@@ -40,7 +39,7 @@ public abstract class AbstractDataTransformationChange extends AbstractChange {
         PreparedStatement preparedStatement = null;
 
         try {
-            preparedStatement = jdbcConnection.prepareStatement(getUpdateQuery());
+            preparedStatement = jdbcConnection.prepareStatement(getUpdateStatement());
             for (Map.Entry<Long, String> entry : transformedData.entrySet()) {
                 customUpdate(preparedStatement, entry);
             }
@@ -54,13 +53,13 @@ public abstract class AbstractDataTransformationChange extends AbstractChange {
 
     public abstract Map<Long, String> transformData(Map<Long, String> retrievedData);
 
-    public abstract Map<Long, String> customExtractData(ResultSet query) throws SQLException;
+    public abstract Map<Long, String> customExtractData(ResultSet resultSet) throws SQLException;
 
     public abstract String getTableName();
 
-    public abstract String getSearchQuery();
+    public abstract String getSelectStatement();
 
-    public abstract String getUpdateQuery();
+    public abstract String getUpdateStatement();
 
     public abstract void customUpdate(PreparedStatement preparedStatement, Map.Entry<Long, String> entry) throws SQLException;
 
