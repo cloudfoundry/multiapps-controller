@@ -14,16 +14,15 @@ import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 public class SplitTargetSpaceColumn extends AbstractDataTransformationChange {
 
     private static final String TABLE_NAME = "CONFIGURATION_REGISTRY";
-    private static final String SEARCH_QUERY = "Select ID, TARGET_SPACE from CONFIGURATION_REGISTRY";
-    private static final String UPDATE_QUERY = "UPDATE CONFIGURATION_REGISTRY SET TARGET_ORG=?, TARGET_SPACE=? WHERE ID=?";
+    private static final String SELECT_STATEMENT = "Select ID, TARGET_SPACE from CONFIGURATION_REGISTRY";
+    private static final String UPDATE_STATEMENT = "UPDATE CONFIGURATION_REGISTRY SET TARGET_ORG=?, TARGET_SPACE=? WHERE ID=?";
 
     @Override
-    public Map<Long, String> customExtractData(ResultSet query) throws SQLException {
-
-        Map<Long, String> result = new HashMap<Long, String>();
-        while (query.next()) {
-            long id = query.getLong("ID");
-            String targetSpace = query.getString("TARGET_SPACE");
+    public Map<Long, String> customExtractData(ResultSet resultSet) throws SQLException {
+        Map<Long, String> result = new HashMap<>();
+        while (resultSet.next()) {
+            long id = resultSet.getLong("ID");
+            String targetSpace = resultSet.getString("TARGET_SPACE");
             result.put(id, targetSpace);
             logger.debug(String.format("Retrieve data from row ID: '%s' and TARGET_SPACE: '%s'", id, targetSpace));
         }
@@ -44,8 +43,8 @@ public class SplitTargetSpaceColumn extends AbstractDataTransformationChange {
     }
 
     @Override
-    public String getSearchQuery() {
-        return SEARCH_QUERY;
+    public String getSelectStatement() {
+        return SELECT_STATEMENT;
     }
 
     @Override
@@ -59,8 +58,8 @@ public class SplitTargetSpaceColumn extends AbstractDataTransformationChange {
     }
 
     @Override
-    public String getUpdateQuery() {
-        return UPDATE_QUERY;
+    public String getUpdateStatement() {
+        return UPDATE_STATEMENT;
     }
 
     @Override
