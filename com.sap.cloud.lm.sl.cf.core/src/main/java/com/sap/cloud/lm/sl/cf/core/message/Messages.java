@@ -83,6 +83,7 @@ public final class Messages {
     public static final String IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE = "Ignoring label \"{0}\" for service \"{1}\", as user-provided services do not support labels!";
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
     public static final String UNKNOWN_DB_TYPE_WILL_NOT_DROP_CONFIGURATION_REGISTRY_UNIQUE_CONSTRAINT = "Unknown database type: {0}. DropConfigurationRegistryUniqueConstraint will not be executed.";
+    public static final String UNKNOWN_DB_TYPE_WILL_NOT_ALTER_OPERATION_TABLE_COLUMN_TYPES = "Unknown database type: {0}. AlterOperationTableTimestampStoringColumns will not be executed.";
 
     // Info messages
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type not specified in environment, using default \"{0}\"";
@@ -98,6 +99,7 @@ public final class Messages {
     public static final String CURRENT_LOCK = "Change log lock was acquired at {0} by {1}";
     public static final String CURRENT_DATE = "The current date is {0}";
     public static final String DROPPED_UNNAMED_UNIQUE_CONSTRAINT_FOR_CONFIGURATION_REGISTRY = "Dropped unnamed unique constraint for configuration registry.";
+    public static final String ALTERED_DATA_TYPES_FOR_OPERATION_TABLE = "Altered data types for 'started_at' and 'ended_at' columns in 'operation' table to 'timestamp'.";
     public static final String SPLIT_TARGET_SPACE_COLUMN = "Split target space column in configuration registry.";
     public static final String TRANSFORMED_FILTER_COLUMN = "Transformed filter column in configuration subscription table.";
 
