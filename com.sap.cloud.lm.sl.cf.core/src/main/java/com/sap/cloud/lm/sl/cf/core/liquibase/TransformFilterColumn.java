@@ -16,9 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
-import liquibase.exception.CustomChangeException;
-import liquibase.exception.DatabaseException;
-
 public class TransformFilterColumn extends AbstractDataTransformationChange {
 
     private static final String TABLE_NAME = "CONFIGURATION_SUBSCRIPTION";
@@ -35,7 +32,7 @@ public class TransformFilterColumn extends AbstractDataTransformationChange {
     }
 
     @Override
-    public Map<Long, String> customExtractData(ResultSet query) throws CustomChangeException, DatabaseException, SQLException {
+    public Map<Long, String> customExtractData(ResultSet query) throws SQLException {
         Map<Long, String> result = new HashMap<Long, String>();
         while (query.next()) {
             long id = query.getLong("ID");

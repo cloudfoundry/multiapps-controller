@@ -9,7 +9,6 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.persistence.util.JdbcUtil;
 
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.CustomChangeException;
 import liquibase.exception.DatabaseException;
 
 public abstract class AbstractDataTransformationChange extends AbstractChange {
@@ -21,7 +20,7 @@ public abstract class AbstractDataTransformationChange extends AbstractChange {
         updateTable(jdbcConnection, transformedData);
     }
 
-    public Map<Long, String> retrieveData(JdbcConnection jdbcConnection) throws CustomChangeException, DatabaseException, SQLException {
+    public Map<Long, String> retrieveData(JdbcConnection jdbcConnection) throws DatabaseException, SQLException {
         Map<Long, String> result = new HashMap<Long, String>();
         PreparedStatement preparedStatement = null;
 
@@ -46,8 +45,8 @@ public abstract class AbstractDataTransformationChange extends AbstractChange {
                 customUpdate(preparedStatement, entry);
             }
             preparedStatement.executeBatch();
-            logger.debug(
-                String.format("Executed batch update for table '%s' and entries size '%s'", getTableName(), transformedData.size()));
+            logger
+                .debug(String.format("Executed batch update for table '%s' and entries size '%s'", getTableName(), transformedData.size()));
         } finally {
             JdbcUtil.closeQuietly(preparedStatement);
         }
@@ -55,7 +54,7 @@ public abstract class AbstractDataTransformationChange extends AbstractChange {
 
     public abstract Map<Long, String> transformData(Map<Long, String> retrievedData);
 
-    public abstract Map<Long, String> customExtractData(ResultSet query) throws CustomChangeException, DatabaseException, SQLException;
+    public abstract Map<Long, String> customExtractData(ResultSet query) throws SQLException;
 
     public abstract String getTableName();
 
