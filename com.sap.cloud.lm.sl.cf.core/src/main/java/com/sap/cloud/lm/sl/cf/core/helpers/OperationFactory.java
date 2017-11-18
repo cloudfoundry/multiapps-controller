@@ -1,6 +1,8 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 import org.springframework.stereotype.Component;
 
@@ -24,18 +26,17 @@ public class OperationFactory {
             .state(toState(dto.getFinalState()));
     }
 
-    public com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto toPersistenceDto(Operation operation) {
+    public OperationDto toPersistenceDto(Operation operation) {
         String processId = operation.getProcessId();
         String processType = toString(operation.getProcessType());
-        String startedAt = toString(operation.getStartedAt());
-        String endedAt = toString(operation.getEndedAt());
+        Date startedAt = toDate(operation.getStartedAt());
+        Date endedAt = toDate(operation.getEndedAt());
         String spaceId = operation.getSpaceId();
         String mtaId = operation.getMtaId();
         String user = operation.getUser();
         String state = toString(operation.getState());
         boolean acquiredLock = operation.hasAcquiredLock();
-        return new com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId,
-            user, acquiredLock, state);
+        return new OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, state);
     }
 
     protected State toState(String operationState) {
@@ -46,12 +47,12 @@ public class OperationFactory {
         return operationState == null ? null : operationState.toString();
     }
 
-    protected ZonedDateTime toZonedDateTime(String zonedDateTime) {
-        return zonedDateTime == null ? null : ZonedDateTime.parse(zonedDateTime, Operation.DATE_TIME_FORMATTER);
+    protected ZonedDateTime toZonedDateTime(Date date) {
+        return date == null ? null : ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("UTC"));
     }
 
-    protected String toString(ZonedDateTime zonedDateTime) {
-        return zonedDateTime == null ? null : Operation.DATE_TIME_FORMATTER.format(zonedDateTime);
+    protected Date toDate(ZonedDateTime zonedDateTime) {
+        return zonedDateTime == null ? null : new Date(zonedDateTime.toInstant().toEpochMilli());
     }
 
     protected ProcessType toProcessType(String processType) {

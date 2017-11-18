@@ -1,11 +1,15 @@
 package com.sap.cloud.lm.sl.cf.core.dto.persistence;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "operation")
@@ -26,10 +30,12 @@ public class OperationDto {
     private String processType;
 
     @Column(name = "started_at")
-    private String startedAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startedAt;
 
     @Column(name = "ended_at")
-    private String endedAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date endedAt;
 
     @Column(name = "space_id")
     private String spaceId;
@@ -50,7 +56,7 @@ public class OperationDto {
         // Required by JPA
     }
 
-    public OperationDto(String processId, String processType, String startedAt, String endedAt, String spaceId, String mtaId, String user,
+    public OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String user,
         boolean acquiredLock, String finalState) {
         this.processId = processId;
         this.processType = processType;
@@ -71,11 +77,11 @@ public class OperationDto {
         return processType;
     }
 
-    public String getStartedAt() {
+    public Date getStartedAt() {
         return startedAt;
     }
 
-    public String getEndedAt() {
+    public Date getEndedAt() {
         return endedAt;
     }
 
