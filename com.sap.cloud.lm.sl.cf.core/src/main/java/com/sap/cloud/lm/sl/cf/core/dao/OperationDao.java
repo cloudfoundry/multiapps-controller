@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
 import com.sap.cloud.lm.sl.cf.core.helpers.OperationFactory;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -43,6 +44,11 @@ public class OperationDao {
     public Operation findRequired(String processId) throws NotFoundException {
         OperationDto dto = dao.findRequired(processId);
         return operationFactory.fromPersistenceDto(dto);
+    }
+
+    public List<Operation> find(OperationFilter filter) {
+        List<OperationDto> dtos = dao.find(filter);
+        return toOperations(dtos);
     }
 
     public List<Operation> findAll() {

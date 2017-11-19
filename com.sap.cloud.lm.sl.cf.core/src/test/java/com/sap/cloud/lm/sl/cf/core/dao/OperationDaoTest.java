@@ -6,29 +6,22 @@ import static org.junit.Assume.assumeTrue;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.persistence.Persistence;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.google.gson.reflect.TypeToken;
-import com.sap.cloud.lm.sl.cf.core.helpers.OperationFactory;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.Callable;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Runnable;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class OperationDaoTest {
+public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
 
     private static enum DaoOperation {
-        ADD, REMOVE, MERGE, FIND, FIND_ALL, FIND_ALL_IN_SPACE, FIND_LAST_IN_SPACE, FIND_ACTIVE_IN_SPACE, FIND_FINISHED_IN_SPACE
+        ADD, REMOVE, MERGE, FIND, FIND_ALL, FIND_ALL_IN_SPACE, FIND_LAST_IN_SPACE, FIND_ACTIVE_IN_SPACE, FIND_FINISHED_IN_SPACE,
     }
 
     private static final int LAST_OPERATIONS_COUNT = 3;
@@ -36,15 +29,12 @@ public class OperationDaoTest {
 
     private DaoOperation operation;
     private String processId;
-    private String databaseContent;
     private String expected;
 
-    private OperationDao dao = createDao();
-
     public OperationDaoTest(DaoOperation operation, String processId, String databaseContent, String expected) {
+        super(databaseContent);
         this.operation = operation;
         this.processId = processId;
-        this.databaseContent = databaseContent;
         this.expected = expected;
     }
 
@@ -106,17 +96,6 @@ public class OperationDaoTest {
             },
 // @formatter:on
         });
-    }
-
-    @Before
-    public void importDatabaseContent() throws Throwable {
-        List<Operation> operations = JsonUtil.convertJsonToList(getClass().getResourceAsStream(databaseContent),
-            new TypeToken<List<Operation>>() {
-            }.getType());
-
-        for (Operation operation : operations) {
-            dao.add(operation);
-        }
     }
 
     @Test
@@ -217,22 +196,6 @@ public class OperationDaoTest {
         TestUtil.test(() -> {
             return dao.findFinishedOperations(SPACE_ID, State.getFinishedStates());
         }, expected, getClass());
-    }
-
-    @After
-    public void clearDatabase() throws Throwable {
-        for (Operation operation : dao.findAll()) {
-            dao.remove(operation.getProcessId());
-        }
-    }
-
-    private static OperationDao createDao() {
-        OperationDao dao = new OperationDao();
-        OperationDtoDao dtoDao = new OperationDtoDao();
-        dtoDao.emf = Persistence.createEntityManagerFactory("OperationManagement");
-        dao.dao = dtoDao;
-        dao.operationFactory = new OperationFactory();
-        return dao;
     }
 
 }

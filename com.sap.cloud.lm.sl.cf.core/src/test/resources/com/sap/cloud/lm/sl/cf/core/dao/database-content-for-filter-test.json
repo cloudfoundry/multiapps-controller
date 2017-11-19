@@ -1,0 +1,50 @@
+[
+  {
+    "processId": "1",
+    "startedAt": "2017-11-18T22:41:00.785Z[UTC]",
+    "endedAt": "2017-11-18T22:45:10.655Z[UTC]",
+    "spaceId": "c65d042c-324f-4dc5-a925-9c806acafcfb",
+    "mtaId": "anatz",
+    "user": "nictas",
+    "acquiredLock": false,
+    "state": "FINISHED"
+  },
+  {
+    "processId": "2",
+    "startedAt": "2017-11-18T22:50:55.635Z[UTC]",
+    "endedAt": "2017-11-18T22:52:15.435Z[UTC]",
+    "spaceId": "9818394d-38d6-47a6-b080-1ba013a4932c",
+    "mtaId": "denip",
+    "user": "nictas",
+    "acquiredLock": false,
+    "state": "ABORTED"
+  },
+  {
+    "processId": "3",
+    "startedAt": "2017-11-19T00:10:15.795Z[UTC]",
+    "endedAt": "2017-11-19T00:15:00.605Z[UTC]",
+    "spaceId": "c65d042c-324f-4dc5-a925-9c806acafcfb",
+    "mtaId": "denip",
+    "user": "megaboy",
+    "acquiredLock": false,
+    "state": "ABORTED"
+  },
+  {
+    "processId": "4",
+    "startedAt": "2017-11-19T10:22:45.315Z[UTC]",
+    "endedAt": "2017-11-19T10:24:30.345Z[UTC]",
+    "spaceId": "9818394d-38d6-47a6-b080-1ba013a4932c",
+    "mtaId": "anatz",
+    "user": "megaboy",
+    "acquiredLock": false,
+    "state": "FINISHED"
+  },
+  {
+    "processId": "5",
+    "startedAt": "2017-11-19T11:44:45.315Z[UTC]",
+    "spaceId": "9818394d-38d6-47a6-b080-1ba013a4932c",
+    "mtaId": "anatz",
+    "user": "megaboy",
+    "acquiredLock": false
+  }
+]
