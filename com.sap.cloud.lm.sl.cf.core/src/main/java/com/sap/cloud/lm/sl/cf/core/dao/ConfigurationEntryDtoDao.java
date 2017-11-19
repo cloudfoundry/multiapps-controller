@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.dao;
 
-import static com.sap.cloud.lm.sl.cf.core.model.ConfigurationFilter.CONTENT_FILTER;
+import static com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter.CONTENT_FILTER;
 
 import java.util.ArrayList;
 import java.util.List;
