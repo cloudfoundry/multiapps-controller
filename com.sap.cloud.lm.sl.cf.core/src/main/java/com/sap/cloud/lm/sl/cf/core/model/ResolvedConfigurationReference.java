@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 import java.util.List;
 
+import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
 public class ResolvedConfigurationReference {
