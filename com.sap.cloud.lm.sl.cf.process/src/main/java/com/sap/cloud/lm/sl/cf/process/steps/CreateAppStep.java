@@ -47,7 +47,7 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("createAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateAppStep extends AbstractProcessStep {
+public class CreateAppStep extends SyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -61,16 +61,16 @@ public class CreateAppStep extends AbstractProcessStep {
     protected Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException, FileStorageException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
         getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context:
-        CloudApplicationExtended app = StepsUtil.getApp(context);
+        CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {
             getStepLogger().info(Messages.CREATING_APP, app.getName());
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
             // Get application parameters:
             String appName = app.getName();
@@ -80,7 +80,7 @@ public class CreateAppStep extends AbstractProcessStep {
             Integer memory = (app.getMemory() != 0) ? app.getMemory() : null;
             List<String> uris = app.getUris();
             List<String> services = app.getServices();
-            Map<String, Map<String, Object>> bindingParameters = getBindingParameters(context, app);
+            Map<String, Map<String, Object>> bindingParameters = getBindingParameters(execution.getContext(), app);
 
             // Check if an application with this name already exists (as a result of a previous
             // execution):
@@ -93,7 +93,7 @@ public class CreateAppStep extends AbstractProcessStep {
                 }
             }
 
-            injectServiceKeysCredentialsInAppEnv(context, client, app, env);
+            injectServiceKeysCredentialsInAppEnv(execution.getContext(), client, app, env);
 
             // In all cases, update its environment:
             client.updateApplicationEnv(appName, env);
@@ -101,11 +101,11 @@ public class CreateAppStep extends AbstractProcessStep {
             if (existingApp == null) {
                 for (String serviceName : services) {
                     Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
-                    bindService(context, client, appName, serviceName, bindingParametersForCurrentService);
+                    bindService(execution, client, appName, serviceName, bindingParametersForCurrentService);
                 }
             }
 
-            StepsUtil.setAppPropertiesChanged(context, true);
+            StepsUtil.setAppPropertiesChanged(execution.getContext(), true);
 
             getStepLogger().debug(Messages.APP_CREATED, app.getName());
             return ExecutionStatus.SUCCESS;
@@ -222,13 +222,13 @@ public class CreateAppStep extends AbstractProcessStep {
         return servicesCloudModel.stream().filter(service -> service.getName().equals(serviceName)).findAny().orElse(null);
     }
 
-    protected void bindService(DelegateExecution context, CloudFoundryOperations client, String appName, String serviceName,
+    protected void bindService(ExecutionWrapper execution, CloudFoundryOperations client, String appName, String serviceName,
         Map<String, Object> bindingParameters) throws SLException {
 
         try {
-            bindServiceToApplication(context, client, appName, serviceName, bindingParameters);
+            bindServiceToApplication(execution, client, appName, serviceName, bindingParameters);
         } catch (CloudFoundryException e) {
-            List<CloudServiceExtended> servicesToBind = StepsUtil.getServicesToBind(context);
+            List<CloudServiceExtended> servicesToBind = StepsUtil.getServicesToBind(execution.getContext());
             CloudServiceExtended serviceToBind = findServiceCloudModel(servicesToBind, serviceName);
 
             if (serviceToBind != null && serviceToBind.isOptional()) {
@@ -239,19 +239,19 @@ public class CreateAppStep extends AbstractProcessStep {
         }
     }
 
-    private void bindServiceToApplication(DelegateExecution context, CloudFoundryOperations client, String appName, String serviceName,
+    private void bindServiceToApplication(ExecutionWrapper execution, CloudFoundryOperations client, String appName, String serviceName,
         Map<String, Object> bindingParameters) {
         if (bindingParameters != null) {
-            bindServiceWithParameters(context, client, appName, serviceName, bindingParameters);
+            ClientExtensions clientExtensions = execution.getClientExtensions();
+            bindServiceWithParameters(clientExtensions, client, appName, serviceName, bindingParameters);
         } else {
             bindService(client, appName, serviceName);
         }
     }
 
     // TODO Fix update of service bindings parameters
-    private void bindServiceWithParameters(DelegateExecution context, CloudFoundryOperations client, String appName, String serviceName,
-        Map<String, Object> bindingParameters) {
-        ClientExtensions clientExtensions = getClientExtensions(context);
+    private void bindServiceWithParameters(ClientExtensions clientExtensions, CloudFoundryOperations client, String appName,
+        String serviceName, Map<String, Object> bindingParameters) {
         getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters.get(serviceName));
         if (clientExtensions == null) {
             serviceBindingCreator.bindService(client, appName, serviceName, bindingParameters);

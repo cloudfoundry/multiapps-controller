@@ -12,14 +12,9 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
@@ -29,16 +24,13 @@ import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.cf.services.TypedServiceOperationState;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-@Component("pollServiceOperationsStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollServiceOperationsStep extends AbstractProcessStepWithBridge {
+public class PollServiceOperationsStep extends AsyncStepOperation {
 
     private static final String LAST_SERVICE_OPERATION = "last_operation";
     private static final String SERVICE_NAME = "name";
@@ -46,60 +38,71 @@ public class PollServiceOperationsStep extends AbstractProcessStepWithBridge {
     private static final String SERVICE_OPERATION_STATE = "state";
     private static final String SERVICE_OPERATION_DESCRIPTION = "description";
 
-    @Inject
+    private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
     private ServiceInstanceGetter serviceInstanceGetter;
 
-    private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
+    public PollServiceOperationsStep(ServiceInstanceGetter serviceInstanceGetter) {
+        this.serviceInstanceGetter = serviceInstanceGetter;
+    }
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
-        getStepLogger().logActivitiTask();
+    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws Exception {
+        execution.getStepLogger().logActivitiTask();
         try {
-            getStepLogger().debug(Messages.POLLING_SERVICE_OPERATIONS);
+            execution.getStepLogger().info(Messages.POLLING_SERVICE_OPERATIONS);
 
-            ClientExtensions clientExtensions = getClientExtensions(context);
+            ClientExtensions clientExtensions = execution.getClientExtensions();
             if (clientExtensions != null) {
                 // The asynchronous creation of services is not supported yet on XSA.
                 return ExecutionStatus.SUCCESS;
             }
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
-            Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(context);
-            List<CloudServiceExtended> servicesToPoll = getServiceOperationsToPoll(context, triggeredServiceOperations);
+            Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(execution.getContext());
+            List<CloudServiceExtended> servicesToPoll = getServiceOperationsToPoll(execution, triggeredServiceOperations);
             if (servicesToPoll.isEmpty()) {
                 return ExecutionStatus.SUCCESS;
             }
 
             Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation = new HashMap<>();
             for (CloudServiceExtended service : servicesToPoll) {
-                ServiceOperation lastServiceOperation = getLastServiceOperation(context, client, service);
+                ServiceOperation lastServiceOperation = getLastServiceOperation(execution, client, service);
                 if (lastServiceOperation != null) {
                     servicesWithLastOperation.put(service, lastServiceOperation);
                 }
-                getStepLogger().debug(Messages.LAST_OPERATION_FOR_SERVICE, service.getName(), JsonUtil.toJson(lastServiceOperation, true));
+                execution.getStepLogger().debug(Messages.LAST_OPERATION_FOR_SERVICE, service.getName(),
+                    JsonUtil.toJson(lastServiceOperation, true));
             }
-            reportIndividualServiceState(servicesWithLastOperation);
-            reportServiceOperationsState(servicesWithLastOperation, triggeredServiceOperations);
+            reportIndividualServiceState(execution, servicesWithLastOperation);
+            reportServiceOperationsState(execution, servicesWithLastOperation, triggeredServiceOperations);
             List<CloudServiceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);
-            getStepLogger().debug(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
-            StepsUtil.setServicesToPoll(context, remainingServicesToPoll);
-            return remainingServicesToPoll.size() == 0 ? ExecutionStatus.SUCCESS : ExecutionStatus.RUNNING;
+            execution.getStepLogger().info(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
+            StepsUtil.setServicesToPoll(execution.getContext(), remainingServicesToPoll);
+            execution.getStepLogger().info("The step is finishing");
+            if (remainingServicesToPoll.size() == 0) {
+                StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+                return ExecutionStatus.SUCCESS;
+            }
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
+            return ExecutionStatus.RUNNING;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            getStepLogger().error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
+            execution.getStepLogger().error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
+            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
+            execution.getStepLogger().error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
+            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         }
     }
 
-    private List<CloudServiceExtended> getServiceOperationsToPoll(DelegateExecution context,
+    private List<CloudServiceExtended> getServiceOperationsToPoll(ExecutionWrapper execution,
         Map<String, ServiceOperationType> triggeredServiceOperations) {
-        List<CloudServiceExtended> servicesToPoll = StepsUtil.getServicesToPoll(context);
+        List<CloudServiceExtended> servicesToPoll = StepsUtil.getServicesToPoll(execution.getContext());
         if (servicesToPoll == null) {
-            return computeServicesToPoll(context, triggeredServiceOperations);
+            return computeServicesToPoll(execution.getContext(), triggeredServiceOperations);
         }
         return servicesToPoll;
     }
@@ -108,25 +111,28 @@ public class PollServiceOperationsStep extends AbstractProcessStepWithBridge {
         Map<String, ServiceOperationType> triggeredServiceOperations) {
         List<CloudServiceExtended> services = StepsUtil.getServicesToCreate(context);
         // There's no need to poll the creation or update of user-provided services, because it is done synchronously:
-        return services.stream().filter(service -> triggeredServiceOperations.containsKey(service.getName())).filter(
-            service -> !service.isUserProvided()).collect(Collectors.toList());
+        return services.stream()
+            .filter(service -> triggeredServiceOperations.containsKey(service.getName()))
+            .filter(service -> !service.isUserProvided())
+            .collect(Collectors.toList());
     }
 
-    private ServiceOperation getLastServiceOperation(DelegateExecution context, CloudFoundryOperations client,
+    private ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudFoundryOperations client,
         CloudServiceExtended service) {
         Map<String, Object> cloudServiceInstance = serviceOperationExecutor.executeServiceOperation(service, () -> {
-            return serviceInstanceGetter.getServiceInstance(client, service.getName(), StepsUtil.getSpaceId(context));
-        }, getStepLogger());
+            return serviceInstanceGetter.getServiceInstance(client, service.getName(), StepsUtil.getSpaceId(execution.getContext()));
+        }, execution.getStepLogger());
 
-        validateCloudServiceInstance(service, cloudServiceInstance);
+        validateCloudServiceInstance(execution, service, cloudServiceInstance);
         if (cloudServiceInstance == null) {
             return null;
         }
 
-        return getLastOperation(cloudServiceInstance);
+        return getLastOperation(execution, cloudServiceInstance);
     }
 
-    private void validateCloudServiceInstance(CloudServiceExtended service, Map<String, Object> cloudServiceInstance) {
+    private void validateCloudServiceInstance(ExecutionWrapper execution, CloudServiceExtended service,
+        Map<String, Object> cloudServiceInstance) {
         if (cloudServiceInstance == null && !service.isOptional()) {
             throw new SLException(Messages.CANNOT_RETRIEVE_INSTANCE_OF_SERVICE, service.getName());
         }
@@ -135,18 +141,20 @@ public class PollServiceOperationsStep extends AbstractProcessStepWithBridge {
             // Here we're assuming that we cannot retrieve the service instance, because its creation was synchronous and it failed. If that
             // is really the case, then showing a warning progress message to the user is unnecessary, since one should have been shown back
             // in CreateOrUpdateServicesStep.
-            getStepLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE, service.getName());
+            execution.getStepLogger().warnWithoutProgressMessage(Messages.CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE,
+                service.getName());
         }
     }
 
     @SuppressWarnings("unchecked")
-    private ServiceOperation getLastOperation(Map<String, Object> cloudServiceInstance) {
+    private ServiceOperation getLastOperation(ExecutionWrapper execution, Map<String, Object> cloudServiceInstance) {
         Map<String, Object> lastOperationAsMap = (Map<String, Object>) cloudServiceInstance.get(LAST_SERVICE_OPERATION);
         ServiceOperation lastOperation = parseServiceOperationFromMap(lastOperationAsMap);
         // TODO Separate create and update steps
         // Be fault tolerant on failure on update of service
         if (lastOperation.getType() == ServiceOperationType.UPDATE && lastOperation.getState() == ServiceOperationState.FAILED) {
-            getStepLogger().warn(Messages.FAILED_SERVICE_UPDATE, cloudServiceInstance.get(SERVICE_NAME), lastOperation.getDescription());
+            execution.getStepLogger().warn(Messages.FAILED_SERVICE_UPDATE, cloudServiceInstance.get(SERVICE_NAME),
+                lastOperation.getDescription());
             return new ServiceOperation(lastOperation.getType(), lastOperation.getDescription(), ServiceOperationState.SUCCEEDED);
         }
         return lastOperation;
@@ -162,15 +170,16 @@ public class PollServiceOperationsStep extends AbstractProcessStepWithBridge {
         return new ServiceOperation(type, description, state);
     }
 
-    private void reportIndividualServiceState(Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation) {
+    private void reportIndividualServiceState(ExecutionWrapper execution,
+        Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation) {
         for (Entry<CloudServiceExtended, ServiceOperation> serviceWithLastOperation : servicesWithLastOperation.entrySet()) {
-            reportIndividualServiceState(serviceWithLastOperation.getKey(), serviceWithLastOperation.getValue());
+            reportIndividualServiceState(execution, serviceWithLastOperation.getKey(), serviceWithLastOperation.getValue());
         }
     }
 
-    private void reportIndividualServiceState(CloudServiceExtended service, ServiceOperation lastOperation) {
+    private void reportIndividualServiceState(ExecutionWrapper execution, CloudServiceExtended service, ServiceOperation lastOperation) {
         if (lastOperation.getState() == ServiceOperationState.SUCCEEDED) {
-            getStepLogger().info(getSuccessMessage(service, lastOperation.getType()));
+            execution.getStepLogger().info(getSuccessMessage(service, lastOperation.getType()));
             return;
         }
 
@@ -178,7 +187,7 @@ public class PollServiceOperationsStep extends AbstractProcessStepWithBridge {
             if (!service.isOptional()) {
                 throw new SLException(getFailureMessage(service, lastOperation));
             }
-            getStepLogger().warn(getWarningMessage(service, lastOperation));
+            execution.getStepLogger().warn(getWarningMessage(service, lastOperation));
         }
     }
 
@@ -224,23 +233,26 @@ public class PollServiceOperationsStep extends AbstractProcessStepWithBridge {
         }
     }
 
-    private void reportServiceOperationsState(Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation,
+    private void reportServiceOperationsState(ExecutionWrapper execution,
+        Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation,
         Map<String, ServiceOperationType> triggeredServiceOperations) {
         List<TypedServiceOperationState> nonFinalStates = getNonFinalStates(servicesWithLastOperation.values());
         List<String> nonFinalStateStrings = getStateStrings(nonFinalStates);
 
         int doneOperations = triggeredServiceOperations.size() - nonFinalStates.size();
         if (nonFinalStateStrings.size() != 0) {
-            getStepLogger().info("{0} of {1} done, ({2})", doneOperations, triggeredServiceOperations.size(),
+            execution.getStepLogger().info("{0} of {1} done, ({2})", doneOperations, triggeredServiceOperations.size(),
                 CommonUtil.toCommaDelimitedString(nonFinalStateStrings, ""));
         } else {
-            getStepLogger().info("{0} of {0} done", triggeredServiceOperations.size());
+            execution.getStepLogger().info("{0} of {0} done", triggeredServiceOperations.size());
         }
     };
 
     private List<TypedServiceOperationState> getNonFinalStates(Collection<ServiceOperation> operations) {
-        return operations.stream().map(operation -> TypedServiceOperationState.fromServiceOperation(operation)).filter(
-            state -> state != TypedServiceOperationState.DONE).collect(Collectors.toList());
+        return operations.stream()
+            .map(operation -> TypedServiceOperationState.fromServiceOperation(operation))
+            .filter(state -> state != TypedServiceOperationState.DONE)
+            .collect(Collectors.toList());
     }
 
     private List<String> getStateStrings(Collection<TypedServiceOperationState> states) {
@@ -257,19 +269,11 @@ public class PollServiceOperationsStep extends AbstractProcessStepWithBridge {
     }
 
     private List<CloudServiceExtended> getRemainingServicesToPoll(Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation) {
-        return servicesWithLastOperation.entrySet().stream().filter(
-            serviceWithLastOperation -> serviceWithLastOperation.getValue().getState() == ServiceOperationState.IN_PROGRESS).map(
-                serviceWithLastOperation -> serviceWithLastOperation.getKey()).collect(Collectors.toList());
-    }
-
-    @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_SERVICES_TO_CREATE_COUNT;
-    }
-
-    @Override
-    public String getLogicalStepName() {
-        return CreateOrUpdateServicesStep.class.getSimpleName();
+        return servicesWithLastOperation.entrySet()
+            .stream()
+            .filter(serviceWithLastOperation -> serviceWithLastOperation.getValue().getState() == ServiceOperationState.IN_PROGRESS)
+            .map(serviceWithLastOperation -> serviceWithLastOperation.getKey())
+            .collect(Collectors.toList());
     }
 
 }

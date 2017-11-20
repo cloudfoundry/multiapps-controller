@@ -5,17 +5,12 @@ import static java.text.MessageFormat.format;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
@@ -26,9 +21,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
-@Component("pollExecuteAppStatusStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollExecuteAppStatusStep extends AbstractProcessStepWithBridge {
+public class PollExecuteAppStatusStep extends AsyncStepOperation {
 
     enum AppExecutionStatus {
         EXECUTING, SUCCEEDED, FAILED
@@ -37,23 +30,16 @@ public class PollExecuteAppStatusStep extends AbstractProcessStepWithBridge {
     private static final String DEFAULT_SUCCESS_MARKER = "STDOUT:SUCCESS";
     private static final String DEFAULT_FAILURE_MARKER = "STDERR:FAILURE";
 
-    @Inject
     protected RecentLogsRetriever recentLogsRetriever;
 
-    @Override
-    public String getLogicalStepName() {
-        return StartAppStep.class.getSimpleName();
+    public PollExecuteAppStatusStep(RecentLogsRetriever recentLogsRetriever) {
+        this.recentLogsRetriever = recentLogsRetriever;
     }
 
     @Override
-    public String getIndexVariable() {
-        return Constants.VAR_APPS_INDEX;
-    }
-
-    @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
-        getStepLogger().logActivitiTask();
-        CloudApplication app = getNextApp(context);
+    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws Exception {
+        execution.getStepLogger().logActivitiTask();
+        CloudApplication app = getNextApp(execution.getContext());
         ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
         boolean executeApp = attributesGetter.getAttribute(SupportedParameters.EXECUTE_APP, Boolean.class, false);
 
@@ -61,15 +47,15 @@ public class PollExecuteAppStatusStep extends AbstractProcessStepWithBridge {
             return ExecutionStatus.SUCCESS;
         }
         try {
-            CloudFoundryOperations client = getCloudFoundryClient(context);
-            Pair<AppExecutionStatus, String> status = getAppExecutionStatus(context, client, attributesGetter, app);
-            return checkAppExecutionStatus(context, client, attributesGetter, app, status);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, attributesGetter, app);
+            return checkAppExecutionStatus(execution, client, attributesGetter, app, status);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
+            execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw e;
         } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
+            execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw e;
         }
     }
@@ -89,8 +75,10 @@ public class PollExecuteAppStatusStep extends AbstractProcessStepWithBridge {
 
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName());
         if (recentLogs != null) {
-            Optional<Pair<AppExecutionStatus, String>> statusx = recentLogs.stream().map(
-                log -> getAppExecutionStatus(log, startTime, sm, fm, deployId)).filter(aes -> (aes != null)).reduce((a, b) -> b);
+            Optional<Pair<AppExecutionStatus, String>> statusx = recentLogs.stream()
+                .map(log -> getAppExecutionStatus(log, startTime, sm, fm, deployId))
+                .filter(aes -> (aes != null))
+                .reduce((a, b) -> b);
             if (statusx.isPresent()) {
                 status = statusx.get();
             }
@@ -115,35 +103,38 @@ public class PollExecuteAppStatusStep extends AbstractProcessStepWithBridge {
             return null;
     }
 
-    private ExecutionStatus checkAppExecutionStatus(DelegateExecution context, CloudFoundryOperations client,
+    private ExecutionStatus checkAppExecutionStatus(ExecutionWrapper execution, CloudFoundryOperations client,
         ApplicationAttributesGetter attributesGetter, CloudApplication app, Pair<AppExecutionStatus, String> status) throws SLException {
         if (status._1.equals(AppExecutionStatus.FAILED)) {
             // Application execution failed
             String message = format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status._2);
-            getStepLogger().error(message);
-            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
-            setRetryMessage(context, message);
-            return ExecutionStatus.LOGICAL_RETRY;
+            execution.getStepLogger().error(message);
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+                execution.getProcessLoggerProviderFactory());
+            setStepPhase(execution, StepPhase.RETRY);
+            return ExecutionStatus.FAILED;
         } else if (status._1.equals(AppExecutionStatus.SUCCEEDED)) {
             // Application executed successfully
-            getStepLogger().info(Messages.APP_EXECUTED, app.getName());
-            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
+            execution.getStepLogger().info(Messages.APP_EXECUTED, app.getName());
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+                execution.getProcessLoggerProviderFactory());
             // Stop the application if specified
             boolean stopApp = attributesGetter.getAttribute(SupportedParameters.STOP_APP, Boolean.class, false);
             if (stopApp) {
-                getStepLogger().info(Messages.STOPPING_APP, app.getName());
+                execution.getStepLogger().info(Messages.STOPPING_APP, app.getName());
                 client.stopApplication(app.getName());
-                getStepLogger().debug(Messages.APP_STOPPED, app.getName());
+                execution.getStepLogger().debug(Messages.APP_STOPPED, app.getName());
             }
             return ExecutionStatus.SUCCESS;
         } else {
             // Application not executed yet, wait and try again unless it's a timeout
-            if (StepsUtil.hasTimedOut(context, () -> System.currentTimeMillis())) {
+            if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-                getStepLogger().error(message);
-                StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
-                setRetryMessage(context, message);
-                return ExecutionStatus.LOGICAL_RETRY;
+                execution.getStepLogger().error(message);
+                StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+                    execution.getProcessLoggerProviderFactory());
+                setStepPhase(execution, StepPhase.RETRY);
+                return ExecutionStatus.FAILED;
             }
             return ExecutionStatus.RUNNING;
         }
@@ -165,6 +156,10 @@ public class PollExecuteAppStatusStep extends AbstractProcessStepWithBridge {
             text = attr;
         }
         return new Pair<MessageType, String>(messageType, text);
+    }
+
+    private void setStepPhase(ExecutionWrapper execution, StepPhase type) {
+        StepsUtil.setStepPhase(execution, type);
     }
 
 }

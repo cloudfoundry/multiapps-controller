@@ -1,8 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -13,15 +16,19 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("executeTaskStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ExecuteTaskStep extends AbstractProcessStep {
+public class ExecuteTaskStep extends AsyncActivitiStep {
 
     protected Supplier<Long> currentTimeSupplier = () -> System.currentTimeMillis();
+
+    @Inject
+    private RecentLogsRetriever recentLogsRetriever;
 
     @Override
     protected String getIndexVariable() {
@@ -29,13 +36,13 @@ public class ExecuteTaskStep extends AbstractProcessStep {
     }
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
+    protected ExecutionStatus executeAsyncStep(ExecutionWrapper execution) throws Exception {
         getStepLogger().logActivitiTask();
 
-        CloudApplicationExtended app = StepsUtil.getApp(context);
-        CloudTask taskToExecute = StepsUtil.getTask(context);
+        CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
+        CloudTask taskToExecute = StepsUtil.getTask(execution.getContext());
         try {
-            return attemptToExecuteTask(context, app, taskToExecute);
+            return attemptToExecuteTask(execution, app, taskToExecute);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
@@ -46,19 +53,25 @@ public class ExecuteTaskStep extends AbstractProcessStep {
         }
     }
 
-    private ExecutionStatus attemptToExecuteTask(DelegateExecution context, CloudApplication app, CloudTask taskToExecute) {
-        ClientExtensions clientExtensions = getClientExtensions(context);
+    private ExecutionStatus attemptToExecuteTask(ExecutionWrapper execution, CloudApplication app, CloudTask taskToExecute) {
+        ClientExtensions clientExtensions = execution.getClientExtensions();
 
         getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
         CloudTask startedTask = runTask(clientExtensions, app, taskToExecute);
 
-        StepsUtil.setStartedTask(context, startedTask);
-        context.setVariable(Constants.VAR_START_TIME, currentTimeSupplier.get());
-        return ExecutionStatus.SUCCESS;
+        StepsUtil.setStartedTask(execution.getContext(), startedTask);
+        execution.getContext().setVariable(Constants.VAR_START_TIME, currentTimeSupplier.get());
+        StepsUtil.setStepPhase(execution, StepPhase.POLL);
+        return ExecutionStatus.RUNNING;
     }
 
     private CloudTask runTask(ClientExtensions clientExtensions, CloudApplication app, CloudTask task) {
         return clientExtensions.runTask(app.getName(), task.getName(), task.getCommand(), task.getEnvironmentVariables());
+    }
+
+    @Override
+    protected List<AsyncStepOperation> getAsyncStepOperations() {
+        return Arrays.asList(new PollExecuteTaskStatusStep(recentLogsRetriever));
     }
 
 }

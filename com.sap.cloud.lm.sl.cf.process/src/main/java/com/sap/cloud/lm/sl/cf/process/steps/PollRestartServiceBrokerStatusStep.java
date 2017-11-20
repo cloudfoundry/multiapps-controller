@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -15,16 +16,20 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PollRestartServiceBrokerStatusStep extends PollStartAppStatusStep {
 
+    public PollRestartServiceBrokerStatusStep(RecentLogsRetriever recentLogsRetriever, Configuration configuration) {
+        super(recentLogsRetriever, configuration);
+    }
+
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws SLException {
         try {
-            ExecutionStatus status = super.executeStepInternal(context);
+            ExecutionStatus status = super.executeOperation(execution);
             if (status.equals(ExecutionStatus.LOGICAL_RETRY)) {
                 status = ExecutionStatus.SUCCESS;
             }
             return status;
         } catch (SLException e) {
-            getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_START, getAppToPoll(context).getName());
+            execution.getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_START, getAppToPoll(execution.getContext()).getName());
             return ExecutionStatus.SUCCESS;
         }
     }
@@ -35,23 +40,13 @@ public class PollRestartServiceBrokerStatusStep extends PollStartAppStatusStep {
     }
 
     @Override
-    public String getLogicalStepName() {
-        return RestartServiceBrokerSubscriberStep.class.getSimpleName();
+    protected void onError(ExecutionWrapper execution, String message, Exception e) {
+        execution.getStepLogger().warn(e, message);
     }
 
     @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX;
-    }
-
-    @Override
-    protected void onError(String message, Exception e) {
-        getStepLogger().warn(e, message);
-    }
-
-    @Override
-    protected void onError(String message) {
-        getStepLogger().warn(message);
+    protected void onError(ExecutionWrapper execution, String message) {
+        execution.getStepLogger().warn(message);
     }
 
 }

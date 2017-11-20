@@ -33,20 +33,20 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 public class UpdateAppStep extends CreateAppStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException, FileStorageException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
         getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context
-        CloudApplicationExtended app = StepsUtil.getApp(context);
+        CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         // Get the existing application from the context
-        CloudApplication existingApp = StepsUtil.getExistingApp(context);
+        CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
 
         try {
             getStepLogger().info(Messages.UPDATING_APP, app.getName());
 
             // Get a cloud foundry client
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
             // Get application parameters
             String appName = app.getName();
@@ -83,8 +83,8 @@ public class UpdateAppStep extends CreateAppStep {
                 client.updateApplicationUris(appName, uris);
                 appPropertiesChanged = true;
             }
-            appPropertiesChanged = updateApplicationServices(app, existingApp, client, context) ? true : appPropertiesChanged;
-            injectServiceKeysCredentialsInAppEnv(context, client, app, env);
+            appPropertiesChanged = updateApplicationServices(app, existingApp, client, execution) ? true : appPropertiesChanged;
+            injectServiceKeysCredentialsInAppEnv(execution.getContext(), client, app, env);
             updateAppDigest(env, existingApp.getEnvAsMap());
             if (!env.equals(existingApp.getEnvAsMap())) {
                 getStepLogger().debug("Updating env of application \"{0}\"", appName);
@@ -99,8 +99,7 @@ public class UpdateAppStep extends CreateAppStep {
                 getStepLogger().debug(Messages.APP_UPDATED, app.getName());
             }
 
-            StepsUtil.setAppPropertiesChanged(context, appPropertiesChanged);
-
+            StepsUtil.setAppPropertiesChanged(execution.getContext(), appPropertiesChanged);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_UPDATING_APP, app.getName());
@@ -130,12 +129,12 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     private boolean updateApplicationServices(CloudApplicationExtended app, CloudApplication existingApp, CloudFoundryOperations client,
-        DelegateExecution context) throws SLException, FileStorageException {
-        boolean hasUnboundServices = unbindNotRequiredServices(existingApp, app.getServices(), client, context);
+        ExecutionWrapper execution) throws SLException, FileStorageException {
+        boolean hasUnboundServices = unbindNotRequiredServices(existingApp, app.getServices(), client, execution.getContext());
         List<String> services = app.getServices();
-        Map<String, Map<String, Object>> bindingParameters = getBindingParameters(context, app);
-        Set<String> updatedServices = getUpdatedServices(context);
-        boolean hasUpdatedServices = updateServices(app, existingApp, bindingParameters, client, context, updatedServices, services);
+        Map<String, Map<String, Object>> bindingParameters = getBindingParameters(execution.getContext(), app);
+        Set<String> updatedServices = getUpdatedServices(execution.getContext());
+        boolean hasUpdatedServices = updateServices(app, existingApp, bindingParameters, client, execution, updatedServices, services);
         return hasUnboundServices || hasUpdatedServices;
     }
 
@@ -169,7 +168,7 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     private boolean updateServices(CloudApplicationExtended app, CloudApplication existingApp,
-        Map<String, Map<String, Object>> bindingParameters, CloudFoundryOperations client, DelegateExecution context,
+        Map<String, Map<String, Object>> bindingParameters, CloudFoundryOperations client, ExecutionWrapper execution,
         Set<String> updatedServices, List<String> services) throws SLException {
         boolean hasUpdatedService = false;
         List<String> existingAppServices = existingApp.getServices();
@@ -180,20 +179,20 @@ public class UpdateAppStep extends CreateAppStep {
             }
             if (!existingAppServices.contains(serviceName)) {
                 hasUpdatedService = true;
-                bindService(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
+                bindService(execution, client, app.getName(), serviceName, bindingParametersForCurrentService);
                 continue;
             }
             List<CloudServiceBinding> existingServiceBindings = client.getServiceInstance(serviceName).getBindings();
             CloudServiceBinding existingBindingForApplication = getServiceBindingsForApplication(existingApp, existingServiceBindings);
             if (existingBindingForApplication == null) {
                 hasUpdatedService = true;
-                bindService(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
+                bindService(execution, client, app.getName(), serviceName, bindingParametersForCurrentService);
                 continue;
             }
             Map<String, Object> existingBindingParameters = getBindingParametersOrDefault(existingBindingForApplication);
             if (!Objects.equals(existingBindingParameters, bindingParametersForCurrentService)) {
-                unbindService(existingApp.getName(), serviceName, client, context);
-                bindService(context, client, app.getName(), serviceName, bindingParametersForCurrentService);
+                unbindService(existingApp.getName(), serviceName, client, execution.getContext());
+                bindService(execution, client, app.getName(), serviceName, bindingParametersForCurrentService);
                 hasUpdatedService = true;
                 continue;
             }

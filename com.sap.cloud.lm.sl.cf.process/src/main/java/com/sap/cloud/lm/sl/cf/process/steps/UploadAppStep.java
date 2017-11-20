@@ -6,8 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,11 +41,10 @@ import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
-@Component("uploadAppStep")
+@Component("uploadAppStep1")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UploadAppStep extends AbstractProcessStep {
+public class UploadAppStep extends AsyncActivitiStep {
 
-    private static final String WAIT_TILL_UPLOAD_START_TASK_ID = "waitTillUploadStartTask";
     private static final String ARCHIVE_FILE_SEPARATOR = "/";
 
     @Inject
@@ -56,10 +55,10 @@ public class UploadAppStep extends AbstractProcessStep {
     protected Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws FileStorageException, SLException {
+    public ExecutionStatus executeAsyncStep(ExecutionWrapper execution) throws FileStorageException, SLException {
         getStepLogger().logActivitiTask();
 
-        CloudApplicationExtended app = StepsUtil.getApp(context);
+        CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {
             getStepLogger().info(Messages.UPLOADING_APP, app.getName());
@@ -67,15 +66,17 @@ public class UploadAppStep extends AbstractProcessStep {
             int uploadAppTimeoutSeconds = configuration.getUploadAppTimeout();
             getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadAppTimeoutSeconds);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
-            ClientExtensions clientExtensions = getClientExtensions(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            ClientExtensions clientExtensions = execution.getClientExtensions();
 
-            Future<?> future = asyncTaskExecutor.submit(getUploadAppStepRunnable(context, app, client, clientExtensions));
-            asyncTaskExecutor.schedule(getUploadAppStepRunnableKiller(context, future), uploadAppTimeoutSeconds, TimeUnit.SECONDS);
+            Future<?> future = asyncTaskExecutor.submit(getUploadAppStepRunnable(execution, app, client, clientExtensions));
+            asyncTaskExecutor.schedule(getUploadAppStepRunnableKiller(execution.getContext(), future), uploadAppTimeoutSeconds,
+                TimeUnit.SECONDS);
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
             throw e;
         }
+        StepsUtil.setStepPhase(execution, StepPhase.WAIT);
         return ExecutionStatus.RUNNING;
     }
 
@@ -267,39 +268,40 @@ public class UploadAppStep extends AbstractProcessStep {
 
     }
 
-    protected Runnable getUploadAppStepRunnable(DelegateExecution context, CloudApplicationExtended app, CloudFoundryOperations client,
+    protected Runnable getUploadAppStepRunnable(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client,
         ClientExtensions clientExtensions) {
         return () -> {
-            String processId = context.getProcessInstanceId();
+            String processId = execution.getContext().getProcessInstanceId();
             getStepLogger().trace("Started upload app step runnable for process \"{0}\"", processId);
             ExecutionStatus status = ExecutionStatus.FAILED;
-            Map<String, Object> outputVariables = new HashMap<>();
             try {
-                String appArchiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
-                String fileName = StepsUtil.getModuleFileName(context, app.getModuleName());
+                String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+                String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
                 getStepLogger().debug("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName());
                 if (clientExtensions != null) {
-                    String uploadToken = asyncUploadFiles(context, clientExtensions, client, app, appArchiveId, fileName);
-                    outputVariables.put(Constants.VAR_UPLOAD_TOKEN, uploadToken);
+                    String uploadToken = asyncUploadFiles(execution.getContext(), clientExtensions, client, app, appArchiveId, fileName);
+                    execution.getContext().setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
                     getStepLogger().debug("Started async upload of application \"{0}\"", fileName, app.getName());
                     status = ExecutionStatus.RUNNING;
                 } else {
-                    uploadFiles(context, client, app, appArchiveId, fileName);
+                    uploadFiles(execution.getContext(), client, app, appArchiveId, fileName);
                     getStepLogger().debug(Messages.APP_UPLOADED, app.getName());
                     status = ExecutionStatus.SUCCESS;
                 }
             } catch (SLException | FileStorageException e) {
                 getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-                logException(context, e);
+                logException(execution.getContext(), e);
+                StepsUtil.setStepPhase(execution, StepPhase.RETRY);
                 throw new SLException(e.getMessage(), e);
             } catch (CloudFoundryException cfe) {
                 SLException e = StepsUtil.createException(cfe);
                 getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-                logException(context, e);
+                logException(execution.getContext(), e);
+                StepsUtil.setStepPhase(execution, StepPhase.RETRY);
                 throw e;
             } catch (Throwable e) {
                 Throwable eWithMessage = getWithProperMessage(e);
-                logException(context, eWithMessage);
+                logException(execution.getContext(), eWithMessage);
                 if (e instanceof Exception) {
                     // only wrap Runtime & checked exceptions as Runtime ones
                     throw new RuntimeException(eWithMessage.getMessage(), eWithMessage);
@@ -308,17 +310,11 @@ public class UploadAppStep extends AbstractProcessStep {
                     throw e;
                 }
             } finally {
-                outputVariables.put(getStatusVariable(), status.name());
-                LOGGER.getLoggerImpl()
-                    .info(format("Attempting to signal process with id:{0} with variables : {1}", processId, outputVariables));
-                signalWaitTask(context.getProcessInstanceId(), outputVariables, configuration.getUploadAppTimeout() * 1000);
+                StepsUtil.setStepPhase(execution, StepPhase.POLL);
+                execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), "uploadState", status.name());
             }
-            getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", context.getProcessInstanceId());
+            getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", execution.getContext().getProcessInstanceId());
         };
-    }
-
-    protected void signalWaitTask(String processId, Map<String, Object> outputVariables, int timeout) {
-        activitiFacade.signal(null, processId, WAIT_TILL_UPLOAD_START_TASK_ID, outputVariables, timeout);
     }
 
     @Override
@@ -326,4 +322,8 @@ public class UploadAppStep extends AbstractProcessStep {
         return Constants.VAR_APPS_INDEX;
     }
 
+    @Override
+    protected List<AsyncStepOperation> getAsyncStepOperations() {
+        return Arrays.asList(new PollUploadAppStatusStep());
+    }
 }

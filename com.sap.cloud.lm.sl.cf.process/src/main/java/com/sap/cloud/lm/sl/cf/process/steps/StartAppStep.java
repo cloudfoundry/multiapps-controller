@@ -2,12 +2,17 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -15,13 +20,20 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component("startAppStep")
+@Component("startAppStep1")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StartAppStep extends AbstractProcessStep {
+public class StartAppStep extends AsyncActivitiStep {
+
+    @Autowired
+    protected RecentLogsRetriever recentLogsRetriever;
+    @Autowired
+    protected Configuration configuration;
 
     @Override
     protected String getIndexVariable() {
@@ -29,37 +41,47 @@ public class StartAppStep extends AbstractProcessStep {
     }
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
+    public ExecutionStatus executeAsyncStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
-        CloudApplication app = getAppToStart(context);
+        CloudApplication app = getAppToStart(execution.getContext());
         try {
-            attemptToStartApp(context, app);
+            attemptToStartApp(execution, app);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             onError(format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
+            setStepType(execution, StepPhase.RETRY);
             throw e;
         }
-        return ExecutionStatus.SUCCESS;
+        setStepType(execution, StepPhase.POLL);
+        return ExecutionStatus.RUNNING;
+    }
+
+    private void setStepType(ExecutionWrapper execution, StepPhase type) {
+        StepsUtil.setStepPhase(execution, type);
     }
 
     protected void onError(String message, Exception e) {
         getStepLogger().error(e, message);
     }
 
-    private void attemptToStartApp(DelegateExecution context, CloudApplication app) {
-        CloudFoundryOperations client = getCloudFoundryClient(context);
+    protected void onError(String message) {
+        getStepLogger().error(message);
+    }
+
+    private void attemptToStartApp(ExecutionWrapper execution, CloudApplication app) {
+        CloudFoundryOperations client = execution.getCloudFoundryClient();
 
         if (isAppStarted(client, app.getName())) {
             stopApp(client, app);
         }
-        StartingInfo startingInfo = startApp(context, client, app);
-        StepsUtil.setStartingInfo(context, startingInfo);
-        if (context.getVariable(Constants.VAR_START_TIME) == null) {
-            context.setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
+        StartingInfo startingInfo = startApp(execution, client, app);
+        StepsUtil.setStartingInfo(execution.getContext(), startingInfo);
+        if (execution.getContext().getVariable(Constants.VAR_START_TIME) == null) {
+            execution.getContext().setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
         }
-        if (context.getVariable(Constants.VAR_OFFSET) == null) {
-            context.setVariable(Constants.VAR_OFFSET, 0);
+        if (execution.getContext().getVariable(Constants.VAR_OFFSET) == null) {
+            execution.getContext().setVariable(Constants.VAR_OFFSET, 0);
         }
     }
 
@@ -85,13 +107,19 @@ public class StartAppStep extends AbstractProcessStep {
         client.stopApplication(app.getName());
     }
 
-    private StartingInfo startApp(DelegateExecution context, CloudFoundryOperations client, CloudApplication app) {
-        ClientExtensions clientExtensions = getClientExtensions(context);
+    private StartingInfo startApp(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app) {
+        ClientExtensions clientExtensions = execution.getClientExtensions();
         getStepLogger().info(Messages.STARTING_APP, app.getName());
         if (clientExtensions != null) {
             return clientExtensions.startApplication(app.getName(), false);
         }
         return client.startApplication(app.getName());
+    }
+
+    @Override
+    protected List<AsyncStepOperation> getAsyncStepOperations() {
+        return new LinkedList<>(Arrays.asList(new PollStartAppStatusStep(recentLogsRetriever, configuration),
+            new PollExecuteAppStatusStep(recentLogsRetriever)));
     }
 
 }

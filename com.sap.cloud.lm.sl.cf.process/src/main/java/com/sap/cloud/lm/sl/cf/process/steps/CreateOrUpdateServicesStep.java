@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -35,6 +37,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -52,7 +55,7 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("createOrUpdateServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateOrUpdateServicesStep extends AbstractProcessStep {
+public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -64,18 +67,21 @@ public class CreateOrUpdateServicesStep extends AbstractProcessStep {
     @Autowired
     protected ServiceCreator serviceCreator;
 
+    @Inject
+    private ServiceInstanceGetter serviceInstanceGetter;
+
     @Autowired
     @Qualifier("serviceUpdater")
     protected ServiceUpdater serviceUpdater;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException, FileStorageException {
+    protected ExecutionStatus executeAsyncStep(ExecutionWrapper execution) throws SLException, FileStorageException {
 
         getStepLogger().logActivitiTask();
         try {
-            getStepLogger().info(Messages.CREATING_OR_UPDATING_SERVICES);
+            execution.getStepLogger().info(Messages.CREATING_OR_UPDATING_SERVICES);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
             Map<String, List<String>> defaultTags = defaultTagsDetector.computeDefaultTags(client);
             getStepLogger().debug("Default tags: " + JsonUtil.toJson(defaultTags, true));
 
@@ -83,22 +89,25 @@ public class CreateOrUpdateServicesStep extends AbstractProcessStep {
             Map<String, CloudService> existingServicesMap = getServicesMap(existingServices);
             getStepLogger().debug("Existing services: " + existingServicesMap.keySet());
 
-            List<CloudServiceExtended> services = StepsUtil.getServicesToCreate(context);
-            Map<String, List<ServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(context);
+            List<CloudServiceExtended> services = StepsUtil.getServicesToCreate(execution.getContext());
+            Map<String, List<ServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(execution.getContext());
 
-            Map<String, ServiceOperationType> triggeredServiceOperations = createOrUpdateServices(context, client, services,
+            Map<String, ServiceOperationType> triggeredServiceOperations = createOrUpdateServices(execution, client, services,
                 existingServicesMap, serviceKeys, defaultTags);
-            getStepLogger().debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
-            StepsUtil.setTriggeredServiceOperations(context, triggeredServiceOperations);
+            execution.getStepLogger().debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
+            StepsUtil.setTriggeredServiceOperations(execution.getContext(), triggeredServiceOperations);
 
-            getStepLogger().debug(Messages.SERVICES_CREATED_OR_UPDATED);
-            return ExecutionStatus.SUCCESS;
+            getStepLogger().info(Messages.SERVICES_CREATED_OR_UPDATED);
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
+            return ExecutionStatus.RUNNING;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICES);
+            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICES);
+            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         }
     }
@@ -109,7 +118,7 @@ public class CreateOrUpdateServicesStep extends AbstractProcessStep {
         return servicesMap;
     }
 
-    private Map<String, ServiceOperationType> createOrUpdateServices(DelegateExecution context, CloudFoundryOperations client,
+    private Map<String, ServiceOperationType> createOrUpdateServices(ExecutionWrapper execution, CloudFoundryOperations client,
         List<CloudServiceExtended> services, Map<String, CloudService> existingServices, Map<String, List<ServiceKey>> serviceKeys,
         Map<String, List<String>> defaultTags) throws SLException, FileStorageException {
 
@@ -117,20 +126,20 @@ public class CreateOrUpdateServicesStep extends AbstractProcessStep {
         for (CloudServiceExtended service : services) {
             CloudService existingService = existingServices.get(service.getName());
             List<String> defaultTagsForService = defaultTags.get(service.getLabel());
-            ServiceOperationType triggeredOperation = createOrUpdateService(context, client, service, existingService,
+            ServiceOperationType triggeredOperation = createOrUpdateService(execution, client, service, existingService,
                 defaultTagsForService);
             triggeredOperations.put(service.getName(), triggeredOperation);
             List<ServiceKey> serviceKeysForService = serviceKeys.getOrDefault(service.getName(), Collections.emptyList());
-            createOrUpdateServiceKeys(serviceKeysForService, service, existingService, client, context);
+            createOrUpdateServiceKeys(serviceKeysForService, service, existingService, client, execution);
         }
         return triggeredOperations;
     }
 
     private void createOrUpdateServiceKeys(List<ServiceKey> serviceKeys, CloudServiceExtended service, CloudService existingService,
-        CloudFoundryOperations client, DelegateExecution context) throws SLException {
+        CloudFoundryOperations client, ExecutionWrapper execution) throws SLException {
         // TODO: Do not use client extensions when the CF Java Client we use supports managing of
         // service keys.
-        ClientExtensions clientExtensions = getClientExtensions(context);
+        ClientExtensions clientExtensions = execution.getClientExtensions();
         if (clientExtensions == null) {
             return;
         }
@@ -149,7 +158,7 @@ public class CreateOrUpdateServicesStep extends AbstractProcessStep {
         List<ServiceKey> serviceKeysToUpdate = getServiceKeysToUpdate(serviceKeys, existingServiceKeys);
         List<ServiceKey> serviceKeysToDelete = getServiceKeysToDelete(serviceKeys, existingServiceKeys);
 
-        if (canDeleteServiceKeys(context)) {
+        if (canDeleteServiceKeys(execution.getContext())) {
             deleteServiceKeys(clientExtensions, serviceKeysToDelete);
             // Recreate the service keys, which should be updated, as direct update is not supported
             // by the controller:
@@ -221,47 +230,51 @@ public class CreateOrUpdateServicesStep extends AbstractProcessStep {
         client.deleteServiceKey(key.getService().getName(), key.getName());
     }
 
-    private ServiceOperationType createOrUpdateService(DelegateExecution context, CloudFoundryOperations client,
+    private ServiceOperationType createOrUpdateService(ExecutionWrapper execution, CloudFoundryOperations client,
         CloudServiceExtended service, CloudService existingService, List<String> defaultTags) throws SLException, FileStorageException {
 
         // Set service parameters if a file containing their values exists:
-        String fileName = StepsUtil.getResourceFileName(context, service.getResourceName());
+        String fileName = StepsUtil.getResourceFileName(execution.getContext(), service.getResourceName());
         if (fileName != null) {
             getStepLogger().debug(Messages.SETTING_SERVICE_PARAMETERS, service.getName(), fileName);
-            String appArchiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
-            setServiceParameters(context, service, appArchiveId, fileName);
+            String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+            setServiceParameters(execution.getContext(), service, appArchiveId, fileName);
         }
 
         if (existingService == null) {
-            serviceOperationExecutor.executeServiceOperation(service, () -> createService(context, client, service), getStepLogger());
+            serviceOperationExecutor.executeServiceOperation(service, () -> createService(execution.getContext(), client, service),
+                getStepLogger());
             return ServiceOperationType.CREATE;
         }
 
         getStepLogger().debug(Messages.SERVICE_ALREADY_EXISTS, service.getName());
         List<ServiceAction> actions = determineActions(client, service, existingService, defaultTags);
         if (actions.contains(ServiceAction.ACTION_RECREATE)) {
-            boolean deleteAllowed = (boolean) context.getVariable(Constants.PARAM_DELETE_SERVICES);
+            boolean deleteAllowed = (boolean) execution.getContext().getVariable(Constants.PARAM_DELETE_SERVICES);
             if (!deleteAllowed) {
                 getStepLogger().warn(Messages.WILL_NOT_RECREATE_SERVICE, service.getName());
                 return null;
             }
-            serviceOperationExecutor.executeServiceOperation(service, () -> deleteService(context, client, service), getStepLogger());
-            serviceOperationExecutor.executeServiceOperation(service, () -> createService(context, client, service), getStepLogger());
+            serviceOperationExecutor.executeServiceOperation(service, () -> deleteService(execution.getContext(), client, service),
+                getStepLogger());
+            serviceOperationExecutor.executeServiceOperation(service, () -> createService(execution.getContext(), client, service),
+                getStepLogger());
             return ServiceOperationType.UPDATE;
         }
         ServiceOperationType type = null;
         if (actions.contains(ServiceAction.ACTION_UPDATE_SERVICE_PLAN)) {
-            serviceOperationExecutor.executeServiceOperation(service, () -> updateServicePlan(context, client, service), getStepLogger());
+            serviceOperationExecutor.executeServiceOperation(service, () -> updateServicePlan(execution.getContext(), client, service),
+                getStepLogger());
             type = ServiceOperationType.UPDATE;
         }
 
         if (actions.contains(ServiceAction.ACTION_UPDATE_CREDENTIALS)) {
-            serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceCredentials(context, client, service),
-                getStepLogger());
+            serviceOperationExecutor.executeServiceOperation(service,
+                () -> updateServiceCredentials(execution.getContext(), client, service), getStepLogger());
             type = ServiceOperationType.UPDATE;
         }
         if (actions.contains(ServiceAction.ACTION_UPDATE_TAGS)) {
-            serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceTags(context, client, service), getStepLogger());
+            serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceTags(execution, client, service), getStepLogger());
             type = ServiceOperationType.UPDATE;
         }
 
@@ -332,9 +345,9 @@ public class CreateOrUpdateServicesStep extends AbstractProcessStep {
         getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
     }
 
-    private void updateServiceTags(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service)
+    private void updateServiceTags(ExecutionWrapper execution, CloudFoundryOperations client, CloudServiceExtended service)
         throws SLException {
-        ClientExtensions clientExtensions = getClientExtensions(context);
+        ClientExtensions clientExtensions = execution.getClientExtensions();
         // TODO: Remove the service.isUserProvided() check when user provided services support tags.
         // See the following issue for more info:
         // https://www.pivotaltracker.com/n/projects/966314/stories/105674948
@@ -452,7 +465,7 @@ public class CreateOrUpdateServicesStep extends AbstractProcessStep {
     }
 
     @Override
-    public String getLogicalStepName() {
-        return CreateOrUpdateServicesStep.class.getSimpleName();
+    protected List<AsyncStepOperation> getAsyncStepOperations() {
+        return Arrays.asList(new PollServiceOperationsStep(serviceInstanceGetter));
     }
 }
