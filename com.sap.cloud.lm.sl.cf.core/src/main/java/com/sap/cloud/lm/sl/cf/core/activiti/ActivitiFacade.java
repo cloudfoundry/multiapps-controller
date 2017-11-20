@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.api.activiti;
+package com.sap.cloud.lm.sl.cf.core.activiti;
 
 import static java.text.MessageFormat.format;
 

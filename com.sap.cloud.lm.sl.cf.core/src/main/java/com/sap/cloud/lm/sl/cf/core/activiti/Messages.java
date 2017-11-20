@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.api.activiti;
+package com.sap.cloud.lm.sl.cf.core.activiti;
 
 public class Messages {
 

@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.activiti.common.impl.MockDelegateExecution;
-import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
