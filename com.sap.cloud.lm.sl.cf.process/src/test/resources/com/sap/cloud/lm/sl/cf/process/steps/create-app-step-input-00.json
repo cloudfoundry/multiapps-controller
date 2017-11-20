@@ -1,5 +1,4 @@
 {
-  "parentProcessId": 123,
   "applications": [
     {
       "name": "application-1",
@@ -7,8 +6,7 @@
       "memory": 128,
       "diskQuota": 0,
       "env": [],
-      "services": [],
-      "serviceKeysToInject" : []
+      "services": []
     },
     {
       "name": "application-2",
@@ -16,8 +14,7 @@
       "memory": 512,
       "diskQuota": 0,
       "env": [],
-      "services": [],
-      "serviceKeysToInject" : []
+      "services": []
     }
   ],
   "applicationIndex": 1

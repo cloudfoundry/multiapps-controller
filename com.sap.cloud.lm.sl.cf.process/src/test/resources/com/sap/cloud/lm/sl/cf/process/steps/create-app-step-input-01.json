@@ -6,8 +6,7 @@
       "memory": 0,
       "diskQuota": 512,
       "env": [],
-      "services": [],
-      "serviceKeysToInject": []
+      "services": []
     },
     {
       "name": "application-2",
@@ -15,8 +14,7 @@
       "memory": 0,
       "diskQuota": 512,
       "env": [],
-      "services": [],
-      "serviceKeysToInject": []
+      "services": []
     }
   ],
   "applicationIndex": 1

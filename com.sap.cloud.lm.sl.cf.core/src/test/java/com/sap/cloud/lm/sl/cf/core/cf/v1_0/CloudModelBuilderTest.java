@@ -291,24 +291,6 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-07.json", }
             },
-            // (23) Test inject service keys in application environment
-            { 
-                "mtad-11.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json",
-                false, false, true,
-                new String[] { "module-1" }, // mtaArchiveModules
-                new String[] { "module-1" }, // mtaModules
-                new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-08.json", }
-            },
-            // (24) Test inject service keys in application environment fail with env names
-            { 
-                "mtad-11.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json",
-                false, false, false,
-                new String[] { "module-1" }, // mtaArchiveModules
-                new String[] { "module-1" }, // mtaModules
-                new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "E:The name \"service-key-name\" is not a valid environment variable name" }
-            },
             // (23) With 'health-check-type' set to 'port':
             { 
                 "mtad-health-check-type-port.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",

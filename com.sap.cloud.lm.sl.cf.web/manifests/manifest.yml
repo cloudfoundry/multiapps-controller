@@ -44,7 +44,6 @@ applications:
             { "name": "org.cloudfoundry.user-provided-service", "parameters": { "type": "user-provided-service" }},
             { "name": "org.cloudfoundry.managed-service", "parameters": { "type": "managed-service" }},
             { "name": "org.cloudfoundry.existing-service", "parameters": { "type": "existing-service" }},
-            { "name": "org.cloudfoundry.existing-service-key", "parameters": { "type": "existing-service-key" }},
             { "name": "mta-provided", "parameters": { "type": "mta-provides-dependency" }},
             { "name": "configuration", "parameters": { "type": "configuration" }},
             { "name": "autoscaler", "parameters": { "service": "autoscaler", "service-plan": "lite" }},

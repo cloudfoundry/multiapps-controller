@@ -23,7 +23,6 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -36,6 +35,8 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKey;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyImpl;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -374,7 +375,7 @@ public class StepsUtil {
 
     public static Map<String, List<ServiceKey>> getServiceKeysToCreate(DelegateExecution context) {
         String json = new String((byte[]) context.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE), StandardCharsets.UTF_8);
-        return JsonUtil.fromJson(json, new TypeToken<Map<String, List<ServiceKey>>>() {
+        return JsonUtil.fromJson(json, new TypeToken<Map<String, List<ServiceKeyImpl>>>() {
         }.getType());
     }
 
@@ -402,18 +403,6 @@ public class StepsUtil {
     static void setAppsToDeploy(DelegateExecution context, List<CloudApplicationExtended> apps) {
         List<String> cloudApplicationsAsStrings = apps.stream().map(app -> JsonUtil.toJson(app)).collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
-    }
-
-    static void setServiceKeysCredentialsToInject(DelegateExecution context,
-        Map<String, Map<String, String>> serviceKeysCredentialsToInject) {
-        byte[] serviceKeysToInjectByteArray = GsonHelper.getAsBinaryJson(serviceKeysCredentialsToInject);
-        context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
-    }
-
-    static Map<String, Map<String, String>> getServiceKeysCredentialsToInject(DelegateExecution context) {
-        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT);
-        return JsonUtil.fromJson(new String(binaryJson, StandardCharsets.UTF_8), new TypeToken<Map<String, Map<String, String>>>() {
-        }.getType());
     }
 
     public static List<CloudApplication> getUpdatedSubscribers(DelegateExecution context) {
@@ -776,10 +765,6 @@ public class StepsUtil {
 
     public static String getSubProcessId(DelegateExecution context) {
         return (String) context.getVariable(Constants.VAR_SUBPROCESS_ID);
-    }
-
-    static String getParentProcessId(DelegateExecution context) {
-        return (String) context.getVariable(Constants.VAR_PARENTPROCESS_ID);
     }
 
     static void saveAppLogs(DelegateExecution context, CloudFoundryOperations client, RecentLogsRetriever recentLogsRetriever,

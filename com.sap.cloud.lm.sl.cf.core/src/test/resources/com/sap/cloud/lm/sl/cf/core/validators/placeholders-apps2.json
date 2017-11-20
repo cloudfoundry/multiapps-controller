@@ -4,7 +4,6 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
-    "serviceKeysToInject": [],
     "diskQuota": 1024,
     "env": [
       "APP_NAME\u003dm2",
@@ -49,7 +48,6 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
-    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "APP_NAME\u003dm1",

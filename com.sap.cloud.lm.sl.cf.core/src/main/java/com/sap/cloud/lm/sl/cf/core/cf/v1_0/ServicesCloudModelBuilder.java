@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v1_0;
 
-import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.getResourceType;
+import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.getServiceType;
 import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.isService;
 
 import java.text.MessageFormat;
@@ -42,7 +42,7 @@ public class ServicesCloudModelBuilder {
     public List<CloudServiceExtended> build(Set<String> modules) throws SLException {
         List<CloudServiceExtended> services = new ArrayList<>();
         for (Resource resource : deploymentDescriptor.getResources1_0()) {
-            if (isService(resource, propertiesAccessor)) {
+            if (isService(resource)) {
                 ListUtil.addNonNull(services, getService(resource));
             }
         }
@@ -51,7 +51,7 @@ public class ServicesCloudModelBuilder {
 
     protected CloudServiceExtended getService(Resource resource) throws SLException {
         Map<String, Object> parameters = propertiesAccessor.getParameters(resource);
-        ResourceType serviceType = getResourceType(parameters);
+        ServiceType serviceType = getServiceType(parameters);
         boolean isOptionalResource = isOptionalResource(resource);
         CloudServiceExtended service = createService(parameters, cloudServiceNameMapper.mapServiceName(resource, serviceType),
             isOptionalResource, serviceType);
@@ -66,12 +66,12 @@ public class ServicesCloudModelBuilder {
     }
 
     protected CloudServiceExtended createService(Map<String, Object> properties, String serviceName, boolean isOptionalResource,
-        ResourceType serviceType) throws ContentException {
-        if (serviceType.equals(ResourceType.MANAGED_SERVICE)) {
+        ServiceType serviceType) throws ContentException {
+        if (serviceType.equals(ServiceType.MANAGED)) {
             return createManagedService(serviceName, isOptionalResource, properties);
-        } else if (serviceType.equals(ResourceType.USER_PROVIDED_SERVICE)) {
+        } else if (serviceType.equals(ServiceType.USER_PROVIDED)) {
             return createUserProvidedService(serviceName, isOptionalResource, properties);
-        } else if (serviceType.equals(ResourceType.EXISTING_SERVICE)) {
+        } else if (serviceType.equals(ServiceType.EXISTING)) {
             return createExistingService(serviceName, isOptionalResource, properties);
         }
         return null;

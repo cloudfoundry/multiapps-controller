@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
@@ -22,7 +21,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
 import com.google.gson.reflect.TypeToken;
-import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -102,8 +100,6 @@ public class ReconfigureAppEnvironmentStepTest extends AbstractStepTest<Reconfig
     private void prepareContext() throws Exception {
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
         context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, MTA_MINOR_SCHEMA_VERSION);
-        byte[] serviceKeysToInjectByteArray = GsonHelper.getAsBinaryJson(new HashMap<>());
-        context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
 
         StepsUtil.setMtaModules(context, Collections.emptySet());
         StepsUtil.setMtaArchiveModules(context, Collections.emptySet());

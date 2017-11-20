@@ -4,7 +4,6 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
-    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [],\n  \"execute-app\": false\n}",
@@ -29,7 +28,6 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
-    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:51000\",\n    \"{xsa-placeholder-domain-default}:51001\"\n  ]\n}",
@@ -58,7 +56,6 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
-    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:55000\"\n  ]\n}",

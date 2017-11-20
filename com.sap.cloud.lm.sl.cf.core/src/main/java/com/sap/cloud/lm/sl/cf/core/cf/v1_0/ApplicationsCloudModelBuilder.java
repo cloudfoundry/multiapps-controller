@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v1_0;
 
-import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.ensureValidEnvName;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import org.cloudfoundry.client.lib.domain.Staging;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.UrisClassifier;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
@@ -39,7 +37,6 @@ import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
-import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class ApplicationsCloudModelBuilder {
     public static final String DEPENDECY_TYPE_SOFT = "soft";
@@ -138,7 +135,6 @@ public class ApplicationsCloudModelBuilder {
         List<String> customUris = new UrisClassifier(xsPlaceholderResolver).getCustomUris(deployedModule);
         List<String> fullResolvedUris = ListUtil.merge(resolvedUris, customUris);
         List<String> services = getApplicationServices(module, true);
-        List<ServiceKeyToInject> serviceKeysToInject = getServicesKeysToInject(module);
         Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
         Map<String, Object> moduleProperties = propertiesAccessor.getProperties(module, specialModuleProperties);
         Map<String, Object> moduleParameters = propertiesAccessor.getParameters(module, specialModuleProperties);
@@ -146,7 +142,7 @@ public class ApplicationsCloudModelBuilder {
             moduleProperties, moduleParameters);
         List<CloudTask> tasks = getTasks(propertiesList);
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, fullResolvedUris,
-            resolvedIdleUris, services, serviceKeysToInject, env, tasks);
+            resolvedIdleUris, services, env, tasks);
     }
 
     protected DeployedMtaModule findDeployedModule(DeployedMta deployedMta, Module module) {
@@ -172,7 +168,7 @@ public class ApplicationsCloudModelBuilder {
     protected List<String> getApplicationServices(Module module, boolean addExisting) throws SLException {
         List<String> services = new ArrayList<>();
         for (String dependencyName : module.getRequiredDependencies1_0()) {
-            Pair<Resource, ResourceType> pair = getApplicationService(dependencyName);
+            Pair<Resource, ServiceType> pair = getApplicationService(dependencyName);
             if (pair != null && shouldAddServiceToList(pair._2, addExisting)) {
                 ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(pair._1, pair._2));
             }
@@ -180,36 +176,15 @@ public class ApplicationsCloudModelBuilder {
         return ListUtil.removeDuplicates(services);
     }
 
-    protected boolean shouldAddServiceToList(ResourceType serviceType, boolean addExisting) {
-        return !serviceType.equals(ResourceType.EXISTING_SERVICE) || addExisting;
+    protected boolean shouldAddServiceToList(ServiceType serviceType, boolean addExisting) {
+        return !serviceType.equals(ServiceType.EXISTING) || addExisting;
     }
 
-    protected Pair<Resource, ResourceType> getApplicationService(String dependencyName) {
+    protected Pair<Resource, ServiceType> getApplicationService(String dependencyName) {
         Resource resource = getResource(dependencyName);
-        if (resource != null && CloudModelBuilderUtil.isService(resource, propertiesAccessor)) {
-            ResourceType serviceType = CloudModelBuilderUtil.getResourceType(resource.getProperties());
+        if (resource != null && CloudModelBuilderUtil.isService(resource)) {
+            ServiceType serviceType = CloudModelBuilderUtil.getServiceType(resource.getProperties());
             return new Pair<>(resource, serviceType);
-        }
-        return null;
-    }
-
-    protected List<ServiceKeyToInject> getServicesKeysToInject(Module module) {
-        List<ServiceKeyToInject> serviceKeysToInject = new ArrayList<>();
-        for (String dependencyName : module.getRequiredDependencies1_0()) {
-            ServiceKeyToInject serviceKeyToInject = getServiceKeyToInject(dependencyName);
-            ListUtil.addNonNull(serviceKeysToInject, serviceKeyToInject);
-        }
-        return serviceKeysToInject;
-    }
-
-    protected ServiceKeyToInject getServiceKeyToInject(String dependencyName) {
-        Resource resource = getResource(dependencyName);
-        if (resource != null && CloudModelBuilderUtil.isServiceKey(resource, propertiesAccessor)) {
-            Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
-            String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
-            String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
-            ensureValidEnvName(serviceKeyName, configuration.shouldAllowInvalidEnvNames());
-            return new ServiceKeyToInject(serviceKeyName, serviceName, serviceKeyName);
         }
         return null;
     }
@@ -223,8 +198,8 @@ public class ApplicationsCloudModelBuilder {
     }
 
     protected static CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota,
-        int memory, int instances, List<String> uris, List<String> idleUris, List<String> services,
-        List<ServiceKeyToInject> serviceKeysToInject, Map<Object, Object> env, List<CloudTask> tasks) {
+        int memory, int instances, List<String> uris, List<String> idleUris, List<String> services, Map<Object, Object> env,
+        List<CloudTask> tasks) {
         CloudApplicationExtended app = new CloudApplicationExtended(null, name);
         app.setModuleName(moduleName);
         app.setStaging(staging);
@@ -234,7 +209,6 @@ public class ApplicationsCloudModelBuilder {
         app.setUris(uris);
         app.setIdleUris(idleUris);
         app.setServices(services);
-        app.setServiceKeysToInject(serviceKeysToInject);
         app.setEnv(env);
         app.setTasks(tasks);
         return app;

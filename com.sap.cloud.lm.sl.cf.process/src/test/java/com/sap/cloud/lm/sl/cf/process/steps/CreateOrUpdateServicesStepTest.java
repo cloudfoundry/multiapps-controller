@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +23,8 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKey;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyImpl;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
@@ -171,7 +172,7 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
 
         Map<String, List<ServiceKey>> existingServiceKeys = stepInput.getExistingServiceKeys();
         for (String serviceName : existingServiceKeys.keySet()) {
-            Mockito.when(client.getServiceKeys(serviceName)).thenReturn(existingServiceKeys.get(serviceName));
+            Mockito.when(clientExtensions.getServiceKeys(serviceName)).thenReturn(existingServiceKeys.get(serviceName));
         }
         Mockito.doNothing().when(clientExtensions).deleteServiceKey(Mockito.any(), Mockito.any());
         Mockito.when(clientExtensions.createServiceKey(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(null);
@@ -370,8 +371,8 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
         List<CloudServiceExtended> existingServices = Collections.emptyList();
         List<SimpleApplication> existingApplications = Collections.emptyList();
         List<SimpleApplication> discontinuedApplications = Collections.emptyList();
-        Map<String, List<ServiceKey>> serviceKeysToCreate = Collections.emptyMap();
-        Map<String, List<ServiceKey>> existingServiceKeys = Collections.emptyMap();
+        Map<String, List<ServiceKeyImpl>> serviceKeysToCreate = Collections.emptyMap();
+        Map<String, List<ServiceKeyImpl>> existingServiceKeys = Collections.emptyMap();
         Map<String, List<String>> expectedCreatedServiceKeys = Collections.emptyMap();
         Map<String, List<String>> expectedDeletedServiceKeys = Collections.emptyMap();
         Map<String, List<String>> defaultTags = Collections.emptyMap();
@@ -379,7 +380,7 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
 
         Map<String, List<ServiceKey>> getServiceKeysToCreate() {
             Map<String, List<ServiceKey>> result = new HashMap<>();
-            for (Map.Entry<String, List<ServiceKey>> entry : serviceKeysToCreate.entrySet()) {
+            for (Map.Entry<String, List<ServiceKeyImpl>> entry : serviceKeysToCreate.entrySet()) {
                 result.put(entry.getKey(), ListUtil.upcastUnmodifiable(entry.getValue()));
             }
             return result;
@@ -387,7 +388,7 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
 
         Map<String, List<ServiceKey>> getExistingServiceKeys() {
             Map<String, List<ServiceKey>> result = new HashMap<>();
-            for (Map.Entry<String, List<ServiceKey>> entry : existingServiceKeys.entrySet()) {
+            for (Map.Entry<String, List<ServiceKeyImpl>> entry : existingServiceKeys.entrySet()) {
                 result.put(entry.getKey(), ListUtil.upcastUnmodifiable(entry.getValue()));
             }
             return result;

@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v1_0;
 
-import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.ensureValidEnvName;
+import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.isValidName;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertiesList;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.mergeProperties;
 
@@ -13,11 +13,12 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
-import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
+import com.sap.cloud.lm.sl.cf.core.util.NameUtil.NameRequirements;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -33,8 +34,6 @@ public class ApplicationEnvironmentCloudModelBuilder {
     protected XsPlaceholderResolver xsPlaceholderResolver;
     protected DescriptorHandler handler;
     protected String deployId;
-    
-    private static final int MTA_MAJOR_VERSION = 1;
 
     public ApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration, DeploymentDescriptor deploymentDescriptor,
         XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler, String deployId) {
@@ -152,7 +151,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
     }
 
     protected void addResource(Map<String, Object> env, Map<String, List<Object>> groups, Resource resource) {
-        if (resource != null && !CloudModelBuilderUtil.isService(resource, getHandlerFactory().getPropertiesAccessor())) {
+        if (resource != null && !CloudModelBuilderUtil.isService(resource)) {
             addToGroupsOrEnvironment(env, groups, resource.getGroups(), resource.getName(), gatherProperties(resource));
         }
     }
@@ -205,17 +204,18 @@ public class ApplicationEnvironmentCloudModelBuilder {
         Map<String, Object> result = new TreeMap<>();
         Map<String, Object> properties = new TreeMap<>();
         for (String key : env.keySet()) {
-            ensureValidEnvName(key, configuration.shouldAllowInvalidEnvNames());
-            result.put(key, env.get(key));
+            if (isValidName(key, NameRequirements.ENVIRONMENT_NAME_PATTERN)) {
+                result.put(key, env.get(key));
+            } else if (configuration.shouldAllowInvalidEnvNames()) {
+                properties.put(key, env.get(key));
+            } else {
+                throw new ContentException(Messages.INVALID_ENVIRONMENT_VARIABLE_NAME, key);
+            }
         }
         if (!properties.isEmpty()) {
             result.put(Constants.ENV_MTA_PROPERTIES, properties);
         }
         return result;
-    }
-    
-    protected HandlerFactory getHandlerFactory() {
-        return new HandlerFactory(MTA_MAJOR_VERSION);
     }
 
 }

@@ -15,7 +15,6 @@ public class CloudApplicationExtended extends CloudApplication {
     private Map<String, Map<String, Object>> bindingParameters;
     private List<CloudTask> tasks;
     private List<CloudRoute> routes;
-    private List<ServiceKeyToInject> serviceKeysToInject;
 
     public CloudApplicationExtended(Meta meta, String name) {
         super(meta, name);
@@ -75,13 +74,5 @@ public class CloudApplicationExtended extends CloudApplication {
 
     public void setRoutes(List<CloudRoute> routes) {
         this.routes = routes;
-    }
-
-    public List<ServiceKeyToInject> getServiceKeysToInject() {
-        return serviceKeysToInject;
-    }
-
-    public void setServiceKeysToInject(List<ServiceKeyToInject> serviceKeysToInject) {
-        this.serviceKeysToInject = serviceKeysToInject;
     }
 }

@@ -6,7 +6,6 @@
     },
     "idleUris": [],
     "tasks": [],
-    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-core.cfapps.neo.ondemand.com/test\"]}",
@@ -16,10 +15,10 @@
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"di-core\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"di-core-genbuilder-buildpack\",\"di-core-url\"]",
+      "MTA_PROPERTIES={\"route-path\":\"/test\"}",
       "MTA_SERVICES=[\"di-core-hdi\"]",
       "SERVICE_TO_JNDI_NAME_MAPPING={\"di-core-hdi\":\"jdbc/DefaultDB\"}\n",
-      "TARGET_RUNTIME=tomcat",
-      "route-path=/test"
+      "TARGET_RUNTIME=tomcat"
     ],
     "instances": 1,
     "memory": 512,
@@ -44,7 +43,6 @@
     },
     "idleUris": [],
     "tasks": [],
-    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-builder.cfapps.neo.ondemand.com\"]}",
@@ -78,7 +76,6 @@
     },
     "idleUris": [],
     "tasks": [],
-    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-di-runner.cfapps.neo.ondemand.com\"]}",

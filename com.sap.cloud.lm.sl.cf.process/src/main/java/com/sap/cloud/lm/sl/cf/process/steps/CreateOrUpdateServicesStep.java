@@ -22,7 +22,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -33,6 +32,7 @@ import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKey;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
@@ -144,7 +144,7 @@ public class CreateOrUpdateServicesStep extends AbstractXS2ProcessStepWithBridge
             return;
         }
         List<ServiceKey> existingServiceKeys = serviceOperationExecutor.executeServiceOperation(service,
-            () -> client.getServiceKeys(service.getName()), getStepLogger());
+            () -> clientExtensions.getServiceKeys(service.getName()), getStepLogger());
 
         if (existingServiceKeys == null) {
             return;

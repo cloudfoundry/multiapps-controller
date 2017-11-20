@@ -4,7 +4,6 @@
     "extendedStaging": {},
     "idleUris": [],
     "tasks": [],
-    "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-webide.cfapps.neo.ondemand.com\"]}",

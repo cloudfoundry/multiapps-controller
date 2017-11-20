@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceType;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -75,31 +74,17 @@ public class CloudModelBuilderUtil {
         return String.format("%s %s", org, space);
     }
 
-    public static boolean isService(Resource resource, PropertiesAccessor propertiesAccessor) {
-        if (resource.getType() == null) {
-            return false;
-        }
-        return !ResourceType.EXISTING_SERVICE_KEY.toString().equals(getResourceType(resource, propertiesAccessor));
-    }
-
-    public static boolean isServiceKey(Resource resource, PropertiesAccessor propertiesAccessor) {
-        if (resource.getType() == null) {
-            return false;
-        }
-        return ResourceType.EXISTING_SERVICE_KEY.toString().equals(getResourceType(resource, propertiesAccessor));
+    public static boolean isService(Resource resource) {
+        return resource.getType() != null; // Typed resource = service;
     }
 
     public static <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
         return parser.parse(parametersList);
     }
 
-    public static ResourceType getResourceType(Map<String, Object> properties) {
-        String type = (String) properties.getOrDefault(SupportedParameters.TYPE, ResourceType.MANAGED_SERVICE.toString());
-        return ResourceType.get(type);
+    public static ServiceType getServiceType(Map<String, Object> properties) {
+        String type = (String) properties.getOrDefault(SupportedParameters.TYPE, ServiceType.MANAGED.toString());
+        return ServiceType.get(type);
     }
 
-    private static String getResourceType(Resource resource, PropertiesAccessor propertiesAccessor) {
-        Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
-        return (String) resourceParameters.get(SupportedParameters.TYPE);
-    }
 }
