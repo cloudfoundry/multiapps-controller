@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.mta.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
 @RunWith(Parameterized.class)
-public class DetectMtaSchemaVersionStepTest extends AbstractStepTest<DetectMtaSchemaVersionStep> {
+public class DetectMtaSchemaVersionStepTest extends SyncActivitiStepTest<DetectMtaSchemaVersionStep> {
 
     @Parameters
     public static Collection<Object[]> getParameters() {

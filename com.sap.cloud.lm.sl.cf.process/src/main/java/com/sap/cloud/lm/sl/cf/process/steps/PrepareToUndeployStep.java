@@ -5,7 +5,6 @@ import java.util.function.Function;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -20,7 +19,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("prepareToUndeployStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToUndeployStep extends AbstractProcessStep {
+public class PrepareToUndeployStep extends SyncActivitiStep {
 
     @Inject
     private OperationDao operationDao;
@@ -29,22 +28,22 @@ public class PrepareToUndeployStep extends AbstractProcessStep {
         operationDao);
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         getStepLogger().info(Messages.DETECTING_COMPONENTS_TO_UNDEPLOY);
         try {
-            String mtaId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_MTA_ID);
+            String mtaId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_MTA_ID);
 
-            StepsUtil.setMtaModules(context, Collections.emptySet());
-            StepsUtil.setServiceBrokersToCreate(context, Collections.emptyList());
-            StepsUtil.setPublishedEntries(context, Collections.emptyList());
-            StepsUtil.setConfigurationEntriesToPublish(context, Collections.emptyMap());
-            StepsUtil.setAppsToDeploy(context, Collections.emptyList());
-            StepsUtil.setServiceUrlsToRegister(context, Collections.emptyList());
-            StepsUtil.setSubscriptionsToCreate(context, Collections.emptyList());
+            StepsUtil.setMtaModules(execution.getContext(), Collections.emptySet());
+            StepsUtil.setServiceBrokersToCreate(execution.getContext(), Collections.emptyList());
+            StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
+            StepsUtil.setConfigurationEntriesToPublish(execution.getContext(), Collections.emptyMap());
+            StepsUtil.setAppsToDeploy(execution.getContext(), Collections.emptyList());
+            StepsUtil.setServiceUrlsToRegister(execution.getContext(), Collections.emptyList());
+            StepsUtil.setSubscriptionsToCreate(execution.getContext(), Collections.emptyList());
 
-            conflictPreventerSupplier.apply(operationDao).attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(context),
-                context.getProcessInstanceId());
+            conflictPreventerSupplier.apply(ongoingOperationDao).attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()),
+                execution.getContext().getProcessInstanceId());
 
             getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
 

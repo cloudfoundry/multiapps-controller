@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -14,21 +13,21 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("scaleAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ScaleAppStep extends AbstractProcessStep {
+public class ScaleAppStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
 
-        CloudApplication app = StepsUtil.getApp(context);
+        CloudApplication app = StepsUtil.getApp(execution.getContext());
 
-        CloudApplication existingApp = StepsUtil.getExistingApp(context);
+        CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
 
         try {
             getStepLogger().info(Messages.SCALING_APP, app.getName());
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
             String appName = app.getName();
             Integer instances = (app.getInstances() != 0) ? app.getInstances() : null;

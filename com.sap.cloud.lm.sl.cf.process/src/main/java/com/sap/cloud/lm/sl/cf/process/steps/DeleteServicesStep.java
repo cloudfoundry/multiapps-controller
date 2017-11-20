@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
@@ -19,19 +18,19 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("deleteServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteServicesStep extends AbstractProcessStep {
+public class DeleteServicesStep extends SyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.DELETING_SERVICES);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
-            List<String> servicesToDelete = StepsUtil.getServicesToDelete(context);
+            List<String> servicesToDelete = StepsUtil.getServicesToDelete(execution.getContext());
             deleteServices(client, servicesToDelete);
 
             getStepLogger().debug(Messages.SERVICES_DELETED);

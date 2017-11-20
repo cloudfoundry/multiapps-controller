@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +24,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector;
@@ -35,7 +38,7 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpdateServicesStep> {
+public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateOrUpdateServicesStep> {
 
     private static final String TEST_SPACE_ID = "test-space-id";
     private final StepInput stepInput;
@@ -137,9 +140,13 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
     public void testExecute() throws Exception {
         step.execute(context);
 
-        assertStepFinishedSuccessfully();
+        assertStepIsRunning();
 
         validateClient();
+    }
+
+    private void assertStepIsRunning() {
+        assertEquals(ExecutionStatus.RUNNING.toString(), getExecutionStatus());
     }
 
     private void loadParameters() throws Exception {

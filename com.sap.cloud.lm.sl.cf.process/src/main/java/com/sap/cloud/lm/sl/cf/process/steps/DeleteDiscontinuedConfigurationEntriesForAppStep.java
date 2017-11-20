@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -26,32 +25,32 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 
 @Component("deleteDiscontinuedConfigurationEntriesForAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteDiscontinuedConfigurationEntriesForAppStep extends AbstractProcessStep {
+public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivitiStep {
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
-        CloudApplication existingApp = StepsUtil.getExistingApp(context);
+        CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
         if (existingApp == null) {
             return ExecutionStatus.SUCCESS;
         }
         getStepLogger().info(Messages.DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP, existingApp.getName());
-        String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
+        String mtaId = (String) execution.getContext().getVariable(Constants.PARAM_MTA_ID);
         ApplicationMtaMetadata mtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(existingApp);
         if (mtaMetadata == null) {
             return ExecutionStatus.SUCCESS;
         }
         List<String> providedDependencyNames = mtaMetadata.getProvidedDependencyNames();
-        String org = StepsUtil.getOrg(context);
-        String space = StepsUtil.getSpace(context);
+        String org = StepsUtil.getOrg(execution.getContext());
+        String space = StepsUtil.getSpace(execution.getContext());
         CloudTarget newTarget = new CloudTarget(org, space);
-        CloudTarget oldTarget = new CloudTarget(null, StepsUtil.getSpaceId(context));
+        CloudTarget oldTarget = new CloudTarget(null, StepsUtil.getSpaceId(execution.getContext()));
         String oldMtaVersion = mtaMetadata.getMtaMetadata().getVersion().toString();
-        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntries(context);
+        List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntries(execution.getContext());
 
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, oldMtaVersion, newTarget, oldTarget, providedDependencyNames,
             publishedEntries);
@@ -63,7 +62,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends AbstractPr
             }
         }
         getStepLogger().debug(Messages.DELETED_ENTRIES, JsonUtil.toJson(entriesToDelete, true));
-        StepsUtil.setDeletedEntries(context, entriesToDelete);
+        StepsUtil.setDeletedEntries(execution.getContext(), entriesToDelete);
 
         getStepLogger().debug(Messages.DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP_DELETED, existingApp.getName());
         return ExecutionStatus.SUCCESS;

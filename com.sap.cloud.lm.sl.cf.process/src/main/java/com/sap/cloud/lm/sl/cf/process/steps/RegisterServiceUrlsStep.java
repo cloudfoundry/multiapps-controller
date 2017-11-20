@@ -22,29 +22,29 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("registerServiceUrlsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RegisterServiceUrlsStep extends AbstractProcessStep {
+public class RegisterServiceUrlsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.REGISTERING_SERVICE_URLS);
 
-            ClientExtensions clientExtensions = getClientExtensions(context);
+            ClientExtensions clientExtensions = execution.getClientExtensions();
             if (clientExtensions == null) {
                 getStepLogger().warn(Messages.CLIENT_DOES_NOT_SUPPORT_EXTENSIONS);
                 return ExecutionStatus.SUCCESS;
             }
 
-            List<ServiceUrl> serviceUrlsToRegister = getServiceUrlsToRegister(StepsUtil.getAppsToDeploy(context));
+            List<ServiceUrl> serviceUrlsToRegister = getServiceUrlsToRegister(StepsUtil.getAppsToDeploy(execution.getContext()));
             getStepLogger().debug(Messages.SERVICE_URLS, JsonUtil.toJson(serviceUrlsToRegister, true));
 
             for (ServiceUrl serviceUrl : serviceUrlsToRegister) {
-                registerServiceUrl(context, serviceUrl, clientExtensions);
+                registerServiceUrl(execution.getContext(), serviceUrl, clientExtensions);
             }
 
-            StepsUtil.setServiceUrlsToRegister(context, serviceUrlsToRegister);
+            StepsUtil.setServiceUrlsToRegister(execution.getContext(), serviceUrlsToRegister);
             getStepLogger().debug(Messages.SERVICE_URLS_REGISTERED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {

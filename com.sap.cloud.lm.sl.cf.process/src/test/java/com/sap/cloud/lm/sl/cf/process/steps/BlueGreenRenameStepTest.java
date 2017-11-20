@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 
-public class BlueGreenRenameStepTest extends AbstractStepTest<BlueGreenRenameStep> {
+public class BlueGreenRenameStepTest extends SyncActivitiStepTest<BlueGreenRenameStep> {
 
     private static final DescriptorParser DESCRIPTOR_PARSER = new DescriptorParser();
 

@@ -135,7 +135,6 @@ public class PollStartAppStatusStep extends AsyncStepOperation {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
                 onError(execution, message);
                 setType(execution, StepPhase.RETRY);
-                // TODO: throw exception
                 return ExecutionStatus.FAILED;
             }
             StepsUtil.setStepPhase(execution, StepPhase.POLL);

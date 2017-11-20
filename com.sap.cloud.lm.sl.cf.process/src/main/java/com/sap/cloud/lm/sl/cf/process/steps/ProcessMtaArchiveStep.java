@@ -28,7 +28,7 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("processMtaArchiveStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ProcessMtaArchiveStep extends AbstractProcessStep {
+public class ProcessMtaArchiveStep extends SyncActivitiStep {
 
     @Inject
     private OperationDao operationDao;
@@ -39,15 +39,15 @@ public class ProcessMtaArchiveStep extends AbstractProcessStep {
         operationDao);
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.PROCESSING_MTA_ARCHIVE);
 
-            String appArchiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
-            processApplicationArchive(context, appArchiveId);
-            setMtaIdForProcess(context);
+            String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+            processApplicationArchive(execution.getContext(), appArchiveId);
+            setMtaIdForProcess(execution.getContext());
             getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);
             return ExecutionStatus.SUCCESS;
         } catch (FileStorageException fse) {

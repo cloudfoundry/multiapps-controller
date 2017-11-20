@@ -34,17 +34,18 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("checkForCreationConflictsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CheckForCreationConflictsStep extends AbstractProcessStep {
+public class CheckForCreationConflictsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws Exception {
         getStepLogger().logActivitiTask();
 
-        DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
-        List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(context);
+        DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
+        List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(execution.getContext());
         try {
             getStepLogger().info(Messages.VALIDATING_SERVICES);
-            validateServicesToCreate(context, deployedMta, deployedApps);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            validateServicesToCreate(client, execution.getContext(), deployedMta, deployedApps);
             getStepLogger().debug(Messages.SERVICES_VALIDATED);
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_VALIDATING_SERVICES);
@@ -57,7 +58,7 @@ public class CheckForCreationConflictsStep extends AbstractProcessStep {
 
         try {
             getStepLogger().info(Messages.VALIDATING_APPLICATIONS);
-            validateApplicationsToDeploy(context, deployedMta, deployedApps);
+            validateApplicationsToDeploy(execution.getContext(), deployedMta, deployedApps);
             getStepLogger().debug(Messages.APPLICATIONS_VALIDATED);
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_VALIDATING_APPLICATIONS);
@@ -71,8 +72,8 @@ public class CheckForCreationConflictsStep extends AbstractProcessStep {
         return ExecutionStatus.SUCCESS;
     }
 
-    private void validateServicesToCreate(DelegateExecution context, DeployedMta deployedMta, List<CloudApplication> deployedApps) {
-        CloudFoundryOperations client = getCloudFoundryClient(context);
+    private void validateServicesToCreate(CloudFoundryOperations client, DelegateExecution context, DeployedMta deployedMta,
+        List<CloudApplication> deployedApps) {
         List<CloudServiceExtended> servicesToCreate = StepsUtil.getServicesToCreate(context);
         Map<String, CloudService> existingServicesMap = createExistingServicesMap(client.getServices());
         Set<String> servicesInDeployedMta = deployedMta != null ? deployedMta.getServices() : Collections.emptySet();

@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
@@ -32,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -59,7 +59,7 @@ public class UploadAppStepTest {
     private static final String SPACE = "space";
     private static final String APP_ARCHIVE = "sample-app.mtar";
 
-    public static class ProcessStepTest extends AbstractStepTest<UploadAppStep> {
+    public static class ProcessStepTest extends SyncActivitiStepTest<UploadAppStep> {
 
         @Mock
         protected ScheduledExecutorService asyncTaskExecutor;
@@ -73,7 +73,7 @@ public class UploadAppStepTest {
         @Test
         public void testPollStatus1() throws Exception {
             step.createStepLogger(context);
-            ExecutionStatus status = step.executeStepInternal(context);
+            ExecutionStatus status = step.executeAsyncStep(step.createExecutionWrapper(context));
 
             assertEquals(ExecutionStatus.RUNNING.toString(), status.toString());
         }
@@ -93,8 +93,9 @@ public class UploadAppStepTest {
     }
 
     @RunWith(Parameterized.class)
-    public static class AppUploaderTest extends AbstractStepTest<UploadAppStep> {
+    public static class AppUploaderTest extends SyncActivitiStepTest<UploadAppStep> {
 
+        private static final String TEST_PROCESS_INSTANCE_ID = "test";
         @Rule
         public TemporaryFolder tempDir = new TemporaryFolder();
         @Rule
@@ -162,7 +163,8 @@ public class UploadAppStepTest {
             if (!clientSupportsExtensions) {
                 cfExtensions = null;
             }
-            Runnable uploader = step.getUploadAppStepRunnable(context, new SimpleApplication(APP_NAME, 2).toCloudApplication(), client,
+            ExecutionWrapper wrapper = step.createExecutionWrapper(context);
+            Runnable uploader = step.getUploadAppStepRunnable(wrapper, new SimpleApplication(APP_NAME, 2).toCloudApplication(), client,
                 cfExtensions);
             try {
                 uploader.run();
@@ -171,16 +173,16 @@ public class UploadAppStepTest {
                 throw e;
             }
 
-            Map<String, Object> outputVariables = ((UploadAppStepMock) step).getOutputVariables();
-            assertNotNull(outputVariables);
             if (clientSupportsExtensions) {
-                assertEquals(TOKEN, outputVariables.get(Constants.VAR_UPLOAD_TOKEN));
-                assertEquals(ExecutionStatus.RUNNING.toString(),
-                    outputVariables.get(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+                assertCall(Constants.VAR_UPLOAD_TOKEN, TOKEN);
+                assertCall("uploadState", ExecutionStatus.RUNNING.toString());
             } else {
-                assertEquals(ExecutionStatus.SUCCESS.toString(),
-                    outputVariables.get(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName()));
+                assertCall("uploadState", ExecutionStatus.SUCCESS.toString());
             }
+        }
+
+        private void assertCall(String variableName, String variableValue) {
+            Mockito.verify(contextExtensionDao).addOrUpdate(TEST_PROCESS_INSTANCE_ID, variableName, variableValue);
         }
 
         public void loadParameters() throws Exception {
@@ -197,6 +199,7 @@ public class UploadAppStepTest {
         public void prepareContext() throws Exception {
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
+            when(context.getProcessInstanceId()).thenReturn(TEST_PROCESS_INSTANCE_ID);
             StepsUtil.setModuleFileName(context, APP_NAME, APP_FILE);
             StepsUtil.setAppPropertiesChanged(context, false);
         }
@@ -234,8 +237,6 @@ public class UploadAppStepTest {
 
         private class UploadAppStepMock extends UploadAppStep {
 
-            private Map<String, Object> outputVariables;
-
             @Override
             public File saveToFile(String fileName, InputStreamProducer streamProducer) throws IOException {
                 InputStream stream = streamProducer.getNextInputStream();
@@ -255,15 +256,6 @@ public class UploadAppStepTest {
                         return getClass().getResourceAsStream(APP_FILE);
                     }
                 };
-            }
-
-            @Override
-            protected void signalWaitTask(String processId, Map<String, Object> outputVariables, int timeout) {
-                this.outputVariables = outputVariables;
-            }
-
-            public Map<String, Object> getOutputVariables() {
-                return outputVariables;
             }
 
         }

@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class DeleteUnusedReservedRoutesStepTest extends AbstractStepTest<DeleteUnusedReservedRoutesStep> {
+public class DeleteUnusedReservedRoutesStepTest extends SyncActivitiStepTest<DeleteUnusedReservedRoutesStep> {
 
     private static final String DEFAULT_DOMAIN = "localhost";
 

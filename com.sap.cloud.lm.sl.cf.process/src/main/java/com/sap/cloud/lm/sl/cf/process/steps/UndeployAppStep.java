@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -28,7 +27,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("undeployAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UndeployAppStep extends AbstractProcessStep {
+public class UndeployAppStep extends SyncActivitiStep {
 
     @Inject
     private OneOffTasksSupportChecker oneOffTasksSupportChecker;
@@ -36,11 +35,11 @@ public class UndeployAppStep extends AbstractProcessStep {
     private ApplicationRoutesGetter applicationRoutesGetter;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
-            CloudApplication appToUndeploy = StepsUtil.getAppToUndeploy(context);
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudApplication appToUndeploy = StepsUtil.getAppToUndeploy(execution.getContext());
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
             cancelRunningTasksIfTasksAreSupported(appToUndeploy, client);
             stopApplication(appToUndeploy, client);

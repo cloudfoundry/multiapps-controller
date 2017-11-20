@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @RunWith(Parameterized.class)
-public class DeleteSubscriptionsStepTest extends AbstractStepTest<DeleteSubscriptionsStep> {
+public class DeleteSubscriptionsStepTest extends SyncActivitiStepTest<DeleteSubscriptionsStep> {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

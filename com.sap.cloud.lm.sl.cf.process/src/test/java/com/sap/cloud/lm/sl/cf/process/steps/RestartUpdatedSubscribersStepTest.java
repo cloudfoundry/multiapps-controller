@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 
-public class RestartUpdatedSubscribersStepTest extends AbstractStepTest<RestartUpdatedSubscribersStep> {
+public class RestartUpdatedSubscribersStepTest extends SyncActivitiStepTest<RestartUpdatedSubscribersStep> {
 
     @Test
     public void testClientsForCorrectSpacesAreRequested() throws Exception {

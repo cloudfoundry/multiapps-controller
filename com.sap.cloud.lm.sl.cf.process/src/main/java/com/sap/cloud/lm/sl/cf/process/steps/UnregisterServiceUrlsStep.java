@@ -21,24 +21,24 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("unregisterServiceUrlsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UnregisterServiceUrlsStep extends AbstractProcessStep {
+public class UnregisterServiceUrlsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.UNREGISTERING_SERVICE_URLS);
 
-            ClientExtensions clientExtensions = getClientExtensions(context);
+            ClientExtensions clientExtensions = execution.getClientExtensions();
             if (clientExtensions == null) {
                 getStepLogger().warn(Messages.CLIENT_DOES_NOT_SUPPORT_EXTENSIONS);
                 return ExecutionStatus.SUCCESS;
             }
-            List<String> serviceUrlToRegisterNames = getServiceNames(StepsUtil.getServiceUrlsToRegister(context));
+            List<String> serviceUrlToRegisterNames = getServiceNames(StepsUtil.getServiceUrlsToRegister(execution.getContext()));
 
-            for (CloudApplication app : StepsUtil.getAppsToUndeploy(context)) {
-                unregisterServiceUrlIfNecessary(context, app, serviceUrlToRegisterNames, clientExtensions);
+            for (CloudApplication app : StepsUtil.getAppsToUndeploy(execution.getContext())) {
+                unregisterServiceUrlIfNecessary(execution.getContext(), app, serviceUrlToRegisterNames, clientExtensions);
             }
 
             getStepLogger().debug(Messages.SERVICE_URLS_UNREGISTERED);

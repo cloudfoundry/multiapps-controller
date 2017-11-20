@@ -12,7 +12,7 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 
-public class PrepareToUndeployStepTest extends AbstractStepTest<PrepareToUndeployStep> {
+public class PrepareToUndeployStepTest extends SyncActivitiStepTest<PrepareToUndeployStep> {
 
     private static final String MTA_ID = "com.sap.xs2.samples.helloworld";
 

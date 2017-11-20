@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @RunWith(Parameterized.class)
-public class ScaleAppStepTest extends AbstractStepTest<ScaleAppStep> {
+public class ScaleAppStepTest extends SyncActivitiStepTest<ScaleAppStep> {
 
     private final SimpleApplication application;
     private final SimpleApplication existingApplication;

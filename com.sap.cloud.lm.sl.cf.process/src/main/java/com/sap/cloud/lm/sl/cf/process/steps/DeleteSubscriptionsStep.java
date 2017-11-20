@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,18 +18,18 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("deleteSubscriptionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteSubscriptionsStep extends AbstractProcessStep {
+public class DeleteSubscriptionsStep extends SyncActivitiStep {
 
     @Inject
     private ConfigurationSubscriptionDao dao;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.DELETING_SUBSCRIPTIONS);
 
-        List<ConfigurationSubscription> subscriptionsToDelete = StepsUtil.getSubscriptionsToDelete(context);
+        List<ConfigurationSubscription> subscriptionsToDelete = StepsUtil.getSubscriptionsToDelete(execution.getContext());
         getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, JsonUtil.toJson(subscriptionsToDelete, true));
         for (ConfigurationSubscription subscription : subscriptionsToDelete) {
             try {

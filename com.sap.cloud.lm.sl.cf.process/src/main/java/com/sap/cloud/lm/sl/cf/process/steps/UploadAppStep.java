@@ -280,7 +280,8 @@ public class UploadAppStep extends AsyncActivitiStep {
                 getStepLogger().debug("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName());
                 if (clientExtensions != null) {
                     String uploadToken = asyncUploadFiles(execution.getContext(), clientExtensions, client, app, appArchiveId, fileName);
-                    execution.getContext().setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
+                    execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(),
+                        Constants.VAR_UPLOAD_TOKEN, uploadToken);
                     getStepLogger().debug("Started async upload of application \"{0}\"", fileName, app.getName());
                     status = ExecutionStatus.RUNNING;
                 } else {

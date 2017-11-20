@@ -1,10 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.anyString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class DeleteIdleRoutesStepTest extends AbstractStepTest<DeleteIdleRoutesStep> {
+public class DeleteIdleRoutesStepTest extends SyncActivitiStepTest<DeleteIdleRoutesStep> {
 
     private static class StepInput {
 
@@ -120,7 +120,7 @@ public class DeleteIdleRoutesStepTest extends AbstractStepTest<DeleteIdleRoutesS
             verify(clientExtensions, never()).deleteRoute(anyString(), anyString(), anyString());
             return;
         }
-            
+
         for (String uri : output.urisToDelete) {
             Pair<String, String> hostAndDomain = UriUtil.getHostAndDomain(uri);
             verify(clientExtensions, times(1)).deleteRoute(hostAndDomain._1, hostAndDomain._2, null);

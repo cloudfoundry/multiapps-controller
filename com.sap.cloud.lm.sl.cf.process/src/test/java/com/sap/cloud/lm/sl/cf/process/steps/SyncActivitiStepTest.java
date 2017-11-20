@@ -30,9 +30,9 @@ import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
-public abstract class AbstractStepTest<T extends SyncActivitiStep> {
+public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStepTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SyncActivitiStepTest.class);
 
     protected static final String USER_NAME = "dummy";
     protected static final String ORG_NAME = "org";
@@ -63,6 +63,8 @@ public abstract class AbstractStepTest<T extends SyncActivitiStep> {
     protected ActivitiFacade activitiFacade;
     @Mock
     protected Configuration configuration;
+
+    protected ExecutionWrapper execution;
     @InjectMocks
     protected T step = createStep();
 
@@ -79,6 +81,11 @@ public abstract class AbstractStepTest<T extends SyncActivitiStep> {
         context.setVariable(Constants.VAR_ORG, ORG_NAME);
         when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
         context.setVariable("correlationId", getCorrelationId());
+        prepareExecution();
+    }
+
+    private void prepareExecution() {
+        execution = step.createExecutionWrapper(context);
     }
 
     protected void assertStepFinishedSuccessfully() {

@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
-public class DetectDeployedMtaStepTest extends AbstractStepTest<DetectDeployedMtaStep> {
+public class DetectDeployedMtaStepTest extends SyncActivitiStepTest<DetectDeployedMtaStep> {
 
     private static final String MTA_ID = "com.sap.xs2.samples.helloworld";
     private static final String DEPLOYED_MTA_LOCATION = "deployed-mta-01.json";

@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("buildCloudUndeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class BuildCloudUndeployModelStep extends AbstractProcessStep {
+public class BuildCloudUndeployModelStep extends SyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -34,21 +34,21 @@ public class BuildCloudUndeployModelStep extends AbstractProcessStep {
     private ConfigurationSubscriptionDao dao;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
         try {
-            DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
+            DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
             if (deployedMta == null) {
-                setComponentsToUndeploy(context, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+                setComponentsToUndeploy(execution.getContext(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
                 return ExecutionStatus.SUCCESS;
             }
 
-            List<ConfigurationSubscription> subscriptionsToCreate = StepsUtil.getSubscriptionsToCreate(context);
-            Set<String> mtaModules = StepsUtil.getMtaModules(context);
-            List<CloudApplicationExtended> appsToDeploy = StepsUtil.getAppsToDeploy(context);
-            List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(context);
+            List<ConfigurationSubscription> subscriptionsToCreate = StepsUtil.getSubscriptionsToCreate(execution.getContext());
+            Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
+            List<CloudApplicationExtended> appsToDeploy = StepsUtil.getAppsToDeploy(execution.getContext());
+            List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(execution.getContext());
 
             getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
@@ -61,7 +61,7 @@ public class BuildCloudUndeployModelStep extends AbstractProcessStep {
             getStepLogger().debug(Messages.MODULES_TO_KEEP, secureSerializer.toJson(modulesToKeep));
 
             List<ConfigurationSubscription> subscriptionsToDelete = computeSubscriptionsToDelete(subscriptionsToCreate, deployedMta,
-                StepsUtil.getSpaceId(context));
+                StepsUtil.getSpaceId(execution.getContext()));
             getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete));
 
             List<String> servicesToDelete = computeServicesToDelete(deployedMta.getServices(), modulesToKeep);
@@ -70,7 +70,7 @@ public class BuildCloudUndeployModelStep extends AbstractProcessStep {
             List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(modulesToUndeploy, deployedApps);
             getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, secureSerializer.toJson(appsToUndeploy));
 
-            setComponentsToUndeploy(context, servicesToDelete, appsToUndeploy, subscriptionsToDelete);
+            setComponentsToUndeploy(execution.getContext(), servicesToDelete, appsToUndeploy, subscriptionsToDelete);
 
             getStepLogger().debug(Messages.CLOUD_UNDEPLOY_MODEL_BUILT);
             return ExecutionStatus.SUCCESS;

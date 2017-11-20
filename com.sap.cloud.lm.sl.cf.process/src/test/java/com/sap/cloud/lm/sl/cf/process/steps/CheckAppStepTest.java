@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class CheckAppStepTest extends AbstractStepTest<CheckAppStep> {
+public class CheckAppStepTest extends SyncActivitiStepTest<CheckAppStep> {
 
     private final StepInput stepInput;
 

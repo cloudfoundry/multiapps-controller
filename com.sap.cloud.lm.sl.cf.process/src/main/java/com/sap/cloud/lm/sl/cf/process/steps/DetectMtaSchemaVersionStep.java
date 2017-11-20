@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -18,26 +17,26 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 
 @Component("detectMtaSchemaVersionStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetectMtaSchemaVersionStep extends AbstractProcessStep {
+public class DetectMtaSchemaVersionStep extends SyncActivitiStep {
 
     protected Supplier<MtaSchemaVersionDetector> detectorSupplier = () -> new MtaSchemaVersionDetector();
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.DETECTING_MTA_MAJOR_SCHEMA_VERSION);
         try {
-            List<String> extensionDescriptorStrings = StepsUtil.getExtensionDescriptorStrings(context);
-            String deploymentDescriptorString = StepsUtil.getDeploymentDescriptorString(context);
+            List<String> extensionDescriptorStrings = StepsUtil.getExtensionDescriptorStrings(execution.getContext());
+            String deploymentDescriptorString = StepsUtil.getDeploymentDescriptorString(execution.getContext());
 
             MtaSchemaVersionDetector detector = detectorSupplier.get();
             Version schemaVersion = detector.detect(deploymentDescriptorString, extensionDescriptorStrings);
             if (!SupportedVersions.isSupported(schemaVersion)) {
                 throw new SLException(com.sap.cloud.lm.sl.mta.message.Messages.UNSUPPORTED_VERSION, schemaVersion);
             }
-            context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
-            context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, schemaVersion.getMinor());
+            execution.getContext().setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
+            execution.getContext().setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, schemaVersion.getMinor());
 
             getStepLogger().info(Messages.MTA_SCHEMA_VERSION_DETECTED_AS, schemaVersion);
 

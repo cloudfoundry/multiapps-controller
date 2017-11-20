@@ -33,7 +33,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class UndeployAppStepTest extends AbstractStepTest<UndeployAppStep> {
+public class UndeployAppStepTest extends SyncActivitiStepTest<UndeployAppStep> {
 
     @Mock
     private OneOffTasksSupportChecker oneOffTasksSupportChecker;

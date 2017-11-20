@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 import java.util.function.Function;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -23,7 +22,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("detectDeployedMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetectDeployedMtaStep extends AbstractProcessStep {
+public class DetectDeployedMtaStep extends SyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -31,17 +30,17 @@ public class DetectDeployedMtaStep extends AbstractProcessStep {
         deployedApps) -> new DeployedComponentsDetector().detectAllDeployedComponents(deployedApps);
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
             getStepLogger().info(Messages.DETECTING_DEPLOYED_MTA);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
             List<CloudApplication> deployedApps = client.getApplications();
-            StepsUtil.setDeployedApps(context, deployedApps);
-            String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
+            StepsUtil.setDeployedApps(execution.getContext(), deployedApps);
+            String mtaId = (String) execution.getContext().getVariable(Constants.PARAM_MTA_ID);
 
             DeployedMta deployedMta = componentsDetector.apply(deployedApps).findDeployedMta(mtaId);
             if (deployedMta == null) {
@@ -50,7 +49,7 @@ public class DetectDeployedMtaStep extends AbstractProcessStep {
                 getStepLogger().debug(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true));
                 getStepLogger().info(Messages.DEPLOYED_MTA_DETECTED);
             }
-            StepsUtil.setDeployedMta(context, deployedMta);
+            StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
             getStepLogger().debug(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps));
             return ExecutionStatus.SUCCESS;
         } catch (CloudFoundryException cfe) {

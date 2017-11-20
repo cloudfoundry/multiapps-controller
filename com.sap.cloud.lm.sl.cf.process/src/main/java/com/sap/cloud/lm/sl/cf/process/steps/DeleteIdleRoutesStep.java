@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -20,18 +19,18 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("deleteIdleRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteIdleRoutesStep extends AbstractProcessStep {
+public class DeleteIdleRoutesStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
             getStepLogger().info(Messages.DELETING_IDLE_URIS);
-            CloudFoundryOperations client = getCloudFoundryClient(context);
-            boolean portBasedRouting = (boolean) context.getVariable(Constants.VAR_PORT_BASED_ROUTING);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            boolean portBasedRouting = (boolean) execution.getContext().getVariable(Constants.VAR_PORT_BASED_ROUTING);
 
-            List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(context);
+            List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(execution.getContext());
             for (CloudApplicationExtended app : apps) {
                 deleteIdleRoutes(app, portBasedRouting, client);
             }

@@ -66,7 +66,7 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 @Component("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UpdateSubscribersStep extends AbstractProcessStep {
+public class UpdateSubscribersStep extends SyncActivitiStep {
 
     /*
      * This schema version will be used only for the handling of the subscription entities and it should always be the same as the latest
@@ -99,16 +99,17 @@ public class UpdateSubscribersStep extends AbstractProcessStep {
     private ActivitiFacade activitiFacade;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
             getStepLogger().info(Messages.UPDATING_SUBSCRIBERS);
-            List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(context, activitiFacade);
-            List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(context, activitiFacade);
+            List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(),
+                activitiFacade);
+            List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(execution.getContext(), activitiFacade);
             List<ConfigurationEntry> updatedEntries = merge(publishedEntries, deletedEntries);
 
-            CloudFoundryOperations clientForCurrentSpace = getCloudFoundryClient(context);
+            CloudFoundryOperations clientForCurrentSpace = execution.getCloudFoundryClient();
 
             List<CloudApplication> updatedSubscribers = new ArrayList<>();
             List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
@@ -118,14 +119,14 @@ public class UpdateSubscribersStep extends AbstractProcessStep {
                     LOGGER.getLoggerImpl().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                     continue;
                 }
-                CloudApplication updatedApplication = updateSubscriber(context, orgAndSpace, subscription);
+                CloudApplication updatedApplication = updateSubscriber(execution, orgAndSpace, subscription);
                 if (updatedApplication != null) {
                     addOrgAndSpaceIfNecessary(updatedApplication, orgAndSpace);
                     addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication);
                 }
             }
-            StepsUtil.setUpdatedSubscribers(context, removeDuplicates(updatedSubscribers));
-            StepsUtil.setUpdatedServiceBrokerSubscribers(context, updatedServiceBrokerSubscribers);
+            StepsUtil.setUpdatedSubscribers(execution.getContext(), removeDuplicates(updatedSubscribers));
+            StepsUtil.setUpdatedServiceBrokerSubscribers(execution.getContext(), updatedServiceBrokerSubscribers);
             getStepLogger().debug(Messages.SUBSCRIBERS_UPDATED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {
@@ -174,13 +175,13 @@ public class UpdateSubscribersStep extends AbstractProcessStep {
         return new ArrayList<>(applicationsMap.values());
     }
 
-    private CloudApplication updateSubscriber(DelegateExecution context, Pair<String, String> orgAndSpace,
+    private CloudApplication updateSubscriber(ExecutionWrapper execution, Pair<String, String> orgAndSpace,
         ConfigurationSubscription subscription) {
         String appName = subscription.getAppName();
         String mtaId = subscription.getMtaId();
         String subscriptionName = getRequiredDependency(subscription).getName();
         try {
-            return attemptToUpdateSubscriber(context, getClient(context, orgAndSpace), subscription);
+            return attemptToUpdateSubscriber(execution.getContext(), getClient(execution, orgAndSpace), subscription);
         } catch (CloudFoundryException | SLException e) {
             getStepLogger().warn(e, Messages.COULD_NOT_UPDATE_SUBSCRIBER, appName, mtaId, subscriptionName);
             return null;
@@ -283,8 +284,8 @@ public class UpdateSubscribersStep extends AbstractProcessStep {
         return new SystemParameters(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
-    private CloudFoundryOperations getClient(DelegateExecution context, Pair<String, String> orgAndSpace) throws SLException {
-        return getCloudFoundryClient(context, orgAndSpace._1, orgAndSpace._2);
+    private CloudFoundryOperations getClient(ExecutionWrapper execution, Pair<String, String> orgAndSpace) throws SLException {
+        return execution.getCloudFoundryClient(orgAndSpace._1, orgAndSpace._2);
     }
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory)

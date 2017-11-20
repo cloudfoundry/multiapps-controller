@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class DeleteServicesStepTest extends AbstractStepTest<DeleteServicesStep> {
+public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesStep> {
 
     private final StepInput stepInput;
     private final String expectedExceptionMessage;

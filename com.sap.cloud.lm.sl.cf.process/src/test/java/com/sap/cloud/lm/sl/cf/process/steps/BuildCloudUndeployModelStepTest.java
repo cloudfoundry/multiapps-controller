@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.JsonSerializationOptions;
 
 @RunWith(Parameterized.class)
-public class BuildCloudUndeployModelStepTest extends AbstractStepTest<BuildCloudUndeployModelStep> {
+public class BuildCloudUndeployModelStepTest extends SyncActivitiStepTest<BuildCloudUndeployModelStep> {
 
     private static final String SPACE_ID = "sap";
 

@@ -5,7 +5,6 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +19,7 @@ import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 @RunWith(Parameterized.class)
-public class AbstractProcessStepTest extends AbstractStepTest<AbstractProcessStepTest.MockStep> {
+public class AbstractProcessStepTest extends SyncActivitiStepTest<AbstractProcessStepTest.MockStep> {
 
     private static final String PROCESS_ID = "1234";
 
@@ -60,12 +59,12 @@ public class AbstractProcessStepTest extends AbstractStepTest<AbstractProcessSte
         }
     }
 
-    public static class MockStep extends AbstractProcessStep {
+    public static class MockStep extends SyncActivitiStep {
 
         private Supplier<Exception> exceptionSupplier;
 
         @Override
-        protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
+        protected ExecutionStatus executeStep(ExecutionWrapper execution) throws Exception {
             throw exceptionSupplier.get();
         }
 
