@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
-public abstract class AbstractStepTest<T extends AbstractProcessStep> {
+public abstract class AbstractStepTest<T extends SyncActivitiStep> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStepTest.class);
 
@@ -86,7 +86,7 @@ public abstract class AbstractStepTest<T extends AbstractProcessStep> {
     }
 
     protected String getExecutionStatus() {
-        return (String) context.getVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName());
+        return (String) context.getVariable("StepExecution");
     }
 
     protected String getCorrelationId() {

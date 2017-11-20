@@ -865,6 +865,20 @@ public class StepsUtil {
         contextExtensionDao.addOrUpdate(processId, Constants.VAR_ERROR_TYPE, errorType.toString());
     }
 
+    static StepPhase getStepPhase(ExecutionWrapper execution) {
+        ContextExtension stepTypeObject = execution.getContextExtensionDao().find(execution.getContext().getProcessInstanceId(),
+            "stepType");
+        if (stepTypeObject == null) {
+            return StepPhase.EXECUTE;
+        }
+        execution.getContextExtensionDao().remove(stepTypeObject.getId());
+        return StepPhase.fromValue(stepTypeObject.getValue());
+    }
+
+    static void setStepPhase(ExecutionWrapper execution, StepPhase type) {
+        execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), "stepType", type.toString());
+    }
+
     static void appLog(DelegateExecution context, String appName, String message, Logger logger,
         ProcessLoggerProviderFactory processLoggerProviderFactory) {
         getAppLogger(context, appName, processLoggerProviderFactory).debug(getPrefix(logger) + "[" + appName + "] " + message);

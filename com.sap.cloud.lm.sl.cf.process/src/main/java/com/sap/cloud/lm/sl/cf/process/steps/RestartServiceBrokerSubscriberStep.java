@@ -1,5 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -17,11 +20,11 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    public ExecutionStatus executeAsyncStep(ExecutionWrapper execution) throws SLException {
         try {
-            return super.executeStepInternal(context);
+            return super.executeAsyncStep(execution);
         } catch (CloudFoundryException e) {
-            getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_SUBSCRIBER_RESTART, getAppToStart(context).getName());
+            getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_SUBSCRIBER_RESTART, getAppToStart(execution.getContext()).getName());
             return ExecutionStatus.SUCCESS;
         }
     }
@@ -39,6 +42,11 @@ public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
     @Override
     protected String getIndexVariable() {
         return Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX;
+    }
+
+    @Override
+    protected List<AsyncStepOperation> getAsyncStepOperations() {
+        return Arrays.asList(new PollRestartServiceBrokerStatusStep(recentLogsRetriever, configuration));
     }
 
 }

@@ -2,17 +2,11 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import javax.inject.Inject;
-
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStagingState;
@@ -24,56 +18,53 @@ import com.sap.cloud.lm.sl.cf.process.util.XMLValueFilter;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
-@Component("pollStageAppStatusStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollStageAppStatusStep extends AbstractProcessStepWithBridge {
+public class PollStageAppStatus extends AsyncStepOperation {
 
-    @Inject
-    protected RecentLogsRetriever recentLogsRetriever;
-    @Inject
-    protected ApplicationStagingStateGetter applicationStagingStateGetter;
+    private RecentLogsRetriever recentLogsRetriever;
+    private ApplicationStagingStateGetter applicationStagingStateGetter;
 
-    @Override
-    public String getLogicalStepName() {
-        return StageAppStep.class.getSimpleName();
+    public PollStageAppStatus(RecentLogsRetriever recentLogsRetriever, ApplicationStagingStateGetter applicationStagingStateGetter) {
+        super();
+        this.recentLogsRetriever = recentLogsRetriever;
+        this.applicationStagingStateGetter = applicationStagingStateGetter;
     }
 
     @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_APPS_INDEX;
-    }
+    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws Exception {
+        execution.getStepLogger().logActivitiTask();
 
-    @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
-        getStepLogger().logActivitiTask();
-
-        CloudApplication app = StepsUtil.getApp(context);
-        CloudFoundryOperations client = getCloudFoundryClient(context);
+        CloudApplication app = StepsUtil.getApp(execution.getContext());
+        CloudFoundryOperations client = execution.getCloudFoundryClient();
 
         try {
-            getStepLogger().debug(Messages.CHECKING_APP_STATUS, app.getName());
+            execution.getStepLogger().debug(Messages.CHECKING_APP_STATUS, app.getName());
 
-            Pair<ApplicationStagingState, String> state = getStagingState(context, client, app);
+            Pair<ApplicationStagingState, String> state = getStagingState(execution, client, app);
             if (!state._1.equals(ApplicationStagingState.STAGED)) {
-                return checkStagingState(context, client, app, state);
+                return checkStagingState(execution, client, app, state);
             }
 
-            getStepLogger().info(Messages.APP_STAGED, app.getName());
+            execution.getStepLogger().info(Messages.APP_STAGED, app.getName());
             return ExecutionStatus.SUCCESS;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
+            execution.getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
             throw e;
         } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
+            execution.getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
+            setType(execution, StepPhase.RETRY);
             throw e;
         }
     }
 
-    private Pair<ApplicationStagingState, String> getStagingState(DelegateExecution context, CloudFoundryOperations client,
+    private void setType(ExecutionWrapper execution, StepPhase type) {
+        StepsUtil.setStepPhase(execution, type);
+    }
+
+    private Pair<ApplicationStagingState, String> getStagingState(ExecutionWrapper execution, CloudFoundryOperations client,
         CloudApplication app) {
         ApplicationStagingState applicationStagingState = applicationStagingStateGetter.getApplicationStagingState(client, app.getName());
-        Pair<ApplicationStagingState, String> applicationStagingStateGuess = reportStagingLogs(context, client, app);
+        Pair<ApplicationStagingState, String> applicationStagingStateGuess = reportStagingLogs(execution, client, app);
         if (applicationStagingState == null) {
             return applicationStagingStateGuess;
         }
@@ -83,11 +74,11 @@ public class PollStageAppStatusStep extends AbstractProcessStepWithBridge {
         return new Pair<>(applicationStagingState, null);
     }
 
-    private Pair<ApplicationStagingState, String> reportStagingLogs(DelegateExecution context, CloudFoundryOperations client,
+    private Pair<ApplicationStagingState, String> reportStagingLogs(ExecutionWrapper execution, CloudFoundryOperations client,
         CloudApplication app) {
         try {
-            StartingInfo startingInfo = StepsUtil.getStartingInfo(context);
-            int offset = (Integer) context.getVariable(Constants.VAR_OFFSET);
+            StartingInfo startingInfo = StepsUtil.getStartingInfo(execution.getContext());
+            int offset = (Integer) execution.getContext().getVariable(Constants.VAR_OFFSET);
             String stagingLogs = client.getStagingLogs(startingInfo, offset);
             if (stagingLogs != null) {
                 // Staging logs successfully retrieved
@@ -95,9 +86,9 @@ public class PollStageAppStatusStep extends AbstractProcessStepWithBridge {
                 if (!stagingLogs.isEmpty()) {
                     // TODO delete filtering when parallel app push is implemented
                     stagingLogs = new XMLValueFilter(stagingLogs).getFiltered();
-                    getStepLogger().info(stagingLogs);
+                    execution.getStepLogger().info(stagingLogs);
                     offset += stagingLogs.length();
-                    context.setVariable(Constants.VAR_OFFSET, offset);
+                    execution.getContext().setVariable(Constants.VAR_OFFSET, offset);
                 }
                 return new Pair<>(ApplicationStagingState.PENDING, null);
             } else {
@@ -114,25 +105,28 @@ public class PollStageAppStatusStep extends AbstractProcessStepWithBridge {
         }
     }
 
-    private ExecutionStatus checkStagingState(DelegateExecution context, CloudFoundryOperations client, CloudApplication app,
+    private ExecutionStatus checkStagingState(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
         Pair<ApplicationStagingState, String> state) throws SLException {
 
         if (state._1.equals(ApplicationStagingState.FAILED)) {
             // Application staging failed
             String message = format(Messages.ERROR_STAGING_APP_2, app.getName(), state._2);
-            getStepLogger().error(message);
-            StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
-            setRetryMessage(context, message);
-            return ExecutionStatus.LOGICAL_RETRY;
+            execution.getStepLogger().error(message);
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+                execution.getProcessLoggerProviderFactory());
+            setType(execution, StepPhase.RETRY);
+            return ExecutionStatus.FAILED;
         } else {
             // Application not staged yet, wait and try again unless it's a timeout
-            if (StepsUtil.hasTimedOut(context, () -> System.currentTimeMillis())) {
+            if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-                getStepLogger().error(message);
-                StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
-                setRetryMessage(context, message);
-                return ExecutionStatus.LOGICAL_RETRY;
+                execution.getStepLogger().error(message);
+                StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+                    execution.getProcessLoggerProviderFactory());
+                setType(execution, StepPhase.RETRY);
+                return ExecutionStatus.FAILED;
             }
+            setType(execution, StepPhase.POLL);
             return ExecutionStatus.RUNNING;
         }
     }

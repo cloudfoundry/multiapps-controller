@@ -14,10 +14,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.InstanceInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.activiti.common.util.ContextUtil;
@@ -28,64 +24,62 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
-@Component("pollStartAppStatusStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollStartAppStatusStep extends AbstractProcessStepWithBridge {
-
-    @Override
-    public String getLogicalStepName() {
-        return StartAppStep.class.getSimpleName();
-    }
+public class PollStartAppStatusStep extends AsyncStepOperation {
 
     enum StartupStatus {
         STARTING, STARTED, CRASHED, FLAPPING
     }
 
-    @Autowired
     protected RecentLogsRetriever recentLogsRetriever;
-    @Autowired
     protected Configuration configuration;
 
-    @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        getStepLogger().logActivitiTask();
+    public PollStartAppStatusStep(RecentLogsRetriever recentLogsRetriever, Configuration configuration) {
+        this.recentLogsRetriever = recentLogsRetriever;
+        this.configuration = configuration;
+    }
 
-        CloudApplication app = getAppToPoll(context);
-        CloudFoundryOperations client = getCloudFoundryClient(context);
+    @Override
+    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws SLException {
+        execution.getStepLogger().logActivitiTask();
+
+        CloudApplication app = getAppToPoll(execution.getContext());
+        CloudFoundryOperations client = execution.getCloudFoundryClient();
 
         try {
-            getStepLogger().debug(Messages.CHECKING_APP_STATUS, app.getName());
+            execution.getStepLogger().debug(Messages.CHECKING_APP_STATUS, app.getName());
 
-            StartupStatus status = getStartupStatus(context, client, app.getName());
-            return checkStartupStatus(context, client, app, status);
+            StartupStatus status = getStartupStatus(execution, client, app.getName());
+            return checkStartupStatus(execution, client, app, status);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            onError(format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
+            onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             throw e;
         } catch (SLException e) {
-            onError(format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
+            onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             throw e;
         }
     }
 
-    protected void onError(String message, Exception e) {
-        getStepLogger().error(e, message);
+    protected void onError(ExecutionWrapper execution, String message, Exception e) {
+        execution.getStepLogger().error(e, message);
     }
 
-    protected void onError(String message) {
-        getStepLogger().error(message);
+    protected void onError(ExecutionWrapper execution, String message) {
+        execution.getStepLogger().error(message);
     }
 
     protected CloudApplication getAppToPoll(DelegateExecution context) {
         return StepsUtil.getApp(context);
     }
 
-    private StartupStatus getStartupStatus(DelegateExecution context, CloudFoundryOperations client, String appName) {
+    private StartupStatus getStartupStatus(ExecutionWrapper execution, CloudFoundryOperations client, String appName) {
         CloudApplication app = client.getApplication(appName);
         List<InstanceInfo> instances = getApplicationInstances(client, app);
 
         // The default value here is provided for undeploy processes:
-        boolean failOnCrashed = ContextUtil.getVariable(context, Constants.PARAM_FAIL_ON_CRASHED, true);
+        boolean failOnCrashed = ContextUtil.getVariable(execution.getContext(), Constants.PARAM_FAIL_ON_CRASHED, true);
 
         if (instances != null) {
             int expectedInstances = app.getInstances();
@@ -94,7 +88,7 @@ public class PollStartAppStatusStep extends AbstractProcessStepWithBridge {
             int crashedInstances = getInstanceCount(instances, InstanceState.CRASHED);
             int startingInstances = getInstanceCount(instances, InstanceState.STARTING);
 
-            showInstancesStatus(context, instances, runningInstances, expectedInstances);
+            showInstancesStatus(execution, instances, runningInstances, expectedInstances);
 
             if (runningInstances == expectedInstances) {
                 return StartupStatus.STARTED;
@@ -113,36 +107,44 @@ public class PollStartAppStatusStep extends AbstractProcessStepWithBridge {
         return StartupStatus.STARTING;
     }
 
-    private ExecutionStatus checkStartupStatus(DelegateExecution context, CloudFoundryOperations client, CloudApplication app,
+    private ExecutionStatus checkStartupStatus(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
         StartupStatus status) throws SLException {
 
-        StepsUtil.saveAppLogs(context, client, recentLogsRetriever, app, LOGGER.getLoggerImpl(), processLoggerProviderFactory);
+        StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+            execution.getProcessLoggerProviderFactory());
         if (status.equals(StartupStatus.CRASHED) || status.equals(StartupStatus.FLAPPING)) {
             // Application failed to start
             String message = format(Messages.ERROR_STARTING_APP_2, app.getName(), getMessageForStatus(status));
-            onError(message);
-            setRetryMessage(context, message);
-            return ExecutionStatus.LOGICAL_RETRY;
+            onError(execution, message);
+            setType(execution, StepPhase.RETRY);
+            return ExecutionStatus.FAILED;
         } else if (status.equals(StartupStatus.STARTED)) {
             // Application started successfully
             List<String> uris = app.getUris();
             if (uris.isEmpty()) {
-                getStepLogger().info(Messages.APP_STARTED, app.getName());
+                execution.getStepLogger().info(Messages.APP_STARTED, app.getName());
             } else {
                 String urls = CommonUtil.toCommaDelimitedString(uris, getProtocolPrefix());
-                getStepLogger().info(Messages.APP_STARTED_URLS, app.getName(), urls);
+                execution.getStepLogger().info(Messages.APP_STARTED_URLS, app.getName(), urls);
             }
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             return ExecutionStatus.SUCCESS;
         } else {
             // Application not started yet, wait and try again unless it's a timeout
-            if (StepsUtil.hasTimedOut(context, () -> System.currentTimeMillis())) {
+            if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-                onError(message);
-                setRetryMessage(context, message);
-                return ExecutionStatus.LOGICAL_RETRY;
+                onError(execution, message);
+                setType(execution, StepPhase.RETRY);
+                // TODO: throw exception
+                return ExecutionStatus.FAILED;
             }
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             return ExecutionStatus.RUNNING;
         }
+    }
+
+    private void setType(ExecutionWrapper execution, StepPhase type) {
+        StepsUtil.setStepPhase(execution, type);
     }
 
     protected String getMessageForStatus(StartupStatus status) {
@@ -155,7 +157,8 @@ public class PollStartAppStatusStep extends AbstractProcessStepWithBridge {
         }
     }
 
-    private void showInstancesStatus(DelegateExecution context, List<InstanceInfo> instances, int runningInstances, int expectedInstances) {
+    private void showInstancesStatus(ExecutionWrapper execution, List<InstanceInfo> instances, int runningInstances,
+        int expectedInstances) {
 
         // Determine state counts
         Map<String, Integer> stateCounts = new HashMap<>();
@@ -178,7 +181,7 @@ public class PollStartAppStatusStep extends AbstractProcessStepWithBridge {
         // Print message
         String message = format(Messages.X_OF_Y_INSTANCES_RUNNING, runningInstances, expectedInstances,
             CommonUtil.toCommaDelimitedString(stateStrings, ""));
-        getStepLogger().info(message);
+        execution.getStepLogger().info(message);
     }
 
     private static List<InstanceInfo> getApplicationInstances(CloudFoundryOperations client, CloudApplication app) {
@@ -198,11 +201,6 @@ public class PollStartAppStatusStep extends AbstractProcessStepWithBridge {
 
     private String getProtocolPrefix() {
         return configuration.getTargetURL().getProtocol() + "://";
-    }
-
-    @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_APPS_INDEX;
     }
 
 }

@@ -2,64 +2,59 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component("pollUploadAppStatusStep")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollUploadAppStatusStep extends AbstractProcessStepWithBridge {
+public class PollUploadAppStatusStep extends AsyncStepOperation {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        getStepLogger().logActivitiTask();
+    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws SLException {
+        execution.getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context
-        final CloudApplication app = StepsUtil.getApp(context);
+        final CloudApplication app = StepsUtil.getApp(execution.getContext());
 
         try {
-            getStepLogger().debug(Messages.CHECKING_UPLOAD_APP_STATUS, app.getName());
-            String status = (String) context.getVariable(getStatusVariable());
+            execution.getStepLogger().info(Messages.CHECKING_UPLOAD_APP_STATUS, app.getName());
+            String status = execution.getContextExtensionDao()
+                .find(execution.getContext().getProcessInstanceId(), "uploadState")
+                .getValue();
             if (ExecutionStatus.FAILED.name().equalsIgnoreCase(status)) {
                 String message = format(Messages.ERROR_UPLOADING_APP, app.getName());
-                getStepLogger().error(message);
-                setRetryMessage(context, message);
-                return ExecutionStatus.LOGICAL_RETRY;
+                execution.getStepLogger().error(message);
+                StepsUtil.setStepPhase(execution, StepPhase.RETRY);
+                return ExecutionStatus.FAILED;
             }
 
-            ClientExtensions clientExtensions = getClientExtensions(context);
+            ClientExtensions clientExtensions = execution.getClientExtensions();
             if (clientExtensions == null && ExecutionStatus.SUCCESS.name().equalsIgnoreCase(status)) {
                 return ExecutionStatus.SUCCESS;
             }
 
-            String uploadToken = StepsUtil.getUploadToken(context);
+            String uploadToken = StepsUtil.getUploadToken(execution.getContext());
             if (uploadToken == null) {
                 String message = format(Messages.APP_UPLOAD_TIMED_OUT, app.getName());
-                getStepLogger().error(message);
-                setRetryMessage(context, message);
-                return ExecutionStatus.LOGICAL_RETRY;
+                execution.getStepLogger().error(message);
+                StepsUtil.setStepPhase(execution, StepPhase.RETRY);
+                return ExecutionStatus.FAILED;
             }
 
             UploadInfo uploadInfo = clientExtensions.getUploadProgress(uploadToken);
             switch (uploadInfo.getUploadJobState()) {
                 case FAILED: {
                     String message = format(Messages.ERROR_UPLOADING_APP, app.getName());
-                    getStepLogger().error(message);
-                    setRetryMessage(context, message);
-                    return ExecutionStatus.LOGICAL_RETRY;
+                    execution.getStepLogger().error(message);
+                    StepsUtil.setStepPhase(execution, StepPhase.RETRY);
+                    return ExecutionStatus.FAILED;
                 }
                 case FINISHED: {
-                    getStepLogger().debug(Messages.APP_UPLOADED, app.getName());
+                    execution.getStepLogger().info(Messages.APP_UPLOADED, app.getName());
                     return ExecutionStatus.SUCCESS;
                 }
                 case RUNNING:
@@ -70,23 +65,15 @@ public class PollUploadAppStatusStep extends AbstractProcessStepWithBridge {
                 }
             }
         } catch (SLException e) {
-            getStepLogger().error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
+            execution.getStepLogger().error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
+            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            getStepLogger().error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
+            execution.getStepLogger().error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
+            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         }
-    }
-
-    @Override
-    public String getLogicalStepName() {
-        return UploadAppStep.class.getSimpleName();
-    }
-
-    @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_APPS_INDEX;
     }
 
 }

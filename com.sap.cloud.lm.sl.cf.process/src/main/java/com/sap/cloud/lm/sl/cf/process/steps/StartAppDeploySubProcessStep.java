@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
@@ -11,7 +12,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-@Component("startAppDeploySubProcessStep")
+@Component("startAppDeploySubProcessStep1")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StartAppDeploySubProcessStep extends AbstractSubProcessStarterStep {
 
@@ -24,11 +25,6 @@ public class StartAppDeploySubProcessStep extends AbstractSubProcessStarterStep 
     }
 
     @Override
-    public String getLogicalStepName() {
-        return StartAppDeploySubProcessStep.class.getSimpleName();
-    }
-
-    @Override
     protected Object getIterationVariable(DelegateExecution context, int index) {
         List<CloudApplicationExtended> appsToDeploy = StepsUtil.getAppsToDeploy(context);
         return JsonUtil.toJson(appsToDeploy.get(index));
@@ -37,6 +33,11 @@ public class StartAppDeploySubProcessStep extends AbstractSubProcessStarterStep 
     @Override
     protected String getIndexVariable() {
         return Constants.VAR_APPS_INDEX;
+    }
+
+    @Override
+    protected List<AsyncStepOperation> getAsyncStepOperations() {
+        return Arrays.asList(new MonitorAppDeploySubProcessStep());
     }
 
 }

@@ -12,23 +12,25 @@ import org.activiti.engine.runtime.Job;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-public abstract class AbstractSubProcessMonitorStep extends AbstractProcessStepWithBridge {
+public abstract class AbstractSubProcessMonitorStep extends AsyncStepOperation {
 
     @Inject
     private ActivitiFacade activitiFacade;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
-        String subProcessId = StepsUtil.getSubProcessId(context);
-        getStepLogger().debug(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId);
+    public ExecutionStatus executeOperation(ExecutionWrapper execution) {
+        String subProcessId = StepsUtil.getSubProcessId(execution.getContext());
+        execution.getStepLogger().debug(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId);
         try {
-            HistoricProcessInstance subProcess = getSubProcess(context, subProcessId);
-            return getSubProcessStatus(subProcess, context);
+            HistoricProcessInstance subProcess = getSubProcess(execution.getContext(), subProcessId);
+            return getSubProcessStatus(subProcess, execution);
         } catch (Exception e) {
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             throw new MonitoringException(e, Messages.ERROR_MONITORING_SUBPROCESS, subProcessId);
         }
     }
@@ -38,36 +40,42 @@ public abstract class AbstractSubProcessMonitorStep extends AbstractProcessStepW
         return historyService.createHistoricProcessInstanceQuery().processInstanceId(subProcessId).singleResult();
     }
 
-    private ExecutionStatus getSubProcessStatus(HistoricProcessInstance subProcess, DelegateExecution context) throws MonitoringException {
-        ErrorType errorType = getSubProcessErrorType(subProcess);
-        getStepLogger().debug(Messages.ERROR_TYPE_OF_SUBPROCESS, subProcess.getId(), errorType);
-        Job executionJob = context.getEngineServices()
+    private ExecutionStatus getSubProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution) throws MonitoringException {
+        ErrorType errorType = getSubProcessErrorType(subProcess, execution.getContextExtensionDao());
+        execution.getStepLogger().debug(Messages.ERROR_TYPE_OF_SUBPROCESS, subProcess.getId(), errorType);
+        Job executionJob = execution.getContext()
+            .getEngineServices()
             .getManagementService()
             .createJobQuery()
             .processInstanceId(subProcess.getId())
             .singleResult();
         if (executionJob == null) {
-            return getFinishedProcessStatus(subProcess, context, errorType);
+            return getFinishedProcessStatus(subProcess, execution, errorType);
         }
 
         if (executionJob.getExceptionMessage() == null) {
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             return ExecutionStatus.RUNNING;
         }
-        return onError(context, errorType);
+        StepsUtil.setStepPhase(execution, StepPhase.POLL);
+        return onError(execution.getContext(), errorType);
     }
 
-    private ExecutionStatus getFinishedProcessStatus(HistoricProcessInstance subProcess, DelegateExecution context, ErrorType errorType)
+    private ExecutionStatus getFinishedProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution, ErrorType errorType)
         throws MonitoringException {
         if (subProcess.getEndTime() == null) {
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             return ExecutionStatus.RUNNING;
         }
         if (subProcess.getDeleteReason() == null) {
-            return onSuccess(context);
+            StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+            return onSuccess(execution.getContext());
         }
-        return onAbort(context, errorType);
+        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
+        return onAbort(execution.getContext(), errorType);
     }
 
-    private ErrorType getSubProcessErrorType(HistoricProcessInstance subProcess) {
+    private ErrorType getSubProcessErrorType(HistoricProcessInstance subProcess, ContextExtensionDao contextExtensionDao) {
         return StepsUtil.getErrorType(subProcess.getId(), contextExtensionDao);
     }
 
