@@ -8,7 +8,7 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.runtime.ProcessInstance;
 
 import com.sap.activiti.common.ExecutionStatus;
-import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 

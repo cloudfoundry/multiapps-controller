@@ -24,9 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiAction;
-import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiActionFactory;
-import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiAction;
+import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
+import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;

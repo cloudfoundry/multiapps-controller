@@ -27,11 +27,11 @@ import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.activiti.common.util.GsonHelper;
-import com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
+import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
