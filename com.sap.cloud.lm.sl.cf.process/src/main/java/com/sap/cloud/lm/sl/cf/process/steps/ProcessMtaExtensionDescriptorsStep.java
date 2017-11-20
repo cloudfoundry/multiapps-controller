@@ -24,18 +24,18 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("processMtaExtensionDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ProcessMtaExtensionDescriptorsStep extends AbstractProcessStep {
+public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
-        List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(context);
+        List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(execution.getContext());
         try {
-            String spaceId = StepsUtil.getSpaceId(context);
+            String spaceId = StepsUtil.getSpaceId(execution.getContext());
 
-            ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS,
+            ContextUtil.setArrayVariableFromCollection(execution.getContext(), Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS,
                 getExtensionDescriptors(spaceId, extensionDescriptorFileIds));
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS);

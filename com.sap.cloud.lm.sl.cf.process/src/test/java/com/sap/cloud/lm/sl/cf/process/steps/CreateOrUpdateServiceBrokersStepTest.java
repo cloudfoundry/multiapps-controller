@@ -35,7 +35,7 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class CreateOrUpdateServiceBrokersStepTest extends AbstractStepTest<CreateOrUpdateServiceBrokersStep> {
+public class CreateOrUpdateServiceBrokersStepTest extends SyncActivitiStepTest<CreateOrUpdateServiceBrokersStep> {
 
     private final String expectedExceptionMessage;
     private final String inputLocation;

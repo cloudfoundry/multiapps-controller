@@ -38,7 +38,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 
 @Component("collectSystemParametersStep") // rename to collect system parameters and allocate ports?
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CollectSystemParametersStep extends AbstractProcessStep {
+public class CollectSystemParametersStep extends SyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -48,18 +48,18 @@ public class CollectSystemParametersStep extends AbstractProcessStep {
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = () -> new CredentialsGenerator();
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
 
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
-        return executeStepInternal(context, false);
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+        return executeStepInternal(execution, false);
     }
 
-    protected ExecutionStatus executeStepInternal(DelegateExecution context, boolean reserveTemporaryRoute) throws SLException {
+    protected ExecutionStatus executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoute) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.COLLECTING_SYSTEM_PARAMETERS);
         PortAllocator portAllocator = null;
         try {
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
             String defaultDomainName = getDefaultDomain(client);
             getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
             boolean portBasedRouting = isPortBasedRouting(client);
@@ -68,21 +68,21 @@ public class CollectSystemParametersStep extends AbstractProcessStep {
                 portAllocator = clientProvider.getPortAllocator(client, defaultDomainName);
             }
 
-            SystemParametersBuilder systemParametersBuilder = createParametersBuilder(context, client, portAllocator, portBasedRouting,
-                defaultDomainName, reserveTemporaryRoute);
-            DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
+            SystemParametersBuilder systemParametersBuilder = createParametersBuilder(execution.getContext(), client, portAllocator,
+                portBasedRouting, defaultDomainName, reserveTemporaryRoute);
+            DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext());
             SystemParameters systemParameters = systemParametersBuilder.build(descriptor);
             getStepLogger().debug(Messages.SYSTEM_PARAMETERS, secureSerializer.toJson(systemParameters));
 
-            determineIsVersionAccepted(context, descriptor, portAllocator);
+            determineIsVersionAccepted(execution.getContext(), descriptor, portAllocator);
 
             if (portBasedRouting) {
-                StepsUtil.setAllocatedPorts(context, portAllocator.getAllocatedPorts());
+                StepsUtil.setAllocatedPorts(execution.getContext(), portAllocator.getAllocatedPorts());
                 getStepLogger().debug(Messages.ALLOCATED_PORTS, portAllocator.getAllocatedPorts());
             }
-            context.setVariable(Constants.VAR_PORT_BASED_ROUTING, portBasedRouting);
+            execution.getContext().setVariable(Constants.VAR_PORT_BASED_ROUTING, portBasedRouting);
 
-            StepsUtil.setSystemParameters(context, systemParameters);
+            StepsUtil.setSystemParameters(execution.getContext(), systemParameters);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             cleanUp(portAllocator);

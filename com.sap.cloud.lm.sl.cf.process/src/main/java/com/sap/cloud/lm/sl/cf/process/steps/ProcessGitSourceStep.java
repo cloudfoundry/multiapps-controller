@@ -42,7 +42,7 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
 @Component("processGitSourceStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ProcessGitSourceStep extends AbstractProcessStep {
+public class ProcessGitSourceStep extends SyncActivitiStep {
 
     private static final String SKIP_SSL_GIT_CONFIG = ".skipSslGitConfig";
     private static final String PATH_SEPARATOR = "/";
@@ -57,15 +57,15 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
     private Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
             getStepLogger().info(Messages.DOWNLOADING_DEPLOYABLE);
 
-            final String gitUri = getGitUri(context);
-            final String gitRepoPath = (String) context.getVariable(Constants.PARAM_GIT_REPO_PATH);
-            String processId = context.getProcessInstanceId();
+            final String gitUri = getGitUri(execution);
+            final String gitRepoPath = (String) execution.getContext().getVariable(Constants.PARAM_GIT_REPO_PATH);
+            String processId = execution.getContext().getProcessInstanceId();
             final String repoName = extractRepoName(gitUri, processId);
             final Path reposDir = Paths.get(REPOSITORY_DIRECTORY_NAME, repoName);
             Path gitConfigFilePath = generateGitConfigFilepath(processId);
@@ -75,12 +75,12 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
             Path mtarZip = null;
             try {
 
-                GitRepoCloner cloner = createCloner(context);
+                GitRepoCloner cloner = createCloner(execution);
                 getStepLogger().info(Messages.CLONING_REPOSITORY, gitUri);
                 cloner.cloneRepo(gitUri, reposDir);
                 final Path mtaRepoPath = reposDir.resolve(gitRepoPath).normalize();
                 mtarZip = zipRepoContent(mtaRepoPath);
-                uploadZipToDB(context, mtarZip);
+                uploadZipToDB(execution.getContext(), mtarZip);
             } finally {
                 try {
                     deleteTemporaryRepositoryDirectory(reposDir);
@@ -104,10 +104,11 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
         }
     }
 
-    private GitRepoCloner createCloner(DelegateExecution context) {
+    private GitRepoCloner createCloner(ExecutionWrapper execution) {
+        DelegateExecution context = execution.getContext();
         GitRepoCloner cloner = new GitRepoCloner();
-        cloner.setGitServiceUrlString(getGitServiceUrl(context));
-        cloner.setRefName(StepsUtil.getGitRepoRef(context));
+        cloner.setGitServiceUrlString(getGitServiceUrl(execution));
+        cloner.setRefName((String) context.getVariable(Constants.PARAM_GIT_REF));
         cloner.setGitConfigFilePath(generateGitConfigFilepath(context.getProcessInstanceId()));
         cloner.setSkipSslValidation((boolean) context.getVariable(Constants.PARAM_GIT_SKIP_SSL));
         String userName = StepsUtil.determineCurrentUser(context, getStepLogger());
@@ -122,12 +123,12 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
         return cloner;
     }
 
-    protected String getGitUri(DelegateExecution context) throws SLException {
-        String gitUriParam = StepsUtil.getGitRepoUri(context);
+    protected String getGitUri(ExecutionWrapper execution) throws SLException {
+        String gitUriParam = (String) execution.getContext().getVariable(Constants.PARAM_GIT_URI);
         try {
             return new URL(gitUriParam).toString();
         } catch (MalformedURLException e) {
-            String gitServiceUrl = getGitServiceUrl(context);
+            String gitServiceUrl = getGitServiceUrl(execution);
             return buildUriFromRepositoryName(gitUriParam, gitServiceUrl);
         }
     }
@@ -154,20 +155,20 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
         return repoLocation.substring(repoLocation.lastIndexOf(PATH_SEPARATOR) + 1) + processId;
     }
 
-    private String getGitServiceUrl(DelegateExecution context) throws SLException {
-        if (!isClientExtensionsAvailable(context)) {
+    private String getGitServiceUrl(ExecutionWrapper execution) throws SLException {
+        if (!isClientExtensionsAvailable(execution)) {
             return null;
         }
-        CloudInfoExtended info = getCloudInfoExtended(context);
+        CloudInfoExtended info = getCloudInfoExtended(execution);
         return info.getServiceUrl(GIT_SERVICE_URL_KEY);
     }
 
-    private CloudInfoExtended getCloudInfoExtended(DelegateExecution context) throws SLException {
-        return (CloudInfoExtended) getCloudFoundryClient(context).getCloudInfo();
+    private CloudInfoExtended getCloudInfoExtended(ExecutionWrapper execution) throws SLException {
+        return (CloudInfoExtended) execution.getCloudFoundryClient().getCloudInfo();
     }
 
-    private boolean isClientExtensionsAvailable(DelegateExecution context) throws SLException {
-        CloudFoundryOperations client = getCloudFoundryClient(context);
+    private boolean isClientExtensionsAvailable(ExecutionWrapper execution) throws SLException {
+        CloudFoundryOperations client = execution.getCloudFoundryClient();
         return client.getCloudInfo() instanceof CloudInfoExtended;
     }
 

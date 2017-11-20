@@ -42,7 +42,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 @RunWith(Parameterized.class)
-public class BuildCloudDeployModelStepTest extends AbstractStepTest<BuildCloudDeployModelStep> {
+public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildCloudDeployModelStep> {
 
     private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
     private static final DescriptorParser DESCRIPTOR_PARSER = new DescriptorParser();

@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class DeleteDiscontinuedConfigurationEntriesStepTest extends AbstractStepTest<DeleteDiscontinuedConfigurationEntriesStep> {
+public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncActivitiStepTest<DeleteDiscontinuedConfigurationEntriesStep> {
 
     @Mock
     private ConfigurationEntryDao configurationEntryDao;

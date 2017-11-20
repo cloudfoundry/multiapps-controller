@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class UpdateSubscribedServiceBrokerStepTest extends AbstractStepTest<UpdateSubscribedServiceBrokerStep> {
+public class UpdateSubscribedServiceBrokerStepTest extends SyncActivitiStepTest<UpdateSubscribedServiceBrokerStep> {
 
     private StepInput input;
     private String expectedExceptionMessage;

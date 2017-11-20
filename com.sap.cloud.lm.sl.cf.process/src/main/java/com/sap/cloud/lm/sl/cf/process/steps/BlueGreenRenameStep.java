@@ -2,8 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.function.Supplier;
 
-import org.activiti.engine.delegate.DelegateExecution;
-
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorDetector;
@@ -15,21 +13,21 @@ import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 
-public class BlueGreenRenameStep extends AbstractProcessStep {
+public class BlueGreenRenameStep extends SyncActivitiStep {
 
     private static final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
 
     protected Supplier<ApplicationColorDetector> colorDetectorSupplier = () -> new ApplicationColorDetector();
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
             getStepLogger().info(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
 
-            DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
-            DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
+            DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext());
+            DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
 
             ApplicationColorDetector detector = colorDetectorSupplier.get();
             ApplicationColor mtaColor;
@@ -39,7 +37,7 @@ public class BlueGreenRenameStep extends AbstractProcessStep {
                 if (deployedMtaColor != null) {
                     getStepLogger().info(Messages.DEPLOYED_MTA_COLOR, deployedMtaColor);
                     mtaColor = deployedMtaColor.getAlternativeColor();
-                    context.setVariable("deployedMtaColor", deployedMtaColor);
+                    execution.getContext().setVariable("deployedMtaColor", deployedMtaColor);
                 } else {
                     mtaColor = DEFAULT_MTA_COLOR;
                 }
@@ -53,12 +51,12 @@ public class BlueGreenRenameStep extends AbstractProcessStep {
             }
             getStepLogger().info(Messages.NEW_MTA_COLOR, mtaColor);
 
-            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
+            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
             ApplicationColorAppender appender = handlerFactory.getApplicationColorAppender(deployedMtaColor, mtaColor);
             descriptor.accept(appender);
-            StepsUtil.setUnresolvedDeploymentDescriptor(context, descriptor);
+            StepsUtil.setUnresolvedDeploymentDescriptor(execution.getContext(), descriptor);
 
-            context.setVariable("mtaColor", mtaColor);
+            execution.getContext().setVariable("mtaColor", mtaColor);
 
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {

@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PublishConfigurationEntriesStep extends AbstractProcessStep {
+public class PublishConfigurationEntriesStep extends SyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -31,21 +30,21 @@ public class PublishConfigurationEntriesStep extends AbstractProcessStep {
     ConfigurationEntryDao configurationEntryDao;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
-        CloudApplicationExtended app = StepsUtil.getApp(context);
+        CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {
             getStepLogger().info(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES, app.getName()));
 
-            Map<String, List<ConfigurationEntry>> entriesToPublish = StepsUtil.getConfigurationEntriesToPublish(context);
+            Map<String, List<ConfigurationEntry>> entriesToPublish = StepsUtil.getConfigurationEntriesToPublish(execution.getContext());
 
             List<ConfigurationEntry> entriesToPublishPerApp = entriesToPublish.get(app.getName());
             List<ConfigurationEntry> publishedEntries = publish(entriesToPublishPerApp);
 
             getStepLogger().debug(Messages.PUBLISHED_ENTRIES, secureSerializer.toJson(publishedEntries));
-            StepsUtil.setPublishedEntries(context, publishedEntries);
+            StepsUtil.setPublishedEntries(execution.getContext(), publishedEntries);
 
             getStepLogger().debug(Messages.PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED);
             return ExecutionStatus.SUCCESS;

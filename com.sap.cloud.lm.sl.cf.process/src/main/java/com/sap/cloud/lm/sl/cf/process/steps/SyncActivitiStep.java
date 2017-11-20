@@ -13,12 +13,12 @@ import com.sap.activiti.common.api.IStatusSignaller;
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
-import com.sap.cloud.lm.sl.cf.process.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegate {
@@ -65,7 +65,7 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
         }
     }
 
-    private ExecutionWrapper createExecutionWrapper(DelegateExecution context) {
+    protected ExecutionWrapper createExecutionWrapper(DelegateExecution context) {
         return new ExecutionWrapper(context, contextExtensionDao, stepLogger, clientProvider, processLoggerProviderFactory);
     }
 

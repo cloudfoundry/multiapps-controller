@@ -47,7 +47,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class UpdateSubscribersStepTest extends AbstractStepTest<UpdateSubscribersStep> {
+public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscribersStep> {
 
     private static final String NO_USER_ROLES_DEFINED_FOR_ORG_AND_SPACE = "No user roles defined for org [{0}] and space [{1}]";
     private static final String USER = "XSMASTER";

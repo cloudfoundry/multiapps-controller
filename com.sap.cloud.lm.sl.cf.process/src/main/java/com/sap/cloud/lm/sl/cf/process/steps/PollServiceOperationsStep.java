@@ -79,7 +79,6 @@ public class PollServiceOperationsStep extends AsyncStepOperation {
             List<CloudServiceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);
             execution.getStepLogger().info(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
             StepsUtil.setServicesToPoll(execution.getContext(), remainingServicesToPoll);
-            execution.getStepLogger().info("The step is finishing");
             if (remainingServicesToPoll.size() == 0) {
                 StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
                 return ExecutionStatus.SUCCESS;

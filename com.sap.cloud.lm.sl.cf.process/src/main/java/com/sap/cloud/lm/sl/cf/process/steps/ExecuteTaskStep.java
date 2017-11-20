@@ -71,7 +71,7 @@ public class ExecuteTaskStep extends AsyncActivitiStep {
 
     @Override
     protected List<AsyncStepOperation> getAsyncStepOperations() {
-        return Arrays.asList(new PollExecuteTaskStatusStep(recentLogsRetriever));
+        return Arrays.asList(new PollExecuteTaskStatusStep(recentLogsRetriever, currentTimeSupplier));
     }
 
 }

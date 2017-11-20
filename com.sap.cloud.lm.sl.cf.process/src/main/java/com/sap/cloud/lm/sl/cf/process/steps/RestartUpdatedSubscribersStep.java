@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -16,31 +15,31 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("restartUpdatedSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RestartUpdatedSubscribersStep extends AbstractProcessStep {
+public class RestartUpdatedSubscribersStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws Exception {
         getStepLogger().logActivitiTask();
 
-        List<CloudApplication> updatedSubscribers = StepsUtil.getUpdatedSubscribers(context);
+        List<CloudApplication> updatedSubscribers = StepsUtil.getUpdatedSubscribers(execution.getContext());
         for (CloudApplication subscriber : updatedSubscribers) {
             getStepLogger().debug(Messages.UPDATED_SUBSCRIBERS, subscriber.getName());
-            restartSubscriber(context, subscriber);
+            restartSubscriber(execution, subscriber);
         }
         return ExecutionStatus.SUCCESS;
     }
 
-    private void restartSubscriber(DelegateExecution context, CloudApplication subscriber) {
+    private void restartSubscriber(ExecutionWrapper execution, CloudApplication subscriber) {
         try {
-            attemptToRestartApplication(context, subscriber);
+            attemptToRestartApplication(execution, subscriber);
         } catch (CloudFoundryException e) {
             getStepLogger().warn(e, Messages.COULD_NOT_RESTART_SUBSCRIBER, subscriber.getName());
         }
     }
 
-    private void attemptToRestartApplication(DelegateExecution context, CloudApplication app) {
-        CloudFoundryOperations client = getClientForApp(context, app);
-        ClientExtensions clientExtensions = getClientExtensionsForApp(context, app);
+    private void attemptToRestartApplication(ExecutionWrapper execution, CloudApplication app) {
+        CloudFoundryOperations client = getClientForApp(execution, app);
+        ClientExtensions clientExtensions = getClientExtensionsForApp(execution, app);
 
         getStepLogger().info(Messages.STOPPING_APP, app.getName());
         client.stopApplication(app.getName());
@@ -52,16 +51,16 @@ public class RestartUpdatedSubscribersStep extends AbstractProcessStep {
         }
     }
 
-    private CloudFoundryOperations getClientForApp(DelegateExecution context, CloudApplication app) {
+    private CloudFoundryOperations getClientForApp(ExecutionWrapper execution, CloudApplication app) {
         String orgName = app.getSpace().getOrganization().getName();
         String spaceName = app.getSpace().getName();
-        return getCloudFoundryClient(context, orgName, spaceName);
+        return execution.getCloudFoundryClient(orgName, spaceName);
     }
 
-    private ClientExtensions getClientExtensionsForApp(DelegateExecution context, CloudApplication app) {
+    private ClientExtensions getClientExtensionsForApp(ExecutionWrapper execution, CloudApplication app) {
         String orgName = app.getSpace().getOrganization().getName();
         String spaceName = app.getSpace().getName();
-        return getClientExtensions(context, orgName, spaceName);
+        return execution.getClientExtensions(orgName, spaceName);
     }
 
 }

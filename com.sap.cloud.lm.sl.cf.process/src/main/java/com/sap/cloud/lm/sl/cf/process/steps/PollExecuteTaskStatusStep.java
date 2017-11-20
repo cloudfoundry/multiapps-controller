@@ -19,12 +19,13 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 public class PollExecuteTaskStatusStep extends AsyncStepOperation {
 
-    protected Supplier<Long> currentTimeSupplier = () -> System.currentTimeMillis();
+    protected Supplier<Long> currentTimeSupplier;
 
     private RecentLogsRetriever recentLogsRetriever;
 
-    public PollExecuteTaskStatusStep(RecentLogsRetriever recentLogsRetriever) {
+    public PollExecuteTaskStatusStep(RecentLogsRetriever recentLogsRetriever, Supplier<Long> currentTimeSupplier) {
         this.recentLogsRetriever = recentLogsRetriever;
+        this.currentTimeSupplier = currentTimeSupplier;
     }
 
     @Override

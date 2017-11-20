@@ -24,14 +24,14 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("determineDesiredStateAchievingActionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetermineDesiredStateAchievingActionsStep extends AbstractProcessStep {
+public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep {
 
     protected Supplier<ApplicationStartupStateCalculator> appStateCalculatorSupplier = () -> new ApplicationStartupStateCalculator();
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
+    protected ExecutionStatus executeStep(ExecutionWrapper context) {
         getStepLogger().logActivitiTask();
-        CloudApplication app = StepsUtil.getApp(context);
+        CloudApplication app = StepsUtil.getApp(context.getContext());
         try {
             return attemptToExecuteStep(context);
         } catch (CloudFoundryException cfe) {
@@ -44,22 +44,23 @@ public class DetermineDesiredStateAchievingActionsStep extends AbstractProcessSt
         }
     }
 
-    private ExecutionStatus attemptToExecuteStep(DelegateExecution context) {
-        CloudApplication app = StepsUtil.getApp(context);
-        ApplicationStartupState currentState = computeCurrentState(context, app);
+    private ExecutionStatus attemptToExecuteStep(ExecutionWrapper execution) {
+        CloudApplication app = StepsUtil.getApp(execution.getContext());
+        ApplicationStartupState currentState = computeCurrentState(execution, app);
         getStepLogger().debug(Messages.CURRENT_STATE, app.getName(), currentState);
-        ApplicationStartupState desiredState = computeDesiredState(context, app);
+        ApplicationStartupState desiredState = computeDesiredState(execution.getContext(), app);
         getStepLogger().debug(Messages.DESIRED_STATE, app.getName(), desiredState);
 
-        Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(context).determineActionsToExecute(currentState, desiredState);
+        Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(execution.getContext()).determineActionsToExecute(currentState,
+            desiredState);
         getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, app.getName(), actionsToExecute);
 
-        StepsUtil.setAppStateActionsToExecute(context, actionsToExecute);
+        StepsUtil.setAppStateActionsToExecute(execution.getContext(), actionsToExecute);
         return ExecutionStatus.SUCCESS;
     }
 
-    private ApplicationStartupState computeCurrentState(DelegateExecution context, CloudApplication app) {
-        CloudFoundryOperations client = getCloudFoundryClient(context);
+    private ApplicationStartupState computeCurrentState(ExecutionWrapper execution, CloudApplication app) {
+        CloudFoundryOperations client = execution.getCloudFoundryClient();
         return appStateCalculatorSupplier.get().computeCurrentState(client.getApplication(app.getName()));
     }
 

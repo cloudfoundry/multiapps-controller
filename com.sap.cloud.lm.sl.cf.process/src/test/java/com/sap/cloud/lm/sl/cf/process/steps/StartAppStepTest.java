@@ -8,11 +8,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-public class StartAppStepTest extends AbstractStepTest<StartAppStep> {
+public class StartAppStepTest extends SyncActivitiStepTest<StartAppStep> {
 
     private static final String APP_NAME = "foo";
 
@@ -34,6 +35,11 @@ public class StartAppStepTest extends AbstractStepTest<StartAppStep> {
         Mockito.verify(clientExtensions, Mockito.times(1)).startApplication(APP_NAME, false);
 
         assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(StepsUtil.getStartingInfo(context)));
+    }
+
+    @Override
+    protected void assertStepFinishedSuccessfully() {
+        assertEquals(ExecutionStatus.RUNNING.toString(), getExecutionStatus());
     }
 
     @Test

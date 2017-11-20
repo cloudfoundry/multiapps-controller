@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @RunWith(Parameterized.class)
-public class PollExecuteTaskStatusStepTest extends AbstractStepTest<PollExecuteTaskStatusStep> {
+public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<ExecuteTaskStep> {
 
     @Mock
     private RecentLogsRetriever recentLogsRetriever;
@@ -48,11 +48,11 @@ public class PollExecuteTaskStatusStepTest extends AbstractStepTest<PollExecuteT
             },
             // (2)
             {
-                CloudTask.State.FAILED, 100L, ExecutionStatus.LOGICAL_RETRY,
+                CloudTask.State.FAILED, 100L, ExecutionStatus.FAILED,
             },
             // (3)
             {
-                CloudTask.State.FAILED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.LOGICAL_RETRY,
+                CloudTask.State.FAILED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.FAILED,
             },
             // (4)
             {
@@ -60,7 +60,7 @@ public class PollExecuteTaskStatusStepTest extends AbstractStepTest<PollExecuteT
             },
             // (5)
             {
-                CloudTask.State.PENDING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.LOGICAL_RETRY,
+                CloudTask.State.PENDING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.FAILED,
             },
             // (6)
             {
@@ -68,7 +68,7 @@ public class PollExecuteTaskStatusStepTest extends AbstractStepTest<PollExecuteT
             },
             // (7)
             {
-                CloudTask.State.RUNNING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.LOGICAL_RETRY,
+                CloudTask.State.RUNNING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.FAILED,
             },
             // (8)
             {
@@ -76,7 +76,7 @@ public class PollExecuteTaskStatusStepTest extends AbstractStepTest<PollExecuteT
             },
             // (9)
             {
-                CloudTask.State.CANCELING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.LOGICAL_RETRY,
+                CloudTask.State.CANCELING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.FAILED,
             },
 // @formatter:on
         });
@@ -115,16 +115,19 @@ public class PollExecuteTaskStatusStepTest extends AbstractStepTest<PollExecuteT
         when(clientExtensions.getTasks(APPLICATION_NAME)).thenReturn(Arrays.asList(taskWithState));
     }
 
-    @Test
-    public void testExecute() throws Exception {
-        step.execute(context);
-
-        assertEquals(expectedExecutionStatus.toString(), getExecutionStatus());
+    @Override
+    protected void validateOperationExecutionResult(ExecutionStatus result) {
+        assertEquals(expectedExecutionStatus.toString(), result.toString());
     }
 
     @Override
-    protected PollExecuteTaskStatusStep createStep() {
-        return new PollExecuteTaskStatusStep();
+    protected ExecuteTaskStep createStep() {
+        return new ExecuteTaskStep();
+    }
+
+    @Override
+    protected List<AsyncStepOperation> getAsyncOperations() {
+        return step.getAsyncStepOperations();
     }
 
 }

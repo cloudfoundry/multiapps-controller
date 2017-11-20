@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class SetAppsUrisStepTest extends AbstractStepTest<SetAppsUrisStep> {
+public class SetAppsUrisStepTest extends SyncActivitiStepTest<SetAppsUrisStep> {
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

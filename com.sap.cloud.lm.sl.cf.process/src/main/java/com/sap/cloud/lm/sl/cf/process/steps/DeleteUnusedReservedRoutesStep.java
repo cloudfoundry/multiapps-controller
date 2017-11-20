@@ -24,27 +24,27 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("deleteUnusedReservedRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteUnusedReservedRoutesStep extends AbstractProcessStep {
+public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.DELETING_UNUSED_RESERVED_ROUTES);
-            boolean portBasedRouting = ContextUtil.getVariable(context, Constants.VAR_PORT_BASED_ROUTING, false);
+            boolean portBasedRouting = ContextUtil.getVariable(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
-            List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(context);
-            String defaultDomain = getDefaultDomain(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(execution.getContext());
+            String defaultDomain = getDefaultDomain(execution.getContext());
 
             if (portBasedRouting) {
                 PortAllocator portAllocator = clientProvider.getPortAllocator(client, defaultDomain);
-                portAllocator.setAllocatedPorts(StepsUtil.getAllocatedPorts(context));
+                portAllocator.setAllocatedPorts(StepsUtil.getAllocatedPorts(execution.getContext()));
 
                 Set<Integer> applicationPorts = getApplicationPorts(apps);
                 getStepLogger().debug(Messages.APPLICATION_PORTS, applicationPorts);
                 portAllocator.freeAllExcept(applicationPorts);
-                StepsUtil.setAllocatedPorts(context, applicationPorts);
+                StepsUtil.setAllocatedPorts(execution.getContext(), applicationPorts);
                 getStepLogger().debug(Messages.ALLOCATED_PORTS, portAllocator.getAllocatedPorts());
             }
 

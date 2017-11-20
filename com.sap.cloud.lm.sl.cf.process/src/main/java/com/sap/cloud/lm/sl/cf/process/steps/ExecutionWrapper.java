@@ -6,9 +6,9 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
-import com.sap.cloud.lm.sl.cf.process.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
 
 public class ExecutionWrapper {
     private DelegateExecution context;

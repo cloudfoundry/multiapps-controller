@@ -6,7 +6,6 @@ import java.util.function.BiFunction;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 
 import com.sap.activiti.common.ExecutionStatus;
@@ -30,7 +29,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
-public class ProcessDescriptorStep extends AbstractProcessStep {
+public class ProcessDescriptorStep extends SyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
@@ -49,25 +48,25 @@ public class ProcessDescriptorStep extends AbstractProcessStep {
     }
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
             getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
-            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
-            Target target = StepsUtil.getTarget(context);
-            Platform platform = StepsUtil.getPlatform(context);
+            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
+            Target target = StepsUtil.getTarget(execution.getContext());
+            Platform platform = StepsUtil.getPlatform(execution.getContext());
             ResourceTypeFinder resourceHelper = handlerFactory.getResourceTypeFinder(ResourceType.USER_PROVIDED_SERVICE.toString());
             platform.accept(resourceHelper);
             getStepLogger().debug(Messages.TARGET, target);
             MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, platform, target,
-                StepsUtil.getSystemParameters(context), configurationEntryDao, getSpaceIdSupplier(client),
-                new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)));
+                StepsUtil.getSystemParameters(execution.getContext()), configurationEntryDao, getSpaceIdSupplier(client),
+                new CloudTarget(StepsUtil.getOrg(execution.getContext()), StepsUtil.getSpace(execution.getContext())));
 
-            DeploymentDescriptor descriptor = resolver.resolve(StepsUtil.getUnresolvedDeploymentDescriptor(context));
+            DeploymentDescriptor descriptor = resolver.resolve(StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext()));
             UserProvidedResourceResolver userProvidedServiceResolver = getUserProvidedResourceResolver(descriptor, handlerFactory, target,
                 platform, resourceHelper);
 
@@ -80,15 +79,15 @@ public class ProcessDescriptorStep extends AbstractProcessStep {
             handlerFactory.getPlatformMerger(platform).mergeInto(descriptor);
 
             List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
-            StepsUtil.setSubscriptionsToCreate(context, subscriptions);
-            XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(context);
+            StepsUtil.setSubscriptionsToCreate(execution.getContext(), subscriptions);
+            XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(execution.getContext());
             resolveXsPlaceholders(descriptor, xsPlaceholderResolver, handlerFactory.getMajorVersion());
 
-            StepsUtil.setDeploymentDescriptor(context, descriptor);
+            StepsUtil.setDeploymentDescriptor(execution.getContext(), descriptor);
             // Set MTA modules in the context
             Set<String> mtaModules = CloudModelBuilderUtil.getModuleNames(descriptor);
-            getStepLogger().debug("MTA Modules: {0}", mtaModules );
-            StepsUtil.setMtaModules(context, mtaModules);
+            getStepLogger().debug("MTA Modules: {0}", mtaModules);
+            StepsUtil.setMtaModules(execution.getContext(), mtaModules);
 
             getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
                 secureSerializer.toJson(descriptor));

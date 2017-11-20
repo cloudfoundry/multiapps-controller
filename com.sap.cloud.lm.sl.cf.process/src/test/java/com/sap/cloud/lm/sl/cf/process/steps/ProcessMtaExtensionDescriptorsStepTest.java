@@ -22,7 +22,7 @@ import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 
 @RunWith(Parameterized.class)
-public class ProcessMtaExtensionDescriptorsStepTest extends AbstractStepTest<ProcessMtaExtensionDescriptorsStep> {
+public class ProcessMtaExtensionDescriptorsStepTest extends SyncActivitiStepTest<ProcessMtaExtensionDescriptorsStep> {
 
     private static final String SPACE_ID = "0";
 

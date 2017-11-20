@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -15,25 +14,25 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("stopAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StopAppStep extends AbstractProcessStep {
+public class StopAppStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context
-        CloudApplication app = StepsUtil.getApp(context);
+        CloudApplication app = StepsUtil.getApp(execution.getContext());
 
         // Get the existing application from the context
-        CloudApplication existingApp = StepsUtil.getExistingApp(context);
+        CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
 
         try {
             if (existingApp != null && !existingApp.getState().equals(AppState.STOPPED)) {
                 getStepLogger().info(Messages.STOPPING_APP, app.getName());
 
                 // Get a cloud foundry client
-                CloudFoundryOperations client = getCloudFoundryClient(context);
+                CloudFoundryOperations client = execution.getCloudFoundryClient();
 
                 // Stop the application
                 client.stopApplication(app.getName());

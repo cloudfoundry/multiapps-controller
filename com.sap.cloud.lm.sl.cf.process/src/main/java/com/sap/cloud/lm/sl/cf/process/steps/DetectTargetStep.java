@@ -33,7 +33,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 @Component("detectTargetStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetectTargetStep extends AbstractProcessStep {
+public class DetectTargetStep extends SyncActivitiStep {
 
     @Inject
     private com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDao deployTargetDaoV1;
@@ -54,12 +54,12 @@ public class DetectTargetStep extends AbstractProcessStep {
     };
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.DETECTING_TARGET);
         try {
-            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
+            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
 
             List<Platform> platforms = configuration.getPlatforms(handlerFactory.getConfigurationParser(),
                 handlerFactory.getMajorVersion());
@@ -68,14 +68,14 @@ public class DetectTargetStep extends AbstractProcessStep {
                 throw new NotFoundException(Messages.NO_PLATFORMS_CONFIGURED);
             }
 
-            String targetName = (String) context.getVariable(Constants.PARAM_TARGET_NAME);
+            String targetName = (String) execution.getContext().getVariable(Constants.PARAM_TARGET_NAME);
             if (targetName == null || targetName.isEmpty()) {
-                targetName = computeDefaultTargetName(context);
-                context.setVariable(Constants.PARAM_TARGET_NAME, targetName);
+                targetName = computeDefaultTargetName(execution.getContext());
+                execution.getContext().setVariable(Constants.PARAM_TARGET_NAME, targetName);
             }
-            
-            String space = (String) context.getVariable(Constants.VAR_SPACE);
-            String org = (String) context.getVariable(Constants.VAR_ORG);
+
+            String space = (String) execution.getContext().getVariable(Constants.VAR_SPACE);
+            String org = (String) execution.getContext().getVariable(Constants.VAR_ORG);
 
             List<Target> targets = targetsSupplier.apply(handlerFactory);
             getStepLogger().debug(Messages.PLATFORMS, new SecureSerializationFacade().toJson(targets));
@@ -90,10 +90,10 @@ public class DetectTargetStep extends AbstractProcessStep {
             }
             Platform platform = CloudModelBuilderUtil.findPlatform(descriptorHandler, platforms, target);
 
-            validateOrgAndSpace(context, target, platform, handlerFactory);
+            validateOrgAndSpace(execution.getContext(), target, platform, handlerFactory);
 
-            StepsUtil.setPlatform(context, platform);
-            StepsUtil.setTarget(context, target);
+            StepsUtil.setPlatform(execution.getContext(), platform);
+            StepsUtil.setTarget(execution.getContext(), target);
 
             getStepLogger().info(Messages.TARGET_DETECTED, targetName);
         } catch (SLException e) {

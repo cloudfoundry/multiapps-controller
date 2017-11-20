@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
 
 @RunWith(Parameterized.class)
-public class StopAppStepTest extends AbstractStepTest<StopAppStep> {
+public class StopAppStepTest extends SyncActivitiStepTest<StopAppStep> {
 
     private SimpleApplicationWithState application;
     private SimpleApplicationWithState existingApplication;

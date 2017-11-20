@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -18,30 +17,30 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 @Component("mergeDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MergeDescriptorsStep extends AbstractProcessStep {
+public class MergeDescriptorsStep extends SyncActivitiStep {
 
     protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform, Target target) {
         return new MtaDescriptorMerger(factory, platform, target);
     }
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.MERGING_DESCRIPTORS);
         try {
-            String deploymentDescriptorString = StepsUtil.getDeploymentDescriptorString(context);
-            List<String> extensionDescriptorStrings = StepsUtil.getExtensionDescriptorStrings(context);
+            String deploymentDescriptorString = StepsUtil.getDeploymentDescriptorString(execution.getContext());
+            List<String> extensionDescriptorStrings = StepsUtil.getExtensionDescriptorStrings(execution.getContext());
 
-            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
+            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
 
-            Target target = StepsUtil.getTarget(context);
-            Platform platform = StepsUtil.getPlatform(context);
+            Target target = StepsUtil.getTarget(execution.getContext());
+            Platform platform = StepsUtil.getPlatform(execution.getContext());
 
             DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform, target).merge(deploymentDescriptorString,
                 extensionDescriptorStrings);
 
-            StepsUtil.setUnresolvedDeploymentDescriptor(context, descriptor);
+            StepsUtil.setUnresolvedDeploymentDescriptor(execution.getContext(), descriptor);
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_MERGING_DESCRIPTORS);
             throw e;

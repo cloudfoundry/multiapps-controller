@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @RunWith(Parameterized.class)
-public class DeployAppsStepTest extends AbstractStepTest<PrepareAppsDeploymentStep> {
+public class DeployAppsStepTest extends SyncActivitiStepTest<PrepareAppsDeploymentStep> {
 
     private final int count;
 

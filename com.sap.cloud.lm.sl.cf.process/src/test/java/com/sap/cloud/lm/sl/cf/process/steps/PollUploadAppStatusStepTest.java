@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.junit.Before;
@@ -20,12 +21,13 @@ import org.springframework.http.HttpStatus;
 import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo.State;
+import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @RunWith(Parameterized.class)
-public class PollUploadAppStatusStepTest extends AbstractStepTest<PollUploadAppStatusStep> {
+public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAppStep> {
 
     private static final CloudFoundryException CFEXCEPTION = new CloudFoundryException(HttpStatus.BAD_REQUEST);
     private static final String UPLOAD_TOKEN = "tokenString";
@@ -53,11 +55,11 @@ public class PollUploadAppStatusStepTest extends AbstractStepTest<PollUploadAppS
             },
             // (01) For some reason the previous step was skipped and should be retried:
             {
-                false, null, null, ExecutionStatus.SKIPPED, ExecutionStatus.LOGICAL_RETRY, null,
+                false, null, null, ExecutionStatus.SKIPPED, ExecutionStatus.FAILED, null,
             },
             // (02)
             {
-                false, null, null, ExecutionStatus.FAILED , ExecutionStatus.LOGICAL_RETRY, null,
+                false, null, null, ExecutionStatus.FAILED , ExecutionStatus.FAILED, null,
             },
             // (03) The previous step used asynchronous upload but getting the upload progress fails with an exception:
             {
@@ -81,7 +83,7 @@ public class PollUploadAppStatusStepTest extends AbstractStepTest<PollUploadAppS
             },
             // (08) The previous step used asynchronous upload but it failed:
             {
-                true , State.FAILED  , UPLOAD_TOKEN, ExecutionStatus.RUNNING, ExecutionStatus.LOGICAL_RETRY, null,
+                true , State.FAILED  , UPLOAD_TOKEN, ExecutionStatus.RUNNING, ExecutionStatus.FAILED, null,
             },
 // @formatter:on
         });
@@ -109,9 +111,7 @@ public class PollUploadAppStatusStepTest extends AbstractStepTest<PollUploadAppS
         Thread.sleep(1); // Simulate the time it takes to upload a file. Without this, some tests
                          // may fail on faster machines...
         step.createStepLogger(context);
-        ExecutionStatus status = step.executeStepInternal(context);
-
-        assertEquals(expectedStatus.toString(), status.toString());
+        testExecuteOperations();
     }
 
     private void prepareExpectedException() {
@@ -139,12 +139,26 @@ public class PollUploadAppStatusStepTest extends AbstractStepTest<PollUploadAppS
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(application.toCloudApplication()), context);
         context.setVariable(Constants.VAR_APPS_INDEX, 0);
         context.setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
-        context.setVariable(com.sap.activiti.common.Constants.STEP_NAME_PREFIX + step.getLogicalStepName(), previousStatus.toString());
+        context.setVariable("StepExecution", previousStatus.toString());
+        when(context.getProcessInstanceId()).thenReturn("test");
+        ContextExtension extension = new ContextExtension(context.getProcessInstanceId(), "uploadState", previousStatus.toString(), null,
+            null);
+        when(contextExtensionDao.find(context.getProcessInstanceId(), "uploadState")).thenReturn(extension);
     }
 
     @Override
-    protected PollUploadAppStatusStep createStep() {
-        return new PollUploadAppStatusStep();
+    protected UploadAppStep createStep() {
+        return new UploadAppStep();
+    }
+
+    @Override
+    protected List<AsyncStepOperation> getAsyncOperations() {
+        return step.getAsyncStepOperations();
+    }
+
+    @Override
+    protected void validateOperationExecutionResult(ExecutionStatus result) {
+        assertEquals(expectedStatus.toString(), result.toString());
     }
 
 }

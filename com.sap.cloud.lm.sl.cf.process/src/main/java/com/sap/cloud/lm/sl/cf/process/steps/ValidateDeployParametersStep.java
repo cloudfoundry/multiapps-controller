@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ValidateDeployParametersStep extends AbstractProcessStep {
+public class ValidateDeployParametersStep extends SyncActivitiStep {
 
     private static final String PART_POSTFIX = ".part.";
 
@@ -38,13 +38,13 @@ public class ValidateDeployParametersStep extends AbstractProcessStep {
     private Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.VALIDATING_PARAMETERS);
 
-            validateParameters(context);
+            validateParameters(execution.getContext());
 
             getStepLogger().debug(Messages.PARAMETERS_VALIDATED);
             return ExecutionStatus.SUCCESS;

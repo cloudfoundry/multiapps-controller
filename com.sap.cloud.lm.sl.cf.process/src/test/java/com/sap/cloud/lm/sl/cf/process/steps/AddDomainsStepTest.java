@@ -16,7 +16,7 @@ import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @RunWith(Parameterized.class)
-public class AddDomainsStepTest extends AbstractStepTest<AddDomainsStep> {
+public class AddDomainsStepTest extends SyncActivitiStepTest<AddDomainsStep> {
 
     private final List<String> existingDomains;
     private final List<String> customDomains;

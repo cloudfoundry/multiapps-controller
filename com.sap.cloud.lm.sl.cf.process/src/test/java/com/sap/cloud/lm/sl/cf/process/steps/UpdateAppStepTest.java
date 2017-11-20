@@ -42,7 +42,7 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
+public class UpdateAppStepTest extends SyncActivitiStepTest<UpdateAppStep> {
 
     private final StepInput input;
     private final String expectedExceptionMessage;

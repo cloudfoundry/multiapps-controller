@@ -35,7 +35,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 
 @RunWith(Parameterized.class)
-public class ProcessMtaArchiveStepTest extends AbstractStepTest<ProcessMtaArchiveStep> {
+public class ProcessMtaArchiveStepTest extends SyncActivitiStepTest<ProcessMtaArchiveStep> {
 
     private static final String SPACE_ID = "0";
 

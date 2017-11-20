@@ -32,7 +32,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("createOrUpdateServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateOrUpdateServiceBrokersStep extends AbstractProcessStep {
+public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
 
     @Inject
     private ServiceBrokerCreator serviceBrokerCreator;
@@ -43,28 +43,28 @@ public class CreateOrUpdateServiceBrokersStep extends AbstractProcessStep {
     private Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.CREATING_SERVICE_BROKERS);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
             List<CloudServiceBrokerExtended> existingServiceBrokers = serviceBrokersGetter.getServiceBrokers(client);
-            List<CloudServiceBrokerExtended> serviceBrokersToCreate = getServiceBrokersToCreate(StepsUtil.getAppsToDeploy(context),
-                context);
+            List<CloudServiceBrokerExtended> serviceBrokersToCreate = getServiceBrokersToCreate(
+                StepsUtil.getAppsToDeploy(execution.getContext()), execution.getContext());
             getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKERS, secureSerializer.toJson(serviceBrokersToCreate)));
             List<String> existingServiceBrokerNames = getServiceBrokerNames(existingServiceBrokers);
 
             for (CloudServiceBrokerExtended serviceBroker : serviceBrokersToCreate) {
                 if (existingServiceBrokerNames.contains(serviceBroker.getName())) {
                     CloudServiceBrokerExtended existingBroker = findServiceBroker(existingServiceBrokers, serviceBroker.getName());
-                    updateServiceBroker(context, serviceBroker, existingBroker, client);
+                    updateServiceBroker(execution.getContext(), serviceBroker, existingBroker, client);
                 } else {
-                    createServiceBroker(context, serviceBroker, client);
+                    createServiceBroker(execution.getContext(), serviceBroker, client);
                 }
             }
 
-            StepsUtil.setServiceBrokersToCreate(context, serviceBrokersToCreate);
+            StepsUtil.setServiceBrokersToCreate(execution.getContext(), serviceBrokersToCreate);
             getStepLogger().debug(Messages.SERVICE_BROKERS_CREATED);
             return ExecutionStatus.SUCCESS;
         } catch (SLException e) {

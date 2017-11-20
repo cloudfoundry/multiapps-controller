@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -18,19 +17,19 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("createSubscriptionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateSubscriptionsStep extends AbstractProcessStep {
+public class CreateSubscriptionsStep extends SyncActivitiStep {
 
     @Inject
     private ConfigurationSubscriptionDao dao;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
             getStepLogger().info(Messages.CREATING_SUBSCRIPTIONS);
 
-            List<ConfigurationSubscription> subscriptions = StepsUtil.getSubscriptionsToCreate(context);
+            List<ConfigurationSubscription> subscriptions = StepsUtil.getSubscriptionsToCreate(execution.getContext());
 
             for (ConfigurationSubscription subscription : subscriptions) {
                 createSubscription(subscription);

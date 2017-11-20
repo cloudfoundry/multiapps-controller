@@ -9,13 +9,14 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
-public class ExecuteTaskStepTest extends AbstractStepTest<ExecuteTaskStep> {
+public class ExecuteTaskStepTest extends SyncActivitiStepTest<ExecuteTaskStep> {
 
     private static final long DUMMY_TIME = 100;
 
@@ -45,6 +46,11 @@ public class ExecuteTaskStepTest extends AbstractStepTest<ExecuteTaskStep> {
         // Then:
         assertStepFinishedSuccessfully();
         verifyTaskWasStarted();
+    }
+
+    @Override
+    protected void assertStepFinishedSuccessfully() {
+        assertEquals(ExecutionStatus.RUNNING.toString(), getExecutionStatus());
     }
 
     private void verifyTaskWasStarted() {

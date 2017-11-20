@@ -14,7 +14,7 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @RunWith(Parameterized.class)
-public class IncrementIndexStepTest extends AbstractStepTest<IncrementIndexStep> {
+public class IncrementIndexStepTest extends SyncActivitiStepTest<IncrementIndexStep> {
 
     private final int index;
 

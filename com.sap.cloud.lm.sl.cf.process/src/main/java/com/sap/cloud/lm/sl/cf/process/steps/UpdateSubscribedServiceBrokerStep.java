@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -21,20 +20,20 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrokersStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
-        CloudApplication serviceBrokerAppication = StepsUtil.getServiceBrokerSubscriberToRestart(context);
-        CloudServiceBrokerExtended broker = getServiceBrokerFromApp(serviceBrokerAppication, context);
+        CloudApplication serviceBrokerAppication = StepsUtil.getServiceBrokerSubscriberToRestart(execution.getContext());
+        CloudServiceBrokerExtended broker = getServiceBrokerFromApp(serviceBrokerAppication, execution.getContext());
 
         try {
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
             CloudServiceBroker existingServiceBroker = client.getServiceBroker(broker.getName(), false);
             if (existingServiceBroker == null) {
                 getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, broker.getName()));
             } else {
                 broker.setMeta(existingServiceBroker.getMeta());
-                updateServiceBroker(context, broker, client);
+                updateServiceBroker(execution.getContext(), broker, client);
             }
             return ExecutionStatus.SUCCESS;
         } catch (CloudFoundryException cfe) {

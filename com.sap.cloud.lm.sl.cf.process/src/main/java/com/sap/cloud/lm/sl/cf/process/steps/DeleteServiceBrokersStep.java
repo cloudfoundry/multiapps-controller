@@ -23,20 +23,20 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("deleteServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteServiceBrokersStep extends AbstractProcessStep {
+public class DeleteServiceBrokersStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.DELETING_SERVICE_BROKERS);
 
-            List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(context);
-            CloudFoundryOperations client = getCloudFoundryClient(context);
-            List<String> serviceBrokersToCreate = getServiceBrokerNames(StepsUtil.getServiceBrokersToCreate(context));
+            List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(execution.getContext());
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            List<String> serviceBrokersToCreate = getServiceBrokerNames(StepsUtil.getServiceBrokersToCreate(execution.getContext()));
 
             for (CloudApplication app : appsToUndeploy) {
-                deleteServiceBrokerIfNecessary(context, app, serviceBrokersToCreate, client);
+                deleteServiceBrokerIfNecessary(execution.getContext(), app, serviceBrokersToCreate, client);
             }
 
             getStepLogger().debug(Messages.SERVICE_BROKERS_DELETED);

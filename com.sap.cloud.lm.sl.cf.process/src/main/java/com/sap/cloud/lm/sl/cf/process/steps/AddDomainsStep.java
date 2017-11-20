@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
@@ -17,21 +16,21 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("addDomainsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class AddDomainsStep extends AbstractProcessStep {
+public class AddDomainsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.ADDING_DOMAINS);
 
-            CloudFoundryOperations client = getCloudFoundryClient(context);
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
             List<CloudDomain> existingDomains = client.getDomainsForOrg();
             List<String> existingDomainNames = getDomainNames(existingDomains);
             getStepLogger().debug("Existing domains: " + existingDomainNames);
 
-            List<String> customDomains = StepsUtil.getCustomDomains(context);
+            List<String> customDomains = StepsUtil.getCustomDomains(execution.getContext());
             getStepLogger().debug("Custom domains: " + customDomains);
 
             addDomains(client, customDomains, existingDomainNames);

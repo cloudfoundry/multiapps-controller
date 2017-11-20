@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -14,7 +13,6 @@ import java.util.Map.Entry;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -22,6 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
@@ -32,7 +31,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class PollServiceOperationsStepTest extends AbstractStepTest<PollServiceOperationsStep> {
+public class PollServiceOperationsStepTest extends AsyncStepOperationTest<CreateOrUpdateServicesStep> {
 
     private static final String TEST_SPACE_ID = "test";
 
@@ -119,14 +118,9 @@ public class PollServiceOperationsStepTest extends AbstractStepTest<PollServiceO
         }
     }
 
-    @Test
-    public void test() throws Exception {
-        step.execute(context);
-        validateStatus();
-    }
-
-    private void validateStatus() {
-        assertEquals(input.expectedStatus, getExecutionStatus());
+    @Override
+    protected void validateOperationExecutionResult(ExecutionStatus result) {
+        assertEquals(input.expectedStatus, result.toString());
     }
 
     private static class StepInput {
@@ -137,8 +131,13 @@ public class PollServiceOperationsStepTest extends AbstractStepTest<PollServiceO
     }
 
     @Override
-    protected PollServiceOperationsStep createStep() {
-        return new PollServiceOperationsStep();
+    protected CreateOrUpdateServicesStep createStep() {
+        return new CreateOrUpdateServicesStep();
+    }
+
+    @Override
+    protected List<AsyncStepOperation> getAsyncOperations() {
+        return step.getAsyncStepOperations();
     }
 
 }

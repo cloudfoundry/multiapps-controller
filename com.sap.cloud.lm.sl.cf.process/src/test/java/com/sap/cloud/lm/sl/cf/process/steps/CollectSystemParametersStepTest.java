@@ -42,7 +42,7 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
-public class CollectSystemParametersStepTest extends AbstractStepTest<CollectSystemParametersStep> {
+public class CollectSystemParametersStepTest extends SyncActivitiStepTest<CollectSystemParametersStep> {
 
     private static final String GENERATED_CREDENTIAL = "credential";
     private static final UUID CLOUD_DOMAIN_GUID = UUID.fromString("7b5987e9-4325-4bb6-93e2-a0b1c562e60c");

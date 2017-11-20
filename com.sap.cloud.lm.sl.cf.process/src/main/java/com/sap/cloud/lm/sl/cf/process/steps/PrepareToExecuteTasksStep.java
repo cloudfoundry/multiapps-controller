@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -21,19 +20,19 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("prepareToExecuteTasksStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToExecuteTasksStep extends AbstractProcessStep {
+public class PrepareToExecuteTasksStep extends SyncActivitiStep {
 
     @Inject
     private Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
+    protected ExecutionStatus executeStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
-        CloudApplicationExtended app = StepsUtil.getApp(context);
+        CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
         List<CloudTask> tasksToExecute = app.getTasks();
         try {
-            return attemptToPrepareExecutionOfTasks(context, tasksToExecute);
+            return attemptToPrepareExecutionOfTasks(execution, tasksToExecute);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().error(e, Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, app.getName());
@@ -44,23 +43,23 @@ public class PrepareToExecuteTasksStep extends AbstractProcessStep {
         }
     }
 
-    private ExecutionStatus attemptToPrepareExecutionOfTasks(DelegateExecution context, List<CloudTask> tasksToExecute) {
-        StepsUtil.setTasksToExecute(context, tasksToExecute);
+    private ExecutionStatus attemptToPrepareExecutionOfTasks(ExecutionWrapper execution, List<CloudTask> tasksToExecute) {
+        StepsUtil.setTasksToExecute(execution.getContext(), tasksToExecute);
 
-        context.setVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS, platformSupportsTasks(context));
+        execution.getContext().setVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS, platformSupportsTasks(execution));
 
         // Initialize the iteration over the tasks:
-        context.setVariable(Constants.VAR_TASKS_COUNT, tasksToExecute.size());
-        context.setVariable(Constants.VAR_TASKS_INDEX, 0);
-        context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
+        execution.getContext().setVariable(Constants.VAR_TASKS_COUNT, tasksToExecute.size());
+        execution.getContext().setVariable(Constants.VAR_TASKS_INDEX, 0);
+        execution.getContext().setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
 
-        context.setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
+        execution.getContext().setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
 
         return ExecutionStatus.SUCCESS;
     }
 
-    private boolean platformSupportsTasks(DelegateExecution context) {
-        return new OneOffTasksSupportChecker().areOneOffTasksSupported(getCloudFoundryClient(context));
+    private boolean platformSupportsTasks(ExecutionWrapper execution) {
+        return new OneOffTasksSupportChecker().areOneOffTasksSupported(execution.getCloudFoundryClient());
     }
 
 }

@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
-public class MergeDescriptorsStepTest extends AbstractStepTest<MergeDescriptorsStep> {
+public class MergeDescriptorsStepTest extends SyncActivitiStepTest<MergeDescriptorsStep> {
 
     private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
     private static final DescriptorParser DESCRIPTOR_PARSER = new DescriptorParser();

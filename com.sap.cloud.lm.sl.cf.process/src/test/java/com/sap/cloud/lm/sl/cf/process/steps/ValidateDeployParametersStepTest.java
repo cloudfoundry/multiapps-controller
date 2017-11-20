@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
 @RunWith(Parameterized.class)
-public class ValidateDeployParametersStepTest extends AbstractStepTest<ValidateDeployParametersStep> {
+public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<ValidateDeployParametersStep> {
 
     private static final String MERGED_ARCHIVE_TEST_MTAR = "merged-archive-test.mtar";
     private static final String EXISTING_FILE_ID = "existingFileId";

@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @RunWith(Enclosed.class)
-public class ProcessGitSourceStepTest extends AbstractStepTest<ProcessGitSourceStep> {
+public class ProcessGitSourceStepTest extends SyncActivitiStepTest<ProcessGitSourceStep> {
 
     public static final String PROCESS_INSTANCE_ID = "1234";
     private CloudInfoExtended cloudInfo = Mockito.mock(CloudInfoExtended.class);
@@ -48,7 +48,7 @@ public class ProcessGitSourceStepTest extends AbstractStepTest<ProcessGitSourceS
     public void getGitUriTest() throws SLException, URISyntaxException {
         String gitUri = "https://somehost.com/somerepo/.git";
         context.setVariable(Constants.PARAM_GIT_URI, gitUri);
-        assertEquals(gitUri, step.getGitUri(context));
+        assertEquals(gitUri, step.getGitUri(execution));
     }
 
     @Test
@@ -59,7 +59,8 @@ public class ProcessGitSourceStepTest extends AbstractStepTest<ProcessGitSourceS
         Mockito.when(client.getCloudInfo()).thenReturn(cloudInfo);
         // step.clientSupplier = (context) -> client;
         context.setVariable(Constants.PARAM_GIT_URI, repoName);
-        assertEquals("https://somehost.com/someRepo", step.getGitUri(context));
+
+        assertEquals("https://somehost.com/someRepo", step.getGitUri(execution));
     }
 
     @Test
