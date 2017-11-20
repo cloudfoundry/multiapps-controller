@@ -48,7 +48,7 @@
 
     <bean class="com.sap.cloud.lm.sl.cf.web.exec.ScheduledThreadPoolExecutorFactoryBean" />
 
-    <bean class="com.sap.cloud.lm.sl.cf.api.activiti.ActivitiFacade" factory-method="getInstance" />
+    <bean class="com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade" factory-method="getInstance" />
 
     <bean class="com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider" factory-method="getInstance" />
 
