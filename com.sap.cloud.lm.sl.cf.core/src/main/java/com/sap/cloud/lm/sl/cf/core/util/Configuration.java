@@ -71,6 +71,7 @@ public class Configuration {
     static final String CFG_DUMMY_TOKENS_ENABLED = "DUMMY_TOKENS_ENABLED";
     static final String CFG_BASIC_AUTH_ENABLED = "BASIC_AUTH_ENABLED";
     static final String CFG_ADMIN_USERNAME = "ADMIN_USERNAME";
+    static final String CFG_DB_CONNECTION_THREADS = "DB_CONNECTION_THREADS";
     static final String CFG_XS_CLIENT_CORE_THREADS = "XS_CLIENT_CORE_THREADS";
     static final String CFG_XS_CLIENT_MAX_THREADS = "XS_CLIENT_MAX_THREADS";
     static final String CFG_XS_CLIENT_QUEUE_CAPACITY = "XS_CLIENT_QUEUE_CAPACITY";
@@ -105,6 +106,7 @@ public class Configuration {
     public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
     public static final String DEFAULT_ADMIN_USERNAME = "";
+    public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final Integer DEFAULT_XS_CLIENT_CORE_THREADS = 2;
     public static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
     public static final Integer DEFAULT_XS_CLIENT_QUEUE_CAPACITY = 8;
@@ -160,6 +162,7 @@ public class Configuration {
     private Boolean dummyTokensEnabled;
     private Boolean basicAuthEnabled;
     private String adminUsername;
+    private Integer dbConnectionThreads;
     private Integer xsClientCoreThreads;
     private Integer xsClientMaxThreads;
     private Integer xsClientQueueCapacity;
@@ -192,6 +195,7 @@ public class Configuration {
         areDummyTokensEnabled();
         isBasicAuthEnabled();
         getAdminUsername();
+        getDbConnectionThreads();
         getXsClientCoreThreads();
         getXsClientMaxThreads();
         getXsClientQueueCapacity();
@@ -367,6 +371,13 @@ public class Configuration {
             adminUsername = getAdminUsernameFromEnvironment();
         }
         return adminUsername;
+    }
+
+    public int getDbConnectionThreads() {
+        if (dbConnectionThreads == null) {
+            dbConnectionThreads = getDbConnectionThreadsFromEnvironment();
+        }
+        return dbConnectionThreads;
     }
 
     public int getXsClientCoreThreads() {
@@ -674,6 +685,12 @@ public class Configuration {
     private String getAdminUsernameFromEnvironment() {
         String value = getString(CFG_ADMIN_USERNAME, DEFAULT_ADMIN_USERNAME);
         LOGGER.info(format(Messages.ADMIN_USERNAME, value));
+        return value;
+    }
+
+    private Integer getDbConnectionThreadsFromEnvironment() {
+        Integer value = getPositiveInt(CFG_DB_CONNECTION_THREADS, DEFAULT_DB_CONNECTION_THREADS);
+        LOGGER.info(format(Messages.DB_CONNECTION_THREADS, value));
         return value;
     }
 

@@ -10,6 +10,8 @@ import org.springframework.cloud.CloudFactory;
 import org.springframework.cloud.service.PooledServiceConnectorConfig.PoolConfig;
 import org.springframework.cloud.service.relational.DataSourceConfig;
 
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+
 public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, InitializingBean {
 
     private String serviceName;
@@ -53,18 +55,25 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
         return true;
     }
 
-    private static DataSource getCloudDataSource(String serviceName) {
+    private DataSource getCloudDataSource(String serviceName) {
         DataSource dataSource = null;
         try {
             if (serviceName != null && !serviceName.isEmpty()) {
-                CloudFactory cloudFactory = new CloudFactory();
-                Cloud cloud = cloudFactory.getCloud();
-                DataSourceConfig config = new DataSourceConfig(new PoolConfig(30, 30000), null);
-                dataSource = cloud.getServiceConnector(serviceName, DataSource.class, config);
+                int maxPoolSize = getConfiguration().getDbConnectionThreads();
+                DataSourceConfig config = new DataSourceConfig(new PoolConfig(maxPoolSize, 30000), null);
+                dataSource = getSpringCloud().getServiceConnector(serviceName, DataSource.class, config);
             }
         } catch (CloudException e) {
             // Do nothing
         }
         return dataSource;
+    }
+
+    protected Configuration getConfiguration() {
+        return Configuration.getInstance();
+    }
+
+    protected Cloud getSpringCloud() {
+        return new CloudFactory().getCloud();
     }
 }

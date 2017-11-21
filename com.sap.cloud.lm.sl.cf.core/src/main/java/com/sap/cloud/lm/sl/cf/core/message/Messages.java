@@ -116,6 +116,7 @@ public final class Messages {
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";
     public static final String ADMIN_USERNAME = "Admin username: {0}";
     public static final String USE_XS_AUDIT_LOGGING = "Use XSA audit logging: {0}";
+    public static final String DB_CONNECTION_THREADS = "Database connection thread pool size: {0}";
     public static final String XS_CLIENT_CORE_THREADS = "Platform client core pool size: {0}";
     public static final String XS_CLIENT_MAX_THREADS = "Platform client max threads: {0}";
     public static final String XS_CLIENT_QUEUE_CAPACITY = "Platform client queue capacity: {0}";
