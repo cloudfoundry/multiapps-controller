@@ -147,7 +147,7 @@ public class Configuration {
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
-    public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
+    public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = true;
     public static final Integer DEFAULT_HEALTH_CHECK_TIME_RANGE = (int) TimeUnit.MINUTES.toSeconds(5);
 
     // Type names

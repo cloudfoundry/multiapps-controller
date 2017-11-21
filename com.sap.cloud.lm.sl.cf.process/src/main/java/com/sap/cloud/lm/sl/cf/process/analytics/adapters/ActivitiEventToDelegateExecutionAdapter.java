@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.process.analytics;
+package com.sap.cloud.lm.sl.cf.process.analytics.adapters;
 
 import java.util.Collection;
 import java.util.Map;

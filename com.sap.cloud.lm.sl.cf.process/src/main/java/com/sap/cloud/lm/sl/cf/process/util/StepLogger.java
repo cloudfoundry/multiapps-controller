@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
  */
 public class StepLogger implements UserMessageLogger {
 
-    protected static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
+    public static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
 
     protected DelegateExecution context;
     protected ProgressMessageService progressMessageService;

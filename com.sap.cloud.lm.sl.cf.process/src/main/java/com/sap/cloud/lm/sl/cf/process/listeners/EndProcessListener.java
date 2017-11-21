@@ -10,21 +10,22 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.RestTemplateFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.analytics.AnalyticsCollector;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.util.CollectedDataSender;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
@@ -36,7 +37,10 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(EndProcessListener.class);
 
     @Inject
-    private AnalyticsCollector analytics;
+    private RestTemplateFactory restTemplateFactory;
+
+    @Inject
+    private CollectedDataSender dataSender;
 
     @Inject
     @Named("fileService")
@@ -59,9 +63,8 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     @Override
     protected void notifyInternal(DelegateExecution context) throws SLException, FileStorageException {
         if (configuration.shouldGatherUsageStatistics()) {
-            collectAnalytics(context);
+            sendStatistics(context);
         }
-        // TODO send the generated statistics to statistics server
 
         deleteDeploymentFiles(context);
 
@@ -70,13 +73,6 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         new ProcessConflictPreventer(operationDao).attemptToReleaseLock(StepsUtil.getCorrelationId(context));
 
         setOperationInFinishedState(StepsUtil.getCorrelationId(context));
-    }
-
-    private AnalyticsData collectAnalytics(DelegateExecution context) throws SLException {
-        AnalyticsData model = analytics.collectAttributes(context);
-        model.setProcessFinalState(State.FINISHED);
-        LOGGER.info(JsonUtil.toJson(model, true));
-        return model;
     }
 
     protected void setOperationInFinishedState(String processInstanceId) throws NotFoundException {
@@ -105,6 +101,13 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         FileSweeper fileSweeper = new FileSweeper(StepsUtil.getSpaceId(context), fileService);
         fileSweeper.sweep(extensionDescriptorFileIds);
         fileSweeper.sweep(appArchiveFileIds);
+    }
+
+    protected void sendStatistics(DelegateExecution context) {
+
+        RestTemplate restTemplate = new RestTemplate();
+        AnalyticsData collectedData = dataSender.collectAnalyticsData(context, State.FINISHED);
+        dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(context, collectedData));
     }
 
     private boolean shouldKeepFiles(Boolean keepFiles) {
