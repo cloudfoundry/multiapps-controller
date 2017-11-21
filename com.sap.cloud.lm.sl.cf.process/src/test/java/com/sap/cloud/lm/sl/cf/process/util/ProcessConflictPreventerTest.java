@@ -1,15 +1,17 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -36,7 +38,8 @@ public class ProcessConflictPreventerTest {
                 .spaceId(testSpaceId)
                 .mtaId(testMtaId)
                 .acquiredLock(false);
-            when(daoMock.findProcessWithLock(testMtaId, testSpaceId)).thenReturn(operation);
+            OperationFilter expectedFilter = new OperationFilter.Builder().mtaId(testMtaId).spaceId(testSpaceId).withAcquiredLock().build();
+            when(daoMock.find(expectedFilter)).thenReturn(Arrays.asList(operation));
             processConflictPreventerMock.attemptToAcquireLock(testMtaId, testSpaceId, testProcessId);
             verify(daoMock).merge(daoMock.findRequired(testProcessId));
         } catch (SLException e) {
@@ -45,13 +48,8 @@ public class ProcessConflictPreventerTest {
     }
 
     @Test
-    public void testAttemptToAcquireLockWithConflictProcessFound() throws SLException {
-        try {
-            when(daoMock.findProcessWithLock(testMtaId, testSpaceId)).thenReturn(null);
-            processConflictPreventerMock.attemptToAcquireLock(testMtaId, testSpaceId, testProcessId);
-        } catch (SLException e) {
-            fail(e.getMessage());
-        }
+    public void testAttemptToAcquireLockWithNoConflictingOperations() throws SLException {
+        processConflictPreventerMock.attemptToAcquireLock(testMtaId, testSpaceId, testProcessId);
     }
 
     @Test

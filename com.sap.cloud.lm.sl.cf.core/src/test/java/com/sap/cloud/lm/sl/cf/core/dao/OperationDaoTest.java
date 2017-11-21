@@ -11,8 +11,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.Callable;
 import com.sap.cloud.lm.sl.common.util.Runnable;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -163,11 +163,9 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
     public void testFindAllInSpace() throws Throwable {
         assumeTrue(operation.equals(DaoOperation.FIND_ALL_IN_SPACE));
 
-        TestUtil.test(new Callable<List<Operation>>() {
-            @Override
-            public List<Operation> call() throws Exception {
-                return dao.findAllInSpace(SPACE_ID);
-            }
+        TestUtil.test(() -> {
+            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID).build();
+            return dao.find(filter);
         }, expected, getClass());
     }
 
@@ -176,7 +174,12 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
         assumeTrue(operation.equals(DaoOperation.FIND_LAST_IN_SPACE));
 
         TestUtil.test(() -> {
-            return dao.findLastOperations(LAST_OPERATIONS_COUNT, SPACE_ID);
+            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID)
+                .maxResults(LAST_OPERATIONS_COUNT)
+                .orderByStartTime()
+                .descending()
+                .build();
+            return dao.find(filter);
         }, expected, getClass());
     }
 
@@ -185,7 +188,8 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
         assumeTrue(operation.equals(DaoOperation.FIND_ACTIVE_IN_SPACE));
 
         TestUtil.test(() -> {
-            return dao.findActiveOperations(SPACE_ID, State.getActiveStates());
+            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID).inNonFinalState().build();
+            return dao.find(filter);
         }, expected, getClass());
     }
 
@@ -194,7 +198,8 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
         assumeTrue(operation.equals(DaoOperation.FIND_FINISHED_IN_SPACE));
 
         TestUtil.test(() -> {
-            return dao.findFinishedOperations(SPACE_ID, State.getFinishedStates());
+            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID).inFinalState().build();
+            return dao.find(filter);
         }, expected, getClass());
     }
 

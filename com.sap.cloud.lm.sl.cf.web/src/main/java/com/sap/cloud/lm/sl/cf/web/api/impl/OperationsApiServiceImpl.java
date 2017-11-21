@@ -30,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.web.api.OperationsApiService;
@@ -45,6 +46,8 @@ import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
@@ -81,11 +84,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
         List<State> states = getStates(statusList);
         List<Operation> foundOperations = filterByQueryParameters(last, states, spaceGuid);
-
-        List<Operation> existingOperations = filterExistingOperations(foundOperations);
-
-        addOngoingOperationsState(existingOperations);
-        return existingOperations;
+        return foundOperations;
     }
 
     @Override
@@ -161,51 +160,30 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<State> statusList, String spaceGuid) {
-        if (lastRequestedOperationsCount == null && statusList.isEmpty()) {
-            return getAllOperations(spaceGuid);
-        }
-
-        if (lastRequestedOperationsCount != null && statusList.isEmpty()) {
-            return getLastOperations(lastRequestedOperationsCount, spaceGuid);
-        }
-
-        if (lastRequestedOperationsCount == null && !statusList.isEmpty()) {
-            return getOperationsByStatus(statusList, spaceGuid);
-        }
-
-        if (lastRequestedOperationsCount != null && !statusList.isEmpty()) {
-            return getLastOperationsFilteredByStatus(lastRequestedOperationsCount, getOperationsByStatus(statusList, spaceGuid));
-        }
-
-        return Collections.emptyList();
+        OperationFilter operationFilter = buildOperationFilter(spaceGuid, statusList, lastRequestedOperationsCount);
+        List<Operation> operations = dao.find(operationFilter);
+        List<Operation> existingOperations = filterExistingOperations(operations);
+        addOngoingOperationsState(existingOperations);
+        List<Operation> result = filterBasedOnStates(existingOperations, statusList);
+        return result;
     }
 
-    private List<Operation> getAllOperations(String spaceGuid) throws SLException {
-        return dao.findAllInSpace(spaceGuid);
+    private OperationFilter buildOperationFilter(String spaceGuid, List<State> statusList, Integer lastRequestedOperationsCount) {
+        OperationFilter.Builder builder = new OperationFilter.Builder();
+        builder.spaceId(spaceGuid);
+        if (!CommonUtil.isNullOrEmpty(statusList) && containsOnlyFinishedStates(statusList)) {
+            builder.stateIn(statusList);
+        }
+        builder.orderByStartTime();
+        if (lastRequestedOperationsCount != null) {
+            builder.maxResults(lastRequestedOperationsCount);
+            builder.descending();
+        }
+        return builder.build();
     }
 
-    private List<Operation> getLastOperations(Integer lastOperationsCount, String spaceGuid) throws SLException {
-        return dao.findLastOperations(lastOperationsCount, spaceGuid);
-    }
-
-    private List<Operation> getOperationsByStatus(List<State> statusList, String spaceGuid) throws SLException {
-        if (statusList.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return dao.findOperationsByStatus(statusList, spaceGuid);
-    }
-
-    private List<Operation> getLastOperationsFilteredByStatus(int lastRequestedOperationsCount, List<Operation> operationsByStatus) {
-        int operationsByStatusSize = operationsByStatus.size();
-        if (lastRequestedOperationsCount > operationsByStatusSize) {
-            return operationsByStatus;
-        }
-        if (lastRequestedOperationsCount < 0) {
-            return Collections.emptyList();
-        }
-
-        return operationsByStatus.subList(operationsByStatusSize - lastRequestedOperationsCount, operationsByStatusSize);
+    private boolean containsOnlyFinishedStates(List<State> statusList) {
+        return Collections.disjoint(statusList, State.getActiveStates());
     }
 
     private List<Operation> filterExistingOperations(List<Operation> operations) {
@@ -218,12 +196,12 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return historicInstance != null;
     }
 
-    private HistoricProcessInstance getHistoricInstance(Operation operation, String processDefinitionKey) {
-        return activitiFacade.getHistoricProcessInstanceBySpaceId(processDefinitionKey, operation.getSpaceId(), operation.getProcessId());
-    }
-
     private String getProcessDefinitionKey(Operation operation) {
         return metadataMapper.getOperationMetadata(operation.getProcessType()).getActivitiProcessId();
+    }
+
+    private HistoricProcessInstance getHistoricInstance(Operation operation, String processDefinitionKey) {
+        return activitiFacade.getHistoricProcessInstanceBySpaceId(processDefinitionKey, operation.getSpaceId(), operation.getProcessId());
     }
 
     private void addOngoingOperationsState(List<Operation> existingOngoingOperations) {
@@ -254,6 +232,13 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
             ongoingOperation.getProcessId()));
         return activitiFacade.getOngoingOperationState(ongoingOperation);
+    }
+
+    private List<Operation> filterBasedOnStates(List<Operation> operations, List<State> statusList) {
+        if (CommonUtil.isNullOrEmpty(statusList)) {
+            return operations;
+        }
+        return operations.stream().filter(operation -> statusList.contains(operation.getState())).collect(Collectors.toList());
     }
 
     @Override
