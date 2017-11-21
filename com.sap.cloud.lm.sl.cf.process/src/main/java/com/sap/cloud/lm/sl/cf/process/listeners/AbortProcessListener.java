@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import javax.inject.Inject;
 
 import org.activiti.engine.HistoryService;
+import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.event.ActivitiEvent;
 import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.history.HistoricVariableInstance;
@@ -18,6 +19,7 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
@@ -25,18 +27,17 @@ import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.analytics.ActivitiEventToDelegateExecutionAdapter;
-import com.sap.cloud.lm.sl.cf.process.analytics.AnalyticsCollector;
+import com.sap.cloud.lm.sl.cf.process.analytics.adapters.ActivitiEventToDelegateExecutionAdapter;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
+import com.sap.cloud.lm.sl.cf.process.util.CollectedDataSender;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Runnable;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
@@ -46,9 +47,6 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
     private static final long serialVersionUID = -7665948468083310385L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortProcessListener.class);
-
-    @Inject
-    private AnalyticsCollector analytics;
 
     /*
      * In older version of the Activiti process diagram, the AbortProcessListener was defined with its fully qualified class name. In the
@@ -64,6 +62,8 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
     private BeanProvider beanProvider;
     @Inject
     private Configuration configuration;
+    @Inject
+    private CollectedDataSender dataSender;
 
     @Override
     public boolean isFailOnException() {
@@ -102,18 +102,10 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
 
         new SafeExecutor().executeSafely(() -> {
             if (configuration.shouldGatherUsageStatistics()) {
-                collectAnalytics(event);
+                sendStatistics(event);
             }
-            // TODO send generated statistics to statistics server.
         });
 
-    }
-
-    private AnalyticsData collectAnalytics(ActivitiEvent event) throws SLException {
-        AnalyticsData model = analytics.collectAttributes(new ActivitiEventToDelegateExecutionAdapter(event));
-        model.setProcessFinalState(State.ABORTED);
-        LOGGER.debug(JsonUtil.toJson(model, true));
-        return model;
     }
 
     private String getCorrelationId(ActivitiEvent event) {
@@ -122,7 +114,8 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         if (correlationId != null) {
             return (String) correlationId.getValue();
         }
-        // The process was started before we introduced subprocesses in our BPMN diagrams. Therefore, the correlation ID is the ID of the
+        // The process was started before we introduced subprocesses in our BPMN
+        // diagrams. Therefore, the correlation ID is the ID of the
         // process instance.
         return event.getProcessInstanceId();
     }
@@ -179,6 +172,13 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         FileSweeper fileSweeper = new FileSweeper(spaceId, getBeanProvider().getFileService());
         fileSweeper.sweep(extensionDescriptorFileIds);
         fileSweeper.sweep(appArchiveFileIds);
+    }
+
+    protected void sendStatistics(ActivitiEvent event) {
+        DelegateExecution context = new ActivitiEventToDelegateExecutionAdapter(event);
+        RestTemplate restTemplate = new RestTemplate();
+        AnalyticsData collectedData = dataSender.collectAnalyticsData(context, State.ABORTED);
+        dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(context, collectedData));
     }
 
     private boolean shouldKeepFiles(HistoricVariableInstance keepFiles) {

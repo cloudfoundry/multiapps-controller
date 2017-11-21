@@ -3,59 +3,20 @@
   "processType": {
     "name": "UNDEPLOY"
   },
-  "startTime": {
-    "dateTime": {
-      "date": {
-        "year": 1970,
-        "month": 1,
-        "day": 1
-      },
-      "time": {
-        "hour": 1,
-        "minute": 0,
-        "second": 0,
-        "nano": 0
-      }
-    },
-    "offset": {
-      "totalSeconds": 3600
-    },
-    "zone": {
-      "id": "Europe/Berlin"
-    }
-  },
-  "endTime": {
-    "dateTime": {
-      "date": {
-        "year": 1970,
-        "month": 1,
-        "day": 2
-      },
-      "time": {
-        "hour": 18,
-        "minute": 32,
-        "second": 23,
-        "nano": 224000000
-      }
-    },
-    "offset": {
-      "totalSeconds": 3600
-    },
-    "zone": {
-      "id": "Europe/Berlin"
-    }
-  },
+  "startTime": 0,
+  "endTime": 149543224,
   "processDurationInSeconds": 149543,
   "mtaId": "mta-id",
+  "platform": "MOCK",
   "org": "org",
   "space": "space",
   "targetURL": "http://example.com/",
   "processSpecificAttributes": {
-    "deletedConfigurationEntriesCount": 1,
-    "deletedServicesCount": 3,
-    "deletedSubscriptionsCount": 2,
-    "restartedServiceBrokerSubscribersCount": 2,
-    "undeployedAppsCount": 3,
-    "updatedSubscribersCount": 1
+    "subscriptionsToDelete": 2,
+    "deletedEntries": 1,
+    "appsToUndeploy": 3,
+    "servicesToDelete": 3,
+    "updatedSubscribers": 1,
+    "updatedServiceBrokerSubscribers": 2
   }
 }

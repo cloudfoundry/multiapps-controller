@@ -130,4 +130,7 @@ public class Constants {
     public static final String SHOULD_UPLOAD_APPLICATION_CONTENT = "shouldUploadApplicationContent";
     public static final String REBUILD_APP_ENV = "rebuildAppEnv";
 
+    public static final String TOOL_TYPE = "tool_type";
+    public static final String FEEDBACK_MAIL = "feedback_mail";
+
 }
