@@ -13,13 +13,7 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "operation")
-@NamedQueries({
-    @NamedQuery(name = "find_mta_lock", query = "SELECT o FROM OperationDto o WHERE o.mtaId = :mtaId AND o.spaceId = :spaceId AND o.acquiredLock = true"),
-    @NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o ORDER BY o.startedAt"),
-    @NamedQuery(name = "find_all_in_space", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId ORDER BY o.startedAt"),
-    @NamedQuery(name = "find_all_in_space_desc", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId ORDER BY o.startedAt DESC"),
-    @NamedQuery(name = "find_all_active_in_space", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId AND o.finalState is NULL"),
-    @NamedQuery(name = "find_all_finished_in_space", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId AND o.finalState is NOT NULL") })
+@NamedQueries({ @NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o ORDER BY o.startedAt") })
 public class OperationDto {
 
     public static class AttributeNames {

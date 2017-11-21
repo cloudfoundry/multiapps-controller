@@ -53,6 +53,7 @@ public class Messages {
     public static final String STEP_LOGGER_NOT_INITIALIZED = "Step logger is not initialized!";
     public static final String COULD_NOT_BIND_APP_TO_SERVICE = "Could not bind application \"{0}\" to service \"{1}\": {2}";
     public static final String NO_RETRY_MESSAGE = "No retry message available";
+    public static final String MULTIPLE_OPERATIONS_WITH_LOCK_FOUND = "Multiple operations found with lock for MTA \"{0}\" in space \"{1}\": {2}";
 
     // Audit log messages
 

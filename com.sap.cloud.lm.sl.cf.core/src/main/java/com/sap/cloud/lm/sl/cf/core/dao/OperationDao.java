@@ -11,10 +11,8 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
 import com.sap.cloud.lm.sl.cf.core.helpers.OperationFactory;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component
 public class OperationDao {
@@ -56,47 +54,9 @@ public class OperationDao {
         return toOperations(dtos);
     }
 
-    public List<Operation> findAllInSpace(String spaceId) {
-        List<OperationDto> dtos = dao.findAllInSpace(spaceId);
-        return toOperations(dtos);
-    }
-
-    public List<Operation> findLastOperations(int last, String spaceId) {
-        List<OperationDto> dtos = dao.findLastOperations(last, spaceId);
-        return toOperations(dtos);
-    }
-
-    public List<Operation> findActiveOperations(String spaceId, List<State> requestedActiveStates) {
-        List<OperationDto> dtos = dao.findActiveOperations(spaceId, requestedActiveStates);
-        return toOperations(dtos);
-    }
-
-    public List<Operation> findFinishedOperations(String spaceId, List<State> requestedFinishedStates) {
-        List<OperationDto> dtos = dao.findFinishedOperations(spaceId, requestedFinishedStates);
-        return toOperations(dtos);
-    }
-
-    public List<Operation> findAllInSpaceByStatus(List<State> requestedStates, String spaceId) {
-        List<OperationDto> dtos = dao.findAllInSpaceByStatus(requestedStates, spaceId);
-        return toOperations(dtos);
-    }
-
-    public List<Operation> findOperationsByStatus(List<State> requestedStates, String spaceId) {
-        List<OperationDto> dtos = dao.findOperationsByStatus(requestedStates, spaceId);
-        return toOperations(dtos);
-    }
-
     public void merge(Operation operation) throws NotFoundException {
         OperationDto dto = operationFactory.toPersistenceDto(operation);
         dao.merge(dto);
-    }
-
-    public Operation findProcessWithLock(String mtaId, String spaceId) throws SLException {
-        OperationDto dto = dao.findProcessWithLock(mtaId, spaceId);
-        if (dto == null) {
-            return null;
-        }
-        return operationFactory.fromPersistenceDto(dto);
     }
 
     private List<Operation> toOperations(List<OperationDto> dtos) {
