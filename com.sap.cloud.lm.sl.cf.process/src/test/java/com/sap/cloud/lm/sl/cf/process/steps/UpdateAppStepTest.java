@@ -36,7 +36,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
+import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -168,7 +168,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         if (input.updateStaging && platform == PlatformType.XS2) {
             Mockito.verify(client).updateApplicationStaging(Mockito.eq(appName),
-                Mockito.argThat(ArgumentMatcherProvider.getStagingMatcher(cloudApp.getStaging())));
+                Mockito.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
         }
         if (input.updateMemory) {
             Mockito.verify(client).updateApplicationMemory(appName, cloudApp.getMemory());
@@ -184,7 +184,7 @@ public class UpdateAppStepTest extends AbstractStepTest<UpdateAppStep> {
         }
         if (platform == PlatformType.CF) {
             Mockito.verify(applicationUpdaterMock).updateApplicationStaging(eq(client), eq(cloudApp.getName()),
-                Matchers.argThat(ArgumentMatcherProvider.getStagingMatcher(cloudApp.getStaging())));
+                Matchers.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
         }
     }
 

@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
@@ -40,6 +41,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper;
     @Inject
     private Configuration configuration;
+
+    Supplier<ZonedDateTime> currentTimeSupplier = () -> ZonedDateTime.now();
 
     @Override
     protected void notifyInternal(DelegateExecution context) throws SLException {
@@ -83,7 +86,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     }
 
     private void addOngoingOperation(DelegateExecution context, String correlationId, ProcessType processType) {
-        String startedAt = FORMATTER.format(ZonedDateTime.now());
+        String startedAt = FORMATTER.format(currentTimeSupplier.get());
         String user = StepsUtil.determineCurrentUser(context, getStepLogger());
         String spaceId = StepsUtil.getSpaceId(context);
         Operation process = new Operation(correlationId, processType, startedAt, spaceId, null, user, false, null);
