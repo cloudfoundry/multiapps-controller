@@ -1,7 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.function.Supplier;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.junit.Before;
@@ -23,19 +28,20 @@ import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
-import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 
 @RunWith(Parameterized.class)
 public class StartProcessListenerTest {
 
     private static final String USER = "current-user";
     private static final String SPACE_ID = "test-space-id";
+    private static final ZonedDateTime START_TIME = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.of("UTC"));
 
     private final String processInstanceId;
     private final ProcessType processType;
@@ -58,6 +64,8 @@ public class StartProcessListenerTest {
     private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper = new ProcessTypeToOperationMetadataMapper();
     @Mock
     private Configuration configuration;
+
+    private Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
 
     @InjectMocks
     private StartProcessListener listener = new StartProcessListener();
@@ -100,6 +108,7 @@ public class StartProcessListenerTest {
     }
 
     private void prepareContext() {
+        listener.currentTimeSupplier = currentTimeSupplier;
         Mockito.when(context.getProcessInstanceId()).thenReturn(processInstanceId);
         Mockito.when(context.getVariables()).thenReturn(Collections.emptyMap());
         Mockito.when(processTypeParser.getProcessType(context)).thenReturn(processType);
@@ -116,8 +125,9 @@ public class StartProcessListenerTest {
 
     private void verifyOngoingOperationInsertion() throws SLException, ConflictException {
         String user = StepsUtil.determineCurrentUser(context, stepLogger);
-        Mockito.verify(dao).add(Mockito.argThat(ArgumentMatcherProvider.getOngoingOpMatcher(
-            new Operation(processInstanceId, processType, null, SPACE_ID, null, user, false, null))));
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+        Mockito.verify(dao).add(Mockito.argThat(GenericArgumentMatcher
+            .forObject(new Operation(processInstanceId, processType, formatter.format(START_TIME), SPACE_ID, null, user, false, null))));
     }
 
 }

@@ -28,8 +28,8 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
-import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -351,10 +351,10 @@ public class CreateOrUpdateServicesStepTest extends AbstractStepTest<CreateOrUpd
             }
             if (service.isUserProvided()) {
                 Mockito.verify(client, Mockito.times(1)).createUserProvidedService(
-                    Matchers.argThat(ArgumentMatcherProvider.getServiceMatcher(service)), Matchers.eq(service.getCredentials()));
+                    Matchers.argThat(GenericArgumentMatcher.forObject(service)), Matchers.eq(service.getCredentials()));
             } else {
                 Mockito.verify(serviceCreator, Mockito.times(1)).createService(Mockito.eq(client),
-                    Matchers.argThat(ArgumentMatcherProvider.getServiceMatcher(service)), Mockito.eq(TEST_SPACE_ID));
+                    Matchers.argThat(GenericArgumentMatcher.forObject(service)), Mockito.eq(TEST_SPACE_ID));
             }
         }
     }

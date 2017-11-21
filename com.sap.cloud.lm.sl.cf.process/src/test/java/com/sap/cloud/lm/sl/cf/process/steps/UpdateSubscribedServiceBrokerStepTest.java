@@ -21,9 +21,9 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -110,9 +110,9 @@ public class UpdateSubscribedServiceBrokerStepTest extends AbstractStepTest<Upda
         if (warningMessage != null) {
             Mockito.verify(stepLogger).warn(warningMessage);
         } else {
-            Mockito.verify(client).updateServiceBroker(
-                Mockito.argThat(ArgumentMatcherProvider.getCloudServiceBrokerMatcher(input.brokerApplication.brokerName,
-                    input.brokerApplication.brokerUser, input.brokerApplication.brokerPassword, input.brokerApplication.brokerUrl)));
+            CloudServiceBroker expectedBroker = new CloudServiceBroker(null, input.brokerApplication.brokerName,
+                input.brokerApplication.brokerUrl, input.brokerApplication.brokerUser, input.brokerApplication.brokerPassword);
+            Mockito.verify(client).updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
         }
     }
 

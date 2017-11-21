@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.util.ArgumentMatcherProvider;
+import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -179,8 +179,8 @@ public class CreateAppStepTest extends AbstractStepTest<CreateAppStep> {
         Integer memory = (application.getMemory() != 0) ? application.getMemory() : null;
 
         Mockito.verify(client).createApplication(eq(application.getName()),
-            argThat(ArgumentMatcherProvider.getStagingMatcher(application.getStaging())), eq(diskQuota), eq(memory),
-            eq(application.getUris()), eq(Collections.emptyList()));
+            argThat(GenericArgumentMatcher.forObject(application.getStaging())), eq(diskQuota), eq(memory), eq(application.getUris()),
+            eq(Collections.emptyList()));
         for (String service : application.getServices()) {
             if (!isOptional(service)) {
                 if (application.getBindingParameters() == null || application.getBindingParameters().get(service) == null) {
