@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableColumnNames;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -84,16 +83,19 @@ public class OperationDtoDao {
     @SuppressWarnings("unchecked")
     public List<OperationDto> findAllInSpace(String spaceId) {
         return new Executor<List<OperationDto>>(createEntityManager()).execute((manager) -> {
-            return manager.createNamedQuery("find_all_in_space").setParameter(TableColumnNames.OPERATION_SPACE_ID,
-                spaceId).getResultList();
+            return manager.createNamedQuery("find_all_in_space")
+                .setParameter(OperationDto.AttributeNames.SPACE_ID, spaceId)
+                .getResultList();
         });
     }
 
     @SuppressWarnings("unchecked")
     public List<OperationDto> findLastOperations(int last, String spaceId) {
         return new Executor<List<OperationDto>>(createEntityManager()).execute((manager) -> {
-            return manager.createNamedQuery("find_all_in_space_desc").setParameter(TableColumnNames.OPERATION_SPACE_ID,
-                spaceId).setMaxResults(last).getResultList();
+            return manager.createNamedQuery("find_all_in_space_desc")
+                .setParameter(OperationDto.AttributeNames.SPACE_ID, spaceId)
+                .setMaxResults(last)
+                .getResultList();
         });
     }
 
@@ -140,8 +142,10 @@ public class OperationDtoDao {
     @SuppressWarnings("unchecked")
     public OperationDto findProcessWithLock(String mtaId, String spaceId) throws SLException {
         return new Executor<OperationDto>(createEntityManager()).execute((manager) -> {
-            List<OperationDto> processes = manager.createNamedQuery("find_mta_lock").setParameter(TableColumnNames.OPERATION_MTA_ID,
-                mtaId).setParameter(TableColumnNames.OPERATION_SPACE_ID, spaceId).getResultList();
+            List<OperationDto> processes = manager.createNamedQuery("find_mta_lock")
+                .setParameter(OperationDto.AttributeNames.MTA_ID, mtaId)
+                .setParameter(OperationDto.AttributeNames.SPACE_ID, spaceId)
+                .getResultList();
             if (processes.size() == 0) {
                 return null;
             }
@@ -160,7 +164,7 @@ public class OperationDtoDao {
         Predicate spaceIdPredicate = null;
 
         if (spaceId != null) {
-            spaceIdPredicate = criteriaBuilder.equal(root.get(TableColumnNames.OPERATION_SPACE_ID), spaceId);
+            spaceIdPredicate = criteriaBuilder.equal(root.get(OperationDto.AttributeNames.SPACE_ID), spaceId);
         }
 
         List<Predicate> predicates = new ArrayList<>();
@@ -170,7 +174,7 @@ public class OperationDtoDao {
         }
 
         for (State status : statusList) {
-            predicates.add(criteriaBuilder.equal(root.get(TableColumnNames.OPERATION_FINAL_STATE), status.toString()));
+            predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.FINAL_STATE), status.toString()));
         }
 
         Predicate finalStatePredicate = criteriaBuilder.or(predicates.toArray(new Predicate[0]));
@@ -181,9 +185,9 @@ public class OperationDtoDao {
 
     private Predicate getFinalStateNullPredicate(Boolean shouldBeNull, Root<OperationDto> root) {
         if (shouldBeNull) {
-            return root.get(TableColumnNames.OPERATION_FINAL_STATE).isNull();
+            return root.get(OperationDto.AttributeNames.FINAL_STATE).isNull();
         }
-        return root.get(TableColumnNames.OPERATION_FINAL_STATE).isNotNull();
+        return root.get(OperationDto.AttributeNames.FINAL_STATE).isNotNull();
     }
 
 }

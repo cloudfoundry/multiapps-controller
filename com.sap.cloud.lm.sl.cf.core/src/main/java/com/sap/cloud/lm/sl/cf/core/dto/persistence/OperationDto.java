@@ -22,6 +22,20 @@ import javax.persistence.TemporalType;
     @NamedQuery(name = "find_all_finished_in_space", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId AND o.finalState is NOT NULL") })
 public class OperationDto {
 
+    public static class AttributeNames {
+
+        public static final String PROCESS_ID = "processId";
+        public static final String PROCESS_TYPE = "processType";
+        public static final String STARTED_AT = "startedAt";
+        public static final String ENDED_AT = "endedAt";
+        public static final String SPACE_ID = "spaceId";
+        public static final String MTA_ID = "mtaId";
+        public static final String USER = "user";
+        public static final String ACQUIRED_LOCK = "acquiredLock";
+        public static final String FINAL_STATE = "finalState";
+
+    }
+
     @Id
     @Column(name = "process_id")
     private String processId;

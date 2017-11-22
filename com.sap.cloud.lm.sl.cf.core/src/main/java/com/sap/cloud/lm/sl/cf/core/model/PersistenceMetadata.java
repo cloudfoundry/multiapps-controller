@@ -63,10 +63,6 @@ public class PersistenceMetadata {
         public static final String CONTEXT_EXTENSION_CREATE_TIME = "create_time";
         public static final String CONTEXT_EXTENSION_UPDATE_TIME = "last_updated_time";
 
-        public static final String OPERATION_SPACE_ID = "spaceId";
-        public static final String OPERATION_FINAL_STATE = "finalState";
-        public static final String OPERATION_MTA_ID = "mtaId";
-
         public static final String DEPLOY_TARGET_NAME = "name";
 
     }
