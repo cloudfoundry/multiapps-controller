@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-public abstract class AbstractSubProcessMonitorStep extends AbstractProcessStep {
+public abstract class AbstractSubProcessMonitorStep extends AbstractProcessStepWithBridge {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) {

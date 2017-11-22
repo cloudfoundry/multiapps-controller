@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 
 @Component("pollStageAppStatusStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollStageAppStatusStep extends AbstractProcessStep {
+public class PollStageAppStatusStep extends AbstractProcessStepWithBridge {
 
     @Inject
     protected RecentLogsRetriever recentLogsRetriever;

@@ -22,7 +22,7 @@ public abstract class AbstractSubProcessStarterStep extends AbstractProcessStep 
         try {
             String userId = StepsUtil.determineCurrentUser(context, getStepLogger());
 
-            int nextIndex = getStepIndex(context);
+            int nextIndex = (int) context.getVariable(getIndexVariable());
             context.setVariable(getIterationVariableName(), getIterationVariable(context, nextIndex));
             Map<String, Object> parentProcessVariables = context.getVariables();
             parentProcessVariables.put(Constants.VAR_PARENTPROCESS_ID, context.getProcessInstanceId());

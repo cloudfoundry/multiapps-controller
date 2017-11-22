@@ -28,7 +28,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 
 @Component("pollExecuteAppStatusStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollExecuteAppStatusStep extends AbstractProcessStep {
+public class PollExecuteAppStatusStep extends AbstractProcessStepWithBridge {
 
     enum AppExecutionStatus {
         EXECUTING, SUCCEEDED, FAILED

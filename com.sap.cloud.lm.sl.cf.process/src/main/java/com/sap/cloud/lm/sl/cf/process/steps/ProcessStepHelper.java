@@ -59,7 +59,7 @@ public class ProcessStepHelper {
         } catch (IOException | FileStorageException e) {
             LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, e.getMessage()), e);
         }
-        
+
         if (ExecutionStatus.LOGICAL_RETRY.equals(status)) {
             context.setVariable(Constants.RETRY_STEP_NAME, context.getCurrentActivityId());
         }
