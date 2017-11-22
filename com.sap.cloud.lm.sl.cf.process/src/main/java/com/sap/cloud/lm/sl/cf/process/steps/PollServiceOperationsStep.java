@@ -38,7 +38,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("pollServiceOperationsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollServiceOperationsStep extends AbstractProcessStep {
+public class PollServiceOperationsStep extends AbstractProcessStepWithBridge {
 
     private static final String LAST_SERVICE_OPERATION = "last_operation";
     private static final String SERVICE_NAME = "name";

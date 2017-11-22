@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("pollExecuteTaskStatusStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollExecuteTaskStatusStep extends AbstractProcessStep {
+public class PollExecuteTaskStatusStep extends AbstractProcessStepWithBridge {
 
     protected Supplier<Long> currentTimeSupplier = () -> System.currentTimeMillis();
 

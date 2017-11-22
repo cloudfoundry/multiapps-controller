@@ -62,7 +62,7 @@ public abstract class AbstractProcessStep implements StepIndexProvider, JavaDele
         createStepLogger(context);
         try {
             MDC.put(Constants.ATTR_CORRELATION_ID, StepsUtil.getCorrelationId(context));
-            getStepHelper().preExecuteStep(context, ExecutionStatus.NEW);
+            getStepHelper().preExecuteStep(context, getExecutionStatus(context));
             status = executeStepInternal(context);
             clearRetryMessage(status, context);
             getStepHelper().failStepIfProcessIsAborted(context);
@@ -78,6 +78,10 @@ public abstract class AbstractProcessStep implements StepIndexProvider, JavaDele
             postExecuteStep(context, status);
             getSignaller().signal(context, status);
         }
+    }
+
+    protected ExecutionStatus getExecutionStatus(DelegateExecution context) {
+        return ExecutionStatus.NEW;
     }
 
     private void handleException(DelegateExecution context, Throwable t) throws Exception {
@@ -176,7 +180,7 @@ public abstract class AbstractProcessStep implements StepIndexProvider, JavaDele
 
     @Override
     public Integer getStepIndex(DelegateExecution context) {
-        return getIndexVariable() != null ? (int) context.getVariable(getIndexVariable()) : -1;
+        return (getIndexVariable() != null ? (int) context.getVariable(getIndexVariable()) : 0) - 1;
     }
 
     protected String getIndexVariable() {
