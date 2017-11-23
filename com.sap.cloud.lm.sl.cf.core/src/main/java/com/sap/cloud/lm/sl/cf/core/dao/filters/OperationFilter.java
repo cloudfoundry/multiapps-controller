@@ -9,6 +9,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 public class OperationFilter {
 
+    private Date startTimeUpperBound;
     private Date endTimeUpperBound;
     private Date endTimeLowerBound;
     private String spaceId;
@@ -25,6 +26,7 @@ public class OperationFilter {
     private Integer maxResults;
 
     protected OperationFilter(Builder builder) {
+        this.startTimeUpperBound = builder.startTimeUpperBound;
         this.endTimeUpperBound = builder.endTimeUpperBound;
         this.endTimeLowerBound = builder.endTimeLowerBound;
         this.spaceId = builder.spaceId;
@@ -40,6 +42,10 @@ public class OperationFilter {
         this.states = builder.states;
     }
 
+    public Date getStartTimeUpperBound() {
+        return startTimeUpperBound;
+    }
+    
     public Date getEndTimeUpperBound() {
         return endTimeUpperBound;
     }
@@ -94,6 +100,7 @@ public class OperationFilter {
 
     public static class Builder {
 
+        private Date startTimeUpperBound;
         private Date endTimeUpperBound;
         private Date endTimeLowerBound;
         private String spaceId;
@@ -109,6 +116,11 @@ public class OperationFilter {
         private OrderDirection orderDirection = OrderDirection.ASCENDING;
         private Integer maxResults;
 
+        public Builder startedBefore(Date startTimeUpperBound) {
+            this.startTimeUpperBound = startTimeUpperBound;
+            return this;
+        }
+        
         public Builder endedBefore(Date endTimeUpperBound) {
             this.endTimeUpperBound = endTimeUpperBound;
             return this;

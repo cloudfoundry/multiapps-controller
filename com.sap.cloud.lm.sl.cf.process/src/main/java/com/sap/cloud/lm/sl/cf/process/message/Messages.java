@@ -412,5 +412,7 @@ public class Messages {
     public static final String UNEXPECTED_ERROR = "Unexpected error: {0}";
     public static final String SAVING_ERROR_MESSAGE_FAILED = "Saving error message failed";
     public static final String STEP_FINISHED = "Step \"{0}\" finished";
+    public static final String COMPUTING_STATE_OF_OPERATION = "Computing state of operation {0} with ID: {1}";
+
 
 }

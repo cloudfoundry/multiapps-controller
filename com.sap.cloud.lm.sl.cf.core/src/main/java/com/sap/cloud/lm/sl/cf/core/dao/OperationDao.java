@@ -31,6 +31,12 @@ public class OperationDao {
         dao.remove(processId);
     }
 
+    public void removeAll(List<String> processIds) throws NotFoundException {
+        for (String processId : processIds) {
+            dao.remove(processId);
+        }
+    }
+
     public Operation find(String processId) {
         OperationDto dto = dao.find(processId);
         if (dto == null) {

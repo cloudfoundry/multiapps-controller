@@ -69,6 +69,7 @@ public class Configuration {
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
+    static final String CFG_MAX_TTL_FOR_OLD_DATA = "MAX_TTL_FOR_OLD_DATA";
     static final String CFG_SCAN_UPLOADS = "SCAN_UPLOADS";
     static final String CFG_USE_XS_AUDIT_LOGGING = "USE_XS_AUDIT_LOGGING";
     static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
@@ -122,6 +123,7 @@ public class Configuration {
     public static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
     public static final Integer DEFAULT_XS_CLIENT_QUEUE_CAPACITY = 8;
     public static final Integer DEFAULT_XS_CLIENT_KEEP_ALIVE = 60;
+    public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
     /*
      * In async local operations there are usually two threads. One does the actual work, while the other waits for a specific amount of
      * time and then terminates the first if it is still alive (thus introducing a time-out period for the entire operation).
@@ -168,6 +170,7 @@ public class Configuration {
     private Long maxMtaDescriptorSize;
     private Long maxManifestSize;
     private Long maxResourceFileSize;
+    private Long maxTtlForOldData;
     private Boolean scanUploads;
     private Boolean useXSAuditLogging;
     private String spaceGuid;
@@ -343,6 +346,13 @@ public class Configuration {
             maxResourceFileSize = getMaxResourceFileSizeFromEnviroment();
         }
         return maxResourceFileSize;
+    }
+
+    public Long getMaxTtlForOldData() {
+        if (maxTtlForOldData == null) {
+            maxTtlForOldData = getMaxTtlForOldDataFromEnvironment();
+        }
+        return maxTtlForOldData;
     }
 
     public Boolean shouldScanUploads() {
@@ -636,6 +646,12 @@ public class Configuration {
     private Long getMaxResourceFileSizeFromEnviroment() {
         Long value = getLong(CFG_MAX_RESOURCE_FILE_SIZE, DEFAULT_MAX_RESOURCE_FILE_SIZE);
         LOGGER.info(format(Messages.MAX_RESOURCE_FILE_SIZE, value));
+        return value;
+    }
+
+    private Long getMaxTtlForOldDataFromEnvironment() {
+        Long value = getLong(CFG_MAX_TTL_FOR_OLD_DATA, DEFAULT_MAX_TTL_FOR_OLD_DATA);
+        LOGGER.info(format(Messages.MAX_TTL_FOR_OLD_DATA, value));
         return value;
     }
 
