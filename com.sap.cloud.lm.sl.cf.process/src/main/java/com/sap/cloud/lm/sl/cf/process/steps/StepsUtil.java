@@ -948,4 +948,23 @@ public class StepsUtil {
         return configuration;
     }
 
+    static String getGitRepoRef(DelegateExecution context) {
+        Object gitRepoConfigObject = context.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
+        if (gitRepoConfigObject == null) {
+            return (String) context.getVariable(Constants.PARAM_GIT_REF);
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
+        return gitRepoConfigMap.get(Constants.PARAM_GIT_REF);
+    }
+
+    static String getGitRepoUri(DelegateExecution context) {
+        Object gitRepoConfigObject = context.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
+        if (gitRepoConfigObject == null) {
+            return (String) context.getVariable(Constants.PARAM_GIT_URI);
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
+        return gitRepoConfigMap.get(Constants.PARAM_GIT_URI);
+    }
 }
