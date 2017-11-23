@@ -144,6 +144,10 @@ public class OperationDtoDao {
         if (operationFilter.getStates() != null) {
             predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE).in(toStrings(operationFilter.getStates())));
         }
+        if (operationFilter.getStartTimeUpperBound() != null) {
+            predicates
+            .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.STARTED_AT), operationFilter.getStartTimeUpperBound()));
+        }
         if (operationFilter.getEndTimeUpperBound() != null) {
             predicates
                 .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndTimeUpperBound()));

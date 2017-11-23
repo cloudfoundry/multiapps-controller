@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.web.api.impl;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,7 +14,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
-import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
@@ -32,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
+import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
 import com.sap.cloud.lm.sl.cf.web.api.OperationsApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Message;
@@ -40,7 +39,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterTypeFactory;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
-import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -69,6 +67,9 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Inject
     private ActivitiFacade activitiFacade;
+
+    @Inject
+    private OperationsHelper operationsHelper;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsApiServiceImpl.class);
 
@@ -126,7 +127,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public Response startMtaOperation(Operation operation, SecurityContext securityContext, String spaceGuid) {
         String userId = getAuthenticatedUser(securityContext);
-        String processDefinitionKey = getProcessDefinitionKey(operation);
+        String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
             .getParameters();
         addServiceParameters(operation, spaceGuid);
@@ -145,10 +146,10 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     public Operation getOperation(String operationId, String embed, String spaceId) {
         Operation operation = dao.findRequired(operationId);
-        if (!isProcessFound(operation) || !operation.getSpaceId().equals(spaceId)) {
+        if (!operationsHelper.isProcessFound(operation) || !operation.getSpaceId().equals(spaceId)) {
             throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_NOT_FOUND, operationId, spaceId);
         }
-        addState(operation);
+        operationsHelper.addState(operation);
         if ("messages".equals(embed)) {
             operation.setMessages(getOperationMessages(operation));
         }
@@ -161,11 +162,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private List<Operation> filterByQueryParameters(Integer lastRequestedOperationsCount, List<State> statusList, String spaceGuid) {
         OperationFilter operationFilter = buildOperationFilter(spaceGuid, statusList, lastRequestedOperationsCount);
-        List<Operation> operations = dao.find(operationFilter);
-        List<Operation> existingOperations = filterExistingOperations(operations);
-        addOngoingOperationsState(existingOperations);
-        List<Operation> result = filterBasedOnStates(existingOperations, statusList);
-        return result;
+        return operationsHelper.findOperations(operationFilter, statusList);
     }
 
     private OperationFilter buildOperationFilter(String spaceGuid, List<State> statusList, Integer lastRequestedOperationsCount) {
@@ -186,61 +183,64 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return Collections.disjoint(statusList, State.getActiveStates());
     }
 
-    private List<Operation> filterExistingOperations(List<Operation> operations) {
-        return operations.stream().filter(operation -> isProcessFound(operation)).collect(Collectors.toList());
-    }
-
-    protected boolean isProcessFound(Operation operation) throws SLException {
-        String processDefinitionKey = getProcessDefinitionKey(operation);
-        HistoricProcessInstance historicInstance = getHistoricInstance(operation, processDefinitionKey);
-        return historicInstance != null;
-    }
-
-    private String getProcessDefinitionKey(Operation operation) {
-        return operationMetadataMapper.getActivitiDiagramId(operation.getProcessType());
-    }
-
-    private HistoricProcessInstance getHistoricInstance(Operation operation, String processDefinitionKey) {
-        return activitiFacade.getHistoricProcessInstanceBySpaceId(processDefinitionKey, operation.getSpaceId(), operation.getProcessId());
-    }
-
-    private void addOngoingOperationsState(List<Operation> existingOngoingOperations) {
-        for (Operation ongoingOperation : existingOngoingOperations) {
-            addState(ongoingOperation);
-        }
-    }
-
-    protected void addState(Operation ongoingOperation) throws SLException {
-        ongoingOperation.setState(getOngoingOperationState(ongoingOperation));
-    }
-
-    protected State getOngoingOperationState(Operation ongoingOperation) throws SLException {
-        if (ongoingOperation.getState() != null) {
-            return ongoingOperation.getState();
-        }
-        State state = computeState(ongoingOperation);
-        // Fixes bug XSBUG-2035: Inconsistency in 'operation', 'act_hi_procinst' and 'act_ru_execution' tables
-        if (ongoingOperation.hasAcquiredLock() && (state.equals(State.ABORTED) || state.equals(State.FINISHED))) {
-            ongoingOperation.acquiredLock(false);
-            ongoingOperation.setState(state);
-            this.dao.merge(ongoingOperation);
-        }
-        return state;
-    }
-
-    protected State computeState(Operation ongoingOperation) throws SLException {
-        LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
-            ongoingOperation.getProcessId()));
-        return activitiFacade.getOngoingOperationState(ongoingOperation);
-    }
-
-    private List<Operation> filterBasedOnStates(List<Operation> operations, List<State> statusList) {
-        if (CommonUtil.isNullOrEmpty(statusList)) {
-            return operations;
-        }
-        return operations.stream().filter(operation -> statusList.contains(operation.getState())).collect(Collectors.toList());
-    }
-
+//<<<<<<< HEAD
+//    private List<Operation> filterExistingOperations(List<Operation> operations) {
+//        return operations.stream().filter(operation -> isProcessFound(operation)).collect(Collectors.toList());
+//    }
+//
+//    protected boolean isProcessFound(Operation operation) throws SLException {
+//        String processDefinitionKey = getProcessDefinitionKey(operation);
+//        HistoricProcessInstance historicInstance = getHistoricInstance(operation, processDefinitionKey);
+//        return historicInstance != null;
+//    }
+//
+//    private String getProcessDefinitionKey(Operation operation) {
+//        return operationMetadataMapper.getActivitiDiagramId(operation.getProcessType());
+//    }
+//
+//    private HistoricProcessInstance getHistoricInstance(Operation operation, String processDefinitionKey) {
+//        return activitiFacade.getHistoricProcessInstanceBySpaceId(processDefinitionKey, operation.getSpaceId(), operation.getProcessId());
+//    }
+//
+//    private void addOngoingOperationsState(List<Operation> existingOngoingOperations) {
+//        for (Operation ongoingOperation : existingOngoingOperations) {
+//            addState(ongoingOperation);
+//        }
+//    }
+//
+//    protected void addState(Operation ongoingOperation) throws SLException {
+//        ongoingOperation.setState(getOngoingOperationState(ongoingOperation));
+//    }
+//
+//    protected State getOngoingOperationState(Operation ongoingOperation) throws SLException {
+//        if (ongoingOperation.getState() != null) {
+//            return ongoingOperation.getState();
+//        }
+//        State state = computeState(ongoingOperation);
+//        // Fixes bug XSBUG-2035: Inconsistency in 'operation', 'act_hi_procinst' and 'act_ru_execution' tables
+//        if (ongoingOperation.hasAcquiredLock() && (state.equals(State.ABORTED) || state.equals(State.FINISHED))) {
+//            ongoingOperation.acquiredLock(false);
+//            ongoingOperation.setState(state);
+//            this.dao.merge(ongoingOperation);
+//        }
+//        return state;
+//    }
+//
+//    protected State computeState(Operation ongoingOperation) throws SLException {
+//        LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
+//            ongoingOperation.getProcessId()));
+//        return activitiFacade.getOngoingOperationState(ongoingOperation);
+//    }
+//
+//    private List<Operation> filterBasedOnStates(List<Operation> operations, List<State> statusList) {
+//        if (CommonUtil.isNullOrEmpty(statusList)) {
+//            return operations;
+//        }
+//        return operations.stream().filter(operation -> statusList.contains(operation.getState())).collect(Collectors.toList());
+//    }
+//
+//=======
+//>>>>>>> Clean up job for old DB and FS entries
     @Override
     public Response getOperationActions(String operationId, SecurityContext securityContext, String spaceGuid) {
         Operation operation = dao.findRequired(operationId);
@@ -248,7 +248,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private List<String> getAvailableActions(Operation operation) {
-        State operationState = operation.getState() != null ? operation.getState() : computeState(operation);
+        State operationState = operation.getState() != null ? operation.getState() : operationsHelper.computeState(operation);
         switch (operationState) {
             case FINISHED:
             case ABORTED:
@@ -264,7 +264,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private void addServiceParameters(Operation operation, String spaceGuid) {
-        String processDefinitionKey = getProcessDefinitionKey(operation);
+        String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Map<String, Object> parameters = operation.getParameters();
         CloudFoundryOperations client = getCloudFoundryClient(spaceGuid);
         CloudSpace space = new CFOptimizedSpaceGetter().getSpace(client, spaceGuid);

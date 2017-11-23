@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.activiti;
 import static java.text.MessageFormat.format;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,9 +82,12 @@ public class ActivitiFacade {
         return query.singleResult();
     }
 
-    public HistoricProcessInstance getHistoricProcessInstanceByProcessInstanceId(String processInstanceId) {
-        return engine.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+    public List<HistoricProcessInstance> getHistoricProcessInstancesFinishedAndStartedBefore(Date expirationTime) {
+        return engine.getHistoryService().createHistoricProcessInstanceQuery().finished().startedBefore(expirationTime).list();
+    }
 
+    public void deleteHistoricProcessInstance(String processInstanceId) {
+        engine.getHistoryService().deleteHistoricProcessInstance(processInstanceId);
     }
 
     public State getOngoingOperationState(Operation ongoingOperation) {
@@ -146,6 +150,11 @@ public class ActivitiFacade {
             .processInstanceId(processInstanceId)
             .variableName(variableName);
         return query.singleResult();
+    }
+
+    public List<HistoricVariableInstance> getHistoricVariableInstancesByVariableName(String variableName) {
+        HistoricVariableInstanceQuery query = engine.getHistoryService().createHistoricVariableInstanceQuery().variableName(variableName);
+        return query.list();
     }
 
     public List<String> getActiveHistoricSubProcessIds(String superProcessId) {
