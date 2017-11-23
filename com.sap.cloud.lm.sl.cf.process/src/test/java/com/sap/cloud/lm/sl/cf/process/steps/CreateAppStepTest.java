@@ -23,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -135,7 +134,7 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
         StepsUtil.setServicesToBind(context, mapToCloudServiceExtended());
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
         context.setVariable(Constants.VAR_APPS_INDEX, stepInput.applicationIndex);
-        byte[] serviceKeysToInjectByteArray = GsonHelper.getAsBinaryJson(new HashMap<>());
+        byte[] serviceKeysToInjectByteArray = JsonUtil.getAsBinaryJson(new HashMap<>());
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
 
@@ -163,9 +162,11 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
 
         for (String appName : stepInput.bindingErrors.keySet()) {
             String serviceName = stepInput.bindingErrors.get(appName);
-            Mockito.doThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                "Something happened!")).when((ClientExtensions) client).bindService(Mockito.eq(appName), Mockito.eq(serviceName),
-                    Mockito.any());
+            Mockito
+                .doThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                    "Something happened!"))
+                .when((ClientExtensions) client)
+                .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any());
         }
 
         for (String serviceName : stepInput.existingServiceKeys.keySet()) {

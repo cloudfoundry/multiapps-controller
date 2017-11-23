@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static java.text.MessageFormat.format;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
@@ -18,7 +17,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
@@ -41,7 +39,7 @@ public class StartAppStep extends AsyncActivitiStep {
     }
 
     @Override
-    public ExecutionStatus executeAsyncStep(ExecutionWrapper execution) {
+    public StepPhase executeAsyncStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
         CloudApplication app = getAppToStart(execution.getContext());
@@ -50,15 +48,9 @@ public class StartAppStep extends AsyncActivitiStep {
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             onError(format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
-            setStepType(execution, StepPhase.RETRY);
             throw e;
         }
-        setStepType(execution, StepPhase.POLL);
-        return ExecutionStatus.RUNNING;
-    }
-
-    private void setStepType(ExecutionWrapper execution, StepPhase type) {
-        StepsUtil.setStepPhase(execution, type);
+        return StepPhase.POLL;
     }
 
     protected void onError(String message, Exception e) {
@@ -95,7 +87,7 @@ public class StartAppStep extends AsyncActivitiStep {
             return app2.getState().equals(AppState.STARTED);
         } catch (CloudFoundryException e) {
             if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                LOGGER.getLoggerImpl().warn(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
                 return false;
             }
             throw e;
@@ -117,9 +109,9 @@ public class StartAppStep extends AsyncActivitiStep {
     }
 
     @Override
-    protected List<AsyncStepOperation> getAsyncStepOperations() {
-        return new LinkedList<>(Arrays.asList(new PollStartAppStatusStep(recentLogsRetriever, configuration),
-            new PollExecuteAppStatusStep(recentLogsRetriever)));
+    protected List<AsyncExecution> getAsyncStepExecutions() {
+        return Arrays.asList(new PollStartAppStatusExecution(recentLogsRetriever, configuration),
+            new PollExecuteAppStatusExecution(recentLogsRetriever));
     }
 
 }

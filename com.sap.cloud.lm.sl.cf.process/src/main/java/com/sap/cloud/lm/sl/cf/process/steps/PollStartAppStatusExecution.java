@@ -15,8 +15,6 @@ import org.cloudfoundry.client.lib.domain.InstanceInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -24,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
-public class PollStartAppStatusStep extends AsyncStepOperation {
+public class PollStartAppStatusExecution extends AsyncExecution {
 
     enum StartupStatus {
         STARTING, STARTED, CRASHED, FLAPPING
@@ -33,13 +31,13 @@ public class PollStartAppStatusStep extends AsyncStepOperation {
     protected RecentLogsRetriever recentLogsRetriever;
     protected Configuration configuration;
 
-    public PollStartAppStatusStep(RecentLogsRetriever recentLogsRetriever, Configuration configuration) {
+    public PollStartAppStatusExecution(RecentLogsRetriever recentLogsRetriever, Configuration configuration) {
         this.recentLogsRetriever = recentLogsRetriever;
         this.configuration = configuration;
     }
 
     @Override
-    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws SLException {
+    public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {
         execution.getStepLogger().logActivitiTask();
 
         CloudApplication app = getAppToPoll(execution.getContext());
@@ -53,11 +51,11 @@ public class PollStartAppStatusStep extends AsyncStepOperation {
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
+            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         } catch (SLException e) {
             onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
+            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         }
     }
@@ -79,7 +77,7 @@ public class PollStartAppStatusStep extends AsyncStepOperation {
         List<InstanceInfo> instances = getApplicationInstances(client, app);
 
         // The default value here is provided for undeploy processes:
-        boolean failOnCrashed = ContextUtil.getVariable(execution.getContext(), Constants.PARAM_FAIL_ON_CRASHED, true);
+        boolean failOnCrashed = StepsUtil.getVariable(execution.getContext(), Constants.PARAM_FAIL_ON_CRASHED, true);
 
         if (instances != null) {
             int expectedInstances = app.getInstances();
@@ -107,17 +105,17 @@ public class PollStartAppStatusStep extends AsyncStepOperation {
         return StartupStatus.STARTING;
     }
 
-    private ExecutionStatus checkStartupStatus(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
+    private AsyncExecutionState checkStartupStatus(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
         StartupStatus status) throws SLException {
 
-        StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+        StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
             execution.getProcessLoggerProviderFactory());
         if (status.equals(StartupStatus.CRASHED) || status.equals(StartupStatus.FLAPPING)) {
             // Application failed to start
             String message = format(Messages.ERROR_STARTING_APP_2, app.getName(), getMessageForStatus(status));
             onError(execution, message);
             setType(execution, StepPhase.RETRY);
-            return ExecutionStatus.FAILED;
+            return AsyncExecutionState.ERROR;
         } else if (status.equals(StartupStatus.STARTED)) {
             // Application started successfully
             List<String> uris = app.getUris();
@@ -127,18 +125,20 @@ public class PollStartAppStatusStep extends AsyncStepOperation {
                 String urls = CommonUtil.toCommaDelimitedString(uris, getProtocolPrefix());
                 execution.getStepLogger().info(Messages.APP_STARTED_URLS, app.getName(), urls);
             }
+            // TODO:
             StepsUtil.setStepPhase(execution, StepPhase.POLL);
-            return ExecutionStatus.SUCCESS;
+            return AsyncExecutionState.FINISHED;
         } else {
             // Application not started yet, wait and try again unless it's a timeout
             if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
                 onError(execution, message);
                 setType(execution, StepPhase.RETRY);
-                return ExecutionStatus.FAILED;
+                return AsyncExecutionState.ERROR;
             }
+            // TODO:
             StepsUtil.setStepPhase(execution, StepPhase.POLL);
-            return ExecutionStatus.RUNNING;
+            return AsyncExecutionState.RUNNING;
         }
     }
 

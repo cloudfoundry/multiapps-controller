@@ -8,7 +8,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -22,7 +21,7 @@ public class PrepareAppsDeploymentStep extends SyncActivitiStep {
     private Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.PREPARING_APPS_DEPLOYMENT);
@@ -43,9 +42,7 @@ public class PrepareAppsDeploymentStep extends SyncActivitiStep {
         execution.getContext().setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
         execution.getContext().setVariable(Constants.EXECUTE_ONE_OFF_TASKS, true);
 
-        StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
-
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
 }

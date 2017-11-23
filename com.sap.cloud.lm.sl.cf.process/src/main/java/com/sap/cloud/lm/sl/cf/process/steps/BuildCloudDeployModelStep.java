@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
@@ -33,7 +32,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.BUILDING_CLOUD_MODEL);
@@ -94,7 +93,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
             execution.getContext().setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
 
             getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_MODEL);
             throw e;

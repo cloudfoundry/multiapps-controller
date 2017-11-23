@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -19,7 +18,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class AddDomainsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.ADDING_DOMAINS);
@@ -36,7 +35,7 @@ public class AddDomainsStep extends SyncActivitiStep {
             addDomains(client, customDomains, existingDomainNames);
 
             getStepLogger().debug(Messages.DOMAINS_ADDED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().error(e, Messages.ERROR_ADDING_DOMAINS);

@@ -23,7 +23,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -61,7 +60,7 @@ public class CreateAppStep extends SyncActivitiStep {
     protected Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
         getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context:
@@ -108,7 +107,7 @@ public class CreateAppStep extends SyncActivitiStep {
             StepsUtil.setAppPropertiesChanged(execution.getContext(), true);
 
             getStepLogger().debug(Messages.APP_CREATED, app.getName());
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_CREATING_APP, app.getName());
             throw e;

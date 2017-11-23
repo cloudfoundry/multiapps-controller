@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
@@ -24,7 +23,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class UnregisterServiceUrlsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
         try {
@@ -33,7 +32,7 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
             ClientExtensions clientExtensions = execution.getClientExtensions();
             if (clientExtensions == null) {
                 getStepLogger().warn(Messages.CLIENT_DOES_NOT_SUPPORT_EXTENSIONS);
-                return ExecutionStatus.SUCCESS;
+                return StepPhase.DONE;
             }
             List<String> serviceUrlToRegisterNames = getServiceNames(StepsUtil.getServiceUrlsToRegister(execution.getContext()));
 
@@ -42,7 +41,7 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
             }
 
             getStepLogger().debug(Messages.SERVICE_URLS_UNREGISTERED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_UNREGISTERING_SERVICE_URLS);
             throw e;

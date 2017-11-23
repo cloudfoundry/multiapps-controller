@@ -5,14 +5,13 @@ import java.util.List;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 public abstract class SetAppsUrisStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(getStartProgressMessage());
@@ -25,7 +24,7 @@ public abstract class SetAppsUrisStep extends SyncActivitiStep {
         setAdditionalContextVariables(execution.getContext());
 
         getStepLogger().debug(getEndProgressMessage());
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private void reportAssignedUris(CloudApplication app) {

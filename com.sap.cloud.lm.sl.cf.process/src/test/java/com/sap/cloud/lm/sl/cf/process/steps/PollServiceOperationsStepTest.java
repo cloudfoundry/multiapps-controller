@@ -20,7 +20,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
@@ -113,13 +112,13 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     @SuppressWarnings("unchecked")
     private void prepareServiceInstanceGetter() {
         for (Entry<String, Object> response : input.serviceInstanceResponse.entrySet()) {
-            Mockito.when(serviceInstanceGetter.getServiceInstance(client, response.getKey(), TEST_SPACE_ID)).thenReturn(
-                (Map<String, Object>) response.getValue());
+            Mockito.when(serviceInstanceGetter.getServiceInstance(client, response.getKey(), TEST_SPACE_ID))
+                .thenReturn((Map<String, Object>) response.getValue());
         }
     }
 
     @Override
-    protected void validateOperationExecutionResult(ExecutionStatus result) {
+    protected void validateOperationExecutionResult(AsyncExecutionState result) {
         assertEquals(input.expectedStatus, result.toString());
     }
 
@@ -136,8 +135,8 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     }
 
     @Override
-    protected List<AsyncStepOperation> getAsyncOperations() {
-        return step.getAsyncStepOperations();
+    protected List<AsyncExecution> getAsyncOperations() {
+        return step.getAsyncStepExecutions();
     }
 
 }

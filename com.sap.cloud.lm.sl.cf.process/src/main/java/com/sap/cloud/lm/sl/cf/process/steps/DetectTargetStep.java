@@ -13,7 +13,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
@@ -54,7 +53,7 @@ public class DetectTargetStep extends SyncActivitiStep {
     };
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.DETECTING_TARGET);
@@ -100,7 +99,7 @@ public class DetectTargetStep extends SyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_DETECTING_TARGET);
             throw e;
         }
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private String computeDefaultTargetName(DelegateExecution context) {

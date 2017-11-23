@@ -9,7 +9,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
@@ -25,7 +24,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class RegisterServiceUrlsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
         try {
@@ -34,7 +33,7 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
             ClientExtensions clientExtensions = execution.getClientExtensions();
             if (clientExtensions == null) {
                 getStepLogger().warn(Messages.CLIENT_DOES_NOT_SUPPORT_EXTENSIONS);
-                return ExecutionStatus.SUCCESS;
+                return StepPhase.DONE;
             }
 
             List<ServiceUrl> serviceUrlsToRegister = getServiceUrlsToRegister(StepsUtil.getAppsToDeploy(execution.getContext()));
@@ -46,7 +45,7 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
 
             StepsUtil.setServiceUrlsToRegister(execution.getContext(), serviceUrlsToRegister);
             getStepLogger().debug(Messages.SERVICE_URLS_REGISTERED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_REGISTERING_SERVICE_URLS);
             throw e;

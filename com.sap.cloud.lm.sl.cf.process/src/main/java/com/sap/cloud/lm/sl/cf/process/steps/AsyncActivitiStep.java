@@ -4,61 +4,78 @@ import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.util.ContextUtil;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 
 public abstract class AsyncActivitiStep extends SyncActivitiStep {
 
-    private static final Integer DEFAULT_OPERATION_INDEX = 0;
+    private static final Integer DEFAULT_STEP_EXECUTION_INDEX = 0;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         StepPhase stepPhase = StepsUtil.getStepPhase(execution);
         if (stepPhase == StepPhase.WAIT) {
-            return ExecutionStatus.RUNNING;
+            return StepPhase.WAIT;
         }
+
         if (stepPhase == StepPhase.POLL) {
-            return executePollOperation(execution);
+            return executeStepExecution(execution);
         }
-        execution.getContext().setVariable("asyncStepOperationIndex", DEFAULT_OPERATION_INDEX);
+        execution.getContext().setVariable(Constants.ASYNC_STEP_EXECUTION_INDEX, DEFAULT_STEP_EXECUTION_INDEX);
         return executeAsyncStep(execution);
     }
 
-    private ExecutionStatus executePollOperation(ExecutionWrapper execution) throws Exception {
-        List<AsyncStepOperation> stepOperations = getAsyncStepOperations();
+    private StepPhase executeStepExecution(ExecutionWrapper execution) throws Exception {
+        List<AsyncExecution> stepExecutions = getAsyncStepExecutions();
 
-        ExecutionStatus operationStatus = getNextOperation(execution, stepOperations).executeOperation(execution);
-        return handleOperationStatus(execution, operationStatus);
+        AsyncExecutionState stepExecutionStatus = getStepExecution(execution, stepExecutions).execute(execution);
+        return handleStepExecutionStatus(execution, stepExecutionStatus, stepExecutions);
     }
 
-    private AsyncStepOperation getNextOperation(ExecutionWrapper execution, List<AsyncStepOperation> stepOperations) {
-        Integer operationIndex = getOperationIndex(execution.getContext());
-        AsyncStepOperation asyncStepOperation = stepOperations.get(operationIndex);
-        return asyncStepOperation;
+    private AsyncExecution getStepExecution(ExecutionWrapper execution, List<AsyncExecution> stepOperations) {
+        Integer operationIndex = getStepExecutionIndex(execution.getContext());
+        return stepOperations.get(operationIndex);
     }
 
-    private Integer getOperationIndex(DelegateExecution context) {
-        Object indexObject = context.getVariable("asyncStepOperationIndex");
-        if (indexObject == null) {
-            context.setVariable("asyncStepOperationIndex", DEFAULT_OPERATION_INDEX);
-            return DEFAULT_OPERATION_INDEX;
-        }
-        return (Integer) indexObject;
+    private Integer getStepExecutionIndex(DelegateExecution context) {
+        return (Integer) context.getVariable(Constants.ASYNC_STEP_EXECUTION_INDEX);
     }
 
-    private ExecutionStatus handleOperationStatus(ExecutionWrapper execution, ExecutionStatus operationStatus) {
-        if (operationStatus == ExecutionStatus.SUCCESS) {
-            ContextUtil.incrementVariable(execution.getContext(), "asyncStepOperationIndex");
+    private StepPhase handleStepExecutionStatus(ExecutionWrapper execution, AsyncExecutionState stepExecutionState,
+        List<AsyncExecution> stepExecutions) {
+        if (stepExecutionState == AsyncExecutionState.FINISHED) {
+            StepsUtil.incrementVariable(execution.getContext(), Constants.ASYNC_STEP_EXECUTION_INDEX);
         }
 
-        if (operationStatus == ExecutionStatus.FAILED) {
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
+        if (stepExecutionState == AsyncExecutionState.ERROR) {
+            return StepPhase.RETRY;
         }
-        return operationStatus;
+
+        if (stepExecutionState == AsyncExecutionState.RUNNING) {
+            return StepPhase.POLL;
+        }
+        return determineStepState(execution.getContext(), stepExecutions);
     }
 
-    protected abstract ExecutionStatus executeAsyncStep(ExecutionWrapper execution) throws Exception;
+    private StepPhase determineStepState(DelegateExecution context, List<AsyncExecution> stepExecutions) {
+        Integer stepExecutionIndex = getStepExecutionIndex(context);
+        if (stepExecutionIndex >= stepExecutions.size()) {
+            return StepPhase.DONE;
+        }
 
-    protected abstract List<AsyncStepOperation> getAsyncStepOperations();
+        return StepPhase.POLL;
+    }
+
+    @Override
+    protected StepPhase getInitialStepPhase(ExecutionWrapper executionWrapper) {
+        StepPhase currentStepPhase = StepsUtil.getStepPhase(executionWrapper);
+        if (currentStepPhase == StepPhase.DONE) {
+            return StepPhase.EXECUTE;
+        }
+        return currentStepPhase;
+    }
+
+    protected abstract StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception;
+
+    protected abstract List<AsyncExecution> getAsyncStepExecutions();
 
 }

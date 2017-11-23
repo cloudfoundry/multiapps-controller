@@ -16,7 +16,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -38,7 +37,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
     private Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
         try {
@@ -47,7 +46,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
             validateParameters(execution.getContext());
 
             getStepLogger().debug(Messages.PARAMETERS_VALIDATED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_VALIDATING_PARAMS);
             throw e;
@@ -152,7 +151,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         try {
             fileService.deleteFile(fileEntry.getSpace(), fileEntry.getId());
         } catch (FileStorageException e) {
-            LOGGER.getLoggerImpl().warn(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
+            LOGGER.warn(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
         }
     }
 

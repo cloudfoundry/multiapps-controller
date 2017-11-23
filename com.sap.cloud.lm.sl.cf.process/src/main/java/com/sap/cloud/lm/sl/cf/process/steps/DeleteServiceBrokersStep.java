@@ -14,7 +14,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -26,7 +25,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class DeleteServiceBrokersStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.DELETING_SERVICE_BROKERS);
@@ -40,7 +39,7 @@ public class DeleteServiceBrokersStep extends SyncActivitiStep {
             }
 
             getStepLogger().debug(Messages.SERVICE_BROKERS_DELETED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_DELETING_SERVICE_BROKERS);
             throw e;

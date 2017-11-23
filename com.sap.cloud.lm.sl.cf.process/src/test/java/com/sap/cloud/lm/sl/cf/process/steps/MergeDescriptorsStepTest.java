@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -31,8 +30,8 @@ public class MergeDescriptorsStepTest extends SyncActivitiStepTest<MergeDescript
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 1;
     private static final Integer MTA_MINOR_SCHEMA_VERSION = 0;
 
-    private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json",
-        MergeDescriptorsStepTest.class).get(0);
+    private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json", MergeDescriptorsStepTest.class)
+        .get(0);
     private static final Target TARGET = loadTargets(CONFIGURATION_PARSER, "platforms-01.json", MergeDescriptorsStepTest.class).get(0);
 
     private class MergeDescriptorsStepMock extends MergeDescriptorsStep {
@@ -59,14 +58,14 @@ public class MergeDescriptorsStepTest extends SyncActivitiStepTest<MergeDescript
         StepsUtil.setExtensionDescriptorStrings(context, Collections.emptyList());
         StepsUtil.setDeploymentDescriptorString(context, "");
 
-        ContextUtil.setAsBinaryJson(context, Constants.VAR_PLATFORM, PLATFORM);
-        ContextUtil.setAsBinaryJson(context, Constants.VAR_TARGET, TARGET);
+        StepsUtil.setAsBinaryJson(context, Constants.VAR_PLATFORM, PLATFORM);
+        StepsUtil.setAsBinaryJson(context, Constants.VAR_TARGET, TARGET);
     }
 
     @Test
     public void testExecute1() throws Exception {
-        when(merger.merge("", Collections.emptyList())).thenReturn(
-            loadDeploymentDescriptor(DESCRIPTOR_PARSER, "node-hello-mtad.yaml", getClass()));
+        when(merger.merge("", Collections.emptyList()))
+            .thenReturn(loadDeploymentDescriptor(DESCRIPTOR_PARSER, "node-hello-mtad.yaml", getClass()));
 
         step.execute(context);
 

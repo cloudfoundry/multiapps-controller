@@ -18,7 +18,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 
 @RunWith(Parameterized.class)
@@ -83,7 +82,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncActivitiStepTest
         for (String extensionDescriptorFileLocation : descriptorFileLocations) {
             expected.add(IOUtils.toString(getClass().getResourceAsStream(extensionDescriptorFileLocation)));
         }
-        List<String> actual = ContextUtil.getArrayVariableAsList(context,
+        List<String> actual = StepsUtil.getArrayVariableAsList(context,
             com.sap.cloud.lm.sl.cf.process.Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS);
         assertEquals(expected, actual);
     }

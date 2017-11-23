@@ -14,7 +14,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
@@ -35,7 +34,7 @@ public class UndeployAppStep extends SyncActivitiStep {
     private ApplicationRoutesGetter applicationRoutesGetter;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             CloudApplication appToUndeploy = StepsUtil.getAppToUndeploy(execution.getContext());
@@ -47,7 +46,7 @@ public class UndeployAppStep extends SyncActivitiStep {
             deleteApplication(appToUndeploy, client);
 
             getStepLogger().debug(Messages.APPS_UNDEPLOYED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().error(e, Messages.ERROR_UNDEPLOYING_APPS);

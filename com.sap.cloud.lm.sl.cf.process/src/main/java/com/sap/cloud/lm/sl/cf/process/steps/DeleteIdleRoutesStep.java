@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -22,7 +21,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class DeleteIdleRoutesStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
@@ -36,7 +35,7 @@ public class DeleteIdleRoutesStep extends SyncActivitiStep {
             }
 
             getStepLogger().debug(Messages.IDLE_URIS_DELETED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().error(e, Messages.ERROR_DELETING_IDLE_ROUTES);

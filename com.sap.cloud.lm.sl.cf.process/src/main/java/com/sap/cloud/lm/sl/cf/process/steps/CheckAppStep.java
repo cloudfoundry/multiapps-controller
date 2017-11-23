@@ -7,7 +7,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -16,7 +15,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class CheckAppStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
 
@@ -38,7 +37,7 @@ public class CheckAppStep extends SyncActivitiStep {
                 getStepLogger().info(Messages.APP_EXISTS, app.getName());
             }
 
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_CHECKING_APP, app.getName());
             throw e;

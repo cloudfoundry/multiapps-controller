@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -20,12 +19,12 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
 
     @Override
-    public ExecutionStatus executeAsyncStep(ExecutionWrapper execution) throws SLException {
+    public StepPhase executeAsyncStep(ExecutionWrapper execution) throws SLException {
         try {
             return super.executeAsyncStep(execution);
         } catch (CloudFoundryException e) {
             getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_SUBSCRIBER_RESTART, getAppToStart(execution.getContext()).getName());
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         }
     }
 
@@ -45,8 +44,8 @@ public class RestartServiceBrokerSubscriberStep extends RestartAppStep {
     }
 
     @Override
-    protected List<AsyncStepOperation> getAsyncStepOperations() {
-        return Arrays.asList(new PollRestartServiceBrokerStatusStep(recentLogsRetriever, configuration));
+    protected List<AsyncExecution> getAsyncStepExecutions() {
+        return Arrays.asList(new PollRestartServiceBrokerStatusExecution(recentLogsRetriever, configuration));
     }
 
 }

@@ -18,7 +18,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
@@ -33,7 +32,7 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 public class UpdateAppStep extends CreateAppStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
         getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context
@@ -100,7 +99,7 @@ public class UpdateAppStep extends CreateAppStep {
             }
 
             StepsUtil.setAppPropertiesChanged(execution.getContext(), appPropertiesChanged);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_UPDATING_APP, app.getName());
             throw e;
@@ -203,8 +202,9 @@ public class UpdateAppStep extends CreateAppStep {
 
     protected CloudServiceBinding getServiceBindingsForApplication(CloudApplication existingApp,
         List<CloudServiceBinding> serviceBindings) {
-        Optional<CloudServiceBinding> optCloudServiceBinding = serviceBindings.stream().filter(
-            serviceBinding -> existingApp.getMeta().getGuid().equals(serviceBinding.getAppGuid())).findFirst();
+        Optional<CloudServiceBinding> optCloudServiceBinding = serviceBindings.stream()
+            .filter(serviceBinding -> existingApp.getMeta().getGuid().equals(serviceBinding.getAppGuid()))
+            .findFirst();
         if (optCloudServiceBinding.isPresent()) {
             return optCloudServiceBinding.get();
         }

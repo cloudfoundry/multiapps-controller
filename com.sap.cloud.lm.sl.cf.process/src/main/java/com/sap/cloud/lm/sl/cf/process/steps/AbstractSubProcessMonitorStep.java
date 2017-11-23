@@ -10,20 +10,23 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.runtime.Job;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-public abstract class AbstractSubProcessMonitorStep extends AsyncStepOperation {
+public abstract class AbstractSubProcessMonitorStep extends AsyncExecution {
 
     @Inject
     private ActivitiFacade activitiFacade;
 
+    public AbstractSubProcessMonitorStep(ActivitiFacade activitiFacade) {
+        this.activitiFacade = activitiFacade;
+    }
+
     @Override
-    public ExecutionStatus executeOperation(ExecutionWrapper execution) {
+    public AsyncExecutionState execute(ExecutionWrapper execution) {
         String subProcessId = StepsUtil.getSubProcessId(execution.getContext());
         execution.getStepLogger().debug(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId);
         try {
@@ -40,7 +43,8 @@ public abstract class AbstractSubProcessMonitorStep extends AsyncStepOperation {
         return historyService.createHistoricProcessInstanceQuery().processInstanceId(subProcessId).singleResult();
     }
 
-    private ExecutionStatus getSubProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution) throws MonitoringException {
+    private AsyncExecutionState getSubProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution)
+        throws MonitoringException {
         ErrorType errorType = getSubProcessErrorType(subProcess, execution.getContextExtensionDao());
         execution.getStepLogger().debug(Messages.ERROR_TYPE_OF_SUBPROCESS, subProcess.getId(), errorType);
         Job executionJob = execution.getContext()
@@ -55,17 +59,17 @@ public abstract class AbstractSubProcessMonitorStep extends AsyncStepOperation {
 
         if (executionJob.getExceptionMessage() == null) {
             StepsUtil.setStepPhase(execution, StepPhase.POLL);
-            return ExecutionStatus.RUNNING;
+            return AsyncExecutionState.RUNNING;
         }
         StepsUtil.setStepPhase(execution, StepPhase.POLL);
         return onError(execution.getContext(), errorType);
     }
 
-    private ExecutionStatus getFinishedProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution, ErrorType errorType)
-        throws MonitoringException {
+    private AsyncExecutionState getFinishedProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution,
+        ErrorType errorType) throws MonitoringException {
         if (subProcess.getEndTime() == null) {
             StepsUtil.setStepPhase(execution, StepPhase.POLL);
-            return ExecutionStatus.RUNNING;
+            return AsyncExecutionState.RUNNING;
         }
         if (subProcess.getDeleteReason() == null) {
             StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
@@ -79,13 +83,14 @@ public abstract class AbstractSubProcessMonitorStep extends AsyncStepOperation {
         return StepsUtil.getErrorType(subProcess.getId(), contextExtensionDao);
     }
 
-    protected abstract ExecutionStatus onError(DelegateExecution context, ErrorType errorType) throws MonitoringException;
+    protected abstract AsyncExecutionState onError(DelegateExecution context, ErrorType errorType) throws MonitoringException;
 
-    protected abstract ExecutionStatus onAbort(DelegateExecution context, ErrorType errorType) throws MonitoringException;
+    protected abstract AsyncExecutionState onAbort(DelegateExecution context, ErrorType errorType) throws MonitoringException;
 
-    protected ExecutionStatus onSuccess(DelegateExecution context) {
+    protected AsyncExecutionState onSuccess(DelegateExecution context) {
         injectProcessVariablesFromSubProcess(context);
-        return ExecutionStatus.SUCCESS;
+
+        return AsyncExecutionState.FINISHED;
     }
 
     private void injectProcessVariablesFromSubProcess(DelegateExecution context) {

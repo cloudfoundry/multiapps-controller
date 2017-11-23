@@ -16,7 +16,7 @@
     <serviceTask id="scaleAppTask" name="Scale App" activiti:async="true" activiti:delegateExpression="${scaleAppStep}"></serviceTask>
     <sequenceFlow id="flow19" sourceRef="checkAppTask" targetRef="doesAppExistGateway"></sequenceFlow>
     <sequenceFlow id="appUploadedFlow" sourceRef="exclusivegateway5" targetRef="updateContextTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "SUCCESS")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="updateContextTask" name="Update Context" activiti:async="true" activiti:delegateExpression="${updateContextStep}"></serviceTask>
     <sequenceFlow id="flow26" sourceRef="updateContextTask" targetRef="scaleAppTask"></sequenceFlow>
@@ -43,7 +43,7 @@
     <sequenceFlow id="waitForTaskToBeExecutedFlow" sourceRef="isTaskExecutedGateway" targetRef="taskExecutionPollingIntervalTimer"></sequenceFlow>
     <sequenceFlow id="flow43" sourceRef="taskExecutionPollingIntervalTimer" targetRef="executeTaskTask"></sequenceFlow>
     <sequenceFlow id="taskExecutedFlow" sourceRef="isTaskExecutedGateway" targetRef="incrementTaskIndexTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "SUCCESS")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="incrementTaskIndexTask" name="Increment Task Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="flow46" sourceRef="incrementTaskIndexTask" targetRef="areThereMoreTasksToExecuteGateway"></sequenceFlow>
@@ -67,21 +67,23 @@
     <exclusiveGateway id="shouldStartAppGateway" name="Should Start App" default="doNotStartAppFlow"></exclusiveGateway>
     <sequenceFlow id="doNotStartAppFlow" sourceRef="shouldStartAppGateway" targetRef="shouldExecuteTasks"></sequenceFlow>
     <sequenceFlow id="appStagedFlow" sourceRef="exclusivegateway6" targetRef="shouldStartAppGateway">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "SUCCESS")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="doNotStageAppFlow"></exclusiveGateway>
     <sequenceFlow id="doNotStopAppFlow" sourceRef="shouldStopAppGateway" targetRef="exclusivegateway2"></sequenceFlow>
-    <sequenceFlow id="stageAppFlow" sourceRef="exclusivegateway2" targetRef="servicetask3">
+    <sequenceFlow id="stageAppFlow" sourceRef="exclusivegateway2" targetRef="stageAppTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('STAGE') and platformType != 'CF'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="doNotStageAppFlow" sourceRef="exclusivegateway2" targetRef="shouldStartAppGateway"></sequenceFlow>
     <sequenceFlow id="flow64" sourceRef="stopAppTask" targetRef="exclusivegateway2"></sequenceFlow>
-    <sequenceFlow id="startAppFlow" sourceRef="shouldStartAppGateway" targetRef="servicetask1">
+    <sequenceFlow id="startAppFlow" sourceRef="shouldStartAppGateway" targetRef="startAppTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('START')}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="appExecutedFlow" sourceRef="exclusivegateway4" targetRef="shouldExecuteTasks"></sequenceFlow>
+    <sequenceFlow id="appExecutedFlow" sourceRef="exclusivegateway4" targetRef="shouldExecuteTasks">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
+    </sequenceFlow>
     <exclusiveGateway id="exclusivegateway3" name="Does App Exist" default="uploadAppContentFlow"></exclusiveGateway>
-    <sequenceFlow id="uploadAppContentFlow" sourceRef="exclusivegateway3" targetRef="servicetask2"></sequenceFlow>
+    <sequenceFlow id="uploadAppContentFlow" sourceRef="exclusivegateway3" targetRef="uploadAppTask"></sequenceFlow>
     <sequenceFlow id="flow82" name="Do not upload application content" sourceRef="exclusivegateway3" targetRef="scaleAppTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(not shouldUploadApplicationContent)}]]></conditionExpression>
     </sequenceFlow>
@@ -95,38 +97,36 @@
     <sequenceFlow id="doNotExecuteOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="publishProvidedDependenciesTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(not executeOneOffTasks)}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask1" name="Start App" activiti:async="true" activiti:delegateExpression="${startAppStep1}"></serviceTask>
+    <serviceTask id="startAppTask" name="Start App" activiti:async="true" activiti:delegateExpression="${startAppStep1}"></serviceTask>
     <intermediateCatchEvent id="timerintermediatecatchevent1" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${controllerPollingInterval}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <sequenceFlow id="flow83" sourceRef="exclusivegateway4" targetRef="timerintermediatecatchevent1">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "RUNNING")}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="flow84" sourceRef="timerintermediatecatchevent1" targetRef="servicetask1"></sequenceFlow>
-    <exclusiveGateway id="exclusivegateway4" name="Is App Executed" default="appExecutedFlow"></exclusiveGateway>
-    <sequenceFlow id="flow85" sourceRef="servicetask1" targetRef="exclusivegateway4"></sequenceFlow>
-    <serviceTask id="servicetask2" name="Upload App" activiti:async="true" activiti:delegateExpression="${uploadAppStep1}"></serviceTask>
+    <sequenceFlow id="waitStartAppFlow" sourceRef="exclusivegateway4" targetRef="timerintermediatecatchevent1"></sequenceFlow>
+    <sequenceFlow id="flow84" sourceRef="timerintermediatecatchevent1" targetRef="startAppTask"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway4" name="Is App Executed" default="waitStartAppFlow"></exclusiveGateway>
+    <sequenceFlow id="flow85" sourceRef="startAppTask" targetRef="exclusivegateway4"></sequenceFlow>
+    <serviceTask id="uploadAppTask" name="Upload App" activiti:async="true" activiti:delegateExpression="${uploadAppStep1}"></serviceTask>
     <exclusiveGateway id="exclusivegateway5" name="Is App Uploaded" default="flow87"></exclusiveGateway>
-    <sequenceFlow id="flow86" sourceRef="servicetask2" targetRef="exclusivegateway5"></sequenceFlow>
+    <sequenceFlow id="flow86" sourceRef="uploadAppTask" targetRef="exclusivegateway5"></sequenceFlow>
     <sequenceFlow id="flow87" sourceRef="exclusivegateway5" targetRef="timerintermediatecatchevent2"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent2" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${controllerPollingInterval}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <sequenceFlow id="flow88" sourceRef="timerintermediatecatchevent2" targetRef="servicetask2"></sequenceFlow>
-    <serviceTask id="servicetask3" name="Stage App" activiti:async="true" activiti:delegateExpression="${stageAppStep1}"></serviceTask>
+    <sequenceFlow id="flow88" sourceRef="timerintermediatecatchevent2" targetRef="uploadAppTask"></sequenceFlow>
+    <serviceTask id="stageAppTask" name="Stage App" activiti:async="true" activiti:delegateExpression="${stageAppStep1}"></serviceTask>
     <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway" default="flow90"></exclusiveGateway>
-    <sequenceFlow id="flow89" sourceRef="servicetask3" targetRef="exclusivegateway6"></sequenceFlow>
+    <sequenceFlow id="flow89" sourceRef="stageAppTask" targetRef="exclusivegateway6"></sequenceFlow>
     <sequenceFlow id="flow90" sourceRef="exclusivegateway6" targetRef="timerintermediatecatchevent3"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent3" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${controllerPollingInterval}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <sequenceFlow id="flow91" sourceRef="timerintermediatecatchevent3" targetRef="servicetask3"></sequenceFlow>
+    <sequenceFlow id="flow91" sourceRef="timerintermediatecatchevent3" targetRef="stageAppTask"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deployAppSubProcess">
     <bpmndi:BPMNPlane bpmnElement="deployAppSubProcess" id="BPMNPlane_deployAppSubProcess">
@@ -211,7 +211,7 @@
       <bpmndi:BPMNShape bpmnElement="shouldExecuteTasks" id="BPMNShape_shouldExecuteTasks">
         <omgdc:Bounds height="40.0" width="40.0" x="123.0" y="1051.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
+      <bpmndi:BPMNShape bpmnElement="startAppTask" id="BPMNShape_startAppTask">
         <omgdc:Bounds height="55.0" width="105.0" x="250.0" y="830.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent1" id="BPMNShape_timerintermediatecatchevent1">
@@ -220,7 +220,7 @@
       <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
         <omgdc:Bounds height="40.0" width="40.0" x="381.0" y="837.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
+      <bpmndi:BPMNShape bpmnElement="uploadAppTask" id="BPMNShape_uploadAppTask">
         <omgdc:Bounds height="56.0" width="105.0" x="834.0" y="89.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
@@ -229,7 +229,7 @@
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent2" id="BPMNShape_timerintermediatecatchevent2">
         <omgdc:Bounds height="35.0" width="35.0" x="984.0" y="191.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetask3" id="BPMNShape_servicetask3">
+      <bpmndi:BPMNShape bpmnElement="stageAppTask" id="BPMNShape_stageAppTask">
         <omgdc:Bounds height="55.0" width="105.0" x="243.0" y="603.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
@@ -441,7 +441,7 @@
         <omgdi:waypoint x="1118.0" y="1339.0"></omgdi:waypoint>
         <omgdi:waypoint x="1118.0" y="1188.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow83" id="BPMNEdge_flow83">
+      <bpmndi:BPMNEdge bpmnElement="waitStartAppFlow" id="BPMNEdge_waitStartAppFlow">
         <omgdi:waypoint x="401.0" y="877.0"></omgdi:waypoint>
         <omgdi:waypoint x="400.0" y="930.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>

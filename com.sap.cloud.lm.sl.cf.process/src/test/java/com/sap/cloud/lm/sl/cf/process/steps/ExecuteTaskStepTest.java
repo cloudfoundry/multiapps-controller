@@ -9,7 +9,6 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -37,8 +36,8 @@ public class ExecuteTaskStepTest extends SyncActivitiStepTest<ExecuteTaskStep> {
         StepsUtil.setTasksToExecute(context, Arrays.asList(task));
         context.setVariable(Constants.VAR_TASKS_INDEX, 0);
 
-        when(clientExtensions.runTask(app.getName(), task.getName(), task.getCommand(), task.getEnvironmentVariables())).thenReturn(
-            StepsTestUtil.copy(task));
+        when(clientExtensions.runTask(app.getName(), task.getName(), task.getCommand(), task.getEnvironmentVariables()))
+            .thenReturn(StepsTestUtil.copy(task));
 
         // When:
         step.execute(context);
@@ -50,7 +49,7 @@ public class ExecuteTaskStepTest extends SyncActivitiStepTest<ExecuteTaskStep> {
 
     @Override
     protected void assertStepFinishedSuccessfully() {
-        assertEquals(ExecutionStatus.RUNNING.toString(), getExecutionStatus());
+        assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
     private void verifyTaskWasStarted() {

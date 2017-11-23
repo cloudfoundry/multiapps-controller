@@ -31,7 +31,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -99,7 +98,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     private ActivitiFacade activitiFacade;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
@@ -116,7 +115,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
             for (ConfigurationSubscription subscription : subscriptionsDao.findAll(updatedEntries)) {
                 Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientForCurrentSpace, subscription.getSpaceId());
                 if (orgAndSpace == null) {
-                    LOGGER.getLoggerImpl().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
+                    LOGGER.warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                     continue;
                 }
                 CloudApplication updatedApplication = updateSubscriber(execution, orgAndSpace, subscription);
@@ -128,7 +127,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
             StepsUtil.setUpdatedSubscribers(execution.getContext(), removeDuplicates(updatedSubscribers));
             StepsUtil.setUpdatedServiceBrokerSubscribers(execution.getContext(), updatedServiceBrokerSubscribers);
             getStepLogger().debug(Messages.SUBSCRIBERS_UPDATED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_UPDATING_SUBSCRIBERS);
             throw e;
@@ -201,8 +200,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
         resolver.resolve(dummyDescriptor);
         getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
             secureSerializer.toJson(dummyDescriptor));
-        dummyDescriptor = handlerFactory.getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(),
-            new ResolverBuilder()).resolve();
+        dummyDescriptor = handlerFactory
+            .getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder()).resolve();
         getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
             secureSerializer.toJson(dummyDescriptor));
 

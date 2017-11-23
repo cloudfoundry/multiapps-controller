@@ -5,16 +5,16 @@ import static java.text.MessageFormat.format;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-public class PollUploadAppStatusStep extends AsyncStepOperation {
+public class PollUploadAppStatusExecution extends AsyncExecution {
 
     @Override
-    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws SLException {
+    public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {
         execution.getStepLogger().logActivitiTask();
 
         // Get the next cloud application from the context
@@ -23,26 +23,26 @@ public class PollUploadAppStatusStep extends AsyncStepOperation {
         try {
             execution.getStepLogger().info(Messages.CHECKING_UPLOAD_APP_STATUS, app.getName());
             String status = execution.getContextExtensionDao()
-                .find(execution.getContext().getProcessInstanceId(), "uploadState")
+                .find(execution.getContext().getProcessInstanceId(), Constants.VAR_UPLOAD_STATE)
                 .getValue();
-            if (ExecutionStatus.FAILED.name().equalsIgnoreCase(status)) {
+            if (AsyncExecutionState.ERROR.name().equalsIgnoreCase(status)) {
                 String message = format(Messages.ERROR_UPLOADING_APP, app.getName());
                 execution.getStepLogger().error(message);
                 StepsUtil.setStepPhase(execution, StepPhase.RETRY);
-                return ExecutionStatus.FAILED;
+                return AsyncExecutionState.ERROR;
             }
 
             ClientExtensions clientExtensions = execution.getClientExtensions();
-            if (clientExtensions == null && ExecutionStatus.SUCCESS.name().equalsIgnoreCase(status)) {
-                return ExecutionStatus.SUCCESS;
+            if (clientExtensions == null && AsyncExecutionState.FINISHED.name().equalsIgnoreCase(status)) {
+                return AsyncExecutionState.FINISHED;
             }
 
-            String uploadToken = StepsUtil.getUploadToken(execution.getContext());
+            String uploadToken = StepsUtil.getUploadToken(execution);
             if (uploadToken == null) {
                 String message = format(Messages.APP_UPLOAD_TIMED_OUT, app.getName());
                 execution.getStepLogger().error(message);
                 StepsUtil.setStepPhase(execution, StepPhase.RETRY);
-                return ExecutionStatus.FAILED;
+                return AsyncExecutionState.ERROR;
             }
 
             UploadInfo uploadInfo = clientExtensions.getUploadProgress(uploadToken);
@@ -51,17 +51,17 @@ public class PollUploadAppStatusStep extends AsyncStepOperation {
                     String message = format(Messages.ERROR_UPLOADING_APP, app.getName());
                     execution.getStepLogger().error(message);
                     StepsUtil.setStepPhase(execution, StepPhase.RETRY);
-                    return ExecutionStatus.FAILED;
+                    return AsyncExecutionState.ERROR;
                 }
                 case FINISHED: {
                     execution.getStepLogger().info(Messages.APP_UPLOADED, app.getName());
-                    return ExecutionStatus.SUCCESS;
+                    return AsyncExecutionState.FINISHED;
                 }
                 case RUNNING:
                 case QUEUED:
                 case UNKNOWN:
                 default: {
-                    return ExecutionStatus.RUNNING;
+                    return AsyncExecutionState.RUNNING;
                 }
             }
         } catch (SLException e) {

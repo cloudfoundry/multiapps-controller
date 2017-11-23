@@ -12,7 +12,6 @@ import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -21,7 +20,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
-public class PollExecuteAppStatusStep extends AsyncStepOperation {
+public class PollExecuteAppStatusExecution extends AsyncExecution {
 
     enum AppExecutionStatus {
         EXECUTING, SUCCEEDED, FAILED
@@ -32,19 +31,19 @@ public class PollExecuteAppStatusStep extends AsyncStepOperation {
 
     protected RecentLogsRetriever recentLogsRetriever;
 
-    public PollExecuteAppStatusStep(RecentLogsRetriever recentLogsRetriever) {
+    public PollExecuteAppStatusExecution(RecentLogsRetriever recentLogsRetriever) {
         this.recentLogsRetriever = recentLogsRetriever;
     }
 
     @Override
-    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws Exception {
+    public AsyncExecutionState execute(ExecutionWrapper execution) throws Exception {
         execution.getStepLogger().logActivitiTask();
         CloudApplication app = getNextApp(execution.getContext());
         ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
         boolean executeApp = attributesGetter.getAttribute(SupportedParameters.EXECUTE_APP, Boolean.class, false);
 
         if (!executeApp) {
-            return ExecutionStatus.SUCCESS;
+            return AsyncExecutionState.FINISHED;
         }
         try {
             CloudFoundryOperations client = execution.getCloudFoundryClient();
@@ -52,9 +51,11 @@ public class PollExecuteAppStatusStep extends AsyncStepOperation {
             return checkAppExecutionStatus(execution, client, attributesGetter, app, status);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw e;
         } catch (SLException e) {
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw e;
         }
@@ -103,20 +104,20 @@ public class PollExecuteAppStatusStep extends AsyncStepOperation {
             return null;
     }
 
-    private ExecutionStatus checkAppExecutionStatus(ExecutionWrapper execution, CloudFoundryOperations client,
+    private AsyncExecutionState checkAppExecutionStatus(ExecutionWrapper execution, CloudFoundryOperations client,
         ApplicationAttributesGetter attributesGetter, CloudApplication app, Pair<AppExecutionStatus, String> status) throws SLException {
         if (status._1.equals(AppExecutionStatus.FAILED)) {
             // Application execution failed
             String message = format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status._2);
             execution.getStepLogger().error(message);
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
             setStepPhase(execution, StepPhase.RETRY);
-            return ExecutionStatus.FAILED;
+            return AsyncExecutionState.ERROR;
         } else if (status._1.equals(AppExecutionStatus.SUCCEEDED)) {
             // Application executed successfully
             execution.getStepLogger().info(Messages.APP_EXECUTED, app.getName());
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
             // Stop the application if specified
             boolean stopApp = attributesGetter.getAttribute(SupportedParameters.STOP_APP, Boolean.class, false);
@@ -125,18 +126,18 @@ public class PollExecuteAppStatusStep extends AsyncStepOperation {
                 client.stopApplication(app.getName());
                 execution.getStepLogger().debug(Messages.APP_STOPPED, app.getName());
             }
-            return ExecutionStatus.SUCCESS;
+            return AsyncExecutionState.FINISHED;
         } else {
             // Application not executed yet, wait and try again unless it's a timeout
             if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
                 execution.getStepLogger().error(message);
-                StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+                StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                     execution.getProcessLoggerProviderFactory());
                 setStepPhase(execution, StepPhase.RETRY);
-                return ExecutionStatus.FAILED;
+                return AsyncExecutionState.ERROR;
             }
-            return ExecutionStatus.RUNNING;
+            return AsyncExecutionState.RUNNING;
         }
     }
 

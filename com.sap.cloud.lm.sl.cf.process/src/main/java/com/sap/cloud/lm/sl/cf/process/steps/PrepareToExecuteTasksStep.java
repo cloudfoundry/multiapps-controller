@@ -9,7 +9,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
@@ -26,7 +25,7 @@ public class PrepareToExecuteTasksStep extends SyncActivitiStep {
     private Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
@@ -43,7 +42,7 @@ public class PrepareToExecuteTasksStep extends SyncActivitiStep {
         }
     }
 
-    private ExecutionStatus attemptToPrepareExecutionOfTasks(ExecutionWrapper execution, List<CloudTask> tasksToExecute) {
+    private StepPhase attemptToPrepareExecutionOfTasks(ExecutionWrapper execution, List<CloudTask> tasksToExecute) {
         StepsUtil.setTasksToExecute(execution.getContext(), tasksToExecute);
 
         execution.getContext().setVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS, platformSupportsTasks(execution));
@@ -55,7 +54,7 @@ public class PrepareToExecuteTasksStep extends SyncActivitiStep {
 
         execution.getContext().setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
 
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private boolean platformSupportsTasks(ExecutionWrapper execution) {

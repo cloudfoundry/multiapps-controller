@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,7 +24,6 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
@@ -94,7 +93,7 @@ public class ProcessMtaArchiveStepTest extends SyncActivitiStepTest<ProcessMtaAr
     }
 
     private void testModules() throws Exception {
-        List<String> actualModules = ContextUtil.getArrayVariableAsList(context,
+        List<String> actualModules = StepsUtil.getArrayVariableAsList(context,
             com.sap.cloud.lm.sl.cf.process.Constants.VAR_MTA_ARCHIVE_MODULES);
 
         assertEquals(input.expectedModules.size(), actualModules.size());
@@ -130,12 +129,13 @@ public class ProcessMtaArchiveStepTest extends SyncActivitiStepTest<ProcessMtaAr
         @Override
         protected MtaArchiveHelper getHelper(Manifest manifest) {
             MtaArchiveHelper helper = Mockito.mock(MtaArchiveHelper.class);
-            when(helper.getMtaArchiveModules()).thenReturn(
-                input.expectedModules.stream().collect(Collectors.toMap(m -> m, Function.identity())));
-            when(helper.getMtaArchiveResources()).thenReturn(
-                input.expectedResources.stream().collect(Collectors.toMap(r -> r, Function.identity())));
-            when(helper.getMtaRequiresDependencies()).thenReturn(
-                input.expectedRequiredDependencies.stream().collect(Collectors.toMap(d -> d, Function.identity())));
+            when(helper.getMtaArchiveModules())
+                .thenReturn(input.expectedModules.stream().collect(Collectors.toMap(m -> m, Function.identity())));
+            when(helper.getMtaArchiveResources())
+                .thenReturn(input.expectedResources.stream().collect(Collectors.toMap(r -> r, Function.identity())));
+            when(helper.getMtaRequiresDependencies())
+                .thenReturn(input.expectedRequiredDependencies.stream().collect(Collectors.toMap(d -> d, Function.identity())));
+
             try {
                 doAnswer(a -> null).when(helper).init();
             } catch (SLException e) {

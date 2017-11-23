@@ -18,7 +18,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
@@ -48,11 +47,11 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = () -> new CredentialsGenerator();
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
 
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         return executeStepInternal(execution, false);
     }
 
-    protected ExecutionStatus executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoute) throws SLException {
+    protected StepPhase executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoute) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.COLLECTING_SYSTEM_PARAMETERS);
@@ -95,7 +94,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         }
         getStepLogger().debug(Messages.SYSTEM_PARAMETERS_COLLECTED);
 
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private String getDefaultDomain(CloudFoundryOperations client) {

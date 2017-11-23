@@ -102,7 +102,7 @@
     <serviceTask id="updateSubscribedServiceBrokerTask" name="Update Subscriber Service Broker" activiti:async="true" activiti:delegateExpression="${updateSubscribedServiceBrokerStep}"></serviceTask>
     <sequenceFlow id="flow83" sourceRef="updateSubscribedServiceBrokerTask" targetRef="servicetask10"></sequenceFlow>
     <sequenceFlow id="continueAppsDeploymentFlow" sourceRef="exclusivegateway6" targetRef="incrementIndexTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "SUCCESS")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow85" sourceRef="incrementIndexTask" targetRef="exclusivegateway7"></sequenceFlow>
     <serviceTask id="prepareToRestartServiceBrokersTask" name="Prepare To Restart Service Brokers" activiti:async="true" activiti:delegateExpression="${prepareToRestartServiceBrokersStep}"></serviceTask>
@@ -141,7 +141,7 @@
     <sequenceFlow id="waitRestartAppSubProcessFlow" sourceRef="exclusivegateway10" targetRef="timerintermediatecatchevent3"></sequenceFlow>
     <sequenceFlow id="flow114" sourceRef="servicetask7" targetRef="exclusivegateway9"></sequenceFlow>
     <sequenceFlow id="continueRestartAppSubprocessFlow" sourceRef="exclusivegateway10" targetRef="servicetask7">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "SUCCESS")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow117" sourceRef="timerintermediatecatchevent3" targetRef="monitorRestartAppSubprocessStep"></sequenceFlow>
     <sequenceFlow id="continueBlueGreenProcessFlow" sourceRef="exclusivegateway9" targetRef="deleteIdleRoutesTask">
@@ -177,7 +177,7 @@
     <exclusiveGateway id="areServiceOperationsDoneGateway" name="Are Service Operations Done Gateway" default="waitForServiceOperationsToBeDoneFlow"></exclusiveGateway>
     <sequenceFlow id="flow140" sourceRef="createOrUpdateServicesTask" targetRef="areServiceOperationsDoneGateway"></sequenceFlow>
     <sequenceFlow id="serviceOperationsDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="prepareAppsDeploymentTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "SUCCESS")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <intermediateCatchEvent id="pollServicesStatusTimer" name="TimerCatchEvent">
       <timerEventDefinition>
@@ -193,7 +193,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(noRestartSubscribedApps == true)}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow145" sourceRef="exclusivegateway12" targetRef="updateSubscribedServiceBrokerTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "SUCCESS")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="deleteIdleRoutesTask" name="Delete Idle Routes" activiti:async="true" activiti:delegateExpression="${deleteIdleRoutesStep}"></serviceTask>
     <sequenceFlow id="flow146" sourceRef="deleteIdleRoutesTask" targetRef="deleteSubscriptionsTask"></sequenceFlow>
@@ -369,7 +369,7 @@
         <omgdc:Bounds height="35.0" width="35.0" x="746.0" y="839.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask10" id="BPMNShape_servicetask10">
-        <omgdc:Bounds height="55.0" width="105.0" x="606.0" y="882.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="700.0" y="879.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="collectSystemParametersTask" id="BPMNShape_collectSystemParametersTask">
         <omgdc:Bounds height="68.0" width="105.0" x="910.0" y="451.0"></omgdc:Bounds>
@@ -585,8 +585,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow83" id="BPMNEdge_flow83">
         <omgdi:waypoint x="876.0" y="826.0"></omgdi:waypoint>
-        <omgdi:waypoint x="876.0" y="909.0"></omgdi:waypoint>
-        <omgdi:waypoint x="711.0" y="909.0"></omgdi:waypoint>
+        <omgdi:waypoint x="876.0" y="906.0"></omgdi:waypoint>
+        <omgdi:waypoint x="805.0" y="906.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="continueAppsDeploymentFlow" id="BPMNEdge_continueAppsDeploymentFlow">
         <omgdi:waypoint x="415.0" y="383.0"></omgdi:waypoint>
@@ -693,7 +693,7 @@
         <omgdi:waypoint x="646.0" y="823.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow127" id="BPMNEdge_flow127">
-        <omgdi:waypoint x="711.0" y="909.0"></omgdi:waypoint>
+        <omgdi:waypoint x="700.0" y="906.0"></omgdi:waypoint>
         <omgdi:waypoint x="606.0" y="906.0"></omgdi:waypoint>
         <omgdi:waypoint x="523.0" y="812.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>

@@ -9,30 +9,29 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @Component("prepareToRestartServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToRestartServiceBrokersStep extends AbstractProcessStep {
+public class PrepareToRestartServiceBrokersStep extends SyncActivitiStep {
 
     @Inject
     private Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         getStepLogger().logActivitiTask();
 
-        List<CloudApplicationExtended> serviceBrokersToRestart = StepsUtil.getServiceBrokerSubscribersToRestart(context);
-        prepareServiceBrokersToRestart(context, serviceBrokersToRestart);
+        List<CloudApplicationExtended> serviceBrokersToRestart = StepsUtil.getServiceBrokerSubscribersToRestart(execution.getContext());
+        prepareServiceBrokersToRestart(execution.getContext(), serviceBrokersToRestart);
 
-        context.setVariable(Constants.REBUILD_APP_ENV, false);
-        context.setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
-        context.setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
+        execution.getContext().setVariable(Constants.REBUILD_APP_ENV, false);
+        execution.getContext().setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
+        execution.getContext().setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
 
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
 
     }
 

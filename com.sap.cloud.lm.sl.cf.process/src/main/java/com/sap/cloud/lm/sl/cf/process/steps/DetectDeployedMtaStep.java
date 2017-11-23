@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedComponentsDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedComponents;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -26,11 +25,11 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
-    protected Function<List<CloudApplication>, DeployedComponents> componentsDetector = (
-        deployedApps) -> new DeployedComponentsDetector().detectAllDeployedComponents(deployedApps);
+    protected Function<List<CloudApplication>, DeployedComponents> componentsDetector = (deployedApps) -> new DeployedComponentsDetector()
+        .detectAllDeployedComponents(deployedApps);
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
@@ -51,7 +50,7 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
             }
             StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
             getStepLogger().debug(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps));
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().error(e, Messages.ERROR_DETECTING_DEPLOYED_MTA);

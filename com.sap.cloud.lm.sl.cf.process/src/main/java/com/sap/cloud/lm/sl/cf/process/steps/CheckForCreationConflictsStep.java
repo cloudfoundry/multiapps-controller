@@ -21,7 +21,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
@@ -37,7 +36,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class CheckForCreationConflictsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         getStepLogger().logActivitiTask();
 
         DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
@@ -69,7 +68,7 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
             throw e;
         }
 
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private void validateServicesToCreate(CloudFoundryOperations client, DelegateExecution context, DeployedMta deployedMta,

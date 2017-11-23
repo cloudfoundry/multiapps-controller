@@ -27,7 +27,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
@@ -299,7 +298,7 @@ public class UpdateAppStepTest extends SyncActivitiStepTest<UpdateAppStep> {
         StepsUtil.setTriggeredServiceOperations(context, Collections.emptyMap());
         context.setVariable(Constants.VAR_APPS_INDEX, 0);
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
-        byte[] serviceKeysToInjectByteArray = GsonHelper.getAsBinaryJson(new HashMap<>());
+        byte[] serviceKeysToInjectByteArray = JsonUtil.getAsBinaryJson(new HashMap<>());
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
 

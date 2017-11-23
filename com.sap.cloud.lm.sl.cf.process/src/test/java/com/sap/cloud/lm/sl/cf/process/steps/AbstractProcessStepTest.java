@@ -12,7 +12,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
@@ -64,7 +63,7 @@ public class AbstractProcessStepTest extends SyncActivitiStepTest<AbstractProces
         private Supplier<Exception> exceptionSupplier;
 
         @Override
-        protected ExecutionStatus executeStep(ExecutionWrapper execution) throws Exception {
+        protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
             throw exceptionSupplier.get();
         }
 

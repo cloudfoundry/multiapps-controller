@@ -24,7 +24,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector;
@@ -146,7 +145,7 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     }
 
     private void assertStepIsRunning() {
-        assertEquals(ExecutionStatus.RUNNING.toString(), getExecutionStatus());
+        assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
     private void loadParameters() throws Exception {
@@ -194,8 +193,9 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     }
 
     private List<CloudServiceExtended> getRelevantServices() {
-        return stepInput.existingServices.stream().filter((service) -> exists(stepInput.services, service.getName())).collect(
-            Collectors.toList());
+        return stepInput.existingServices.stream()
+            .filter((service) -> exists(stepInput.services, service.getName()))
+            .collect(Collectors.toList());
     }
 
     private boolean exists(List<CloudServiceExtended> services, String serviceName) {
@@ -236,8 +236,8 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     }
 
     private void prepareBoundApplications() {
-        Mockito.when(client.getApplications()).thenReturn(
-            stepInput.existingApplications.stream().map(app -> app.toCloudApplication()).collect(Collectors.toList()));
+        Mockito.when(client.getApplications())
+            .thenReturn(stepInput.existingApplications.stream().map(app -> app.toCloudApplication()).collect(Collectors.toList()));
         stepInput.existingApplications.forEach((application) -> prepareBoundApplication(application));
     }
 

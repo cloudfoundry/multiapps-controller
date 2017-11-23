@@ -6,7 +6,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -24,7 +23,7 @@ public class MergeDescriptorsStep extends SyncActivitiStep {
     }
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.MERGING_DESCRIPTORS);
@@ -47,7 +46,7 @@ public class MergeDescriptorsStep extends SyncActivitiStep {
         }
         getStepLogger().debug(Messages.DESCRIPTORS_MERGED);
 
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
 }

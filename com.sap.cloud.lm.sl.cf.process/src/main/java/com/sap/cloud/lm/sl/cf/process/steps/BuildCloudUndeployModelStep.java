@@ -14,7 +14,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -34,7 +33,7 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
     private ConfigurationSubscriptionDao dao;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
@@ -42,7 +41,7 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
             DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
             if (deployedMta == null) {
                 setComponentsToUndeploy(execution.getContext(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
-                return ExecutionStatus.SUCCESS;
+                return StepPhase.DONE;
             }
 
             List<ConfigurationSubscription> subscriptionsToCreate = StepsUtil.getSubscriptionsToCreate(execution.getContext());
@@ -73,7 +72,7 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
             setComponentsToUndeploy(execution.getContext(), servicesToDelete, appsToUndeploy, subscriptionsToDelete);
 
             getStepLogger().debug(Messages.CLOUD_UNDEPLOY_MODEL_BUILT);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (Exception e) {
             getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL);
             throw e;

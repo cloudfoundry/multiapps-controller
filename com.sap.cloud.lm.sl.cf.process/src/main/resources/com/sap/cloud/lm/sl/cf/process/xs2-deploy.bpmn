@@ -112,7 +112,7 @@
     <sequenceFlow id="flow92" sourceRef="restartUpdatedSubscribersTask" targetRef="prepareToRestartServiceBrokersTask"></sequenceFlow>
     <exclusiveGateway id="isBrokerStartedGateway" name="Should Restart Subscribers" default="waitForBrokerToBeStartedFlow"></exclusiveGateway>
     <sequenceFlow id="brokerStartedFlow" sourceRef="isBrokerStartedGateway" targetRef="updateSubscribedServiceBrokerTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_RestartServiceBrokerSubscriberStep == "SUCCESS")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="waitForBrokerToBeStartedFlow" sourceRef="isBrokerStartedGateway" targetRef="startBrokerPollingIntervalTimer"></sequenceFlow>
     <serviceTask id="prepareToUndeployAppsTask" name="Prepare To Undeploy Apps" activiti:async="true" activiti:delegateExpression="${prepareToUndeployAppsStep}"></serviceTask>
@@ -135,24 +135,24 @@
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="serviceOperationsDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="prepareAppsDeploymentTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "SUCCESS")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="waitForServiceOperationsToBeDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="pollServiceOperationsTimer"></sequenceFlow>
     <sequenceFlow id="flow104" sourceRef="pollServiceOperationsTimer" targetRef="createOrUpdateServicesTask"></sequenceFlow>
-    <serviceTask id="servicetask1" name="Start Deploy App Sub Process" activiti:async="true" activiti:delegateExpression="${startAppDeploySubProcessStep1}"></serviceTask>
+    <serviceTask id="startAppDeploySubProcessTask" name="Start Deploy App Sub Process" activiti:async="true" activiti:delegateExpression="${startAppDeploySubProcessStep}"></serviceTask>
     <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway" default="waitFlow"></exclusiveGateway>
     <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway" default="flow105"></exclusiveGateway>
-    <sequenceFlow id="flow105" sourceRef="exclusivegateway4" targetRef="servicetask1"></sequenceFlow>
-    <sequenceFlow id="flow106" sourceRef="servicetask1" targetRef="exclusivegateway3"></sequenceFlow>
+    <sequenceFlow id="flow105" sourceRef="exclusivegateway4" targetRef="startAppDeploySubProcessTask"></sequenceFlow>
+    <sequenceFlow id="flow106" sourceRef="startAppDeploySubProcessTask" targetRef="exclusivegateway3"></sequenceFlow>
     <sequenceFlow id="waitFlow" sourceRef="exclusivegateway3" targetRef="timerintermediatecatchevent2"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent2" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT10S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <sequenceFlow id="flow108" sourceRef="timerintermediatecatchevent2" targetRef="servicetask1"></sequenceFlow>
+    <sequenceFlow id="flow108" sourceRef="timerintermediatecatchevent2" targetRef="startAppDeploySubProcessTask"></sequenceFlow>
     <sequenceFlow id="deployNextFlow" sourceRef="exclusivegateway3" targetRef="servicetask2">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "SUCCESS")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="servicetask2" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="flow110" sourceRef="servicetask2" targetRef="exclusivegateway4"></sequenceFlow>
@@ -295,9 +295,9 @@
         <omgdc:Bounds height="40.0" width="40.0" x="923.0" y="229.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="pollServiceOperationsTimer" id="BPMNShape_pollServiceOperationsTimer">
-        <omgdc:Bounds height="35.0" width="35.0" x="926.0" y="299.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="927.0" y="291.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
+      <bpmndi:BPMNShape bpmnElement="startAppDeploySubProcessTask" id="BPMNShape_startAppDeploySubProcessTask">
         <omgdc:Bounds height="59.0" width="105.0" x="427.0" y="338.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
@@ -564,11 +564,11 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="waitForServiceOperationsToBeDoneFlow" id="BPMNEdge_waitForServiceOperationsToBeDoneFlow">
         <omgdi:waypoint x="943.0" y="269.0"></omgdi:waypoint>
-        <omgdi:waypoint x="943.0" y="299.0"></omgdi:waypoint>
+        <omgdi:waypoint x="944.0" y="291.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow104" id="BPMNEdge_flow104">
-        <omgdi:waypoint x="961.0" y="316.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1092.0" y="312.0"></omgdi:waypoint>
+        <omgdi:waypoint x="962.0" y="308.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1092.0" y="308.0"></omgdi:waypoint>
         <omgdi:waypoint x="1092.0" y="278.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow105" id="BPMNEdge_flow105">

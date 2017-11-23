@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -39,7 +38,7 @@ public class StartAppStepTest extends SyncActivitiStepTest<StartAppStep> {
 
     @Override
     protected void assertStepFinishedSuccessfully() {
-        assertEquals(ExecutionStatus.RUNNING.toString(), getExecutionStatus());
+        assertEquals(StepPhase.POLL.toString(), getExecutionStatus());
     }
 
     @Test

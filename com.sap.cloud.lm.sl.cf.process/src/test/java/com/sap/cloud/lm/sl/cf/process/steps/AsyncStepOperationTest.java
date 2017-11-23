@@ -4,23 +4,21 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.sap.activiti.common.ExecutionStatus;
-
 public abstract class AsyncStepOperationTest<AsyncStep extends SyncActivitiStep> extends SyncActivitiStepTest<AsyncStep> {
 
-    protected abstract List<AsyncStepOperation> getAsyncOperations();
+    protected abstract List<AsyncExecution> getAsyncOperations();
 
     @Test
     public void testExecuteOperations() throws Exception {
         step.createStepLogger(context);
         ExecutionWrapper wrapper = step.createExecutionWrapper(context);
 
-        for (AsyncStepOperation operation : getAsyncOperations()) {
-            ExecutionStatus result = operation.executeOperation(wrapper);
+        for (AsyncExecution operation : getAsyncOperations()) {
+            AsyncExecutionState result = operation.execute(wrapper);
             validateOperationExecutionResult(result);
         }
 
     }
 
-    protected abstract void validateOperationExecutionResult(ExecutionStatus result);
+    protected abstract void validateOperationExecutionResult(AsyncExecutionState result);
 }

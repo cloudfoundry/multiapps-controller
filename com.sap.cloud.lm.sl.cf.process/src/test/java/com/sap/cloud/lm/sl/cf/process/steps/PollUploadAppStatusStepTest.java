@@ -18,7 +18,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.springframework.http.HttpStatus;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo.State;
 import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
@@ -35,8 +34,8 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
 
     private final boolean supportsExtensions;
     private final State uploadState;
-    private final ExecutionStatus previousStatus;
-    private final ExecutionStatus expectedStatus;
+    private final AsyncExecutionState previousStatus;
+    private final AsyncExecutionState expectedStatus;
     private final String expectedCfExceptionMessage;
     private final String uploadToken;
 
@@ -51,46 +50,46 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
 // @formatter:off
             // (00) The previous step used synchronous upload and finished successfully:
             {
-                false, null, null, ExecutionStatus.SUCCESS, ExecutionStatus.SUCCESS, null,
+                false, null, null, AsyncExecutionState.FINISHED, AsyncExecutionState.FINISHED, null,
             },
-            // (01) For some reason the previous step was skipped and should be retried:
+            // (01) For some reason the previous step was skipped and should be retried: wow
             {
-                false, null, null, ExecutionStatus.SKIPPED, ExecutionStatus.FAILED, null,
+                false, null, null, AsyncExecutionState.ERROR, AsyncExecutionState.ERROR, null,
             },
             // (02)
             {
-                false, null, null, ExecutionStatus.FAILED , ExecutionStatus.FAILED, null,
+                false, null, null, AsyncExecutionState.ERROR , AsyncExecutionState.ERROR, null,
             },
             // (03) The previous step used asynchronous upload but getting the upload progress fails with an exception:
             {
-                true , State.RUNNING , UPLOAD_TOKEN, ExecutionStatus.RUNNING, null, StepsUtil.createException(CFEXCEPTION).getMessage(),
+                true , State.RUNNING , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, null, StepsUtil.createException(CFEXCEPTION).getMessage(),
             },
             // (04) The previous step used asynchronous upload and it finished successfully:
             {
-                true , State.FINISHED, UPLOAD_TOKEN, ExecutionStatus.RUNNING, ExecutionStatus.SUCCESS, null,
+                true , State.FINISHED, UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.FINISHED, null,
             },
             // (05) The previous step used asynchronous upload but it is still not finished:
             {
-                true , State.RUNNING , UPLOAD_TOKEN, ExecutionStatus.RUNNING, ExecutionStatus.RUNNING, null,
+                true , State.RUNNING , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.RUNNING, null,
             },
             // (06) The previous step used asynchronous upload but it is still not finished:
             {
-                true , State.UNKNOWN , UPLOAD_TOKEN, ExecutionStatus.RUNNING, ExecutionStatus.RUNNING, null,
+                true , State.UNKNOWN , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.RUNNING, null,
             },
             // (07) The previous step used asynchronous upload but it is still not finished:
             {
-                true , State.QUEUED  , UPLOAD_TOKEN, ExecutionStatus.RUNNING, ExecutionStatus.RUNNING, null,
+                true , State.QUEUED  , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.RUNNING, null,
             },
             // (08) The previous step used asynchronous upload but it failed:
             {
-                true , State.FAILED  , UPLOAD_TOKEN, ExecutionStatus.RUNNING, ExecutionStatus.FAILED, null,
+                true , State.FAILED  , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.ERROR, null,
             },
 // @formatter:on
         });
     }
 
-    public PollUploadAppStatusStepTest(boolean supportsExtenstions, State uploadState, String uploadToken, ExecutionStatus previousStatus,
-        ExecutionStatus expectedStatus, String expectedCfExceptionMessage) {
+    public PollUploadAppStatusStepTest(boolean supportsExtenstions, State uploadState, String uploadToken,
+        AsyncExecutionState previousStatus, AsyncExecutionState expectedStatus, String expectedCfExceptionMessage) {
         this.supportsExtensions = supportsExtenstions;
         this.uploadState = uploadState;
         this.uploadToken = uploadToken;
@@ -143,7 +142,10 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
         when(context.getProcessInstanceId()).thenReturn("test");
         ContextExtension extension = new ContextExtension(context.getProcessInstanceId(), "uploadState", previousStatus.toString(), null,
             null);
-        when(contextExtensionDao.find(context.getProcessInstanceId(), "uploadState")).thenReturn(extension);
+        when(contextExtensionDao.find("test", "uploadState")).thenReturn(extension);
+        ContextExtension uploadTokenExtension = new ContextExtension(context.getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN,
+            uploadToken, null, null);
+        when(contextExtensionDao.find("test", Constants.VAR_UPLOAD_TOKEN)).thenReturn(uploadTokenExtension);
     }
 
     @Override
@@ -152,12 +154,12 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
     }
 
     @Override
-    protected List<AsyncStepOperation> getAsyncOperations() {
-        return step.getAsyncStepOperations();
+    protected List<AsyncExecution> getAsyncOperations() {
+        return step.getAsyncStepExecutions();
     }
 
     @Override
-    protected void validateOperationExecutionResult(ExecutionStatus result) {
+    protected void validateOperationExecutionResult(AsyncExecutionState result) {
         assertEquals(expectedStatus.toString(), result.toString());
     }
 

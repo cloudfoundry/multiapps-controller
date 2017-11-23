@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
@@ -139,7 +138,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
             LOGGER.warn(Messages.COULD_NOT_COMPUTE_DEFAULT_DOMAIN);
             return;
         }
-        Integer[] allocatedPorts = GsonHelper.getFromBinaryJson((byte[]) allocatedPortsInstance.getValue(), Integer[].class);
+        Integer[] allocatedPorts = JsonUtil.getFromBinaryJson((byte[]) allocatedPortsInstance.getValue(), Integer[].class);
         for (Integer port : allocatedPorts) {
             try {
                 client.deleteRoute(port.toString(), defaultDomain);

@@ -23,7 +23,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
@@ -55,7 +54,7 @@ public class UploadAppStep extends AsyncActivitiStep {
     protected Configuration configuration;
 
     @Override
-    public ExecutionStatus executeAsyncStep(ExecutionWrapper execution) throws FileStorageException, SLException {
+    public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException, SLException {
         getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
@@ -76,17 +75,16 @@ public class UploadAppStep extends AsyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
             throw e;
         }
-        StepsUtil.setStepPhase(execution, StepPhase.WAIT);
-        return ExecutionStatus.RUNNING;
+        return StepPhase.WAIT;
     }
 
     private Runnable getUploadAppStepRunnableKiller(DelegateExecution context, Future<?> future) {
         return () -> {
-            LOGGER.getLoggerImpl().warn(format(Messages.CANCELING_UPLOAD_ASYNC_THREAD, context.getProcessInstanceId()));
+            LOGGER.warn(format(Messages.CANCELING_UPLOAD_ASYNC_THREAD, context.getProcessInstanceId()));
             if (future.cancel(true)) {
-                LOGGER.getLoggerImpl().warn(format(Messages.ASYNC_THREAD_CANCELLED, context.getProcessInstanceId()));
+                LOGGER.warn(format(Messages.ASYNC_THREAD_CANCELLED, context.getProcessInstanceId()));
             } else {
-                LOGGER.getLoggerImpl().warn(format(Messages.ASYNC_THREAD_COMPLETED, context.getProcessInstanceId()));
+                LOGGER.warn(format(Messages.ASYNC_THREAD_COMPLETED, context.getProcessInstanceId()));
             }
         };
     }
@@ -273,7 +271,7 @@ public class UploadAppStep extends AsyncActivitiStep {
         return () -> {
             String processId = execution.getContext().getProcessInstanceId();
             getStepLogger().trace("Started upload app step runnable for process \"{0}\"", processId);
-            ExecutionStatus status = ExecutionStatus.FAILED;
+            AsyncExecutionState status = AsyncExecutionState.ERROR;
             try {
                 String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
                 String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
@@ -283,11 +281,11 @@ public class UploadAppStep extends AsyncActivitiStep {
                     execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(),
                         Constants.VAR_UPLOAD_TOKEN, uploadToken);
                     getStepLogger().debug("Started async upload of application \"{0}\"", fileName, app.getName());
-                    status = ExecutionStatus.RUNNING;
+                    status = AsyncExecutionState.RUNNING;
                 } else {
                     uploadFiles(execution.getContext(), client, app, appArchiveId, fileName);
-                    getStepLogger().debug(Messages.APP_UPLOADED, app.getName());
-                    status = ExecutionStatus.SUCCESS;
+                    getStepLogger().info(Messages.APP_UPLOADED, app.getName());
+                    status = AsyncExecutionState.FINISHED;
                 }
             } catch (SLException | FileStorageException e) {
                 getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
@@ -312,7 +310,8 @@ public class UploadAppStep extends AsyncActivitiStep {
                 }
             } finally {
                 StepsUtil.setStepPhase(execution, StepPhase.POLL);
-                execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), "uploadState", status.name());
+                execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), Constants.VAR_UPLOAD_STATE,
+                    status.name());
             }
             getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", execution.getContext().getProcessInstanceId());
         };
@@ -324,7 +323,7 @@ public class UploadAppStep extends AsyncActivitiStep {
     }
 
     @Override
-    protected List<AsyncStepOperation> getAsyncStepOperations() {
-        return Arrays.asList(new PollUploadAppStatusStep());
+    protected List<AsyncExecution> getAsyncStepExecutions() {
+        return Arrays.asList(new PollUploadAppStatusExecution());
     }
 }
