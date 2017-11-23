@@ -34,7 +34,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
@@ -169,23 +168,25 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
         step.orgAndSpaceCalculator = (client, spaceId) -> new Pair<>(spaceId, spaceId);
         Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any())).thenReturn(Arrays.asList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
-        Mockito.when(activitiFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES)).thenReturn(
-            varInstanceMock);
+        Mockito.when(activitiFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
+            .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue()).thenReturn(getBytes(getPublishedEntries()));
     }
 
     private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {
-        return GsonHelper.getAsBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
+        return JsonUtil.getAsBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
     }
 
     private List<ConfigurationEntry> getDeletedEntries() {
-        return input.subscribersToUpdate.stream().flatMap((subscriber) -> subscriber.relevantDeletedEntries.stream()).collect(
-            Collectors.toList());
+        return input.subscribersToUpdate.stream()
+            .flatMap((subscriber) -> subscriber.relevantDeletedEntries.stream())
+            .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getPublishedEntries() {
-        return input.subscribersToUpdate.stream().flatMap((subscriber) -> subscriber.relevantPublishedEntries.stream()).collect(
-            Collectors.toList());
+        return input.subscribersToUpdate.stream()
+            .flatMap((subscriber) -> subscriber.relevantPublishedEntries.stream())
+            .collect(Collectors.toList());
     }
 
     private void prepareClients() throws Exception {
@@ -234,8 +235,8 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
             when(client.getApplication(subscriber.subscription.getAppName())).thenThrow(new CloudFoundryException(HttpStatus.FORBIDDEN));
         }
         if (!userHasPermissions(subscriber.app.getSpace(), UserPermission.WRITE)) {
-            doThrow(new CloudFoundryException(HttpStatus.FORBIDDEN)).when(client).updateApplicationEnv(
-                eq(subscriber.subscription.getAppName()), any(Map.class));
+            doThrow(new CloudFoundryException(HttpStatus.FORBIDDEN)).when(client)
+                .updateApplicationEnv(eq(subscriber.subscription.getAppName()), any(Map.class));
         }
     }
 
@@ -244,8 +245,8 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
 
         for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
             ConfigurationFilter filter = subscriber.subscription.getFilter();
-            List<CloudTarget> targets = Arrays.asList(
-                new CloudTarget(input.currentSpace.getOrganization().getName(), input.currentSpace.getName()));
+            List<CloudTarget> targets = Arrays
+                .asList(new CloudTarget(input.currentSpace.getOrganization().getName(), input.currentSpace.getName()));
             when(entriesDao.find(filter.getProviderNid(), filter.getProviderId(), filter.getProviderVersion(), filter.getTargetSpace(),
                 filter.getRequiredContent(), null, targets)).thenReturn(getAllEntries(subscriber));
         }

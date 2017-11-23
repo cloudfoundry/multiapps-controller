@@ -8,23 +8,22 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("prepareToUndeployAppsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToUndeployAppsStep extends AbstractProcessStep {
+public class PrepareToUndeployAppsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
-        List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(context);
+        List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(execution.getContext());
         getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, JsonUtil.toJson(appsToUndeploy, true));
-        prepareAppsToUndeploy(context, appsToUndeploy);
-        return ExecutionStatus.SUCCESS;
+        prepareAppsToUndeploy(execution.getContext(), appsToUndeploy);
+        return StepPhase.DONE;
 
     }
 

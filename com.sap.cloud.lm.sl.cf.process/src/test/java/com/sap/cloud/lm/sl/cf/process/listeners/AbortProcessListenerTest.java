@@ -22,10 +22,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 
 @RunWith(Enclosed.class)
@@ -208,7 +208,7 @@ public class AbortProcessListenerTest {
                 String parameter) {
                 switch (parameter) {
                     case Constants.VAR_ALLOCATED_PORTS:
-                        return createInstanceMock(GsonHelper.getAsBinaryJson(allocatedPorts));
+                        return createInstanceMock(JsonUtil.getAsBinaryJson(allocatedPorts));
                     case Constants.VAR_USER:
                         return createInstanceMock(USER);
                     case Constants.VAR_SPACE:

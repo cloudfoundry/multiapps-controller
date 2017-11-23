@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
@@ -31,18 +30,18 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivi
     private ConfigurationEntryDao configurationEntryDao;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
         CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
         if (existingApp == null) {
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         }
         getStepLogger().info(Messages.DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP, existingApp.getName());
         String mtaId = (String) execution.getContext().getVariable(Constants.PARAM_MTA_ID);
         ApplicationMtaMetadata mtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(existingApp);
         if (mtaMetadata == null) {
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         }
         List<String> providedDependencyNames = mtaMetadata.getProvidedDependencyNames();
         String org = StepsUtil.getOrg(execution.getContext());
@@ -65,7 +64,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivi
         StepsUtil.setDeletedEntries(execution.getContext(), entriesToDelete);
 
         getStepLogger().debug(Messages.DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP_DELETED, existingApp.getName());
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, String mtaVersion, CloudTarget newTarget, CloudTarget oldTarget,
@@ -95,9 +94,9 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivi
     }
 
     private List<String> getProviderIds(String mtaId, List<String> providedDependencyNames) {
-        return providedDependencyNames.stream().map(
-            providedDependencyName -> ConfigurationEntriesUtil.computeProviderId(mtaId, providedDependencyName)).collect(
-                Collectors.toList());
+        return providedDependencyNames.stream()
+            .map(providedDependencyName -> ConfigurationEntriesUtil.computeProviderId(mtaId, providedDependencyName))
+            .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getConfigurationEntriesWithProviderIds(List<ConfigurationEntry> entries, List<String> providerIds) {

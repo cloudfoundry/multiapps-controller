@@ -12,8 +12,6 @@ import org.activiti.engine.runtime.JobQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.LogicalRetryException;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
@@ -49,7 +47,7 @@ public class ProcessStepHelper {
         this.contextExtensionDao = contextExtensionDao;
     }
 
-    protected void postExecuteStep(DelegateExecution context, ExecutionStatus status) {
+    protected void postExecuteStep(DelegateExecution context, StepPhase state) {
         logDebug(context, MessageFormat.format(Messages.STEP_FINISHED, context.getCurrentActivityName()));
 
         processLoggerProviderFactory.removeAll();
@@ -60,15 +58,11 @@ public class ProcessStepHelper {
             LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, e.getMessage()), e);
         }
 
-        // TODO:
-        // if (ExecutionStatus.LOGICAL_RETRY.equals(status)) {
-        // context.setVariable(Constants.RETRY_STEP_NAME, context.getCurrentActivityId());
-        // }
-        context.setVariable("StepExecution", status.toString());
+        context.setVariable(Constants.VAR_STEP_EXECUTION, state.toString());
     }
 
-    void preExecuteStep(DelegateExecution context, ExecutionStatus initialStatus) throws SLException {
-        init(context, initialStatus);
+    void preExecuteStep(DelegateExecution context, StepPhase initialPhase) throws SLException {
+        init(context, initialPhase);
 
         context.setVariable(Constants.INDEXED_STEP_NAME, indexedStepName);
 
@@ -78,9 +72,9 @@ public class ProcessStepHelper {
         logTaskStartup(context, indexedStepName);
     }
 
-    private void init(DelegateExecution context, ExecutionStatus initialStatus) {
+    private void init(DelegateExecution context, StepPhase initialPhase) {
         this.isInError = isInError(context);
-        this.stepIndex = computeStepIndex(context, initialStatus, isInError);
+        this.stepIndex = computeStepIndex(context, initialPhase, isInError);
         this.indexedStepName = context.getCurrentActivityId() + stepIndex;
     }
 
@@ -101,9 +95,9 @@ public class ProcessStepHelper {
         return jobQuery.processInstanceId(context.getProcessInstanceId()).singleResult();
     }
 
-    private int computeStepIndex(DelegateExecution context, ExecutionStatus initialStatus, boolean isInError) {
+    private int computeStepIndex(DelegateExecution context, StepPhase initialPhase, boolean isInError) {
         int stepIndex = getLastStepIndex(context);
-        if (!isInError && !initialStatus.equals(ExecutionStatus.LOGICAL_RETRY) && !initialStatus.equals(ExecutionStatus.RUNNING)) {
+        if (!isInError && !initialPhase.equals(StepPhase.RETRY) && !initialPhase.equals(StepPhase.POLL)) {
             return ++stepIndex;
         }
         return stepIndex;
@@ -149,7 +143,7 @@ public class ProcessStepHelper {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
         getLogger(context).error(Messages.EXCEPTION_CAUGHT, t);
 
-        if (!(t instanceof SLException) && !(t instanceof LogicalRetryException)) {
+        if (!(t instanceof SLException)) {
             storeExceptionInProgressMessageService(context, t);
         }
         if (t instanceof ContentException) {

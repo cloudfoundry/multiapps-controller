@@ -6,7 +6,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +30,6 @@ import org.slf4j.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.sap.activiti.common.util.ContextUtil;
-import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
@@ -301,11 +301,11 @@ public class StepsUtil {
     }
 
     public static List<String> getCustomDomains(DelegateExecution context) {
-        return ContextUtil.getArrayVariableAsList(context, Constants.VAR_CUSTOM_DOMAINS);
+        return getArrayVariableAsList(context, Constants.VAR_CUSTOM_DOMAINS);
     }
 
     static void setCustomDomains(DelegateExecution context, List<String> customDomains) {
-        ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_CUSTOM_DOMAINS, customDomains);
+        setArrayVariableFromCollection(context, Constants.VAR_CUSTOM_DOMAINS, customDomains);
     }
 
     @SuppressWarnings("unchecked")
@@ -335,7 +335,7 @@ public class StepsUtil {
     }
 
     static void setServicesToPoll(DelegateExecution context, List<CloudServiceExtended> servicesToPoll) {
-        context.setVariable(Constants.VAR_SERVICES_TO_POLL, GsonHelper.getAsBinaryJson(servicesToPoll));
+        context.setVariable(Constants.VAR_SERVICES_TO_POLL, JsonUtil.getAsBinaryJson(servicesToPoll));
     }
 
     static List<CloudServiceExtended> getServicesToPoll(DelegateExecution context) {
@@ -349,7 +349,7 @@ public class StepsUtil {
     }
 
     static void setTriggeredServiceOperations(DelegateExecution context, Map<String, ServiceOperationType> triggeredServiceOperations) {
-        context.setVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, GsonHelper.getAsBinaryJson(triggeredServiceOperations));
+        context.setVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, JsonUtil.getAsBinaryJson(triggeredServiceOperations));
     }
 
     public static Map<String, ServiceOperationType> getTriggeredServiceOperations(DelegateExecution context) {
@@ -366,17 +366,17 @@ public class StepsUtil {
     }
 
     static void setServiceKeysToCreate(DelegateExecution context, Map<String, List<ServiceKey>> serviceKeys) {
-        context.setVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE, GsonHelper.getAsBinaryJson(serviceKeys));
+        context.setVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE, JsonUtil.getAsBinaryJson(serviceKeys));
     }
 
     static List<CloudApplication> getDeployedApps(DelegateExecution context) {
-        CloudApplication[] apps = GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_DEPLOYED_APPS),
+        CloudApplication[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_DEPLOYED_APPS),
             CloudApplication[].class);
         return Arrays.asList(apps);
     }
 
     static void setDeployedApps(DelegateExecution context, List<CloudApplication> apps) {
-        context.setVariable(Constants.VAR_DEPLOYED_APPS, GsonHelper.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
+        context.setVariable(Constants.VAR_DEPLOYED_APPS, JsonUtil.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
     }
 
     @SuppressWarnings("unchecked")
@@ -394,7 +394,7 @@ public class StepsUtil {
 
     static void setServiceKeysCredentialsToInject(DelegateExecution context,
         Map<String, Map<String, String>> serviceKeysCredentialsToInject) {
-        byte[] serviceKeysToInjectByteArray = GsonHelper.getAsBinaryJson(serviceKeysCredentialsToInject);
+        byte[] serviceKeysToInjectByteArray = JsonUtil.getAsBinaryJson(serviceKeysCredentialsToInject);
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
 
@@ -405,17 +405,17 @@ public class StepsUtil {
     }
 
     public static List<CloudApplication> getUpdatedSubscribers(DelegateExecution context) {
-        CloudApplication[] apps = GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_UPDATED_SUBSCRIBERS),
+        CloudApplication[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_UPDATED_SUBSCRIBERS),
             CloudApplicationExtended[].class);
         return Arrays.asList(apps);
     }
 
     static void setUpdatedSubscribers(DelegateExecution context, List<CloudApplication> apps) {
-        context.setVariable(Constants.VAR_UPDATED_SUBSCRIBERS, GsonHelper.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
+        context.setVariable(Constants.VAR_UPDATED_SUBSCRIBERS, JsonUtil.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
     }
 
     public static List<CloudApplicationExtended> getServiceBrokerSubscribersToRestart(DelegateExecution context) {
-        CloudApplicationExtended[] apps = GsonHelper.getFromBinaryJson(
+        CloudApplicationExtended[] apps = JsonUtil.getFromBinaryJson(
             (byte[]) context.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS), CloudApplicationExtended[].class);
         return Arrays.asList(apps);
     }
@@ -428,37 +428,37 @@ public class StepsUtil {
 
     static void setUpdatedServiceBrokerSubscribers(DelegateExecution context, List<CloudApplication> apps) {
         context.setVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS,
-            GsonHelper.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
+            JsonUtil.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
     }
 
     static List<CloudTask> getTasksToExecute(DelegateExecution context) {
-        CloudTask[] tasks = GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_TASKS_TO_EXECUTE), CloudTask[].class);
+        CloudTask[] tasks = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_TASKS_TO_EXECUTE), CloudTask[].class);
         return Arrays.asList(tasks);
     }
 
     static void setTasksToExecute(DelegateExecution context, List<CloudTask> tasks) {
-        context.setVariable(Constants.VAR_TASKS_TO_EXECUTE, GsonHelper.getAsBinaryJson(tasks.toArray(new CloudTask[] {})));
+        context.setVariable(Constants.VAR_TASKS_TO_EXECUTE, JsonUtil.getAsBinaryJson(tasks.toArray(new CloudTask[] {})));
     }
 
     static CloudTask getStartedTask(DelegateExecution context) {
-        return GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_STARTED_TASK), CloudTask.class);
+        return JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_STARTED_TASK), CloudTask.class);
     }
 
     static void setStartedTask(DelegateExecution context, CloudTask task) {
-        context.setVariable(Constants.VAR_STARTED_TASK, GsonHelper.getAsBinaryJson(task));
+        context.setVariable(Constants.VAR_STARTED_TASK, JsonUtil.getAsBinaryJson(task));
     }
 
     public static void setAppsToRestart(DelegateExecution context, List<String> apps) {
-        context.setVariable(Constants.VAR_APPS_TO_RESTART, GsonHelper.getAsBinaryJson(apps.toArray(new String[] {})));
+        context.setVariable(Constants.VAR_APPS_TO_RESTART, JsonUtil.getAsBinaryJson(apps.toArray(new String[] {})));
     }
 
     static List<String> getAppsToRestart(DelegateExecution context) {
-        String[] apps = GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_APPS_TO_RESTART), String[].class);
+        String[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_APPS_TO_RESTART), String[].class);
         return Arrays.asList(apps);
     }
 
     public static List<CloudApplication> getAppsToUndeploy(DelegateExecution context) {
-        CloudApplication[] apps = GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY),
+        CloudApplication[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY),
             CloudApplication[].class);
         return Arrays.asList(apps);
     }
@@ -470,41 +470,41 @@ public class StepsUtil {
     }
 
     static void setAppsToUndeploy(DelegateExecution context, List<CloudApplication> apps) {
-        context.setVariable(Constants.VAR_APPS_TO_UNDEPLOY, GsonHelper.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
+        context.setVariable(Constants.VAR_APPS_TO_UNDEPLOY, JsonUtil.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
     }
 
     public static List<String> getServicesToDelete(DelegateExecution context) {
-        return ContextUtil.getArrayVariableAsList(context, Constants.VAR_SERVICES_TO_DELETE);
+        return getArrayVariableAsList(context, Constants.VAR_SERVICES_TO_DELETE);
     }
 
     public static void setServicesToDelete(DelegateExecution context, List<String> services) {
-        ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_SERVICES_TO_DELETE, services);
+        setArrayVariableFromCollection(context, Constants.VAR_SERVICES_TO_DELETE, services);
     }
 
     public static List<ConfigurationSubscription> getSubscriptionsToDelete(DelegateExecution context) {
-        ConfigurationSubscription[] subscriptionsArray = GsonHelper
+        ConfigurationSubscription[] subscriptionsArray = JsonUtil
             .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE), ConfigurationSubscription[].class);
         return Arrays.asList(subscriptionsArray);
     }
 
     static void setSubscriptionsToDelete(DelegateExecution context, List<ConfigurationSubscription> subscriptions) {
-        byte[] subscriptionsByteArray = GsonHelper.getAsBinaryJson(subscriptions.toArray(new ConfigurationSubscription[] {}));
+        byte[] subscriptionsByteArray = JsonUtil.getAsBinaryJson(subscriptions.toArray(new ConfigurationSubscription[] {}));
         context.setVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE, subscriptionsByteArray);
     }
 
     public static List<ConfigurationSubscription> getSubscriptionsToCreate(DelegateExecution context) {
-        ConfigurationSubscription[] subscriptionsArray = GsonHelper
+        ConfigurationSubscription[] subscriptionsArray = JsonUtil
             .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE), ConfigurationSubscription[].class);
         return Arrays.asList(subscriptionsArray);
     }
 
     static void setSubscriptionsToCreate(DelegateExecution context, List<ConfigurationSubscription> subscriptions) {
-        byte[] subscriptionsByteArray = GsonHelper.getAsBinaryJson(subscriptions.toArray(new ConfigurationSubscription[] {}));
+        byte[] subscriptionsByteArray = JsonUtil.getAsBinaryJson(subscriptions.toArray(new ConfigurationSubscription[] {}));
         context.setVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE, subscriptionsByteArray);
     }
 
     static void setConfigurationEntriesToPublish(DelegateExecution context, Map<String, List<ConfigurationEntry>> configurationEntries) {
-        byte[] configurationEntriesByteArray = GsonHelper.getAsBinaryJson(configurationEntries);
+        byte[] configurationEntriesByteArray = JsonUtil.getAsBinaryJson(configurationEntries);
         context.setVariable(Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH, configurationEntriesByteArray);
     }
 
@@ -516,11 +516,11 @@ public class StepsUtil {
 
     static void setServiceBrokersToCreate(DelegateExecution context, List<CloudServiceBrokerExtended> serviceBrokers) {
         context.setVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE,
-            GsonHelper.getAsBinaryJson(serviceBrokers.toArray(new CloudServiceBrokerExtended[] {})));
+            JsonUtil.getAsBinaryJson(serviceBrokers.toArray(new CloudServiceBrokerExtended[] {})));
     }
 
     public static List<CloudServiceBrokerExtended> getServiceBrokersToCreate(DelegateExecution context) {
-        CloudServiceBrokerExtended[] serviceBrokers = GsonHelper
+        CloudServiceBrokerExtended[] serviceBrokers = JsonUtil
             .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE), CloudServiceBrokerExtended[].class);
         return Arrays.asList(serviceBrokers);
     }
@@ -530,7 +530,7 @@ public class StepsUtil {
         if (deletedEntriesByteArray == null) {
             return Collections.emptyList();
         }
-        return Arrays.asList(GsonHelper.getFromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
+        return Arrays.asList(JsonUtil.getFromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
     }
 
     static List<ConfigurationEntry> getDeletedEntriesFromProcess(ActivitiFacade activitiFacade, String processInstanceId) {
@@ -540,7 +540,7 @@ public class StepsUtil {
             return Collections.emptyList();
         }
         byte[] deletedEntriesByteArray = (byte[]) deletedEntries.getValue();
-        return Arrays.asList(GsonHelper.getFromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
+        return Arrays.asList(JsonUtil.getFromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
     }
 
     static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(DelegateExecution context, ActivitiFacade activitiFacade) {
@@ -557,12 +557,12 @@ public class StepsUtil {
         if (deletedEntries == null) {
             return;
         }
-        byte[] deletedEntriesByteArray = GsonHelper.getAsBinaryJson(deletedEntries.toArray(new ConfigurationEntry[] {}));
+        byte[] deletedEntriesByteArray = JsonUtil.getAsBinaryJson(deletedEntries.toArray(new ConfigurationEntry[] {}));
         context.setVariable(Constants.VAR_DELETED_ENTRIES, deletedEntriesByteArray);
     }
 
     public static List<ConfigurationEntry> getPublishedEntries(DelegateExecution context) {
-        ConfigurationEntry[] publishedEntriesArray = GsonHelper
+        ConfigurationEntry[] publishedEntriesArray = JsonUtil
             .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_PUBLISHED_ENTRIES), ConfigurationEntry[].class);
         return Arrays.asList(publishedEntriesArray);
     }
@@ -574,7 +574,7 @@ public class StepsUtil {
             return Collections.emptyList();
         }
         byte[] binaryJson = (byte[]) publishedEntries.getValue();
-        return Arrays.asList(GsonHelper.getFromBinaryJson(binaryJson, ConfigurationEntry[].class));
+        return Arrays.asList(JsonUtil.getFromBinaryJson(binaryJson, ConfigurationEntry[].class));
     }
 
     static List<ConfigurationEntry> getPublishedEntriesFromSubProcesses(DelegateExecution context, ActivitiFacade activitiFacade) {
@@ -587,42 +587,41 @@ public class StepsUtil {
     }
 
     static void setPublishedEntries(DelegateExecution context, List<ConfigurationEntry> publishedEntries) {
-        byte[] publishedEntriesByteArray = GsonHelper.getAsBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
+        byte[] publishedEntriesByteArray = JsonUtil.getAsBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
         context.setVariable(Constants.VAR_PUBLISHED_ENTRIES, publishedEntriesByteArray);
     }
 
     static void setServiceUrlsToRegister(DelegateExecution context, List<ServiceUrl> serviceUrls) {
-        context.setVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER, GsonHelper.getAsBinaryJson(serviceUrls.toArray(new ServiceUrl[] {})));
+        context.setVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER, JsonUtil.getAsBinaryJson(serviceUrls.toArray(new ServiceUrl[] {})));
     }
 
     public static List<ServiceUrl> getServiceUrlsToRegister(DelegateExecution context) {
-        ServiceUrl[] serviceUrls = GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER),
+        ServiceUrl[] serviceUrls = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER),
             ServiceUrl[].class);
         return Arrays.asList(serviceUrls);
     }
 
     static void setDeployedMta(DelegateExecution context, DeployedMta deployedMta) {
-        byte[] binaryJson = deployedMta == null ? null : GsonHelper.getAsBinaryJson(deployedMta);
+        byte[] binaryJson = deployedMta == null ? null : JsonUtil.getAsBinaryJson(deployedMta);
         context.setVariable(Constants.VAR_DEPLOYED_MTA, binaryJson);
     }
 
     static DeployedMta getDeployedMta(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_DEPLOYED_MTA);
-        return binaryJson == null ? null : GsonHelper.getFromBinaryJson(binaryJson, DeployedMta.class);
+        return binaryJson == null ? null : JsonUtil.getFromBinaryJson(binaryJson, DeployedMta.class);
     }
 
     static Set<Integer> getAllocatedPorts(DelegateExecution context) {
-        Integer[] allocatedPorts = GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_ALLOCATED_PORTS),
-            Integer[].class);
+        Integer[] allocatedPorts = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_ALLOCATED_PORTS), Integer[].class);
         return allocatedPorts != null ? Arrays.stream(allocatedPorts).collect(Collectors.toSet()) : Collections.emptySet();
     }
 
     static void setAllocatedPorts(DelegateExecution context, Set<Integer> allocatedPorts) {
-        context.setVariable(Constants.VAR_ALLOCATED_PORTS, GsonHelper.getAsBinaryJson(allocatedPorts.toArray(new Integer[0])));
+        context.setVariable(Constants.VAR_ALLOCATED_PORTS, JsonUtil.getAsBinaryJson(allocatedPorts.toArray(new Integer[0])));
     }
 
     static void setXsPlaceholderReplacementValues(DelegateExecution context, Map<String, Object> replacementValues) {
-        byte[] replacementValuesJson = GsonHelper.getAsBinaryJson(replacementValues);
+        byte[] replacementValuesJson = JsonUtil.getAsBinaryJson(replacementValues);
         context.setVariable(Constants.VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES, replacementValuesJson);
     }
 
@@ -692,19 +691,19 @@ public class StepsUtil {
     }
 
     static List<String> getExtensionDescriptorStrings(DelegateExecution context) {
-        return ContextUtil.getArrayVariableAsList(context, Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS);
+        return getArrayVariableAsList(context, Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS);
     }
 
     static void setExtensionDescriptorStrings(DelegateExecution context, List<String> descriptors) {
-        ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS, descriptors);
+        setArrayVariableFromCollection(context, Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS, descriptors);
     }
 
     static SystemParameters getSystemParameters(DelegateExecution context) {
-        return GsonHelper.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SYSTEM_PARAMETERS), SystemParameters.class);
+        return JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SYSTEM_PARAMETERS), SystemParameters.class);
     }
 
     static void setSystemParameters(DelegateExecution context, SystemParameters systemParameters) {
-        ContextUtil.setAsBinaryJson(context, Constants.VAR_SYSTEM_PARAMETERS, systemParameters);
+        setAsBinaryJson(context, Constants.VAR_SYSTEM_PARAMETERS, systemParameters);
     }
 
     static void setAppPropertiesChanged(DelegateExecution context, boolean state) {
@@ -739,11 +738,11 @@ public class StepsUtil {
 
     static CloudApplication getExistingApp(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_EXISTING_APP);
-        return (binaryJson != null) ? GsonHelper.getFromBinaryJson(binaryJson, CloudApplication.class) : null;
+        return (binaryJson != null) ? JsonUtil.getFromBinaryJson(binaryJson, CloudApplication.class) : null;
     }
 
     static void setExistingApp(DelegateExecution context, CloudApplication app) {
-        byte[] binaryJson = (app != null) ? GsonHelper.getAsBinaryJson(app) : null;
+        byte[] binaryJson = (app != null) ? JsonUtil.getAsBinaryJson(app) : null;
         context.setVariable(Constants.VAR_EXISTING_APP, binaryJson);
     }
 
@@ -789,11 +788,11 @@ public class StepsUtil {
     static StartingInfo getStartingInfo(DelegateExecution context) {
         String className = (String) context.getVariable(Constants.VAR_STARTING_INFO_CLASSNAME);
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_STARTING_INFO);
-        return (binaryJson != null) ? GsonHelper.getFromBinaryJson(binaryJson, getStartingInfoClass(className)) : null;
+        return (binaryJson != null) ? JsonUtil.getFromBinaryJson(binaryJson, getStartingInfoClass(className)) : null;
     }
 
     static void setStartingInfo(DelegateExecution context, StartingInfo startingInfo) {
-        byte[] binaryJson = (startingInfo != null) ? GsonHelper.getAsBinaryJson(startingInfo) : null;
+        byte[] binaryJson = (startingInfo != null) ? JsonUtil.getAsBinaryJson(startingInfo) : null;
         context.setVariable(Constants.VAR_STARTING_INFO, binaryJson);
         String className = (startingInfo != null) ? startingInfo.getClass().getName() : StartingInfo.class.getName();
         context.setVariable(Constants.VAR_STARTING_INFO_CLASSNAME, className);
@@ -810,11 +809,11 @@ public class StepsUtil {
 
     static StreamingLogToken getStreamingLogsToken(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_STREAMING_LOGS_TOKEN);
-        return (binaryJson != null) ? GsonHelper.getFromBinaryJson(binaryJson, StreamingLogToken.class) : null;
+        return (binaryJson != null) ? JsonUtil.getFromBinaryJson(binaryJson, StreamingLogToken.class) : null;
     }
 
     static void setStreamingLogsToken(DelegateExecution context, StreamingLogToken streamingLogToken) {
-        byte[] binaryJson = (streamingLogToken != null) ? GsonHelper.getAsBinaryJson(streamingLogToken) : null;
+        byte[] binaryJson = (streamingLogToken != null) ? JsonUtil.getAsBinaryJson(streamingLogToken) : null;
         context.setVariable(Constants.VAR_STREAMING_LOGS_TOKEN, binaryJson);
     }
 
@@ -823,23 +822,29 @@ public class StepsUtil {
     }
 
     static void setMtaArchiveModules(DelegateExecution context, Set<String> mtaArchiveModules) {
-        ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_MTA_ARCHIVE_MODULES, mtaArchiveModules);
+        setArrayVariableFromCollection(context, Constants.VAR_MTA_ARCHIVE_MODULES, mtaArchiveModules);
     }
 
     static Set<String> getMtaArchiveModules(DelegateExecution context) {
-        return ContextUtil.getArrayVariableAsSet(context, Constants.VAR_MTA_ARCHIVE_MODULES);
+        return getArrayVariableAsSet(context, Constants.VAR_MTA_ARCHIVE_MODULES);
     }
 
     static void setMtaModules(DelegateExecution context, Set<String> mtaModules) {
-        ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_MTA_MODULES, mtaModules);
+        setArrayVariableFromCollection(context, Constants.VAR_MTA_MODULES, mtaModules);
     }
 
     static Set<String> getMtaModules(DelegateExecution context) {
-        return ContextUtil.getArrayVariableAsSet(context, Constants.VAR_MTA_MODULES);
+        return getArrayVariableAsSet(context, Constants.VAR_MTA_MODULES);
     }
 
-    static String getUploadToken(DelegateExecution context) {
-        return (String) context.getVariable(Constants.VAR_UPLOAD_TOKEN);
+    static void setUploadToken(ExecutionWrapper execution, String token) {
+        execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN, token);
+    }
+
+    static String getUploadToken(ExecutionWrapper execution) {
+        return execution.getContextExtensionDao()
+            .find(execution.getContext().getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN)
+            .getValue();
     }
 
     public static String getCorrelationId(DelegateExecution context) {
@@ -867,16 +872,16 @@ public class StepsUtil {
 
     static StepPhase getStepPhase(ExecutionWrapper execution) {
         ContextExtension stepTypeObject = execution.getContextExtensionDao().find(execution.getContext().getProcessInstanceId(),
-            "stepType");
+            Constants.VAR_STEP_PHASE);
         if (stepTypeObject == null) {
             return StepPhase.EXECUTE;
         }
-        execution.getContextExtensionDao().remove(stepTypeObject.getId());
         return StepPhase.fromValue(stepTypeObject.getValue());
     }
 
     static void setStepPhase(ExecutionWrapper execution, StepPhase type) {
-        execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), "stepType", type.toString());
+        execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), Constants.VAR_STEP_PHASE,
+            type.toString());
     }
 
     static void appLog(DelegateExecution context, String appName, String message, Logger logger,
@@ -924,6 +929,41 @@ public class StepsUtil {
         return (String) context.getVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID);
     }
 
+    public static void incrementVariable(DelegateExecution context, String name) {
+        int value = (Integer) context.getVariable(name);
+        context.setVariable(name, value + 1);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getVariable(DelegateExecution context, String name, T defaultValue) {
+        T value = (T) context.getVariable(name);
+        return (value != null) ? value : defaultValue;
+    }
+
+    public static void setArrayVariable(DelegateExecution context, String name, String[] array) {
+        context.setVariable(name, JsonUtil.getAsBinaryJson(array));
+    }
+
+    public static void setArrayVariableFromCollection(DelegateExecution context, String name, Collection<String> collection) {
+        setArrayVariable(context, name, collection.toArray(new String[collection.size()]));
+    }
+
+    public static String[] getArrayVariable(DelegateExecution context, String name) {
+        return JsonUtil.getFromBinaryJson((byte[]) context.getVariable(name), String[].class);
+    }
+
+    public static List<String> getArrayVariableAsList(DelegateExecution context, String name) {
+        return Arrays.asList(getArrayVariable(context, name));
+    }
+
+    public static Set<String> getArrayVariableAsSet(DelegateExecution context, String name) {
+        return new HashSet<String>(Arrays.asList(getArrayVariable(context, name)));
+    }
+
+    public static void setAsBinaryJson(DelegateExecution context, String name, Object object) {
+        context.setVariable(name, JsonUtil.getAsBinaryJson(object));
+    }
+
     public static final String DEPLOY_ID_PREFIX = "deploy-";
 
     static ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {
@@ -968,10 +1008,10 @@ public class StepsUtil {
     }
 
     static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {
-        Boolean allowInvalidEnvNames = ContextUtil.getVariable(context, Constants.PARAM_ALLOW_INVALID_ENV_NAMES, Boolean.FALSE);
-        Boolean useNamespaces = ContextUtil.getVariable(context, Constants.PARAM_USE_NAMESPACES, Boolean.FALSE);
-        Boolean useNamespacesForServices = ContextUtil.getVariable(context, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, Boolean.FALSE);
-        Boolean portBasedRouting = ContextUtil.getVariable(context, Constants.VAR_PORT_BASED_ROUTING, Boolean.FALSE);
+        Boolean allowInvalidEnvNames = getVariable(context, Constants.PARAM_ALLOW_INVALID_ENV_NAMES, Boolean.FALSE);
+        Boolean useNamespaces = getVariable(context, Constants.PARAM_USE_NAMESPACES, Boolean.FALSE);
+        Boolean useNamespacesForServices = getVariable(context, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, Boolean.FALSE);
+        Boolean portBasedRouting = getVariable(context, Constants.VAR_PORT_BASED_ROUTING, Boolean.FALSE);
         CloudModelConfiguration configuration = new CloudModelConfiguration();
         configuration.setAllowInvalidEnvNames(allowInvalidEnvNames);
         configuration.setPortBasedRouting(portBasedRouting);

@@ -12,7 +12,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @RunWith(Parameterized.class)
@@ -67,7 +66,7 @@ public class AddDomainsStepTest extends SyncActivitiStepTest<AddDomainsStep> {
     }
 
     private void prepareContext() {
-        ContextUtil.setArrayVariableFromCollection(context, Constants.VAR_CUSTOM_DOMAINS, customDomains);
+        StepsUtil.setArrayVariableFromCollection(context, Constants.VAR_CUSTOM_DOMAINS, customDomains);
     }
 
     private List<CloudDomain> getExistingDomainsList() {

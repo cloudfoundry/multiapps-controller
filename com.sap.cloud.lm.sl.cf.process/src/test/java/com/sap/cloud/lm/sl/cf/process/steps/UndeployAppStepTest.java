@@ -22,7 +22,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
@@ -102,7 +101,7 @@ public class UndeployAppStepTest extends SyncActivitiStepTest<UndeployAppStep> {
             verify(client).updateApplicationUris(cloudApplication.getName(), Collections.emptyList());
         }
         verify(client).deleteApplication(cloudApplication.getName());
-        ContextUtil.incrementVariable(context, Constants.VAR_APPS_TO_UNDEPLOY_INDEX);
+        StepsUtil.incrementVariable(context, Constants.VAR_APPS_TO_UNDEPLOY_INDEX);
     }
 
     private void assertRoutesWereDeleted() {

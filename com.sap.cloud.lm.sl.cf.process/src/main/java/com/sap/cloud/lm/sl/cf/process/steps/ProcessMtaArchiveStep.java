@@ -11,7 +11,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
@@ -39,7 +38,7 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
         operationDao);
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
 
         getStepLogger().logActivitiTask();
         try {
@@ -49,7 +48,7 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
             processApplicationArchive(execution.getContext(), appArchiveId);
             setMtaIdForProcess(execution.getContext());
             getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (FileStorageException fse) {
             SLException e = new SLException(fse, fse.getMessage());
             getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_ARCHIVE);
@@ -85,8 +84,8 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
                 StepsUtil.setMtaArchiveModules(context, mtaArchiveModules.keySet());
 
                 Map<String, String> mtaArchiveRequiresDependencies = helper.getMtaRequiresDependencies();
-                mtaArchiveRequiresDependencies.forEach(
-                    (requiresName, fileName) -> StepsUtil.setRequiresFileName(context, requiresName, fileName));
+                mtaArchiveRequiresDependencies
+                    .forEach((requiresName, fileName) -> StepsUtil.setRequiresFileName(context, requiresName, fileName));
                 getStepLogger().debug("MTA Archive Requires: {0}", mtaArchiveRequiresDependencies.keySet());
 
                 // Set MTA archive resources in the context

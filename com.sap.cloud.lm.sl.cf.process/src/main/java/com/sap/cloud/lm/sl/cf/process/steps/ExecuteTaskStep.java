@@ -12,7 +12,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
@@ -36,7 +35,7 @@ public class ExecuteTaskStep extends AsyncActivitiStep {
     }
 
     @Override
-    protected ExecutionStatus executeAsyncStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
         getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
@@ -53,7 +52,7 @@ public class ExecuteTaskStep extends AsyncActivitiStep {
         }
     }
 
-    private ExecutionStatus attemptToExecuteTask(ExecutionWrapper execution, CloudApplication app, CloudTask taskToExecute) {
+    private StepPhase attemptToExecuteTask(ExecutionWrapper execution, CloudApplication app, CloudTask taskToExecute) {
         ClientExtensions clientExtensions = execution.getClientExtensions();
 
         getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
@@ -61,8 +60,7 @@ public class ExecuteTaskStep extends AsyncActivitiStep {
 
         StepsUtil.setStartedTask(execution.getContext(), startedTask);
         execution.getContext().setVariable(Constants.VAR_START_TIME, currentTimeSupplier.get());
-        StepsUtil.setStepPhase(execution, StepPhase.POLL);
-        return ExecutionStatus.RUNNING;
+        return StepPhase.POLL;
     }
 
     private CloudTask runTask(ClientExtensions clientExtensions, CloudApplication app, CloudTask task) {
@@ -70,8 +68,8 @@ public class ExecuteTaskStep extends AsyncActivitiStep {
     }
 
     @Override
-    protected List<AsyncStepOperation> getAsyncStepOperations() {
-        return Arrays.asList(new PollExecuteTaskStatusStep(recentLogsRetriever, currentTimeSupplier));
+    protected List<AsyncExecution> getAsyncStepExecutions() {
+        return Arrays.asList(new PollExecuteTaskStatusExecution(recentLogsRetriever, currentTimeSupplier));
     }
 
 }

@@ -8,7 +8,6 @@ import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
@@ -48,7 +47,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
     }
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         try {
@@ -93,7 +92,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
                 secureSerializer.toJson(descriptor));
             getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOVED);
 
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES);
             throw e;

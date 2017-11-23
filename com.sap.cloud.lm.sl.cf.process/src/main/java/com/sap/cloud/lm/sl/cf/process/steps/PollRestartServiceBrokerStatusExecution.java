@@ -5,7 +5,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
@@ -14,23 +13,23 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("pollServiceBrokerRestartStatus")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollRestartServiceBrokerStatusStep extends PollStartAppStatusStep {
+public class PollRestartServiceBrokerStatusExecution extends PollStartAppStatusExecution {
 
-    public PollRestartServiceBrokerStatusStep(RecentLogsRetriever recentLogsRetriever, Configuration configuration) {
+    public PollRestartServiceBrokerStatusExecution(RecentLogsRetriever recentLogsRetriever, Configuration configuration) {
         super(recentLogsRetriever, configuration);
     }
 
     @Override
-    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws SLException {
+    public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {
         try {
-            ExecutionStatus status = super.executeOperation(execution);
-            if (status.equals(ExecutionStatus.LOGICAL_RETRY)) {
-                status = ExecutionStatus.SUCCESS;
+            AsyncExecutionState status = super.execute(execution);
+            if (status.equals(AsyncExecutionState.ERROR)) {
+                status = AsyncExecutionState.FINISHED;
             }
             return status;
         } catch (SLException e) {
             execution.getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_START, getAppToPoll(execution.getContext()).getName());
-            return ExecutionStatus.SUCCESS;
+            return AsyncExecutionState.FINISHED;
         }
     }
 

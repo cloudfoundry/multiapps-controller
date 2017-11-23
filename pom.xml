@@ -788,41 +788,15 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.sap.activiti.common</groupId>
-                <artifactId>com.sap.activiti.common</artifactId>
-                <version>${activiti.common.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
-                        <artifactId>activiti-rest</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
-                        <artifactId>activiti-engine</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>com.sap.xs.java</groupId>
+                <artifactId>xs-audit-log-impl</artifactId>
+                <version>${xs.java.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.sap.xs2.security</groupId>
                 <artifactId>java-container-security</artifactId>
                 <version>${java.container.security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.activiti.common</groupId>
-                <artifactId>com.sap.activiti.common</artifactId>
-                <type>test-jar</type>
-                <scope>test</scope>
-                <version>${activiti.common.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
-                        <artifactId>activiti-rest</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
-                        <artifactId>activiti-engine</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl</groupId>

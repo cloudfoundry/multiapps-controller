@@ -16,7 +16,6 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
@@ -30,7 +29,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-public class PollServiceOperationsStep extends AsyncStepOperation {
+public class PollServiceOperationsExecution extends AsyncExecution {
 
     private static final String LAST_SERVICE_OPERATION = "last_operation";
     private static final String SERVICE_NAME = "name";
@@ -41,12 +40,12 @@ public class PollServiceOperationsStep extends AsyncStepOperation {
     private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
     private ServiceInstanceGetter serviceInstanceGetter;
 
-    public PollServiceOperationsStep(ServiceInstanceGetter serviceInstanceGetter) {
+    public PollServiceOperationsExecution(ServiceInstanceGetter serviceInstanceGetter) {
         this.serviceInstanceGetter = serviceInstanceGetter;
     }
 
     @Override
-    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws Exception {
+    public AsyncExecutionState execute(ExecutionWrapper execution) throws Exception {
         execution.getStepLogger().logActivitiTask();
         try {
             execution.getStepLogger().info(Messages.POLLING_SERVICE_OPERATIONS);
@@ -54,7 +53,7 @@ public class PollServiceOperationsStep extends AsyncStepOperation {
             ClientExtensions clientExtensions = execution.getClientExtensions();
             if (clientExtensions != null) {
                 // The asynchronous creation of services is not supported yet on XSA.
-                return ExecutionStatus.SUCCESS;
+                return AsyncExecutionState.FINISHED;
             }
 
             CloudFoundryOperations client = execution.getCloudFoundryClient();
@@ -62,7 +61,7 @@ public class PollServiceOperationsStep extends AsyncStepOperation {
             Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(execution.getContext());
             List<CloudServiceExtended> servicesToPoll = getServiceOperationsToPoll(execution, triggeredServiceOperations);
             if (servicesToPoll.isEmpty()) {
-                return ExecutionStatus.SUCCESS;
+                return AsyncExecutionState.FINISHED;
             }
 
             Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation = new HashMap<>();
@@ -80,11 +79,9 @@ public class PollServiceOperationsStep extends AsyncStepOperation {
             execution.getStepLogger().info(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
             StepsUtil.setServicesToPoll(execution.getContext(), remainingServicesToPoll);
             if (remainingServicesToPoll.size() == 0) {
-                StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
-                return ExecutionStatus.SUCCESS;
+                return AsyncExecutionState.FINISHED;
             }
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
-            return ExecutionStatus.RUNNING;
+            return AsyncExecutionState.RUNNING;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             execution.getStepLogger().error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);

@@ -16,14 +16,13 @@ import org.mockito.Spy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.impl.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
@@ -89,7 +88,7 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     }
 
     protected void assertStepFinishedSuccessfully() {
-        assertEquals(ExecutionStatus.SUCCESS.toString(), getExecutionStatus());
+        assertEquals(StepPhase.DONE.toString(), getExecutionStatus());
     }
 
     protected String getExecutionStatus() {

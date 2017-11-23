@@ -16,7 +16,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
@@ -43,7 +42,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
     private Configuration configuration;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.CREATING_SERVICE_BROKERS);
@@ -66,7 +65,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
 
             StepsUtil.setServiceBrokersToCreate(execution.getContext(), serviceBrokersToCreate);
             getStepLogger().debug(Messages.SERVICE_BROKERS_CREATED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
             throw e;

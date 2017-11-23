@@ -31,7 +31,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -75,7 +74,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     protected ServiceUpdater serviceUpdater;
 
     @Override
-    protected ExecutionStatus executeAsyncStep(ExecutionWrapper execution) throws SLException, FileStorageException {
+    protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws SLException, FileStorageException {
 
         getStepLogger().logActivitiTask();
         try {
@@ -97,17 +96,14 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             execution.getStepLogger().debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
             StepsUtil.setTriggeredServiceOperations(execution.getContext(), triggeredServiceOperations);
 
-            getStepLogger().info(Messages.SERVICES_CREATED_OR_UPDATED);
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
-            return ExecutionStatus.RUNNING;
+            getStepLogger().debug(Messages.SERVICES_CREATED_OR_UPDATED);
+            return StepPhase.POLL;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICES);
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICES);
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         }
     }
@@ -286,8 +282,8 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private void updateServicePlan(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service) {
-        getStepLogger().debug(
-            MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(), service.getPlan()));
+        getStepLogger()
+            .debug(MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(), service.getPlan()));
         serviceUpdater.updateServicePlan(client, service.getName(), service.getPlan());
     }
 
@@ -393,15 +389,16 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         FileContentProcessor parametersFileProcessor = new FileContentProcessor() {
             @Override
             public void processFileContent(InputStream appArchiveStream) throws SLException {
-                try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, Configuration.getInstance().getMaxManifestSize())) {
+                try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName,
+                    Configuration.getInstance().getMaxManifestSize())) {
                     mergeCredentials(service, is);
                 } catch (IOException e) {
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
                 }
             }
         };
-        fileService.processFileContent(
-            new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId, parametersFileProcessor));
+        fileService
+            .processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId, parametersFileProcessor));
     }
 
     private void mergeCredentials(CloudServiceExtended service, InputStream credentialsJson) throws SLException {
@@ -447,8 +444,10 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         appNames.addAll(appsToUndeploy.stream().map((app) -> app.getName()).collect(Collectors.toSet()));
 
         List<CloudApplication> existingApps = client.getApplications();
-        return bindings.stream().map(binding -> getApplication(client, binding, existingApps).getName()).filter(
-            boundApp -> appNames.contains(boundApp)).collect(Collectors.toList());
+        return bindings.stream()
+            .map(binding -> getApplication(client, binding, existingApps).getName())
+            .filter(boundApp -> appNames.contains(boundApp))
+            .collect(Collectors.toList());
     }
 
     private CloudApplication getApplication(CloudFoundryOperations client, CloudServiceBinding binding, List<CloudApplication> apps) {
@@ -465,7 +464,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     @Override
-    protected List<AsyncStepOperation> getAsyncStepOperations() {
-        return Arrays.asList(new PollServiceOperationsStep(serviceInstanceGetter));
+    protected List<AsyncExecution> getAsyncStepExecutions() {
+        return Arrays.asList(new PollServiceOperationsExecution(serviceInstanceGetter));
     }
 }

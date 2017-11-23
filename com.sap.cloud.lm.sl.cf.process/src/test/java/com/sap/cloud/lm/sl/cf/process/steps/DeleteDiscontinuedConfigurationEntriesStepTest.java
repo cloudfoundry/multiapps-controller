@@ -17,7 +17,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -76,12 +75,10 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncActiviti
         CloudTarget newTarget = new CloudTarget(stepInput.org, stepInput.space);
         CloudTarget oldTarget = new CloudTarget(null, stepInput.spaceId);
 
-        Mockito.when(
-            configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, newTarget, null, stepInput.mtaId)).thenReturn(
-                stepInput.allEntriesForMtaWithNewTarget);
-        Mockito.when(
-            configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, oldTarget, null, stepInput.mtaId)).thenReturn(
-                stepInput.allEntriesForMtaWithOldTarget);
+        Mockito.when(configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, newTarget, null, stepInput.mtaId))
+            .thenReturn(stepInput.allEntriesForMtaWithNewTarget);
+        Mockito.when(configurationEntryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, oldTarget, null, stepInput.mtaId))
+            .thenReturn(stepInput.allEntriesForMtaWithOldTarget);
     }
 
     private void prepareContext() {
@@ -92,17 +89,17 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncActiviti
         Mockito.when(context.getProcessInstanceId()).thenReturn("process-instance-id");
         Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any())).thenReturn(Arrays.asList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
-        Mockito.when(activitiFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES)).thenReturn(
-            varInstanceMock);
+        Mockito.when(activitiFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
+            .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue()).thenReturn(getBytes(stepInput.publishedEntries));
         HistoricVariableInstance varInstanceMockDeletedEntries = Mockito.mock(HistoricVariableInstance.class);
-        Mockito.when(activitiFacade.getHistoricVariableInstance("process-instance-id", Constants.VAR_DELETED_ENTRIES)).thenReturn(
-            varInstanceMockDeletedEntries);
+        Mockito.when(activitiFacade.getHistoricVariableInstance("process-instance-id", Constants.VAR_DELETED_ENTRIES))
+            .thenReturn(varInstanceMockDeletedEntries);
         Mockito.when(varInstanceMockDeletedEntries.getValue()).thenReturn(getBytes(getEntriesToDelete()));
     }
 
     private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {
-        return GsonHelper.getAsBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
+        return JsonUtil.getAsBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
     }
 
     @Test

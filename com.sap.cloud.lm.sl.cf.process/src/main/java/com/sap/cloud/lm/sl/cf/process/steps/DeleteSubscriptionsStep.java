@@ -8,7 +8,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
@@ -24,7 +23,7 @@ public class DeleteSubscriptionsStep extends SyncActivitiStep {
     private ConfigurationSubscriptionDao dao;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.DELETING_SUBSCRIPTIONS);
@@ -41,7 +40,7 @@ public class DeleteSubscriptionsStep extends SyncActivitiStep {
         }
 
         getStepLogger().debug(Messages.DELETED_SUBSCRIPTIONS);
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private String getName(ResourceDto dto) {

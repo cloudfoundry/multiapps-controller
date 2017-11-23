@@ -12,8 +12,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.OccupiedPortsDetector;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
@@ -27,11 +25,11 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.DELETING_UNUSED_RESERVED_ROUTES);
-            boolean portBasedRouting = ContextUtil.getVariable(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
+            boolean portBasedRouting = StepsUtil.getVariable(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
 
             CloudFoundryOperations client = execution.getCloudFoundryClient();
             List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(execution.getContext());
@@ -49,7 +47,7 @@ public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
             }
 
             getStepLogger().debug(Messages.UNUSED_RESERVED_ROUTES_DELETED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_DELETING_UNUSED_RESERVED_ROUTES);
             throw e;

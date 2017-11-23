@@ -13,7 +13,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingStateGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
@@ -36,36 +35,33 @@ public class StageAppStep extends AsyncActivitiStep {
     }
 
     @Override
-    protected ExecutionStatus executeAsyncStep(ExecutionWrapper execution) {
+    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
-        getStepLogger().info("Putkaaa");
         CloudApplication app = StepsUtil.getApp(execution.getContext());
         try {
             ClientExtensions clientExtensions = execution.getClientExtensions();
 
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             return stageApp(execution.getContext(), clientExtensions, app);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         }
     }
 
-    private ExecutionStatus stageApp(DelegateExecution context, ClientExtensions clientExtensions, CloudApplication app) {
+    private StepPhase stageApp(DelegateExecution context, ClientExtensions clientExtensions, CloudApplication app) {
         getStepLogger().info(Messages.STAGING_APP, app.getName());
         StartingInfo startingInfo = clientExtensions.stageApplication(app.getName());
         StepsUtil.setStartingInfo(context, startingInfo);
         context.setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
         context.setVariable(Constants.VAR_OFFSET, 0);
 
-        return ExecutionStatus.RUNNING;
+        return StepPhase.POLL;
     }
 
     @Override
-    protected List<AsyncStepOperation> getAsyncStepOperations() {
-        return Arrays.asList(new PollStageAppStatus(recentLogsRetriever, applicationStagingStateGetter));
+    protected List<AsyncExecution> getAsyncStepExecutions() {
+        return Arrays.asList(new PollStageAppStatusExecution(recentLogsRetriever, applicationStagingStateGetter));
     }
 
 }

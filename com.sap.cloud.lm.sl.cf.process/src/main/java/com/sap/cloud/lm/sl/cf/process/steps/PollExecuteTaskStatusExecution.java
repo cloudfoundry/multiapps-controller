@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
@@ -17,19 +16,19 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-public class PollExecuteTaskStatusStep extends AsyncStepOperation {
+public class PollExecuteTaskStatusExecution extends AsyncExecution {
 
     protected Supplier<Long> currentTimeSupplier;
 
     private RecentLogsRetriever recentLogsRetriever;
 
-    public PollExecuteTaskStatusStep(RecentLogsRetriever recentLogsRetriever, Supplier<Long> currentTimeSupplier) {
+    public PollExecuteTaskStatusExecution(RecentLogsRetriever recentLogsRetriever, Supplier<Long> currentTimeSupplier) {
         this.recentLogsRetriever = recentLogsRetriever;
         this.currentTimeSupplier = currentTimeSupplier;
     }
 
     @Override
-    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws Exception {
+    public AsyncExecutionState execute(ExecutionWrapper execution) throws Exception {
         execution.getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
@@ -39,9 +38,11 @@ public class PollExecuteTaskStatusStep extends AsyncStepOperation {
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
+            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         } catch (SLException e) {
             execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
+            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         }
     }
@@ -58,7 +59,7 @@ public class PollExecuteTaskStatusStep extends AsyncStepOperation {
             this.app = StepsUtil.getApp(execution.getContext());
         }
 
-        public ExecutionStatus execute() {
+        public AsyncExecutionState execute() {
             CloudTask.State currentState = getCurrentState();
             reportCurrentState(currentState);
             saveAppLogs();
@@ -83,11 +84,11 @@ public class PollExecuteTaskStatusStep extends AsyncStepOperation {
 
         private void saveAppLogs() {
             CloudFoundryOperations client = execution.getCloudFoundryClient();
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
         }
 
-        private ExecutionStatus handleCurrentState(CloudTask.State currentState) {
+        private AsyncExecutionState handleCurrentState(CloudTask.State currentState) {
             if (isFinalState(currentState)) {
                 return handleFinalState(currentState);
             }
@@ -98,25 +99,25 @@ public class PollExecuteTaskStatusStep extends AsyncStepOperation {
             return currentState.equals(CloudTask.State.FAILED) || currentState.equals(CloudTask.State.SUCCEEDED);
         }
 
-        private ExecutionStatus handleFinalState(CloudTask.State state) {
+        private AsyncExecutionState handleFinalState(CloudTask.State state) {
             if (state.equals(CloudTask.State.FAILED)) {
                 execution.getStepLogger().error(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName());
                 StepsUtil.setStepPhase(execution, StepPhase.RETRY);
-                return ExecutionStatus.FAILED;
+                return AsyncExecutionState.ERROR;
             }
             StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
-            return ExecutionStatus.SUCCESS;
+            return AsyncExecutionState.FINISHED;
         }
 
-        private ExecutionStatus checkTimeout() {
+        private AsyncExecutionState checkTimeout() {
             if (StepsUtil.hasTimedOut(execution.getContext(), currentTimeSupplier)) {
                 String message = format(Messages.EXECUTING_TASK_ON_APP_TIMED_OUT, taskToPoll.getName(), app.getName());
                 execution.getStepLogger().error(message);
                 StepsUtil.setStepPhase(execution, StepPhase.RETRY);
-                return ExecutionStatus.FAILED;
+                return AsyncExecutionState.ERROR;
             }
             StepsUtil.setStepPhase(execution, StepPhase.POLL);
-            return ExecutionStatus.RUNNING;
+            return AsyncExecutionState.RUNNING;
         }
     }
 

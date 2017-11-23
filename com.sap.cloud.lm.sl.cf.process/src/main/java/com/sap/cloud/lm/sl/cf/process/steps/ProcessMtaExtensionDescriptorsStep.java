@@ -13,8 +13,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -27,7 +25,7 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
@@ -35,14 +33,14 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
         try {
             String spaceId = StepsUtil.getSpaceId(execution.getContext());
 
-            ContextUtil.setArrayVariableFromCollection(execution.getContext(), Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS,
+            StepsUtil.setArrayVariableFromCollection(execution.getContext(), Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS,
                 getExtensionDescriptors(spaceId, extensionDescriptorFileIds));
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS);
             throw e;
         }
         getStepLogger().debug(Messages.MTA_EXTENSION_DESCRIPTORS_PROCESSED);
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private List<String> getExtensionDescriptors(String spaceId, List<String> fileIds) throws SLException {
@@ -56,8 +54,8 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
                 }
             };
             for (String extensionDescriptorFileId : fileIds) {
-                fileService.processFileContent(
-                    new DefaultFileDownloadProcessor(spaceId, extensionDescriptorFileId, extensionDescriptorProcessor));
+                fileService
+                    .processFileContent(new DefaultFileDownloadProcessor(spaceId, extensionDescriptorFileId, extensionDescriptorProcessor));
             }
             getStepLogger().debug(Messages.EXTENSION_DESCRIPTOR, extensionDescriptorStrings);
             return extensionDescriptorStrings;

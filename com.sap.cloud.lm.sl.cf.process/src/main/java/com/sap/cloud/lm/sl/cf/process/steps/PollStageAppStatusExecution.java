@@ -8,7 +8,6 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.http.HttpStatus;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStagingState;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingStateGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
@@ -18,19 +17,19 @@ import com.sap.cloud.lm.sl.cf.process.util.XMLValueFilter;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
-public class PollStageAppStatus extends AsyncStepOperation {
+public class PollStageAppStatusExecution extends AsyncExecution {
 
     private RecentLogsRetriever recentLogsRetriever;
     private ApplicationStagingStateGetter applicationStagingStateGetter;
 
-    public PollStageAppStatus(RecentLogsRetriever recentLogsRetriever, ApplicationStagingStateGetter applicationStagingStateGetter) {
+    public PollStageAppStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationStagingStateGetter applicationStagingStateGetter) {
         super();
         this.recentLogsRetriever = recentLogsRetriever;
         this.applicationStagingStateGetter = applicationStagingStateGetter;
     }
 
     @Override
-    public ExecutionStatus executeOperation(ExecutionWrapper execution) throws Exception {
+    public AsyncExecutionState execute(ExecutionWrapper execution) throws Exception {
         execution.getStepLogger().logActivitiTask();
 
         CloudApplication app = StepsUtil.getApp(execution.getContext());
@@ -45,7 +44,7 @@ public class PollStageAppStatus extends AsyncStepOperation {
             }
 
             execution.getStepLogger().info(Messages.APP_STAGED, app.getName());
-            return ExecutionStatus.SUCCESS;
+            return AsyncExecutionState.FINISHED;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             execution.getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
@@ -105,29 +104,29 @@ public class PollStageAppStatus extends AsyncStepOperation {
         }
     }
 
-    private ExecutionStatus checkStagingState(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
+    private AsyncExecutionState checkStagingState(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
         Pair<ApplicationStagingState, String> state) throws SLException {
 
         if (state._1.equals(ApplicationStagingState.FAILED)) {
             // Application staging failed
             String message = format(Messages.ERROR_STAGING_APP_2, app.getName(), state._2);
             execution.getStepLogger().error(message);
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
             setType(execution, StepPhase.RETRY);
-            return ExecutionStatus.FAILED;
+            return AsyncExecutionState.ERROR;
         } else {
             // Application not staged yet, wait and try again unless it's a timeout
             if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
                 String message = format(Messages.APP_START_TIMED_OUT, app.getName());
                 execution.getStepLogger().error(message);
-                StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER.getLoggerImpl(),
+                StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                     execution.getProcessLoggerProviderFactory());
                 setType(execution, StepPhase.RETRY);
-                return ExecutionStatus.FAILED;
+                return AsyncExecutionState.ERROR;
             }
             setType(execution, StepPhase.POLL);
-            return ExecutionStatus.RUNNING;
+            return AsyncExecutionState.RUNNING;
         }
     }
 

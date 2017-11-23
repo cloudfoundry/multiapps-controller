@@ -37,7 +37,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
@@ -73,15 +72,15 @@ public class UploadAppStepTest {
         @Test
         public void testPollStatus1() throws Exception {
             step.createStepLogger(context);
-            ExecutionStatus status = step.executeAsyncStep(step.createExecutionWrapper(context));
+            StepPhase status = step.executeAsyncStep(step.createExecutionWrapper(context));
 
-            assertEquals(ExecutionStatus.RUNNING.toString(), status.toString());
+            assertEquals(StepPhase.WAIT.toString(), status.toString());
         }
 
         @Test(expected = SLException.class)
         public void testPollStatus2() throws Exception {
-            when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq(ORG_NAME), eq(SPACE_NAME), anyString())).thenThrow(
-                new SLException(new CloudFoundryException(HttpStatus.BAD_REQUEST)));
+            when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq(ORG_NAME), eq(SPACE_NAME), anyString()))
+                .thenThrow(new SLException(new CloudFoundryException(HttpStatus.BAD_REQUEST)));
             step.execute(context);
         }
 
@@ -175,9 +174,9 @@ public class UploadAppStepTest {
 
             if (clientSupportsExtensions) {
                 assertCall(Constants.VAR_UPLOAD_TOKEN, TOKEN);
-                assertCall("uploadState", ExecutionStatus.RUNNING.toString());
+                assertCall("uploadState", AsyncExecutionState.RUNNING.toString());
             } else {
-                assertCall("uploadState", ExecutionStatus.SUCCESS.toString());
+                assertCall("uploadState", AsyncExecutionState.FINISHED.toString());
             }
         }
 

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -28,7 +27,7 @@ public class PrepareToUndeployStep extends SyncActivitiStep {
         operationDao);
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         getStepLogger().info(Messages.DETECTING_COMPONENTS_TO_UNDEPLOY);
         try {
@@ -42,12 +41,12 @@ public class PrepareToUndeployStep extends SyncActivitiStep {
             StepsUtil.setServiceUrlsToRegister(execution.getContext(), Collections.emptyList());
             StepsUtil.setSubscriptionsToCreate(execution.getContext(), Collections.emptyList());
 
-            conflictPreventerSupplier.apply(ongoingOperationDao).attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()),
+            conflictPreventerSupplier.apply(operationDao).attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()),
                 execution.getContext().getProcessInstanceId());
 
             getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
 
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().error(e, Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY);

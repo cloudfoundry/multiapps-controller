@@ -9,7 +9,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
@@ -18,7 +17,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 public class RestartUpdatedSubscribersStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         getStepLogger().logActivitiTask();
 
         List<CloudApplication> updatedSubscribers = StepsUtil.getUpdatedSubscribers(execution.getContext());
@@ -26,7 +25,7 @@ public class RestartUpdatedSubscribersStep extends SyncActivitiStep {
             getStepLogger().debug(Messages.UPDATED_SUBSCRIBERS, subscriber.getName());
             restartSubscriber(execution, subscriber);
         }
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private void restartSubscriber(ExecutionWrapper execution, CloudApplication subscriber) {

@@ -15,7 +15,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
@@ -40,43 +39,43 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
 // @formatter:off
             // (0)
             {
-                CloudTask.State.SUCCEEDED, 100L, ExecutionStatus.SUCCESS,
+                CloudTask.State.SUCCEEDED, 100L, AsyncExecutionState.FINISHED,
             },
             // (1)
             {
-                CloudTask.State.SUCCEEDED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.SUCCESS,
+                CloudTask.State.SUCCEEDED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.FINISHED,
             },
             // (2)
             {
-                CloudTask.State.FAILED, 100L, ExecutionStatus.FAILED,
+                CloudTask.State.FAILED, 100L, AsyncExecutionState.ERROR,
             },
             // (3)
             {
-                CloudTask.State.FAILED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.FAILED,
+                CloudTask.State.FAILED, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.ERROR,
             },
             // (4)
             {
-                CloudTask.State.PENDING, 100L, ExecutionStatus.RUNNING,
+                CloudTask.State.PENDING, 100L, AsyncExecutionState.RUNNING,
             },
             // (5)
             {
-                CloudTask.State.PENDING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.FAILED,
+                CloudTask.State.PENDING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.ERROR,
             },
             // (6)
             {
-                CloudTask.State.RUNNING, 100L, ExecutionStatus.RUNNING,
+                CloudTask.State.RUNNING, 100L, AsyncExecutionState.RUNNING,
             },
             // (7)
             {
-                CloudTask.State.RUNNING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.FAILED,
+                CloudTask.State.RUNNING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.ERROR,
             },
             // (8)
             {
-                CloudTask.State.CANCELING, 100L, ExecutionStatus.RUNNING,
+                CloudTask.State.CANCELING, 100L, AsyncExecutionState.RUNNING,
             },
             // (9)
             {
-                CloudTask.State.CANCELING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, ExecutionStatus.FAILED,
+                CloudTask.State.CANCELING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.ERROR,
             },
 // @formatter:on
         });
@@ -84,11 +83,11 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
 
     private CloudTask.State currentTaskState;
     private long currentTime;
-    private ExecutionStatus expectedExecutionStatus;
+    private AsyncExecutionState expectedExecutionStatus;
 
     private CloudTask task = new CloudTask(new Meta(TASK_UUID, null, null), TASK_NAME);
 
-    public PollExecuteTaskStatusStepTest(CloudTask.State currentTaskState, long currentTime, ExecutionStatus expectedExecutionStatus) {
+    public PollExecuteTaskStatusStepTest(CloudTask.State currentTaskState, long currentTime, AsyncExecutionState expectedExecutionStatus) {
         this.currentTaskState = currentTaskState;
         this.currentTime = currentTime;
         this.expectedExecutionStatus = expectedExecutionStatus;
@@ -116,7 +115,7 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     }
 
     @Override
-    protected void validateOperationExecutionResult(ExecutionStatus result) {
+    protected void validateOperationExecutionResult(AsyncExecutionState result) {
         assertEquals(expectedExecutionStatus.toString(), result.toString());
     }
 
@@ -126,8 +125,8 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     }
 
     @Override
-    protected List<AsyncStepOperation> getAsyncOperations() {
-        return step.getAsyncStepOperations();
+    protected List<AsyncExecution> getAsyncOperations() {
+        return step.getAsyncStepExecutions();
     }
 
 }

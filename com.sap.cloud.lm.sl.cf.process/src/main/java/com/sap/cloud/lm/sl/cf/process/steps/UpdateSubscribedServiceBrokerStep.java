@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -20,7 +19,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrokersStep {
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         CloudApplication serviceBrokerAppication = StepsUtil.getServiceBrokerSubscriberToRestart(execution.getContext());
@@ -35,11 +34,11 @@ public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrok
                 broker.setMeta(existingServiceBroker.getMeta());
                 updateServiceBroker(execution.getContext(), broker, client);
             }
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_UPDATE, broker.getName());
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         }
     }
 

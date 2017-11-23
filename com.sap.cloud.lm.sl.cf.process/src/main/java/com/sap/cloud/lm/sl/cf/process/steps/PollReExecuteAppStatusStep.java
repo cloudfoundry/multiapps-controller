@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 
 @Component("pollReExecuteAppStatusStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollReExecuteAppStatusStep extends PollExecuteAppStatusStep {
+public class PollReExecuteAppStatusStep extends PollExecuteAppStatusExecution {
 
     public PollReExecuteAppStatusStep(RecentLogsRetriever recentLogsRetriever) {
         super(recentLogsRetriever);

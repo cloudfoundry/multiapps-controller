@@ -11,7 +11,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ActionCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupState;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupStateCalculator;
@@ -29,7 +28,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
     protected Supplier<ApplicationStartupStateCalculator> appStateCalculatorSupplier = () -> new ApplicationStartupStateCalculator();
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper context) {
+    protected StepPhase executeStep(ExecutionWrapper context) {
         getStepLogger().logActivitiTask();
         CloudApplication app = StepsUtil.getApp(context.getContext());
         try {
@@ -44,7 +43,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
         }
     }
 
-    private ExecutionStatus attemptToExecuteStep(ExecutionWrapper execution) {
+    private StepPhase attemptToExecuteStep(ExecutionWrapper execution) {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
         ApplicationStartupState currentState = computeCurrentState(execution, app);
         getStepLogger().debug(Messages.CURRENT_STATE, app.getName(), currentState);
@@ -53,10 +52,10 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
 
         Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(execution.getContext()).determineActionsToExecute(currentState,
             desiredState);
-        getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, app.getName(), actionsToExecute);
+        getStepLogger().info(Messages.ACTIONS_TO_EXECUTE, app.getName(), actionsToExecute);
 
         StepsUtil.setAppStateActionsToExecute(execution.getContext(), actionsToExecute);
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private ApplicationStartupState computeCurrentState(ExecutionWrapper execution, CloudApplication app) {

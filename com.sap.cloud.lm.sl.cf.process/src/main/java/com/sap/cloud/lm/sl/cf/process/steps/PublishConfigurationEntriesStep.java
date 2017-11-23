@@ -12,7 +12,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -30,7 +29,7 @@ public class PublishConfigurationEntriesStep extends SyncActivitiStep {
     ConfigurationEntryDao configurationEntryDao;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
@@ -47,7 +46,7 @@ public class PublishConfigurationEntriesStep extends SyncActivitiStep {
             StepsUtil.setPublishedEntries(execution.getContext(), publishedEntries);
 
             getStepLogger().debug(Messages.PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED);
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES);
             throw e;

@@ -9,7 +9,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -32,7 +31,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
     private ActivitiFacade activitiFacade;
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.DELETING_PUBLISHED_DEPENDENCIES);
@@ -57,7 +56,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
         StepsUtil.setDeletedEntries(execution.getContext(), entriesToDelete);
 
         getStepLogger().debug(Messages.PUBLISHED_DEPENDENCIES_DELETED);
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
 
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget newTarget, CloudTarget oldTarget,

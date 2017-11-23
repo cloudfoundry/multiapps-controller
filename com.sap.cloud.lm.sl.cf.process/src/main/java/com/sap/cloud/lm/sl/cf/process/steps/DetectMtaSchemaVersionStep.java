@@ -7,7 +7,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -22,7 +21,7 @@ public class DetectMtaSchemaVersionStep extends SyncActivitiStep {
     protected Supplier<MtaSchemaVersionDetector> detectorSupplier = () -> new MtaSchemaVersionDetector();
 
     @Override
-    protected ExecutionStatus executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.DETECTING_MTA_MAJOR_SCHEMA_VERSION);
@@ -40,7 +39,7 @@ public class DetectMtaSchemaVersionStep extends SyncActivitiStep {
 
             getStepLogger().info(Messages.MTA_SCHEMA_VERSION_DETECTED_AS, schemaVersion);
 
-            return ExecutionStatus.SUCCESS;
+            return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION);
             throw e;

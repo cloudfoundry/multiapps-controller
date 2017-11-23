@@ -9,7 +9,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.activiti.common.ExecutionStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -22,36 +21,36 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 @Component("rebuildApplicationEnvironmentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RebuildApplicationEnvironmentStep extends AbstractProcessStep {
+public class RebuildApplicationEnvironmentStep extends SyncActivitiStep {
 
     @Override
-    protected ExecutionStatus executeStepInternal(DelegateExecution context) throws Exception {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         getStepLogger().logActivitiTask();
 
         try {
-            DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
+            DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
             List<DeployedMtaModule> deployedModules = (deployedMta != null) ? deployedMta.getModules() : Collections.emptyList();
-            Set<String> mtaArchiveModules = StepsUtil.getMtaArchiveModules(context);
+            Set<String> mtaArchiveModules = StepsUtil.getMtaArchiveModules(execution.getContext());
             getStepLogger().debug(Messages.MTA_ARCHIVE_MODULES, mtaArchiveModules);
             Set<String> deployedModuleNames = CloudModelBuilderUtil.getDeployedModuleNames(deployedModules);
             getStepLogger().debug(Messages.DEPLOYED_MODULES, deployedModuleNames);
-            Set<String> mtaModules = StepsUtil.getMtaModules(context);
+            Set<String> mtaModules = StepsUtil.getMtaModules(execution.getContext());
             getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
             // TODO: Build a cloud model only for the current application:
-            List<CloudApplicationExtended> modifiedApps = getApplicationsCloudModelBuilder(context).build(mtaArchiveModules, mtaModules,
-                deployedModuleNames);
-            CloudApplicationExtended app = StepsUtil.getApp(context);
+            List<CloudApplicationExtended> modifiedApps = getApplicationsCloudModelBuilder(execution.getContext()).build(mtaArchiveModules,
+                mtaModules, deployedModuleNames);
+            CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
             CloudApplicationExtended modifiedApp = findApplication(modifiedApps, app.getName());
             setApplicationUris(context, app, modifiedApp);
             app.setIdleUris(modifiedApp.getIdleUris());
             app.setEnv(MapUtil.upcastUnmodifiable(modifiedApp.getEnvAsMap()));
             getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, JsonUtil.toJson(app, true));
-            StepsUtil.setApp(context, app);
+            StepsUtil.setApp(execution.getContext(), app);
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_APP_MODEL);
             throw e;
         }
-        return ExecutionStatus.SUCCESS;
+        return StepPhase.DONE;
     }
     
     private void setApplicationUris(DelegateExecution context, CloudApplicationExtended app, CloudApplicationExtended modifiedApp ) {

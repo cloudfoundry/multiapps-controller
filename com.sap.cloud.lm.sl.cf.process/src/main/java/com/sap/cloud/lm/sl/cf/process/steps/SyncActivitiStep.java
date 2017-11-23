@@ -5,11 +5,9 @@ import javax.inject.Named;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.Logger;
-import com.sap.activiti.common.api.IStatusSignaller;
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
@@ -23,7 +21,7 @@ import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegate {
 
-    protected final Logger LOGGER = Logger.getInstance(getClass());
+    protected final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Inject
     protected CloudFoundryClientProvider clientProvider;
@@ -41,28 +39,33 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
     protected ProcessStepHelper stepHelper;
     private StepLogger stepLogger;
 
-    private IStatusSignaller signaller;
-
     @Override
     public void execute(DelegateExecution context) throws Exception {
-        ExecutionStatus status = null;
+        StepPhase stepPhase = null;
         createStepLogger(context);
+        ExecutionWrapper executionWrapper = createExecutionWrapper(context);
         try {
             MDC.put(Constants.ATTR_CORRELATION_ID, StepsUtil.getCorrelationId(context));
-            getStepHelper().preExecuteStep(context, ExecutionStatus.NEW);
-            status = executeStep(createExecutionWrapper(context));
+            // TODO: check what should be here...
+            getStepHelper().preExecuteStep(context, getInitialStepPhase(executionWrapper));
+            stepPhase = executeStep(executionWrapper);
             getStepHelper().failStepIfProcessIsAborted(context);
-            LOGGER.debug(context, "Execution finished");
+            LOGGER.debug("Execution finished");
         } catch (MonitoringException e) {
             getStepLogger().errorWithoutProgressMessage(e.getMessage());
-            status = ExecutionStatus.FAILED;
+            stepPhase = StepPhase.RETRY;
             handleException(context, e);
         } catch (Throwable t) {
-            status = ExecutionStatus.FAILED;
+            stepPhase = StepPhase.RETRY;
             handleException(context, t);
         } finally {
-            postExecuteStep(context, status);
+            StepsUtil.setStepPhase(executionWrapper, stepPhase);
+            postExecuteStep(context, stepPhase);
         }
+    }
+
+    protected StepPhase getInitialStepPhase(ExecutionWrapper executionWrapper) {
+        return StepPhase.EXECUTE;
     }
 
     protected ExecutionWrapper createExecutionWrapper(DelegateExecution context) {
@@ -75,9 +78,9 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
         throw t instanceof Exception ? (Exception) t : new Exception(t);
     }
 
-    protected void postExecuteStep(DelegateExecution context, ExecutionStatus status) {
+    protected void postExecuteStep(DelegateExecution context, StepPhase stepState) {
         try {
-            getStepHelper().postExecuteStep(context, status);
+            getStepHelper().postExecuteStep(context, stepState);
         } catch (SLException e) {
             getStepHelper().storeExceptionInProgressMessageService(context, e);
             logException(context, e);
@@ -86,7 +89,7 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
         }
     }
 
-    protected abstract ExecutionStatus executeStep(ExecutionWrapper execution) throws Exception;
+    protected abstract StepPhase executeStep(ExecutionWrapper execution) throws Exception;
 
     protected StepLogger getStepLogger() {
         if (stepLogger == null) {
@@ -96,7 +99,7 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
     }
 
     protected void createStepLogger(DelegateExecution context) {
-        stepLogger = stepLoggerFactory.create(context, progressMessageService, processLoggerProviderFactory, LOGGER.getLoggerImpl());
+        stepLogger = stepLoggerFactory.create(context, progressMessageService, processLoggerProviderFactory, LOGGER);
     }
 
     protected Throwable getWithProperMessage(Throwable t) {
@@ -127,15 +130,11 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
 
     @Override
     public Integer getStepIndex(DelegateExecution context) {
-        return getIndexVariable() != null ? (int) context.getVariable(getIndexVariable()) : -1;
+        return (getIndexVariable() != null ? (int) context.getVariable(getIndexVariable()) : 0) - 1;
     }
 
     protected String getIndexVariable() {
         return null;
-    }
-
-    public IStatusSignaller getSignaller() {
-        return this.signaller;
     }
 
 }
