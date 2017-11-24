@@ -1,0 +1,24 @@
+[
+  {
+    "processId": "1",
+    "processType": "UNDEPLOY",
+    "startedAt": "2017-11-24T13:35:45.831Z[UTC]",
+    "endedAt": "2017-11-24T13:36:00.755Z[UTC]",
+    "spaceId": "c65d042c-324f-4dc5-a925-9c806acafcfb",
+    "mtaId": "anatz",
+    "user": "nictas",
+    "acquiredLock": false,
+    "state": "ABORTED"
+  },
+  {
+    "processId": "1",
+    "processType": "DEPLOY",
+    "startedAt": "2017-11-24T13:57:48.048Z[UTC]",
+    "endedAt": "2017-11-24T13:59:11.052Z[UTC]",
+    "spaceId": "c65d042c-324f-4dc5-a925-9c806acafcfb",
+    "mtaId": "anatz",
+    "user": "nictas",
+    "acquiredLock": false,
+    "state": "FINISHED"
+  }
+]
