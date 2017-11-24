@@ -129,9 +129,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public Response startMtaOperation(Operation operation, SecurityContext securityContext, String spaceGuid) {
         String userId = getAuthenticatedUser(securityContext);
         String processDefinitionKey = getProcessDefinitionKey(operation);
+        Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType()).getParameters();
         addServiceParameters(operation, spaceGuid);
-        addDefaultParameters(operation, spaceGuid);
-        addParameterValues(operation);
+        addDefaultParameters(operation, predefinedParameters);
+        addParameterValues(operation, predefinedParameters);
+        ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = activitiFacade.startProcess(userId, processDefinitionKey, operation.getParameters());
         return Response.accepted().header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid)).build();
     }
@@ -273,22 +275,40 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         parameters.put("space", space.getName());
     }
 
-    private void addDefaultParameters(Operation operation, String spaceGuid) {
+    private void addDefaultParameters(Operation operation, Set<ParameterMetadata> predefinedParameters) {
         Map<String, Object> parameters = operation.getParameters();
-        Set<ParameterMetadata> serviceParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType()).getParameters();
-        for (ParameterMetadata serviceParameter : serviceParameters) {
-            if (!parameters.containsKey(serviceParameter.getId()) && serviceParameter.getDefaultValue() != null) {
-                parameters.put(serviceParameter.getId(), serviceParameter.getDefaultValue());
+        for (ParameterMetadata predefinedParameter : predefinedParameters) {
+            if (!parameters.containsKey(predefinedParameter.getId()) && predefinedParameter.getDefaultValue() != null) {
+                parameters.put(predefinedParameter.getId(), predefinedParameter.getDefaultValue());
             }
         }
     }
 
-    private void addParameterValues(Operation operation) {
+    private void addParameterValues(Operation operation, Set<ParameterMetadata> predefinedParameters) {
         Map<String, Object> parameters = operation.getParameters();
-        Set<ParameterMetadata> serviceParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType()).getParameters();
-        ParameterTypeFactory parameterTypeFactory = new ParameterTypeFactory(parameters, serviceParameters);
+        ParameterTypeFactory parameterTypeFactory = new ParameterTypeFactory(parameters, predefinedParameters);
         parameters.putAll(parameterTypeFactory.getParametersValues());
         operation.setParameters(parameters);
+    }
+
+    private void ensureRequiredParametersSet(Operation operation, Set<ParameterMetadata> predefinedParameters) {
+        Map<String, Object> operationParameters = operation.getParameters();
+        Set<ParameterMetadata> requiredParameters = getRequiredParameters(predefinedParameters);
+        List<ParameterMetadata> missingRequiredParameters = requiredParameters.stream()
+            .filter(parameter -> !operationParameters.containsKey(parameter.getId()))
+            .collect(Collectors.toList());
+        if (!missingRequiredParameters.isEmpty()) {
+            throw new ContentException("Required parameters " + getParameterIds(missingRequiredParameters) + " are not set!");
+        }
+    }
+
+    private String getParameterIds(List<ParameterMetadata> missingRequiredParameters) {
+        List<String> parameterIds = missingRequiredParameters.stream().map(parameter -> parameter.getId()).collect(Collectors.toList());
+        return CommonUtil.toCommaDelimitedString(parameterIds, "");
+    }
+
+    private Set<ParameterMetadata> getRequiredParameters(Set<ParameterMetadata> parameters) {
+        return parameters.stream().filter(parameter -> parameter.getRequired()).collect(Collectors.toSet());
     }
 
     private String getLocationHeader(String processInstanceId, String spaceId) {
@@ -332,5 +352,4 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private MessageType getMessageType(ProgressMessageType type) {
         return MessageType.fromValue(type.toString());
     }
-
 }
