@@ -10,7 +10,7 @@ public class BeanProvider {
     private static BeanProvider INSTANCE = new BeanProvider();
 
     @Inject
-    private OperationDao ongoingOperationDao;
+    private OperationDao operationDao;
 
     @Inject
     private CloudFoundryClientProvider clientProvider;
@@ -25,8 +25,8 @@ public class BeanProvider {
         return INSTANCE;
     }
 
-    public OperationDao getOngoingOperationDao() {
-        return ongoingOperationDao;
+    public OperationDao getOperationDao() {
+        return operationDao;
     }
 
     public CloudFoundryClientProvider getCloudFoundryClientProvider() {

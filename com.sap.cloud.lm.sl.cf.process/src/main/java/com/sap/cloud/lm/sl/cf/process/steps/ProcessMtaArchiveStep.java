@@ -32,12 +32,12 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 public class ProcessMtaArchiveStep extends AbstractProcessStep {
 
     @Inject
-    private OperationDao ongoingOperationDao;
+    private OperationDao operationDao;
     @Inject
     private Configuration configuration;
 
     protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = (dao) -> new ProcessConflictPreventer(
-        ongoingOperationDao);
+        operationDao);
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -108,7 +108,7 @@ public class ProcessMtaArchiveStep extends AbstractProcessStep {
         Map<String, Object> descriptorMap = YamlUtil.convertYamlToMap(descriptorString);
         String mtaId = (String) descriptorMap.get(DeploymentDescriptorParser.ID);
         context.setVariable(Constants.PARAM_MTA_ID, mtaId);
-        conflictPreventerSupplier.apply(ongoingOperationDao).attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(context),
+        conflictPreventerSupplier.apply(operationDao).attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(context),
             StepsUtil.getCorrelationId(context));
     }
 

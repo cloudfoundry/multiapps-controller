@@ -18,13 +18,12 @@ public final class Messages {
     public static final String ORG_SPACE_NOT_SPECIFIED_1 = "Target does not contain 'org' and 'space' properties";
     public static final String ORG_SPACE_NOT_SPECIFIED_2 = "Target does not contain 'org' and 'space' parameters";
     public static final String ERROR_EXECUTING_REST_API_CALL = "Error occurred while executing REST API call";
-    public static final String ONGOING_OPERATION_NOT_FOUND = "Ongoing MTA operation with id \"{0}\" in space \"{1}\" does not exist";
     public static final String CONFIGURATION_ENTRY_ID_CANNOT_BE_UPDATED = "A configuration entry''s id cannot be updated";
     public static final String PROPERTY_DOES_NOT_CONTAIN_KEY_VALUE_PAIR = "Property \"{0}\" does not contain a key value pair";
     public static final String COULD_NOT_PARSE_CONTENT_PARAMETER = "Could not parse content query parameter as JSON or list";
     public static final String COULD_NOT_PARSE_NUMBER = "Could not parse \"{0}\" to number";
     public static final String MAX_UPLOAD_SIZE_EXCEEDED = "Cannot upload file, size is bigger than the configured maximum upload size \"{0}\" bytes";
-    
+
     // Audit log messages
 
     // ERROR log messages

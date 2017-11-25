@@ -21,10 +21,10 @@ public class OperationDao {
     @Inject
     OperationDtoDao dao;
     @Inject
-    OperationFactory ongoingOperationFactory;
+    OperationFactory operationFactory;
 
     public void add(Operation operation) throws ConflictException {
-        OperationDto dto = ongoingOperationFactory.toPersistenceDto(operation);
+        OperationDto dto = operationFactory.toPersistenceDto(operation);
         dao.add(dto);
     }
 
@@ -37,12 +37,12 @@ public class OperationDao {
         if (dto == null) {
             return null;
         }
-        return ongoingOperationFactory.fromPersistenceDto(dto);
+        return operationFactory.fromPersistenceDto(dto);
     }
 
     public Operation findRequired(String processId) throws NotFoundException {
         OperationDto dto = dao.findRequired(processId);
-        return ongoingOperationFactory.fromPersistenceDto(dto);
+        return operationFactory.fromPersistenceDto(dto);
     }
 
     public List<Operation> findAll() {
@@ -80,8 +80,8 @@ public class OperationDao {
         return toOperations(dtos);
     }
 
-    public void merge(Operation ongoingOperation) throws NotFoundException {
-        OperationDto dto = ongoingOperationFactory.toPersistenceDto(ongoingOperation);
+    public void merge(Operation operation) throws NotFoundException {
+        OperationDto dto = operationFactory.toPersistenceDto(operation);
         dao.merge(dto);
     }
 
@@ -90,11 +90,11 @@ public class OperationDao {
         if (dto == null) {
             return null;
         }
-        return ongoingOperationFactory.fromPersistenceDto(dto);
+        return operationFactory.fromPersistenceDto(dto);
     }
 
     private List<Operation> toOperations(List<OperationDto> dtos) {
-        return dtos.stream().map(dto -> ongoingOperationFactory.fromPersistenceDto(dto)).collect(Collectors.toList());
+        return dtos.stream().map(dto -> operationFactory.fromPersistenceDto(dto)).collect(Collectors.toList());
     }
 
 }

@@ -23,26 +23,26 @@ public class ProcessConflictPreventer {
     public synchronized void attemptToAcquireLock(String mtaId, String spaceId, String processId) throws SLException {
         LOGGER.info(format(Messages.ACQUIRING_LOCK, processId, mtaId));
 
-        Operation ongoingProcess = dao.findProcessWithLock(mtaId, spaceId);
-        if (ongoingProcess != null) {
-            throw new SLException(Messages.CONFLICTING_PROCESS_FOUND, ongoingProcess.getProcessId(), mtaId);
+        Operation conflictingOperation = dao.findProcessWithLock(mtaId, spaceId);
+        if (conflictingOperation != null) {
+            throw new SLException(Messages.CONFLICTING_PROCESS_FOUND, conflictingOperation.getProcessId(), mtaId);
         }
-        Operation currentOngoingProcess = dao.findRequired(processId);
-        currentOngoingProcess.setMtaId(mtaId);
-        currentOngoingProcess.acquiredLock(true);
-        dao.merge(currentOngoingProcess);
+        Operation currentOperation = dao.findRequired(processId);
+        currentOperation.setMtaId(mtaId);
+        currentOperation.acquiredLock(true);
+        dao.merge(currentOperation);
 
         LOGGER.info(format(Messages.ACQUIRED_LOCK, processId, mtaId));
 
     }
 
     public synchronized void attemptToReleaseLock(String processId) throws SLException {
-        Operation ongoingProcess = dao.findRequired(processId);
-        String mtaId = ongoingProcess.getMtaId();
+        Operation currentOperation = dao.findRequired(processId);
+        String mtaId = currentOperation.getMtaId();
 
         LOGGER.info(format(Messages.RELEASING_LOCK, processId, mtaId));
-        ongoingProcess.acquiredLock(false);
-        dao.merge(ongoingProcess);
+        currentOperation.acquiredLock(false);
+        dao.merge(currentOperation);
         LOGGER.info(format(Messages.RELEASED_LOCK, processId, mtaId));
     }
 
