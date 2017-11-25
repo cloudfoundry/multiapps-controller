@@ -92,7 +92,7 @@ public final class Messages {
     public static final String PLATFORMS_NOT_SPECIFIED = "Platforms not specified in environment, using default \"{0}\"";
     public static final String TARGETS_NOT_SPECIFIED = "Targets not specified in environment, using default \"{0}\"";
     public static final String MAX_UPLOAD_SIZE_NOT_SPECIFIED = "Max upload size not specified in environment, using default \"{0}\"";
-    public static final String MAX_MTA_DESCRIPTOR_SIZE_NOT_SPECIFIED = "Max mta descriptor size not specified in environment, using default \"{0}\"";
+    public static final String MAX_MTA_DESCRIPTOR_SIZE_NOT_SPECIFIED = "Max MTA descriptor size not specified in environment, using default \"{0}\"";
     public static final String SPACE_ID_NOT_SPECIFIED = "Space ID not specified in environment, using default \"{0}\"";
     public static final String NO_APPLICATION_URIS_SPECIFIED = "No application uris specified in environment";
     public static final String ATTEMPTING_TO_RELEASE_STUCK_LOCK = "Change log lock is presumed to be stuck. Attempting to release it...";
@@ -133,6 +133,7 @@ public final class Messages {
     public static final String CHANGE_LOG_LOCK_ATTEMPTS = "Change log lock attempts: {0}";
     public static final String GLOBAL_CONFIG_SPACE = "Global config space: {0}";
     public static final String GATHER_STATISTICS = "Gather statistics: {0}";
+    public static final String HEALTH_CHECK_CONFIGURATION = "Health check configuration: {0}";
 
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION = "About to perform action \"{0}\"";
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION_WITH_PARAMS = "About to perform action \"{0}\" with parameters \"{1}\"";
