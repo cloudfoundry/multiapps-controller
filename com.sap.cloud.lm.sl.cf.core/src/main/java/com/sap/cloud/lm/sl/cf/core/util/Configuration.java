@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -87,6 +89,10 @@ public class Configuration {
     static final String CFG_CHANGE_LOG_LOCK_ATTEMPTS = "CHANGE_LOG_LOCK_ATTEMPTS";
     static final String CFG_GLOBAL_CONFIG_SPACE = "GLOBAL_CONFIG_SPACE";
     static final String CFG_GATHER_USAGE_STATISTICS = "GATHER_USAGE_STATISTICS";
+    static final String CFG_HEALTH_CHECK_SPACE_ID = "HEALTH_CHECK_SPACE_ID";
+    static final String CFG_HEALTH_CHECK_MTA_ID = "HEALTH_CHECK_MTA_ID";
+    static final String CFG_HEALTH_CHECK_USER = "HEALTH_CHECK_USER";
+    static final String CFG_HEALTH_CHECK_TIME_RANGE = "HEALTH_CHECK_TIME_RANGE";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -138,6 +144,7 @@ public class Configuration {
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
     public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
+    public static final Integer DEFAULT_HEALTH_CHECK_TIME_RANGE = (int) TimeUnit.MINUTES.toSeconds(5);
 
     // Type names
     private static final Map<String, PlatformType> TYPE_NAMES = createTypeNames();
@@ -179,6 +186,7 @@ public class Configuration {
     private Integer changeLogLockAttempts;
     private String globalConfigSpace;
     private Boolean gatherUsageStatistics;
+    private HealthCheckConfiguration healthCheckConfiguration;
 
     public void load() {
         getPlatformType();
@@ -211,6 +219,7 @@ public class Configuration {
         getChangeLogLockAttempts();
         getGlobalConfigSpace();
         shouldGatherUsageStatistics();
+        getHealthCheckConfiguration();
     }
 
     public void logFullConfig() {
@@ -483,6 +492,13 @@ public class Configuration {
             gatherUsageStatistics = shouldGatherUsageStatisticsBasedOnEnvironment();
         }
         return gatherUsageStatistics;
+    }
+
+    public HealthCheckConfiguration getHealthCheckConfiguration() {
+        if (healthCheckConfiguration == null) {
+            healthCheckConfiguration = getHealthCheckConfigurationFromEnvironment();
+        }
+        return healthCheckConfiguration;
     }
 
     private PlatformType getPlatformTypeFromEnvironment() {
@@ -783,6 +799,33 @@ public class Configuration {
         Boolean value = getBoolean(CFG_GATHER_USAGE_STATISTICS, DEFAULT_GATHER_USAGE_STATISTICS);
         LOGGER.info(format(Messages.GATHER_STATISTICS, value));
         return value;
+    }
+
+    private HealthCheckConfiguration getHealthCheckConfigurationFromEnvironment() {
+        HealthCheckConfiguration healthCheckConfiguration = new HealthCheckConfiguration.Builder()
+            .spaceId(getHealthCheckSpaceIdFromEnvironment())
+            .mtaId(getHealthCheckMtaIdFromEnvironment())
+            .userName(getHealthCheckUserFromEnvironment())
+            .timeRangeInSeconds(getHealthCheckTimeRangeFromEnvironment())
+            .build();
+        LOGGER.info(format(Messages.HEALTH_CHECK_CONFIGURATION, JsonUtil.toJson(healthCheckConfiguration, true)));
+        return healthCheckConfiguration;
+    }
+
+    private String getHealthCheckSpaceIdFromEnvironment() {
+        return getString(CFG_HEALTH_CHECK_SPACE_ID, null);
+    }
+
+    private String getHealthCheckMtaIdFromEnvironment() {
+        return getString(CFG_HEALTH_CHECK_MTA_ID, null);
+    }
+
+    private String getHealthCheckUserFromEnvironment() {
+        return getString(CFG_HEALTH_CHECK_USER, null);
+    }
+
+    private Integer getHealthCheckTimeRangeFromEnvironment() {
+        return getPositiveInt(CFG_HEALTH_CHECK_TIME_RANGE, DEFAULT_HEALTH_CHECK_TIME_RANGE);
     }
 
     private String getString(String name, String defaultValue) {
