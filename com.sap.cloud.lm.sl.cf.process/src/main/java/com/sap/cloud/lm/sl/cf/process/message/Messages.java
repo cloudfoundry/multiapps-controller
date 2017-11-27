@@ -12,6 +12,7 @@ public class Messages {
     public static final String NO_PLATFORMS_CONFIGURED = "No platforms configured";
     public static final String CONFLICTING_PROCESS_FOUND = "Conflicting process \"{0}\" found for MTA \"{1}\"";
     public static final String REQUIRED_PARAMETER_IS_MISSING = "Required parameter \"{0}\" is missing";
+    public static final String REQUIRED_PARAMETERS_ARE_MISSING = "Required parameters \"{0}\" are missing";
     public static final String ERROR_RETRIEVING_MTA_ARCHIVE = "Error retrieving MTA archive \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_EXTENSION_DESCRIPTOR = "Error retrieving MTA extension descriptor";
     public static final String ERROR_RETRIEVING_MTA_MODULE_CONTENT = "Error retrieving content of MTA module \"{0}\"";

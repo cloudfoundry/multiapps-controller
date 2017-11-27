@@ -59,6 +59,7 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
         getStepLogger().logActivitiTask();
+
         try {
             getStepLogger().info(Messages.DOWNLOADING_DEPLOYABLE);
 
@@ -106,7 +107,7 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
     private GitRepoCloner createCloner(DelegateExecution context) {
         GitRepoCloner cloner = new GitRepoCloner();
         cloner.setGitServiceUrlString(getGitServiceUrl(context));
-        cloner.setRefName((String) context.getVariable(Constants.PARAM_GIT_REF));
+        cloner.setRefName(StepsUtil.getGitRepoRef(context));
         cloner.setGitConfigFilePath(generateGitConfigFilepath(context.getProcessInstanceId()));
         cloner.setSkipSslValidation((boolean) context.getVariable(Constants.PARAM_GIT_SKIP_SSL));
         String userName = StepsUtil.determineCurrentUser(context, getStepLogger());
@@ -122,7 +123,7 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
     }
 
     protected String getGitUri(DelegateExecution context) throws SLException {
-        String gitUriParam = (String) context.getVariable(Constants.PARAM_GIT_URI);
+        String gitUriParam = StepsUtil.getGitRepoUri(context);
         try {
             return new URL(gitUriParam).toString();
         } catch (MalformedURLException e) {
@@ -257,5 +258,4 @@ public class ProcessGitSourceStep extends AbstractProcessStep {
         org.eclipse.jgit.util.FileUtils.delete(clonedRepoDir.toFile(),
             org.eclipse.jgit.util.FileUtils.RETRY | org.eclipse.jgit.util.FileUtils.RECURSIVE);
     }
-
 }
