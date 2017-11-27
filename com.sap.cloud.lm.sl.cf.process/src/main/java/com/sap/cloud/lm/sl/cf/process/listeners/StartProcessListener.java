@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -31,10 +30,9 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessListener.class);
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     @Inject
-    private OperationDao ongoingOperationDao;
+    private OperationDao operationDao;
     @Inject
     private ProcessTypeParser processTypeParser;
     @Autowired(required = false)
@@ -53,8 +51,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         }
         ProcessType processType = processTypeParser.getProcessType(context);
 
-        if (ongoingOperationDao.find(correlationId) == null) {
-            addOngoingOperation(context, correlationId, processType);
+        if (operationDao.find(correlationId) == null) {
+            addOperation(context, correlationId, processType);
         }
         logProcessEnvironment();
         logProcessVariables(context, processType);
@@ -85,12 +83,14 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
         return result;
     }
 
-    private void addOngoingOperation(DelegateExecution context, String correlationId, ProcessType processType) {
-        String startedAt = FORMATTER.format(currentTimeSupplier.get());
-        String user = StepsUtil.determineCurrentUser(context, getStepLogger());
-        String spaceId = StepsUtil.getSpaceId(context);
-        Operation process = new Operation(correlationId, processType, startedAt, spaceId, null, user, false, null);
-        ongoingOperationDao.add(process);
+    private void addOperation(DelegateExecution context, String correlationId, ProcessType processType) {
+        Operation operation = new Operation().processId(correlationId)
+            .processType(processType)
+            .startedAt(currentTimeSupplier.get())
+            .spaceId(StepsUtil.getSpaceId(context))
+            .user(StepsUtil.determineCurrentUser(context, getStepLogger()))
+            .acquiredLock(false);
+        operationDao.add(operation);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class OperationDaoTest {
         ADD, REMOVE, MERGE, FIND, FIND_ALL, FIND_ALL_IN_SPACE, FIND_LAST_IN_SPACE, FIND_ACTIVE_IN_SPACE, FIND_FINISHED_IN_SPACE
     }
 
-    private static final int LAST_ONGOING_OPERATIONS_COUNT = 3;
+    private static final int LAST_OPERATIONS_COUNT = 3;
     private static final String SPACE_ID = "1234";
 
     private DaoOperation operation;
@@ -66,7 +66,7 @@ public class OperationDaoTest {
             },
             // (3) Add ongoing deployment to non-empty database (conflict):
             {
-                DaoOperation.ADD, "1", "database-content-2.json", "E:Ongoing MTA operation with id \"1\" already exists",
+                DaoOperation.ADD, "1", "database-content-2.json", "E:MTA operation with ID \"1\" already exists",
             },
             // (4) Add ongoing deployment to non-empty database:
             {
@@ -74,7 +74,7 @@ public class OperationDaoTest {
             },
             // (5) Remove ongoing deployment from database (non-existing):
             {
-                DaoOperation.REMOVE, "1", "database-content-1.json", "E:Ongoing MTA operation with id \"1\" does not exist",
+                DaoOperation.REMOVE, "1", "database-content-1.json", "E:MTA operation with ID \"1\" does not exist",
             },
             // (6) Remove ongoing deployment from database:
             {
@@ -82,7 +82,7 @@ public class OperationDaoTest {
             },
             // (7) Find ongoing deployment in database (non-existing):
             {
-                DaoOperation.FIND, "1", "database-content-1.json", "E:Ongoing MTA operation with id \"1\" does not exist",
+                DaoOperation.FIND, "1", "database-content-1.json", "E:MTA operation with ID \"1\" does not exist",
             },
             // (8) Find ongoing deployment in database:
             {
@@ -110,12 +110,12 @@ public class OperationDaoTest {
 
     @Before
     public void importDatabaseContent() throws Throwable {
-        List<Operation> ongoingProcesses = JsonUtil.convertJsonToList(getClass().getResourceAsStream(databaseContent),
+        List<Operation> operations = JsonUtil.convertJsonToList(getClass().getResourceAsStream(databaseContent),
             new TypeToken<List<Operation>>() {
             }.getType());
 
-        for (Operation ongoingProcess : ongoingProcesses) {
-            dao.add(ongoingProcess);
+        for (Operation operation : operations) {
+            dao.add(operation);
         }
     }
 
@@ -125,15 +125,15 @@ public class OperationDaoTest {
         TestUtil.test(new Runnable() {
             @Override
             public void run() throws Exception {
-                int currentOngoingOperationsCnt = dao.findAll().size();
-                Operation oo1 = new Operation(processId, null, null, null, null, null, false, null);
-                dao.add(oo1);
+                int currentOperationsCnt = dao.findAll().size();
+                Operation operation1 = new Operation().processId(processId).acquiredLock(false);
+                dao.add(operation1);
 
-                assertEquals(currentOngoingOperationsCnt + 1, dao.findAll().size());
+                assertEquals(currentOperationsCnt + 1, dao.findAll().size());
 
-                Operation oo2 = dao.findRequired(processId);
+                Operation operation2 = dao.findRequired(processId);
 
-                assertEquals(oo1.getProcessId(), oo2.getProcessId());
+                assertEquals(operation1.getProcessId(), operation2.getProcessId());
             }
         }, expected);
     }
@@ -145,10 +145,10 @@ public class OperationDaoTest {
         TestUtil.test(new Runnable() {
             @Override
             public void run() throws Exception {
-                int currentOngoingOperationsCnt = dao.findAll().size();
+                int currentOperationsCnt = dao.findAll().size();
                 dao.remove(processId);
 
-                assertEquals(currentOngoingOperationsCnt - 1, dao.findAll().size());
+                assertEquals(currentOperationsCnt - 1, dao.findAll().size());
             }
         }, expected);
     }
@@ -160,10 +160,10 @@ public class OperationDaoTest {
         TestUtil.test(new Runnable() {
             @Override
             public void run() throws Exception {
-                Operation oo1 = new Operation(processId, null, null, null, null, null, false, null);
-                Operation oo2 = dao.findRequired(processId);
+                Operation operation1 = new Operation().processId(processId).acquiredLock(false);
+                Operation operation2 = dao.findRequired(processId);
 
-                assertEquals(oo1.getProcessId(), oo2.getProcessId());
+                assertEquals(operation1.getProcessId(), operation2.getProcessId());
             }
         }, expected);
     }
@@ -197,7 +197,7 @@ public class OperationDaoTest {
         assumeTrue(operation.equals(DaoOperation.FIND_LAST_IN_SPACE));
 
         TestUtil.test(() -> {
-            return dao.findLastOperations(LAST_ONGOING_OPERATIONS_COUNT, SPACE_ID);
+            return dao.findLastOperations(LAST_OPERATIONS_COUNT, SPACE_ID);
         }, expected, getClass());
     }
 
@@ -221,8 +221,8 @@ public class OperationDaoTest {
 
     @After
     public void clearDatabase() throws Throwable {
-        for (Operation ongoingOperation : dao.findAll()) {
-            dao.remove(ongoingOperation.getProcessId());
+        for (Operation operation : dao.findAll()) {
+            dao.remove(operation.getProcessId());
         }
     }
 
@@ -231,7 +231,7 @@ public class OperationDaoTest {
         OperationDtoDao dtoDao = new OperationDtoDao();
         dtoDao.emf = Persistence.createEntityManagerFactory("OperationManagement");
         dao.dao = dtoDao;
-        dao.ongoingOperationFactory = new OperationFactory();
+        dao.operationFactory = new OperationFactory();
         return dao;
     }
 

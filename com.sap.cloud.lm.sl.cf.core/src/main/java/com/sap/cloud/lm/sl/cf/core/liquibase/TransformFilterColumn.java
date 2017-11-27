@@ -16,30 +16,18 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
-import liquibase.exception.CustomChangeException;
-import liquibase.exception.DatabaseException;
+public class TransformFilterColumn extends AbstractDataTransformationChange<Map<Long, String>, Map<Long, String>> {
 
-public class TransformFilterColumn extends AbstractDataTransformationChange {
-
-    private static final String TABLE_NAME = "CONFIGURATION_SUBSCRIPTION";
     private static final String TARGET_SPACE = "targetSpace";
-    private static final String SEARCH_QUERY = "Select ID, FILTER from CONFIGURATION_SUBSCRIPTION";
-    private static final String UPDATE_QUERY = "UPDATE CONFIGURATION_SUBSCRIPTION SET FILTER=? WHERE ID=?";
+    private static final String SELECT_STATEMENT = "SELECT ID, FILTER FROM CONFIGURATION_SUBSCRIPTION";
+    private static final String UPDATE_STATEMENT = "UPDATE CONFIGURATION_SUBSCRIPTION SET FILTER=? WHERE ID=?";
 
     @Override
-    public void customUpdate(PreparedStatement preparedStatement, Map.Entry<Long, String> entry) throws SQLException {
-        preparedStatement.setString(1, entry.getValue());
-        preparedStatement.setLong(2, entry.getKey());
-        preparedStatement.addBatch();
-        logger.debug(String.format("Executed update for row ID: '%s' , FILTER: '%s'", entry.getKey(), entry.getValue()));
-    }
-
-    @Override
-    public Map<Long, String> customExtractData(ResultSet query) throws CustomChangeException, DatabaseException, SQLException {
-        Map<Long, String> result = new HashMap<Long, String>();
-        while (query.next()) {
-            long id = query.getLong("ID");
-            String filter = query.getString("FILTER");
+    public Map<Long, String> extractData(ResultSet resultSet) throws SQLException {
+        Map<Long, String> result = new HashMap<>();
+        while (resultSet.next()) {
+            long id = resultSet.getLong("ID");
+            String filter = resultSet.getString("FILTER");
             result.put(id, filter);
             logger.debug(String.format("Retrieve data from row ID: '%s' and FILTER: '%s'", id, filter));
         }
@@ -48,7 +36,7 @@ public class TransformFilterColumn extends AbstractDataTransformationChange {
 
     @Override
     public Map<Long, String> transformData(Map<Long, String> retrievedData) {
-        Map<Long, String> transformedData = new HashMap<Long, String>();
+        Map<Long, String> transformedData = new HashMap<>();
         for (Map.Entry<Long, String> entry : retrievedData.entrySet()) {
 
             if (StringUtils.isEmpty(entry.getValue())) {
@@ -72,22 +60,28 @@ public class TransformFilterColumn extends AbstractDataTransformationChange {
     }
 
     @Override
-    public String getTableName() {
-        return TABLE_NAME;
+    public void setUpdateStatementParameters(PreparedStatement preparedStatement, Map<Long, String> transformedData) throws SQLException {
+        for (Map.Entry<Long, String> entry : transformedData.entrySet()) {
+            preparedStatement.setString(1, entry.getValue());
+            preparedStatement.setLong(2, entry.getKey());
+            preparedStatement.addBatch();
+            logger.debug(String.format("Executed update for row ID: '%s' , FILTER: '%s'", entry.getKey(), entry.getValue()));
+        }
     }
 
     @Override
-    public String getSearchQuery() {
-        return SEARCH_QUERY;
+    public String getSelectStatement() {
+        return SELECT_STATEMENT;
     }
 
     @Override
-    public String getUpdateQuery() {
-        return UPDATE_QUERY;
+    public String getUpdateStatement() {
+        return UPDATE_STATEMENT;
     }
 
     @Override
     public String getConfirmationMessage() {
         return Messages.TRANSFORMED_FILTER_COLUMN;
     }
+
 }

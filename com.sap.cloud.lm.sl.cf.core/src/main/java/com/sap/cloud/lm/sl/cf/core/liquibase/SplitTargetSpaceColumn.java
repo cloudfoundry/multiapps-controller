@@ -5,28 +5,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 
-import liquibase.exception.CustomChangeException;
-import liquibase.exception.DatabaseException;
+public class SplitTargetSpaceColumn extends AbstractDataTransformationChange<Map<Long, String>, Map<Long, CloudTarget>> {
 
-public class SplitTargetSpaceColumn extends AbstractDataTransformationChange {
-
-    private static final String TABLE_NAME = "CONFIGURATION_REGISTRY";
-    private static final String SEARCH_QUERY = "Select ID, TARGET_SPACE from CONFIGURATION_REGISTRY";
-    private static final String UPDATE_QUERY = "UPDATE CONFIGURATION_REGISTRY SET TARGET_ORG=?, TARGET_SPACE=? WHERE ID=?";
+    private static final String SELECT_STATEMENT = "SELECT ID, TARGET_SPACE FROM CONFIGURATION_REGISTRY";
+    private static final String UPDATE_STATEMENT = "UPDATE CONFIGURATION_REGISTRY SET TARGET_ORG=?, TARGET_SPACE=? WHERE ID=?";
 
     @Override
-    public Map<Long, String> customExtractData(ResultSet query) throws CustomChangeException, DatabaseException, SQLException {
-
-        Map<Long, String> result = new HashMap<Long, String>();
-        while (query.next()) {
-            long id = query.getLong("ID");
-            String targetSpace = query.getString("TARGET_SPACE");
+    public Map<Long, String> extractData(ResultSet resultSet) throws SQLException {
+        Map<Long, String> result = new HashMap<>();
+        while (resultSet.next()) {
+            long id = resultSet.getLong("ID");
+            String targetSpace = resultSet.getString("TARGET_SPACE");
             result.put(id, targetSpace);
             logger.debug(String.format("Retrieve data from row ID: '%s' and TARGET_SPACE: '%s'", id, targetSpace));
         }
@@ -34,40 +28,40 @@ public class SplitTargetSpaceColumn extends AbstractDataTransformationChange {
     }
 
     @Override
-    public void customUpdate(PreparedStatement preparedStatement, Entry<Long, String> entry) throws SQLException {
+    public Map<Long, CloudTarget> transformData(Map<Long, String> retrievedData) {
+        Map<Long, CloudTarget> result = new HashMap<>();
+        for (Map.Entry<Long, String> originalEntry : retrievedData.entrySet()) {
+            CloudTarget cloudTarget = ConfigurationEntriesUtil.splitTargetSpaceValue(originalEntry.getValue());
+            result.put(originalEntry.getKey(), cloudTarget);
+        }
+        return result;
+    }
 
-        CloudTarget cloudTarget = ConfigurationEntriesUtil.splitTargetSpaceValue(entry.getValue());
-        preparedStatement.setString(1, cloudTarget.getOrg());
-        preparedStatement.setString(2, cloudTarget.getSpace());
-        preparedStatement.setLong(3, entry.getKey());
-
-        preparedStatement.addBatch();
-        logger.debug(String.format("Executed update for row ID: '%s' , TARGET_ORG: '%s' , TARGET_SPACE: '%s'", entry.getKey(),
-            cloudTarget.getOrg(), cloudTarget.getSpace()));
+    public void setUpdateStatementParameters(PreparedStatement preparedStatement, Map<Long, CloudTarget> transformedData) throws SQLException {
+        for (Map.Entry<Long, CloudTarget> entry : transformedData.entrySet()) {
+            CloudTarget cloudTarget = entry.getValue();
+            preparedStatement.setString(1, cloudTarget.getOrg());
+            preparedStatement.setString(2, cloudTarget.getSpace());
+            preparedStatement.setLong(3, entry.getKey());
+            preparedStatement.addBatch();
+            logger.debug(String.format("Executed update for row ID: '%s' , TARGET_ORG: '%s' , TARGET_SPACE: '%s'", entry.getKey(),
+                cloudTarget.getOrg(), cloudTarget.getSpace()));
+        }
     }
 
     @Override
-    public String getSearchQuery() {
-        return SEARCH_QUERY;
+    public String getSelectStatement() {
+        return SELECT_STATEMENT;
     }
 
     @Override
-    public String getTableName() {
-        return TABLE_NAME;
-    }
-
-    @Override
-    public Map<Long, String> transformData(Map<Long, String> retrievedData) {
-        return retrievedData;
-    }
-
-    @Override
-    public String getUpdateQuery() {
-        return UPDATE_QUERY;
+    public String getUpdateStatement() {
+        return UPDATE_STATEMENT;
     }
 
     @Override
     public String getConfirmationMessage() {
         return Messages.SPLIT_TARGET_SPACE_COLUMN;
     }
+
 }

@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 import static java.text.MessageFormat.format;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
 
@@ -79,7 +80,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         String correlationId = getCorrelationId(event);
 
         new SafeExecutor().executeSafely(() -> {
-            new ProcessConflictPreventer(getOngoingOperationDao()).attemptToReleaseLock(correlationId);
+            new ProcessConflictPreventer(getOperationDao()).attemptToReleaseLock(correlationId);
         });
 
         new SafeExecutor().executeSafely(() -> {
@@ -127,9 +128,10 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
     }
 
     protected void setOperationInAbortedState(String processInstanceId) throws NotFoundException {
-        Operation ongoingOperation = getOngoingOperationDao().findRequired(processInstanceId);
-        ongoingOperation.setState(State.ABORTED);
-        getOngoingOperationDao().merge(ongoingOperation);
+        Operation operation = getOperationDao().findRequired(processInstanceId);
+        operation.setState(State.ABORTED);
+        operation.setEndedAt(ZonedDateTime.now());
+        getOperationDao().merge(operation);
     }
 
     protected void deleteAllocatedRoutes(HistoryService historyService, String processInstanceId) throws SLException {
@@ -185,16 +187,18 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
 
     protected HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
         String parameter) {
-        return historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstanceId).variableName(
-            parameter).singleResult();
+        return historyService.createHistoricVariableInstanceQuery()
+            .processInstanceId(processInstanceId)
+            .variableName(parameter)
+            .singleResult();
     }
 
     private CloudFoundryClientProvider getClientProvider() {
         return getBeanProvider().getCloudFoundryClientProvider();
     }
 
-    private OperationDao getOngoingOperationDao() {
-        return getBeanProvider().getOngoingOperationDao();
+    private OperationDao getOperationDao() {
+        return getBeanProvider().getOperationDao();
     }
 
     private BeanProvider getBeanProvider() {

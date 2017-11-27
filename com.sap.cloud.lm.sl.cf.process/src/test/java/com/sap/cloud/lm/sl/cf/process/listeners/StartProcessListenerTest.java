@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Supplier;
@@ -74,11 +73,11 @@ public class StartProcessListenerTest {
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-            // (0) Create OngoingOperation for process undeploy
+            // (0) Create Operation for process undeploy
             {
                 "process-instance-id", ProcessType.UNDEPLOY, null
             },
-            // (1) Create OngoingOperation for process deploy
+            // (1) Create Operation for process deploy
             {
                 "process-instance-id", ProcessType.DEPLOY, null
             },
@@ -104,7 +103,7 @@ public class StartProcessListenerTest {
     public void testVerify() throws Exception {
         listener.notify(context);
 
-        verifyOngoingOperationInsertion();
+        verifyOperationInsertion();
     }
 
     private void prepareContext() {
@@ -123,11 +122,15 @@ public class StartProcessListenerTest {
         }
     }
 
-    private void verifyOngoingOperationInsertion() throws SLException, ConflictException {
+    private void verifyOperationInsertion() throws SLException, ConflictException {
         String user = StepsUtil.determineCurrentUser(context, stepLogger);
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
-        Mockito.verify(dao).add(Mockito.argThat(GenericArgumentMatcher
-            .forObject(new Operation(processInstanceId, processType, formatter.format(START_TIME), SPACE_ID, null, user, false, null))));
+        Operation operation = new Operation().processId(processInstanceId)
+            .processType(processType)
+            .spaceId(SPACE_ID)
+            .startedAt(START_TIME)
+            .user(user)
+            .acquiredLock(false);
+        Mockito.verify(dao).add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
     }
 
 }
