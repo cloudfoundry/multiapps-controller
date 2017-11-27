@@ -31,12 +31,12 @@ public class OperationDtoDao {
     @Qualifier("operationEntityManagerFactory")
     EntityManagerFactory emf;
 
-    public void add(OperationDto ongoingOperation) throws ConflictException {
+    public void add(OperationDto operation) throws ConflictException {
         new TransactionalExecutor<Void>(createEntityManager()).execute((manager) -> {
-            if (existsInternal(manager, ongoingOperation.getProcessId())) {
-                throw new ConflictException(Messages.ONGOING_OPERATION_ALREADY_EXISTS, ongoingOperation.getProcessId());
+            if (existsInternal(manager, operation.getProcessId())) {
+                throw new ConflictException(Messages.OPERATION_ALREADY_EXISTS, operation.getProcessId());
             }
-            manager.persist(ongoingOperation);
+            manager.persist(operation);
             return null;
         });
     }
@@ -51,11 +51,11 @@ public class OperationDtoDao {
 
     public void remove(String processId) throws NotFoundException {
         new TransactionalExecutor<Void>(createEntityManager()).execute((manager) -> {
-            OperationDto oo = manager.find(OperationDto.class, processId);
-            if (oo == null) {
-                throw new NotFoundException(Messages.ONGOING_OPERATION_NOT_FOUND, processId);
+            OperationDto dto = manager.find(OperationDto.class, processId);
+            if (dto == null) {
+                throw new NotFoundException(Messages.OPERATION_NOT_FOUND, processId);
             }
-            manager.remove(oo);
+            manager.remove(dto);
             return null;
         });
     }
@@ -67,11 +67,11 @@ public class OperationDtoDao {
     }
 
     public OperationDto findRequired(String processId) throws NotFoundException {
-        OperationDto oo = find(processId);
-        if (oo == null) {
-            throw new NotFoundException(Messages.ONGOING_OPERATION_NOT_FOUND, processId);
+        OperationDto dto = find(processId);
+        if (dto == null) {
+            throw new NotFoundException(Messages.OPERATION_NOT_FOUND, processId);
         }
-        return oo;
+        return dto;
     }
 
     @SuppressWarnings("unchecked")
@@ -84,7 +84,7 @@ public class OperationDtoDao {
     @SuppressWarnings("unchecked")
     public List<OperationDto> findAllInSpace(String spaceId) {
         return new Executor<List<OperationDto>>(createEntityManager()).execute((manager) -> {
-            return manager.createNamedQuery("find_all_in_space").setParameter(TableColumnNames.ONGOING_OPERATION_SPACE_ID,
+            return manager.createNamedQuery("find_all_in_space").setParameter(TableColumnNames.OPERATION_SPACE_ID,
                 spaceId).getResultList();
         });
     }
@@ -92,7 +92,7 @@ public class OperationDtoDao {
     @SuppressWarnings("unchecked")
     public List<OperationDto> findLastOperations(int last, String spaceId) {
         return new Executor<List<OperationDto>>(createEntityManager()).execute((manager) -> {
-            return manager.createNamedQuery("find_all_in_space_desc").setParameter(TableColumnNames.ONGOING_OPERATION_SPACE_ID,
+            return manager.createNamedQuery("find_all_in_space_desc").setParameter(TableColumnNames.OPERATION_SPACE_ID,
                 spaceId).setMaxResults(last).getResultList();
         });
     }
@@ -126,13 +126,13 @@ public class OperationDtoDao {
         return findAllInSpaceByStatus(requestedStates, spaceId);
     }
 
-    public void merge(OperationDto ongoingOperation) throws NotFoundException {
+    public void merge(OperationDto operation) throws NotFoundException {
         new TransactionalExecutor<Void>(createEntityManager()).execute((manager) -> {
-            OperationDto oo = manager.find(OperationDto.class, ongoingOperation.getProcessId());
-            if (oo == null) {
-                throw new NotFoundException(Messages.ONGOING_OPERATION_NOT_FOUND, ongoingOperation.getProcessId());
+            OperationDto dto = manager.find(OperationDto.class, operation.getProcessId());
+            if (dto == null) {
+                throw new NotFoundException(Messages.OPERATION_NOT_FOUND, operation.getProcessId());
             }
-            manager.merge(ongoingOperation);
+            manager.merge(operation);
             return null;
         });
     }
@@ -140,8 +140,8 @@ public class OperationDtoDao {
     @SuppressWarnings("unchecked")
     public OperationDto findProcessWithLock(String mtaId, String spaceId) throws SLException {
         return new Executor<OperationDto>(createEntityManager()).execute((manager) -> {
-            List<OperationDto> processes = manager.createNamedQuery("find_mta_lock").setParameter(TableColumnNames.ONGOING_OPERATION_MTA_ID,
-                mtaId).setParameter(TableColumnNames.ONGOING_OPERATION_SPACE_ID, spaceId).getResultList();
+            List<OperationDto> processes = manager.createNamedQuery("find_mta_lock").setParameter(TableColumnNames.OPERATION_MTA_ID,
+                mtaId).setParameter(TableColumnNames.OPERATION_SPACE_ID, spaceId).getResultList();
             if (processes.size() == 0) {
                 return null;
             }
@@ -160,7 +160,7 @@ public class OperationDtoDao {
         Predicate spaceIdPredicate = null;
 
         if (spaceId != null) {
-            spaceIdPredicate = criteriaBuilder.equal(root.get(TableColumnNames.ONGOING_OPERATION_SPACE_ID), spaceId);
+            spaceIdPredicate = criteriaBuilder.equal(root.get(TableColumnNames.OPERATION_SPACE_ID), spaceId);
         }
 
         List<Predicate> predicates = new ArrayList<>();
@@ -170,7 +170,7 @@ public class OperationDtoDao {
         }
 
         for (State status : statusList) {
-            predicates.add(criteriaBuilder.equal(root.get(TableColumnNames.ONGOING_OPERATION_FINAL_STATE), status.toString()));
+            predicates.add(criteriaBuilder.equal(root.get(TableColumnNames.OPERATION_FINAL_STATE), status.toString()));
         }
 
         Predicate finalStatePredicate = criteriaBuilder.or(predicates.toArray(new Predicate[0]));
@@ -181,9 +181,9 @@ public class OperationDtoDao {
 
     private Predicate getFinalStateNullPredicate(Boolean shouldBeNull, Root<OperationDto> root) {
         if (shouldBeNull) {
-            return root.get(TableColumnNames.ONGOING_OPERATION_FINAL_STATE).isNull();
+            return root.get(TableColumnNames.OPERATION_FINAL_STATE).isNull();
         }
-        return root.get(TableColumnNames.ONGOING_OPERATION_FINAL_STATE).isNotNull();
+        return root.get(TableColumnNames.OPERATION_FINAL_STATE).isNotNull();
     }
 
 }

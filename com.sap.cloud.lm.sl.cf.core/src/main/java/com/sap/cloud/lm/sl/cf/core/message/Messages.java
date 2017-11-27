@@ -17,8 +17,8 @@ public final class Messages {
     public static final String PERMISSION_CHECK_FAILED_SPACE_ID = "Could not check for permission to perform operation \"{0}\" in space with ID \"{1}\"";
     public static final String ORG_AND_SPACE_NOT_FOUND = "Could not find organization and space by space ID \"{0}\"";
     public static final String ARCHIVE_MODULE_NOT_INTENDED_FOR_DEPLOYMENT = "MTA module \"{0}\" is part of MTA archive, but is not intended for deployment";
-    public static final String ONGOING_OPERATION_NOT_FOUND = "Ongoing MTA operation with id \"{0}\" does not exist";
-    public static final String ONGOING_OPERATION_ALREADY_EXISTS = "Ongoing MTA operation with id \"{0}\" already exists";
+    public static final String OPERATION_NOT_FOUND = "MTA operation with ID \"{0}\" does not exist";
+    public static final String OPERATION_ALREADY_EXISTS = "MTA operation with ID \"{0}\" already exists";
     public static final String MULTIPLE_OPERATIONS_WITH_LOCK_FOUND = "Multiple operations found with lock for MTA \"{0}\" in space \"{1}\"";
     public static final String PATH_SHOULD_NOT_BE_ABSOLUTE = "Path \"{0}\" should not be absolute";
     public static final String PATH_SHOULD_BE_NORMALIZED = "Path \"{0}\" should be normalized (should not contain any \".\", \"..\" or \"//\" path segments)!";
@@ -64,7 +64,6 @@ public final class Messages {
     public static final String ILLEGAL_DESIRED_STATE = "Illegal desired application state: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_STATE = "Illegal service operation state: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_TYPE = "Illegal service operation type: {0}";
-    public static final String ILLEGAL_PROCESS_TYPE = "Illegal process type: {0}";
     public static final String MULTIPLE_CONFIGURATION_ENTRIES = "Multiple configuration entries were found matching the filter specified in resource \"{0}\": \"{1}\"";
 
     // Warning messages
@@ -84,6 +83,7 @@ public final class Messages {
     public static final String IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE = "Ignoring label \"{0}\" for service \"{1}\", as user-provided services do not support labels!";
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
     public static final String UNKNOWN_DB_TYPE_WILL_NOT_DROP_CONFIGURATION_REGISTRY_UNIQUE_CONSTRAINT = "Unknown database type: {0}. DropConfigurationRegistryUniqueConstraint will not be executed.";
+    public static final String UNKNOWN_DB_TYPE_WILL_NOT_ALTER_OPERATION_TABLE_COLUMN_TYPES = "Unknown database type: {0}. AlterOperationTableTimestampStoringColumns will not be executed.";
 
     // Info messages
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type not specified in environment, using default \"{0}\"";
@@ -99,6 +99,7 @@ public final class Messages {
     public static final String CURRENT_LOCK = "Change log lock was acquired at {0} by {1}";
     public static final String CURRENT_DATE = "The current date is {0}";
     public static final String DROPPED_UNNAMED_UNIQUE_CONSTRAINT_FOR_CONFIGURATION_REGISTRY = "Dropped unnamed unique constraint for configuration registry.";
+    public static final String ALTERED_DATA_TYPES_FOR_OPERATION_TABLE = "Altered data types for 'started_at' and 'ended_at' columns in 'operation' table to 'timestamp'.";
     public static final String SPLIT_TARGET_SPACE_COLUMN = "Split target space column in configuration registry.";
     public static final String TRANSFORMED_FILTER_COLUMN = "Transformed filter column in configuration subscription table.";
 

@@ -1,21 +1,25 @@
 package com.sap.cloud.lm.sl.cf.core.dto.persistence;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "ongoing_operation")
+@Table(name = "operation")
 @NamedQueries({
-    @NamedQuery(name = "find_mta_lock", query = "SELECT oo FROM OperationDto oo WHERE oo.mtaId = :mtaId AND oo.spaceId = :spaceId AND oo.acquiredLock = true"),
-    @NamedQuery(name = "find_all", query = "SELECT oo FROM OperationDto oo"),
-    @NamedQuery(name = "find_all_in_space", query = "SELECT oo FROM OperationDto oo WHERE oo.spaceId = :spaceId"),
-    @NamedQuery(name = "find_all_in_space_desc", query = "SELECT oo FROM OperationDto oo WHERE oo.spaceId = :spaceId order by oo.startedAt DESC"),
-    @NamedQuery(name = "find_all_active_in_space", query = "SELECT oo FROM OperationDto oo WHERE oo.spaceId = :spaceId AND oo.finalState is NULL"),
-    @NamedQuery(name = "find_all_finished_in_space", query = "SELECT oo FROM OperationDto oo WHERE oo.spaceId = :spaceId AND oo.finalState is NOT NULL") })
+    @NamedQuery(name = "find_mta_lock", query = "SELECT o FROM OperationDto o WHERE o.mtaId = :mtaId AND o.spaceId = :spaceId AND o.acquiredLock = true"),
+    @NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o ORDER BY o.startedAt"),
+    @NamedQuery(name = "find_all_in_space", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId ORDER BY o.startedAt"),
+    @NamedQuery(name = "find_all_in_space_desc", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId ORDER BY o.startedAt DESC"),
+    @NamedQuery(name = "find_all_active_in_space", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId AND o.finalState is NULL"),
+    @NamedQuery(name = "find_all_finished_in_space", query = "SELECT o FROM OperationDto o WHERE o.spaceId = :spaceId AND o.finalState is NOT NULL") })
 public class OperationDto {
 
     @Id
@@ -26,7 +30,12 @@ public class OperationDto {
     private String processType;
 
     @Column(name = "started_at")
-    private String startedAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startedAt;
+
+    @Column(name = "ended_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date endedAt;
 
     @Column(name = "space_id")
     private String spaceId;
@@ -47,11 +56,12 @@ public class OperationDto {
         // Required by JPA
     }
 
-    public OperationDto(String processId, String processType, String startedAt, String spaceId, String mtaId, String user,
+    public OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String user,
         boolean acquiredLock, String finalState) {
         this.processId = processId;
         this.processType = processType;
         this.startedAt = startedAt;
+        this.endedAt = endedAt;
         this.spaceId = spaceId;
         this.mtaId = mtaId;
         this.user = user;
@@ -67,8 +77,12 @@ public class OperationDto {
         return processType;
     }
 
-    public String getStartedAt() {
+    public Date getStartedAt() {
         return startedAt;
+    }
+
+    public Date getEndedAt() {
+        return endedAt;
     }
 
     public String getSpaceId() {

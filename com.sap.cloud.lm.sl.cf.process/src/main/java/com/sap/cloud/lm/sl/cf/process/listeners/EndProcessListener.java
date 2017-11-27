@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -42,7 +43,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     private AbstractFileService fileService;
 
     @Inject
-    private OperationDao ongoingOperationDao;
+    private OperationDao operationDao;
 
     @Inject
     protected CloudFoundryClientProvider clientProvider;
@@ -66,9 +67,9 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
 
         removeClientForProcess(context);
 
-        new ProcessConflictPreventer(ongoingOperationDao).attemptToReleaseLock(StepsUtil.getCorrelationId(context));
+        new ProcessConflictPreventer(operationDao).attemptToReleaseLock(StepsUtil.getCorrelationId(context));
 
-        setOngoingOperationInFinishedState(StepsUtil.getCorrelationId(context));
+        setOperationInFinishedState(StepsUtil.getCorrelationId(context));
     }
 
     private AnalyticsData collectAnalytics(DelegateExecution context) throws SLException {
@@ -78,10 +79,11 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         return model;
     }
 
-    protected void setOngoingOperationInFinishedState(String processInstanceId) throws NotFoundException {
-        Operation ongoingOperation = ongoingOperationDao.findRequired(processInstanceId);
-        ongoingOperation.setState(State.FINISHED);
-        ongoingOperationDao.merge(ongoingOperation);
+    protected void setOperationInFinishedState(String processInstanceId) throws NotFoundException {
+        Operation operation = operationDao.findRequired(processInstanceId);
+        operation.setState(State.FINISHED);
+        operation.setEndedAt(ZonedDateTime.now());
+        operationDao.merge(operation);
     }
 
     private void removeClientForProcess(DelegateExecution context) throws SLException {

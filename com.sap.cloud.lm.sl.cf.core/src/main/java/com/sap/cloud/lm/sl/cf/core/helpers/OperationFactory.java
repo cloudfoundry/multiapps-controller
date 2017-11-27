@@ -1,12 +1,12 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import java.text.MessageFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
@@ -15,27 +15,28 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 public class OperationFactory {
 
     public Operation fromPersistenceDto(OperationDto dto) {
-        String processId = dto.getProcessId();
-        ProcessType processType = toProcessType(dto.getProcessType());
-        String startedAt = dto.getStartedAt();
-        String spaceId = dto.getSpaceId();
-        String mtaId = dto.getMtaId();
-        String user = dto.getUser();
-        boolean acquiredLock = dto.hasAcquiredLock();
-        State finalState = toState(dto.getFinalState());
-        return new Operation(processId, processType, startedAt, spaceId, mtaId, user, acquiredLock, finalState);
+        return new Operation().processId(dto.getProcessId())
+            .processType(toProcessType(dto.getProcessType()))
+            .startedAt(toZonedDateTime(dto.getStartedAt()))
+            .endedAt(toZonedDateTime(dto.getEndedAt()))
+            .spaceId(dto.getSpaceId())
+            .mtaId(dto.getMtaId())
+            .user(dto.getUser())
+            .acquiredLock(dto.hasAcquiredLock())
+            .state(toState(dto.getFinalState()));
     }
 
-    public OperationDto toPersistenceDto(Operation ongoingOperation) {
-        String processId = ongoingOperation.getProcessId();
-        String processType = toString(ongoingOperation.getProcessType());
-        String startedAt = ongoingOperation.getStartedAt();
-        String spaceId = ongoingOperation.getSpaceId();
-        String mtaId = ongoingOperation.getMtaId();
-        String user = ongoingOperation.getUser();
-        String state = toString(ongoingOperation.getState());
-        boolean acquiredLock = ongoingOperation.isAcquiredLock();
-        return new OperationDto(processId, processType, startedAt, spaceId, mtaId, user, acquiredLock, state);
+    public OperationDto toPersistenceDto(Operation operation) {
+        String processId = operation.getProcessId();
+        String processType = toString(operation.getProcessType());
+        Date startedAt = toDate(operation.getStartedAt());
+        Date endedAt = toDate(operation.getEndedAt());
+        String spaceId = operation.getSpaceId();
+        String mtaId = operation.getMtaId();
+        String user = operation.getUser();
+        String state = toString(operation.getState());
+        boolean acquiredLock = operation.hasAcquiredLock();
+        return new OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, state);
     }
 
     protected State toState(String operationState) {
@@ -46,36 +47,12 @@ public class OperationFactory {
         return operationState == null ? null : operationState.toString();
     }
 
-    protected String serializeProcessType(ProcessType processType) {
-        if (processType == null) {
-            return null;
-        }
-        if (processType.equals(ProcessType.DEPLOY)) {
-            return Constants.DEPLOY_SERIALIZED_NAME;
-        }
-        if (processType.equals(ProcessType.BLUE_GREEN_DEPLOY)) {
-            return Constants.BLUE_GREEN_DEPLOY_SERIALIZED_NAME;
-        }
-        if (processType.equals(ProcessType.UNDEPLOY)) {
-            return Constants.UNDEPLOY_SERIALIZED_NAME;
-        }
-        throw new IllegalStateException(MessageFormat.format(Messages.ILLEGAL_PROCESS_TYPE, processType.toString()));
+    protected ZonedDateTime toZonedDateTime(Date date) {
+        return date == null ? null : ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("UTC"));
     }
 
-    protected ProcessType deserializeProcessType(String processType) {
-        if (processType == null) {
-            return null;
-        }
-        switch (processType) {
-            case Constants.DEPLOY_SERIALIZED_NAME:
-                return ProcessType.DEPLOY;
-            case Constants.BLUE_GREEN_DEPLOY_SERIALIZED_NAME:
-                return ProcessType.BLUE_GREEN_DEPLOY;
-            case Constants.UNDEPLOY_SERIALIZED_NAME:
-                return ProcessType.UNDEPLOY;
-            default:
-                throw new IllegalStateException(MessageFormat.format(Messages.ILLEGAL_PROCESS_TYPE, processType));
-        }
+    protected Date toDate(ZonedDateTime zonedDateTime) {
+        return zonedDateTime == null ? null : new Date(zonedDateTime.toInstant().toEpochMilli());
     }
 
     protected ProcessType toProcessType(String processType) {
