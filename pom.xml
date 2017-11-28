@@ -58,7 +58,6 @@
         <jackson.version>2.5.0</jackson.version>
         <semver4j.version>2.1.0</semver4j.version>
         <jgit.version>4.0.1.201506240215-r</jgit.version>
-        <xs.java.version>1.0.0</xs.java.version>
         <java.container.security.version>0.19.1</java.container.security.version>
         <activiti.common.version>1.30.0</activiti.common.version>
         <slp.version>1.2.3</slp.version>
@@ -796,12 +795,6 @@
                         <artifactId>activiti-engine</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.xs.java</groupId>
-                <artifactId>xs-audit-log-impl</artifactId>
-                <version>${xs.java.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.sap.xs2.security</groupId>
