@@ -141,6 +141,8 @@ public final class Messages {
     public static final String AUDIT_LOG_DELETE_CONFIG = "Deleting configuration \"{0}\"";
     public static final String AUDIT_LOG_CONFIG_UPDATED = "Configuration was updated";
     public static final String AUDIT_LOG_CONFIG_UPDATE_FAILED = "Configuration update failed";
+    public static final String AUDIT_LOG_ABOUT_TO_UPDATE = "About to update configuration \"{0}\"";
+    public static final String AUDIT_LOG_CONFIG_CREATED = "Created configuration \"{0}\"";
     public static final String PURGING_SUBSCRIPTIONS = "Purging configuration subscriptions for target: {0}";
     public static final String PURGING_ENTRIES = "Purging entries for target: {0}";
 
