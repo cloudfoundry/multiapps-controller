@@ -1,5 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -35,6 +38,11 @@ public class MonitorAppDeploySubProcessStep extends AbstractSubProcessMonitorSte
     protected ExecutionStatus onAbort(DelegateExecution context, ErrorType errorType) throws MonitoringException {
         String subProcessId = StepsUtil.getSubProcessId(context);
         throw new MonitoringException(Messages.SUB_PROCESS_HAS_BEEN_ABORTED, subProcessId);
+    }
+
+    @Override
+    protected List<String> getProcessVariablesToDuplicate() {
+        return Arrays.asList(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT);
     }
 
 }

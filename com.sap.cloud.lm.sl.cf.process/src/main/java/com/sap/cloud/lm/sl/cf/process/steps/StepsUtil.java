@@ -380,8 +380,9 @@ public class StepsUtil {
     @SuppressWarnings("unchecked")
     public static List<CloudApplicationExtended> getAppsToDeploy(DelegateExecution context) {
         List<String> cldoudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_APPS_TO_DEPLOY);
-        return cldoudApplicationsAsStrings.stream().map(
-            app -> (CloudApplicationExtended) JsonUtil.fromJson(app, CloudApplicationExtended.class)).collect(Collectors.toList());
+        return cldoudApplicationsAsStrings.stream()
+            .map(app -> (CloudApplicationExtended) JsonUtil.fromJson(app, CloudApplicationExtended.class))
+            .collect(Collectors.toList());
     }
 
     static void setAppsToDeploy(DelegateExecution context, List<CloudApplicationExtended> apps) {
@@ -479,8 +480,8 @@ public class StepsUtil {
     }
 
     public static List<ConfigurationSubscription> getSubscriptionsToDelete(DelegateExecution context) {
-        ConfigurationSubscription[] subscriptionsArray = GsonHelper.getFromBinaryJson(
-            (byte[]) context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE), ConfigurationSubscription[].class);
+        ConfigurationSubscription[] subscriptionsArray = GsonHelper
+            .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE), ConfigurationSubscription[].class);
         return Arrays.asList(subscriptionsArray);
     }
 
@@ -490,8 +491,8 @@ public class StepsUtil {
     }
 
     public static List<ConfigurationSubscription> getSubscriptionsToCreate(DelegateExecution context) {
-        ConfigurationSubscription[] subscriptionsArray = GsonHelper.getFromBinaryJson(
-            (byte[]) context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE), ConfigurationSubscription[].class);
+        ConfigurationSubscription[] subscriptionsArray = GsonHelper
+            .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE), ConfigurationSubscription[].class);
         return Arrays.asList(subscriptionsArray);
     }
 
@@ -517,8 +518,8 @@ public class StepsUtil {
     }
 
     public static List<CloudServiceBrokerExtended> getServiceBrokersToCreate(DelegateExecution context) {
-        CloudServiceBrokerExtended[] serviceBrokers = GsonHelper.getFromBinaryJson(
-            (byte[]) context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE), CloudServiceBrokerExtended[].class);
+        CloudServiceBrokerExtended[] serviceBrokers = GsonHelper
+            .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE), CloudServiceBrokerExtended[].class);
         return Arrays.asList(serviceBrokers);
     }
 
@@ -559,8 +560,8 @@ public class StepsUtil {
     }
 
     public static List<ConfigurationEntry> getPublishedEntries(DelegateExecution context) {
-        ConfigurationEntry[] publishedEntriesArray = GsonHelper.getFromBinaryJson(
-            (byte[]) context.getVariable(Constants.VAR_PUBLISHED_ENTRIES), ConfigurationEntry[].class);
+        ConfigurationEntry[] publishedEntriesArray = GsonHelper
+            .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_PUBLISHED_ENTRIES), ConfigurationEntry[].class);
         return Arrays.asList(publishedEntriesArray);
     }
 

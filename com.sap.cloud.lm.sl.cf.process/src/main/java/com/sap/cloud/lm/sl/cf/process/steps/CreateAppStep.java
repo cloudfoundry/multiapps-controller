@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -26,12 +24,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
-import com.sap.activiti.common.util.GsonHelper;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
@@ -54,9 +50,6 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 public class CreateAppStep extends AbstractProcessStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    @Inject
-    private ActivitiFacade activitiFacade;
 
     @Autowired
     protected ApplicationStagingUpdater applicationStagingUpdater;
@@ -147,13 +140,6 @@ public class CreateAppStep extends AbstractProcessStep {
         // Update current process context
         StepsUtil.setApp(context, app);
         StepsUtil.setServiceKeysCredentialsToInject(context, serviceKeysCredentialsToInject);
-
-        // Update parent process context
-        Map<String, Object> parentProcessVariablesToOverride = new HashMap<String, Object>();
-        byte[] serviceKeysToInjectByteArray = GsonHelper.getAsBinaryJson(serviceKeysCredentialsToInject);
-        parentProcessVariablesToOverride.put(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
-        String parentProcessId = StepsUtil.getParentProcessId(context);
-        activitiFacade.setRuntimeVariables(parentProcessId, parentProcessVariablesToOverride);
     }
 
     private Map<String, Object> getServiceKeyCredentials(CloudFoundryOperations client, ServiceKeyToInject serviceKeyToInject) {

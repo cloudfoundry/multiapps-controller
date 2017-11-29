@@ -67,7 +67,7 @@ public class BuildCloudDeployModelStep extends AbstractProcessStep {
                 deployedModuleNames);
             getStepLogger().debug(Messages.APPS_TO_DEPLOY, secureSerializer.toJson(apps));
             StepsUtil.setAppsToDeploy(context, apps);
-            StepsUtil.setServiceKeysCredentialsToInject(context, new HashMap<>());
+            StepsUtil.setServiceKeysCredentialsToInject(context, Collections.emptyMap());
 
             // Build public provided dependencies list and save them in the context:
             ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(context);
