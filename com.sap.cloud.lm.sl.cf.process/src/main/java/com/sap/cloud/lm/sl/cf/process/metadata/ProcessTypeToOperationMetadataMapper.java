@@ -1,13 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.metadata;
 
-import org.springframework.stereotype.Component;
-
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component
 public class ProcessTypeToOperationMetadataMapper {
 
     public OperationMetadata getOperationMetadata(ProcessType processType) {
@@ -21,6 +18,10 @@ public class ProcessTypeToOperationMetadataMapper {
             return UndeployMetadata.getMetadata();
         }
         throw new SLException(Messages.UNSUPPORTED_PROCESS_TYPE, processType.toString());
+    }
+
+    public String getActivitiDiagramId(ProcessType processType) {
+        return getOperationMetadata(processType).getActivitiDiagramId();
     }
 
 }

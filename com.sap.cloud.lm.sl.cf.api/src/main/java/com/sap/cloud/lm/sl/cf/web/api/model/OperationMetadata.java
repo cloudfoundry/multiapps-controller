@@ -11,7 +11,7 @@ import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 public class OperationMetadata {
 
     protected Set<ParameterMetadata> parameters;
-    protected String activitiProcessId;
+    protected String activitiDiagramId;
     protected List<String> versions;
     protected Configuration config;
 
@@ -28,7 +28,7 @@ public class OperationMetadata {
         public OperationMetadata build() {
             OperationMetadata metadata = new OperationMetadata();
             metadata.parameters = parameters;
-            metadata.activitiProcessId = activitiProcessId;
+            metadata.activitiDiagramId = activitiProcessId;
             metadata.versions = versions != null ? versions : Collections.emptyList();
             metadata.config = config != null ? config : new DefaultConfiguration();
             return metadata;
@@ -59,8 +59,8 @@ public class OperationMetadata {
         return parameters;
     }
 
-    public String getActivitiProcessId() {
-        return activitiProcessId;
+    public String getActivitiDiagramId() {
+        return activitiDiagramId;
     }
 
     public List<String> getVersions() {
