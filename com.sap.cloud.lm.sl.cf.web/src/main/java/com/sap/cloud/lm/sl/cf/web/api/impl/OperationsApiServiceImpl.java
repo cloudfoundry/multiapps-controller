@@ -47,7 +47,6 @@ import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
@@ -65,7 +64,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private OperationDao dao;
 
     @Inject
-    private ProcessTypeToOperationMetadataMapper metadataMapper;
+    private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
 
     @Inject
     private ProcessLogsService logsService;
@@ -197,7 +196,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private String getProcessDefinitionKey(Operation operation) {
-        return metadataMapper.getOperationMetadata(operation.getProcessType()).getActivitiProcessId();
+        return operationMetadataMapper.getProcessId(operation.getProcessType());
     }
 
     private HistoricProcessInstance getHistoricInstance(Operation operation, String processDefinitionKey) {
@@ -276,7 +275,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private void addDefaultParameters(Operation operation, String spaceGuid) {
         Map<String, Object> parameters = operation.getParameters();
-        Set<ParameterMetadata> serviceParameters = metadataMapper.getOperationMetadata(operation.getProcessType()).getParameters();
+        Set<ParameterMetadata> serviceParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType()).getParameters();
         for (ParameterMetadata serviceParameter : serviceParameters) {
             if (!parameters.containsKey(serviceParameter.getId()) && serviceParameter.getDefaultValue() != null) {
                 parameters.put(serviceParameter.getId(), serviceParameter.getDefaultValue());
@@ -286,7 +285,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private void addParameterValues(Operation operation) {
         Map<String, Object> parameters = operation.getParameters();
-        Set<ParameterMetadata> serviceParameters = metadataMapper.getOperationMetadata(operation.getProcessType()).getParameters();
+        Set<ParameterMetadata> serviceParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType()).getParameters();
         ParameterTypeFactory parameterTypeFactory = new ParameterTypeFactory(parameters, serviceParameters);
         parameters.putAll(parameterTypeFactory.getParametersValues());
         operation.setParameters(parameters);
