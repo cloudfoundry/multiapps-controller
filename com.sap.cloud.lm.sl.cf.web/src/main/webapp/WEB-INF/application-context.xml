@@ -52,9 +52,10 @@
             scope="prototype" />
 
         <bean id="processDescriptorStep" class="com.sap.cloud.lm.sl.cf.process.steps.ProcessDescriptorStep" scope="prototype" />
-        
+
         <bean id="startProcessListener" class="com.sap.cloud.lm.sl.cf.process.listeners.StartProcessListener" />
 
+        <bean id ="operationMetadataMapper" class="com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper" />
     </beans>
 </beans>
  
