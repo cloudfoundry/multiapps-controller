@@ -36,7 +36,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     @Inject
     private ProcessTypeParser processTypeParser;
     @Autowired(required = false)
-    private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper;
+    private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Inject
     private Configuration configuration;
 
@@ -72,7 +72,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     }
 
     protected Map<String, Object> findProcessVariables(DelegateExecution context, ProcessType processType) {
-        OperationMetadata operationMetadata = processTypeToServiceMetadataMapper.getOperationMetadata(processType);
+        OperationMetadata operationMetadata = operationMetadataMapper.getOperationMetadata(processType);
         Map<String, Object> result = new HashMap<>();
         for (ParameterMetadata parameterMetadata : operationMetadata.getParameters()) {
             if (context.hasVariable(parameterMetadata.getId())) {
