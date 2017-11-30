@@ -73,7 +73,7 @@ public class ProcessMtaArchiveStep extends AbstractProcessStep {
         FileDownloadProcessor manifestProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId,
             appArchiveStream -> {
                 // Create and initialize helper
-                Manifest manifest = ArchiveHandler.getManifest(appArchiveStream);
+                Manifest manifest = ArchiveHandler.getManifest(appArchiveStream, Configuration.getInstance().getMaxManifestSize());
                 MtaArchiveHelper helper = getHelper(manifest);
                 helper.init();
 

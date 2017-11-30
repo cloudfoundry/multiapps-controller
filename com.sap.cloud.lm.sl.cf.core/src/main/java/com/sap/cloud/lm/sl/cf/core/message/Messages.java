@@ -75,6 +75,7 @@ public final class Messages {
     public static final String UNKNOWN_DB_TYPE = "Unknown database type \"{0}\", using default \"{1}\"";
     public static final String INVALID_PLATFORMS = "Invalid platforms \"{0}\", using default \"{1}\"";
     public static final String INVALID_TARGETS = "Invalid targets \"{0}\", using default \"{1}\"";
+
     public static final String INVALID_VCAP_APPLICATION_SPACE_ID = "Invalid VCAP_APPLICATION \"{0}\", using default space ID \"{1}\"";
     public static final String INVALID_VCAP_APPLICATION = "Invalid VCAP_APPLICATION \"{0}\"";
     public static final String INVALID_VCAP_APPLICATION_DEPLOY_SERVICE_URI = "Could not determine deploy service URI from VCAP_APPLICATION \"{0}\"";
@@ -109,7 +110,9 @@ public final class Messages {
     public static final String PLATFORMS = "Platforms: {0}";
     public static final String TARGETS = "Targets: {0}";
     public static final String MAX_UPLOAD_SIZE = "Max upload size: {0}";
-    public static final String MAX_MTA_DESCRIPTOR_SIZE = "Max MTA descriptor size: {0}";
+    public static final String MAX_MTA_DESCRIPTOR_SIZE = "Max mta descriptor size: {0}";
+    public static final String MAX_MANIFEST_SIZE = "Max manifest size is set to: {0}";
+    public static final String MAX_RESOURCE_FILE_SIZE = "Max resource file size is set to: {0}";
     public static final String SCAN_UPLOADS = "Scan uploads: {0}";
     public static final String SPACE_ID = "Space ID: {0}";
     public static final String ORG_NAME = "Org Name: {0}";
