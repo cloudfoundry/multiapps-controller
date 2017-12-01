@@ -14,7 +14,7 @@
 			value="classpath*:/com/sap/cloud/lm/sl/cf/process/*.bpmn" />
 		<property name="failedJobCommandFactory">
 			<!-- By default Activiti will retry failed job. Disable this behavior. -->
-			<bean class="com.sap.activiti.common.NoJobRetryCommandFactory" />
+			<bean class="com.sap.cloud.lm.sl.cf.process.AbortFailedProcessCommandFactory" />
 		</property>
 	</bean>
 

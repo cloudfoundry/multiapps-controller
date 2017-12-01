@@ -44,6 +44,7 @@ public class BlueGreenDeployMetadata {
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_SKIP_SSL).defaultValue(false).type(ParameterType.BOOLEAN).build());
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS).defaultValue(false).type(
             ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_ABORT_ON_ERROR).type(ParameterType.BOOLEAN).defaultValue(false).build());
 
         // Special blue green deploy parameters:
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_CONFIRM).type(ParameterType.BOOLEAN).defaultValue(false).build());

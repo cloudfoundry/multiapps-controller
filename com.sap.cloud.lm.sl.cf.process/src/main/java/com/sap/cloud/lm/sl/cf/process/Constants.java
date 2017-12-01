@@ -38,6 +38,7 @@ public class Constants {
     public static final String PARAM_GIT_REPO_PATH = "gitRepoPath";
     public static final String PARAM_GIT_SKIP_SSL = "gitSkipSsl";
     public static final String PARAM_NO_FAIL_ON_MISSING_PERMISSIONS = "noFailOnMissingPermissions";
+    public static final String PARAM_ABORT_ON_ERROR = "abortOnError";
 
     public static final String VAR_USER = "user";
 

@@ -21,6 +21,7 @@ public class UndeployMetadata {
             ParameterType.BOOLEAN).build());
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS).defaultValue(false).type(
             ParameterType.BOOLEAN).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_ABORT_ON_ERROR).type(ParameterType.BOOLEAN).defaultValue(false).build());
     }
 
     public static OperationMetadata getMetadata() {

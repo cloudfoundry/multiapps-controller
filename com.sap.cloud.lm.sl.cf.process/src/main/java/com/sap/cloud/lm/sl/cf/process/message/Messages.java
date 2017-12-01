@@ -169,6 +169,7 @@ public class Messages {
     public static final String BINDING_APP_TO_SERVICE = "Binding application \"{0}\" to service \"{1}\"";
     public static final String UNBINDING_APP_FROM_SERVICE = "Unbinding application \"{0}\" from service \"{1}\"";
     public static final String POLLING_SERVICE_OPERATIONS = "Polling service operations...";
+    public static final String PROCESS_WILL_BE_AUTO_ABORTED = "Process \"{0}\" has an abortOnError parameter set to ''true'' and will be auto-aborted.";
 
     // Progress messages
     public static final String PREPARING_DEPLOY_PARAMETERS = "Preparing deploy parameters...";
