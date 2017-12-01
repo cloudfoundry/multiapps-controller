@@ -43,6 +43,7 @@ public class DeployMetadata {
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_REF).type(ParameterType.STRING).build());
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_REPO_PATH).type(ParameterType.STRING).build());
         PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_GIT_SKIP_SSL).type(ParameterType.BOOLEAN).defaultValue(false).build());
+        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_ABORT_ON_ERROR).type(ParameterType.BOOLEAN).defaultValue(false).build());
     }
 
     public static OperationMetadata getMetadata() {
