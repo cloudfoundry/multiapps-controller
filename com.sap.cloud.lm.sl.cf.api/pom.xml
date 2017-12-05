@@ -38,16 +38,12 @@
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.activiti</groupId>
-			<artifactId>activiti-engine</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.cloud.lm.sl</groupId>
-			<artifactId>com.sap.cloud.lm.sl.persistence</artifactId>
+			<artifactId>com.sap.cloud.lm.sl.common</artifactId>
 		</dependency>
 	</dependencies>
 </project>

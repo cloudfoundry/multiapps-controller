@@ -5,15 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.sap.cloud.lm.sl.persistence.util.Configuration;
-import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
-
 public class OperationMetadata {
 
     protected Set<ParameterMetadata> parameters;
     protected String activitiDiagramId;
     protected List<String> versions;
-    protected Configuration config;
 
     public static OperationMetadataBuilder builder() {
         return new OperationMetadataBuilder();
@@ -23,14 +19,12 @@ public class OperationMetadata {
         protected Set<ParameterMetadata> parameters;
         protected String activitiProcessId;
         protected List<String> versions;
-        protected Configuration config;
 
         public OperationMetadata build() {
             OperationMetadata metadata = new OperationMetadata();
             metadata.parameters = parameters;
             metadata.activitiDiagramId = activitiProcessId;
             metadata.versions = versions != null ? versions : Collections.emptyList();
-            metadata.config = config != null ? config : new DefaultConfiguration();
             return metadata;
         }
 
@@ -49,10 +43,6 @@ public class OperationMetadata {
             return this;
         }
 
-        public OperationMetadataBuilder config(Configuration config) {
-            this.config = config;
-            return this;
-        }
     }
 
     public Set<ParameterMetadata> getParameters() {
@@ -65,10 +55,6 @@ public class OperationMetadata {
 
     public List<String> getVersions() {
         return versions;
-    }
-
-    public Configuration getConfig() {
-        return config;
     }
 
 }
