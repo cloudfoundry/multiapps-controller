@@ -82,7 +82,7 @@ public abstract class AbstractSubProcessMonitorStep extends AbstractProcessStepW
 
     private void injectProcessVariablesFromSubProcess(DelegateExecution context) {
         String subProcessId = StepsUtil.getSubProcessId(context);
-        List<String> processVariablesToInject = getProcessVariablesToDuplicate();
+        List<String> processVariablesToInject = getProcessVariablesToInject();
         for (String processVariable : processVariablesToInject) {
             HistoricVariableInstance historicVariableInstance = activitiFacade.getHistoricVariableInstance(subProcessId, processVariable);
             if (historicVariableInstance != null) {
@@ -91,6 +91,6 @@ public abstract class AbstractSubProcessMonitorStep extends AbstractProcessStepW
         }
     }
 
-    protected abstract List<String> getProcessVariablesToDuplicate();
+    protected abstract List<String> getProcessVariablesToInject();
 
 }
