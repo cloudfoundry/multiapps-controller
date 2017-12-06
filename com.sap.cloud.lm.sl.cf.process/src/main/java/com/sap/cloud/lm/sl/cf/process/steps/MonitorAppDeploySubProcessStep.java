@@ -41,7 +41,7 @@ public class MonitorAppDeploySubProcessStep extends AbstractSubProcessMonitorSte
     }
 
     @Override
-    protected List<String> getProcessVariablesToDuplicate() {
+    protected List<String> getProcessVariablesToInject() {
         return Arrays.asList(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT);
     }
 
