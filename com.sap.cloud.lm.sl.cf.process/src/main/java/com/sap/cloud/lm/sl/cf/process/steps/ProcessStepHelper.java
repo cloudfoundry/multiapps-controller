@@ -144,6 +144,7 @@ public class ProcessStepHelper {
     }
 
     protected void logException(DelegateExecution context, Throwable t) {
+        LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
         getLogger(context).error(Messages.EXCEPTION_CAUGHT, t);
 
         if (!(t instanceof SLException) && !(t instanceof LogicalRetryException)) {
