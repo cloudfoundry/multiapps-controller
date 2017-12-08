@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component("pollStartAppStatusStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PollStartAppStatusStep extends AbstractProcessStep {
+public class PollStartAppStatusStep extends AbstractProcessStepWithBridge {
 
     @Override
     public String getLogicalStepName() {
