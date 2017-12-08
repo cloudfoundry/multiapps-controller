@@ -67,12 +67,12 @@
     </intermediateCatchEvent>
     <sequenceFlow id="waitForBrokerToBeStartedFlow" sourceRef="isBrokerStartedGateway" targetRef="startBrokerPollingIntervalTimer"></sequenceFlow>
     <sequenceFlow id="flow18" sourceRef="startBrokerPollingIntervalTimer" targetRef="pollServiceBrokerRestartStatusTask"></sequenceFlow>
-    <serviceTask id="updateServiceBrokerTask" name="Update Service Broker" activiti:async="true" activiti:delegateExpression="${updateServiceBrokerStep}"></serviceTask>
-    <sequenceFlow id="brokerStartedFlow" sourceRef="isBrokerStartedGateway" targetRef="updateServiceBrokerTask">
+    <serviceTask id="updateSubscribedServiceBrokerTask" name="Update Service Broker" activiti:async="true" activiti:delegateExpression="${updateSubscribedServiceBrokerStep}"></serviceTask>
+    <sequenceFlow id="brokerStartedFlow" sourceRef="isBrokerStartedGateway" targetRef="updateSubscribedServiceBrokerTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_RestartServiceBrokerSubscriberStep == "SUCCESS")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="incrementIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
-    <sequenceFlow id="flow20" sourceRef="updateServiceBrokerTask" targetRef="incrementIndexTask"></sequenceFlow>
+    <sequenceFlow id="flow20" sourceRef="updateSubscribedServiceBrokerTask" targetRef="incrementIndexTask"></sequenceFlow>
     <sequenceFlow id="flow21" sourceRef="incrementIndexTask" targetRef="shouldRestartServiceBrokerGateway"></sequenceFlow>
     <serviceTask id="prepareToRestartServiceBrokersTask" name="Prepare To Restart Service Brokers" activiti:async="true" activiti:delegateExpression="${prepareToRestartServiceBrokersStep}"></serviceTask>
     <sequenceFlow id="flow22" sourceRef="restartUpdatedSubscribersTask" targetRef="prepareToRestartServiceBrokersTask"></sequenceFlow>
@@ -159,7 +159,7 @@
       <bpmndi:BPMNShape bpmnElement="startBrokerPollingIntervalTimer" id="BPMNShape_startBrokerPollingIntervalTimer">
         <omgdc:Bounds height="35.0" width="35.0" x="661.0" y="580.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="updateServiceBrokerTask" id="BPMNShape_updateServiceBrokerTask">
+      <bpmndi:BPMNShape bpmnElement="updateSubscribedServiceBrokerTask" id="BPMNShape_updateSubscribedServiceBrokerTask">
         <omgdc:Bounds height="60.0" width="105.0" x="626.0" y="398.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="incrementIndexTask" id="BPMNShape_incrementIndexTask">
