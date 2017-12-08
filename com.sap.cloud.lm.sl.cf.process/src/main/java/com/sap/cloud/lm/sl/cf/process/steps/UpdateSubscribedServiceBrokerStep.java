@@ -33,6 +33,7 @@ public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrok
             if (existingServiceBroker == null) {
                 getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, broker.getName()));
             } else {
+                broker.setMeta(existingServiceBroker.getMeta());
                 updateServiceBroker(context, broker, client);
             }
             return ExecutionStatus.SUCCESS;
