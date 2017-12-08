@@ -777,7 +777,8 @@ public class StepsUtil {
     }
 
     static boolean hasTimedOut(DelegateExecution context, Supplier<Long> currentTimeSupplier) {
-        int timeout = (Integer) context.getVariable(Constants.PARAM_START_TIMEOUT);
+        // The default value here is provided for undeploy processes:
+        int timeout = ContextUtil.getVariable(context, Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
         long startTime = (Long) context.getVariable(Constants.VAR_START_TIME);
         long currentTime = currentTimeSupplier.get();
         return (currentTime - startTime) > timeout * 1000;

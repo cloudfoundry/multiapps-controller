@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.activiti.common.ExecutionStatus;
+import com.sap.activiti.common.util.ContextUtil;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -83,7 +84,8 @@ public class PollStartAppStatusStep extends AbstractProcessStep {
         CloudApplication app = client.getApplication(appName);
         List<InstanceInfo> instances = getApplicationInstances(client, app);
 
-        boolean failOnCrashed = (boolean) context.getVariable(Constants.PARAM_FAIL_ON_CRASHED);
+        // The default value here is provided for undeploy processes:
+        boolean failOnCrashed = ContextUtil.getVariable(context, Constants.PARAM_FAIL_ON_CRASHED, true);
 
         if (instances != null) {
             int expectedInstances = app.getInstances();
