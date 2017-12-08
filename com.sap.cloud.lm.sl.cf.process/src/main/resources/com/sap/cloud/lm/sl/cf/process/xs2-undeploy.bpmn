@@ -67,7 +67,7 @@
     </intermediateCatchEvent>
     <sequenceFlow id="waitForBrokerToBeStartedFlow" sourceRef="isBrokerStartedGateway" targetRef="startBrokerPollingIntervalTimer"></sequenceFlow>
     <sequenceFlow id="flow18" sourceRef="startBrokerPollingIntervalTimer" targetRef="pollServiceBrokerRestartStatusTask"></sequenceFlow>
-    <serviceTask id="updateServiceBrokerTask" name="Update Service Broker" activiti:async="true" activiti:delegateExpression="${updateServiceBrokerStep}"></serviceTask>
+    <serviceTask id="updateServiceBrokerTask" name="Update Service Broker" activiti:async="true" activiti:delegateExpression="${updateSubscribedServiceBrokerStep}"></serviceTask>
     <sequenceFlow id="brokerStartedFlow" sourceRef="isBrokerStartedGateway" targetRef="updateServiceBrokerTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_RestartServiceBrokerSubscriberStep == "SUCCESS")}]]></conditionExpression>
     </sequenceFlow>
