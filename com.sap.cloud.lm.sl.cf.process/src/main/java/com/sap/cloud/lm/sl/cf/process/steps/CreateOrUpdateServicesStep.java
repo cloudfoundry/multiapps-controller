@@ -403,6 +403,9 @@ public class CreateOrUpdateServicesStep extends AbstractProcessStep {
 
     private boolean shouldRecreate(CloudServiceExtended service, CloudService existingService) {
         boolean haveDifferentTypes = service.isUserProvided() ^ existingService.isUserProvided();
+        if(existingService.isUserProvided()){
+            return haveDifferentTypes;
+        }
         boolean haveDifferentLabels = !Objects.equals(service.getLabel(), existingService.getLabel());
         return haveDifferentTypes || haveDifferentLabels;
     }
