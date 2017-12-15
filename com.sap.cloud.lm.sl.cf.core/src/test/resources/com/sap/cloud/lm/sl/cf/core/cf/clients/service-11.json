@@ -14,6 +14,7 @@
     "serviceAlternatives": ["alternative-label"]
     },
   "existingServiceOfferings" : {
+    "default-label": ["other-plan"],
     "alternative-label": ["test-plan"]
   }
 }

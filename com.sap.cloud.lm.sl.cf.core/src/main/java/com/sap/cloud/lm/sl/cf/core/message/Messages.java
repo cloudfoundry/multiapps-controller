@@ -67,6 +67,7 @@ public final class Messages {
     public static final String MULTIPLE_CONFIGURATION_ENTRIES = "Multiple configuration entries were found matching the filter specified in resource \"{0}\": \"{1}\"";
     public static final String NO_CONTENT_TO_DEPLOY = "No content to deploy";
     public static final String UNABLE_TO_PARSE_PARAMETER = "Unable to parse parameter {0} with value {1}";
+    public static final String NO_SERVICE_PLAN_FOUND = "Could not create service instance {0}. Service plan {1} for service {2} not found";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET = "Environment variable \"{0}\" is not set";

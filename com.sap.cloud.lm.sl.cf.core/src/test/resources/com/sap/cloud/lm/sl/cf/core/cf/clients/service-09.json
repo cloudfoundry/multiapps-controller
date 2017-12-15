@@ -13,6 +13,9 @@
     "plan": "test-plan",
     "serviceAlternatives": ["alternative-label"]
     },
-  "existingServiceOfferings" : ["default-label","alternative-label"],
+  "existingServiceOfferings" : {
+    "default-label": ["test-plan"],
+    "alternative-label": ["test-plan"]
+  },
   "defaultServiceOfferingHttpReturnCode" : 403
 }
