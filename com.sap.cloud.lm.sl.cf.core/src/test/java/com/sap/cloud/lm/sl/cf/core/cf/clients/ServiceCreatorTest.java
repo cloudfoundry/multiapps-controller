@@ -5,11 +5,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudFoundryException;
@@ -96,7 +96,11 @@ public class ServiceCreatorTest {
             },
             // (9) Service has defined alternatives but nothing exist
             {
-                "service-10.json",  "Could not create service \"com.sap.sample.mta.test\"" , CloudFoundryException.class
+                "service-10.json",  "Service \"com.sap.sample.mta.test\" could not be created because none of the service offering(s) \"[default-label, alternative-label]\" match with existing service offerings or provide service plan \"test-plan\"" , CloudFoundryException.class
+            },
+            // (10) Service has defined alternatives and alternative is used because default offering does not have required service plan
+            {
+                "service-11.json",  null, null
             }
 // @formatter:on
         });
@@ -167,17 +171,32 @@ public class ServiceCreatorTest {
     }
 
     protected void setUpExistingOfferings() throws MalformedURLException {
-        List<String> existingServiceOfferingNames = input.getExistingServiceOfferings();
-        if (existingServiceOfferingNames == null) {
+        List<String> existingServiceOfferingNames = Collections.emptyList();
+        boolean definedExistingServiceOfferings = false;
+        if (input.getExistingServiceOfferings() == null) {
             existingServiceOfferingNames = Arrays.asList(getServiceLabel());
+        } else {
+            existingServiceOfferingNames = new ArrayList<String>(input.getExistingServiceOfferings().keySet());
+            definedExistingServiceOfferings = true;
         }
-
+        List<CloudServiceOffering> existingServiceOfferings = new ArrayList<CloudServiceOffering>();
+       
         List<Map<String, Object>> resourcesList = new ArrayList<>();
         Map<String, Object> resourceMap = new HashMap<>();
         for (String existingServiceOfferingName : existingServiceOfferingNames) {
             CloudServiceOffering offering = new CloudServiceOffering(null, existingServiceOfferingName);
-            offering.addCloudServicePlan(
-                new CloudServicePlan(new Meta(getUUID(existingServiceOfferingName), null, null), getCloudServicePlan()));
+
+            if (definedExistingServiceOfferings) {
+                List<String> existingPlans = input.getExistingServiceOfferings().get(existingServiceOfferingName);
+                for (String existingPlan : existingPlans) {
+                    offering.addCloudServicePlan(
+                        new CloudServicePlan(new Meta(getUUID(existingServiceOfferingName), null, null), existingPlan));
+                }
+            } else {
+                offering.addCloudServicePlan(
+                    new CloudServicePlan(new Meta(getUUID(existingServiceOfferingName), null, null), getCloudServicePlan()));
+            }
+            existingServiceOfferings.add(offering);
             Map<String, Object> nextResourceMap = new HashMap<String, Object>();
             nextResourceMap.put(existingServiceOfferingName, null);
             resourcesList.add(nextResourceMap);
@@ -186,13 +205,11 @@ public class ServiceCreatorTest {
 
         resourceMap.put("resources", resourcesList);
         Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_ENDPOINT));
-        Mockito.when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)),
-            String.class)).thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
+        Mockito.when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)), String.class))
+            .thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
 
         Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
 
-        List<CloudServiceOffering> existingServiceOfferings = existingServiceOfferingNames.stream().map(
-            existingServiceOfferingName -> new CloudServiceOffering(null, existingServiceOfferingName)).collect(Collectors.toList());
         Mockito.when(client.getServiceOfferings()).thenReturn(existingServiceOfferings);
     }
 
@@ -237,7 +254,7 @@ public class ServiceCreatorTest {
 
     protected static class StepInput {
         private CloudServiceExtended service;
-        private List<String> existingServiceOfferings;
+        private Map<String, List<String>> existingServiceOfferings;
         private int defaultServiceOfferingHttpReturnCode;
 
         public CloudServiceExtended getService() {
@@ -245,7 +262,7 @@ public class ServiceCreatorTest {
             return service;
         }
 
-        public List<String> getExistingServiceOfferings() {
+        public Map<String, List<String>> getExistingServiceOfferings() {
             return existingServiceOfferings;
         }
 
