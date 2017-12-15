@@ -13,5 +13,8 @@
     "plan": "test-plan",
     "serviceAlternatives": ["alternative-label"]
     },
-  "existingServiceOfferings" : ["other-label","next-other-label"]
+  "existingServiceOfferings" : {
+    "other-label": ["test-plan"],
+    "next-other-label": ["test-plan"]
+  }
 }

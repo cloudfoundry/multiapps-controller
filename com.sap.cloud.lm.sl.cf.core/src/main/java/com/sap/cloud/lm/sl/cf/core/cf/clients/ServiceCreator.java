@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +35,17 @@ public class ServiceCreator extends CloudServiceOperator {
         LOGGER.debug(format("Service \"{0}\" has defined service offering alternatives \"{1}\" for default service offering \"{2}\"",
             service.getName(), service.getServiceAlternatives(), service.getLabel()));
         List<String> possibleServiceOfferings = computePossibleServiceOfferings(service);
-        List<String> existingServiceOfferings = client.getServiceOfferings().stream().map(
-            cloudServiceOfferingExtended -> cloudServiceOfferingExtended.getLabel()).collect(Collectors.toList());
-        List<String> validServiceOfferings = computeValidServiceOfferings(client, possibleServiceOfferings, existingServiceOfferings);
+        Map<String, List<CloudServicePlan>> existingServiceOfferings = client.getServiceOfferings().stream().collect(
+            Collectors.toMap(CloudServiceOffering::getName, CloudServiceOffering::getCloudServicePlans));
+        List<String> validServiceOfferings = computeValidServiceOfferings(client, possibleServiceOfferings, service.getPlan(),
+            existingServiceOfferings);
 
         if (CollectionUtils.isEmpty(validServiceOfferings)) {
             LOGGER.error(format(
-                "Service \"{0}\" could not be created because any of defined service offering(s) \"{1}\" does not match with existing service offerings \"{2}\"",
-                service.getName(), possibleServiceOfferings, existingServiceOfferings));
-            throw new CloudFoundryException(HttpStatus.BAD_REQUEST, format(Messages.CANT_CREATE_SERVICE, service.getName()));
+                "Service \"{0}\" could not be created because none of the service offering(s) \"{1}\" match with existing service offerings \"{2}\" or provide service plan \"{3}\"",
+                service.getName(), possibleServiceOfferings, existingServiceOfferings.keySet(), service.getPlan()));
+            throw new CloudFoundryException(HttpStatus.BAD_REQUEST, format(Messages.CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN,
+                service.getName(), possibleServiceOfferings, service.getPlan()));
         }
 
         attemptToFindServiceOfferingAndCreateService(client, service, spaceId, validServiceOfferings);
@@ -54,14 +58,23 @@ public class ServiceCreator extends CloudServiceOperator {
     }
 
     private List<String> computeValidServiceOfferings(CloudFoundryOperations client, List<String> possibleServiceOfferings,
-        List<String> existingServiceOfferings) {
+        String desiredServicePlan, Map<String, List<CloudServicePlan>> existingServiceOfferings) {
         List<String> validServiceOfferings = new ArrayList<String>();
         for (String possibleServiceOffering : possibleServiceOfferings) {
-            if (existingServiceOfferings.contains(possibleServiceOffering)) {
-                validServiceOfferings.add(possibleServiceOffering);
-            } else {
-                LOGGER.warn(format("Defined service offering \"{0}\" is not existing", possibleServiceOffering));
+            if (!existingServiceOfferings.containsKey(possibleServiceOffering)) {
+                LOGGER.warn(format("Service offering \"{0}\" does not exist", possibleServiceOffering));
+                continue;
             }
+            Optional<CloudServicePlan> existingCloudServicePlan = existingServiceOfferings.get(possibleServiceOffering)
+                .stream()
+                .filter(servicePlan -> desiredServicePlan.equals(servicePlan.getName()))
+                .findFirst();
+            if (!existingCloudServicePlan.isPresent()) {
+                LOGGER.warn(
+                    format("Service offering \"{0}\" does not provide service plan \"{1}\"", possibleServiceOffering, desiredServicePlan));
+                continue;
+            }
+            validServiceOfferings.add(possibleServiceOffering);
         }
         return validServiceOfferings;
     }

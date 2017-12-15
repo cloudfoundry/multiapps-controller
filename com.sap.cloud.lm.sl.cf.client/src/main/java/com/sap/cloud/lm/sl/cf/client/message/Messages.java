@@ -30,6 +30,7 @@ public class Messages {
     public static final String CANT_GET_SERVICE = "Could not get service \"{0}\"";
     public static final String CANT_GET_SERVICE_INSTANCE = "Could not get instance of service \"{0}\"";
     public static final String CANT_CREATE_SERVICE = "Could not create service \"{0}\"";
+    public static final String CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN = "Service \"{0}\" could not be created because none of the service offering(s) \"{1}\" match with existing service offerings or provide service plan \"{2}\"";
     public static final String CANT_CREATE_SERVICE_KEY = "Could not create service key \"{0}\" for service \"{1}\"";
     public static final String CANT_DELETE_SERVICE_KEY = "Could not delete service key \"{0}\" for service \"{1}\"";
     public static final String CANT_CREATE_USER_PROVIDED_SERVICE = "Could not create user-provided service \"{0}\"";
