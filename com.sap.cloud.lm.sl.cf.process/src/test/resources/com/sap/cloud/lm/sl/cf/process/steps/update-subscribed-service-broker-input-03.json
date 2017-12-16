@@ -1,12 +1,12 @@
 {
-	"brokerApplication":{
-		"name": "test-application",
-        "brokerName": "test-broker-which-does-not-exists",
-        "brokerUrl": "test-roker-url",
-        "brokerPassword": "test-borker-password",
-        "brokerUser": "test-broker-username"
-	},
-	"brokerFromClient": {
-		"name": "test-broker"
-	}
+  "brokerApplication": {
+    "name": "test-application",
+    "brokerName": "test-broker-which-does-not-exist",
+    "brokerUsername": "test-broker-username",
+    "brokerPassword": "test-broker-password",
+    "brokerUrl": "test-broker-url"
+  },
+  "brokerFromClient": {
+    "name": "test-broker"
+  }
 }

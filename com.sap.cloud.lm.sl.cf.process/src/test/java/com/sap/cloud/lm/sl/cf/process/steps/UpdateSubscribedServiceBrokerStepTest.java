@@ -56,13 +56,12 @@ public class UpdateSubscribedServiceBrokerStepTest extends AbstractStepTest<Upda
             },
             // (3) With an application that broker does not match any existing broker
             {
-                "update-subscribed-service-broker-input-03.json", null, "Service broker with name \"test-broker-which-does-not-exists\" does not exist"
+                "update-subscribed-service-broker-input-03.json", null, "Service broker with name \"test-broker-which-does-not-exist\" does not exist"
             },
             // (4) With an application which broker was deleted
             {
                 "update-subscribed-service-broker-input-04.json", null, "Service broker with name \"test-broker\" does not exist"
             },
-            
 // @formatter:on
         });
     }
@@ -111,7 +110,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends AbstractStepTest<Upda
             Mockito.verify(stepLogger).warn(warningMessage);
         } else {
             CloudServiceBroker expectedBroker = new CloudServiceBroker(null, input.brokerApplication.brokerName,
-                input.brokerApplication.brokerUrl, input.brokerApplication.brokerUser, input.brokerApplication.brokerPassword);
+                input.brokerApplication.brokerUrl, input.brokerApplication.brokerUsername, input.brokerApplication.brokerPassword);
             Mockito.verify(client).updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
         }
     }
@@ -129,9 +128,9 @@ public class UpdateSubscribedServiceBrokerStepTest extends AbstractStepTest<Upda
     private static class SimpleApplication {
         String name;
         String brokerName;
-        String brokerUrl;
         String brokerPassword;
-        String brokerUser;
+        String brokerUsername;
+        String brokerUrl;
 
         CloudApplicationExtended toCloudApplication() {
             CloudApplicationExtended application = new CloudApplicationExtended(null, name);
@@ -148,7 +147,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends AbstractStepTest<Upda
                     put(SupportedParameters.CREATE_SERVICE_BROKER, true);
                     put(SupportedParameters.SERVICE_BROKER_NAME, brokerName);
                     put(SupportedParameters.SERVICE_BROKER_URL, brokerUrl);
-                    put(SupportedParameters.SERVICE_BROKER_USERNAME, brokerUser);
+                    put(SupportedParameters.SERVICE_BROKER_USERNAME, brokerUsername);
                     put(SupportedParameters.SERVICE_BROKER_PASSWORD, brokerPassword);
                 }
             };
