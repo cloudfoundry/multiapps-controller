@@ -29,8 +29,8 @@ public class Messages {
     public static final String ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2 = "The value \"{0}\" of parameter \"{1}\" is not valid, valid values are: {2}";
     public static final String ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0 = "There is no file associated with the specified file id \"{0}\"";
     public static final String UNKNOWN_SERVICE_ID = "Unknown service id \"{0}\"";
-    public static final String MISSING_SERVICE_BROKER_USER = "Missing service broker username for application \"{0}\"";
-    public static final String MISSING_SERVICE_BROKER_NAME = "Missing service broker username for application \"{0}\"";
+    public static final String MISSING_SERVICE_BROKER_NAME = "Missing service broker name for application \"{0}\"";
+    public static final String MISSING_SERVICE_BROKER_USERNAME = "Missing service broker username for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_PASSWORD = "Missing service broker password for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_URL = "Missing service broker url for application \"{0}\"";
     public static final String APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA = "Application \"{0}\" exists and is associated with MTA \"{1}\"";

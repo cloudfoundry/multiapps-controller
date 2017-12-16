@@ -88,7 +88,7 @@ public class SupportedParameters {
 
     public static final String CREATE_SERVICE_BROKER = "create-service-broker";
     public static final String SERVICE_BROKER_NAME = "service-broker-name";
-    public static final String SERVICE_BROKER_USER = "service-broker-user";
+    public static final String SERVICE_BROKER_USERNAME = "service-broker-user";
     public static final String SERVICE_BROKER_PASSWORD = "service-broker-password";
     public static final String SERVICE_BROKER_URL = "service-broker-url";
     public static final String SERVICE_BROKER_SPACE_SCOPED = "service-broker-space-scoped";
@@ -150,7 +150,7 @@ public class SupportedParameters {
     public static final Set<String> APP_ATTRIBUTES = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList(EXECUTE_APP, SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID, REGISTER_SERVICE_URL,
             REGISTER_SERVICE_URL_SERVICE_NAME, REGISTER_SERVICE_URL_SERVICE_URL, CREATE_SERVICE_BROKER, SERVICE_BROKER_NAME,
-            SERVICE_BROKER_USER, SERVICE_BROKER_PASSWORD, SERVICE_BROKER_URL, SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START)));
+            SERVICE_BROKER_USERNAME, SERVICE_BROKER_PASSWORD, SERVICE_BROKER_URL, SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START)));
 
     public static final Set<String> SPECIAL_MT_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_RT)));
 

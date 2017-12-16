@@ -116,25 +116,26 @@ public class CreateOrUpdateServiceBrokersStep extends AbstractProcessStep {
         }
 
         String serviceBrokerName = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_NAME, String.class, app.getName());
-        String serviceBrokerUrl = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_URL, String.class);
+        String serviceBrokerUsername = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_USERNAME, String.class);
         String serviceBrokerPassword = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_PASSWORD, String.class);
-        String serviceBrokerUser = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_USER, String.class);
+        String serviceBrokerUrl = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_URL, String.class);
         String serviceBrokerSpaceGuid = getServiceBrokerSpaceGuid(context, serviceBrokerName, attributesGetter);
 
-        if (serviceBrokerUser == null) {
-            throw new SLException(Messages.MISSING_SERVICE_BROKER_USER, app.getName());
-        }
-        if (serviceBrokerUrl == null) {
-            throw new SLException(Messages.MISSING_SERVICE_BROKER_URL, app.getName());
-        }
         if (serviceBrokerName == null) {
             throw new SLException(Messages.MISSING_SERVICE_BROKER_NAME, app.getName());
+        }
+        if (serviceBrokerUsername == null) {
+            throw new SLException(Messages.MISSING_SERVICE_BROKER_USERNAME, app.getName());
         }
         if (serviceBrokerPassword == null) {
             throw new SLException(Messages.MISSING_SERVICE_BROKER_PASSWORD, app.getName());
         }
+        if (serviceBrokerUrl == null) {
+            throw new SLException(Messages.MISSING_SERVICE_BROKER_URL, app.getName());
+        }
 
-        return getCloudServiceBroker(serviceBrokerName, serviceBrokerUser, serviceBrokerPassword, serviceBrokerUrl, serviceBrokerSpaceGuid);
+        return new CloudServiceBrokerExtended(serviceBrokerName, serviceBrokerUrl, serviceBrokerUsername, serviceBrokerPassword,
+            serviceBrokerSpaceGuid);
     }
 
     private String getServiceBrokerSpaceGuid(DelegateExecution context, String serviceBrokerName,
@@ -142,8 +143,8 @@ public class CreateOrUpdateServiceBrokersStep extends AbstractProcessStep {
         PlatformType platformType = configuration.getPlatformType();
         boolean isSpaceScoped = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_SPACE_SCOPED, Boolean.class, false);
         if (platformType == PlatformType.XS2 && isSpaceScoped) {
-            getStepLogger().warn(
-                MessageFormat.format(Messages.CANNOT_CREATE_SPACE_SCOPED_SERVICE_BROKER_ON_THIS_PLATFORM, serviceBrokerName));
+            getStepLogger()
+                .warn(MessageFormat.format(Messages.CANNOT_CREATE_SPACE_SCOPED_SERVICE_BROKER_ON_THIS_PLATFORM, serviceBrokerName));
             return null;
         }
         return isSpaceScoped ? StepsUtil.getSpaceId(context) : null;
@@ -190,10 +191,6 @@ public class CreateOrUpdateServiceBrokersStep extends AbstractProcessStep {
                     throw e;
             }
         }
-    }
-
-    private CloudServiceBrokerExtended getCloudServiceBroker(String name, String user, String password, String url, String spaceGuid) {
-        return new CloudServiceBrokerExtended(name, url, user, password, spaceGuid);
     }
 
     private boolean shouldSucceed(DelegateExecution context) {

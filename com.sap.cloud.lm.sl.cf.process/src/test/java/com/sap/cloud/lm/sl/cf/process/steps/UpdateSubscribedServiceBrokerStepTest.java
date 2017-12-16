@@ -148,7 +148,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends AbstractStepTest<Upda
                     put(SupportedParameters.CREATE_SERVICE_BROKER, true);
                     put(SupportedParameters.SERVICE_BROKER_NAME, brokerName);
                     put(SupportedParameters.SERVICE_BROKER_URL, brokerUrl);
-                    put(SupportedParameters.SERVICE_BROKER_USER, brokerUser);
+                    put(SupportedParameters.SERVICE_BROKER_USERNAME, brokerUser);
                     put(SupportedParameters.SERVICE_BROKER_PASSWORD, brokerPassword);
                 }
             };
