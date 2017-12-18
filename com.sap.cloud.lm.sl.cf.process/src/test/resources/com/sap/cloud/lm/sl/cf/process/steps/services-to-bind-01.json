@@ -2,16 +2,19 @@
   {
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "name": "resource-1"
   },
   {
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "name": "resource-2"
   },
   {
     "isOptional": false,
     "isManaged": false,
+    "shouldIgnoreUpdateErrors": false,
     "name": "resource-3"
   }
 ]
