@@ -154,9 +154,9 @@ public class ServiceCreatorTest {
 
     private void setUpServiceRequests() throws RestClientException, MalformedURLException {
         List<String> requestedServiceOfferings = new ArrayList<String>(Arrays.asList(getServiceLabel()));
-        List<String> serviceAlternatives = input.getService().getServiceAlternatives();
-        if (!CollectionUtils.isEmpty(serviceAlternatives)) {
-            requestedServiceOfferings.addAll(1, serviceAlternatives);
+        List<String> alternativeLabels = input.getService().getAlternativeLabels();
+        if (!CollectionUtils.isEmpty(alternativeLabels)) {
+            requestedServiceOfferings.addAll(1, alternativeLabels);
         }
 
         for (String requestedServiceOffering : requestedServiceOfferings) {

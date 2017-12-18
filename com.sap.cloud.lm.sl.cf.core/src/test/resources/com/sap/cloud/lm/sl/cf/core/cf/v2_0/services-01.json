@@ -1,6 +1,6 @@
 [
   {
-    "serviceAlternatives": [],
+    "alternativeLabels": [],
     "resourceName": "bar",
     "credentials": {},
     "tags": [],

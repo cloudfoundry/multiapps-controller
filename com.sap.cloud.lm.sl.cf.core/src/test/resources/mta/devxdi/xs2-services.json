@@ -9,7 +9,7 @@
     "name": "uaa"
   },
   {
-    "serviceAlternatives": [],
+    "alternativeLabels": [],
     "resourceName": "di-core-hdi",
     "credentials": {},
     "tags": [],

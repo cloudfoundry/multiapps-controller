@@ -1,6 +1,6 @@
 [
   {
-    "serviceAlternatives": [],
+    "alternativeLabels": [],
     "resourceName": "test",
     "credentials": {
       "password": "test-pass",

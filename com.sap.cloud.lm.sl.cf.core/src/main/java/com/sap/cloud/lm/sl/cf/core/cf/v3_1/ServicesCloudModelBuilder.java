@@ -13,8 +13,9 @@ public class ServicesCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1
     }
 
     @Override
-    protected boolean isOptionalResource(Resource resource) {
+    protected boolean isOptional(Resource resource) {
         com.sap.cloud.lm.sl.mta.model.v3_1.Resource resourceV3 = (com.sap.cloud.lm.sl.mta.model.v3_1.Resource) resource;
         return resourceV3.isOptional();
     }
+
 }

@@ -28,12 +28,12 @@ public class ServiceCreator extends CloudServiceOperator {
     protected static final Logger LOGGER = LoggerFactory.getLogger(ServiceCreator.class);
 
     public void createService(CloudFoundryOperations client, CloudServiceExtended service, String spaceId) {
-        if (CollectionUtils.isEmpty(service.getServiceAlternatives())) {
+        if (CollectionUtils.isEmpty(service.getAlternativeLabels())) {
             createServiceInternal(client, service, spaceId);
             return;
         }
         LOGGER.debug(format("Service \"{0}\" has defined service offering alternatives \"{1}\" for default service offering \"{2}\"",
-            service.getName(), service.getServiceAlternatives(), service.getLabel()));
+            service.getName(), service.getAlternativeLabels(), service.getLabel()));
         List<String> possibleServiceOfferings = computePossibleServiceOfferings(service);
         Map<String, List<CloudServicePlan>> existingServiceOfferings = client.getServiceOfferings().stream().collect(
             Collectors.toMap(CloudServiceOffering::getName, CloudServiceOffering::getCloudServicePlans));
@@ -52,7 +52,7 @@ public class ServiceCreator extends CloudServiceOperator {
     }
 
     private List<String> computePossibleServiceOfferings(CloudServiceExtended service) {
-        List<String> possibleServiceOfferings = new ArrayList<String>(service.getServiceAlternatives());
+        List<String> possibleServiceOfferings = new ArrayList<String>(service.getAlternativeLabels());
         possibleServiceOfferings.add(0, service.getLabel());
         return possibleServiceOfferings;
     }
