@@ -6,6 +6,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "bar"
   }

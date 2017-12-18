@@ -6,6 +6,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "label": "hana",
     "plan": "hdi-shared",
     "meta": {},
@@ -24,6 +25,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "com.sap.xs2.samples.javahelloworld.uaa"
   }

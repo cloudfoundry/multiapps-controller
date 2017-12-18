@@ -13,6 +13,7 @@ public class CloudServiceExtended extends CloudService {
     private List<String> tags;
     private boolean isOptional;
     private boolean isManaged;
+    private boolean shouldIgnoreUpdateErrors;
 
     public CloudServiceExtended() {
         super();
@@ -68,6 +69,14 @@ public class CloudServiceExtended extends CloudService {
 
     public void setManaged(boolean isManaged) {
         this.isManaged = isManaged;
+    }
+
+    public boolean shouldIgnoreUpdateErrors() {
+        return shouldIgnoreUpdateErrors;
+    }
+
+    public void setIgnoreUpdateErrors(boolean shouldIgnoreUpdateErrors) {
+        this.shouldIgnoreUpdateErrors = shouldIgnoreUpdateErrors;
     }
 
 }

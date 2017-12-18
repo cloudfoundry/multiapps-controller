@@ -6,6 +6,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "label": "hana",
     "plan": "hdi-shared",
     "meta": {},
@@ -17,6 +18,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": false,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "uaa"
   }

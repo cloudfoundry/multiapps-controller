@@ -69,7 +69,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     @Autowired
     @Qualifier("serviceUpdater")
     protected ServiceUpdater serviceUpdater;
-    
+
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws SLException, FileStorageException {
 
@@ -282,7 +282,11 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     private void updateServicePlan(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service) {
         getStepLogger()
             .debug(MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(), service.getPlan()));
-        serviceUpdater.updateServicePlan(client, service.getName(), service.getPlan());
+        if (service.shouldIgnoreUpdateErrors()) {
+            serviceUpdater.updateServicePlanQuietly(client, service.getName(), service.getPlan());
+        } else {
+            serviceUpdater.updateServicePlan(client, service.getName(), service.getPlan());
+        }
     }
 
     private List<ServiceAction> determineActions(CloudFoundryOperations client, String spaceId, CloudServiceExtended service,
@@ -343,8 +347,13 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         // TODO: Remove the service.isUserProvided() check when user provided services support tags.
         // See the following issue for more info:
         // https://www.pivotaltracker.com/n/projects/966314/stories/105674948
+        if (service.isUserProvided()) {
+            return;
+        }
         getStepLogger().info(Messages.UPDATING_SERVICE_TAGS, service.getName());
-        if (!service.isUserProvided()) {
+        if (service.shouldIgnoreUpdateErrors()) {
+            serviceUpdater.updateServiceTagsQuietly(client, service.getName(), service.getTags());
+        } else {
             serviceUpdater.updateServiceTags(client, service.getName(), service.getTags());
         }
         getStepLogger().debug(Messages.SERVICE_TAGS_UPDATED, service.getName());
@@ -367,7 +376,11 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     private void updateServiceCredentials(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service)
         throws SLException {
         getStepLogger().info(Messages.UPDATING_SERVICE, service.getName());
-        serviceUpdater.updateServiceParameters(client, service.getName(), service.getCredentials());
+        if (service.shouldIgnoreUpdateErrors()) {
+            serviceUpdater.updateServiceParametersQuietly(client, service.getName(), service.getCredentials());
+        } else {
+            serviceUpdater.updateServiceParameters(client, service.getName(), service.getCredentials());
+        }
         getStepLogger().debug(Messages.SERVICE_UPDATED, service.getName());
     }
 

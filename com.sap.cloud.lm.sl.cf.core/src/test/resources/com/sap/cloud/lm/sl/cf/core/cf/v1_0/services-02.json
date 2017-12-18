@@ -5,6 +5,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "com.sap.sample.mta.user-provided-renamed"
   },
@@ -14,6 +15,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "com.sap.sample.mta.user-provided-service"
   },
@@ -23,6 +25,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "com.sap.sample.mta.user-provider-resource-7ef941fc"
   },
@@ -33,6 +36,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "com.sap.sample.mta.random-service-renamed"
   },
@@ -43,6 +47,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "com.sap.sample.mta.random-service"
   },
@@ -53,6 +58,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "com.sap.sample.mta.random-resource-named-service"
   },
@@ -62,6 +68,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": false,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "existing-service-renamed"
   },
@@ -71,6 +78,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": false,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "existing-service"
   },
@@ -80,6 +88,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": false,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "existing-resource-named-service"
   }

@@ -5,6 +5,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": false,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "uaa"
   }

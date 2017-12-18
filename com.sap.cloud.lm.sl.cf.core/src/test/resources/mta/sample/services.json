@@ -6,6 +6,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "label": "hdi-hana2",
     "plan": "hdi-shared",
     "meta": {},
@@ -20,6 +21,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "internal-odata-service"
   }

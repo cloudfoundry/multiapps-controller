@@ -12,6 +12,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "shine-database"
   },
@@ -28,6 +29,7 @@
     "tags": [],
     "isOptional": false,
     "isManaged": true,
+    "shouldIgnoreUpdateErrors": false,
     "meta": {},
     "name": "uaa"
   }
