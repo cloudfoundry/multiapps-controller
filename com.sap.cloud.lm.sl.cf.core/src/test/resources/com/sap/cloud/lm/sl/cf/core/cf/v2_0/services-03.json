@@ -27,7 +27,7 @@
     "name": "user-provider-resource-named-service"
   },
   {
-    "serviceAlternatives": [],
+    "alternativeLabels": [],
     "resourceName": "rs",
     "credentials": {},
     "tags": [],
@@ -37,7 +37,7 @@
     "name": "random-service-renamed"
   },
   {
-    "serviceAlternatives": [],
+    "alternativeLabels": [],
     "resourceName": "random-service",
     "credentials": {},
     "tags": [],
@@ -47,7 +47,7 @@
     "name": "random-service"
   },
   {
-    "serviceAlternatives": [],
+    "alternativeLabels": [],
     "resourceName": "random-resource-named-service",
     "credentials": {},
     "tags": [],

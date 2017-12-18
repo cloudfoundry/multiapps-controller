@@ -27,7 +27,7 @@
     "name": "com.sap.sample.mta.user-provider-resource-7ef941fc"
   },
   {
-    "serviceAlternatives": [],
+    "alternativeLabels": [],
     "resourceName": "rs",
     "credentials": {},
     "tags": [],
@@ -37,7 +37,7 @@
     "name": "com.sap.sample.mta.random-service-renamed"
   },
   {
-    "serviceAlternatives": [],
+    "alternativeLabels": [],
     "resourceName": "random-service",
     "credentials": {},
     "tags": [],
@@ -47,7 +47,7 @@
     "name": "com.sap.sample.mta.random-service"
   },
   {
-    "serviceAlternatives": [],
+    "alternativeLabels": [],
     "resourceName": "random-resource-named-service",
     "credentials": {},
     "tags": [],

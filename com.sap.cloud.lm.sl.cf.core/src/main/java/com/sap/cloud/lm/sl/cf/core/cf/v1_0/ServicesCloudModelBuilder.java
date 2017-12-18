@@ -26,6 +26,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class ServicesCloudModelBuilder {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ServicesCloudModelBuilder.class);
 
     private CloudServiceNameMapper cloudServiceNameMapper;
@@ -52,93 +53,94 @@ public class ServicesCloudModelBuilder {
     protected CloudServiceExtended getService(Resource resource) throws SLException {
         Map<String, Object> parameters = propertiesAccessor.getParameters(resource);
         ResourceType serviceType = getResourceType(parameters);
-        boolean isOptionalResource = isOptionalResource(resource);
-        CloudServiceExtended service = createService(parameters, cloudServiceNameMapper.mapServiceName(resource, serviceType),
-            isOptionalResource, serviceType);
+        boolean isOptional = isOptional(resource);
+        CloudServiceExtended service = createService(cloudServiceNameMapper.mapServiceName(resource, serviceType), serviceType, isOptional,
+            parameters);
         if (service != null) {
             service.setResourceName(resource.getName());
         }
         return service;
     }
 
-    protected boolean isOptionalResource(Resource resource) {
+    protected boolean isOptional(Resource resource) {
         return false;
     }
 
-    protected CloudServiceExtended createService(Map<String, Object> properties, String serviceName, boolean isOptionalResource,
-        ResourceType serviceType) throws ContentException {
+    protected CloudServiceExtended createService(String serviceName, ResourceType serviceType, boolean isOptional,
+        Map<String, Object> parameters) throws ContentException {
         if (serviceType.equals(ResourceType.MANAGED_SERVICE)) {
-            return createManagedService(serviceName, isOptionalResource, properties);
+            return createManagedService(serviceName, isOptional, parameters);
         } else if (serviceType.equals(ResourceType.USER_PROVIDED_SERVICE)) {
-            return createUserProvidedService(serviceName, isOptionalResource, properties);
+            return createUserProvidedService(serviceName, isOptional, parameters);
         } else if (serviceType.equals(ResourceType.EXISTING_SERVICE)) {
-            return createExistingService(serviceName, isOptionalResource, properties);
+            return createExistingService(serviceName, isOptional, parameters);
         }
         return null;
     }
 
     @SuppressWarnings("unchecked")
-    protected CloudServiceExtended createManagedService(String serviceName, boolean isOptional, Map<String, Object> properties)
+    protected CloudServiceExtended createManagedService(String serviceName, boolean isOptional, Map<String, Object> parameters)
         throws ContentException {
-        String label = (String) properties.get(SupportedParameters.SERVICE);
-        List<String> serviceAlternatives = (List<String>) properties.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
+        String label = (String) parameters.get(SupportedParameters.SERVICE);
+        List<String> alternativeLabels = (List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
             Collections.emptyList());
-        String plan = (String) properties.get(SupportedParameters.SERVICE_PLAN);
-        String provider = (String) properties.get(SupportedParameters.SERVICE_PROVIDER);
-        String version = (String) properties.get(SupportedParameters.SERVICE_VERSION);
-        List<String> serviceTags = (List<String>) properties.getOrDefault(SupportedParameters.SERVICE_TAGS, Collections.emptyList());
-        Map<String, Object> credentials = getServiceConfigParameters(properties, serviceName);
+        String plan = (String) parameters.get(SupportedParameters.SERVICE_PLAN);
+        String provider = (String) parameters.get(SupportedParameters.SERVICE_PROVIDER);
+        String version = (String) parameters.get(SupportedParameters.SERVICE_VERSION);
+        List<String> serviceTags = (List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_TAGS, Collections.emptyList());
+        Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
 
-        return createCloudService(serviceName, label, serviceAlternatives, plan, provider, version, isOptional, true, credentials,
-            serviceTags);
+        return createCloudService(serviceName, label, plan, provider, version, alternativeLabels, credentials, serviceTags, isOptional,
+            true);
     }
 
-    protected CloudServiceExtended createUserProvidedService(String serviceName, boolean isOptional, Map<String, Object> properties)
+    protected CloudServiceExtended createUserProvidedService(String serviceName, boolean isOptional, Map<String, Object> parameters)
         throws ContentException {
-        Map<String, Object> credentials = getServiceConfigParameters(properties, serviceName);
-        String label = (String) properties.get(SupportedParameters.SERVICE);
+        Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
+        String label = (String) parameters.get(SupportedParameters.SERVICE);
         if (label != null) {
             LOGGER.warn(MessageFormat.format(Messages.IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE, label, serviceName));
         }
-        return createCloudService(serviceName, null, null, null, null, null, isOptional, true, credentials, Collections.emptyList());
+        return createCloudService(serviceName, null, null, null, null, null, credentials, Collections.emptyList(), isOptional, true);
     }
 
-    protected CloudServiceExtended createExistingService(String serviceName, boolean isOptional, Map<String, Object> properties)
+    protected CloudServiceExtended createExistingService(String serviceName, boolean isOptional, Map<String, Object> parameters)
         throws ContentException {
-        return createCloudService(serviceName, null, null, null, null, null, isOptional, false, Collections.emptyMap(),
-            Collections.emptyList());
+        return createCloudService(serviceName, null, null, null, null, null, Collections.emptyMap(), Collections.emptyList(), isOptional,
+            false);
     }
 
     @SuppressWarnings("unchecked")
-    protected Map<String, Object> getServiceConfigParameters(Map<String, Object> properties, String serviceName) throws ContentException {
-        Object serviceConfig = properties.get(SupportedParameters.SERVICE_CONFIG);
-        if (serviceConfig == null) {
+    protected Map<String, Object> getServiceParameters(String serviceName, Map<String, Object> parameters) throws ContentException {
+        Object serviceParameters = parameters.get(SupportedParameters.SERVICE_CONFIG);
+        if (serviceParameters == null) {
             return Collections.emptyMap();
         }
-        if (!(serviceConfig instanceof Map)) {
-            throw new ContentException(getInvalidServiceConfigTypeErrorMessage(serviceName, serviceConfig));
+        if (!(serviceParameters instanceof Map)) {
+            throw new ContentException(getInvalidServiceConfigTypeErrorMessage(serviceName, serviceParameters));
         }
-        return new TreeMap<>((Map<String, Object>) serviceConfig);
+        return new TreeMap<>((Map<String, Object>) serviceParameters);
     }
 
-    protected String getInvalidServiceConfigTypeErrorMessage(String serviceName, Object serviceConfig) {
+    protected String getInvalidServiceConfigTypeErrorMessage(String serviceName, Object serviceParameters) {
         return MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.INVALID_TYPE_FOR_KEY,
             ValidatorUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_CONFIG), Map.class.getSimpleName(),
-            serviceConfig.getClass().getSimpleName());
+            serviceParameters.getClass().getSimpleName());
     }
 
-    protected CloudServiceExtended createCloudService(String name, String label, List<String> serviceAlternatives, String plan,
-        String provider, String version, boolean isOptional, boolean isManaged, Map<String, Object> credentials, List<String> serviceTags) {
+    protected CloudServiceExtended createCloudService(String name, String label, String plan, String provider, String version,
+        List<String> alternativeLabels, Map<String, Object> credentials, List<String> tags, boolean isOptional, boolean isManaged) {
         CloudServiceExtended service = new CloudServiceExtended(null, name);
         service.setLabel(label);
-        service.setServiceAlternatives(serviceAlternatives);
         service.setPlan(plan);
         service.setProvider(provider);
         service.setVersion(version);
+        service.setAlternativeLabels(alternativeLabels);
         service.setCredentials(credentials);
-        service.setTags(serviceTags);
+        service.setTags(tags);
         service.setOptional(isOptional);
         service.setManaged(isManaged);
         return service;
     }
+
 }
