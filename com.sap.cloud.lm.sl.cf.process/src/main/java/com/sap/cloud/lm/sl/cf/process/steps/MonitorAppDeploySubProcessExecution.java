@@ -11,9 +11,9 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-public class MonitorAppDeploySubProcessStep extends AbstractSubProcessMonitorStep {
+public class MonitorAppDeploySubProcessExecution extends AbstractSubProcessMonitorExecution {
 
-    public MonitorAppDeploySubProcessStep(ActivitiFacade activitiFacade) {
+    public MonitorAppDeploySubProcessExecution(ActivitiFacade activitiFacade) {
         super(activitiFacade);
     }
 
@@ -30,7 +30,7 @@ public class MonitorAppDeploySubProcessStep extends AbstractSubProcessMonitorSte
     }
 
     @Override
-    protected List<String> getProcessVariablesToInject() {
+    protected List<String> getProcessVariablesToInject(DelegateExecution context) {
         return Arrays.asList(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT);
     }
 

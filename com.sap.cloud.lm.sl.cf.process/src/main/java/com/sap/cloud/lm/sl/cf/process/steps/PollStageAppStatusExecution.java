@@ -22,7 +22,8 @@ public class PollStageAppStatusExecution extends AsyncExecution {
     private RecentLogsRetriever recentLogsRetriever;
     private ApplicationStagingStateGetter applicationStagingStateGetter;
 
-    public PollStageAppStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationStagingStateGetter applicationStagingStateGetter) {
+    public PollStageAppStatusExecution(RecentLogsRetriever recentLogsRetriever,
+        ApplicationStagingStateGetter applicationStagingStateGetter) {
         super();
         this.recentLogsRetriever = recentLogsRetriever;
         this.applicationStagingStateGetter = applicationStagingStateGetter;
@@ -48,16 +49,11 @@ public class PollStageAppStatusExecution extends AsyncExecution {
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             execution.getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
-            throw e;
+            throw cfe;
         } catch (SLException e) {
             execution.getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
-            setType(execution, StepPhase.RETRY);
             throw e;
         }
-    }
-
-    private void setType(ExecutionWrapper execution, StepPhase type) {
-        StepsUtil.setStepPhase(execution, type);
     }
 
     private Pair<ApplicationStagingState, String> getStagingState(ExecutionWrapper execution, CloudFoundryOperations client,
@@ -113,19 +109,16 @@ public class PollStageAppStatusExecution extends AsyncExecution {
             execution.getStepLogger().error(message);
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
-            setType(execution, StepPhase.RETRY);
             return AsyncExecutionState.ERROR;
         } else {
             // Application not staged yet, wait and try again unless it's a timeout
-            if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
-                String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-                execution.getStepLogger().error(message);
-                StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-                    execution.getProcessLoggerProviderFactory());
-                setType(execution, StepPhase.RETRY);
-                return AsyncExecutionState.ERROR;
-            }
-            setType(execution, StepPhase.POLL);
+            // if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
+            // String message = format(Messages.APP_START_TIMED_OUT, app.getName());
+            // execution.getStepLogger().error(message);
+            // StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
+            // execution.getProcessLoggerProviderFactory());
+            // return AsyncExecutionState.ERROR;
+            // }
             return AsyncExecutionState.RUNNING;
         }
     }

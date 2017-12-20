@@ -51,11 +51,9 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
             return checkAppExecutionStatus(execution, client, attributesGetter, app, status);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
-            throw e;
+            throw cfe;
         } catch (SLException e) {
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw e;
         }
@@ -112,7 +110,6 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
             execution.getStepLogger().error(message);
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
-            setStepPhase(execution, StepPhase.RETRY);
             return AsyncExecutionState.ERROR;
         } else if (status._1.equals(AppExecutionStatus.SUCCEEDED)) {
             // Application executed successfully
@@ -129,14 +126,13 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
             return AsyncExecutionState.FINISHED;
         } else {
             // Application not executed yet, wait and try again unless it's a timeout
-            if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
-                String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-                execution.getStepLogger().error(message);
-                StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-                    execution.getProcessLoggerProviderFactory());
-                setStepPhase(execution, StepPhase.RETRY);
-                return AsyncExecutionState.ERROR;
-            }
+            // if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
+            // String message = format(Messages.APP_START_TIMED_OUT, app.getName());
+            // execution.getStepLogger().error(message);
+            // StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
+            // execution.getProcessLoggerProviderFactory());
+            // return AsyncExecutionState.ERROR;
+            // }
             return AsyncExecutionState.RUNNING;
         }
     }
@@ -157,10 +153,6 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
             text = attr;
         }
         return new Pair<MessageType, String>(messageType, text);
-    }
-
-    private void setStepPhase(ExecutionWrapper execution, StepPhase type) {
-        StepsUtil.setStepPhase(execution, type);
     }
 
 }

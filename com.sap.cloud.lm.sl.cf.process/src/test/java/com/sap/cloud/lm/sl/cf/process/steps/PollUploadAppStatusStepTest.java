@@ -23,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo.State;
 import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @RunWith(Parameterized.class)
 public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAppStep> {
@@ -62,7 +61,7 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
             },
             // (03) The previous step used asynchronous upload but getting the upload progress fails with an exception:
             {
-                true , State.RUNNING , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, null, StepsUtil.createException(CFEXCEPTION).getMessage(),
+                true , State.RUNNING , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, null, CFEXCEPTION.getMessage(),
             },
             // (04) The previous step used asynchronous upload and it finished successfully:
             {
@@ -116,7 +115,7 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
     private void prepareExpectedException() {
         if (expectedCfExceptionMessage != null) {
             expectedException.expectMessage(expectedCfExceptionMessage);
-            expectedException.expect(SLException.class);
+            expectedException.expect(CloudFoundryException.class);
         }
     }
 

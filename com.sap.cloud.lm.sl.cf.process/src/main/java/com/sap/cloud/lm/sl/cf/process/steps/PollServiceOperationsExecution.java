@@ -78,6 +78,7 @@ public class PollServiceOperationsExecution extends AsyncExecution {
             List<CloudServiceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);
             execution.getStepLogger().info(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
             StepsUtil.setServicesToPoll(execution.getContext(), remainingServicesToPoll);
+
             if (remainingServicesToPoll.size() == 0) {
                 return AsyncExecutionState.FINISHED;
             }
@@ -85,11 +86,9 @@ public class PollServiceOperationsExecution extends AsyncExecution {
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             execution.getStepLogger().error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
-            throw e;
+            throw cfe;
         } catch (SLException e) {
             execution.getStepLogger().error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         }
     }

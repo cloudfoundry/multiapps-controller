@@ -34,19 +34,19 @@ public class ExecutionWrapper {
         return stepLogger;
     }
 
-    protected CloudFoundryOperations getCloudFoundryClient() throws SLException {
+    public CloudFoundryOperations getCloudFoundryClient() throws SLException {
         return StepsUtil.getCloudFoundryClient(context, clientProvider, stepLogger);
     }
 
-    protected CloudFoundryOperations getCloudFoundryClient(String org, String space) throws SLException {
+    public CloudFoundryOperations getCloudFoundryClient(String org, String space) throws SLException {
         return StepsUtil.getCloudFoundryClient(context, clientProvider, stepLogger, org, space);
     }
 
-    protected ClientExtensions getClientExtensions() throws SLException {
+    public ClientExtensions getClientExtensions() throws SLException {
         return StepsUtil.getClientExtensions(context, clientProvider, stepLogger);
     }
 
-    protected ClientExtensions getClientExtensions(String org, String space) throws SLException {
+    public ClientExtensions getClientExtensions(String org, String space) throws SLException {
         return StepsUtil.getClientExtensions(context, clientProvider, stepLogger, org, space);
     }
 

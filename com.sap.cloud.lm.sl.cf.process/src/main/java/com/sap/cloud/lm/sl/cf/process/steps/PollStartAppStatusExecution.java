@@ -51,11 +51,9 @@ public class PollStartAppStatusExecution extends AsyncExecution {
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
-            throw e;
+            throw cfe;
         } catch (SLException e) {
             onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         }
     }
@@ -114,7 +112,6 @@ public class PollStartAppStatusExecution extends AsyncExecution {
             // Application failed to start
             String message = format(Messages.ERROR_STARTING_APP_2, app.getName(), getMessageForStatus(status));
             onError(execution, message);
-            setType(execution, StepPhase.RETRY);
             return AsyncExecutionState.ERROR;
         } else if (status.equals(StartupStatus.STARTED)) {
             // Application started successfully
@@ -125,25 +122,16 @@ public class PollStartAppStatusExecution extends AsyncExecution {
                 String urls = CommonUtil.toCommaDelimitedString(uris, getProtocolPrefix());
                 execution.getStepLogger().info(Messages.APP_STARTED_URLS, app.getName(), urls);
             }
-            // TODO:
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             return AsyncExecutionState.FINISHED;
         } else {
             // Application not started yet, wait and try again unless it's a timeout
-            if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
-                String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-                onError(execution, message);
-                setType(execution, StepPhase.RETRY);
-                return AsyncExecutionState.ERROR;
-            }
-            // TODO:
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
+            // if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
+            // String message = format(Messages.APP_START_TIMED_OUT, app.getName());
+            // onError(execution, message);
+            // return AsyncExecutionState.ERROR;
+            // }
             return AsyncExecutionState.RUNNING;
         }
-    }
-
-    private void setType(ExecutionWrapper execution, StepPhase type) {
-        StepsUtil.setStepPhase(execution, type);
     }
 
     protected String getMessageForStatus(StartupStatus status) {

@@ -43,7 +43,7 @@ public class StartAppDeploySubProcessStep extends AbstractSubProcessStarterStep 
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions() {
-        return Arrays.asList(new MonitorAppDeploySubProcessStep(actvitiFacade));
+        return Arrays.asList(new MonitorAppDeploySubProcessExecution(actvitiFacade));
     }
 
 }

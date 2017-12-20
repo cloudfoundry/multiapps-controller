@@ -248,7 +248,7 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_PLATFORM, getBinaryJsonForMtaModel().marshal(platform));
     }
 
-    static HandlerFactory getHandlerFactory(DelegateExecution context) {
+    public static HandlerFactory getHandlerFactory(DelegateExecution context) {
         int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
         int minorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION);
         return new HandlerFactory(majorSchemaVersion, minorSchemaVersion);
@@ -387,7 +387,7 @@ public class StepsUtil {
             .collect(Collectors.toList());
     }
 
-    static void setAppsToDeploy(DelegateExecution context, List<CloudApplicationExtended> apps) {
+    public static void setAppsToDeploy(DelegateExecution context, List<CloudApplicationExtended> apps) {
         List<String> cloudApplicationsAsStrings = apps.stream().map(app -> JsonUtil.toJson(app)).collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
     }
@@ -779,7 +779,7 @@ public class StepsUtil {
 
     static boolean hasTimedOut(DelegateExecution context, Supplier<Long> currentTimeSupplier) {
         // The default value here is provided for undeploy processes:
-        int timeout = ContextUtil.getVariable(context, Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
+        int timeout = getVariable(context, Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
         long startTime = (Long) context.getVariable(Constants.VAR_START_TIME);
         long currentTime = currentTimeSupplier.get();
         return (currentTime - startTime) > timeout * 1000;
