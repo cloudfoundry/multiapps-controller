@@ -1,5 +1,6 @@
 [
   {
+    "idleUris": [],
     "diskQuota": 0,
     "instances": 0,
     "memory": 0,

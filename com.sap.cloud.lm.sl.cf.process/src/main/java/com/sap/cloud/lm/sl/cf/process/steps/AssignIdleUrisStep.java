@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
+import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -28,4 +29,8 @@ public class AssignIdleUrisStep extends SetAppsUrisStep {
         return app.getIdleUris();
     }
 
+    @Override
+    protected void setAdditionalContextVariables(DelegateExecution context) {
+        StepsUtil.setUseIdleUris(context, true);
+    }
 }

@@ -986,4 +986,12 @@ public class StepsUtil {
         Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
         return gitRepoConfigMap.get(Constants.PARAM_GIT_URI);
     }
+    
+    static void setUseIdleUris(DelegateExecution context, boolean state) {
+        context.setVariable(Constants.VAR_USE_IDLE_URIS, state);
+    }
+
+    static boolean getUseIdleUris(DelegateExecution context) {
+        return (boolean) context.getVariable(Constants.VAR_USE_IDLE_URIS);
+    }
 }

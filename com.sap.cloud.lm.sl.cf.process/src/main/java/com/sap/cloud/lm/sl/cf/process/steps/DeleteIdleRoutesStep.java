@@ -18,9 +18,9 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component("replaceRoutesStep")
+@Component("deleteIdleRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ReplaceRoutesStep extends AbstractProcessStep {
+public class DeleteIdleRoutesStep extends AbstractProcessStep {
 
     @Override
     protected ExecutionStatus executeStepInternal(DelegateExecution context) throws SLException {
@@ -46,16 +46,8 @@ public class ReplaceRoutesStep extends AbstractProcessStep {
     }
 
     private void deleteIdleRoutes(CloudApplicationExtended app, boolean portBasedRouting, CloudFoundryOperations client) {
-        List<String> uris = new ArrayList<>(app.getUris());
-        List<String> existingUris = client.getApplication(app.getName()).getUris();
-        if (uris.containsAll(existingUris)) {
-            return;
-        }
-
-        client.updateApplicationUris(app.getName(), uris);
-        // Only the discontinued uris would remain in the collection
-        existingUris.removeAll(uris);
-        for (String idleUri : existingUris) {
+        List<String> idleUris = new ArrayList<>(app.getIdleUris());
+        for (String idleUri : idleUris) {
             deleteRoute(idleUri, portBasedRouting, client);
             getStepLogger().debug(Messages.ROUTE_DELETED, idleUri);
         }
