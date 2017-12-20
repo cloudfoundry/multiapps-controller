@@ -164,9 +164,10 @@ public class UploadAppStep extends AbstractProcessStep {
     }
 
     private void updateContextExtension(DelegateExecution context, boolean appContentChanged) throws SLException {
-        boolean appPropertiesChanged = StepsUtil.getAppPropertiesChanged(context);
-        boolean hasAppChanged = appPropertiesChanged || appContentChanged;
-        contextExtensionDao.addOrUpdate(context.getProcessInstanceId(), Constants.VAR_HAS_APP_CHANGED, Boolean.toString(hasAppChanged));
+        // boolean appPropertiesChanged = StepsUtil.getAppPropertiesChanged(context);
+        // boolean hasAppChanged = appPropertiesChanged || appContentChanged;
+        contextExtensionDao.addOrUpdate(context.getProcessInstanceId(), Constants.VAR_HAS_APP_CONTENT_CHANGED,
+            Boolean.toString(appContentChanged));
     }
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(DelegateExecution context, CloudApplication app, File file) {
@@ -198,7 +199,7 @@ public class UploadAppStep extends AbstractProcessStep {
             if (!entryName.endsWith(ARCHIVE_FILE_SEPARATOR)) {
                 streamUtil.saveStreamToDirectory(entryName, fileName, destinationDirectory);
             }
-            //no need to close this stream because no new stream object is created
+            // no need to close this stream because no new stream object is created
             stream = streamProducer.getNextInputStream();
             streamUtil.setInputStream(stream);
             entryName = streamProducer.getStreamEntryName();
@@ -308,8 +309,8 @@ public class UploadAppStep extends AbstractProcessStep {
                 }
             } finally {
                 outputVariables.put(getStatusVariable(), status.name());
-                LOGGER.getLoggerImpl().info(
-                    format("Attempting to signal process with id:{0} with variables : {1}", processId, outputVariables));
+                LOGGER.getLoggerImpl()
+                    .info(format("Attempting to signal process with id:{0} with variables : {1}", processId, outputVariables));
                 signalWaitTask(context.getProcessInstanceId(), outputVariables, configuration.getUploadAppTimeout() * 1000);
             }
             getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", context.getProcessInstanceId());
