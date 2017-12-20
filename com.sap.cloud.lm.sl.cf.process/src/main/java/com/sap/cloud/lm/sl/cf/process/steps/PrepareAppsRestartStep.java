@@ -19,6 +19,7 @@ public class PrepareAppsRestartStep extends PrepareAppsDeploymentStep {
         context.setVariable(Constants.REBUILD_APP_ENV, true);
         context.setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
         context.setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
+        StepsUtil.setUseIdleUris(context, false);
 
         return ExecutionStatus.SUCCESS;
     }

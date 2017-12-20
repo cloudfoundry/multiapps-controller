@@ -42,7 +42,7 @@ public class RebuildApplicationEnvironmentStep extends AbstractProcessStep {
                 deployedModuleNames);
             CloudApplicationExtended app = StepsUtil.getApp(context);
             CloudApplicationExtended modifiedApp = findApplication(modifiedApps, app.getName());
-            app.setUris(modifiedApp.getUris());
+            setApplicationUris(context, app, modifiedApp);
             app.setIdleUris(modifiedApp.getIdleUris());
             app.setEnv(MapUtil.upcastUnmodifiable(modifiedApp.getEnvAsMap()));
             getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, JsonUtil.toJson(app, true));
@@ -52,6 +52,14 @@ public class RebuildApplicationEnvironmentStep extends AbstractProcessStep {
             throw e;
         }
         return ExecutionStatus.SUCCESS;
+    }
+    
+    private void setApplicationUris(DelegateExecution context, CloudApplicationExtended app, CloudApplicationExtended modifiedApp ) {
+        if (StepsUtil.getUseIdleUris(context)) {
+            app.setUris(modifiedApp.getIdleUris());
+        } else {
+            app.setUris(modifiedApp.getUris());
+        }
     }
 
     private ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {

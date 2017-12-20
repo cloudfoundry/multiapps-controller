@@ -22,7 +22,9 @@ public abstract class SetAppsUrisStep extends AbstractProcessStep {
             assignUris(app);
         }
         StepsUtil.setAppsToDeploy(context, apps);
-
+        
+        setAdditionalContextVariables(context);
+        
         getStepLogger().debug(getEndProgressMessage());
         return ExecutionStatus.SUCCESS;
     }
@@ -42,6 +44,8 @@ public abstract class SetAppsUrisStep extends AbstractProcessStep {
     }
 
     protected abstract List<String> getNewUris(CloudApplicationExtended app);
+
+    protected abstract void setAdditionalContextVariables(DelegateExecution context);
 
     protected abstract String getStartProgressMessage();
 
