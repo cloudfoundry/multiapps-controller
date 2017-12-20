@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.activiti.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -92,8 +93,8 @@ public class DetermineDesiredStateAchievingActionsStepTest extends AbstractStepT
     @Mock
     private ApplicationStartupStateCalculator appStateCalculator;
 
-    public DetermineDesiredStateAchievingActionsStepTest(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState, boolean hasAppChanged,
-        Set<ApplicationStateAction> expectedAppStateActions) {
+    public DetermineDesiredStateAchievingActionsStepTest(ApplicationStartupState currentAppState, ApplicationStartupState desiredAppState,
+        boolean hasAppChanged, Set<ApplicationStateAction> expectedAppStateActions) {
         this.currentAppState = currentAppState;
         this.desiredAppState = desiredAppState;
         this.hasAppChanged = hasAppChanged;
@@ -122,7 +123,14 @@ public class DetermineDesiredStateAchievingActionsStepTest extends AbstractStepT
 
     @Override
     protected DetermineDesiredStateAchievingActionsStep createStep() {
-        return new DetermineDesiredStateAchievingActionsStep();
+        return new DetermineDesiredStateAchievingActionsStepMock();
+    }
+
+    private class DetermineDesiredStateAchievingActionsStepMock extends DetermineDesiredStateAchievingActionsStep {
+        @Override
+        protected boolean determineHasAppChanged(DelegateExecution context) {
+            return hasAppChanged;
+        }
     }
 
 }

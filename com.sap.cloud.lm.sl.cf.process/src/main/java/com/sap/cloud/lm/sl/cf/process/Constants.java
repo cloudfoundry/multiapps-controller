@@ -112,6 +112,7 @@ public class Constants {
     public static final String VAR_PUBLISHED_ENTRIES = "publishedEntries";
     public static final String VAR_DELETED_ENTRIES = "deletedEntries";
     public static final String VAR_HAS_APP_CHANGED = "hasAppChanged";
+    public static final String VAR_HAS_APP_CONTENT_CHANGED = "hasAppContentChanged";
     public static final String VAR_APP_PROPERTIES_CHANGED = "appPropertiesChanged";
     public static final String VAR_TRIGGERED_SERVICE_OPERATIONS = "triggeredServiceOperations";
     public static final String VAR_CORRELATION_ID = "correlationId";

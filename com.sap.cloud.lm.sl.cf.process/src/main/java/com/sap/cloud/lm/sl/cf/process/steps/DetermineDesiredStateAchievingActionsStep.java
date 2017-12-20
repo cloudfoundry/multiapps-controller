@@ -69,8 +69,15 @@ public class DetermineDesiredStateAchievingActionsStep extends AbstractProcessSt
     }
 
     private ActionCalculator getActionsCalculator(DelegateExecution context) {
-        String hasAppChangedString = (String) context.getVariable(Constants.VAR_HAS_APP_CHANGED);
-        return Boolean.valueOf(hasAppChangedString) ? new ChangedApplicationActionCalcultor() : new UnchangedApplicationActionCalculator();
+        boolean hasAppChanged = determineHasAppChanged(context);
+        return hasAppChanged ? new ChangedApplicationActionCalcultor() : new UnchangedApplicationActionCalculator();
+    }
+
+    protected boolean determineHasAppChanged(DelegateExecution context) {
+        boolean appPropertiesChanged = StepsUtil.getAppPropertiesChanged(context);
+        String appContentChangedString = StepsUtil.getVariableOrDefault(context, Constants.VAR_HAS_APP_CONTENT_CHANGED,
+            Boolean.toString(false));
+        return appPropertiesChanged || Boolean.valueOf(appContentChangedString);
     }
 
 }

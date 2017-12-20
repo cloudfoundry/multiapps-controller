@@ -311,8 +311,9 @@ public class StepsUtil {
     @SuppressWarnings("unchecked")
     public static List<CloudServiceExtended> getServicesToCreate(DelegateExecution context) {
         List<String> services = (List<String>) context.getVariable(Constants.VAR_SERVICES_TO_CREATE);
-        return services.stream().map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class)).collect(
-            Collectors.toList());
+        return services.stream()
+            .map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class))
+            .collect(Collectors.toList());
     }
 
     static void setServicesToCreate(DelegateExecution context, List<CloudServiceExtended> services) {
@@ -323,8 +324,9 @@ public class StepsUtil {
     @SuppressWarnings("unchecked")
     public static List<CloudServiceExtended> getServicesToBind(DelegateExecution context) {
         List<String> services = (List<String>) context.getVariable(Constants.VAR_SERVICES_TO_BIND);
-        return services.stream().map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class)).collect(
-            Collectors.toList());
+        return services.stream()
+            .map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class))
+            .collect(Collectors.toList());
     }
 
     static void setServicesToBind(DelegateExecution context, List<CloudServiceExtended> services) {
@@ -868,6 +870,15 @@ public class StepsUtil {
         getAppLogger(context, appName, processLoggerProviderFactory).debug(getPrefix(logger) + "[" + appName + "] " + message);
     }
 
+    @SuppressWarnings("unchecked")
+    static <T> T getVariableOrDefault(DelegateExecution context, String variableName, T defaultValue) {
+        if (context.hasVariable(variableName)) {
+            return (T) context.getVariable(variableName);
+        }
+
+        return defaultValue;
+    }
+
     public static SLException createException(CloudFoundryException e) {
         return new SLException(e, Messages.CF_ERROR, e.getMessage());
     }
@@ -905,9 +916,9 @@ public class StepsUtil {
 
         return getApplicationsCloudModelBuilder(context, null);
     }
-    
-    static ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context, StepLogger stepLogger){
-        
+
+    static ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context, StepLogger stepLogger) {
+
         CloudModelConfiguration configuration = getCloudBuilderConfiguration(context, true);
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
 
@@ -921,7 +932,7 @@ public class StepsUtil {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
 
         return handlerFactory.getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, deployId, stepLogger); 
+            xsPlaceholderResolver, deployId, stepLogger);
     }
 
     static DomainsCloudModelBuilder getDomainsCloudModelBuilder(DelegateExecution context) {
