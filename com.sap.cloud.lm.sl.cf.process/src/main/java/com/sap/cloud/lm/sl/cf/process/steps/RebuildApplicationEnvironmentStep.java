@@ -41,7 +41,7 @@ public class RebuildApplicationEnvironmentStep extends SyncActivitiStep {
                 mtaModules, deployedModuleNames);
             CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
             CloudApplicationExtended modifiedApp = findApplication(modifiedApps, app.getName());
-            setApplicationUris(context, app, modifiedApp);
+            setApplicationUris(execution.getContext(), app, modifiedApp);
             app.setIdleUris(modifiedApp.getIdleUris());
             app.setEnv(MapUtil.upcastUnmodifiable(modifiedApp.getEnvAsMap()));
             getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, JsonUtil.toJson(app, true));
@@ -52,8 +52,8 @@ public class RebuildApplicationEnvironmentStep extends SyncActivitiStep {
         }
         return StepPhase.DONE;
     }
-    
-    private void setApplicationUris(DelegateExecution context, CloudApplicationExtended app, CloudApplicationExtended modifiedApp ) {
+
+    private void setApplicationUris(DelegateExecution context, CloudApplicationExtended app, CloudApplicationExtended modifiedApp) {
         if (StepsUtil.getUseIdleUris(context)) {
             app.setUris(modifiedApp.getIdleUris());
         } else {

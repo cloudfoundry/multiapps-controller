@@ -5,6 +5,7 @@ import javax.inject.Named;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
@@ -46,14 +47,13 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
         ExecutionWrapper executionWrapper = createExecutionWrapper(context);
         try {
             MDC.put(Constants.ATTR_CORRELATION_ID, StepsUtil.getCorrelationId(context));
-            // TODO: check what should be here...
             getStepHelper().preExecuteStep(context, getInitialStepPhase(executionWrapper));
             stepPhase = executeStep(executionWrapper);
             getStepHelper().failStepIfProcessIsAborted(context);
             LOGGER.debug("Execution finished");
-        } catch (MonitoringException e) {
+        } catch (MonitoringException | CloudFoundryException e) {
             getStepLogger().errorWithoutProgressMessage(e.getMessage());
-            stepPhase = StepPhase.RETRY;
+            stepPhase = getResultStepPhase();
             handleException(context, e);
         } catch (Throwable t) {
             stepPhase = StepPhase.RETRY;
@@ -62,6 +62,10 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
             StepsUtil.setStepPhase(executionWrapper, stepPhase);
             postExecuteStep(context, stepPhase);
         }
+    }
+
+    protected StepPhase getResultStepPhase() {
+        return StepPhase.RETRY;
     }
 
     protected StepPhase getInitialStepPhase(ExecutionWrapper executionWrapper) {
@@ -84,7 +88,6 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
         } catch (SLException e) {
             getStepHelper().storeExceptionInProgressMessageService(context, e);
             logException(context, e);
-            e.printStackTrace();
             throw e;
         }
     }

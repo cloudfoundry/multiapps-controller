@@ -52,7 +52,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
 
         Set<ApplicationStateAction> actionsToExecute = getActionsCalculator(execution.getContext()).determineActionsToExecute(currentState,
             desiredState);
-        getStepLogger().info(Messages.ACTIONS_TO_EXECUTE, app.getName(), actionsToExecute);
+        getStepLogger().debug(Messages.ACTIONS_TO_EXECUTE, app.getName(), actionsToExecute);
 
         StepsUtil.setAppStateActionsToExecute(execution.getContext(), actionsToExecute);
         return StepPhase.DONE;

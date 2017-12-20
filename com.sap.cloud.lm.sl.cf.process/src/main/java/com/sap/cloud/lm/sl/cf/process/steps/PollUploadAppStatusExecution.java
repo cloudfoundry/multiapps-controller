@@ -28,7 +28,6 @@ public class PollUploadAppStatusExecution extends AsyncExecution {
             if (AsyncExecutionState.ERROR.name().equalsIgnoreCase(status)) {
                 String message = format(Messages.ERROR_UPLOADING_APP, app.getName());
                 execution.getStepLogger().error(message);
-                StepsUtil.setStepPhase(execution, StepPhase.RETRY);
                 return AsyncExecutionState.ERROR;
             }
 
@@ -41,7 +40,6 @@ public class PollUploadAppStatusExecution extends AsyncExecution {
             if (uploadToken == null) {
                 String message = format(Messages.APP_UPLOAD_TIMED_OUT, app.getName());
                 execution.getStepLogger().error(message);
-                StepsUtil.setStepPhase(execution, StepPhase.RETRY);
                 return AsyncExecutionState.ERROR;
             }
 
@@ -50,7 +48,6 @@ public class PollUploadAppStatusExecution extends AsyncExecution {
                 case FAILED: {
                     String message = format(Messages.ERROR_UPLOADING_APP, app.getName());
                     execution.getStepLogger().error(message);
-                    StepsUtil.setStepPhase(execution, StepPhase.RETRY);
                     return AsyncExecutionState.ERROR;
                 }
                 case FINISHED: {
@@ -66,13 +63,11 @@ public class PollUploadAppStatusExecution extends AsyncExecution {
             }
         } catch (SLException e) {
             execution.getStepLogger().error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             execution.getStepLogger().error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
-            throw e;
+            throw cfe;
         }
     }
 

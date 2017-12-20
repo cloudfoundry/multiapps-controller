@@ -97,7 +97,7 @@
     <sequenceFlow id="doNotExecuteOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="publishProvidedDependenciesTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(not executeOneOffTasks)}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="startAppTask" name="Start App" activiti:async="true" activiti:delegateExpression="${startAppStep1}"></serviceTask>
+    <serviceTask id="startAppTask" name="Start App" activiti:async="true" activiti:delegateExpression="${startAppStep}"></serviceTask>
     <intermediateCatchEvent id="timerintermediatecatchevent1" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${controllerPollingInterval}S</timeDuration>
@@ -107,7 +107,7 @@
     <sequenceFlow id="flow84" sourceRef="timerintermediatecatchevent1" targetRef="startAppTask"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway4" name="Is App Executed" default="waitStartAppFlow"></exclusiveGateway>
     <sequenceFlow id="flow85" sourceRef="startAppTask" targetRef="exclusivegateway4"></sequenceFlow>
-    <serviceTask id="uploadAppTask" name="Upload App" activiti:async="true" activiti:delegateExpression="${uploadAppStep1}"></serviceTask>
+    <serviceTask id="uploadAppTask" name="Upload App" activiti:async="true" activiti:delegateExpression="${uploadAppStep}"></serviceTask>
     <exclusiveGateway id="exclusivegateway5" name="Is App Uploaded" default="flow87"></exclusiveGateway>
     <sequenceFlow id="flow86" sourceRef="uploadAppTask" targetRef="exclusivegateway5"></sequenceFlow>
     <sequenceFlow id="flow87" sourceRef="exclusivegateway5" targetRef="timerintermediatecatchevent2"></sequenceFlow>
@@ -117,7 +117,7 @@
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="flow88" sourceRef="timerintermediatecatchevent2" targetRef="uploadAppTask"></sequenceFlow>
-    <serviceTask id="stageAppTask" name="Stage App" activiti:async="true" activiti:delegateExpression="${stageAppStep1}"></serviceTask>
+    <serviceTask id="stageAppTask" name="Stage App" activiti:async="true" activiti:delegateExpression="${stageAppStep}"></serviceTask>
     <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway" default="flow90"></exclusiveGateway>
     <sequenceFlow id="flow89" sourceRef="stageAppTask" targetRef="exclusivegateway6"></sequenceFlow>
     <sequenceFlow id="flow90" sourceRef="exclusivegateway6" targetRef="timerintermediatecatchevent3"></sequenceFlow>

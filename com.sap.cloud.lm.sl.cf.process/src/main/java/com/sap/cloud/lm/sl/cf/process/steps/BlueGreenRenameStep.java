@@ -50,10 +50,7 @@ public class BlueGreenRenameStep extends SyncActivitiStep {
             }
             getStepLogger().info(Messages.NEW_MTA_COLOR, mtaColor);
 
-            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
-            ApplicationColorAppender appender = handlerFactory.getApplicationColorAppender(deployedMtaColor, mtaColor);
-            descriptor.accept(appender);
-            StepsUtil.setUnresolvedDeploymentDescriptor(execution.getContext(), descriptor);
+            visit(execution, descriptor, mtaColor, deployedMtaColor);
 
             execution.getContext().setVariable("mtaColor", mtaColor);
 
@@ -62,6 +59,14 @@ public class BlueGreenRenameStep extends SyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_RENAMING_MODULES);
             throw e;
         }
+    }
+
+    protected void visit(ExecutionWrapper execution, DeploymentDescriptor descriptor, ApplicationColor mtaColor,
+        ApplicationColor deployedMtaColor) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
+        ApplicationColorAppender appender = handlerFactory.getApplicationColorAppender(deployedMtaColor, mtaColor);
+        descriptor.accept(appender);
+        StepsUtil.setUnresolvedDeploymentDescriptor(execution.getContext(), descriptor);
     }
 
 }

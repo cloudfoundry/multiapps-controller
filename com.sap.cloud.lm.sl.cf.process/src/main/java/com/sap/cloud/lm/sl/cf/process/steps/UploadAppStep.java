@@ -40,10 +40,11 @@ import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
-@Component("uploadAppStep1")
+@Component("uploadAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UploadAppStep extends AsyncActivitiStep {
+public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
+    private static final Integer DEFAULT_UPLOAD_TIMEOUT = 1800; // 30 minutes
     private static final String ARCHIVE_FILE_SEPARATOR = "/";
 
     @Inject
@@ -163,8 +164,6 @@ public class UploadAppStep extends AsyncActivitiStep {
     }
 
     private void updateContextExtension(DelegateExecution context, boolean appContentChanged) throws SLException {
-        // boolean appPropertiesChanged = StepsUtil.getAppPropertiesChanged(context);
-        // boolean hasAppChanged = appPropertiesChanged || appContentChanged;
         contextExtensionDao.addOrUpdate(context.getProcessInstanceId(), Constants.VAR_HAS_APP_CONTENT_CHANGED,
             Boolean.toString(appContentChanged));
     }
@@ -284,19 +283,17 @@ public class UploadAppStep extends AsyncActivitiStep {
                     status = AsyncExecutionState.RUNNING;
                 } else {
                     uploadFiles(execution.getContext(), client, app, appArchiveId, fileName);
-                    getStepLogger().info(Messages.APP_UPLOADED, app.getName());
+                    getStepLogger().debug(Messages.APP_UPLOADED, app.getName());
                     status = AsyncExecutionState.FINISHED;
                 }
             } catch (SLException | FileStorageException e) {
                 getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
                 logException(execution.getContext(), e);
-                StepsUtil.setStepPhase(execution, StepPhase.RETRY);
                 throw new SLException(e.getMessage(), e);
             } catch (CloudFoundryException cfe) {
                 SLException e = StepsUtil.createException(cfe);
                 getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
                 logException(execution.getContext(), e);
-                StepsUtil.setStepPhase(execution, StepPhase.RETRY);
                 throw e;
             } catch (Throwable e) {
                 Throwable eWithMessage = getWithProperMessage(e);
@@ -326,4 +323,10 @@ public class UploadAppStep extends AsyncActivitiStep {
     protected List<AsyncExecution> getAsyncStepExecutions() {
         return Arrays.asList(new PollUploadAppStatusExecution());
     }
+
+    @Override
+    public Integer getTimeout() {
+        return DEFAULT_UPLOAD_TIMEOUT;
+    }
+
 }

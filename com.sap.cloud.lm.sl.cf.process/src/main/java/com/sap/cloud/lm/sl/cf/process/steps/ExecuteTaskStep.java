@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("executeTaskStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ExecuteTaskStep extends AsyncActivitiStep {
+public class ExecuteTaskStep extends TimeoutAsyncActivitiStep {
 
     protected Supplier<Long> currentTimeSupplier = () -> System.currentTimeMillis();
 
@@ -70,6 +70,11 @@ public class ExecuteTaskStep extends AsyncActivitiStep {
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions() {
         return Arrays.asList(new PollExecuteTaskStatusExecution(recentLogsRetriever, currentTimeSupplier));
+    }
+
+    @Override
+    public Integer getTimeout() {
+        return Constants.DEFAULT_START_TIMEOUT;
     }
 
 }

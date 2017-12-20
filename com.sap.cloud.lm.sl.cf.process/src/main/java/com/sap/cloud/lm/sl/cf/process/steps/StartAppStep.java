@@ -24,9 +24,9 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component("startAppStep1")
+@Component("startAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StartAppStep extends AsyncActivitiStep {
+public class StartAppStep extends TimeoutAsyncActivitiStep {
 
     @Autowired
     protected RecentLogsRetriever recentLogsRetriever;
@@ -112,6 +112,11 @@ public class StartAppStep extends AsyncActivitiStep {
     protected List<AsyncExecution> getAsyncStepExecutions() {
         return Arrays.asList(new PollStartAppStatusExecution(recentLogsRetriever, configuration),
             new PollExecuteAppStatusExecution(recentLogsRetriever));
+    }
+
+    @Override
+    public Integer getTimeout() {
+        return Constants.DEFAULT_START_TIMEOUT;
     }
 
 }

@@ -21,19 +21,16 @@ public abstract class AbstractSubProcessStarterStep extends AsyncActivitiStep {
         try {
             String userId = StepsUtil.determineCurrentUser(execution.getContext(), getStepLogger());
 
-            int nextIndex = (int) execution.getContext().getVariable(getIndexVariable());
+            int nextIndex = getIndexVariable() == null ? 0 : (int) execution.getContext().getVariable(getIndexVariable());
             execution.getContext().setVariable(getIterationVariableName(), getIterationVariable(execution.getContext(), nextIndex));
             Map<String, Object> parentProcessVariables = execution.getContext().getVariables();
             parentProcessVariables.put(Constants.VAR_PARENTPROCESS_ID, execution.getContext().getProcessInstanceId());
             ProcessInstance subProcessInstance = actvitiFacade.startProcess(userId, getProcessDefinitionKey(), parentProcessVariables);
             StepsUtil.setSubProcessId(execution.getContext(), subProcessInstance.getProcessInstanceId());
 
-            // TODO: decide whether you need this one...
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             return StepPhase.POLL;
         } catch (Exception e) {
             getStepLogger().error(e, "Error starting sub-process");
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw new SLException(e);
         }
     }

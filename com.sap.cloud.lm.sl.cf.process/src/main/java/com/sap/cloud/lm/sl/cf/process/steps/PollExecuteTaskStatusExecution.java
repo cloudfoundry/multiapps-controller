@@ -38,11 +38,9 @@ public class PollExecuteTaskStatusExecution extends AsyncExecution {
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
-            throw e;
+            throw cfe;
         } catch (SLException e) {
             execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
-            StepsUtil.setStepPhase(execution, StepPhase.RETRY);
             throw e;
         }
     }
@@ -102,21 +100,17 @@ public class PollExecuteTaskStatusExecution extends AsyncExecution {
         private AsyncExecutionState handleFinalState(CloudTask.State state) {
             if (state.equals(CloudTask.State.FAILED)) {
                 execution.getStepLogger().error(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName());
-                StepsUtil.setStepPhase(execution, StepPhase.RETRY);
                 return AsyncExecutionState.ERROR;
             }
-            StepsUtil.setStepPhase(execution, StepPhase.EXECUTE);
             return AsyncExecutionState.FINISHED;
         }
 
         private AsyncExecutionState checkTimeout() {
-            if (StepsUtil.hasTimedOut(execution.getContext(), currentTimeSupplier)) {
-                String message = format(Messages.EXECUTING_TASK_ON_APP_TIMED_OUT, taskToPoll.getName(), app.getName());
-                execution.getStepLogger().error(message);
-                StepsUtil.setStepPhase(execution, StepPhase.RETRY);
-                return AsyncExecutionState.ERROR;
-            }
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
+            // if (StepsUtil.hasTimedOut(execution.getContext(), currentTimeSupplier)) {
+            // String message = format(Messages.EXECUTING_TASK_ON_APP_TIMED_OUT, taskToPoll.getName(), app.getName());
+            // execution.getStepLogger().error(message);
+            // return AsyncExecutionState.ERROR;
+            // }
             return AsyncExecutionState.RUNNING;
         }
     }
