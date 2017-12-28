@@ -87,7 +87,7 @@ public final class Messages {
     public static final String UNKNOWN_DB_TYPE_WILL_NOT_DROP_CONFIGURATION_REGISTRY_UNIQUE_CONSTRAINT = "Unknown database type: {0}. DropConfigurationRegistryUniqueConstraint will not be executed.";
     public static final String UNKNOWN_DB_TYPE_WILL_NOT_ALTER_OPERATION_TABLE_COLUMN_TYPES = "Unknown database type: {0}. AlterOperationTableTimestampStoringColumns will not be executed.";
     public static final String NOT_DESCRIBED_MODULE = "MTA module \"{0}\" is found deployed, but it is not part of MTA manifest file";
-    
+
     // Info messages
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type not specified in environment, using default \"{0}\"";
     public static final String XS_TARGET_URL_NOT_SPECIFIED = "XS target URL not specified in environment, using default \"{0}\"";
@@ -139,6 +139,7 @@ public final class Messages {
     public static final String GLOBAL_CONFIG_SPACE = "Global config space: {0}";
     public static final String GATHER_STATISTICS = "Gather statistics: {0}";
     public static final String HEALTH_CHECK_CONFIGURATION = "Health check configuration: {0}";
+    public static final String MAIL_API_URL = "Mail API URL: {0}";
 
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION = "About to perform action \"{0}\"";
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION_WITH_PARAMS = "About to perform action \"{0}\" with parameters \"{1}\"";
