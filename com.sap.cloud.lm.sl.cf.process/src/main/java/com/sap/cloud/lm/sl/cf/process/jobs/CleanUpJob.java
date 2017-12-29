@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.jobs;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,6 +22,10 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiAction;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
@@ -29,6 +34,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -54,6 +60,10 @@ public class CleanUpJob implements Job {
     @Inject
     private OperationsHelper operationsHelper;
 
+    @Autowired
+    @Qualifier("tokenStore")
+    TokenStore tokenStore;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CleanUpJob.class);
 
     @Override
@@ -67,6 +77,8 @@ public class CleanUpJob implements Job {
         cleanUpFinishedOperationsData(expirationTime);
 
         removeActivitiHistoricData(expirationTime);
+
+        removeExpiredTokens();
 
         LOGGER.info("Cleanup Job finished at: " + Instant.now().toString());
     }
@@ -111,15 +123,32 @@ public class CleanUpJob implements Job {
     }
 
     private void removeActivitiHistoricData(Date expirationTime) {
-        List<HistoricProcessInstance> historicProcess = activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime);
-        if (CollectionUtils.isEmpty(historicProcess)) {
+        List<HistoricProcessInstance> historicProcessInstances = activitiFacade
+            .getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime);
+        if (CollectionUtils.isEmpty(historicProcessInstances)) {
             return;
         }
-        for (HistoricProcessInstance historicProcessInstance : historicProcess) {
+        for (HistoricProcessInstance historicProcessInstance : historicProcessInstances) {
             if (historicProcessInstance != null && historicProcessInstance.getEndTime() != null) {
                 activitiFacade.deleteHistoricProcessInstance(historicProcessInstance.getId());
             }
         }
+    }
+
+    private void removeExpiredTokens() {
+        Collection<OAuth2AccessToken> allTokens = tokenStore.findTokensByClientId(SecurityUtil.CLIENT_ID);
+        if (CollectionUtils.isEmpty(allTokens)) {
+            return;
+        }
+        LOGGER.info("Removing expired tokens");
+        int removedTokens = 0;
+        for (OAuth2AccessToken token : allTokens) {
+            if (token.isExpired()) {
+                tokenStore.removeAccessToken(token);
+                removedTokens++;
+            }
+        }
+        LOGGER.info("Removed expired tokens count : " + removedTokens);
     }
 
     private List<Operation> getFinishedOperations(Date expirationTime) {
