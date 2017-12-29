@@ -183,64 +183,6 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return Collections.disjoint(statusList, State.getActiveStates());
     }
 
-//<<<<<<< HEAD
-//    private List<Operation> filterExistingOperations(List<Operation> operations) {
-//        return operations.stream().filter(operation -> isProcessFound(operation)).collect(Collectors.toList());
-//    }
-//
-//    protected boolean isProcessFound(Operation operation) throws SLException {
-//        String processDefinitionKey = getProcessDefinitionKey(operation);
-//        HistoricProcessInstance historicInstance = getHistoricInstance(operation, processDefinitionKey);
-//        return historicInstance != null;
-//    }
-//
-//    private String getProcessDefinitionKey(Operation operation) {
-//        return operationMetadataMapper.getActivitiDiagramId(operation.getProcessType());
-//    }
-//
-//    private HistoricProcessInstance getHistoricInstance(Operation operation, String processDefinitionKey) {
-//        return activitiFacade.getHistoricProcessInstanceBySpaceId(processDefinitionKey, operation.getSpaceId(), operation.getProcessId());
-//    }
-//
-//    private void addOngoingOperationsState(List<Operation> existingOngoingOperations) {
-//        for (Operation ongoingOperation : existingOngoingOperations) {
-//            addState(ongoingOperation);
-//        }
-//    }
-//
-//    protected void addState(Operation ongoingOperation) throws SLException {
-//        ongoingOperation.setState(getOngoingOperationState(ongoingOperation));
-//    }
-//
-//    protected State getOngoingOperationState(Operation ongoingOperation) throws SLException {
-//        if (ongoingOperation.getState() != null) {
-//            return ongoingOperation.getState();
-//        }
-//        State state = computeState(ongoingOperation);
-//        // Fixes bug XSBUG-2035: Inconsistency in 'operation', 'act_hi_procinst' and 'act_ru_execution' tables
-//        if (ongoingOperation.hasAcquiredLock() && (state.equals(State.ABORTED) || state.equals(State.FINISHED))) {
-//            ongoingOperation.acquiredLock(false);
-//            ongoingOperation.setState(state);
-//            this.dao.merge(ongoingOperation);
-//        }
-//        return state;
-//    }
-//
-//    protected State computeState(Operation ongoingOperation) throws SLException {
-//        LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
-//            ongoingOperation.getProcessId()));
-//        return activitiFacade.getOngoingOperationState(ongoingOperation);
-//    }
-//
-//    private List<Operation> filterBasedOnStates(List<Operation> operations, List<State> statusList) {
-//        if (CommonUtil.isNullOrEmpty(statusList)) {
-//            return operations;
-//        }
-//        return operations.stream().filter(operation -> statusList.contains(operation.getState())).collect(Collectors.toList());
-//    }
-//
-//=======
-//>>>>>>> Clean up job for old DB and FS entries
     @Override
     public Response getOperationActions(String operationId, SecurityContext securityContext, String spaceGuid) {
         Operation operation = dao.findRequired(operationId);
