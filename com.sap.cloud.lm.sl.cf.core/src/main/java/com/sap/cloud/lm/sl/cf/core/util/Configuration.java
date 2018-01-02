@@ -95,6 +95,7 @@ public class Configuration {
     static final String CFG_HEALTH_CHECK_MTA_ID = "HEALTH_CHECK_MTA_ID";
     static final String CFG_HEALTH_CHECK_USER = "HEALTH_CHECK_USER";
     static final String CFG_HEALTH_CHECK_TIME_RANGE = "HEALTH_CHECK_TIME_RANGE";
+    static final String CFG_MAIL_API_URL = "MAIL_API_URL";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -106,7 +107,7 @@ public class Configuration {
     public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
     public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
-    public static long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; //1MB
+    public static long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; // 1MB
     public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024l; // 1GB
     public static final Boolean DEFAULT_SCAN_UPLOADS = false;
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
@@ -147,7 +148,7 @@ public class Configuration {
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
-    public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = true;
+    public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
     public static final Integer DEFAULT_HEALTH_CHECK_TIME_RANGE = (int) TimeUnit.MINUTES.toSeconds(5);
 
     // Type names
@@ -193,6 +194,7 @@ public class Configuration {
     private String globalConfigSpace;
     private Boolean gatherUsageStatistics;
     private HealthCheckConfiguration healthCheckConfiguration;
+    private String mailApiUrl;
 
     public void load() {
         getPlatformType();
@@ -228,6 +230,7 @@ public class Configuration {
         getGlobalConfigSpace();
         shouldGatherUsageStatistics();
         getHealthCheckConfiguration();
+        getMailApiUrl();
     }
 
     public void logFullConfig() {
@@ -250,7 +253,8 @@ public class Configuration {
             CFG_ADMIN_USERNAME, CFG_XS_CLIENT_CORE_THREADS, CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY,
             CFG_XS_CLIENT_KEEP_ALIVE, CFG_ASYNC_EXECUTOR_CORE_THREADS, CFG_CONTROLLER_POLLING_INTERVAL, CFG_UPLOAD_APP_TIMEOUT,
             CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_WAIT_TIME,
-            CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS));
+            CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS,
+            CFG_MAIL_API_URL));
     }
 
     public com.sap.cloud.lm.sl.persistence.util.Configuration getFileConfiguration() {
@@ -326,16 +330,16 @@ public class Configuration {
         }
         return maxMtaDescriptorSize;
     }
-    
+
     public Long getMaxManifestSize() {
-        if(maxManifestSize == null){
+        if (maxManifestSize == null) {
             maxManifestSize = getMaxManifestSizeFromEnviroment();
         }
         return maxManifestSize;
     }
-    
+
     public Long getMaxResourceFileSize() {
-        if(maxResourceFileSize == null){
+        if (maxResourceFileSize == null) {
             maxResourceFileSize = getMaxResourceFileSizeFromEnviroment();
         }
         return maxResourceFileSize;
@@ -523,6 +527,13 @@ public class Configuration {
         return healthCheckConfiguration;
     }
 
+    public String getMailApiUrl() {
+        if (mailApiUrl == null) {
+            mailApiUrl = getMailApiUrlFromEnvironment();
+        }
+        return mailApiUrl;
+    }
+
     private PlatformType getPlatformTypeFromEnvironment() {
         String type = environment.getVariable(CFG_TYPE);
         try {
@@ -615,14 +626,14 @@ public class Configuration {
         LOGGER.info(format(Messages.MAX_MTA_DESCRIPTOR_SIZE, value));
         return value;
     }
-    
+
     private Long getMaxManifestSizeFromEnviroment() {
         Long value = getLong(CFG_MAX_MANIFEST_SIZE, DEFAULT_MAX_MANIFEST_SIZE);
         LOGGER.info(format(Messages.MAX_MANIFEST_SIZE, value));
         return value;
     }
-    
-    private Long getMaxResourceFileSizeFromEnviroment(){
+
+    private Long getMaxResourceFileSizeFromEnviroment() {
         Long value = getLong(CFG_MAX_RESOURCE_FILE_SIZE, DEFAULT_MAX_RESOURCE_FILE_SIZE);
         LOGGER.info(format(Messages.MAX_RESOURCE_FILE_SIZE, value));
         return value;
@@ -860,6 +871,12 @@ public class Configuration {
 
     private Integer getHealthCheckTimeRangeFromEnvironment() {
         return getPositiveInt(CFG_HEALTH_CHECK_TIME_RANGE, DEFAULT_HEALTH_CHECK_TIME_RANGE);
+    }
+
+    private String getMailApiUrlFromEnvironment() {
+        String value = getString(CFG_MAIL_API_URL, null);
+        LOGGER.info(format(Messages.MAIL_API_URL, value));
+        return value;
     }
 
     private String getString(String name, String defaultValue) {

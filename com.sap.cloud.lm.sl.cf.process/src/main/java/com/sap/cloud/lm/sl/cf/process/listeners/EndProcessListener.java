@@ -104,7 +104,6 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     }
 
     protected void sendStatistics(DelegateExecution context) {
-
         RestTemplate restTemplate = new RestTemplate();
         AnalyticsData collectedData = dataSender.collectAnalyticsData(context, State.FINISHED);
         dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(context, collectedData));

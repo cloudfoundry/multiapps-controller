@@ -11,6 +11,7 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.collectors.AnalyticsCollector;
 import com.sap.cloud.lm.sl.cf.process.analytics.collectors.GeneralScenarioDetailsCollector;
@@ -21,48 +22,42 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.XmlUtil;
 
-@Component ("collectedDataSender")
-public class CollectedDataSender
-{
+@Component("collectedDataSender")
+public class CollectedDataSender {
 
-	private static final String API_URL = "https://slanamailproxyab00ec583.hana.ondemand.com/SendFeedbackMail/";
-	private static final String XS2 = "XS2";
+    private static final String XS2 = "XS2";
 
-	@Inject
-	private AnalyticsCollector analytics;
+    @Inject
+    private AnalyticsCollector analytics;
 
-	@Inject
-	private GeneralScenarioDetailsCollector details;
+    @Inject
+    private GeneralScenarioDetailsCollector details;
 
-	public AnalyticsData collectAnalyticsData (DelegateExecution context, State processState) throws SLException
-	{
-		AnalyticsData model = analytics.collectAnalyticsData(context);
-		model.setProcessFinalState(processState);
-		return model;
-	}
+    public AnalyticsData collectAnalyticsData(DelegateExecution context, State processState) throws SLException {
+        AnalyticsData model = analytics.collectAnalyticsData(context);
+        model.setProcessFinalState(processState);
+        return model;
+    }
 
-	public Map<String,Object> getXmlProperties ()
-	{
-		Map<String,Object> properties = new TreeMap<String,Object>();
-		properties.put(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "SLAnalytics.xsd");
-		properties.put(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		return properties;
-	}
+    public Map<String, Object> getXmlProperties() {
+        Map<String, Object> properties = new TreeMap<String, Object>();
+        properties.put(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "SLAnalytics.xsd");
+        properties.put(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        return properties;
+    }
 
-	public String convertCollectedAnalyticsDataToXml (DelegateExecution context, AnalyticsData collectAnalyticsData)
-	{
-		Analysis analysis = new Analysis();
-		analysis.setTitle("XSA Deploy Service");
-		analysis.setGeneralScenarioDetails(details.collectDetails(context, new GeneralProcess(collectAnalyticsData)));
-		return XmlUtil.toXml(analysis, getXmlProperties());
-	}
+    public String convertCollectedAnalyticsDataToXml(DelegateExecution context, AnalyticsData collectAnalyticsData) {
+        Analysis analysis = new Analysis();
+        analysis.setTitle("XSA Deploy Service");
+        analysis.setGeneralScenarioDetails(details.collectDetails(context, new GeneralProcess(collectAnalyticsData)));
+        return XmlUtil.toXml(analysis, getXmlProperties());
+    }
 
-	public void sendCollectedData (RestTemplate restTemplate, String collectedXmlData)
-	{
-		Map<String,String> params = new HashMap<String,String>();
-		params.put(Constants.TOOL_TYPE, XS2);
-		params.put(Constants.FEEDBACK_MAIL, collectedXmlData);
+    public void sendCollectedData(RestTemplate restTemplate, String collectedXmlData) {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(Constants.TOOL_TYPE, XS2);
+        params.put(Constants.FEEDBACK_MAIL, collectedXmlData);
 
-		restTemplate.postForLocation(API_URL, params);
-	}
+        restTemplate.postForLocation(Configuration.getInstance().getMailApiUrl(), params);
+    }
 }
