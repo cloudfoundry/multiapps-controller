@@ -6,6 +6,7 @@
     "mtaId": "anatz",
     "user": "megaboy",
     "acquiredLock": false,
+    "cleanedUp": false,
     "messages": [],
     "parameters": {}
   }

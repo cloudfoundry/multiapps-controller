@@ -89,7 +89,8 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
             .startedAt(currentTimeSupplier.get())
             .spaceId(StepsUtil.getSpaceId(context))
             .user(StepsUtil.determineCurrentUser(context, getStepLogger()))
-            .acquiredLock(false);
+            .acquiredLock(false)
+            .cleanedUp(false);
         operationDao.add(operation);
     }
 

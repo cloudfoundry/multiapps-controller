@@ -69,6 +69,7 @@ public class Configuration {
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
     static final String CFG_MAX_RESOURCE_FILE_SIZE = "DEFAULT_MAX_RESOURCE_FILE_SIZE";
+    static final String CFG_CRON_EXPRESSION_FOR_OLD_DATA = "CRON_EXPRESSION_FOR_OLD_DATA";
     static final String CFG_MAX_TTL_FOR_OLD_DATA = "MAX_TTL_FOR_OLD_DATA";
     static final String CFG_SCAN_UPLOADS = "SCAN_UPLOADS";
     static final String CFG_USE_XS_AUDIT_LOGGING = "USE_XS_AUDIT_LOGGING";
@@ -123,6 +124,7 @@ public class Configuration {
     public static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
     public static final Integer DEFAULT_XS_CLIENT_QUEUE_CAPACITY = 8;
     public static final Integer DEFAULT_XS_CLIENT_KEEP_ALIVE = 60;
+    public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 23 * * ?"; // every day at 23:00
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
     /*
      * In async local operations there are usually two threads. One does the actual work, while the other waits for a specific amount of
@@ -170,6 +172,7 @@ public class Configuration {
     private Long maxMtaDescriptorSize;
     private Long maxManifestSize;
     private Long maxResourceFileSize;
+    private String cronExpressionForOldData;
     private Long maxTtlForOldData;
     private Boolean scanUploads;
     private Boolean useXSAuditLogging;
@@ -346,6 +349,13 @@ public class Configuration {
             maxResourceFileSize = getMaxResourceFileSizeFromEnviroment();
         }
         return maxResourceFileSize;
+    }
+
+    public String getCronExpressionForOldData() {
+        if (cronExpressionForOldData == null) {
+            cronExpressionForOldData = getCronExpressionForOldDataFromEnvironment();
+        }
+        return cronExpressionForOldData;
     }
 
     public Long getMaxTtlForOldData() {
@@ -649,6 +659,12 @@ public class Configuration {
         return value;
     }
 
+    private String getCronExpressionForOldDataFromEnvironment() {
+        String value = getCronExpression(CFG_CRON_EXPRESSION_FOR_OLD_DATA, DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA);
+        LOGGER.info(format(Messages.CRON_EXPRESSION_FOR_OLD_DATA, value));
+        return value;
+    }
+
     private Long getMaxTtlForOldDataFromEnvironment() {
         Long value = getLong(CFG_MAX_TTL_FOR_OLD_DATA, DEFAULT_MAX_TTL_FOR_OLD_DATA);
         LOGGER.info(format(Messages.MAX_TTL_FOR_OLD_DATA, value));
@@ -899,6 +915,17 @@ public class Configuration {
         String value = environment.getVariable(name);
         if (value != null) {
             return value;
+        }
+        LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
+        return defaultValue;
+    }
+
+    private String getCronExpression(String name, String defaultValue) {
+        String value = environment.getVariable(name);
+        if (value != null) {
+            if (org.quartz.CronExpression.isValidExpression(value)) {
+                return value;
+            }
         }
         LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
         return defaultValue;

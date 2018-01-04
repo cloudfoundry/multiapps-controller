@@ -6,6 +6,7 @@
     "spaceId": "1234",
     "mtaId": "5",
     "acquiredLock": false,
+    "cleanedUp": false,
     "messages": [],
     "parameters": {}
   }
