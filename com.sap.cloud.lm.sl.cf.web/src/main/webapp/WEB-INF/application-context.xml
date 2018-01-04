@@ -61,4 +61,3 @@
         <bean id="operationsApiServiceImpl" class = "com.sap.cloud.lm.sl.cf.web.api.impl.OperationsApiServiceImpl" />
     </beans>
 </beans>
- 

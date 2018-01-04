@@ -13,26 +13,15 @@
     "parameters": {}
   },
   {
-    "processId": "4",
-    "startedAt": "2017-11-19T10:22:45.315Z[UTC]",
-    "endedAt": "2017-11-19T10:24:30.345Z[UTC]",
+    "processId": "2",
+    "startedAt": "2017-11-18T22:50:55.635Z[UTC]",
+    "endedAt": "2017-11-18T22:52:15.435Z[UTC]",
     "spaceId": "9818394d-38d6-47a6-b080-1ba013a4932c",
-    "mtaId": "anatz",
-    "user": "megaboy",
-    "acquiredLock": false,
-    "cleanedUp": true,
-    "state": "FINISHED",
-    "messages": [],
-    "parameters": {}
-  },
-  {
-    "processId": "5",
-    "startedAt": "2017-11-19T11:44:45.315Z[UTC]",
-    "spaceId": "9818394d-38d6-47a6-b080-1ba013a4932c",
-    "mtaId": "anatz",
-    "user": "megaboy",
+    "mtaId": "denip",
+    "user": "nictas",
     "acquiredLock": false,
     "cleanedUp": false,
+    "state": "ABORTED",
     "messages": [],
     "parameters": {}
   }

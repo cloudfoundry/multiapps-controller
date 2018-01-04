@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.apache.commons.collections.CollectionUtils;
 import org.quartz.DisallowConcurrentExecution;
@@ -68,7 +67,7 @@ public class CleanUpJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LOGGER.info("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now().toString());
+        LOGGER.warn("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now().toString());
 
         Date expirationTime = getExpirationTime();
 
@@ -80,7 +79,7 @@ public class CleanUpJob implements Job {
 
         removeExpiredTokens();
 
-        LOGGER.info("Cleanup Job finished at: " + Instant.now().toString());
+        LOGGER.warn("Cleanup Job finished at: " + Instant.now().toString());
     }
 
     private String getInstanceIndex() {
@@ -91,7 +90,7 @@ public class CleanUpJob implements Job {
     private Date getExpirationTime() {
         long maxTtlForOldData = configuration.getMaxTtlForOldData();
         Date cleanUpTimestamp = Date.from(Instant.now().minusSeconds(maxTtlForOldData));
-        LOGGER.info("Will perform clean up for data stored before : " + cleanUpTimestamp.toString());
+        LOGGER.info("Will perform clean up for data stored before: " + cleanUpTimestamp.toString());
         return cleanUpTimestamp;
     }
 
@@ -105,9 +104,9 @@ public class CleanUpJob implements Job {
 
     private void cleanUpFinishedOperationsData(Date expirationTime) {
         LOGGER.info("Cleaning up data for finished operations started before: " + expirationTime.toString());
-        List<Operation> finishedOperations = getFinishedOperations(expirationTime);
+        List<Operation> finishedOperations = getNotCleanedFinishedOperations(expirationTime);
         List<String> finishedProcessIds = getProcessIds(finishedOperations);
-        LOGGER.debug("Data will be cleaned up for operations: " + finishedProcessIds);
+        LOGGER.debug("Data will be cleaned up for operations with process ids: " + finishedProcessIds);
 
         removeProgressMessages(finishedProcessIds);
         removeProcessLogs(finishedProcessIds);
@@ -119,20 +118,13 @@ public class CleanUpJob implements Job {
 
         removeOldFilesFromDb(spaceToFileIds);
         removeOldFilesFromFs(spaceToFileIds);
-
+        
+        markOperationsAsCleanedUp(finishedOperations);
     }
 
     private void removeActivitiHistoricData(Date expirationTime) {
-        List<HistoricProcessInstance> historicProcessInstances = activitiFacade
-            .getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime);
-        if (CollectionUtils.isEmpty(historicProcessInstances)) {
-            return;
-        }
-        for (HistoricProcessInstance historicProcessInstance : historicProcessInstances) {
-            if (historicProcessInstance != null && historicProcessInstance.getEndTime() != null) {
-                activitiFacade.deleteHistoricProcessInstance(historicProcessInstance.getId());
-            }
-        }
+        activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime).stream().forEach(
+            historicProcessInstance -> activitiFacade.deleteHistoricProcessInstance(historicProcessInstance.getId()));
     }
 
     private void removeExpiredTokens() {
@@ -148,11 +140,11 @@ public class CleanUpJob implements Job {
                 removedTokens++;
             }
         }
-        LOGGER.info("Removed expired tokens count : " + removedTokens);
+        LOGGER.info("Removed expired tokens count: " + removedTokens);
     }
 
-    private List<Operation> getFinishedOperations(Date expirationTime) {
-        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime).inFinalState().descending().build();
+    private List<Operation> getNotCleanedFinishedOperations(Date expirationTime) {
+        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime).inFinalState().isNotCleanedUp().descending().build();
         return dao.find(filter);
     }
 
@@ -174,12 +166,12 @@ public class CleanUpJob implements Job {
 
     private void removeProgressMessages(List<String> oldFinishedOperationsIds) {
         int removedProgressMessages = ProgressMessageService.getInstance().removeAllByProcessIds(oldFinishedOperationsIds);
-        LOGGER.info("Deleted progress messages rows count : " + removedProgressMessages);
+        LOGGER.info("Deleted progress messages rows count: " + removedProgressMessages);
     }
 
     private void removeProcessLogs(List<String> oldFinishedOperationsIds) {
         int removedProcessLogs = ProcessLogsService.getInstance().deleteAllByProcessIds(oldFinishedOperationsIds);
-        LOGGER.info("Deleted process logs rows count : " + removedProcessLogs);
+        LOGGER.info("Deleted process logs rows count: " + removedProcessLogs);
     }
 
     private Map<String, String> getProcessIdToAppArchiveId() {
@@ -220,12 +212,19 @@ public class CleanUpJob implements Job {
 
     private void removeOldFilesFromDb(Map<String, List<String>> oldSpaceToFileIds) {
         int removedOldFilesFromDb = DatabaseFileService.getInstance().deleteAllByFileIds(oldSpaceToFileIds);
-        LOGGER.info("Deleted MTA files from DB rows count : " + removedOldFilesFromDb);
+        LOGGER.info("Deleted MTA files from DB rows count: " + removedOldFilesFromDb);
     }
 
     private void removeOldFilesFromFs(Map<String, List<String>> oldSpaceToFileIds) {
         int removedOldFilesFromFs = FileSystemFileService.getInstance().deleteAllByFileIds(oldSpaceToFileIds);
-        LOGGER.info("Deleted MTA files from File System rows count : " + removedOldFilesFromFs);
+        LOGGER.info("Deleted MTA files from File System Storage count: " + removedOldFilesFromFs);
+    }
+    
+    private void markOperationsAsCleanedUp(List<Operation> finishedOperations) {
+        for (Operation finishedOperation : finishedOperations) {
+            finishedOperation.setCleanedUp(true);
+            dao.merge(finishedOperation);
+        }
     }
 
 }

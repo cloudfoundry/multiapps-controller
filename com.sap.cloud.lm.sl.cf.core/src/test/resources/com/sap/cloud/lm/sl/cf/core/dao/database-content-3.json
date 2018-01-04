@@ -4,13 +4,15 @@
     "spaceId": "1234",
     "processType": "DEPLOY",
     "mtaId": "1",
-    "acquiredLock": false
+    "acquiredLock": false,
+    "cleanedUp": false
   },
   {
     "processId": "2",
     "spaceId": "12345",
     "processType": "BLUE_GREEN_DEPLOY",
     "mtaId": "2",
-    "acquiredLock": false
+    "acquiredLock": false,
+    "cleanedUp": false
   }
 ]
