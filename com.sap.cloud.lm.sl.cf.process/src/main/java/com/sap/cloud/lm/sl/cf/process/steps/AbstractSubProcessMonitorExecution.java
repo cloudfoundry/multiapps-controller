@@ -2,13 +2,11 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricVariableInstance;
+import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.Job;
 
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
@@ -19,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 public abstract class AbstractSubProcessMonitorExecution extends AsyncExecution {
 
-    @Inject
     protected ActivitiFacade activitiFacade;
 
     public AbstractSubProcessMonitorExecution(ActivitiFacade activitiFacade) {
@@ -27,7 +24,9 @@ public abstract class AbstractSubProcessMonitorExecution extends AsyncExecution 
     }
 
     @Override
-    public AsyncExecutionState execute(ExecutionWrapper execution) {
+    public AsyncExecutionState execute(ExecutionWrapper execution) throws InterruptedException {
+        // TODO: extract this in another class
+        Thread.sleep(10000);
         String subProcessId = StepsUtil.getSubProcessId(execution.getContext());
         execution.getStepLogger().debug(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId);
         try {
@@ -47,20 +46,15 @@ public abstract class AbstractSubProcessMonitorExecution extends AsyncExecution 
         throws MonitoringException {
         ErrorType errorType = getSubProcessErrorType(subProcess, execution.getContextExtensionDao());
         execution.getStepLogger().debug(Messages.ERROR_TYPE_OF_SUBPROCESS, subProcess.getId(), errorType);
-        HistoricActivityInstance subProcessReceiveTask = execution.getContext()
-            .getEngineServices()
-            .getHistoryService()
-            .createHistoricActivityInstanceQuery()
-            .processInstanceId(subProcess.getId())
-            .activityType("receiveTask")
-            .singleResult();
-        if (subProcessReceiveTask != null) {
-            execution.getContext()
-                .getEngineServices()
-                .getRuntimeService()
-                .suspendProcessInstanceById(execution.getContext().getProcessInstanceId());
-            return AsyncExecutionState.RUNNING;
+
+        Execution subProcessInstanceExecution = activitiFacade.getProcessExecution(subProcess.getId());
+        if (subProcessInstanceExecution != null) {
+            String subProcessActivityType = getSubProcessActivityType(subProcess, subProcessInstanceExecution);
+            if ("receiveTask".equals(subProcessActivityType)) {
+                return suspendProcessInstance(execution);
+            }
         }
+
         Job executionJob = execution.getContext()
             .getEngineServices()
             .getManagementService()
@@ -75,6 +69,18 @@ public abstract class AbstractSubProcessMonitorExecution extends AsyncExecution 
             return AsyncExecutionState.RUNNING;
         }
         return onError(execution.getContext(), errorType);
+    }
+
+    private AsyncExecutionState suspendProcessInstance(ExecutionWrapper execution) {
+        String processInstanceId = execution.getContext().getProcessInstanceId();
+        activitiFacade.suspendProcessInstance(processInstanceId);
+        StepsUtil.setStepPhase(execution, StepPhase.POLL);
+        return AsyncExecutionState.RUNNING;
+    }
+
+    private String getSubProcessActivityType(HistoricProcessInstance subProcess, Execution subProcessInstanceExecution) {
+        return activitiFacade.getActivityType(subProcess.getId(), subProcessInstanceExecution.getId(),
+            subProcessInstanceExecution.getActivityId());
     }
 
     private AsyncExecutionState getFinishedProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution,

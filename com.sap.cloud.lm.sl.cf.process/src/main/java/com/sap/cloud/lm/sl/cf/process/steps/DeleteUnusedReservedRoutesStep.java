@@ -29,7 +29,7 @@ public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
         getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.DELETING_UNUSED_RESERVED_ROUTES);
-            boolean portBasedRouting = StepsUtil.getVariable(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
+            boolean portBasedRouting = StepsUtil.getVariableOrDefault(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
 
             CloudFoundryOperations client = execution.getCloudFoundryClient();
             List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(execution.getContext());

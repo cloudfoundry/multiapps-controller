@@ -14,6 +14,9 @@ public class AbortActivitiAction extends ActivitiAction {
     public void executeAction(String superProcessInstanceId) {
         List<String> executionIds = getActiveExecutionIds(superProcessInstanceId);
         for (String executionId : executionIds) {
+            if (activitiFacade.isProcessInstanceSuspended(executionId)) {
+                activitiFacade.activateProcessInstance(executionId);
+            }
             activitiFacade.deleteProcessInstance(userId, executionId, State.ABORTED.value());
         }
     }

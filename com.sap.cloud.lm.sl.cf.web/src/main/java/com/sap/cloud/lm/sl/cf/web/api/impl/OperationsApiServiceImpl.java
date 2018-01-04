@@ -22,7 +22,6 @@ import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiAction;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
@@ -54,7 +53,6 @@ import com.sap.cloud.lm.sl.persistence.services.ProcessLogsService;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 @RequestScoped
-@Component
 public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Inject
@@ -129,7 +127,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public Response startMtaOperation(Operation operation, SecurityContext securityContext, String spaceGuid) {
         String userId = getAuthenticatedUser(securityContext);
         String processDefinitionKey = getProcessDefinitionKey(operation);
-        Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType()).getParameters();
+        Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
+            .getParameters();
         addServiceParameters(operation, spaceGuid);
         addDefaultParameters(operation, predefinedParameters);
         addParameterValues(operation, predefinedParameters);

@@ -115,8 +115,8 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
     }
 
     @Override
-    public Integer getTimeout() {
-        return Constants.DEFAULT_START_TIMEOUT;
+    public Integer getTimeout(DelegateExecution context) {
+        return StepsUtil.getVariableOrDefault(context, Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
     }
 
 }

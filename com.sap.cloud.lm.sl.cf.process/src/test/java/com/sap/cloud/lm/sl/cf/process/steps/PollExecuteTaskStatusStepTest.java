@@ -59,7 +59,7 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
             },
             // (5)
             {
-                CloudTask.State.PENDING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.ERROR,
+                CloudTask.State.PENDING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING,
             },
             // (6)
             {
@@ -67,7 +67,7 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
             },
             // (7)
             {
-                CloudTask.State.RUNNING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.ERROR,
+                CloudTask.State.RUNNING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING,
             },
             // (8)
             {
@@ -75,7 +75,7 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
             },
             // (9)
             {
-                CloudTask.State.CANCELING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.ERROR,
+                CloudTask.State.CANCELING, TimeUnit.SECONDS.toMillis(START_TIMEOUT) + 1, AsyncExecutionState.RUNNING,
             },
 // @formatter:on
         });

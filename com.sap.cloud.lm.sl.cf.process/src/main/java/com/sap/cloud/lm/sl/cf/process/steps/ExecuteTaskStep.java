@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
+import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -73,7 +74,7 @@ public class ExecuteTaskStep extends TimeoutAsyncActivitiStep {
     }
 
     @Override
-    public Integer getTimeout() {
+    public Integer getTimeout(DelegateExecution context) {
         return Constants.DEFAULT_START_TIMEOUT;
     }
 

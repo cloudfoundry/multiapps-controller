@@ -143,9 +143,8 @@ public class ProcessStepHelper {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
         getLogger(context).error(Messages.EXCEPTION_CAUGHT, t);
 
-        if (!(t instanceof SLException)) {
-            storeExceptionInProgressMessageService(context, t);
-        }
+        storeExceptionInProgressMessageService(context, t);
+
         if (t instanceof ContentException) {
             StepsUtil.setErrorType(context.getProcessInstanceId(), contextExtensionDao, ErrorType.CONTENT_ERROR);
         } else {

@@ -13,6 +13,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 public abstract class AbstractSubProcessStarterStep extends AsyncActivitiStep {
 
+    private static final int DEFAULT_ITERATION_INDEX = 0;
+
     @Inject
     private ActivitiFacade actvitiFacade;
 
@@ -21,8 +23,9 @@ public abstract class AbstractSubProcessStarterStep extends AsyncActivitiStep {
         try {
             String userId = StepsUtil.determineCurrentUser(execution.getContext(), getStepLogger());
 
-            int nextIndex = getIndexVariable() == null ? 0 : (int) execution.getContext().getVariable(getIndexVariable());
-            execution.getContext().setVariable(getIterationVariableName(), getIterationVariable(execution.getContext(), nextIndex));
+            int nextIterationIndex = getNextIterationIndex(execution);
+            execution.getContext().setVariable(getIterationVariableName(),
+                getIterationVariable(execution.getContext(), nextIterationIndex));
             Map<String, Object> parentProcessVariables = execution.getContext().getVariables();
             parentProcessVariables.put(Constants.VAR_PARENTPROCESS_ID, execution.getContext().getProcessInstanceId());
             ProcessInstance subProcessInstance = actvitiFacade.startProcess(userId, getProcessDefinitionKey(), parentProcessVariables);
@@ -33,6 +36,14 @@ public abstract class AbstractSubProcessStarterStep extends AsyncActivitiStep {
             getStepLogger().error(e, "Error starting sub-process");
             throw new SLException(e);
         }
+    }
+
+    private int getNextIterationIndex(ExecutionWrapper execution) {
+        String indexVariable = getIndexVariable();
+        if (indexVariable == null) {
+            return DEFAULT_ITERATION_INDEX;
+        }
+        return (int) execution.getContext().getVariable(indexVariable);
     }
 
     protected abstract String getIterationVariableName();
