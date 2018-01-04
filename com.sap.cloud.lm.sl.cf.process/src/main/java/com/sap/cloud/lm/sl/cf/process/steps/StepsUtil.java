@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
@@ -777,14 +776,6 @@ public class StepsUtil {
         }
     }
 
-    static boolean hasTimedOut(DelegateExecution context, Supplier<Long> currentTimeSupplier) {
-        // The default value here is provided for undeploy processes:
-        int timeout = getVariable(context, Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
-        long startTime = (Long) context.getVariable(Constants.VAR_START_TIME);
-        long currentTime = currentTimeSupplier.get();
-        return (currentTime - startTime) > timeout * 1000;
-    }
-
     static StartingInfo getStartingInfo(DelegateExecution context) {
         String className = (String) context.getVariable(Constants.VAR_STARTING_INFO_CLASSNAME);
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_STARTING_INFO);
@@ -890,12 +881,11 @@ public class StepsUtil {
     }
 
     @SuppressWarnings("unchecked")
-    static <T> T getVariableOrDefault(DelegateExecution context, String variableName, T defaultValue) {
-        if (context.hasVariable(variableName)) {
-            return (T) context.getVariable(variableName);
+    public static <T> T getVariableOrDefault(DelegateExecution context, String name, T defaultValue) {
+        if (!context.hasVariable(name)) {
+            return defaultValue;
         }
-
-        return defaultValue;
+        return (T) context.getVariable(name);
     }
 
     public static SLException createException(CloudFoundryException e) {
@@ -932,12 +922,6 @@ public class StepsUtil {
     public static void incrementVariable(DelegateExecution context, String name) {
         int value = (Integer) context.getVariable(name);
         context.setVariable(name, value + 1);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T getVariable(DelegateExecution context, String name, T defaultValue) {
-        T value = (T) context.getVariable(name);
-        return (value != null) ? value : defaultValue;
     }
 
     public static void setArrayVariable(DelegateExecution context, String name, String[] array) {
@@ -1008,10 +992,10 @@ public class StepsUtil {
     }
 
     static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {
-        Boolean allowInvalidEnvNames = getVariable(context, Constants.PARAM_ALLOW_INVALID_ENV_NAMES, Boolean.FALSE);
-        Boolean useNamespaces = getVariable(context, Constants.PARAM_USE_NAMESPACES, Boolean.FALSE);
-        Boolean useNamespacesForServices = getVariable(context, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, Boolean.FALSE);
-        Boolean portBasedRouting = getVariable(context, Constants.VAR_PORT_BASED_ROUTING, Boolean.FALSE);
+        Boolean allowInvalidEnvNames = getVariableOrDefault(context, Constants.PARAM_ALLOW_INVALID_ENV_NAMES, Boolean.FALSE);
+        Boolean useNamespaces = getVariableOrDefault(context, Constants.PARAM_USE_NAMESPACES, Boolean.FALSE);
+        Boolean useNamespacesForServices = getVariableOrDefault(context, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, Boolean.FALSE);
+        Boolean portBasedRouting = getVariableOrDefault(context, Constants.VAR_PORT_BASED_ROUTING, Boolean.FALSE);
         CloudModelConfiguration configuration = new CloudModelConfiguration();
         configuration.setAllowInvalidEnvNames(allowInvalidEnvNames);
         configuration.setPortBasedRouting(portBasedRouting);
@@ -1040,7 +1024,7 @@ public class StepsUtil {
         Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
         return gitRepoConfigMap.get(Constants.PARAM_GIT_URI);
     }
-    
+
     static void setUseIdleUris(DelegateExecution context, boolean state) {
         context.setVariable(Constants.VAR_USE_IDLE_URIS, state);
     }

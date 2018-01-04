@@ -75,7 +75,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
 
     protected boolean determineHasAppChanged(DelegateExecution context) {
         boolean appPropertiesChanged = StepsUtil.getAppPropertiesChanged(context);
-        String appContentChangedString = StepsUtil.getVariableOrDefault(context, Constants.VAR_HAS_APP_CONTENT_CHANGED,
+        String appContentChangedString = StepsUtil.getVariableOrDefault(context, Constants.VAR_APP_CONTENT_CHANGED,
             Boolean.toString(false));
         return appPropertiesChanged || Boolean.valueOf(appContentChangedString);
     }

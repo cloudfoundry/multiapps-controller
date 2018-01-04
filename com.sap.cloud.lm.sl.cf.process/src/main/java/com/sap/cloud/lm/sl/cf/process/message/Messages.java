@@ -54,6 +54,7 @@ public class Messages {
     public static final String COULD_NOT_BIND_APP_TO_SERVICE = "Could not bind application \"{0}\" to service \"{1}\": {2}";
     public static final String NO_RETRY_MESSAGE = "No retry message available";
     public static final String MULTIPLE_OPERATIONS_WITH_LOCK_FOUND = "Multiple operations found with lock for MTA \"{0}\" in space \"{1}\": {2}";
+    public static final String EXECUTION_OF_STEP_HAS_TIMED_OUT = "Execution of step {0} has timed out";
 
     // Audit log messages
 

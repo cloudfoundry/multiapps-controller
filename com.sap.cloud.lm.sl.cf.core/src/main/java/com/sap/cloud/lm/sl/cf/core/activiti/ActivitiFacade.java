@@ -88,6 +88,9 @@ public class ActivitiFacade {
 
     public State getOngoingOperationState(Operation ongoingOperation) {
         Job executionJob = engine.getManagementService().createJobQuery().processInstanceId(ongoingOperation.getProcessId()).singleResult();
+        if (isProcessInstanceSuspended(ongoingOperation.getProcessId())) {
+            return State.ACTION_REQUIRED;
+        }
         if (executionJob != null) {
             return executionJob.getExceptionMessage() != null ? State.ERROR : State.RUNNING;
         }
@@ -126,11 +129,15 @@ public class ActivitiFacade {
     }
 
     public List<Execution> getProcessExecutions(String processInstanceId) {
-        return getExecutionQuery(processInstanceId).list();
+        return getExecutionQueryByProcessId(processInstanceId).list();
     }
 
-    private ExecutionQuery getExecutionQuery(String processInstanceId) {
-        return engine.getRuntimeService().createExecutionQuery().processInstanceId(processInstanceId);
+    private ExecutionQuery getExecutionQueryByProcessId(String processInstanceId) {
+        return getExecutionQuery().processInstanceId(processInstanceId);
+    }
+
+    private ExecutionQuery getExecutionQuery() {
+        return engine.getRuntimeService().createExecutionQuery();
     }
 
     public HistoricVariableInstance getHistoricVariableInstance(String processInstanceId, String variableName) {
@@ -162,17 +169,26 @@ public class ActivitiFacade {
             .singleResult();
     }
 
-    public String getActivityType(String processInstanceId, String activityId) {
-        HistoricActivityInstance historicInstance = engine.getHistoryService()
+    public String getActivityType(String processInstanceId, String executionId, String activityId) {
+        List<HistoricActivityInstance> historicInstancesList = engine.getHistoryService()
             .createHistoricActivityInstanceQuery()
             .processInstanceId(processInstanceId)
             .activityId(activityId)
-            .singleResult();
-        return historicInstance != null ? historicInstance.getActivityType() : null;
+            .executionId(executionId)
+            .orderByHistoricActivityInstanceEndTime()
+            .desc()
+            .list();
+        return !historicInstancesList.isEmpty() ? historicInstancesList.get(0).getActivityType() : null;
     }
 
     public Execution getProcessExecution(String processInstanceId) {
-        return getExecutionQuery(processInstanceId).singleResult();
+        List<Execution> executionQueryByProcessId = getExecutionQueryByProcessId(processInstanceId).list();
+        for (Execution execution : executionQueryByProcessId) {
+            if (execution.getActivityId() != null) {
+                return execution;
+            }
+        }
+        return null;
     }
 
     public void executeJob(String userId, String processInstanceId) {
@@ -269,22 +285,38 @@ public class ActivitiFacade {
         }
     }
 
+    public boolean isProcessInstanceSuspended(String processInstanceId) {
+        ProcessInstance processInstance = engine.getRuntimeService()
+            .createProcessInstanceQuery()
+            .processInstanceId(processInstanceId)
+            .singleResult();
+        return processInstance != null ? processInstance.isSuspended() : false;
+    }
+
+    public void activateProcessInstance(String processInstanceId) {
+        engine.getRuntimeService().activateProcessInstanceById(processInstanceId);
+    }
+
+    public Set<String> getAllVariableNames(String processInstanceId) {
+        return engine.getHistoryService()
+            .createHistoricVariableInstanceQuery()
+            .processInstanceId(processInstanceId)
+            .list()
+            .stream()
+            .map(historicVariableInstance -> historicVariableInstance.getVariableName())
+            .collect(Collectors.toSet());
+    }
+
+    public void suspendProcessInstance(String processInstanceId) {
+        engine.getRuntimeService().suspendProcessInstanceById(processInstanceId);
+    }
+
     protected boolean isPastDeadline(long deadline) {
         return System.currentTimeMillis() >= deadline;
     }
 
     public void setRuntimeVariables(String processInstanceId, Map<String, Object> variables) {
         engine.getRuntimeService().setVariables(processInstanceId, variables);
-    }
-
-    public Set<String> getAllVariableNames(String subProcessId) {
-        return engine.getHistoryService()
-            .createHistoricVariableInstanceQuery()
-            .processInstanceId(subProcessId)
-            .list()
-            .stream()
-            .map(variable -> variable.getVariableName())
-            .collect(Collectors.toSet());
     }
 
 }

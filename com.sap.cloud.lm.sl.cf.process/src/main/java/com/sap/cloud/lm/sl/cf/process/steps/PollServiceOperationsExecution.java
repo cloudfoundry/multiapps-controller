@@ -48,7 +48,7 @@ public class PollServiceOperationsExecution extends AsyncExecution {
     public AsyncExecutionState execute(ExecutionWrapper execution) throws Exception {
         execution.getStepLogger().logActivitiTask();
         try {
-            execution.getStepLogger().info(Messages.POLLING_SERVICE_OPERATIONS);
+            execution.getStepLogger().debug(Messages.POLLING_SERVICE_OPERATIONS);
 
             ClientExtensions clientExtensions = execution.getClientExtensions();
             if (clientExtensions != null) {

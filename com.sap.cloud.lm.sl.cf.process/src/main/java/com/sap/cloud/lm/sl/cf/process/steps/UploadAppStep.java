@@ -164,7 +164,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private void updateContextExtension(DelegateExecution context, boolean appContentChanged) throws SLException {
-        contextExtensionDao.addOrUpdate(context.getProcessInstanceId(), Constants.VAR_HAS_APP_CONTENT_CHANGED,
+        contextExtensionDao.addOrUpdate(context.getProcessInstanceId(), Constants.VAR_APP_CONTENT_CHANGED,
             Boolean.toString(appContentChanged));
     }
 
@@ -325,7 +325,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     }
 
     @Override
-    public Integer getTimeout() {
+    public Integer getTimeout(DelegateExecution context) {
         return DEFAULT_UPLOAD_TIMEOUT;
     }
 

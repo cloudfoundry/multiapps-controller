@@ -1,8 +1,9 @@
 package com.sap.cloud.lm.sl.cf.core.activiti;
 
+import java.text.MessageFormat;
 import java.util.List;
 
-import org.activiti.engine.runtime.Execution;
+import org.activiti.engine.history.HistoricActivityInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,22 +18,31 @@ public class ResumeActivitiAction extends ActivitiAction {
     @Override
     public void executeAction(String superProcessInstanceId) {
         List<String> activeProcessIds = getActiveExecutionIds(superProcessInstanceId);
-        String processInReceiveTask = findProcessInReceiveTask(activeProcessIds);
-        if (processInReceiveTask == null) {
-            LOGGER.warn("There is no process at a receiveTask activity");
-            return;
+        for (String processId : activeProcessIds) {
+            executeAppropiateActionOverProcess(processId);
         }
-        activitiFacade.signal(userId, processInReceiveTask);
     }
 
-    private String findProcessInReceiveTask(List<String> activeProcessIds) {
-        for (String processId : activeProcessIds) {
-            Execution processExecution = activitiFacade.getProcessExecution(processId);
-            String activitiType = activitiFacade.getActivityType(processId, processExecution.getActivityId());
-            if (activitiType.equals("receiveTask")) {
-                return processId;
-            }
+    private void executeAppropiateActionOverProcess(String processId) {
+        if (activitiFacade.isProcessInstanceSuspended(processId)) {
+            LOGGER.debug("Will try to resume process with id " + processId);
+            activitiFacade.activateProcessInstance(processId);
+            return;
         }
-        return null;
+
+        if (isProcessInReceiveTask(processId)) {
+            activitiFacade.signal(userId, processId);
+            return;
+        }
+        LOGGER.warn(MessageFormat.format("Process with id {0} is in undetermined process state", processId));
+    }
+
+    private boolean isProcessInReceiveTask(String processId) {
+        List<HistoricActivityInstance> receiveTasksPerProcess = getReceiveTasks(processId);
+        return !receiveTasksPerProcess.isEmpty();
+    }
+
+    private List<HistoricActivityInstance> getReceiveTasks(String processInstanceId) {
+        return activitiFacade.getHistoricActivities("receiveTask", processInstanceId);
     }
 }
