@@ -25,6 +25,7 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
     protected static final String SPACE_GUID = "space_guid";
     protected static final String SERVICE_PLAN_GUID = "service_plan_guid";
     protected static final String SERVICE_PARAMETERS = "parameters";
+    protected static final String SERVICE_TAGS = "tags";
 
     protected CloudServicePlan findPlanForService(CloudService service, RestTemplate restTemplate, String cloudControllerUrl) {
         return findPlanForService(service, service.getPlan(), restTemplate, cloudControllerUrl);

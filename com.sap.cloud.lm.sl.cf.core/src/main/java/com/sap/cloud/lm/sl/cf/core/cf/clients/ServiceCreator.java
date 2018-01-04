@@ -124,6 +124,7 @@ public class ServiceCreator extends CloudServiceOperator {
         serviceRequest.put(SERVICE_NAME, service.getName());
         serviceRequest.put(SERVICE_PLAN_GUID, cloudServicePlan.getMeta().getGuid());
         serviceRequest.put(SERVICE_PARAMETERS, service.getCredentials());
+        serviceRequest.put(SERVICE_TAGS, service.getTags());
         return serviceRequest;
     }
 

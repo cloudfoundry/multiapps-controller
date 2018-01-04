@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,7 +27,6 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
@@ -45,8 +45,6 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
 
     private Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances;
 
-    @Mock
-    private DefaultTagsDetector defaultTagsDetector;
     @Mock
     private ServiceCreator serviceCreator;
     @Mock
@@ -166,7 +164,6 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICE_KEYS, true);
         context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         context.setVariable("servicesToCreateCount", 0);
-        Mockito.when(defaultTagsDetector.computeDefaultTags(client)).thenReturn(stepInput.defaultTags);
     }
 
     private void prepareClient() throws Exception {
@@ -251,20 +248,30 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
         validateServicesToBeUpdated();
         validateServiceKeysToCreate();
         validateServiceKeysToDelete();
-        validateServiceTagsToUpdate();
     }
 
     private void validateServicesToBeUpdated() {
         for (CloudServiceExtended service : existingServiceInstances.keySet()) {
-            if (shouldHaveBeenUpdated(service)) {
+            if (shouldHavePlanBeenUpdated(service)) {
                 Mockito.verify(serviceUpdater).updateServicePlan(client, service.getName(),
                     findService(service.getName(), stepInput.services).getPlan());
+            }
+
+            if (shouldHaveTagsBeenUpdated(service)) {
+                Mockito.verify(serviceUpdater).updateServiceTags(client, service.getName(),
+                    findService(service.getName(), stepInput.services).getTags());
             }
         }
     }
 
-    private boolean shouldHaveBeenUpdated(CloudServiceExtended existingService) {
+    private boolean shouldHavePlanBeenUpdated(CloudServiceExtended existingService) {
         return !areEqual(existingService.getPlan(), findService(existingService.getName(), stepInput.services).getPlan());
+    }
+
+    private boolean shouldHaveTagsBeenUpdated(CloudServiceExtended existingService) {
+        CloudServiceExtended serviceToCreate = findService(existingService.getName(), stepInput.services);
+        List<String> tags = new ArrayList<>(serviceToCreate.getTags());
+        return !areEqual(tags, existingService.getTags());
     }
 
     private void validateServicesToDelete() {
@@ -298,22 +305,6 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
         return serviceKeysToCreate.get(serviceName).stream().filter(key -> key.getName().equals(keyName)).findAny().orElse(null);
     }
 
-    private void validateServiceTagsToUpdate() {
-        for (CloudServiceExtended service : existingServiceInstances.keySet()) {
-            List<String> updatedTags = stepInput.updatedTags.get(service.getName());
-            validateServiceTagsToUpdate(service, updatedTags);
-        }
-    }
-
-    private void validateServiceTagsToUpdate(CloudServiceExtended existingService, List<String> tags) {
-        CloudServiceExtended service = findService(existingService.getName(), stepInput.services);
-        if (tags != null) {
-            Mockito.verify(clientExtensions, Mockito.times(1)).updateServiceTags(service.getName(), tags);
-        } else {
-            Mockito.verify(clientExtensions, Mockito.times(0)).updateServiceTags(Mockito.eq(service.getName()), Mockito.any());
-        }
-    }
-
     private void validateServiceWasDeleted(CloudServiceExtended service, CloudServiceInstance instance) {
         for (CloudServiceBinding binding : instance.getBindings()) {
             String applicationName = client.getApplication(binding.getAppGuid()).getName();
@@ -340,7 +331,7 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
         return true;
     }
 
-    private boolean areEqual(String existingServiceValue, String serviceValue) {
+    private <T> boolean areEqual(T existingServiceValue, T serviceValue) {
         if (existingServiceValue != null && serviceValue != null && !existingServiceValue.equals(serviceValue)) {
             return false;
         }
@@ -381,8 +372,6 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
         Map<String, List<ServiceKey>> existingServiceKeys = Collections.emptyMap();
         Map<String, List<String>> expectedCreatedServiceKeys = Collections.emptyMap();
         Map<String, List<String>> expectedDeletedServiceKeys = Collections.emptyMap();
-        Map<String, List<String>> defaultTags = Collections.emptyMap();
-        Map<String, List<String>> updatedTags = Collections.emptyMap();
 
         Map<String, List<ServiceKey>> getServiceKeysToCreate() {
             Map<String, List<ServiceKey>> result = new HashMap<>();
