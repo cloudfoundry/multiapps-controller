@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -16,8 +17,13 @@ public class ServiceUpdater extends CloudServiceOperator {
     private static final String SERVICE_PARAMETERS = "parameters";
 
     public void updateServicePlan(CloudFoundryOperations client, String serviceName, String servicePlan) {
-        new CustomControllerClientErrorHandler().handleErrorsAndWarnings(
-            () -> attemptToUpdateServicePlan(client, serviceName, servicePlan));
+        new CustomControllerClientErrorHandler()
+            .handleErrorsAndWarnings(() -> attemptToUpdateServicePlan(client, serviceName, servicePlan));
+    }
+
+    public void updateServiceTags(CloudFoundryOperations client, String serviceName, List<String> serviceTags) {
+        new CustomControllerClientErrorHandler()
+            .handleErrorsAndWarnings(() -> attemptToUpdateServiceTags(client, serviceName, serviceTags));
     }
 
     private void attemptToUpdateServicePlan(CloudFoundryOperations client, String serviceName, String servicePlan) {
@@ -27,8 +33,11 @@ public class ServiceUpdater extends CloudServiceOperator {
         String cloudControllerUrl = getCloudControllerUrl(client);
 
         String servicePlanGuid = findPlanForService(service, servicePlan, restTemplate, cloudControllerUrl).getMeta().getGuid().toString();
-        attemptToUpdateServiceParameter(SERVICE_PLAN_GUID, servicePlanGuid, restTemplate, getUrl(cloudControllerUrl,
-            getUpdateServiceUrl(SERVICE_INSTANCES_URL, service.getMeta().getGuid().toString(), ACCEPTS_INCOMPLETE_TRUE)));
+        attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_PLAN_GUID, servicePlanGuid);
+    }
+
+    private void attemptToUpdateServiceTags(CloudFoundryOperations client, String serviceName, List<String> serviceTags) {
+        attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_TAGS, serviceTags);
     }
 
     private String getCloudControllerUrl(CloudFoundryOperations client) {
@@ -36,30 +45,32 @@ public class ServiceUpdater extends CloudServiceOperator {
     }
 
     public void updateServiceParameters(CloudFoundryOperations client, String serviceName, Map<String, Object> parameters) {
-        new CustomControllerClientErrorHandler().handleErrorsAndWarnings(
-            () -> attemptToUpdateServiceParameters(client, serviceName, parameters));
+        new CustomControllerClientErrorHandler()
+            .handleErrorsAndWarnings(() -> attemptToUpdateServiceParameters(client, serviceName, parameters));
     }
 
     private void attemptToUpdateServiceParameters(CloudFoundryOperations client, String serviceName, Map<String, Object> parameters) {
         assertServiceAttributes(serviceName, parameters);
         CloudService service = client.getService(serviceName);
 
-        RestTemplate restTemplate = getRestTemplate(client);
-        String cloudControllerUrl = getCloudControllerUrl(client);
-
         if (service.isUserProvided()) {
-            attemptToUpdateServiceParameter(SERVICE_CREDENTIALS, parameters, restTemplate,
-                getUrl(cloudControllerUrl, getUpdateServiceUrl(USER_PROVIDED_SERVICE_INSTANCES_URL, service.getMeta().getGuid().toString(),
-                    ACCEPTS_INCOMPLETE_FALSE)));
+            attemptToUpdateServiceParameter(client, serviceName, USER_PROVIDED_SERVICE_INSTANCES_URL, SERVICE_CREDENTIALS, parameters);
             return;
         }
 
-        attemptToUpdateServiceParameter(SERVICE_PARAMETERS, parameters, restTemplate, getUrl(cloudControllerUrl,
-            getUpdateServiceUrl(SERVICE_INSTANCES_URL, service.getMeta().getGuid().toString(), ACCEPTS_INCOMPLETE_FALSE)));
+        attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_PARAMETERS, parameters);
     }
 
-    private void attemptToUpdateServiceParameter(String parameterName, Object parameter, RestTemplate restTemplate,
-        String updateServiceUrl) {
+    private void attemptToUpdateServiceParameter(CloudFoundryOperations client, String serviceName, String serviceUrl, String parameterName,
+        Object parameter) {
+
+        CloudService service = client.getService(serviceName);
+
+        RestTemplate restTemplate = getRestTemplate(client);
+        String cloudControllerUrl = getCloudControllerUrl(client);
+        String updateServiceUrl = getUrl(cloudControllerUrl,
+            getUpdateServiceUrl(serviceUrl, service.getMeta().getGuid().toString(), ACCEPTS_INCOMPLETE_TRUE));
+
         Map<String, Object> serviceRequest = createUpdateServiceRequest(parameterName, parameter);
         restTemplate.put(updateServiceUrl, serviceRequest);
     }

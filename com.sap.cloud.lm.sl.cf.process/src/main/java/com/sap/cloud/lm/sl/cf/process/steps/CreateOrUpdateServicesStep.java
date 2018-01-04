@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,7 +33,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.DefaultTagsDetector;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
@@ -45,6 +44,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
@@ -59,9 +59,6 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
-
-    @Autowired
-    protected DefaultTagsDetector defaultTagsDetector;
 
     @Autowired
     protected ServiceCreator serviceCreator;
@@ -81,7 +78,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             execution.getStepLogger().info(Messages.CREATING_OR_UPDATING_SERVICES);
 
             CloudFoundryOperations client = execution.getCloudFoundryClient();
-            Map<String, List<String>> defaultTags = defaultTagsDetector.computeDefaultTags(client);
+            Map<String, List<String>> defaultTags = computeDefaultTags(client);
             getStepLogger().debug("Default tags: " + JsonUtil.toJson(defaultTags, true));
 
             List<CloudService> existingServices = client.getServices();
@@ -119,10 +116,11 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         Map<String, List<String>> defaultTags) throws SLException, FileStorageException {
 
         Map<String, ServiceOperationType> triggeredOperations = new TreeMap<>();
+        String spaceId = StepsUtil.getSpaceId(execution.getContext());
         for (CloudServiceExtended service : services) {
             CloudService existingService = existingServices.get(service.getName());
-            List<String> defaultTagsForService = defaultTags.get(service.getLabel());
-            ServiceOperationType triggeredOperation = createOrUpdateService(execution, client, service, existingService,
+            List<String> defaultTagsForService = defaultTags.getOrDefault(service.getLabel(), Collections.emptyList());
+            ServiceOperationType triggeredOperation = createOrUpdateService(execution, client, spaceId, service, existingService,
                 defaultTagsForService);
             triggeredOperations.put(service.getName(), triggeredOperation);
             List<ServiceKey> serviceKeysForService = serviceKeys.getOrDefault(service.getName(), Collections.emptyList());
@@ -226,7 +224,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         client.deleteServiceKey(key.getService().getName(), key.getName());
     }
 
-    private ServiceOperationType createOrUpdateService(ExecutionWrapper execution, CloudFoundryOperations client,
+    private ServiceOperationType createOrUpdateService(ExecutionWrapper execution, CloudFoundryOperations client, String spaceId,
         CloudServiceExtended service, CloudService existingService, List<String> defaultTags) throws SLException, FileStorageException {
 
         // Set service parameters if a file containing their values exists:
@@ -244,7 +242,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         }
 
         getStepLogger().debug(Messages.SERVICE_ALREADY_EXISTS, service.getName());
-        List<ServiceAction> actions = determineActions(client, service, existingService, defaultTags);
+        List<ServiceAction> actions = determineActions(client, spaceId, service, existingService, defaultTags);
         if (actions.contains(ServiceAction.ACTION_RECREATE)) {
             boolean deleteAllowed = (boolean) execution.getContext().getVariable(Constants.PARAM_DELETE_SERVICES);
             if (!deleteAllowed) {
@@ -287,8 +285,8 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         serviceUpdater.updateServicePlan(client, service.getName(), service.getPlan());
     }
 
-    private List<ServiceAction> determineActions(CloudFoundryOperations client, CloudServiceExtended service, CloudService existingService,
-        List<String> defaultTags) {
+    private List<ServiceAction> determineActions(CloudFoundryOperations client, String spaceId, CloudServiceExtended service,
+        CloudService existingService, List<String> defaultTags) {
         List<ServiceAction> actions = new ArrayList<>();
 
         getStepLogger().debug("Determining action to be performed on existing service...");
@@ -316,11 +314,10 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             actions.add(ServiceAction.ACTION_UPDATE_CREDENTIALS);
         }
 
-        if (shouldUpdateTags(service, existingService, defaultTags)) {
-            CloudServiceExtended existingServiceExtended = (CloudServiceExtended) existingService;
+        if (shouldUpdateTags(client, spaceId, service, existingService, defaultTags)) {
             getStepLogger().debug("Service tags should be updated");
             getStepLogger().debug("New service tags: " + JsonUtil.toJson(service.getTags()));
-            getStepLogger().debug("Existing service tags: " + JsonUtil.toJson(existingServiceExtended.getTags()));
+            getStepLogger().debug("Existing service tags: " + JsonUtil.toJson(getServiceTags(client, spaceId, existingService)));
             actions.add(ServiceAction.ACTION_UPDATE_TAGS);
         }
 
@@ -343,15 +340,28 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     private void updateServiceTags(ExecutionWrapper execution, CloudFoundryOperations client, CloudServiceExtended service)
         throws SLException {
-        ClientExtensions clientExtensions = execution.getClientExtensions();
         // TODO: Remove the service.isUserProvided() check when user provided services support tags.
         // See the following issue for more info:
         // https://www.pivotaltracker.com/n/projects/966314/stories/105674948
-        if (clientExtensions == null || service.isUserProvided())
-            return;
         getStepLogger().info(Messages.UPDATING_SERVICE_TAGS, service.getName());
-        clientExtensions.updateServiceTags(service.getName(), service.getTags());
+        if (!service.isUserProvided()) {
+            serviceUpdater.updateServiceTags(client, service.getName(), service.getTags());
+        }
         getStepLogger().debug(Messages.SERVICE_TAGS_UPDATED, service.getName());
+
+    }
+
+    private Map<String, List<String>> computeDefaultTags(CloudFoundryOperations client) {
+        if (!(client instanceof ClientExtensions)) {
+            return Collections.emptyMap();
+        }
+
+        ClientExtensions extendedClient = (ClientExtensions) client;
+        Map<String, List<String>> defaultTags = new HashMap<>();
+        for (CloudServiceOfferingExtended serviceOffering : extendedClient.getExtendedServiceOfferings()) {
+            defaultTags.put(serviceOffering.getLabel(), serviceOffering.getTags());
+        }
+        return defaultTags;
     }
 
     private void updateServiceCredentials(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service)
@@ -413,25 +423,29 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     private boolean shouldRecreate(CloudServiceExtended service, CloudService existingService) {
         boolean haveDifferentTypes = service.isUserProvided() ^ existingService.isUserProvided();
-        if(existingService.isUserProvided()){
+        if (existingService.isUserProvided()) {
             return haveDifferentTypes;
         }
         boolean haveDifferentLabels = !Objects.equals(service.getLabel(), existingService.getLabel());
         return haveDifferentTypes || haveDifferentLabels;
     }
 
-    private boolean shouldUpdateTags(CloudServiceExtended service, CloudService existingService, List<String> defaultTags) {
-        if (!(existingService instanceof CloudServiceExtended)) {
-            return false;
-        }
-        CloudServiceExtended existingServiceExtended = (CloudServiceExtended) existingService;
-        Set<String> existingTags = new HashSet<>(existingServiceExtended.getTags());
-        Set<String> newTags = new HashSet<>(service.getTags());
-        if (defaultTags != null) {
-            newTags.addAll(defaultTags);
-        }
+    private boolean shouldUpdateTags(CloudFoundryOperations client, String spaceId, CloudServiceExtended service,
+        CloudService existingService, List<String> defaultTags) {
+        List<String> existingTags = getServiceTags(client, spaceId, existingService);
+        List<String> newServiceTags = new ArrayList<>(service.getTags());
+        existingTags.removeAll(defaultTags);
+        newServiceTags.removeAll(defaultTags);
+        return !existingTags.equals(newServiceTags);
+    }
 
-        return !existingTags.equals(newTags);
+    private List<String> getServiceTags(CloudFoundryOperations client, String spaceId, CloudService service) {
+        if (service instanceof CloudServiceExtended) {
+            CloudServiceExtended serviceExtended = (CloudServiceExtended) service;
+            return serviceExtended.getTags();
+        }
+        Map<String, Object> serviceInstance = serviceInstanceGetter.getServiceInstance(client, service.getName(), spaceId);
+        return CommonUtil.cast(serviceInstance.get("tags"));
     }
 
     private boolean shouldUpdateCredentials(CloudServiceExtended service, Map<String, Object> credentials) {

@@ -48,6 +48,8 @@ public class ServiceCreatorTest {
     protected static final String SERVICE_NAME = "name";
     protected static final String SPACE_GUID = "space_guid";
     protected static final String SERVICE_PARAMETERS = "parameters";
+    protected static final String SERVICE_TAGS = "tags";
+
     protected static final String CREATE_SERVICE_URL = "/v2/service_instances?accepts_incomplete=false";
     protected static final String SERVICE_PLAN = "test-plan";
 
@@ -101,6 +103,10 @@ public class ServiceCreatorTest {
             // (10) Service has defined alternatives and alternative is used because default offering does not have required service plan
             {
                 "service-11.json",  null, null
+            },
+            // (11) Service has defined tags
+            {
+                "service-12.json",  null, null
             }
 // @formatter:on
         });
@@ -159,6 +165,7 @@ public class ServiceCreatorTest {
             serviceRequest.put(SERVICE_NAME, input.getService().getName());
             serviceRequest.put("service_plan_guid", getUUID(requestedServiceOffering));
             serviceRequest.put(SERVICE_PARAMETERS, input.getService().getCredentials());
+            serviceRequest.put(SERVICE_TAGS, input.getService().getTags());
             serviceRequests.put(requestedServiceOffering, serviceRequest);
         }
 
