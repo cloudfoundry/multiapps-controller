@@ -107,7 +107,7 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
         DelegateExecution context = execution.getContext();
         GitRepoCloner cloner = new GitRepoCloner();
         cloner.setGitServiceUrlString(getGitServiceUrl(execution));
-        cloner.setRefName((String) context.getVariable(Constants.PARAM_GIT_REF));
+        cloner.setRefName(StepsUtil.getGitRepoRef(context));
         cloner.setGitConfigFilePath(generateGitConfigFilepath(context.getProcessInstanceId()));
         cloner.setSkipSslValidation((boolean) context.getVariable(Constants.PARAM_GIT_SKIP_SSL));
         String userName = StepsUtil.determineCurrentUser(context, getStepLogger());
@@ -123,7 +123,7 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
     }
 
     protected String getGitUri(ExecutionWrapper execution) throws SLException {
-        String gitUriParam = (String) execution.getContext().getVariable(Constants.PARAM_GIT_URI);
+        String gitUriParam = StepsUtil.getGitRepoUri(execution.getContext());
         try {
             return new URL(gitUriParam).toString();
         } catch (MalformedURLException e) {
