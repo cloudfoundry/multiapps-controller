@@ -97,7 +97,8 @@ public class ProcessStepHelper {
 
     private int computeStepIndex(DelegateExecution context, StepPhase initialPhase, boolean isInError) {
         int stepIndex = getLastStepIndex(context);
-        if (!isInError && !initialPhase.equals(StepPhase.RETRY) && !initialPhase.equals(StepPhase.POLL)) {
+        if (!isInError && !initialPhase.equals(StepPhase.RETRY) && !initialPhase.equals(StepPhase.POLL)
+            && !initialPhase.equals(StepPhase.WAIT)) {
             return ++stepIndex;
         }
         return stepIndex;
