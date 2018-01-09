@@ -24,9 +24,7 @@ public abstract class AbstractSubProcessMonitorExecution extends AsyncExecution 
     }
 
     @Override
-    public AsyncExecutionState execute(ExecutionWrapper execution) throws InterruptedException {
-        // TODO: extract this in another class
-        Thread.sleep(10000);
+    public AsyncExecutionState execute(ExecutionWrapper execution) {
         String subProcessId = StepsUtil.getSubProcessId(execution.getContext());
         execution.getStepLogger().debug(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId);
         try {
