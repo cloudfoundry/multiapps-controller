@@ -25,7 +25,6 @@ import org.springframework.web.client.RestClientException;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public class ServiceUpdaterTest extends ServiceCreatorTest {
 
@@ -53,7 +52,7 @@ public class ServiceUpdaterTest extends ServiceCreatorTest {
             },
             // (2) With non-existing service plan
             {
-                "service-update-03.json", "Could not create service instance com.sap.sample.mta.test. Service plan test-new-plan for service some-label not found", SLException.class
+                "service-update-03.json", "Could not create service instance com.sap.sample.mta.test. Service plan test-new-plan for service some-label not found", CloudFoundryException.class
             }
 // @formatter:on
         });

@@ -6,14 +6,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 public abstract class CloudServiceOperator extends CustomControllerClient {
 
@@ -42,7 +43,8 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
                 }
             }
         }
-        throw new SLException(MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, service.getName(), newServicePlan, service.getLabel()));
+        throw new CloudFoundryException(HttpStatus.NOT_FOUND,
+            MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, service.getName(), newServicePlan, service.getLabel()));
     }
 
     protected List<CloudServiceOffering> filterByVersion(List<CloudServiceOffering> offerings, CloudService service) {
