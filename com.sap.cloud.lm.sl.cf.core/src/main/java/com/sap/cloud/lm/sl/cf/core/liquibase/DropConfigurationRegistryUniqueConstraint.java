@@ -17,7 +17,7 @@ import liquibase.exception.SetupException;
 
 public class DropConfigurationRegistryUniqueConstraint extends AbstractChange {
 
-    private static final String HANA_SEARCH_QUERY = "SELECT INDEX_NAME FROM INDEXES WHERE TABLE_NAME='CONFIGURATION_REGISTRY' AND INDEX_TYPE='CPBTREE UNIQUE'";
+    private static final String HANA_SEARCH_QUERY = "SELECT INDEX_NAME FROM INDEXES WHERE TABLE_NAME='CONFIGURATION_REGISTRY' AND CONSTRAINT LIKE '%UNIQUE%'";
     private static final String POSTGRESQL_SEARCH_QUERY = "SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_NAME='configuration_registry' and CONSTRAINT_TYPE='UNIQUE'";
     private static final String DROP_QUERY = "ALTER TABLE configuration_registry DROP CONSTRAINT %s";
     private static final String HANA_CONSTRAINT_NAME_COLUMN = "INDEX_NAME";
