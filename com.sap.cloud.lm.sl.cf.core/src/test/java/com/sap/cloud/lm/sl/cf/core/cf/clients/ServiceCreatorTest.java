@@ -35,7 +35,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -82,7 +81,7 @@ public class ServiceCreatorTest {
             },
             // (5) Service plan doesn't exist
             {
-                "service-06.json", "Could not create service instance test-service. Service plan different-plan for service some-label not found", SLException.class
+                "service-06.json", "Could not create service instance test-service. Service plan different-plan for service some-label not found", CloudFoundryException.class
             },
             // (6) Service has defined alternatives and default offering is matching
             {
