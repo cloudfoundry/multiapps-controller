@@ -7,6 +7,6 @@ public abstract class AsyncExecution {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    public abstract AsyncExecutionState execute(ExecutionWrapper execution) throws Exception;
+    public abstract AsyncExecutionState execute(ExecutionWrapper execution);
 
 }

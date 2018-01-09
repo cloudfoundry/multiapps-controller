@@ -28,7 +28,7 @@ public class PollExecuteTaskStatusExecution extends AsyncExecution {
     }
 
     @Override
-    public AsyncExecutionState execute(ExecutionWrapper execution) throws Exception {
+    public AsyncExecutionState execute(ExecutionWrapper execution) {
         execution.getStepLogger().logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
