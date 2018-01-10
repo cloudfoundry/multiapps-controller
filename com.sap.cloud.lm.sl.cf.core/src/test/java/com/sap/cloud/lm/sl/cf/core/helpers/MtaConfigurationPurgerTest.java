@@ -107,7 +107,7 @@ public class MtaConfigurationPurgerTest {
 
     private ConfigurationEntry createEntry(int id, String providerId) {
         return new ConfigurationEntry(id, ConfigurationEntriesUtil.PROVIDER_NID, providerId, Version.parseVersion("1.0.0"),
-            new CloudTarget(TARGET_ORG, TARGET_SPACE), null, null);
+            new CloudTarget(TARGET_ORG, TARGET_SPACE), null, null, null);
     }
 
 }

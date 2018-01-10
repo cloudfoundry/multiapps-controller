@@ -51,9 +51,20 @@ public class ConfigurationEntryDao {
     public ConfigurationEntry find(long id) throws NotFoundException {
         return dao.find(id).toConfigurationEntry();
     }
+    
+    public List<ConfigurationEntry> find(String spaceGuid){
+        return toConfigurationEntries(dao.find(spaceGuid));
+    }
 
     public void remove(long id) throws NotFoundException {
         dao.remove(id);
+    }
+    
+    public List<ConfigurationEntry> removeAll(List<ConfigurationEntry> configurationEntries){
+        for(ConfigurationEntry configurationEntry: configurationEntries){
+            dao.remove(configurationEntry.getId());
+        }
+        return configurationEntries;
     }
 
     public ConfigurationEntry add(ConfigurationEntry entry) throws ConflictException {

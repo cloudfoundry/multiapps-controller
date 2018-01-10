@@ -123,7 +123,7 @@ public class AuthorizationUtil {
     }
 
     private static boolean isAdminUser(UserInfo userInfo) {
-        return userInfo.getName().equals(Configuration.getInstance().getAdminUsername());
+        return userInfo.getName().equals(Configuration.getInstance().getGlobalAuditorUser());
     }
 
     private static boolean hasAdminScope(UserInfo userInfo) {

@@ -90,6 +90,15 @@ public class ConfigurationEntryDtoDao {
         });
     }
 
+    public List<ConfigurationEntryDto> removeAll(List<ConfigurationEntryDto> configurationEntries) {
+        return new TransactionalExecutor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
+            for (ConfigurationEntryDto configurationEntryDto : configurationEntries) {
+                manager.remove(configurationEntryDto);
+            }
+            return configurationEntries;
+        });
+    }
+
     @SuppressWarnings("unchecked")
     public List<ConfigurationEntryDto> findAll() {
         return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
@@ -104,6 +113,16 @@ public class ConfigurationEntryDtoDao {
         return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
 
             return findInternal(providerNid, providerId, targetSpace, requiredProperties, mtaId, manager);
+
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<ConfigurationEntryDto> find(String spaceGuid) {
+        return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
+
+            return manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID).setParameter(ConfigurationEntryDto.FieldNames.SPACE_ID,
+                spaceGuid).getResultList();
 
         });
     }
@@ -193,7 +212,9 @@ public class ConfigurationEntryDtoDao {
         String providerVersion = CommonUtil.merge(existingEntry.getProviderVersion(), removeDefault(entry.getProviderVersion()), null);
         String content = CommonUtil.merge(existingEntry.getContent(), entry.getContent(), null);
         String visibility = CommonUtil.merge(existingEntry.getVisibility(), entry.getVisibility(), null);
-        return new ConfigurationEntryDto(id, providerNid, providerId, providerVersion, targetOrg, targetSpace, content, visibility);
+        String spaceId = CommonUtil.merge(existingEntry.getSpaceId(), entry.getSpaceId(), null);
+        return new ConfigurationEntryDto(id, providerNid, providerId, providerVersion, targetOrg, targetSpace, content, visibility,
+            spaceId);
     }
 
     private String removeDefault(String value) {

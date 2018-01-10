@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -241,7 +242,7 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
     }
 
     private void prepareDaos() {
-        when(subscriptionsDao.findAll(any())).thenReturn(getSubscriptions());
+        when(subscriptionsDao.findAll(Matchers.anyListOf(ConfigurationEntry.class))).thenReturn(getSubscriptions());
 
         for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
             ConfigurationFilter filter = subscriber.subscription.getFilter();

@@ -7,10 +7,11 @@ public class PersistenceMetadata {
     public static class NamedQueries {
 
         public static final String FIND_ALL_ENTRIES = "find_all_entries";
+        public static final String FIND_ALL_ENTRIES_BY_SPACE_ID = "find_all_entries_guid";
         public static final String FIND_ALL_SUBSCRIPTIONS = "find_all_subscriptions";
+        public static final String FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID = "find_all_subscriptions_guid";
         public static final String FIND_ALL_CONTEXT_EXTENSION_ENTRIES = "find_all_context_extension_entries";
         public static final String FIND_ALL_CONTEXT_EXTENSION_ENTRIES_BY_PROCESS_ID = "find_all_context_extension_entries_process_id";
-
     }
 
     public static class QueryParameters {
@@ -44,6 +45,7 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_ENTRY_PROVIDER_VERSION = "provider_version";
         public static final String CONFIGURATION_ENTRY_TARGET_ORG = "target_org";
         public static final String CONFIGURATION_ENTRY_TARGET_SPACE = "target_space";
+        public static final String CONFIGURATION_ENTRY_SPACE_ID = "space_id";
         public static final String CONFIGURATION_ENTRY_CONTENT = "content";
         public static final String CONFIGURATION_CLOUD_TARGET = "visibility";
 

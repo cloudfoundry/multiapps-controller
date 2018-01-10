@@ -24,7 +24,8 @@ public abstract class AbstractDataTransformationChange<OriginalDataType, Transfo
         OriginalDataType result = null;
 
         try {
-            preparedStatement = jdbcConnection.prepareStatement(getSelectStatement());
+            preparedStatement = jdbcConnection.prepareStatement(getSelectStatement(), ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY);
             ResultSet resultSet = preparedStatement.executeQuery();
             result = extractData(resultSet);
             resultSet.close();
@@ -69,7 +70,7 @@ public abstract class AbstractDataTransformationChange<OriginalDataType, Transfo
     public abstract String getSelectStatement();
 
     public abstract String getUpdateStatement();
-
+    
     public String[] getAlterStatements() {
         return new String[0];
     }
