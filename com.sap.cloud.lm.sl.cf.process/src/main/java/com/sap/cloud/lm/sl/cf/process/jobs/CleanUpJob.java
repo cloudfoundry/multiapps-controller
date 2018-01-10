@@ -29,9 +29,11 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiAction;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
+import com.sap.cloud.lm.sl.cf.core.security.data.termination.DataTerminationService;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -59,6 +61,9 @@ public class CleanUpJob implements Job {
     @Inject
     private OperationsHelper operationsHelper;
 
+    @Inject
+    private DataTerminationService dataTerminationService;
+
     @Autowired
     @Qualifier("tokenStore")
     TokenStore tokenStore;
@@ -67,7 +72,10 @@ public class CleanUpJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
+
         LOGGER.warn("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now().toString());
+
+        executeDataTerminationJob();
 
         Date expirationTime = getExpirationTime();
 
@@ -85,6 +93,17 @@ public class CleanUpJob implements Job {
     private String getInstanceIndex() {
         Environment env = new Environment();
         return env.getVariable("INSTANCE_INDEX");
+    }
+
+    private void executeDataTerminationJob() {
+
+        if (configuration.getPlatformType() != PlatformType.CF) {
+            return;
+        }
+        LOGGER.warn("Termination of user data started.");
+        dataTerminationService.deleteOrphanUserData();
+        LOGGER.warn("Termination of user data finished.");
+
     }
 
     private Date getExpirationTime() {
@@ -118,7 +137,7 @@ public class CleanUpJob implements Job {
 
         removeOldFilesFromDb(spaceToFileIds);
         removeOldFilesFromFs(spaceToFileIds);
-        
+
         markOperationsAsCleanedUp(finishedOperations);
     }
 
@@ -144,7 +163,8 @@ public class CleanUpJob implements Job {
     }
 
     private List<Operation> getNotCleanedFinishedOperations(Date expirationTime) {
-        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime).inFinalState().isNotCleanedUp().descending().build();
+        OperationFilter filter = new OperationFilter.Builder().startedBefore(
+            expirationTime).inFinalState().isNotCleanedUp().descending().build();
         return dao.find(filter);
     }
 
@@ -175,8 +195,8 @@ public class CleanUpJob implements Job {
     }
 
     private Map<String, String> getProcessIdToAppArchiveId() {
-        List<HistoricVariableInstance> appArchiveIds = activitiFacade
-            .getHistoricVariableInstancesByVariableName(Constants.PARAM_APP_ARCHIVE_ID);
+        List<HistoricVariableInstance> appArchiveIds = activitiFacade.getHistoricVariableInstancesByVariableName(
+            Constants.PARAM_APP_ARCHIVE_ID);
         Map<String, String> processIdToAppArchiveId = new HashMap<>();
         for (HistoricVariableInstance appArchiveId : appArchiveIds) {
             processIdToAppArchiveId.put(appArchiveId.getProcessInstanceId(), (String) appArchiveId.getValue());
@@ -185,8 +205,8 @@ public class CleanUpJob implements Job {
     }
 
     private Map<String, List<String>> getSpaceToProcessIds(List<Operation> operations) {
-        return operations.stream()
-            .collect(Collectors.groupingBy(Operation::getSpaceId, Collectors.mapping(Operation::getProcessId, Collectors.toList())));
+        return operations.stream().collect(
+            Collectors.groupingBy(Operation::getSpaceId, Collectors.mapping(Operation::getProcessId, Collectors.toList())));
     }
 
     private Map<String, List<String>> getSpaceToFileIds(Map<String, List<String>> spaceToProcessIds,
@@ -219,7 +239,7 @@ public class CleanUpJob implements Job {
         int removedOldFilesFromFs = FileSystemFileService.getInstance().deleteAllByFileIds(oldSpaceToFileIds);
         LOGGER.info("Deleted MTA files from File System Storage count: " + removedOldFilesFromFs);
     }
-    
+
     private void markOperationsAsCleanedUp(List<Operation> finishedOperations) {
         for (Operation finishedOperation : finishedOperations) {
             finishedOperation.setCleanedUp(true);

@@ -13,7 +13,8 @@
         "space": "*",
         "org": "myorg"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "mta",
@@ -29,7 +30,8 @@
         "space": "*",
         "org": "myorg"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "mta",
@@ -39,6 +41,7 @@
       "space": "SAP",
       "org": "myorg"
     },
-    "content": "{\"type\": \"anatz\"}"
+    "content": "{\"type\": \"anatz\"}",
+    "spaceId": ""
   }
 ]

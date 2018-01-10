@@ -6,5 +6,6 @@
     "space": "space-3",
     "org": "org-3"
   },
-  "content": "{\"type\": \"prod\"}"
+  "content": "{\"type\": \"prod\"}",
+  "spaceId": ""
 }

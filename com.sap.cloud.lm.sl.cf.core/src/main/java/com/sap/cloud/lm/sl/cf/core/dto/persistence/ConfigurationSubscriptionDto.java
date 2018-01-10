@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -21,9 +22,9 @@ import javax.persistence.UniqueConstraint;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
+import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ModuleDto;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ResourceDto;
-import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.NamedQueries;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.SequenceNames;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableColumnNames;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableNames;
@@ -36,8 +37,9 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 @Entity
 @Access(AccessType.FIELD)
 @SequenceGenerator(name = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_SUBSCRIPTION_SEQUENCE, initialValue = 1, allocationSize = 1)
-// gi
-@NamedQuery(name = NamedQueries.FIND_ALL_SUBSCRIPTIONS, query = "SELECT cs FROM ConfigurationSubscriptionDto cs")
+@NamedQueries({
+    @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_SUBSCRIPTIONS, query = "SELECT cs FROM ConfigurationSubscriptionDto cs"),
+    @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID, query = "SELECT cs FROM ConfigurationSubscriptionDto cs WHERE cs.spaceId = :spaceId") })
 public class ConfigurationSubscriptionDto {
 
     public static class FieldNames {

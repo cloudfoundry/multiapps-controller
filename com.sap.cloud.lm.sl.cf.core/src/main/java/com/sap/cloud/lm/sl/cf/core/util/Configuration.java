@@ -76,7 +76,8 @@ public class Configuration {
     static final String CFG_VCAP_APPLICATION = "VCAP_APPLICATION"; // Mandatory
     static final String CFG_DUMMY_TOKENS_ENABLED = "DUMMY_TOKENS_ENABLED";
     static final String CFG_BASIC_AUTH_ENABLED = "BASIC_AUTH_ENABLED";
-    static final String CFG_ADMIN_USERNAME = "ADMIN_USERNAME";
+    static final String CFG_GLOBAL_AUDITOR_USER = "GLOBAL_AUDITOR_USER";
+    static final String CFG_GLOBAL_AUDITOR_PASSWORD = "GLOBAL_AUDITOR_PASSWORD";
     static final String CFG_DB_CONNECTION_THREADS = "DB_CONNECTION_THREADS";
     static final String CFG_XS_CLIENT_CORE_THREADS = "XS_CLIENT_CORE_THREADS";
     static final String CFG_XS_CLIENT_MAX_THREADS = "XS_CLIENT_MAX_THREADS";
@@ -118,7 +119,8 @@ public class Configuration {
     public static final int DEFAULT_HTTPS_ROUTER_PORT = 443;
     public static final Boolean DEFAULT_DUMMY_TOKENS_ENABLED = false;
     public static final Boolean DEFAULT_BASIC_AUTH_ENABLED = false;
-    public static final String DEFAULT_ADMIN_USERNAME = "";
+    public static final String DEFAULT_GLOBAL_AUDITOR_USER = "";
+    public static final String DEFAULT_GLOBAL_AUDITOR_PASSWORD = "";
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final Integer DEFAULT_XS_CLIENT_CORE_THREADS = 2;
     public static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
@@ -181,7 +183,8 @@ public class Configuration {
     private Integer routerPort;
     private Boolean dummyTokensEnabled;
     private Boolean basicAuthEnabled;
-    private String adminUsername;
+    private String globalAuditorUser;
+    private String globalAuditorPassword;
     private Integer dbConnectionThreads;
     private Integer xsClientCoreThreads;
     private Integer xsClientMaxThreads;
@@ -218,7 +221,8 @@ public class Configuration {
         getDeployServiceUrl();
         areDummyTokensEnabled();
         isBasicAuthEnabled();
-        getAdminUsername();
+        getGlobalAuditorUser();
+        getGlobalAuditorPassword();
         getDbConnectionThreads();
         getXsClientCoreThreads();
         getXsClientMaxThreads();
@@ -256,7 +260,7 @@ public class Configuration {
         return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_TARGET_URL, CFG_DB_TYPE, CFG_PLATFORMS, CFG_PLATFORMS_V2, CFG_PLATFORMS_V3,
             CFG_TARGETS, CFG_TARGETS_V2, CFG_TARGETS_V3, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE,
             CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
-            CFG_ADMIN_USERNAME, CFG_XS_CLIENT_CORE_THREADS, CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY,
+            CFG_GLOBAL_AUDITOR_USER, CFG_XS_CLIENT_CORE_THREADS, CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY,
             CFG_XS_CLIENT_KEEP_ALIVE, CFG_ASYNC_EXECUTOR_CORE_THREADS, CFG_CONTROLLER_POLLING_INTERVAL, CFG_UPLOAD_APP_TIMEOUT,
             CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_WAIT_TIME,
             CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS,
@@ -421,11 +425,18 @@ public class Configuration {
         return basicAuthEnabled;
     }
 
-    public String getAdminUsername() {
-        if (adminUsername == null) {
-            adminUsername = getAdminUsernameFromEnvironment();
+    public String getGlobalAuditorUser() {
+        if (globalAuditorUser == null) {
+            globalAuditorUser = getGlobalAuditorUserFromEnvironment();
         }
-        return adminUsername;
+        return globalAuditorUser;
+    }
+    
+    public String getGlobalAuditorPassword() {
+        if (globalAuditorPassword == null) {
+            globalAuditorPassword = getAdminPasswordFromEnvironment();
+        }
+        return globalAuditorPassword;
     }
 
     public int getDbConnectionThreads() {
@@ -775,12 +786,17 @@ public class Configuration {
         return value;
     }
 
-    private String getAdminUsernameFromEnvironment() {
-        String value = getString(CFG_ADMIN_USERNAME, DEFAULT_ADMIN_USERNAME);
+    private String getGlobalAuditorUserFromEnvironment() {
+        String value = getString(CFG_GLOBAL_AUDITOR_USER, DEFAULT_GLOBAL_AUDITOR_USER);
         LOGGER.info(format(Messages.ADMIN_USERNAME, value));
         return value;
     }
-
+    
+    private String getAdminPasswordFromEnvironment(){
+        String value = getString(CFG_GLOBAL_AUDITOR_PASSWORD, DEFAULT_GLOBAL_AUDITOR_PASSWORD);
+        return value;
+    }
+    
     private Integer getDbConnectionThreadsFromEnvironment() {
         Integer value = getPositiveInt(CFG_DB_CONNECTION_THREADS, DEFAULT_DB_CONNECTION_THREADS);
         LOGGER.info(format(Messages.DB_CONNECTION_THREADS, value));

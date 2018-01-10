@@ -13,7 +13,8 @@
         "space": "space-2",
         "org": "org-2"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "n-2",
@@ -33,6 +34,7 @@
         "space": "space-4",
         "org": "org-4"
       }
-    ]
+    ],
+    "spaceId": ""
   }
 ]

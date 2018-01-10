@@ -31,9 +31,12 @@ public class ConfigurationEntry {
 
     @Expose
     private List<CloudTarget> visibility;
+    
+    @Expose
+    private String spaceId;
 
     public ConfigurationEntry(long id, String providerNid, String providerId, Version providerVersion, CloudTarget targetSpace, String content,
-        List<CloudTarget> visibility) {
+        List<CloudTarget> visibility, String spaceId) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
@@ -41,11 +44,12 @@ public class ConfigurationEntry {
         this.targetSpace = targetSpace;
         this.content = content;
         this.visibility = visibility;
+        this.spaceId = spaceId;
     }
 
     public ConfigurationEntry(String providerNid, String providerId, Version providerVersion, CloudTarget targetSpace, String content,
-        List<CloudTarget> cloudTargets) {
-        this(0, providerNid, providerId, providerVersion, targetSpace, content, cloudTargets);
+        List<CloudTarget> cloudTargets, String spaceId) {
+        this(0, providerNid, providerId, providerVersion, targetSpace, content, cloudTargets, spaceId);
     }
 
     public long getId() {
@@ -76,4 +80,11 @@ public class ConfigurationEntry {
         return visibility;
     }
 
+    public String getSpaceId() {
+        return spaceId;
+    }
+
+    public void setSpaceId(String spaceId) {
+        this.spaceId = spaceId;
+    }
 }

@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -23,7 +24,6 @@ import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
-import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.NamedQueries;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.SequenceNames;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableColumnNames;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableNames;
@@ -35,7 +35,10 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 @Table(name = TableNames.CONFIGURATION_ENTRY_TABLE, uniqueConstraints = {
     @UniqueConstraint(columnNames = { TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_NID, TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_ID,
         TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_VERSION, TableColumnNames.CONFIGURATION_ENTRY_TARGET_SPACE }) })
-@NamedQuery(name = NamedQueries.FIND_ALL_ENTRIES, query = "SELECT ce FROM ConfigurationEntryDto ce")
+@NamedQueries({
+    @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_ENTRIES, query = "SELECT ce FROM ConfigurationEntryDto ce"),
+    @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID, query="SELECT ce FROM ConfigurationEntryDto ce WHERE ce.spaceId = :spaceId")
+}) 
 @SequenceGenerator(name = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, initialValue = 1, allocationSize = 1)
 @XmlRootElement(name = "configuration-entry")
 @XmlAccessorType(value = XmlAccessType.FIELD)
@@ -49,9 +52,9 @@ public class ConfigurationEntryDto {
         public static final String PROVIDER_NID = "providerNid";
         public static final String TARGET_ORG = "targetOrg";
         public static final String TARGET_SPACE = "targetSpace";
+        public static final String SPACE_ID = "spaceId";
         public static final String CONTENT = "content";
         public static final String VISIBILITY = "visibility";
-
     }
 
     @XmlElement
@@ -79,6 +82,10 @@ public class ConfigurationEntryDto {
     @XmlElement(name = "target-space")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_TARGET_SPACE, nullable = false)
     private String targetSpace;
+    
+    @XmlElement(name = "space-id")
+    @Column(name = TableColumnNames.CONFIGURATION_ENTRY_SPACE_ID, nullable = false)
+    private String spaceId;
 
     @XmlElement
     @Lob
@@ -95,7 +102,7 @@ public class ConfigurationEntryDto {
     }
 
     public ConfigurationEntryDto(long id, String providerNid, String providerId, String providerVersion, String targetOrg,
-        String targetSpace, String content, String visibility) {
+        String targetSpace, String content, String visibility, String spaceId) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
@@ -104,6 +111,7 @@ public class ConfigurationEntryDto {
         this.targetSpace = targetSpace;
         this.content = content;
         this.visibility = visibility;
+        this.spaceId = spaceId;
     }
 
     public ConfigurationEntryDto(ConfigurationEntry entry) {
@@ -115,6 +123,7 @@ public class ConfigurationEntryDto {
         this.targetOrg = entry.getTargetSpace() == null ? null : entry.getTargetSpace().getOrg();
         this.content = entry.getContent();
         this.visibility = entry.getVisibility() == null ? null : JsonUtil.toJson(entry.getVisibility());
+        this.spaceId = entry.getSpaceId();
     }
 
     public long getId() {
@@ -151,7 +160,7 @@ public class ConfigurationEntryDto {
 
     public ConfigurationEntry toConfigurationEntry() {
         return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)), new CloudTarget(targetOrg, targetSpace),
-            content, getParsedVisibility(visibility));
+            content, getParsedVisibility(visibility), spaceId);
     }
 
     private Version getParsedVersion(String versionString) {
@@ -182,5 +191,12 @@ public class ConfigurationEntryDto {
         }
         return source.toString();
     }
+    
+    public String getSpaceId() {
+        return spaceId;
+    }
 
+    public void setSpaceId(String spaceId) {
+        this.spaceId = spaceId;
+    }
 }

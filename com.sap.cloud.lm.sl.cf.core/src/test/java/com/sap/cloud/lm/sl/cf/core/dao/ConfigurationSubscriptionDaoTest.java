@@ -108,6 +108,10 @@ public class ConfigurationSubscriptionDaoTest {
                 {
                     new UpdateTest(new UpdateTestInput("com.sap.sample.mta.framework", "framework", "sap", "plugin", "configuration-subscription-00-updated-00.json"), "R:configuration-subscription-00-updated-00.json"),
                 },
+                // (13) Find all subscriptions for current guid
+                {
+                    new FindAllGuidTest(new FindOneTestInput("", "", "fbd3dc79-1a54-4a70-8022-ab716643809b", ""), "R:configuration-subscription-dao-test-output-13.json"),
+                }
     // @formatter:on
             });
         }
@@ -222,6 +226,19 @@ public class ConfigurationSubscriptionDaoTest {
             }
 
         }
+        
+        private static class FindAllGuidTest extends TestCase<FindOneTestInput> {
+
+            public FindAllGuidTest(FindOneTestInput input, String expected) {
+                super(input, expected);
+            }
+
+            @Override
+            protected void test() throws Exception {
+                TestUtil.test(() -> findAll(input.spaceId, getDao()), expected, getClass(), new JsonSerializationOptions(true, false));
+            }
+
+        }
 
         private static class UpdateTest extends TestCase<UpdateTestInput> {
 
@@ -254,6 +271,11 @@ public class ConfigurationSubscriptionDaoTest {
 
         private static List<ConfigurationSubscription> findAll(FindAllTestInput input, ConfigurationSubscriptionDao dao) {
             return dao.findAll(input.entries);
+        }
+        
+        private static List<ConfigurationSubscription> findAll(String guid, ConfigurationSubscriptionDao dao) {
+            List<ConfigurationSubscription> subscriptions = dao.findAll(guid);
+            return subscriptions;
         }
 
         private static ConfigurationSubscription findOne(FindOneTestInput input, ConfigurationSubscriptionDao dao) {

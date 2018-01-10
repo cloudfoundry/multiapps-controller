@@ -111,5 +111,6 @@
         <bean id="coreChangelog" parent="liquibaseTemplate">
             <property name="changeLog" value="classpath:/com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog.xml" />
         </bean>
+		
     </beans>
 </beans>

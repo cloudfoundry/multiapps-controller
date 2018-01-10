@@ -131,7 +131,8 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
     protected ConfigurationEntriesCloudModelBuilder getConfigurationEntriesCloudModelBuilder(DelegateExecution context) {
         String orgName = StepsUtil.getOrg(context);
         String spaceName = StepsUtil.getSpace(context);
-        return new ConfigurationEntriesCloudModelBuilder(orgName, spaceName);
+        String spaceId = StepsUtil.getSpaceId(context);
+        return new ConfigurationEntriesCloudModelBuilder(orgName, spaceName, spaceId);
     }
 
 }

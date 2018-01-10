@@ -7,7 +7,8 @@
       "space": "space-1",
       "org": "org-1"
     },
-    "content": "{\"type\": \"prod\"}"
+    "content": "{\"type\": \"prod\"}",
+    "spaceId": ""
   },
   {
     "providerNid": "n-2",
@@ -23,6 +24,7 @@
         "space": "*",
         "org": "org-1"
       }
-    ]
+    ],
+    "spaceId": ""
   }
 ]

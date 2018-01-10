@@ -65,10 +65,11 @@ public final class Messages {
     public static final String ILLEGAL_SERVICE_OPERATION_STATE = "Illegal service operation state: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_TYPE = "Illegal service operation type: {0}";
     public static final String MULTIPLE_CONFIGURATION_ENTRIES = "Multiple configuration entries were found matching the filter specified in resource \"{0}\": \"{1}\"";
+    public static final String INVALID_TCP_ROUTE = "TCP route can either be TCP or TCPS";
+    public static final String NO_SERVICE_PLAN_FOUND = "Could not create service instance {0}. Service plan {1} for service {2} not found";
     public static final String NO_CONTENT_TO_DEPLOY = "No content to deploy";
     public static final String UNABLE_TO_PARSE_PARAMETER = "Unable to parse parameter {0} with value {1}";
-    public static final String NO_SERVICE_PLAN_FOUND = "Could not create service instance {0}. Service plan {1} for service {2} not found";
-    public static final String INVALID_TCP_ROUTE = "TCP route can either be TCP or TCPS";
+    public static final String LIQUIBASE_CF_CHECK_PLATFORM_TYPE = "Platform must be cloud foundry to execute this change. Current platform is: {0}";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET = "Environment variable \"{0}\" is not set";
@@ -106,8 +107,9 @@ public final class Messages {
     public static final String CURRENT_DATE = "The current date is {0}";
     public static final String DROPPED_UNNAMED_UNIQUE_CONSTRAINT_FOR_CONFIGURATION_REGISTRY = "Dropped unnamed unique constraint for configuration registry.";
     public static final String ALTERED_DATA_TYPES_FOR_OPERATION_TABLE = "Altered data types for 'started_at' and 'ended_at' columns in 'operation' table to 'timestamp'.";
-    public static final String SPLIT_TARGET_SPACE_COLUMN = "Split target space column in configuration registry.";
-    public static final String TRANSFORMED_FILTER_COLUMN = "Transformed filter column in configuration subscription table.";
+    public static final String SPLIT_TARGET_SPACE_COLUMN = "Split target space column in configuration registry";
+    public static final String TRANSFORMED_FILTER_COLUMN = "Transformed filter column in configuration subscription table";
+    public static final String POPULATE_SPACE_ID_COLUMN = "Populate SPACE_ID column in configuration registry table";
 
     public static final String XS_TYPE = "XS type: {0}";
     public static final String XS_TARGET_URL = "XS target URL: {0}";
@@ -161,6 +163,7 @@ public final class Messages {
     public static final String AUDIT_LOG_CONFIG_CREATED = "Created configuration \"{0}\"";
     public static final String PURGING_SUBSCRIPTIONS = "Purging configuration subscriptions for target: {0}";
     public static final String PURGING_ENTRIES = "Purging entries for target: {0}";
+    public static final String PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES = "All delete request spaces after date: {0} will be deleted from configuration tables.";
 
     // Debug messages
     public static final String EXTENSION_DESCRIPTOR = "Extension descriptor \"{0}\": {1}";

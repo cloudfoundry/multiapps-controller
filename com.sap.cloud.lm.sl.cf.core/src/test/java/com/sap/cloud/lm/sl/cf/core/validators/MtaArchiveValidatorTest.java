@@ -131,7 +131,7 @@ public class MtaArchiveValidatorTest {
         Mockito.when(dao.find("mta", "mta-sample:provides-dependency", "0.0.1", new CloudTarget("initial", "initial"), null, null, null)).thenReturn(
             Arrays.asList(new ConfigurationEntry(0, "mta", "mta-sample:provides-dependency",
                 com.sap.cloud.lm.sl.mta.model.Version.parseVersion("0.0.1"), null, "{\"baz\":\"baz\",\"bar\":\"bar\", \"foo\":\"foo\"}",
-                null)));
+                null, "")));
     }
 
     @Test
