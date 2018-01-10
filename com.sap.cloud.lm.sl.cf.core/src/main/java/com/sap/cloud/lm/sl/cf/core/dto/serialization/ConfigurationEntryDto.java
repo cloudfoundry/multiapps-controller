@@ -41,6 +41,9 @@ public class ConfigurationEntryDto {
     @XmlElementWrapper(name = "visibility")
     @XmlElement(name = "target")
     private List<CloudTarget> visibility;
+    
+    @XmlElement(name = "space-id")
+    private String spaceId;
 
     public ConfigurationEntryDto() {
         // Required by JPA and JAXB.
@@ -55,6 +58,7 @@ public class ConfigurationEntryDto {
         this.cloudTarget = entry.getTargetSpace();
         this.content = entry.getContent();
         this.visibility = entry.getVisibility();
+        this.spaceId = entry.getSpaceId();
     }
 
     public long getId() {
@@ -88,11 +92,19 @@ public class ConfigurationEntryDto {
     public List<CloudTarget> getVisibility() {
         return visibility;
     }
+    
+    public String getSpaceId() {
+        return spaceId;
+    }
+
+    public void setSpaceId(String spaceId) {
+        this.spaceId = spaceId;
+    }
 
     public ConfigurationEntry toConfigurationEntry() {
         CloudTarget target = cloudTarget == null ? ConfigurationEntriesUtil.createImplicitCloudTarget(targetSpace) : cloudTarget;
         return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)), target,
-            content, visibility);
+            content, visibility, spaceId);
     }
 
     private Version getParsedVersion(String versionString) {

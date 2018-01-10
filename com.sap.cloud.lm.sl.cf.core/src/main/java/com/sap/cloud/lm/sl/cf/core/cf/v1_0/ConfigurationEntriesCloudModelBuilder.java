@@ -27,10 +27,12 @@ public class ConfigurationEntriesCloudModelBuilder {
 
     private String orgName;
     private String spaceName;
+    private String spaceId;
 
-    public ConfigurationEntriesCloudModelBuilder(String orgName, String spaceName) {
+    public ConfigurationEntriesCloudModelBuilder(String orgName, String spaceName, String spaceId) {
         this.orgName = orgName;
         this.spaceName = spaceName;
+        this.spaceId = spaceId;
     }
 
     public Map<String, List<ConfigurationEntry>> build(DeploymentDescriptor deploymentDescriptor) {
@@ -73,7 +75,7 @@ public class ConfigurationEntriesCloudModelBuilder {
         CloudTarget target = new CloudTarget(orgName, spaceName);
         String content = JsonUtil.toJson(providedDependency.getProperties());
         List<CloudTarget> visibility = getVisibilityTargets(providedDependency);
-        return new ConfigurationEntry(providerNid, providerId, version, target, content, visibility);
+        return new ConfigurationEntry(providerNid, providerId, version, target, content, visibility, spaceId);
     }
 
     private List<CloudTarget> getVisibilityTargets(ProvidedDependency providedDependency) {

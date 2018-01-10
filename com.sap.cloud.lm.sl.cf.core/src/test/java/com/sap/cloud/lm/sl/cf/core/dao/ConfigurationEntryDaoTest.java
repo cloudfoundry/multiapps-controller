@@ -68,23 +68,23 @@ public class ConfigurationEntryDaoTest {
                 },
                 // (2)
                 {
-                    new FindTest(new FindTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, null), "R:configuration-entry-01.json"),
+                    new FindTest(new FindTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, null, ""), "R:configuration-entry-01.json"),
                 },
                 // (3)
                 {
-                    new RemoveTest(new RemoveTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null), ""),
+                    new RemoveTest(new RemoveTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, ""), ""),
                 },
                 // (4)
                 {
-                    new FindAllTest(new FindTestInput(null, "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, null), "R:configuration-entry-dao-test-output-04.json"),
+                    new FindAllTest(new FindTestInput(null, "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, null, ""), "R:configuration-entry-dao-test-output-04.json"),
                 },
                 // (5)
                 {
-                    new FindAllTest(new FindTestInput("n-3", "id-3", "3.0.0", new CloudTarget("org-3", "space-3"), null, null, null), "R:configuration-entry-dao-test-output-05.json"),
+                    new FindAllTest(new FindTestInput("n-3", "id-3", "3.0.0", new CloudTarget("org-3", "space-3"), null, null, null, ""), "R:configuration-entry-dao-test-output-05.json"),
                 },
                 // (6)
                 {
-                    new FindAllTest(new FindTestInput("n-1", null, null, new CloudTarget("org-1", "space-1"), null, null, null), "R:configuration-entry-dao-test-output-06.json"),
+                    new FindAllTest(new FindTestInput("n-1", null, null, new CloudTarget("org-1", "space-1"), null, null, null, ""), "R:configuration-entry-dao-test-output-06.json"),
                 },
                 // (7)
                 {
@@ -92,75 +92,79 @@ public class ConfigurationEntryDaoTest {
                 },
                 // (8)
                 {
-                    new FindAllTest(new FindTestInput(null, null, null, null, null, null, null), "R:configuration-registry-content.json"),
+                    new FindAllTest(new FindTestInput(null, null, null, null, null, null, null, ""), "R:configuration-registry-content.json"),
                 },
                 // (9)
                 {
-                    new FindAllTest(new FindTestInput(null, null, "> 1.0.0", null, null, null, null), "R:configuration-entry-dao-test-output-09.json"),
+                    new FindAllTest(new FindTestInput(null, null, "> 1.0.0", null, null, null, null, ""), "R:configuration-entry-dao-test-output-09.json"),
                 },
                 // (10)
                 {
-                    new FindAllTest(new FindTestInput(null, null, "= 1.0.0", null, null, null, null), "R:configuration-entry-dao-test-output-10.json"),
+                    new FindAllTest(new FindTestInput(null, null, "= 1.0.0", null, null, null, null, ""), "R:configuration-entry-dao-test-output-10.json"),
                 },
                 // (11)
                 {
-                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, null, null, null), "R:configuration-entry-dao-test-output-11.json"),
+                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, null, null, null, ""), "R:configuration-entry-dao-test-output-11.json"),
                 },
                 // (12)
                 {
-                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, MapUtil.asMap("type", "test"), null, null), "R:configuration-entry-dao-test-output-12.json"),
+                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, MapUtil.asMap("type", "test"), null, null, ""), "R:configuration-entry-dao-test-output-12.json"),
                 },
                 // (13)
                 {
-                    new RemoveTest(new RemoveTestInput(null, "id-2", null, new CloudTarget("org-2", "space-2"), null, null), ""),
+                    new RemoveTest(new RemoveTestInput(null, "id-2", null, new CloudTarget("org-2", "space-2"), null, null, ""), ""),
                 },
                 // (14)
                 {
-                    new FindTest(new FindTestInput(null, "id-6", null, new CloudTarget("org-6", "space-6"), null, null, null), "R:configuration-entry-06.json"),
+                    new FindTest(new FindTestInput(null, "id-6", null, new CloudTarget("org-6", "space-6"), null, null, null, ""), "R:configuration-entry-06.json"),
                 },
                 // (15)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-18.json", null), "R:configuration-entry-dao-test-output-15.json"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-18.json", null, ""), "R:configuration-entry-dao-test-output-15.json"),
                 },
                 // (16)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-19.json", null), "R:configuration-entry-dao-test-output-16.json"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-19.json", null, ""), "R:configuration-entry-dao-test-output-16.json"),
                 },
                 // (17)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-20.json", null), "R:configuration-entry-dao-test-output-17.json"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-20.json", null, ""), "R:configuration-entry-dao-test-output-17.json"),
                 },
                 // (18)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-21.json", null), "E:Configuration entry with namespace ID \"n-2\", ID \"id-2\", version \"2.0.0\", target org \"org-2\" and target space \"space-2\", already exists"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-21.json", null, ""), "E:Configuration entry with namespace ID \"n-2\", ID \"id-2\", version \"2.0.0\", target org \"org-2\" and target space \"space-2\", already exists"),
                 },
                 // (19)
                 {
-                    new FindAllTest(new FindTestInput(null, null, null, null, null, "com.sap.example.mta", null), "R:configuration-entry-dao-test-output-19.json"),
+                    new FindAllTest(new FindTestInput(null, null, null, null, null, "com.sap.example.mta", null, ""), "R:configuration-entry-dao-test-output-19.json"),
                 },
                 // (20)
                 {
-                    new FindAllTest(new FindTestInput(null, "id-2", null, null, null, null, Arrays.asList(new CloudTarget("org-2", "space-2"))), "R:configuration-entry-dao-test-output-20.json"),
+                    new FindAllTest(new FindTestInput(null, "id-2", null, null, null, null, Arrays.asList(new CloudTarget("org-2", "space-2")), ""), "R:configuration-entry-dao-test-output-20.json"),
                 },              
                 // (21)
                 {
-                    new FindAllTest(new FindTestInput(null, null, "0.1.0", null, null, null, Arrays.asList(new CloudTarget("myorg", "*"))), "R:configuration-entry-dao-test-output-21.json"),
+                    new FindAllTest(new FindTestInput(null, null, "0.1.0", null, null, null, Arrays.asList(new CloudTarget("myorg", "*")), ""), "R:configuration-entry-dao-test-output-21.json"),
                 },
                 // (22)
                 {
-                    new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org-3", "space-3"))), "R:configuration-entry-dao-test-output-22.json"),
+                    new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org-3", "space-3")), ""), "R:configuration-entry-dao-test-output-22.json"),
                 },
                 // (23)
                 {
-                    new FindAllTest(new FindTestInput("n-2", null, null, null, null, null, Arrays.asList(new CloudTarget("*", ""))), "R:configuration-entry-dao-test-output-23.json"),
+                    new FindAllTest(new FindTestInput("n-2", null, null, null, null, null, Arrays.asList(new CloudTarget("*", "")), ""), "R:configuration-entry-dao-test-output-23.json"),
                 },
                 // (24)
                 {
-                    new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org-3", "space-3"), new CloudTarget("org-4", "space-4"))), "R:configuration-entry-dao-test-output-24.json"),
+                    new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org-3", "space-3"), new CloudTarget("org-4", "space-4")), ""), "R:configuration-entry-dao-test-output-24.json"),
                 }, 
                 // (25)               
                 {
-                    new FindAllTest(new FindTestInput(null, "s-2", null, null, null, null, Arrays.asList(new CloudTarget("myorg1", "myspace1"))), "[]"),
+                    new FindAllTest(new FindTestInput(null, "s-2", null, null, null, null, Arrays.asList(new CloudTarget("myorg1", "myspace1")), ""), "[]"),
+                },
+                // (26)
+                {
+                    new FindAllGuidTest(new FindTestInput(null, null, null, null, null, null, null, "fbd3dc79-1a54-4a70-8022-ab716643809b"), "R:configuration-entry-dao-test-output-26.json"),
                 }
     // @formatter:on
             });
@@ -194,8 +198,8 @@ public class ConfigurationEntryDaoTest {
         private static class RemoveTestInput extends FindTestInput {
 
             public RemoveTestInput(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
-                List<CloudTarget> cloudTargets) {
-                super(nid, id, version, target, requiredProperties, null, cloudTargets);
+                List<CloudTarget> cloudTargets, String spaceId) {
+                super(nid, id, version, target, requiredProperties, null, cloudTargets, spaceId);
             }
 
         }
@@ -205,8 +209,8 @@ public class ConfigurationEntryDaoTest {
             public ConfigurationEntry configurationEntry;
 
             public UpdateTestInput(String nid, String id, String version, CloudTarget target, String configurationEntryLocation,
-                List<CloudTarget> cloudTarget) throws Exception {
-                super(nid, id, version, target, Collections.emptyMap(), null, cloudTarget);
+                List<CloudTarget> cloudTarget, String spaceId) throws Exception {
+                super(nid, id, version, target, Collections.emptyMap(), null, cloudTarget, spaceId);
                 configurationEntry = TestInput.loadJsonInput(configurationEntryLocation, ConfigurationEntry.class, getClass());
             }
 
@@ -214,13 +218,13 @@ public class ConfigurationEntryDaoTest {
 
         private static class FindTestInput extends TestInput {
 
-            public String nid, id, version, mtaId;
+            public String nid, id, version, mtaId, spaceId;
             public CloudTarget target;
             public Map<String, Object> requiredProperties;
             public List<CloudTarget> cloudTargets;
 
             public FindTestInput(String nid, String id, String version, CloudTarget target, Map<String, Object> requiredProperties,
-                String mtaId, List<CloudTarget> cloudTargets) {
+                String mtaId, List<CloudTarget> cloudTargets, String spaceId) {
                 this.version = version;
                 this.nid = nid;
                 this.target = target;
@@ -228,6 +232,7 @@ public class ConfigurationEntryDaoTest {
                 this.requiredProperties = requiredProperties;
                 this.mtaId = mtaId;
                 this.cloudTargets = cloudTargets;
+                this.spaceId = spaceId;
             }
 
         }
@@ -333,13 +338,30 @@ public class ConfigurationEntryDaoTest {
 
                 }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
-
         }
+        
+        private static class FindAllGuidTest extends TestCase<FindTestInput> {
 
+            public FindAllGuidTest(FindTestInput input, String expected) {
+                super(input, expected);
+            }
+
+            @Override
+            public void test() {
+                TestUtil.test(() -> {
+                    return findConfigurationEntriesGuid(input, createDao());
+
+                }, expected, getClass(), new JsonSerializationOptions(true, false));
+            }
+        }
+        
         private static List<ConfigurationEntry> findConfigurationEntries(FindTestInput input, ConfigurationEntryDao dao) {
             return dao.find(input.nid, input.id, input.version, input.target, input.requiredProperties, input.mtaId, input.cloudTargets);
         }
-
+        
+        private static List<ConfigurationEntry> findConfigurationEntriesGuid(FindTestInput input, ConfigurationEntryDao dao) {
+            return dao.find(input.spaceId);
+        }
     }
 
     public static class ConfigurationEntryDaoStandardTest {
@@ -361,7 +383,7 @@ public class ConfigurationEntryDaoTest {
         public void testUpdate() {
             long id = getUnusedId(dao);
             try {
-                dao.update(id, new ConfigurationEntry("", "", Version.parseVersion("1.0.0"), new CloudTarget("", ""), "", null));
+                dao.update(id, new ConfigurationEntry("", "", Version.parseVersion("1.0.0"), new CloudTarget("", ""), "", null, ""));
                 fail();
             } catch (SLException e) {
                 assertEquals(MessageFormat.format(Messages.CONFIGURATION_ENTRY_NOT_FOUND, id), e.getMessage());

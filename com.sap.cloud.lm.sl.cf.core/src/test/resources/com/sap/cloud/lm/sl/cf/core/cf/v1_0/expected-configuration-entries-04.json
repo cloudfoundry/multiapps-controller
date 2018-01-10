@@ -15,7 +15,8 @@
           "space": "*",
           "org": "some-org"
         }
-      ]
+      ],
+      "spaceId": ""
     }
   ],
   "module-2": [
@@ -34,7 +35,8 @@
           "space": "*",
           "org": "some-org"
         }
-      ]
+      ],
+      "spaceId": ""
     }
   ]
 }
