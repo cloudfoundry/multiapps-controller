@@ -39,6 +39,7 @@ public final class Messages {
     public static final String COULD_NOT_PARSE_CONTENT_PARAMETER_AS_JSON = "Could not parse content query parameter as JSON: {0}";
     public static final String COULD_NOT_PARSE_CONTENT_PARAMETER_AS_LIST = "Could not parse content query parameter as list: {0}";
     public static final String ORG_AND_SPACE_MUST_BE_SPECIFIED = "Org and space must be specified!";
+    public static final String RETRIEVE_CONFIGURATION_SUBSCRIPTIONS_IN_ORG_AND_SPACE = "Retrieve configuration subscriptions in org {0} and space {1}";
 
     // WARN log messages
 
