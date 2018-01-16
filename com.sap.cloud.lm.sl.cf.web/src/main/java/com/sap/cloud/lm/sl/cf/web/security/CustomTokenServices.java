@@ -1,9 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
-import java.util.Base64;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -11,9 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.jwt.JwtHelper;
@@ -40,8 +35,6 @@ public class CustomTokenServices implements ResourceServerTokenServices {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomTokenServices.class);
 
-    private static final Charset CHARSET = Charset.forName("US-ASCII");
-
     @Autowired
     @Qualifier("tokenStore")
     TokenStore tokenStore;
@@ -50,7 +43,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
 
     private RestOperations restTemplate;
 
-    private Pair<String, String> tokenKey;
+    private volatile Pair<String, String> tokenKey;
 
     public CustomTokenServices() {
         restTemplate = new RestTemplate();
@@ -173,7 +166,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     }
 
     private void refreshTokenKey() {
-        Pair<String, String> tempTokenKey = readTokenKey(readTokenEndpoint(configuration.getTargetURL()), null);
+        Pair<String, String> tempTokenKey = readTokenKey(readTokenEndpoint(configuration.getTargetURL()));
         tokenKey = tempTokenKey;
     }
 
@@ -198,15 +191,11 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     }
 
     @SuppressWarnings("unchecked")
-    private Pair<String, String> readTokenKey(URL uaaUrl, String auth) {
+    private Pair<String, String> readTokenKey(URL uaaUrl) {
         try {
             String tokenKeyURL = uaaUrl.toString() + "/token_key";
             Map<String, Object> tokenKeyMap = null;
-            if (auth != null && !auth.isEmpty()) {
-                tokenKeyMap = restTemplate.exchange(tokenKeyURL, HttpMethod.GET, getEntityWithAuthorization(auth), Map.class).getBody();
-            } else {
-                tokenKeyMap = restTemplate.getForEntity(tokenKeyURL, Map.class).getBody();
-            }
+            tokenKeyMap = restTemplate.getForEntity(tokenKeyURL, Map.class).getBody();
             if (tokenKeyMap == null) {
                 throw new InternalAuthenticationServiceException("Invalid response returned from /token_key");
             }
@@ -219,12 +208,5 @@ public class CustomTokenServices implements ResourceServerTokenServices {
         } catch (Exception e) {
             throw new InternalAuthenticationServiceException("Could not read token verification key", e);
         }
-    }
-
-    private static HttpEntity<?> getEntityWithAuthorization(String auth) {
-        String encoded = Base64.getUrlEncoder().encodeToString(auth.getBytes(CHARSET));
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.set("Authorization", "Basic " + encoded);
-        return new HttpEntity<Object>(requestHeaders);
     }
 }
