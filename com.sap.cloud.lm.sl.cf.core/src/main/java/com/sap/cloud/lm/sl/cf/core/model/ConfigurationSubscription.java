@@ -6,30 +6,51 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import com.google.gson.annotations.Expose;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
+import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.mta.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 import com.sap.cloud.lm.sl.mta.model.v2_0.ProvidedDependency;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
 
+@XmlRootElement(name = "configuration-subscription")
+@XmlAccessorType(value = XmlAccessType.FIELD)
 public class ConfigurationSubscription {
 
+    @XmlElement
     private long id;
 
     @Expose
+    @XmlElement(name = "mta-id")
     private String mtaId;
     @Expose
+    @XmlElement(name = "configuration-filter")
     private ConfigurationFilter filter;
     @Expose
+    @XmlElement(name = "space-id")
     private String spaceId;
     @Expose
+    @XmlElement(name = "app-name")
     private String appName;
     @Expose
+    @XmlElement(name = "module")
     private ModuleDto moduleDto;
     @Expose
+    @XmlElement(name = "resource")
     private ResourceDto resourceDto;
+
+    public ConfigurationSubscription() {
+        // Required by JaxB
+    }
 
     public ConfigurationSubscription(long id, String mtaId, String spaceId, String appName, ConfigurationFilter filter, ModuleDto moduleDto,
         ResourceDto resourceDto) {
@@ -82,16 +103,29 @@ public class ConfigurationSubscription {
         }
     }
 
+    @XmlRootElement(name = "module")
+    @XmlAccessorType(XmlAccessType.FIELD)
     public static class ModuleDto {
 
         @Expose
+        @XmlElement
         private String name;
         @Expose
+        @XmlElement
+        @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
         @Expose
+        @XmlElement(name = "provided-dependency")
+        @XmlElementWrapper(name = "provided-dependencies")
         private List<ProvidedDependencyDto> providedDependencies;
         @Expose
+        @XmlElement(name = "required-dependency")
+        @XmlElementWrapper(name = "required-dependencies")
         private List<RequiredDependencyDto> requiredDependencies;
+
+        public ModuleDto() {
+
+        }
 
         public ModuleDto(String name, Map<String, Object> properties, List<ProvidedDependencyDto> providedDependencies,
             List<RequiredDependencyDto> requiredDependencies) {
@@ -132,12 +166,21 @@ public class ConfigurationSubscription {
 
     }
 
+    @XmlRootElement(name = "resource")
+    @XmlAccessorType(XmlAccessType.FIELD)
     public static class ResourceDto {
 
         @Expose
+        @XmlElement
         private String name;
         @Expose
+        @XmlElement
+        @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
+
+        public ResourceDto() {
+
+        }
 
         public ResourceDto(String name, Map<String, Object> properties) {
             this.name = name;
@@ -158,14 +201,24 @@ public class ConfigurationSubscription {
 
     }
 
+    @XmlRootElement(name = "required-dependency")
+    @XmlAccessorType(XmlAccessType.FIELD)
     public static class RequiredDependencyDto {
 
         @Expose
+        @XmlElement
         private String name;
         @Expose
+        @XmlElement
         private String list;
         @Expose
+        @XmlElement
+        @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
+
+        public RequiredDependencyDto() {
+
+        }
 
         public RequiredDependencyDto(String name, String list, Map<String, Object> properties) {
             this.name = name;
@@ -192,12 +245,21 @@ public class ConfigurationSubscription {
 
     }
 
+    @XmlRootElement(name = "provided-dependency")
+    @XmlAccessorType(XmlAccessType.FIELD)
     public static class ProvidedDependencyDto {
 
         @Expose
+        @XmlElement
         private String name;
         @Expose
+        @XmlElement
+        @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
+
+        public ProvidedDependencyDto() {
+
+        }
 
         public ProvidedDependencyDto(String name, Map<String, Object> properties) {
             this.name = name;
