@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -51,13 +52,29 @@ public class ConfigurationEntryDao {
     public ConfigurationEntry find(long id) throws NotFoundException {
         return dao.find(id).toConfigurationEntry();
     }
+    
+    public List<ConfigurationEntry> find(String spaceGuid){
+        return toConfigurationEntries(dao.find(spaceGuid));
+    }
 
     public void remove(long id) throws NotFoundException {
         dao.remove(id);
     }
+    
+    public List<ConfigurationEntry> removeAll(List<ConfigurationEntry> configurationEntries){
+        return toConfigurationEntries(dao.removeAll(toConfigurationEntryDtos(configurationEntries)));
+    }
 
     public ConfigurationEntry add(ConfigurationEntry entry) throws ConflictException {
         return dao.add(new ConfigurationEntryDto(entry)).toConfigurationEntry();
+    }
+    
+    private List<ConfigurationEntryDto> toConfigurationEntryDtos(List<ConfigurationEntry> configurationEntries){
+        List<ConfigurationEntryDto> result = new ArrayList<>();
+        for(ConfigurationEntry configurationEntry: configurationEntries){
+            result.add(new ConfigurationEntryDto(configurationEntry));
+        }
+        return result;
     }
 
     public boolean exists(long id) {

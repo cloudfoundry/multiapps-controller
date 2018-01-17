@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,10 @@ public class ConfigurationSubscriptionDao {
     public ConfigurationSubscription remove(long id) throws NotFoundException {
         return dao.remove(id).toConfigurationSubscription();
     }
+    
+    public List<ConfigurationSubscription> removeAll(List<ConfigurationSubscription> configurationSubscriptions){
+          return toConfigurationSubscriptions(dao.removeAll(toConfigurationSubscriptionDtos(configurationSubscriptions)));
+    }
 
     public ConfigurationSubscription add(ConfigurationSubscription subscriptionn) throws ConflictException {
         return dao.add(new ConfigurationSubscriptionDto(subscriptionn)).toConfigurationSubscription();
@@ -41,13 +46,24 @@ public class ConfigurationSubscriptionDao {
     public List<ConfigurationSubscription> findAll(List<ConfigurationEntry> entriess) {
         return findAll().stream().filter((subscriptionn) -> subscriptionn.matches(entriess)).collect(Collectors.toList());
     }
+    
+    public List<ConfigurationSubscription> findAll(String spaceGuid){
+        return toConfigurationSubscriptions(dao.findAll(spaceGuid));
+    }
 
     private static List<ConfigurationSubscription> toConfigurationSubscriptions(List<ConfigurationSubscriptionDto> dtos) {
         return dtos.stream().map((dto) -> dto.toConfigurationSubscription()).collect(Collectors.toList());
+    }
+    
+    private List<ConfigurationSubscriptionDto> toConfigurationSubscriptionDtos(List<ConfigurationSubscription> configurationSubscriptions){
+        List<ConfigurationSubscriptionDto> result = new ArrayList<>();
+        for(ConfigurationSubscription configurationSubscription: configurationSubscriptions){
+            result.add(new ConfigurationSubscriptionDto(configurationSubscription));
+        }
+        return result;
     }
 
     public ConfigurationSubscription find(long id) throws NotFoundException {
         return dao.find(id).toConfigurationSubscription();
     }
-
 }

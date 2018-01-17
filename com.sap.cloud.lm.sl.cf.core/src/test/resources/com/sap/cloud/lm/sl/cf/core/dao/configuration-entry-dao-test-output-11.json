@@ -7,7 +7,8 @@
       "space": "space-1",
       "org": "org-1"
     },
-    "content": "{\"type\": \"prod\"}"
+    "content": "{\"type\": \"prod\"}",
+    "spaceId": ""
   },
   {
     "providerNid": "n-2",
@@ -23,7 +24,8 @@
         "space": "*",
         "org": "org-1"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "n-2",
@@ -39,7 +41,8 @@
         "space": "*",
         "org": "*"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "n-2",
@@ -55,7 +58,8 @@
         "space": "space-2",
         "org": "org-2"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "n-2",
@@ -75,6 +79,7 @@
         "space": "space-4",
         "org": "org-4"
       }
-    ]
+    ],
+    "spaceId": ""
   }
 ]

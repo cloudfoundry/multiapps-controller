@@ -13,7 +13,8 @@
         "space": "*",
         "org": "myorg"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "mta",
@@ -29,6 +30,7 @@
         "space": "*",
         "org": "myorg"
       }
-    ]
+    ],
+    "spaceId": ""
   }
 ]

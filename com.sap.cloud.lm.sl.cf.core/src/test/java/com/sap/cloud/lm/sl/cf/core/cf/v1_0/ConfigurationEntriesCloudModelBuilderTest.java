@@ -75,7 +75,7 @@ public class ConfigurationEntriesCloudModelBuilderTest {
 
     @Test
     public void testBuild() {
-        ConfigurationEntriesCloudModelBuilder builder = new ConfigurationEntriesCloudModelBuilder(orgName, spaceName);
+        ConfigurationEntriesCloudModelBuilder builder = new ConfigurationEntriesCloudModelBuilder(orgName, spaceName, "");
         TestUtil.test(() -> builder.build(deploymentDescriptor), expectedResult, getClass());
     }
 

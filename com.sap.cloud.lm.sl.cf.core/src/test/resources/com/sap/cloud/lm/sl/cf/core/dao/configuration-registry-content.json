@@ -7,7 +7,8 @@
       "space": "space-1",
       "org": "org-1"
     },
-    "content": "{\"type\": \"prod\"}"
+    "content": "{\"type\": \"prod\"}",
+    "spaceId": ""
   },
   {
     "providerNid": "n-2",
@@ -23,7 +24,8 @@
         "space": "*",
         "org": "org-1"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "n-2",
@@ -39,7 +41,8 @@
         "space": "*",
         "org": "*"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "n-2",
@@ -55,7 +58,8 @@
         "space": "space-2",
         "org": "org-2"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "n-2",
@@ -75,7 +79,8 @@
         "space": "space-4",
         "org": "org-4"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerId": "id-6",
@@ -83,7 +88,8 @@
       "space": "space-6",
       "org": "org-6"
     },
-    "content": "not-a-json"
+    "content": "not-a-json",
+    "spaceId": ""
   },
   {
     "providerNid": "mta",
@@ -99,7 +105,8 @@
         "space": "*",
         "org": "myorg"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "mta",
@@ -115,7 +122,8 @@
         "space": "*",
         "org": "myorg"
       }
-    ]
+    ],
+    "spaceId": ""
   },
   {
     "providerNid": "mta",
@@ -125,6 +133,29 @@
       "space": "SAP",
       "org": "myorg"
     },
-    "content": "{\"type\": \"anatz\"}"
+    "content": "{\"type\": \"anatz\"}",
+    "spaceId": ""
+  },
+  {
+    "providerNid": "mta",
+    "providerId": "foo",
+    "providerVersion": "0.26.0",
+    "targetSpace": {
+      "space": "random",
+      "org": "random"
+    },
+    "content": "{\"type\": \"content\"}",
+    "spaceId": "fbd3dc79-1a54-4a70-8022-ab716643809b"
+  },
+  {
+    "providerNid": "mta",
+    "providerId": "bar",
+    "providerVersion": "0.27.0",
+    "targetSpace": {
+      "space": "random",
+      "org": "random"
+    },
+    "content": "{\"type\": \"content\"}",
+    "spaceId": "fbd3dc79-1a54-4a70-8022-ab716643809b"
   }
 ]
