@@ -66,6 +66,7 @@ public final class Messages {
     public static final String ILLEGAL_SERVICE_OPERATION_TYPE = "Illegal service operation type: {0}";
     public static final String MULTIPLE_CONFIGURATION_ENTRIES = "Multiple configuration entries were found matching the filter specified in resource \"{0}\": \"{1}\"";
     public static final String NO_CONTENT_TO_DEPLOY = "No content to deploy";
+    public static final String UNABLE_TO_PARSE_PARAMETER = "Unable to parse parameter {0} with value {1}";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET = "Environment variable \"{0}\" is not set";

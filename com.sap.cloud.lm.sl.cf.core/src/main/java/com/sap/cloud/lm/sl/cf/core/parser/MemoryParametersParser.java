@@ -2,12 +2,17 @@ package com.sap.cloud.lm.sl.cf.core.parser;
 
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 
+import java.text.MessageFormat;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.common.ContentException;
 
 public class MemoryParametersParser implements ParametersParser<Integer> {
 
+    private static final String GYGABYTES_MATCHER = "[0-9]+[Gg][Bb]?";
+    private static final String MEGABYTES_MATCHER = "[0-9]+([Mm][Bb]?|$)";
     private String parameterName;
     private String defaultMemory;
 
@@ -21,18 +26,17 @@ public class MemoryParametersParser implements ParametersParser<Integer> {
         return parseMemory((String) getPropertyValue(parametersList, parameterName, defaultMemory));
     }
 
-    protected static int parseMemory(String value) {
-        if (getToUpperCase(value).endsWith("M") || getToUpperCase(value).endsWith("MB")) {
-            return Integer.parseInt(value.substring(0, getToUpperCase(value).indexOf('M')));
+    protected int parseMemory(String value) {
+        if (value.matches(MEGABYTES_MATCHER)) {
+            return getNumberFromString(value);
         }
-        if (value.toUpperCase().endsWith("G") || getToUpperCase(value).endsWith("GB")) {
-            return Integer.parseInt(value.substring(0, getToUpperCase(value).indexOf('G'))) * 1024;
+        if (value.matches(GYGABYTES_MATCHER)) {
+            return getNumberFromString(value) * 1024;
         }
-        return Integer.parseInt(value);
+        throw new ContentException(MessageFormat.format(Messages.UNABLE_TO_PARSE_PARAMETER, parameterName, value));
     }
-
-    private static String getToUpperCase(String value) {
-        return value.toUpperCase(Locale.ROOT);
+    
+    private int getNumberFromString(String value) {
+        return Integer.parseInt(value.replaceAll("[^0-9]", ""));
     }
-
 }
