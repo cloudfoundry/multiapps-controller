@@ -28,6 +28,7 @@
         <sec:access-denied-handler ref="accessDeniedHandler" />
         <sec:custom-filter ref="csrfHeadersFilter" after="CSRF_FILTER" />
         <sec:custom-filter ref="correlationIdFilter" position="FIRST" />
+        <sec:custom-filter ref="requestSizeFilter" after="PRE_AUTH_FILTER"/>
     </sec:http>
 
     <bean id="delegatingAuthenticationEntryPoint" class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
@@ -74,6 +75,8 @@
     <bean id="accessDeniedHandler" class="com.sap.cloud.lm.sl.cf.web.security.CsrfAccessDeniedHandler" />
 
     <bean id="csrfHeadersFilter" class="com.sap.cloud.lm.sl.cf.web.security.CsrfHeadersFilter" />
+    
+    <bean id="requestSizeFilter" class="com.sap.cloud.lm.sl.cf.web.security.RequestSizeFilter" />
 
     <beans>
         <bean id="tokenStore" class="com.sap.cloud.lm.sl.cf.web.security.TokenStoreFactory" factory-method="getTokenStore">
