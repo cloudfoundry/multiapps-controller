@@ -78,6 +78,12 @@ public class HelperFactory implements HelperFactoryConstructor {
     }
 
     @Override
+    public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+        PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration, UserMessageLogger userMessageLogger) {
+        return new ServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration, userMessageLogger);
+    }
+
+    @Override
     public DeployTargetFactory getDeployTargetFactory() {
         return new DeployTargetFactory();
     }

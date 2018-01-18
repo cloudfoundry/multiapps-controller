@@ -967,10 +967,15 @@ public class StepsUtil {
     }
 
     static ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {
+        return getServicesCloudModelBuilder(context, null);
+    }
+
+    static ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context, StepLogger stepLogger) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
         CloudModelConfiguration configuration = getCloudBuilderConfiguration(context, true);
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
-        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), configuration);
+        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), configuration,
+            stepLogger);
     }
 
     static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {

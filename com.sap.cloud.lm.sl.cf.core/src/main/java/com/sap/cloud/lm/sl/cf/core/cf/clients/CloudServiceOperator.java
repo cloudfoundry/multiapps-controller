@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 
+
 public abstract class CloudServiceOperator extends CustomControllerClient {
 
     protected static final String SERVICES_URL = "/v2/services?inline-relations-depth=1";
@@ -42,9 +43,9 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
                     return plan;
                 }
             }
-        }
-        throw new CloudFoundryException(HttpStatus.NOT_FOUND,
+			throw new CloudFoundryException(HttpStatus.NOT_FOUND,
             MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, service.getName(), newServicePlan, service.getLabel()));
+        }
     }
 
     protected List<CloudServiceOffering> filterByVersion(List<CloudServiceOffering> offerings, CloudService service) {

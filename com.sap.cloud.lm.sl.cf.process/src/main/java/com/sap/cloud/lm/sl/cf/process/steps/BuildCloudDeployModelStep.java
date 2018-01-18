@@ -114,7 +114,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
     }
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getServicesCloudModelBuilder(context);
+        return StepsUtil.getServicesCloudModelBuilder(context, getStepLogger());
     }
 
     private Map<String, List<ConfigurationEntry>> updateModuleNames(Map<String, List<ConfigurationEntry>> configurationEntries,
