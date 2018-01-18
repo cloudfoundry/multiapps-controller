@@ -48,6 +48,9 @@ public interface HelperFactoryConstructor {
     ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
         CloudModelConfiguration configuration);
 
+    ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
+        CloudModelConfiguration configuration, UserMessageLogger userMessageLogger);
+
     DeployTargetFactory getDeployTargetFactory();
 
     DeployTargetDao<?, ?> getDeployTargetDao(com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDao dao1,

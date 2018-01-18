@@ -18,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
@@ -32,6 +33,7 @@ public class ServicesCloudModelBuilder {
     private CloudServiceNameMapper cloudServiceNameMapper;
     protected final PropertiesAccessor propertiesAccessor;
     protected final DeploymentDescriptor deploymentDescriptor;
+    protected UserMessageLogger userMessageLogger;
 
     public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
         CloudModelConfiguration configuration) {
@@ -40,14 +42,31 @@ public class ServicesCloudModelBuilder {
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
     }
 
+    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
+        CloudModelConfiguration configuration, UserMessageLogger userMessageLogger) {
+        this.propertiesAccessor = propertiesAccessor;
+        this.deploymentDescriptor = deploymentDescriptor;
+        this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
+        this.userMessageLogger = userMessageLogger;
+    }
+
     public List<CloudServiceExtended> build(Set<String> modules) throws SLException {
         List<CloudServiceExtended> services = new ArrayList<>();
         for (Resource resource : deploymentDescriptor.getResources1_0()) {
             if (isService(resource, propertiesAccessor)) {
                 ListUtil.addNonNull(services, getService(resource));
+            } else {
+                warnInvalidResourceType(resource);
             }
         }
         return services;
+    }
+
+    private void warnInvalidResourceType(Resource resource) {
+        if (userMessageLogger == null || resource.getType() == null) {
+            return;
+        }
+        userMessageLogger.warn("Optional resource \"{0}\" it will be not created because it's not a service", resource.getName());
     }
 
     protected CloudServiceExtended getService(Resource resource) throws SLException {

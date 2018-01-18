@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.v3_1;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
@@ -10,6 +11,11 @@ public class ServicesCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1
     public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
         CloudModelConfiguration configuration) {
         super(deploymentDescriptor, propertiesAccessor, configuration);
+    }
+
+    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
+        CloudModelConfiguration configuration, UserMessageLogger userMessageLogger) {
+        super(deploymentDescriptor, propertiesAccessor, configuration, userMessageLogger);
     }
 
     @Override

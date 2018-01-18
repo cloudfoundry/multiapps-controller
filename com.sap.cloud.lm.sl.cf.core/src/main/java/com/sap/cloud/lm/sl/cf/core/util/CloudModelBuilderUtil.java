@@ -76,10 +76,16 @@ public class CloudModelBuilderUtil {
     }
 
     public static boolean isService(Resource resource, PropertiesAccessor propertiesAccessor) {
-        if (resource.getType() == null) {
+        if (!compareWithServiceTypes(resource, propertiesAccessor)) {
             return false;
         }
         return !ResourceType.EXISTING_SERVICE_KEY.toString().equals(getResourceType(resource, propertiesAccessor));
+    }
+
+    private static boolean compareWithServiceTypes(Resource resource, PropertiesAccessor propertiesAccessor) {
+        String resourceType = getResourceType(resource, propertiesAccessor);
+        return ResourceType.MANAGED_SERVICE.toString().equals(resourceType) || ResourceType.EXISTING_SERVICE.toString().equals(resourceType)
+            || ResourceType.USER_PROVIDED_SERVICE.toString().equals(resourceType);
     }
 
     public static boolean isServiceKey(Resource resource, PropertiesAccessor propertiesAccessor) {
@@ -102,8 +108,8 @@ public class CloudModelBuilderUtil {
         Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
         return (String) resourceParameters.get(SupportedParameters.TYPE);
     }
-    
-    public static Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor){
+
+    public static Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor) {
         Set<String> deployedModuleNames = new TreeSet<>();
         for (Module mtaModule : deploymentDescriptor.getModules1_0()) {
             deployedModuleNames.add(mtaModule.getName());

@@ -13,6 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v3_1.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v3_1.ConfigurationSubscriptionFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.v3_1.DeployTargetFactory;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.mta.builders.v2_0.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
@@ -47,5 +48,12 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v3_0.H
     public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration) {
         return new com.sap.cloud.lm.sl.cf.core.cf.v3_1.ServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration);
+    }
+
+    @Override
+    public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+        PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration, UserMessageLogger userMessageLogger) {
+        return new com.sap.cloud.lm.sl.cf.core.cf.v3_1.ServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration,
+            userMessageLogger);
     }
 }
