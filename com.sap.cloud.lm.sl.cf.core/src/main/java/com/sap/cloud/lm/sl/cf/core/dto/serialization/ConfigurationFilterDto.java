@@ -8,6 +8,7 @@ import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParamete
 
 import java.util.List;
 
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.QueryParam;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -36,6 +37,7 @@ public class ConfigurationFilterDto {
     @QueryParam(TARGET_SPACE)
     private String targetSpace;
 
+    @BeanParam
     @XmlElement(name = "provider-target")
     private CloudTarget cloudTarget;
 

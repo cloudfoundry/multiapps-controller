@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,8 +81,8 @@ public class ServiceUpdaterTest extends ServiceCreatorTest {
 
         resourceMap.put("resources", resourcesList);
         Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_ENDPOINT));
-        Mockito.when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)),
-            String.class)).thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
+        Mockito.when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)), String.class,
+            Collections.emptyMap())).thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
 
         Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
     }

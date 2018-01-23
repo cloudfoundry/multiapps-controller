@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
@@ -18,12 +17,6 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class CFOptimizedSpaceGetterTest extends CFOptimizedSpaceGetterBaseTest {
 
     private static final String GET_SPACE_ENDPOINT = "https://api.cf.sap.com/v2/spaces/{id}?inline-relations-depth=1";
-
-    @Test
-    public void testFindSpaceWhenOrgDoesNotExist() {
-        when(client.getOrganization(DUMMY, false)).thenReturn(null);
-        assertNull(spaceGetter.findSpace(client, DUMMY, DUMMY));
-    }
 
     @Test
     public void testGetSpace() throws Exception {

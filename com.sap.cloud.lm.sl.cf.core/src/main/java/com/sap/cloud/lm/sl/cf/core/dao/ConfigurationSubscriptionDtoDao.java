@@ -86,8 +86,7 @@ public class ConfigurationSubscriptionDtoDao {
         }
     }
 
-    public ConfigurationSubscriptionDto update(long id, ConfigurationSubscriptionDto delta)
-        throws ConflictException, NotFoundException {
+    public ConfigurationSubscriptionDto update(long id, ConfigurationSubscriptionDto delta) throws ConflictException, NotFoundException {
         try {
             return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute((manager) -> {
 

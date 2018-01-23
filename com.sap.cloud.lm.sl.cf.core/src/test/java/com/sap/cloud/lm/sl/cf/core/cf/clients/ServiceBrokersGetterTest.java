@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.net.URL;
+import java.util.Collections;
 
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.junit.Before;
@@ -33,8 +34,8 @@ public class ServiceBrokersGetterTest {
         String getServiceBrokersResponse = TestUtil.getResourceAsString("valid-get-service-brokers-response.json", getClass());
         Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_URL));
         Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
-        Mockito.when(restTemplate.getForObject(CONTROLLER_URL + SERVICE_BROKERS_ENDPOINT, String.class)).thenReturn(
-            getServiceBrokersResponse);
+        Mockito.when(restTemplate.getForObject(CONTROLLER_URL + SERVICE_BROKERS_ENDPOINT, String.class, Collections.emptyMap()))
+            .thenReturn(getServiceBrokersResponse);
     }
 
     @Test
