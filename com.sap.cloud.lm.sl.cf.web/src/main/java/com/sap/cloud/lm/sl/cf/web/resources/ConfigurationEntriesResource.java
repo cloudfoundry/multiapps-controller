@@ -65,12 +65,12 @@ public class ConfigurationEntriesResource {
     private static final String KEYVALUE_SEPARATOR = ":";
     private static final String PURGE_COMMAND = "Purge configuration entries and subscriptions";
 
-    private static final URL CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class.getResource(
-        "/create-configuration-entry-schema.xsd");
-    private static final URL UPDATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class.getResource(
-        "/update-configuration-entry-schema.xsd");
-    private static final URL CONFIGURATION_FILTER_SCHEMA_LOCATION = ConfigurationEntriesResource.class.getResource(
-        "/configuration-filter-schema.xsd");
+    private static final URL CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class
+        .getResource("/create-configuration-entry-schema.xsd");
+    private static final URL UPDATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION = ConfigurationEntriesResource.class
+        .getResource("/update-configuration-entry-schema.xsd");
+    private static final URL CONFIGURATION_FILTER_SCHEMA_LOCATION = ConfigurationEntriesResource.class
+        .getResource("/configuration-filter-schema.xsd");
     protected Supplier<UserInfo> userInfoSupplier = () -> SecurityContextUtil.getUserInfo();
 
     @Inject

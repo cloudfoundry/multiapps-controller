@@ -1,8 +1,8 @@
 {
-    "total_results": 2,
-    "total_pages": 2,
+    "total_results": 1,
+    "total_pages": 1,
     "prev_url": null,
-    "next_url": "/v2/spaces?inline-relations-depth=1&q=organization_guid:{organization_guid}&q=name:{space_name}",
+    "next_url": null,
     "resources": [
         {
             "metadata": {

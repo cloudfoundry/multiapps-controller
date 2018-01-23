@@ -147,8 +147,10 @@ public class ConfigurationEntryDtoDao {
         if (providerNid != null) {
             predicates.add(builder.equal(root.get(FieldNames.PROVIDER_NID), providerNid));
         }
-        if (targetSpace != null && !StringUtils.isEmpty(targetSpace.getSpace())) {
-            predicates.add(builder.equal(root.get(FieldNames.TARGET_SPACE), targetSpace.getSpace()));
+        if (targetSpace != null) {
+            if (!StringUtils.isEmpty(targetSpace.getSpace())) {
+                predicates.add(builder.equal(root.get(FieldNames.TARGET_SPACE), targetSpace.getSpace()));
+            }
             if (!StringUtils.isEmpty(targetSpace.getOrg())) {
                 predicates.add(builder.equal(root.get(FieldNames.TARGET_ORG), targetSpace.getOrg()));
             }
@@ -173,10 +175,12 @@ public class ConfigurationEntryDtoDao {
 
     private List<ConfigurationEntryDto> filter(List<ConfigurationEntryDto> entries, Map<String, Object> requiredProperties,
         CloudTarget requestedSpace) {
+
         Stream<ConfigurationEntryDto> stream = entries.stream();
         stream = stream.filter((entry) -> CONTENT_FILTER.apply(entry.getContent(), requiredProperties));
-        stream = stream.filter(
-            (entry) -> TARGET_WILDCARD_FILTER.apply(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()), requestedSpace));
+
+        stream = stream
+            .filter((entry) -> TARGET_WILDCARD_FILTER.apply(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()), requestedSpace));
         return stream.collect(Collectors.toList());
     }
 

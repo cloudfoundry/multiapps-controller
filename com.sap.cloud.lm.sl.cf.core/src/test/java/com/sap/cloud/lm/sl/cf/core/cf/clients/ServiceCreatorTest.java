@@ -180,7 +180,7 @@ public class ServiceCreatorTest {
             definedExistingServiceOfferings = true;
         }
         List<CloudServiceOffering> existingServiceOfferings = new ArrayList<CloudServiceOffering>();
-       
+
         List<Map<String, Object>> resourcesList = new ArrayList<>();
         Map<String, Object> resourceMap = new HashMap<>();
         for (String existingServiceOfferingName : existingServiceOfferingNames) {
@@ -205,8 +205,8 @@ public class ServiceCreatorTest {
 
         resourceMap.put("resources", resourcesList);
         Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_ENDPOINT));
-        Mockito.when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)), String.class))
-            .thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
+        Mockito.when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)), String.class,
+            Collections.emptyMap())).thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
 
         Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
 

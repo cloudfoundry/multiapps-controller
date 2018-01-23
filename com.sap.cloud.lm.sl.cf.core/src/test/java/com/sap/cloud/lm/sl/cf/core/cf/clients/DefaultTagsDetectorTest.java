@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.junit.Before;
@@ -86,7 +87,7 @@ public class DefaultTagsDetectorTest {
 
     private void prepareRestClient() throws Exception {
         when(restTemplateFactory.getRestTemplate(eq(client))).thenReturn(restTemplate);
-        when(restTemplate.getForObject(V2_SERVICE_ENDPOINT, String.class)).thenReturn(response);
+        when(restTemplate.getForObject(V2_SERVICE_ENDPOINT, String.class, Collections.emptyMap())).thenReturn(response);
     }
 
     @Test
