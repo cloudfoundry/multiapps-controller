@@ -35,6 +35,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -134,7 +135,7 @@ public class CollectSystemParametersStepTest extends SyncActivitiStepTest<Collec
             // (4) The version of the MTA is lower than the version of the previously deployed MTA:
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, 0, "deployed-mta-02.json", PlatformType.XS2, false), 
-                new StepOutput(Collections.emptySet(), "R:system-parameters-04.json", "MTA rejected for deployment as its version does not conform to the specified version rule \"SAME_HIGHER\" : \"Higher version already deployed\""),
+                new StepOutput(Collections.emptySet(), "R:system-parameters-04.json", Messages.HIGHER_VERSION_ALREADY_DEPLOYED),
             },
             // (5) Should not use namespaces for applications and services (platform type  is  CF):
             {

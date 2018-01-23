@@ -55,6 +55,11 @@ public class Messages {
     public static final String NO_RETRY_MESSAGE = "No retry message available";
     public static final String MULTIPLE_OPERATIONS_WITH_LOCK_FOUND = "Multiple operations found with lock for MTA \"{0}\" in space \"{1}\": {2}";
     public static final String EXECUTION_OF_STEP_HAS_TIMED_OUT = "Execution of step {0} has timed out";
+    // TODO: With these messages, the backend 'knows' about command line options. This is obviously not ideal, so consider using some
+    // placeholders here, which are replaced with the options on client-side.
+    public static final String HIGHER_VERSION_ALREADY_DEPLOYED = "A higher version of your MTA is already deployed. Include the command line option \"--version-rule ALL\" in your deploy command if you want to allow downgrades.";
+    public static final String SAME_VERSION_ALREADY_DEPLOYED = "The same version of your MTA is already deployed. Include the command line option \"--version-rule SAME_HIGHER\" in your deploy command if you want to allow redeployments.";
+    public static final String VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE = "Version rule \"{0}\" does not allow deployment type \"{1}\".";
 
     // Audit log messages
 
@@ -297,7 +302,6 @@ public class Messages {
     public static final String DETECTING_DEPLOYED_COMPONENTS = "Detecting deployed components...";
     public static final String DEPLOYED_COMPONENTS_DETECTED = "Deployed components detected";
     public static final String MTA_VERSION_ACCEPTED = "MTA accepted for deployment";
-    public static final String MTA_VERSION_REJECTED = "MTA rejected for deployment as its version does not conform to the specified version rule \"{0}\" : \"{1}\"";
     public static final String DETECTING_COMPONENTS_TO_UNDEPLOY = "Detecting components to undeploy...";
     public static final String COMPONENTS_TO_UNDEPLOY_DETECTED = "Components to undeploy detected";
     public static final String DETECTING_APPS_TO_UNDEPLOY = "Detectings applications to undeploy";
@@ -415,6 +419,5 @@ public class Messages {
     public static final String SAVING_ERROR_MESSAGE_FAILED = "Saving error message failed";
     public static final String STEP_FINISHED = "Step \"{0}\" finished";
     public static final String COMPUTING_STATE_OF_OPERATION = "Computing state of operation {0} with ID: {1}";
-
 
 }

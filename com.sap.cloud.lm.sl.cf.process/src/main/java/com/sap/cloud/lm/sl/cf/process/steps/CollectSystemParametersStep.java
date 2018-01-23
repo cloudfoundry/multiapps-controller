@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.net.URL;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
@@ -29,7 +30,9 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.mta.model.DeploymentType;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
@@ -170,27 +173,32 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
 
         Version mtaVersion = Version.parseVersion(descriptor.getVersion());
         getStepLogger().info(Messages.NEW_MTA_VERSION, mtaVersion);
-        boolean mtaVersionAccepted = isVersionAccepted(versionRule, deployedMta, mtaVersion);
-        if (!mtaVersionAccepted) {
-            cleanUp(portAllocator);
-            throw new SLException(Messages.MTA_VERSION_REJECTED, versionRule, versionRule.getErrorMessage());
-        } else {
+        DeploymentType deploymentType = getDeploymentType(deployedMta, mtaVersion);
+        if (versionRule.allows(deploymentType)) {
             getStepLogger().debug(Messages.MTA_VERSION_ACCEPTED);
+            return;
         }
-        StepsUtil.setMtaVersionAccepted(context, mtaVersionAccepted);
+        if (deploymentType == DeploymentType.DOWNGRADE) {
+            throw new ContentException(Messages.HIGHER_VERSION_ALREADY_DEPLOYED);
+        }
+        if (deploymentType == DeploymentType.REDEPLOYMENT) {
+            throw new ContentException(Messages.SAME_VERSION_ALREADY_DEPLOYED);
+        }
+        throw new IllegalStateException(
+            MessageFormat.format(Messages.VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE, versionRule, deploymentType));
     }
 
-    private boolean isVersionAccepted(VersionRule versionRule, DeployedMta deployedMta, Version newMtaVersion) {
+    private DeploymentType getDeploymentType(DeployedMta deployedMta, Version newMtaVersion) {
         if (deployedMta == null) {
-            return true;
+            return DeploymentType.DEPLOYMENT;
         }
         if (deployedMta.getMetadata().isVersionUnknown()) {
             getStepLogger().warn(Messages.IGNORING_VERSION_RULE);
-            return true;
+            return DeploymentType.UPGRADE;
         }
         Version deployedMtaVersion = deployedMta.getMetadata().getVersion();
         getStepLogger().info(Messages.DEPLOYED_MTA_VERSION, deployedMtaVersion);
-        return versionRule.accept(newMtaVersion, deployedMtaVersion);
+        return DeploymentType.fromVersions(deployedMtaVersion, newMtaVersion);
     }
 
     private void cleanUp(PortAllocator portAllocator) {
