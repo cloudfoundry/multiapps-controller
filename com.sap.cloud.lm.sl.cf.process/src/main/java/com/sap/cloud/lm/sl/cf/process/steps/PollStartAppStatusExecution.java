@@ -123,15 +123,8 @@ public class PollStartAppStatusExecution extends AsyncExecution {
                 execution.getStepLogger().info(Messages.APP_STARTED_URLS, app.getName(), urls);
             }
             return AsyncExecutionState.FINISHED;
-        } else {
-            // Application not started yet, wait and try again unless it's a timeout
-            // if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
-            // String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-            // onError(execution, message);
-            // return AsyncExecutionState.ERROR;
-            // }
-            return AsyncExecutionState.RUNNING;
         }
+        return AsyncExecutionState.RUNNING;
     }
 
     protected String getMessageForStatus(StartupStatus status) {
