@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 public class AuthorizationUtil {
 
     private static final String SPACE_CACHE_SEPARATOR = "|";
-    private static final ExecutionRetrier retrier = new ExecutionRetrier();
+    private static final ExecutionRetrier RETRIER = new ExecutionRetrier();
 
     public static String getSpaceId(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String orgName, String spaceName,
         String processId) throws SLException {
@@ -105,7 +105,7 @@ public class AuthorizationUtil {
 
     private static boolean hasAccess(CloudFoundryOperationsExtended client, String orgName, String spaceName) {
         SpaceGetter spaceGetter = new SpaceGetterFactory().createSpaceGetter();
-        return retrier.executeWithRetry(() -> spaceGetter.findSpace(client, orgName, spaceName)) != null;
+        return RETRIER.executeWithRetry(() -> spaceGetter.findSpace(client, orgName, spaceName)) != null;
     }
 
     private static CloudFoundryOperations getCloudFoundryClient(CloudFoundryClientProvider clientProvider, UserInfo userInfo)
