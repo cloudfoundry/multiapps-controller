@@ -136,12 +136,11 @@ public class PollStartAppStatusExecution extends AsyncExecution {
 
     protected String getMessageForStatus(StartupStatus status) {
         if (status.equals(StartupStatus.FLAPPING)) {
-            return "Some instances are flapping";
+            return Messages.SOME_INSTANCES_ARE_FLAPPING;
         } else if (status.equals(StartupStatus.CRASHED)) {
-            return "Some instances have crashed";
-        } else {
-            return null;
+            return Messages.SOME_INSTANCES_HAVE_CRASHED;
         }
+        return null;
     }
 
     private void showInstancesStatus(ExecutionWrapper execution, List<InstanceInfo> instances, int runningInstances,
