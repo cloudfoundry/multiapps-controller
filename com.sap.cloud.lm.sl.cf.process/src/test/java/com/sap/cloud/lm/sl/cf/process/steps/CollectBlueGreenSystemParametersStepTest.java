@@ -9,6 +9,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersStepTest {
 
@@ -47,7 +48,7 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
             // (5) The version of the MTA is lower than the version of the previously deployed MTA:
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, 0, "deployed-mta-02.json", PlatformType.CF, false), 
-                new StepOutput(Collections.emptySet(), "R:system-parameters-05.json", "MTA rejected for deployment as its version does not conform to the specified version rule \"SAME_HIGHER\" : \"Higher version already deployed\""),
+                new StepOutput(Collections.emptySet(), "R:system-parameters-05.json", Messages.HIGHER_VERSION_ALREADY_DEPLOYED),
             },
 // @formatter:on
         });

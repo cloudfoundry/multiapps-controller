@@ -310,9 +310,8 @@ public class StepsUtil {
     @SuppressWarnings("unchecked")
     public static List<CloudServiceExtended> getServicesToCreate(DelegateExecution context) {
         List<String> services = (List<String>) context.getVariable(Constants.VAR_SERVICES_TO_CREATE);
-        return services.stream()
-            .map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class))
-            .collect(Collectors.toList());
+        return services.stream().map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class)).collect(
+            Collectors.toList());
     }
 
     static void setServicesToCreate(DelegateExecution context, List<CloudServiceExtended> services) {
@@ -323,9 +322,8 @@ public class StepsUtil {
     @SuppressWarnings("unchecked")
     public static List<CloudServiceExtended> getServicesToBind(DelegateExecution context) {
         List<String> services = (List<String>) context.getVariable(Constants.VAR_SERVICES_TO_BIND);
-        return services.stream()
-            .map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class))
-            .collect(Collectors.toList());
+        return services.stream().map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class)).collect(
+            Collectors.toList());
     }
 
     static void setServicesToBind(DelegateExecution context, List<CloudServiceExtended> services) {
@@ -806,10 +804,6 @@ public class StepsUtil {
     static void setStreamingLogsToken(DelegateExecution context, StreamingLogToken streamingLogToken) {
         byte[] binaryJson = (streamingLogToken != null) ? JsonUtil.getAsBinaryJson(streamingLogToken) : null;
         context.setVariable(Constants.VAR_STREAMING_LOGS_TOKEN, binaryJson);
-    }
-
-    static void setMtaVersionAccepted(DelegateExecution context, boolean versionAccepted) {
-        context.setVariable(Constants.VAR_MTA_VERSION_ACCEPTED, versionAccepted);
     }
 
     static void setMtaArchiveModules(DelegateExecution context, Set<String> mtaArchiveModules) {
