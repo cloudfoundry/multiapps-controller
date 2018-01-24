@@ -4,6 +4,7 @@ import static java.text.MessageFormat.format;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudFoundryException;
@@ -12,6 +13,7 @@ import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
+import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -39,14 +41,14 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
     public AsyncExecutionState execute(ExecutionWrapper execution) {
         execution.getStepLogger().logActivitiTask();
         CloudApplication app = getNextApp(execution.getContext());
-        ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
-        boolean executeApp = attributesGetter.getAttribute(SupportedParameters.EXECUTE_APP, Boolean.class, false);
+        Set<ApplicationStateAction> actions = StepsUtil.getAppStateActionsToExecute(execution.getContext());
 
-        if (!executeApp) {
+        if (!actions.contains(ApplicationStateAction.EXECUTE)) {
             return AsyncExecutionState.FINISHED;
         }
         try {
             CloudFoundryOperations client = execution.getCloudFoundryClient();
+            ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
             Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, attributesGetter, app);
             return checkAppExecutionStatus(execution, client, attributesGetter, app, status);
         } catch (CloudFoundryException cfe) {

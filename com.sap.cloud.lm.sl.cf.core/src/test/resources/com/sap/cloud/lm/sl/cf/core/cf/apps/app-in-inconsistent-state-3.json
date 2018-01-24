@@ -2,5 +2,6 @@
   "name": "foo",
   "instances": 3,
   "runningInstances": 4,
-  "state": "STARTED"
+  "state": "STARTED",
+  "env":[]
 }
