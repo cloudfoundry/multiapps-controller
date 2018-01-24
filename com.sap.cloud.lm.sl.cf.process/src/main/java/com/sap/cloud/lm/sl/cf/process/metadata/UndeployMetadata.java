@@ -25,7 +25,7 @@ public class UndeployMetadata {
     }
 
     public static OperationMetadata getMetadata() {
-        return OperationMetadata.builder().parameters(PARAMS).processId(Constants.UNDEPLOY_SERVICE_ID).versions(
+        return OperationMetadata.builder().parameters(PARAMS).activitiDiagramId(Constants.UNDEPLOY_SERVICE_ID).versions(
             Constants.SERVICE_VERSION_1_0).build();
     }
 }
