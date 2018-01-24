@@ -47,7 +47,7 @@ public class DeployMetadata {
     }
 
     public static OperationMetadata getMetadata() {
-        return OperationMetadata.builder().parameters(PARAMS).processId(Constants.DEPLOY_SERVICE_ID).versions(Constants.SERVICE_VERSION_1_1,
+        return OperationMetadata.builder().parameters(PARAMS).activitiDiagramId(Constants.DEPLOY_SERVICE_ID).versions(Constants.SERVICE_VERSION_1_1,
             Constants.SERVICE_VERSION_1_2).build();
     }
 
