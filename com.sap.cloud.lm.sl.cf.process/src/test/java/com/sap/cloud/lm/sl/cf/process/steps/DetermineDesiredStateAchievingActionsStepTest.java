@@ -81,6 +81,18 @@ public class DetermineDesiredStateAchievingActionsStepTest extends SyncActivitiS
             {
                 ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, true, new HashSet<>(Arrays.asList(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START)),
             },
+            // (12)
+            {
+                ApplicationStartupState.EXECUTED, ApplicationStartupState.EXECUTED, false, Collections.emptySet(),
+            },
+            // (13)
+            {
+                ApplicationStartupState.EXECUTED, ApplicationStartupState.STOPPED, false, Collections.emptySet(),
+            },
+            // (14)
+            {
+                ApplicationStartupState.EXECUTED, ApplicationStartupState.STARTED, false, new HashSet<>(Arrays.asList(ApplicationStateAction.STAGE, ApplicationStateAction.START)),
+            }
             // @formatter:on
         });
     }

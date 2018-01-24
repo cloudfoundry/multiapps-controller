@@ -9,7 +9,8 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 public class UnchangedApplicationActionCalculator implements ActionCalculator {
 
     @Override
-    public Set<ApplicationStateAction> determineActionsToExecute(ApplicationStartupState currentState, ApplicationStartupState desiredState) {
+    public Set<ApplicationStateAction> determineActionsToExecute(ApplicationStartupState currentState,
+        ApplicationStartupState desiredState) {
         Set<ApplicationStateAction> actionsToExecute = new HashSet<>();
         if (currentState.equals(desiredState)) {
             return actionsToExecute;
@@ -23,8 +24,20 @@ public class UnchangedApplicationActionCalculator implements ActionCalculator {
                 actionsToExecute.add(ApplicationStateAction.START);
                 return actionsToExecute;
             case STOPPED:
-                actionsToExecute.add(ApplicationStateAction.STOP);
+                if (!currentState.equals(ApplicationStartupState.EXECUTED)) {
+                    actionsToExecute.add(ApplicationStateAction.STOP);
+                }
                 return actionsToExecute;
+            case EXECUTED:
+                if (currentState.equals(ApplicationStartupState.STARTED)) {
+                    actionsToExecute.add(ApplicationStateAction.STOP);
+                } else {
+                    actionsToExecute.add(ApplicationStateAction.STAGE);
+                    actionsToExecute.add(ApplicationStateAction.START);
+                    actionsToExecute.add(ApplicationStateAction.EXECUTE);
+                }
+                return actionsToExecute;
+
             default:
                 throw new IllegalStateException(MessageFormat.format(Messages.ILLEGAL_DESIRED_STATE, desiredState));
         }
