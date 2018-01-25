@@ -20,8 +20,4 @@ public class ProcessTypeToOperationMetadataMapper {
         throw new SLException(Messages.UNSUPPORTED_PROCESS_TYPE, processType.toString());
     }
 
-    public String getActivitiDiagramId(ProcessType processType) {
-        return getOperationMetadata(processType).getActivitiDiagramId();
-    }
-
 }

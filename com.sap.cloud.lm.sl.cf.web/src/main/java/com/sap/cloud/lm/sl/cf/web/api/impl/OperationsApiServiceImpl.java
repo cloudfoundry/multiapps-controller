@@ -127,7 +127,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Override
     public Response startMtaOperation(Operation operation, SecurityContext securityContext, String spaceGuid) {
         String userId = getAuthenticatedUser(securityContext);
-        String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
+        String processDefinitionKey = operationsHelper.getOperationMetadata(operation).getActivitiDiagramId();
         Set<ParameterMetadata> predefinedParameters = operationMetadataMapper.getOperationMetadata(operation.getProcessType())
             .getParameters();
         addServiceParameters(operation, spaceGuid);
@@ -206,7 +206,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     }
 
     private void addServiceParameters(Operation operation, String spaceGuid) {
-        String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
+        String processDefinitionKey = operationsHelper.getOperationMetadata(operation).getActivitiDiagramId();
         Map<String, Object> parameters = operation.getParameters();
         CloudFoundryOperations client = getCloudFoundryClient(spaceGuid);
         CloudSpace space = new CFOptimizedSpaceGetter().getSpace(client, spaceGuid);

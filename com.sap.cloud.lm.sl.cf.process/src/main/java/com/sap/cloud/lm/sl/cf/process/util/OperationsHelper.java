@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
@@ -48,17 +50,25 @@ public class OperationsHelper {
     }
 
     public boolean isProcessFound(Operation operation) throws SLException {
-        String processDefinitionKey = getProcessDefinitionKey(operation);
-        HistoricProcessInstance historicInstance = getHistoricInstance(operation, processDefinitionKey);
+        List<String> processDefinitionKeys = getProcessDefinitionKeys(operation);
+        HistoricProcessInstance historicInstance = getHistoricInstance(operation, processDefinitionKeys);
         return historicInstance != null;
     }
 
-    public String getProcessDefinitionKey(Operation operation) {
-        return metadataMapper.getActivitiDiagramId(operation.getProcessType());
+    public OperationMetadata getOperationMetadata(Operation operation) {
+        return metadataMapper.getOperationMetadata(operation.getProcessType());
     }
 
-    private HistoricProcessInstance getHistoricInstance(Operation operation, String processDefinitionKey) {
-        return activitiFacade.getHistoricProcessInstanceBySpaceId(processDefinitionKey, operation.getSpaceId(), operation.getProcessId());
+    private List<String> getProcessDefinitionKeys(Operation operation) {
+        OperationMetadata operationMetadata = getOperationMetadata(operation);
+        List<String> processDefinitionKeys = new ArrayList<>();
+        processDefinitionKeys.add(operationMetadata.getActivitiDiagramId());
+        processDefinitionKeys.addAll(operationMetadata.getPreviousActivitiDiagramIds());
+        return processDefinitionKeys;
+    }
+
+    private HistoricProcessInstance getHistoricInstance(Operation operation, List<String> processDefinitionKeys) {
+        return activitiFacade.getHistoricProcessInstanceBySpaceId(operation.getProcessId(), operation.getSpaceId(), processDefinitionKeys);
     }
 
     private void addOngoingOperationsState(List<Operation> existingOngoingOperations) {
