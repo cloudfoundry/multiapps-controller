@@ -70,11 +70,11 @@ public class ActivitiFacade {
         }
     }
 
-    public HistoricProcessInstance getHistoricProcessInstanceBySpaceId(String processDefinitionKey, String spaceId,
-        String processInstanceId) {
+    public HistoricProcessInstance getHistoricProcessInstanceBySpaceId(String processInstanceId, String spaceId,
+        List<String> processDefinitionKeys) {
         HistoricProcessInstanceQuery query = engine.getHistoryService()
             .createHistoricProcessInstanceQuery()
-            .processDefinitionKey(processDefinitionKey)
+            .processDefinitionKeyIn(processDefinitionKeys)
             .variableValueEquals(Constants.VARIABLE_NAME_SPACE_ID, spaceId)
             .excludeSubprocesses(true)
             .processInstanceId(processInstanceId);
