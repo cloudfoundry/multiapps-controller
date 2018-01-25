@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.metadata;
 
+import java.util.List;
+
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
@@ -22,6 +24,10 @@ public class ProcessTypeToOperationMetadataMapper {
 
     public String getActivitiDiagramId(ProcessType processType) {
         return getOperationMetadata(processType).getActivitiDiagramId();
+    }
+    
+    public List<String> getPreviousActivitiDiagramIds(ProcessType processType) {
+        return getOperationMetadata(processType).getPreviousActivitiDiagramIds();
     }
 
 }
