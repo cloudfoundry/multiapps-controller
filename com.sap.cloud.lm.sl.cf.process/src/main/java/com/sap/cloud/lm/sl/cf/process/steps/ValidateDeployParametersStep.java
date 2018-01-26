@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,12 +17,14 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.DigestHelper;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 import com.sap.cloud.lm.sl.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
@@ -122,6 +126,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         FileContentProcessor archivePartProcessor = (appArchivePartInputStream) -> {
             archiveMerger.merge(appArchivePartInputStream);
         };
+        validateParts(sortedParts);
         try {
             for (FileEntry fileEntry : sortedParts) {
                 getStepLogger().debug(Messages.MERGING_ARCHIVE_PART, fileEntry.getId(), fileEntry.getName());
@@ -135,10 +140,41 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         }
 
         try {
+            validateFileContent(context, archiveMerger.getMergedFilePath(), sortedParts.get(0).getDigestAlgorithm());
             persistMergedArchive(archiveMerger.getMergedFilePath(), context);
         } finally {
             Files.deleteIfExists(archiveMerger.getMergedFilePath());
         }
+    }
+
+    private void validateFileContent(DelegateExecution context, Path mergedFilePath, String digestAlgorith) {
+        try {
+            String mergedArchiveFileChecksum = DigestHelper.computeFileChecksum(mergedFilePath, digestAlgorith);
+            String originalArchiveFileChecksum = (String) context.getVariable("archiveFileChecksum");
+            Assert.isTrue(originalArchiveFileChecksum.equals(mergedArchiveFileChecksum),
+                MessageFormat.format("The original file checksum differs from the merged archive checksum. Expected: {0}, got: {1}",
+                    originalArchiveFileChecksum, mergedArchiveFileChecksum));
+        } catch (NoSuchAlgorithmException | IOException e) {
+            throw new SLException(e);
+        }
+    }
+
+    private void validateParts(List<FileEntry> sortedParts) {
+        int nextEntryExpectedPosition = 0;
+        for (FileEntry fileEntry : sortedParts) {
+            int entryPosition = getEntryPosition(fileEntry);
+            validateEntryPosition(entryPosition, nextEntryExpectedPosition);
+            nextEntryExpectedPosition = entryPosition + 1;
+        }
+    }
+
+    private void validateEntryPosition(int entryPosition, int expectedEntryPosition) {
+        Assert.isTrue(expectedEntryPosition == entryPosition,
+            MessageFormat.format("The entry position {0} does not match the expected position {1}", entryPosition, expectedEntryPosition));
+    }
+
+    private int getEntryPosition(FileEntry entry) {
+        return Integer.parseInt(entry.getName().substring(entry.getName().indexOf(PART_POSTFIX) + PART_POSTFIX.length()));
     }
 
     private void deleteRemainingFileParts(List<FileEntry> sortedParts) {

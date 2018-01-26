@@ -31,6 +31,7 @@ import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 @RunWith(Parameterized.class)
 public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<ValidateDeployParametersStep> {
 
+    private static final String DIGEST_ALGORITHM = "MD5";
     private static final String MERGED_ARCHIVE_TEST_MTAR = "merged-archive-test.mtar";
     private static final String EXISTING_FILE_ID = "existingFileId";
     private static final String EXISTING_BIGGER_FILE_ID = "existingBiggerFileId";
@@ -86,8 +87,8 @@ public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<Valid
 
     private void prepareConfiguration() {
         Mockito.when(configuration.getMaxMtaDescriptorSize()).thenReturn(Configuration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
-        Mockito.when(configuration.getFileConfiguration()).thenReturn(
-            new DefaultConfiguration(Configuration.DEFAULT_MAX_UPLOAD_SIZE, Configuration.DEFAULT_SCAN_UPLOADS));
+        Mockito.when(configuration.getFileConfiguration())
+            .thenReturn(new DefaultConfiguration(Configuration.DEFAULT_MAX_UPLOAD_SIZE, Configuration.DEFAULT_SCAN_UPLOADS));
 
     }
 
@@ -112,6 +113,7 @@ public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<Valid
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERSION_RULE, stepInput.versionRule);
         context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
         context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
+        context.setVariable("archiveFileChecksum", "D41D8CD98F00B204E9800998ECF8427E");
     }
 
     private void prepareExpectedException() {
@@ -123,20 +125,21 @@ public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<Valid
 
     private void prepareFileService() throws FileStorageException {
         Mockito.when(fileService.getFile("space-id", EXISTING_FILE_ID)).thenReturn(createFileEntry(EXISTING_FILE_ID, null, 1024 * 1024l));
-        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0")).thenReturn(
-            createFileEntry(MERGED_ARCHIVE_NAME + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024l));
+        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024l));
 
-        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.1")).thenReturn(
-            createFileEntry(MERGED_ARCHIVE_NAME + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024l));
+        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.1"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024l));
 
-        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.2")).thenReturn(
-            createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024l));
+        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.2"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024l));
 
-        Mockito.when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID)).thenReturn(
-            createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024l + 1));
+        Mockito.when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID))
+            .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024l + 1));
         Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID)).thenReturn(null);
-        Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.any(), Mockito.any(),
-            Mockito.<File> any())).thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024l));
+        Mockito
+            .when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.any(), Mockito.any(), Mockito.<File> any()))
+            .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024l));
     }
 
     private void prepareArchiveMerger() throws IOException {
@@ -149,6 +152,7 @@ public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<Valid
         fe.setId(id);
         fe.setName(name);
         fe.setSize(BigInteger.valueOf(size));
+        fe.setDigestAlgorithm(DIGEST_ALGORITHM);
         return fe;
     }
 
