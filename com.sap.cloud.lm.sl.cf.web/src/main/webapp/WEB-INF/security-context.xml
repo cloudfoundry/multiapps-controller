@@ -32,6 +32,8 @@
         <sec:custom-filter ref="requestSizeFilter" after="PRE_AUTH_FILTER"/>
     </sec:http>
 
+    <sec:http-firewall ref="customHttpFirewall"/>
+
     <bean id="delegatingAuthenticationEntryPoint" class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
         <constructor-arg>
             <map>
