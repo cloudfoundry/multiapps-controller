@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.activiti.engine.EngineServices;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.delegate.DelegateExecution;
@@ -32,6 +34,8 @@ import com.sap.cloud.lm.sl.cf.process.analytics.collectors.AnalyticsCollector;
 import com.sap.cloud.lm.sl.cf.process.analytics.collectors.DeployProcessAttributesCollector;
 import com.sap.cloud.lm.sl.cf.process.analytics.collectors.UndeployProcessAttributesCollector;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.persistence.model.FileEntry;
@@ -66,6 +70,9 @@ public class AnalyticsCollectorTest {
 
     @Spy
     public UndeployProcessAttributesCollector undeployProcessAttributesCollector = new UndeployProcessAttributesCollector();
+
+    @Mock
+    private ProcessTypeParser processTypeParser;
 
     @InjectMocks
     protected AnalyticsCollector collector;
@@ -152,8 +159,7 @@ public class AnalyticsCollectorTest {
 
     @Test
     public void collectAttributesDeployTest() throws Exception {
-        when(context.getVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID))
-            .thenReturn(Constants.DEPLOY_SERVICE_ID);
+        when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.DEPLOY);
         TestUtil.test(() -> {
             return collector.collectAnalyticsData(context);
         }, "R:AnalyticsDeploy.json", getClass());
@@ -161,8 +167,7 @@ public class AnalyticsCollectorTest {
 
     @Test
     public void collectAttributesUndeployTest() throws Exception {
-        when(context.getVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID))
-            .thenReturn(Constants.UNDEPLOY_SERVICE_ID);
+        when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.UNDEPLOY);
         TestUtil.test(() -> {
             return collector.collectAnalyticsData(context);
         }, "R:AnalyticsUndeploy.json", getClass());

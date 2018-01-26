@@ -57,7 +57,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.BinaryJson;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
-import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -893,20 +892,6 @@ public class StepsUtil {
 
     public static void setArchiveFileId(DelegateExecution context, String uploadedMtarId) {
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedMtarId);
-    }
-
-    public static ProcessType getProcessType(DelegateExecution context) throws SLException {
-        String serviceId = getServiceId(context);
-        switch (serviceId) {
-            case Constants.UNDEPLOY_SERVICE_ID:
-                return ProcessType.UNDEPLOY;
-            case Constants.DEPLOY_SERVICE_ID:
-                return ProcessType.DEPLOY;
-            case Constants.BLUE_GREEN_DEPLOY_SERVICE_ID:
-                return ProcessType.BLUE_GREEN_DEPLOY;
-            default:
-                throw new SLException(Messages.UNKNOWN_SERVICE_ID, serviceId);
-        }
     }
 
     public static String getServiceId(DelegateExecution context) {

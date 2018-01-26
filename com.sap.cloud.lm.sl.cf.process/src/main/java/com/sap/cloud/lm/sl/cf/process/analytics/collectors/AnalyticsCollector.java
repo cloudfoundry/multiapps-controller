@@ -17,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AbstractCommonProcessAttributes;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -32,12 +33,15 @@ public class AnalyticsCollector {
     @Inject
     public UndeployProcessAttributesCollector undeployProcessAttributesCollector;
 
+    @Inject
+    private ProcessTypeParser processTypeParser;
+
     public Supplier<Long> endTimeSupplier = () -> System.currentTimeMillis();
     public Supplier<ZoneId> timeZoneSupplier = () -> ZoneId.systemDefault();
 
     public AnalyticsData collectAnalyticsData(DelegateExecution context) throws SLException {
         String processId = context.getProcessInstanceId();
-        ProcessType processType = StepsUtil.getProcessType(context);
+        ProcessType processType = processTypeParser.getProcessType(context);
         long startTime = getStartTime(context, processId);
         long endTime = getEndTime();
         long processDuration = getProcessDurationInSeconds(context, processId);
