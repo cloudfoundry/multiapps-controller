@@ -91,6 +91,7 @@ public class Messages {
     public static final String ERROR_CREATING_APP = "Error creating application \"{0}\"";
     public static final String ERROR_UPDATING_APP = "Error updating application \"{0}\"";
     public static final String ERROR_UPLOADING_APP = "Error uploading application \"{0}\"";
+    public static final String ERROR_RESERVING_ROUTES = "Error reserving routes for application \"{0}\"";
     public static final String ERROR_CHECKING_UPLOAD_APP_STATUS = "Error checking upload status of application \"{0}\"";
     public static final String ERROR_SCALING_APP = "Error scaling application \"{0}\"";
     public static final String ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP = "Error determining actions to execute on application \"{0}\"";

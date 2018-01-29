@@ -63,14 +63,12 @@ public class MtaArchiveValidatorTest {
             // (03)
             { "xsjs-hello-world.mtar",       "xsjs-hello-world-op.mtaext",  XS2_PLATFORM_NAME, XS2_USERNAME, XS2_DEFAULT_DOMAIN, PlatformType.XS2, XS2_TARGET_URL,       XS2_AUTHORIZATION_ENDPOINT,       "",80,  "xsjs-hello-world-apps.json",       "xsjs-hello-world-services.json",       null,                MAX_MTA_DESCRIPTOR_SIZE, true , },
             // (04)
-            { "xsjs-hello-world.mtar",       "xsjs-hello-world-cf.mtaext",  CF_PLATFORM_NAME,  CF_USERNAME,  CF_DEFAULT_DOMAIN,  PlatformType.CF,  CF_TARGET_URL,        CF_AUTHORIZATION_ENDPOINT,        "",443, "xsjs-hello-world-apps2.json",      "xsjs-hello-world-services.json",       null,                MAX_MTA_DESCRIPTOR_SIZE, false, },
+            { "xsjs-hello-world.mtar",       "xsjs-hello-world-cf.mtaext", CF_PLATFORM_NAME,  CF_USERNAME,  CF_DEFAULT_DOMAIN,  PlatformType.CF,  CF_TARGET_URL,        CF_AUTHORIZATION_ENDPOINT,        "",443, "xsjs-hello-world-apps2.json",      "xsjs-hello-world-services.json",       null,                MAX_MTA_DESCRIPTOR_SIZE, false, },
             // (05)
-            { "xsjs-hello-world.mtar",       "xsjs-hello-world-cf2.mtaext", CF_PLATFORM_NAME,  CF_USERNAME,  CF_DEFAULT_DOMAIN,  PlatformType.CF,  CF_TARGET_URL,        CF_AUTHORIZATION_ENDPOINT,        "",443, "xsjs-hello-world-apps2.json",      "xsjs-hello-world-services.json",       null,                MAX_MTA_DESCRIPTOR_SIZE, false, },
-            // (06)
             { "xsjs-hello-world.mtar",       "xsjs-hello-world-op2.mtaext", XS2_PLATFORM_NAME, XS2_USERNAME, XS2_DEFAULT_DOMAIN, PlatformType.XS2, XS2_TARGET_URL,       XS2_AUTHORIZATION_ENDPOINT,       "",80,  "xsjs-hello-world-apps3.json",      "xsjs-hello-world-services.json",       null,                MAX_MTA_DESCRIPTOR_SIZE, true , },
-            // (07)
+            // (06)
             { "cross-mta-dependencies.mtar", null,                          XS2_PLATFORM_NAME, XS2_USERNAME, XS2_DEFAULT_DOMAIN, PlatformType.XS2, XS2_TARGET_URL,       XS2_AUTHORIZATION_ENDPOINT,       "",80,  "cross-mta-dependencies-apps.json", "cross-mta-dependencies-services.json", "deployed-mta.json", MAX_MTA_DESCRIPTOR_SIZE, true , },
-            // (08)
+            // (07)
             { "placeholders.mtar",           "placeholders-op.mtaext",      "initial initial", XS2_USERNAME, XS2_DEFAULT_DOMAIN, PlatformType.XS2, XS2_TARGET_URL_HTTPS, XS2_AUTHORIZATION_ENDPOINT_HTTPS, "",443, "placeholders-apps3.json",          "placeholders-services.json",           null,                MAX_MTA_DESCRIPTOR_SIZE, false, },
             // @formatter:on
         });

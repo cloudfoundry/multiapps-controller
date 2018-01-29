@@ -26,14 +26,15 @@ public class ApplicationUrisCloudModelBuilder {
     }
 
     public List<String> getApplicationUris(Module module, List<Map<String, Object>> propertiesList) {
-        RoutingParameterSet parametersType = RoutingParameterSet.DEFAULT;
-        Map<String, Object> moduleSystemParameters = systemParameters.getModuleParameters().getOrDefault(module.getName(),
-            Collections.emptyMap());
-        String defaultHost = (String) moduleSystemParameters.getOrDefault(parametersType.host, null);
-        int defaultPort = (Integer) moduleSystemParameters.getOrDefault(parametersType.port, 0);
-        String routePath = (String) propertiesAccessor.getParameters(module).getOrDefault(SupportedParameters.ROUTE_PATH, null);
-        String defaultDomain = getDefaultDomain(parametersType, moduleSystemParameters);
-        return new UriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, routePath).parse(propertiesList);
+        return getUriParametersParser(module).parse(propertiesList);
+    }
+
+    public List<Integer> getApplicationPorts(Module module, List<Map<String, Object>> propertiesList) {
+        return getUriParametersParser(module).getApplicationPorts(propertiesList);
+    }
+
+    public List<String> getApplicationDomains(Module module, List<Map<String, Object>> propertiesList) {
+        return getUriParametersParser(module).getApplicationDomains(propertiesList);
     }
 
     public List<String> getIdleApplicationUris(Module module, List<Map<String, Object>> propertiesList) {
@@ -44,8 +45,19 @@ public class ApplicationUrisCloudModelBuilder {
         int defaultPort = (Integer) moduleSystemParameters.getOrDefault(parametersType.port, 0);
         String defaultRoutePath = (String) propertiesAccessor.getParameters(module).getOrDefault(SupportedParameters.ROUTE_PATH, null);
         String defaultDomain = getDefaultDomain(parametersType, moduleSystemParameters);
-        return new IdleUriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, defaultRoutePath).parse(
-            propertiesList);
+        return new IdleUriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, defaultRoutePath)
+            .parse(propertiesList);
+    }
+
+    private UriParametersParser getUriParametersParser(Module module) {
+        RoutingParameterSet parametersType = RoutingParameterSet.DEFAULT;
+        Map<String, Object> moduleSystemParameters = systemParameters.getModuleParameters().getOrDefault(module.getName(),
+            Collections.emptyMap());
+        String defaultHost = (String) moduleSystemParameters.getOrDefault(parametersType.host, null);
+        int defaultPort = (Integer) moduleSystemParameters.getOrDefault(parametersType.port, 0);
+        String routePath = (String) propertiesAccessor.getParameters(module).getOrDefault(SupportedParameters.ROUTE_PATH, null);
+        String defaultDomain = getDefaultDomain(parametersType, moduleSystemParameters);
+        return new UriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, routePath);
     }
 
     private String getDefaultDomain(RoutingParameterSet parametersType, Map<String, Object> moduleSystemParameters) {

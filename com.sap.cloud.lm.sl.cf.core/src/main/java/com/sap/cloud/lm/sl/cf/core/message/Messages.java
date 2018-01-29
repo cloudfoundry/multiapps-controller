@@ -68,6 +68,7 @@ public final class Messages {
     public static final String NO_CONTENT_TO_DEPLOY = "No content to deploy";
     public static final String UNABLE_TO_PARSE_PARAMETER = "Unable to parse parameter {0} with value {1}";
     public static final String NO_SERVICE_PLAN_FOUND = "Could not create service instance {0}. Service plan {1} for service {2} not found";
+    public static final String INVALID_TCP_ROUTE = "TCP route can either be TCP or TCPS";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET = "Environment variable \"{0}\" is not set";
@@ -172,5 +173,4 @@ public final class Messages {
     public static final String REMOVING_SENSITIVE_ELEMENT = "Removing sensitive element: {0}";
     public static final String DELETING_SUBSCRIPTION = "Deleting configuration subscription: {0}";
     public static final String DELETING_ENTRY = "Deleting configuration entry: {0}";
-
 }

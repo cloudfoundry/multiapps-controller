@@ -25,6 +25,10 @@
         "serviceKeyName": "service-key-defined-in-resource-2"
       }
     ],
+    "applicationPorts": [],
+    "domains": [
+      "sofd60245639a"
+    ],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-1.sofd60245639a\"]}",

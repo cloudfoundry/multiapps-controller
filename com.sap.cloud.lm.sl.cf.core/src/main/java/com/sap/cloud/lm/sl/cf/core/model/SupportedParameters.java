@@ -44,6 +44,8 @@ public class SupportedParameters {
     public static final String HOST = "host";
     public static final String PORT = "port";
     public static final String PORTS = "ports";
+    public static final String TCP = "tcp";
+    public static final String TCPS = "tcps";
     public static final String COMMAND = "command";
     public static final String BUILDPACK = "buildpack";
     public static final String STACK = "stack";

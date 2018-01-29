@@ -343,7 +343,7 @@ public class UpdateAppStepTest extends SyncActivitiStepTest<UpdateAppStep> {
 
         CloudApplicationExtended toCloudApp() {
             CloudApplicationExtended cloudApp = new CloudApplicationExtended(name, command, buildpackUrl, memory, instances, uris, services,
-                AppState.STARTED);
+                AppState.STARTED, Collections.emptyList(), Collections.emptyList());
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
             cloudApp.setStaging(new Staging.StagingBuilder().command(command)

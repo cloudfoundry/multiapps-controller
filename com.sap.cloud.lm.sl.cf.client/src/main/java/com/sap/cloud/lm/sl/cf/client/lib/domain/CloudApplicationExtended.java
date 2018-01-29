@@ -14,14 +14,18 @@ public class CloudApplicationExtended extends CloudApplication {
     private List<CloudTask> tasks;
     private List<CloudRoute> routes;
     private List<ServiceKeyToInject> serviceKeysToInject;
+    private List<ApplicationPort> applicationPorts;
+    private List<String> domains;
 
     public CloudApplicationExtended(Meta meta, String name) {
         super(meta, name);
     }
 
     public CloudApplicationExtended(String name, String command, String buildpackUrl, int memory, int instances, List<String> uris,
-        List<String> serviceNames, AppState state) {
+        List<String> serviceNames, AppState state, List<ApplicationPort> applicationPorts, List<String> domains) {
         super(name, command, buildpackUrl, memory, instances, uris, serviceNames, state);
+        this.applicationPorts = applicationPorts;
+        this.domains = domains;
     }
 
     public String getModuleName() {
@@ -70,5 +74,21 @@ public class CloudApplicationExtended extends CloudApplication {
 
     public void setServiceKeysToInject(List<ServiceKeyToInject> serviceKeysToInject) {
         this.serviceKeysToInject = serviceKeysToInject;
+    }
+
+    public List<ApplicationPort> getApplicationPorts() {
+        return applicationPorts;
+    }
+
+    public void setApplicationPorts(List<ApplicationPort> applicationPorts) {
+        this.applicationPorts = applicationPorts;
+    }
+
+    public List<String> getDomains() {
+        return domains;
+    }
+
+    public void setDomains(List<String> domains) {
+        this.domains = domains;
     }
 }

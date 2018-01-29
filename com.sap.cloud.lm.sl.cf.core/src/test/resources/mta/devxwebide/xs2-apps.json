@@ -4,6 +4,15 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [
+      {
+        "port": 53035,
+        "portType": "HTTP"
+      }
+    ],
+    "domains": [
+      "sofd60245639a"
+    ],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"sofd60245639a:53035\"]}",

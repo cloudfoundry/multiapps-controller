@@ -49,7 +49,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         return getUris(getApplicationHosts(parametersList), getApplicationDomains(parametersList), getApplicationPorts(parametersList));
     }
 
-    private List<Integer> getApplicationPorts(List<Map<String, Object>> parametersList) {
+    public List<Integer> getApplicationPorts(List<Map<String, Object>> parametersList) {
         String portsParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(portParameterName);
         List<Integer> ports = getAll(parametersList, portParameterName, portsParameterName);
         if (ports.isEmpty() && defaultPort != null && defaultPort != 0) {
@@ -64,7 +64,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         }
     }
 
-    private List<String> getApplicationDomains(List<Map<String, Object>> parametersList) {
+    public List<String> getApplicationDomains(List<Map<String, Object>> parametersList) {
         String domainsParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(domainParameterName);
         List<String> domains = getAll(parametersList, domainParameterName, domainsParameterName);
         if (domains.isEmpty() && defaultDomain != null) {

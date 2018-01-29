@@ -14,6 +14,8 @@ import org.cloudfoundry.client.lib.domain.Staging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort.ApplicationPortType;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
@@ -96,18 +98,23 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
             module.getProperties(), ((Module) module).getParameters());
         List<CloudTask> tasks = getTasks(parametersList);
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters((Module) module);
+        List<ApplicationPort> applicationPorts = getApplicationPorts((Module) module, parametersList);
+        List<String> applicationDomains = getApplicationDomains((Module) module, parametersList);
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, fullResolvedUris,
-            resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks);
+            resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains);
     }
 
     protected CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota, int memory,
         int instances, List<String> uris, List<String> idleUris, List<String> services, List<ServiceKeyToInject> serviceKeys,
-        Map<Object, Object> env, Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks) {
+        Map<Object, Object> env, Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks,
+        List<ApplicationPort> applicationPorts, List<String> applicationDomains) {
         CloudApplicationExtended app = super.createCloudApplication(name, moduleName, staging, diskQuota, memory, instances, uris, idleUris,
             services, serviceKeys, env, tasks);
         if (bindingParameters != null) {
             app.setBindingParameters(bindingParameters);
         }
+        app.setApplicationPorts(applicationPorts);
+        app.setDomains(applicationDomains);
         return app;
     }
 
@@ -213,4 +220,36 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         return null;
     }
 
+    private List<ApplicationPort> getApplicationPorts(Module module, List<Map<String, Object>> parametersList) {
+        List<Integer> ports = urisCloudModelBuilder.getApplicationPorts(module, parametersList);
+        ApplicationPortType portType = getType(module.getParameters());
+        return getApplicationPorts(ports, portType);
+    }
+
+    private List<ApplicationPort> getApplicationPorts(List<Integer> ports, ApplicationPortType portType) {
+        List<ApplicationPort> applicationRoutes = new ArrayList<>();
+        for (int portNumber : ports) {
+            applicationRoutes.add(new ApplicationPort(portNumber, portType));
+        }
+        return applicationRoutes;
+    }
+
+    private List<String> getApplicationDomains(Module module, List<Map<String, Object>> parametersList) {
+        List<String> applicationDomains = urisCloudModelBuilder.getApplicationDomains(module, parametersList);
+        return xsPlaceholderResolver.resolve(applicationDomains);
+    }
+
+    private ApplicationPortType getType(Map<String, Object> moduleParameters) {
+        boolean isTcpRoute = (boolean) moduleParameters.getOrDefault(SupportedParameters.TCP, false);
+        boolean isTcpsRoute = (boolean) moduleParameters.getOrDefault(SupportedParameters.TCPS, false);
+        if (isTcpRoute && isTcpsRoute) {
+            throw new ContentException(Messages.INVALID_TCP_ROUTE);
+        }
+        if (isTcpRoute) {
+            return ApplicationPortType.TCP;
+        } else if (isTcpsRoute) {
+            return ApplicationPortType.TCPS;
+        }
+        return ApplicationPortType.HTTP;
+    }
 }

@@ -1,0 +1,14 @@
+{
+  "domains": ["default-domain"],
+  "applicationPorts": [
+    {
+      "port": 51161,
+      "portType": "TCPS"
+    },
+    {
+      "port": 51162,
+      "portType": "HTTP"
+    }
+  ],
+  "allocatedPorts": []
+}
