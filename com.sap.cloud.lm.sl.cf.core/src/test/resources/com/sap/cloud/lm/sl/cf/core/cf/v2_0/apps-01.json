@@ -10,6 +10,10 @@
     },
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"foo.cfapps.neo.ondemand.com/test\"]}",

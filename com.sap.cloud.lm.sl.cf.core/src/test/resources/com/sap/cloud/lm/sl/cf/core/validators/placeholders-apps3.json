@@ -4,6 +4,15 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [
+      {
+        "port": 55001,
+        "portType": "HTTP"
+      }
+    ],
+    "domains": [
+      "sofd60245639a"
+    ],
     "diskQuota": 1024,
     "env": [
       "APP_NAME\u003dm2",
@@ -48,6 +57,15 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [
+      {
+        "port": 55000,
+        "portType": "HTTP"
+      }
+    ],
+    "domains": [
+      "sofd60245639a"
+    ],
     "diskQuota": 0,
     "env": [
       "APP_NAME\u003dm1",

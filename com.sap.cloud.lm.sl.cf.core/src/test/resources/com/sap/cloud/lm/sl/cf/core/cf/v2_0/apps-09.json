@@ -20,6 +20,10 @@
       }
     ],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "sofd60245639a"
+    ],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-1.sofd60245639a\"],\"no-start\":true}",
@@ -44,6 +48,10 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "sofd60245639a"
+    ],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-2.sofd60245639a\"]}",
@@ -68,6 +76,10 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "sofd60245639a"
+    ],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-3.sofd60245639a\"]}",
@@ -92,6 +104,10 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "sofd60245639a"
+    ],
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-4.sofd60245639a\"],\"no-start\":false}",

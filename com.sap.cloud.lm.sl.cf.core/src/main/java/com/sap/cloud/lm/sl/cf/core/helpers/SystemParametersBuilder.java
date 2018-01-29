@@ -9,13 +9,16 @@ import java.util.function.Supplier;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
+import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
@@ -203,9 +206,9 @@ public class SystemParametersBuilder {
 
     private void putPortRoutingParameters(Module module, Map<String, Object> moduleParameters, Map<String, Object> moduleSystemParameters) {
 
-        int defaultPort = getDefaultPort(module.getName());
+        int defaultPort = getDefaultPort(module.getName(), moduleParameters);
         if (shouldReserveTemporaryRoutes()) {
-            int idlePort = portAllocator.allocatePort();
+            int idlePort = allocatePort(moduleParameters);
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_PORT, idlePort);
             moduleSystemParameters.put(SupportedParameters.IDLE_PORT, idlePort);
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_URI,
@@ -243,13 +246,31 @@ public class SystemParametersBuilder {
         return resourceSystemParameters;
     }
 
-    private Integer getDefaultPort(String moduleName) {
+    private Integer getDefaultPort(String moduleName, Map<String, Object> moduleParameters) {
         DeployedMtaModule deployedModule = getDeployedModule(moduleName);
         List<String> descriptorDefinedUris = new UrisClassifier(xsPlaceholderResolver).getDescriptorDefinedUris(deployedModule);
         if (descriptorDefinedUris.isEmpty()) {
-            return portAllocator.allocatePort();
+            return allocatePort(moduleParameters);
         }
         return UriUtil.getPort(descriptorDefinedUris.get(0));
+    }
+
+    private int allocatePort(Map<String, Object> moduleParameters) {
+        boolean isTcpRoute = getBooleanParameter(moduleParameters, SupportedParameters.TCP);
+        boolean isTcpsRoute = getBooleanParameter(moduleParameters, SupportedParameters.TCPS);
+        if (isTcpRoute && isTcpsRoute) {
+            throw new ContentException(Messages.INVALID_TCP_ROUTE);
+        }
+
+        if (isTcpRoute || isTcpsRoute) {
+            return portAllocator.allocateTcpPort(isTcpsRoute);
+        } else {
+            return portAllocator.allocatePort();
+        }
+    }
+
+    private boolean getBooleanParameter(Map<String, Object> moduleParameters, String parameterName) {
+        return CommonUtil.cast(moduleParameters.getOrDefault(parameterName, false));
     }
 
     private DeployedMtaModule getDeployedModule(String moduleName) {

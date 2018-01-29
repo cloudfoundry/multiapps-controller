@@ -350,6 +350,15 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1_0.C
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-with-ssh-enabled-false.json", }
+            },
+            // (33) With TCPS routes
+            {
+                "mtad-11.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                false, false, false,
+                new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
+                new String[] { "module-1", "module-2", "module-3" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[\"test-domain\",\"test-domain-2\"]", "[]", "R:apps-with-tcp-routes.json", }
             }
 // @formatter:on
         });

@@ -42,7 +42,7 @@ public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
                 Set<Integer> applicationPorts = getApplicationPorts(apps);
                 getStepLogger().debug(Messages.APPLICATION_PORTS, applicationPorts);
                 portAllocator.freeAllExcept(applicationPorts);
-                StepsUtil.setAllocatedPorts(execution.getContext(), applicationPorts);
+                StepsUtil.setAllocatedPorts(execution.getContext(), portAllocator.getAllocatedPorts());
                 getStepLogger().debug(Messages.ALLOCATED_PORTS, portAllocator.getAllocatedPorts());
             }
 

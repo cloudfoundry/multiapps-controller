@@ -34,6 +34,10 @@ public interface ClientExtensions {
 
     void updateServiceTags(String serviceName, List<String> serviceTags);
 
+    int reserveTcpPort(String domain, boolean tcps);
+
+    int reserveTcpPort(int port, String domain, boolean tcps);
+
     /**
      * Reserves a port for the specified domain
      * 

@@ -25,7 +25,7 @@ public class AddDomainsStep extends SyncActivitiStep {
 
             CloudFoundryOperations client = execution.getCloudFoundryClient();
 
-            List<CloudDomain> existingDomains = client.getDomainsForOrg();
+            List<CloudDomain> existingDomains = client.getDomains();
             List<String> existingDomainNames = getDomainNames(existingDomains);
             getStepLogger().debug("Existing domains: " + existingDomainNames);
 

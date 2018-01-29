@@ -50,7 +50,7 @@ public class AddDomainsStepTest extends SyncActivitiStepTest<AddDomainsStep> {
     @Before
     public void setUp() throws Exception {
         prepareContext();
-        Mockito.when(client.getDomainsForOrg()).thenReturn(getExistingDomainsList());
+        Mockito.when(client.getDomains()).thenReturn(getExistingDomainsList());
         nonExistingCustomDomains = getNonExistingDomainsList();
     }
 
