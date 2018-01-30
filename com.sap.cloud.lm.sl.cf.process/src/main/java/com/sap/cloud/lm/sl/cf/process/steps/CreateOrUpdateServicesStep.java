@@ -432,6 +432,9 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     private boolean shouldUpdateTags(CloudFoundryOperations client, String spaceId, CloudServiceExtended service,
         CloudService existingService, List<String> defaultTags) {
+        if (service.isUserProvided()) {
+            return false;
+        }
         List<String> existingTags = getServiceTags(client, spaceId, existingService);
         List<String> newServiceTags = new ArrayList<>(service.getTags());
         existingTags.removeAll(defaultTags);
