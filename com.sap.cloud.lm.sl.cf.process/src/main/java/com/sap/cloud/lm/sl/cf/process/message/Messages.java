@@ -333,6 +333,7 @@ public class Messages {
     public static final String UPDATING_APP_ENVIRONMENT = "Updating apps environments...";
     public static final String STAGING_FAILED = "Staging failed. Please check the application logs for details.";
     public static final String SERVICE_BROKER_DOES_NOT_EXIST = "Service broker with name \"{0}\" does not exist";
+    public static final String EXCEPTION_OCCURED_ERROR_MSG = "Exception occured during execution: \"{0}\"";
 
     // DEBUG log messages
     public static final String PROCESS_ENVIRONMENT = "Process environment: {0}";
