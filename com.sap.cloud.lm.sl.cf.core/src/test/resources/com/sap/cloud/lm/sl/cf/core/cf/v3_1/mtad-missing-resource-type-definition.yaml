@@ -1,0 +1,14 @@
+_schema-version: "3.1.0"
+ID: com.sap.xs2.test
+version: 0.1.0
+
+modules:
+  - name: foo
+    type: java.tomee
+    requires:
+      - name: bar
+
+resources:
+  - name: bar
+    type: bar
+    optional: true

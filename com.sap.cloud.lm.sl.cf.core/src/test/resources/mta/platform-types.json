@@ -30,8 +30,17 @@
             {
                 "name": "com.sap.xs.hdi-container",
                 "properties": {
+					"type": "managed-service",
                     "service": "hana",
                     "service-plan": "hdi-shared"
+                }
+            },
+			{ 
+                "name": "com.sap.xs.uaa-space", 
+                "properties": { 
+					"type": "managed-service",
+                    "service": "xsuaa", 
+                    "service-plan": "space" 
                 }
             },
             {
@@ -92,8 +101,17 @@
             {
                 "name": "com.sap.xs.hdi-container",
                 "properties": {
+					"type": "managed-service",
                     "service": "hana",
                     "service-plan": "hdi-shared"
+                }
+            },
+			{ 
+                "name": "com.sap.xs.uaa-space", 
+                "properties": { 
+					"type": "managed-service",
+                    "service": "xsuaa", 
+                    "service-plan": "space" 
                 }
             },
             {

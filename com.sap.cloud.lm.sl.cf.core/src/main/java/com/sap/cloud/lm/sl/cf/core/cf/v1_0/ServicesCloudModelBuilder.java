@@ -55,18 +55,9 @@ public class ServicesCloudModelBuilder {
         for (Resource resource : deploymentDescriptor.getResources1_0()) {
             if (isService(resource, propertiesAccessor)) {
                 ListUtil.addNonNull(services, getService(resource));
-            } else {
-                warnInvalidResourceType(resource);
             }
         }
         return services;
-    }
-
-    private void warnInvalidResourceType(Resource resource) {
-        if (userMessageLogger == null || resource.getType() == null) {
-            return;
-        }
-        userMessageLogger.warn("Optional resource \"{0}\" it will be not created because it's not a service", resource.getName());
     }
 
     protected CloudServiceExtended getService(Resource resource) throws SLException {
