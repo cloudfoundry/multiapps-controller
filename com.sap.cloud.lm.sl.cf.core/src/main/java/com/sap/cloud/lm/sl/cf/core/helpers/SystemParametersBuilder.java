@@ -26,6 +26,8 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
 public class SystemParametersBuilder {
 
+    private static final String TCPS_PROTOCOL = "tcps";
+    private static final String TCP_PROTOCOL = "tcp";
     public static final int GENERATED_CREDENTIALS_LENGTH = 16;
     public static final String IDLE_HOST_SUFFIX = "-idle";
     private static final String ROUTE_PATH_PLACEHOLDER = "${route-path}";
@@ -127,7 +129,6 @@ public class SystemParametersBuilder {
         }
         systemParameters.put(SupportedParameters.XS_TARGET_API_URL, getTargetUrl());
         systemParameters.put(SupportedParameters.XS_TYPE, xsType.toString());
-        systemParameters.put(SupportedParameters.PROTOCOL, getProtocol());
         systemParameters.put(SupportedParameters.XS_AUTHORIZATION_ENDPOINT, getAuthorizationEndpoint());
         systemParameters.put(SupportedParameters.DEPLOY_SERVICE_URL, getDeployServiceUrl());
 
@@ -178,7 +179,6 @@ public class SystemParametersBuilder {
                     appendRoutePathIfPresent(defaultIdleUri, moduleParameters));
                 defaultUri = defaultIdleUri;
             }
-
             moduleSystemParameters.put(SupportedParameters.DEFAULT_URI, appendRoutePathIfPresent(defaultUri, moduleParameters));
         }
 
@@ -188,6 +188,7 @@ public class SystemParametersBuilder {
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_URL, defaultIdleUrl);
             defaultUrl = defaultIdleUrl;
         }
+        moduleSystemParameters.put(SupportedParameters.PROTOCOL, getProtocol(moduleParameters));
         moduleSystemParameters.put(SupportedParameters.DEFAULT_URL, defaultUrl);
     }
 
@@ -199,7 +200,6 @@ public class SystemParametersBuilder {
             moduleSystemParameters.put(SupportedParameters.IDLE_HOST, idleHost);
             defaultHost = idleHost;
         }
-
         moduleSystemParameters.put(SupportedParameters.DEFAULT_HOST, defaultHost);
         moduleSystemParameters.put(SupportedParameters.HOST, defaultHost);
     }
@@ -215,7 +215,6 @@ public class SystemParametersBuilder {
                 appendRoutePathIfPresent(DEFAULT_IDLE_PORT_URI, moduleParameters));
             defaultPort = idlePort;
         }
-
         moduleSystemParameters.put(SupportedParameters.DEFAULT_PORT, defaultPort);
         moduleSystemParameters.put(SupportedParameters.PORT, defaultPort);
         moduleSystemParameters.put(SupportedParameters.DEFAULT_URI, appendRoutePathIfPresent(DEFAULT_PORT_URI, moduleParameters));
@@ -324,7 +323,15 @@ public class SystemParametersBuilder {
         return targetUrl.toString();
     }
 
-    private Object getProtocol() {
+    private String getProtocol(Map<String, Object> moduleParameters) {
+        boolean isTcpRoute = getBooleanParameter(moduleParameters, SupportedParameters.TCP);
+        boolean isTcpsRoute = getBooleanParameter(moduleParameters, SupportedParameters.TCPS);
+        if (isTcpRoute) {
+            return TCP_PROTOCOL;
+        }
+        if (isTcpsRoute) {
+            return TCPS_PROTOCOL;
+        }
         if (shouldUseXsPlaceholders()) {
             return SupportedParameters.XSA_PROTOCOL_PLACEHOLDER;
         }
