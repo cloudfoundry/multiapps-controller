@@ -43,9 +43,9 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
                     return plan;
                 }
             }
-			throw new CloudFoundryException(HttpStatus.NOT_FOUND,
-            MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, service.getName(), newServicePlan, service.getLabel()));
         }
+        throw new CloudFoundryException(HttpStatus.NOT_FOUND,
+            MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, service.getName(), newServicePlan, service.getLabel()));
     }
 
     protected List<CloudServiceOffering> filterByVersion(List<CloudServiceOffering> offerings, CloudService service) {

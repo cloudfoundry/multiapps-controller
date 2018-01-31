@@ -2,12 +2,6 @@
   {
     "moduleName": "foo",
     "idleUris": [],
-    "bindingParameters": {
-      "bar": {
-        "baz": "baz",
-        "qux": "qux"
-      }
-    },
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [],
@@ -16,19 +10,22 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"foo.cfapps.neo.ondemand.com/test\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"foo.cfapps.neo.ondemand.com\"]}",
       "MTA_METADATA={\"id\":\"com.sap.xs2.test\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"foo\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"foo\"]",
-      "MTA_SERVICES=[]"
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_SERVICES=[]",
+      "TARGET_RUNTIME=tomee"
     ],
     "instances": 0,
     "memory": 0,
     "runningInstances": 0,
     "services": [],
-    "staging": {},
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
     "uris": [
-      "foo.cfapps.neo.ondemand.com/test"
+      "foo.cfapps.neo.ondemand.com"
     ],
     "meta": {},
     "name": "foo"

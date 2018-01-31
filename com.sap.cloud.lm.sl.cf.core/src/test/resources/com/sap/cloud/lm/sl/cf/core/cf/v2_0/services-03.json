@@ -37,6 +37,8 @@
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
+    "label": "xsuaa",
+    "plan": "space",
     "meta": {},
     "name": "random-service-renamed"
   },
@@ -48,6 +50,8 @@
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
+    "label": "xsuaa",
+    "plan": "space",
     "meta": {},
     "name": "random-service"
   },
@@ -59,6 +63,8 @@
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
+    "label": "xsuaa",
+    "plan": "space",
     "meta": {},
     "name": "random-resource-named-service"
   },

@@ -309,7 +309,7 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "E:The name \"service-key-name\" is not a valid environment variable name" }
             },
-            // (23) With 'health-check-type' set to 'port':
+            // (25) With 'health-check-type' set to 'port':
             { 
                 "mtad-health-check-type-port.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, false,
@@ -318,7 +318,7 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-with-health-check-type-port.json", }
             },
-            // (24) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
+            // (26) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
             { 
                 "mtad-health-check-type-http-with-endpoint.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, false,
@@ -327,7 +327,7 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-with-health-check-type-http-with-endpoint.json", }
             },
-            // (25) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
+            // (27) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
             { 
                 "mtad-health-check-type-http-without-endpoint.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, false,
@@ -336,7 +336,7 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-with-health-check-type-http-without-endpoint.json", }
             },
-            // (26) With 'enable-ssh' set to true: 
+            // (28) With 'enable-ssh' set to true: 
             {
                 "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, false,
@@ -345,7 +345,7 @@ public class CloudModelBuilderTest {
                 new String[] {}, // deployedApps
                 new String[] { "[]", "[]", "R:apps-with-ssh-enabled-true.json", }
             },
-            // (27) With 'enable-ssh' set to false: 
+            // (29) With 'enable-ssh' set to false: 
             {
                 "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json",
                 false, false, false,
@@ -443,7 +443,7 @@ public class CloudModelBuilderTest {
         return (targetName.startsWith("CF")) ? DEFAULT_DOMAIN_CF : DEFAULT_DOMAIN_XS;
     }
 
-    private SystemParameters createSystemParameters(DeploymentDescriptor descriptor, String defaultDomain) {
+    protected SystemParameters createSystemParameters(DeploymentDescriptor descriptor, String defaultDomain) {
         Map<String, Object> generalParameters = new HashMap<>();
         generalParameters.put(SupportedParameters.DEFAULT_DOMAIN, defaultDomain);
         Map<String, Map<String, Object>> moduleParameters = new HashMap<>();
@@ -454,7 +454,7 @@ public class CloudModelBuilderTest {
         return new SystemParameters(generalParameters, moduleParameters, Collections.emptyMap(), Collections.emptyMap());
     }
 
-    private void insertProperAppNames(DeploymentDescriptor descriptor) throws Exception {
+    protected void insertProperAppNames(DeploymentDescriptor descriptor) throws Exception {
         for (Module module : descriptor.getModules1_0()) {
             Map<String, Object> parameters = new TreeMap<>(getParameters(module));
             String appName = NameUtil.getApplicationName(module.getName(), descriptor.getId(), useNamespaces);
