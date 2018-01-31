@@ -16,6 +16,7 @@
       "instances": 1,
       "memory": "256M",
       "port": 1,
+      "protocol": "http",
       "service": "",
       "service-plan": "",
       "timestamp": "19700101"
@@ -36,6 +37,7 @@
       "instances": 1,
       "memory": "256M",
       "port": 2,
+      "protocol": "http",
       "service": "",
       "service-plan": "",
       "timestamp": "19700101"
@@ -56,6 +58,7 @@
       "instances": 1,
       "memory": "256M",
       "port": 3,
+      "protocol": "http",
       "service": "",
       "service-plan": "",
       "timestamp": "19700101"
@@ -67,7 +70,6 @@
     "deploy-url": "https://deploy-service-url:51002",
     "org": "initial",
     "platform": "initial initial",
-    "protocol": "http",
     "space": "initial",
     "user": "XSMASTER",
     "xs-api-url": "http://localhost:9999",

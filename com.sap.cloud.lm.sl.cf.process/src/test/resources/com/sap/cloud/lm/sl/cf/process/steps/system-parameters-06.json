@@ -16,6 +16,7 @@
       "instances": 1,
       "memory": "256M",
       "port": 1,
+      "protocol": "{xsa-placeholder-protocol}",
       "service": "",
       "service-plan": "",
       "timestamp": "19700101"
@@ -36,6 +37,7 @@
       "instances": 1,
       "memory": "256M",
       "port": 2,
+      "protocol": "{xsa-placeholder-protocol}",
       "service": "",
       "service-plan": "",
       "timestamp": "19700101"
@@ -56,6 +58,7 @@
       "instances": 1,
       "memory": "256M",
       "port": 3,
+      "protocol": "{xsa-placeholder-protocol}",
       "service": "",
       "service-plan": "",
       "timestamp": "19700101"
@@ -67,7 +70,6 @@
     "deploy-url": "{xsa-placeholder-service-url-deploy-service}",
     "org": "initial",
     "platform": "initial initial",
-    "protocol": "{xsa-placeholder-protocol}",
     "space": "initial",
     "user": "XSMASTER",
     "xs-api-url": "{xsa-placeholder-endpoint-controller}",
