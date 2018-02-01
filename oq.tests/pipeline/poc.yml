@@ -23,7 +23,7 @@ jobs:
         path: "ts"
   - put: test-environment-image
     params:
-      build: oq-tests-git-repo/oq.tests/container
+      build: oq-tests-git-repo/oq.tests
       tag: timestamp/tag
 - name: run-test
   plan:
@@ -34,9 +34,18 @@ jobs:
     config:
       platform: linux
       run:
-        path: 'cf'
-        args: ["plugins"]
-
+        path: 'bash'
+        args: ["oq-test-git-repo/oq.tests/CF Tests/CF Canary Tests/Sanity Check/run.sh"]
+      params:
+        DEFAULT_ORG: ((DEFAULT_ORG))
+        DEFAULT_SPACE: ((DEFAULT_SPACE))
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
 resources:
 - name: oq-tests-git-repo
   type: git

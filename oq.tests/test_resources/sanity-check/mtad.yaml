@@ -1,0 +1,17 @@
+_schema-version: "2.0.0"
+ID: sanity-check
+version: 2.0.1
+
+modules:
+- name: sanity-check-module
+  type: javascript.nodejs
+  path: baz
+  requires:
+    - name: sanity-check-service
+  
+resources:
+- name: sanity-check-service
+  type: org.cloudfoundry.user-provided-service
+  parameters:
+    config:
+      user: some-test-user
