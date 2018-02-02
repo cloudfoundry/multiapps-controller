@@ -7,13 +7,18 @@ import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.process.util.ActivitiExceptionEventHandler;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
+import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 @Component("errorProcessListener")
 public class ErrorProcessListener implements ActivitiEventListener {
 
     @Inject
     protected CloudFoundryClientProvider clientProvider;
+
+    @Inject
+    private ProgressMessageService progressMessageService;
 
     @Override
     public boolean isFailOnException() {
@@ -22,6 +27,9 @@ public class ErrorProcessListener implements ActivitiEventListener {
 
     @Override
     public void onEvent(ActivitiEvent event) {
+        ActivitiExceptionEventHandler handler = new ActivitiExceptionEventHandler(progressMessageService);
+        handler.handle(event);
+
         ClientReleaser clientReleaser = new ClientReleaser(event, clientProvider);
         clientReleaser.releaseClient();
     }
