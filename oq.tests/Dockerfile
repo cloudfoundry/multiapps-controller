@@ -24,6 +24,11 @@ RUN cd ~ && \
 RUN mkdir /workspace
 WORKDIR /workspace
 
+#TODO find another way to assemble test resources
+RUN mkdir /workspace/sanity-check
+ADD https://github.com/nvvalchev/spring-music/blob/master/mta-assembly/spring-music.mtar?raw=true /workspace/sanity-check/
+ADD https://github.com/nvvalchev/spring-music/blob/master/config.mtaext?raw=true /workspace/sanity-check/
+
 #Copy test scripts
 COPY test_scripts /workspace/test_scripts
 COPY test_resources /workspace/test_resources
