@@ -42,3 +42,29 @@ function test_deploy() {
 
     delete_directory ${temp_directory_location}
 }
+
+function test_undeploy() {
+    if [ -z ${MTA_ID} ]; then
+        MTA_ID=$(get_mta_id ${APP_LOCATION}/mtad.yaml)
+        echo_info "MTA ID detected from app location: ${APP_LOCATION} is ${MTA_ID}"
+    fi
+    local temp_directory_location="temp-${APP_LOCATION}"
+    local apps_output_location="${temp_directory_location}/${RT}-apps-output.txt"
+    local mtas_output_location="${temp_directory_location}/${RT}-mtas-output.txt"
+    local services_output_location="${temp_directory_location}/${RT}-services-output.txt"
+    local service_brokers_output_location="${temp_directory_location}/${RT}-service-brokers-output.txt"
+    create_directory ${temp_directory_location}
+
+    execute_undeploy ${MTA_ID}
+    
+    ${RT} apps > ${apps_output_location}
+    assert_components_do_not_exist apps ${apps_output_location} ${EXPECTED_APPLICATIONS}
+    ${RT} services > ${services_output_location}
+    assert_components_do_not_exist services ${services_output_location} ${EXPECTED_SERVICES}
+    ${RT} service-brokers > ${service_brokers_output_location}
+    assert_components_do_not_exist service-brokers  ${service_brokers_output_location} ${EXPECTED_SERVICE_BROKERS}
+    ${RT} mtas > ${mtas_output_location}
+    assert_components_do_not_exist MTAs ${mtas_output_location} ${MTA_ID}
+
+    delete_directory ${temp_directory_location}
+}

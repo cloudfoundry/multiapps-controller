@@ -25,10 +25,15 @@ jobs:
     params:
       build: oq-tests-git-repo/oq.tests
       tag: timestamp/tag
+#  - put: test-environment-image-tag
+#    params:
+#       tag: timestamp/tag
 - name: run-test
   plan:
   - get: test-environment-image
     trigger: true
+#    params:
+#      tag: timestamp/tag
   - task: test-substep-1
     image: test-environment-image
     config:

@@ -10,5 +10,5 @@ export STEP_PATH="${STEP_PATH}/Sanity Check"
 
 export SPACE_NAME="sanity-check-poc"
 export APP_LOCATION="sanity-check"
-export EXPECTED_APPLICATIONS="spring-music-web,spring-music-news"
-export EXPECTED_SERVICES="spring-music-db,spring-music-news-external"
+export EXPECTED_APPLICATIONS="spring-music-web spring-music-news"
+export EXPECTED_SERVICES="spring-music-db spring-music-news-external"

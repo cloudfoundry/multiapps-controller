@@ -231,6 +231,14 @@ function execute_deploy {
     fi
 }
 
+function execute_undeploy {
+    local mta_id=${1}
+    echo "calling ${RT} undeploy ${mta_id} --delete-services --delete-service-brokers --do-not-fail-on-missing-permissions -f"
+    ${RT} undeploy ${mta_id} --delete-services --delete-service-brokers --do-not-fail-on-missing-permissions -f
+
+    assert_call_was_successful "Undeploy"
+}
+
 function generate_local_executable(){
     echo $@;
     echo "generating local executable for ${1}"
@@ -244,4 +252,51 @@ function generate_local_executable(){
     echo "eval ${original_path}" >> ${script_location}
     chmod a+x ${script_location};
     echo "re-execute script location is ${script_location}"
+}
+
+function determine_existing_components_cnt {
+    local command_output=${1}; shift
+    local expected_component_names=("${@}")
+
+    EXISTING_COMPONENTS_CNT=0
+    local component_name
+    for component_name in ${expected_component_names[@]}; do
+        echo_info "Looking for ${component_name}..."
+        local result=$(grep --extended-regexp "(^|\s)${component_name}\s" ${command_output})
+        if [ "${result}" != "" ]; then
+            echo_info "Component ${component_name} found."
+            EXISTING_COMPONENTS_CNT=$((EXISTING_COMPONENTS_CNT+1))
+        else
+            echo_info "Component ${component_name} not found!"
+        fi
+    done
+}
+
+function assert_components_do_not_exist {
+    local component_type=${1}; shift
+    local command_output_file=${1}; shift
+    local expected_component_names=("${@}")
+    echo_info "Asserting the ${component_type} [${expected_component_names[@]}] do not exist in ${command_output_file}..."
+    determine_existing_components_cnt ${command_output_file} "${expected_component_names[@]}"
+
+    if [ ${EXISTING_COMPONENTS_CNT} -ne 0 ]; then
+        echo_error "Some ${component_type} were found!"
+        exit 1
+    fi
+    echo_info "None of the ${component_type} exist!"
+}
+
+function assert_components_exist {
+    local component_type=${1}; shift
+    local command_output_file=${1}; shift
+    local expected_component_names=("${@}")
+    local expected_cnt=${#expected_component_names[@]}
+    echo_info "Asserting the ${component_type} [${expected_component_names[@]}] exist in ${command_output_file}..."
+    determine_existing_components_cnt ${command_output_file} "${expected_component_names[@]}"
+
+    if [ ${EXISTING_COMPONENTS_CNT} -ne ${expected_cnt} ]; then
+        echo_error "Not all ${component_type} were found!"
+        exit 1
+    fi
+    echo_info "All ${component_type} exist!"
 }
