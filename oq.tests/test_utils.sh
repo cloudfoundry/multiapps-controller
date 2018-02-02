@@ -191,3 +191,42 @@ function delete_applications {
       done
 }
 
+function find_mtar() {
+    local archive_location=${1}
+    if [ -z ${archive_location} ]; then
+        return;
+    fi
+    local content_dir=$(pwd);
+    if [ -d "${TEST_WORKING_DIRECTORY}" ] ; then
+        content_dir=${TEST_WORKING_DIRECTORY}
+    fi
+    find "${content_dir}/${archive_location}" -name '*.mtar' | head -1
+}
+
+function execute_deploy {
+    local mta_archive_location=${1}
+    local additional_arguments=${2}
+    local resume_on_failure=${3}
+    echo_info "executing: ${RT} deploy ${mta_archive_location} ${additional_arguments} -f; resume on failure: ${resume_on_failure}"
+
+    if [ "yes" == "${resume_on_failure}" ] ; then
+        (rm deploy_pipe) #optional;in sub shell - in order not to fail safe if no pipe exists
+        mkfifo deploy_pipe
+        coproc resumefd { cat deploy_pipe | grep " to resume the process";}
+        ${RT} deploy ${mta_archive_location} ${additional_arguments} -f | tee deploy_pipe | cat 
+        if [ ${PIPESTATUS[0]} -ne 0 ] ; then
+            echo_error "Execution Failed! Waiting for a minute!"
+            read -ru ${resumefd[0]} resume_line
+            resume_command=&(echo "${resume_line}" | sed -e "s/Use \"\(.*\)\" to resume the process/\1/")
+            sleep 60;
+            echo_info "Retrying after a minute with ${resume_command}"
+            $resume_command; #calling retry
+            assert_call_was_successful "Deploy"
+        fi
+        kill -9 ${resumefd_PID} # to kill the fork
+        rm deploy_pipe #to end the named pipe
+    else
+        ${RT} deploy ${mta_archive_location} ${additional_arguments} -f
+        assert_call_was_successful "Deploy"
+    fi
+}

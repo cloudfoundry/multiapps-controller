@@ -35,7 +35,7 @@ jobs:
       platform: linux
       run:
         path: 'bash'
-        args: ["oq-test-git-repo/oq.tests/CF Tests/CF Canary Tests/Sanity Check/run.sh"]
+        args: ["/workspace/test_scenarios/CF Tests/CF Canary Tests/Sanity Check/run.sh"]
       params:
         DEFAULT_ORG: ((DEFAULT_ORG))
         DEFAULT_SPACE: ((DEFAULT_SPACE))
