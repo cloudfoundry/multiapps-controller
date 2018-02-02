@@ -20,13 +20,11 @@ RUN cd ~ && \
         cf install-plugin cf-cli-mta-plugin -f && \
         rm -vf cf-cli-mta-plugin
 
-RUN pwd
-
 #Copy test scripts
 COPY test_scripts /test_scripts
 COPY test_resources /test_resources
 COPY test_scenarios /test_scenarios
-COPY *.sh ./
+COPY *.sh /
 
 #USER root
 
