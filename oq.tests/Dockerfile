@@ -23,9 +23,9 @@ RUN cd ~ && \
 RUN pwd
 
 #Copy test scripts
-COPY test_scripts test_scripts
-COPY test_resources test_resources
-COPY test_scenarios test_scenarios
+COPY test_scripts /test_scripts
+COPY test_resources /test_resources
+COPY test_scenarios /test_scenarios
 COPY *.sh ./
 
 #USER root
