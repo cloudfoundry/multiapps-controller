@@ -230,3 +230,18 @@ function execute_deploy {
         assert_call_was_successful "Deploy"
     fi
 }
+
+function generate_local_executable(){
+    echo $@;
+    echo "generating local executable for ${1}"
+    local original_path=$1
+    local script_name=`basename ${original_path}`
+    local original_dir=`dirname ${original_path}`
+    local script_location="/var/tmp/${script_name}_$(date +"%m-%d-%y_%H-%M-%S").sh"
+    echo "#!/bin/bash" > ${script_location}
+    export -p | grep -v -E '(PWD)|(OLDPWD)|(SHELL)|(STORAGE)|(CPU)|(tesi)|(custom\.)|(smtp\.server)|(sl_auto)|(skip\.verifyDVDs)|(report\.recipients\.error)|(repo\.root\.dir)|(production\.server\.location)|(dashboard\.purpose)|(custom\.script\.run\.dir)|(ENV\.SL_AUTO_HOST)|(test\.purpose)' >> ${script_location}
+    echo "cd $(pwd)" >> ${script_location}
+    echo "eval ${original_path}" >> ${script_location}
+    chmod a+x ${script_location};
+    echo "re-execute script location is ${script_location}"
+}

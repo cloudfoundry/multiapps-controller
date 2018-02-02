@@ -37,6 +37,7 @@ jobs:
         path: 'bash'
         args: ["/workspace/test_scenarios/CF Tests/CF Canary Tests/Sanity Check/run.sh"]
       params:
+        TEST_WORKING_DIRECTORY: "/workspace"
         DEFAULT_ORG: ((DEFAULT_ORG))
         DEFAULT_SPACE: ((DEFAULT_SPACE))
         DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
