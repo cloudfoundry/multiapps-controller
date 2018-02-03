@@ -56,7 +56,7 @@ resources:
 - name: oq-tests-git-repo
   type: git
   source:
-    uri: https://github.com/ddonchev/cf-mta-deploy-service.git
+    uri: https://github.wdf.sap.corp/i058256/oss.cf.git
     branch: oq_poc
     skip_ssl_verification: true
 
