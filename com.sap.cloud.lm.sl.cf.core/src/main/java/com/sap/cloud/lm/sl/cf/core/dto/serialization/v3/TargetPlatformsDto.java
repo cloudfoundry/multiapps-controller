@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Target;
 
 @XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)
-@XmlRootElement(name = "target-platform")
+@XmlRootElement(name = "target-platforms")
 @Deprecated
 public class TargetPlatformsDto extends com.sap.cloud.lm.sl.cf.core.dto.serialization.TargetPlatformsDto {
 
