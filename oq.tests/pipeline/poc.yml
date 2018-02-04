@@ -25,11 +25,14 @@ jobs:
     params:
       build: oq-tests-git-repo/oq.tests
       tag: timestamp/tag
-#  - put: test-environment-image-tag
+  - put: test-environment-image
 #    params:
 #       tag: timestamp/tag
 - name: run-test
   plan:
+  - get: oq-tests-git-repo
+    trigger: true
+    passed: [build-docker-image]
   - get: test-environment-image
     trigger: true
 #    params:
