@@ -4,6 +4,5 @@ parent_dir="$(dirname -- "${current_dir}")";
 if [ -f "${parent_dir}/env.sh" ] ; then
         source "${parent_dir}/env.sh";
 fi
-export STEP_PATH="${STEP_PATH}/CF Tests"
-export RUNTIME="cf"
-export RT="cf"
+export STEP_PATH="${STEP_PATH}/CF Canary Tests"
+export RECREATE_SPACE="NO"

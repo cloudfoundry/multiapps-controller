@@ -4,39 +4,47 @@ jobs:
 #  public: true
   serial: true
   plan:
-  - get: oq-tests-git-repo
-    trigger: true
-  - task: create-timestamp
+  - aggregate: 
+    - get: cf-mta-deploy-service-git-repo
+      trigger: true
+    - get: cf-mta-cli-plugin-git-repo
+      trigger: true
+  - task: build-mta-cli-plugin
     config:
       platform: linux
       image_resource:
         type: docker-image
-        source: {repository: ubuntu}
+        source: {repository:  cloudfoundry/cli-ci}
       run:
         path: 'bash'
-        args: ["oq-test-git-repo/oq.tests/pipeline/generate_timestamp.sh","ts/tag"]
+#        args: ["oq-test-git-repo/oq.tests/pipeline/generate_timestamp.sh","ts/tag"]
+        args: ["oq-test-git-repo/oq.tests/pipeline/build-cf-cli-plugin.sh","cf-mta-cli-plugin-git-repo","github.com/SAP/cf-mta-plugin","plugin-binaries"]
       inputs:
-      - name: oq-tests-git-repo
+      - name: cf-mta-deploy-service-git-repo
         path: "oq-test-git-repo"
+      - name: cf-mta-cli-plugin-git-repo
+        path: "cf-mta-cli-plugin-git-repo"
       outputs:
-      - name: timestamp
-        path: "ts"
+      - name: "plugin-binaries"
+        path: "plugin-binaries"
   - put: test-environment-image
     params:
-      build: oq-tests-git-repo/oq.tests
-      tag: timestamp/tag
-  - put: test-environment-image
-#    params:
-#       tag: timestamp/tag
+      build: cf-mta-deploy-service-git-repo/oq.tests
+      tag_as_latest: true
 - name: run-test
   plan:
-  - get: oq-tests-git-repo
-    trigger: true
-    passed: [build-docker-image]
-  - get: test-environment-image
-    trigger: true
-#    params:
-#      tag: timestamp/tag
+  - aggregate: 
+    - get: cf-mta-deploy-service-git-repo
+      trigger: false #should we run the OQs for each change in the test's code?
+      passed: [build-docker-image]
+    - get: cf-mta-cli-plugin-git-repo
+      trigger: false #should we run the OQs for each change in the client?
+      passed: [build-docker-image]
+    - get: test-environment-image
+      trigger: true # Well, let's run whenever a new test content image is created :)
+      passed: [build-docker-image]
+      params:
+        tag: latest
   - task: test-substep-1
     image: test-environment-image
     config:
@@ -55,14 +63,20 @@ jobs:
         RT_API_ENDPOINT: ((RT_API_ENDPOINT))
         USER_NAME: ((USER_NAME))
         USER_PASS: ((USER_PASS))
+
 resources:
-- name: oq-tests-git-repo
+- name: cf-mta-deploy-service-git-repo
   type: git
   source:
     uri: https://github.com/ddonchev/cf-mta-deploy-service.git
     branch: oq_poc
     skip_ssl_verification: true
-
+- name: cf-mta-cli-plugin-git-repo
+  type: git
+  source:
+     uri: https://github.com/ddonchev/cf-mta-plugin.git
+     branch: master
+     skip_ssl_verification: true
 - name: test-environment-image
   type: docker-image
   source:

@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "generating timestamp in ${1}"
 outputDir="$( dirname ${1} )"
 echo "checking directory ${outputDir}"
