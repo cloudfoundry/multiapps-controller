@@ -15,6 +15,7 @@ public class Constants {
 
     public static final String PARAM_APP_ARCHIVE_ID = "appArchiveId";
     public static final String PARAM_TARGET_NAME = "deployTarget";
+    @Deprecated
     public static final String PARAM_TARGET_PLATFORM_NAME = "targetPlatform";
     public static final String PARAM_EXT_DESCRIPTOR_FILE_ID = "mtaExtDescriptorId";
     public static final String PARAM_NO_START = "noStart";
