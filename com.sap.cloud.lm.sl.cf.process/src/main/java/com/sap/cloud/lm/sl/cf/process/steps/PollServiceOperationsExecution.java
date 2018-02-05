@@ -76,7 +76,7 @@ public class PollServiceOperationsExecution extends AsyncExecution {
             reportIndividualServiceState(execution, servicesWithLastOperation);
             reportServiceOperationsState(execution, servicesWithLastOperation, triggeredServiceOperations);
             List<CloudServiceExtended> remainingServicesToPoll = getRemainingServicesToPoll(servicesWithLastOperation);
-            execution.getStepLogger().info(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
+            execution.getStepLogger().debug(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
             StepsUtil.setServicesToPoll(execution.getContext(), remainingServicesToPoll);
 
             if (remainingServicesToPoll.size() == 0) {
