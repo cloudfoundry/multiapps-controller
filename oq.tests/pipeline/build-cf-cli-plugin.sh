@@ -16,10 +16,11 @@ if [ $? -ne 0 ] ; then
    echo "ERROR: build failed!"
    exit 1;
 fi
-echo "Looking for output directory: ${2}"
-if [ ! -d "${2}" ] ; then
+echo "Looking for output directory: ${3}"
+if [ ! -d "${3}" ] ; then
     echo "ERROR not found!"
     exit 1;
 fi
-cp -rv ${1}/bin/* ${2}/
+${go_source_directory}/mta_plugin_linux_amd64
+cp -rv ${go_source_directory}/mta_plugin_linux_amd64 ${2}/
 echo "Done"
