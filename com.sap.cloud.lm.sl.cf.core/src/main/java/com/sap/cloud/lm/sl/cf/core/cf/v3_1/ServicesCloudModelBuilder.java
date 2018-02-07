@@ -9,6 +9,7 @@ import java.util.Set;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
@@ -50,6 +51,6 @@ public class ServicesCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1
         if (userMessageLogger == null || !(isOptional(resource))) {
             return;
         }
-        userMessageLogger.warn("Optional resource \"{0}\" it will be not created because it's not a service", resource.getName());
+        userMessageLogger.warn(Messages.OPTIONAL_RESOURCE_IS_NOT_SERVICE, resource.getName());
     }
 }

@@ -16,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 
-
 public abstract class CloudServiceOperator extends CustomControllerClient {
 
     protected static final String SERVICES_URL = "/v2/services?inline-relations-depth=1";
