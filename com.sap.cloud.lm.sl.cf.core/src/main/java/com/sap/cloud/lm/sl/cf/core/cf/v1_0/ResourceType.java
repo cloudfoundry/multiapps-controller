@@ -1,5 +1,8 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v1_0;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 public enum ResourceType {
     MANAGED_SERVICE("managed-service"), USER_PROVIDED_SERVICE("user-provided-service"), EXISTING_SERVICE("existing-service"), EXISTING_SERVICE_KEY("existing-service-key");
 
@@ -20,5 +23,9 @@ public enum ResourceType {
                 return v;
         }
         throw new IllegalArgumentException();
+    }
+
+    public static Set<ResourceType> getServiceTypes() {
+        return EnumSet.of(MANAGED_SERVICE, USER_PROVIDED_SERVICE, EXISTING_SERVICE);
     }
 }

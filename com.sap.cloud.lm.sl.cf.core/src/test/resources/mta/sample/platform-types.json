@@ -22,7 +22,7 @@
             { 
                 "name": "com.sap.xs.hdi-container", 
                 "properties": { 
-					"type": "managed-service",
+                    "type": "managed-service",
                     "service": "hdi-hana", 
                     "service-plan": "hdi-shared" 
                 }

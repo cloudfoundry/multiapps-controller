@@ -30,15 +30,15 @@
             {
                 "name": "com.sap.xs.hdi-container",
                 "parameters": {
-					"type": "managed-service",
+                    "type": "managed-service",
                     "service": "hana",
                     "service-plan": "hdi-shared"
                 }
             },
-			{ 
+            { 
                 "name": "com.sap.xs.uaa-space", 
                 "parameters": { 
-					"type": "managed-service",
+                    "type": "managed-service",
                     "service": "xsuaa", 
                     "service-plan": "space" 
                 }
@@ -111,7 +111,7 @@
             {
                 "name": "com.sap.xs.hdi-container",
                 "parameters": {
-					"type": "managed-service",
+                    "type": "managed-service",
                     "service": "hana",
                     "service-plan": "hdi-shared"
                 }
