@@ -29,8 +29,6 @@ jobs:
         path: "plugin-binaries"
   - put: test-environment-image
     inputs:
-      - name: cf-mta-deploy-service-git-repo
-        path: "cf-mta-deploy-service-git-repo"
       - name: "plugin-binaries"
         path: "cf-mta-deploy-service-git-repo/oq.tests/plugin-binaries"
     params:
