@@ -1,6 +1,7 @@
 #!/bin/bash
-echo "Looking for cf cli plugin project directory: ${1}"
+echo "Usage: ${0} <go-code-sources-dir> <go-code-package> <additional-image-content-dir> <docker-context-dir>"
 
+echo "Looking for cf cli plugin project directory: ${1}"
 if [ ! -d "${1}" ] ; then
     echo "ERROR: not found!"
     exit 1;
@@ -23,11 +24,16 @@ if [ ! -f ${go_source_directory}/mta_plugin_linux_amd64 ] ; then
     exit 1;	
 fi
 
-echo "Looking for output directory: ${3}"
-if [ ! -d "${3}" ] ; then
-    echo "ERROR not found!"
-    exit 1;
+echo "Looking for output directory: ${4}"
+if [ ! -d "${4}" ] ; then
+    mkdir -pv ${4}
 fi
 
-cp -rv ${go_source_directory}/mta_plugin_linux_amd64 ${3}/
+cp -rv ${go_source_directory}/mta_plugin_linux_amd64 ${4}/
+cp -rv ${3}/test_scripts ${4}/test_scripts
+cp -rv ${3}/test_resources ${4}/test_resources
+cp -rv ${3}/test_scenarios ${4}/test_scenarios
+cp -rv ${3}/*.sh ${4}/
+cp -rv ${3}/Dockerfile ${4}/
+
 echo "Done"

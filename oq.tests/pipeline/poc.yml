@@ -9,7 +9,7 @@ jobs:
       trigger: true
     - get: cf-mta-cli-plugin-git-repo
       trigger: true
-  - task: build-mta-cli-plugin
+  - task: prepare-docker-context
     config:
       platform: linux
       image_resource:
@@ -18,21 +18,18 @@ jobs:
       run:
         path: 'bash'
 #        args: ["oq-test-git-repo/oq.tests/pipeline/generate_timestamp.sh","ts/tag"]
-        args: ["oq-test-git-repo/oq.tests/pipeline/build-cf-cli-plugin.sh","cf-mta-cli-plugin-git-repo","github.com/SAP/cf-mta-plugin","plugin-binaries"]
+        args: ["oq-test-git-repo/oq.tests/pipeline/prepare-docker-context.sh","cf-mta-cli-plugin-git-repo","github.com/SAP/cf-mta-plugin","oq-test-git-repo/oq.tests","output/context"]
       inputs:
       - name: cf-mta-deploy-service-git-repo
         path: "oq-test-git-repo"
       - name: cf-mta-cli-plugin-git-repo
         path: "cf-mta-cli-plugin-git-repo"
       outputs:
-      - name: "plugin-binaries"
-        path: "plugin-binaries"
+      - name: "docker-context"
+        path: "output"
   - put: test-environment-image
-    inputs:
-      - name: "plugin-binaries"
-        path: "cf-mta-deploy-service-git-repo/oq.tests/plugin-binaries"
     params:
-      build: cf-mta-deploy-service-git-repo/oq.tests
+      build: docker-context/context
       tag_as_latest: true
 - name: run-test
   plan:
