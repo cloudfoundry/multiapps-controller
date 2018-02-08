@@ -12,14 +12,9 @@ RUN mkdir -p /usr/local/bin && \
   rm -fv /tmp/cf-cli.tgz
 
 # Install latest released cf cli MTA plugin
-RUN cd ~ && \
-        export cf_cli_mta_plugin_url="$(curl --silent --insecure https://api.github.com/repos/SAP/cf-mta-plugin/releases/latest |  grep "linux" | grep "browser_download_url" | sed -r --expression 's/"browser_download_url": "(.*)"/\1/')"  && \
-	      echo "downloading ${cf_cli_mta_plugin_url}" && \
-	      wget -q ${cf_cli_mta_plugin_url} -O $PWD/cf-cli-mta-plugin && \
-	      chmod +x cf-cli-mta-plugin && \
-	      cf install-plugin cf-cli-mta-plugin -f && \
-	      rm -rvf cf-cli-mta-plugin
-
+RUN cd plugin-binaries && \
+          chmod +x mta_plugin_linux_amd64 && \
+	      cf install-plugin mta_plugin_linux_amd64 -f
 
 RUN mkdir /workspace
 WORKDIR /workspace
