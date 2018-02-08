@@ -213,7 +213,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1_0.C
                         new String[] {}, // deployedApps
                         new String[] {
                             "[]", // domains
-                            "R:services-01.json",
+                            "[]",
                             "R:apps-01.json", } },
             // (18) Service binding parameters in requires dependency:
             { "mtad-02.yaml", "config-01.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
@@ -223,7 +223,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1_0.C
                                 new String[] {}, // deployedApps
                                 new String[] {
                                     "[]", // domains
-                                    "R:services-01.json",
+                                    "[]",
                                     "E:Invalid type for key \"foo#bar#config\", expected \"Map\" but got \"String\"", } },
             // (19) Custom application names are used:
             {

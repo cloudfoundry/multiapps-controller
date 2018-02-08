@@ -80,6 +80,7 @@ public final class Messages {
     public static final String UNKNOWN_DB_TYPE = "Unknown database type \"{0}\", using default \"{1}\"";
     public static final String INVALID_PLATFORMS = "Invalid platforms \"{0}\", using default \"{1}\"";
     public static final String INVALID_TARGETS = "Invalid targets \"{0}\", using default \"{1}\"";
+    public static final String OPTIONAL_RESOURCE_IS_NOT_SERVICE = "Optional resource \"{0}\" it will be not created because it's not a service";
 
     public static final String INVALID_VCAP_APPLICATION_SPACE_ID = "Invalid VCAP_APPLICATION \"{0}\", using default space ID \"{1}\"";
     public static final String INVALID_VCAP_APPLICATION = "Invalid VCAP_APPLICATION \"{0}\"";

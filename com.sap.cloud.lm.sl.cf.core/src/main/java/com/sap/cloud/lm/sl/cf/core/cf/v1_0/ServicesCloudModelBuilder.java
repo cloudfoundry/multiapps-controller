@@ -18,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
@@ -32,12 +33,21 @@ public class ServicesCloudModelBuilder {
     private CloudServiceNameMapper cloudServiceNameMapper;
     protected final PropertiesAccessor propertiesAccessor;
     protected final DeploymentDescriptor deploymentDescriptor;
+    protected UserMessageLogger userMessageLogger;
 
     public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
         CloudModelConfiguration configuration) {
         this.propertiesAccessor = propertiesAccessor;
         this.deploymentDescriptor = deploymentDescriptor;
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
+    }
+
+    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
+        CloudModelConfiguration configuration, UserMessageLogger userMessageLogger) {
+        this.propertiesAccessor = propertiesAccessor;
+        this.deploymentDescriptor = deploymentDescriptor;
+        this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
+        this.userMessageLogger = userMessageLogger;
     }
 
     public List<CloudServiceExtended> build(Set<String> modules) throws SLException {

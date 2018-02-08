@@ -76,17 +76,16 @@ public class CloudModelBuilderUtil {
     }
 
     public static boolean isService(Resource resource, PropertiesAccessor propertiesAccessor) {
-        if (resource.getType() == null) {
-            return false;
-        }
-        return !ResourceType.EXISTING_SERVICE_KEY.toString().equals(getResourceType(resource, propertiesAccessor));
+        Set<ResourceType> resourceTypes = ResourceType.getServiceTypes();
+        ResourceType resourceType = getResourceType(resource, propertiesAccessor);
+        return resourceTypes.contains(resourceType);
     }
 
     public static boolean isServiceKey(Resource resource, PropertiesAccessor propertiesAccessor) {
         if (resource.getType() == null) {
             return false;
         }
-        return ResourceType.EXISTING_SERVICE_KEY.toString().equals(getResourceType(resource, propertiesAccessor));
+        return ResourceType.EXISTING_SERVICE_KEY.equals(getResourceType(resource, propertiesAccessor));
     }
 
     public static <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
@@ -98,12 +97,13 @@ public class CloudModelBuilderUtil {
         return ResourceType.get(type);
     }
 
-    private static String getResourceType(Resource resource, PropertiesAccessor propertiesAccessor) {
+    private static ResourceType getResourceType(Resource resource, PropertiesAccessor propertiesAccessor) {
         Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
-        return (String) resourceParameters.get(SupportedParameters.TYPE);
+        String type = (String) resourceParameters.get(SupportedParameters.TYPE);
+        return type != null ? ResourceType.get(type) : null;
     }
-    
-    public static Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor){
+
+    public static Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor) {
         Set<String> deployedModuleNames = new TreeSet<>();
         for (Module mtaModule : deploymentDescriptor.getModules1_0()) {
             deployedModuleNames.add(mtaModule.getName());

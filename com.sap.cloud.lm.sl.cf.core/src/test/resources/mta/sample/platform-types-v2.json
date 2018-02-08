@@ -21,7 +21,8 @@
         "resource-types": [
             { 
                 "name": "com.sap.xs.hdi-container", 
-                "parameters": { 
+                "parameters": {
+                    "type": "managed-service",
                     "service": "hdi-hana", 
                     "service-plan": "hdi-shared" 
                 }
