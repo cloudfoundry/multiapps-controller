@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.RestTemplateFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -35,9 +34,6 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EndProcessListener.class);
-
-    @Inject
-    private RestTemplateFactory restTemplateFactory;
 
     @Inject
     private CollectedDataSender dataSender;
