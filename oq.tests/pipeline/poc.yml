@@ -31,7 +31,7 @@ jobs:
     params:
       build: docker-context/context
       tag_as_latest: true
-- name: run-test
+- name: run-sanity-check-test
   plan:
   - aggregate: 
     - get: cf-mta-deploy-service-git-repo
@@ -52,6 +52,35 @@ jobs:
       run:
         path: 'bash'
         args: ["/workspace/test_scenarios/CF Tests/Sanity Check/run.sh"]
+      params:
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEFAULT_ORG: ((DEFAULT_ORG))
+        DEFAULT_SPACE: ((DEFAULT_SPACE))
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+- name: run-bg-deploy-with-content-change-test
+  plan:
+  - aggregate: 
+    - get: cf-mta-deploy-service-git-repo
+      trigger: false #should we run the OQs for each change in the test's code?
+      passed: [build-docker-image]
+    - get: test-environment-image
+      trigger: true # Well, let's run whenever a new test content image is created :)
+      passed: [build-docker-image]
+      params:
+        tag: latest
+  - task: test-substep-1
+    image: test-environment-image
+    config:
+      platform: linux
+      run:
+        path: 'bash'
+        args: ["/workspace/test_scenarios/CF Tests/Blue Green with Content Change/run.sh"]
       params:
         TEST_WORKING_DIRECTORY: "/workspace"
         DEFAULT_ORG: ((DEFAULT_ORG))
