@@ -9,6 +9,6 @@ export STEP_PATH="${STEP_PATH}/Sanity Check"
 #export DEPLOY_SERVICE_URL="deploy-service.<landscape>"
 
 export SPACE_NAME="sanity-check-poc"
-export APP_LOCATION="${TEST_RESOURCE_DIRECTORY}/sanity-check"
+export APP_LOCATION="sanity-check"
 export EXPECTED_APPLICATIONS="spring-music-web spring-music-news"
 export EXPECTED_SERVICES="spring-music-db spring-music-news-external"

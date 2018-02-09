@@ -5,5 +5,5 @@ if [ -f "${parent_dir}/env.sh" ] ; then
         source "${parent_dir}/env.sh";
 fi
 export STEP_PATH="${STEP_PATH}/Undeploy MTA"
-export APP_LOCATION="bg-archives"
+export APP_LOCATION="${TEST_RESOURCE_DIRECTORY}/bg-archives"
 export EXPECTED_APPLICATIONS="hello-router-blue hello-backend-blue hello-router-green hello-backend-green hello-router hello-backend"

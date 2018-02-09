@@ -21,6 +21,3 @@ fi
 export STEP_PATH="${STEP_PATH}/ROOT"
 export TEST_RESOURCE_DIRECTORY="${TEST_WORKING_DIRECTORY}/test_resources"
 
-
-
-
