@@ -13,19 +13,43 @@ public class UndeployMetadata {
     private final static Set<ParameterMetadata> PARAMS = new HashSet<ParameterMetadata>();
 
     static {
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICES).type(ParameterType.BOOLEAN).defaultValue(false).build());
-        PARAMS.add(
-            ParameterMetadata.builder().id(Constants.PARAM_DELETE_SERVICE_BROKERS).type(ParameterType.BOOLEAN).defaultValue(false).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_MTA_ID).required(true).type(ParameterType.STRING).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS).defaultValue(false).type(
-            ParameterType.BOOLEAN).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS).defaultValue(false).type(
-            ParameterType.BOOLEAN).build());
-        PARAMS.add(ParameterMetadata.builder().id(Constants.PARAM_ABORT_ON_ERROR).type(ParameterType.BOOLEAN).defaultValue(false).build());
+        PARAMS.add(ParameterMetadata.builder()
+            .id(Constants.PARAM_DELETE_SERVICES)
+            .type(ParameterType.BOOLEAN)
+            .defaultValue(false)
+            .build());
+        PARAMS.add(ParameterMetadata.builder()
+            .id(Constants.PARAM_DELETE_SERVICE_BROKERS)
+            .type(ParameterType.BOOLEAN)
+            .defaultValue(false)
+            .build());
+        PARAMS.add(ParameterMetadata.builder()
+            .id(Constants.PARAM_MTA_ID)
+            .required(true)
+            .type(ParameterType.STRING)
+            .build());
+        PARAMS.add(ParameterMetadata.builder()
+            .id(Constants.PARAM_NO_RESTART_SUBSCRIBED_APPS)
+            .defaultValue(false)
+            .type(ParameterType.BOOLEAN)
+            .build());
+        PARAMS.add(ParameterMetadata.builder()
+            .id(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS)
+            .defaultValue(false)
+            .type(ParameterType.BOOLEAN)
+            .build());
+        PARAMS.add(ParameterMetadata.builder()
+            .id(Constants.PARAM_ABORT_ON_ERROR)
+            .type(ParameterType.BOOLEAN)
+            .defaultValue(false)
+            .build());
     }
 
     public static OperationMetadata getMetadata() {
-        return OperationMetadata.builder().parameters(PARAMS).activitiDiagramId(Constants.UNDEPLOY_SERVICE_ID).versions(
-            Constants.SERVICE_VERSION_1_0).build();
+        return OperationMetadata.builder()
+            .parameters(PARAMS)
+            .activitiDiagramId(Constants.UNDEPLOY_SERVICE_ID)
+            .versions(Constants.SERVICE_VERSION_1_0)
+            .build();
     }
 }
