@@ -1,7 +1,7 @@
 ---
 jobs:
 - name: build-docker-image
-#  public: true
+  public: true
   serial: true
   plan:
   - aggregate: 
@@ -80,5 +80,5 @@ resources:
 - name: test-environment-image
   type: docker-image
   source:
-     repository: 192.168.100.4:5000/mta-test-image
-     insecure_registries: [ "192.168.100.4:5000" ]
+     repository: registry:5000/mta-test-image
+     insecure_registries: [ "registry:5000" ]
