@@ -97,7 +97,7 @@ public class CleanUpJob implements Job {
 
     private String getInstanceIndex() {
         Environment env = new Environment();
-        return env.getVariable("INSTANCE_INDEX");
+        return env.getVariable("CF_INSTANCE_INDEX");
     }
 
     private void executeDataTerminationJob() {
