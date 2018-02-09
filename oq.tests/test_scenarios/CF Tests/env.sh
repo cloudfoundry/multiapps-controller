@@ -6,3 +6,4 @@ if [ -f "${parent_dir}/env.sh" ] ; then
 fi
 export STEP_PATH="${STEP_PATH}/CF Canary Tests"
 export RECREATE_SPACE="NO"
+export RT="cf"

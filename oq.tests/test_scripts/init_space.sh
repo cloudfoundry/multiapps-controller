@@ -1,7 +1,6 @@
 export PARENT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
 source $(dirname "${PARENT_DIR}")/test_functions.sh
 
-export RT="${RUNTIME}";
 #required input: 
 #USER_NAME= to be set
 #USER_PASS= to be set
