@@ -6,7 +6,7 @@ jobs:
   plan:
   - aggregate: 
     - get: cf-mta-deploy-service-git-repo
-      trigger: true
+      trigger: false #temp for debug
     - get: cf-mta-cli-plugin-git-repo
       trigger: true
   - task: prepare-docker-context
@@ -35,13 +35,13 @@ jobs:
   plan:
   - aggregate: 
     - get: cf-mta-deploy-service-git-repo
-      trigger: false #should we run the OQs for each change in the test's code?
-      passed: [build-docker-image]
-    - get: cf-mta-cli-plugin-git-repo
-      trigger: false #should we run the OQs for each change in the client?
-      passed: [build-docker-image]
+      trigger: true #should we run the OQs for each change in the test's code?
+      #passed: [build-docker-image]
+#    - get: cf-mta-cli-plugin-git-repo
+#      trigger: false #should we run the OQs for each change in the client?
+#      passed: [build-docker-image]
     - get: test-environment-image
-      trigger: true # Well, let's run whenever a new test content image is created :)
+      trigger: false # if true, it will run whenever a new test content image is created :)
       passed: [build-docker-image]
       params:
         tag: latest
@@ -49,9 +49,19 @@ jobs:
     image: test-environment-image
     config:
       platform: linux
+      inputs:
+      - name: cf-mta-deploy-service-git-repo
+        path: "oq-test-git-repo"
       run:
         path: 'bash'
-        args: ["/workspace/test_scenarios/CF Tests/Sanity Check/run.sh"]
+        args:
+        - -c
+        - |
+          cp -rv oq-test-git-repo/oq.tests/test_scenarios /workspace/
+          cp -rv oq-test-git-repo/oq.tests/test_scripts /workspace/
+          cp -rv oq-test-git-repo/oq.tests/*.sh /workspace/ 
+          bash -x "/workspace/test_scenarios/CF Tests/Sanity Check/run.sh"
+          
       params:
         TEST_WORKING_DIRECTORY: "/workspace"
         DEFAULT_ORG: ((DEFAULT_ORG))
@@ -67,10 +77,9 @@ jobs:
   plan:
   - aggregate: 
     - get: cf-mta-deploy-service-git-repo
-      trigger: false #should we run the OQs for each change in the test's code?
-      passed: [build-docker-image]
+      trigger: true
     - get: test-environment-image
-      trigger: true # Well, let's run whenever a new test content image is created :)
+      trigger: false # temporarily disable let's run whenever a new test content image is created :)
       passed: [build-docker-image]
       params:
         tag: latest
@@ -78,6 +87,9 @@ jobs:
     image: test-environment-image
     config:
       platform: linux
+      inputs:
+      - name: cf-mta-deploy-service-git-repo
+        path: "oq-test-git-repo"
       run:
         path: 'bash'
         args: ["/workspace/test_scenarios/CF Tests/Blue Green with Content Change/run.sh"]
