@@ -302,9 +302,11 @@ function assert_components_exist {
 }
 
 function get_mta_id {
-    local content_dir=${TEST_WORKING_DIRECTORY}
-    local deployment_descriptor_location="${content_dir}/${1}"
-
-    echo $(trim $(cat ${deployment_descriptor_location} | grep -o "^ID: .*$" | cut -d " " -f2 | tail -1))
+    	local content_dir=${TEST_WORKING_DIRECTORY}
+    	local deployment_descriptor_location="${content_dir}/${1}"
+    	echo $(trim $(cat ${deployment_descriptor_location} | grep -o "^ID: .*$" | cut -d " " -f2 | tail -1))
 }
 
+function find_mta_id_from_file {
+    	echo $(trim $(cat ${1} | grep -o "^ID: .*$" | cut -d " " -f2 | tail -1))
+}

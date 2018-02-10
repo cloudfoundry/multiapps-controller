@@ -45,7 +45,7 @@ function test_deploy() {
 
 function test_undeploy() {
     if [ -z ${MTA_ID} ]; then
-        MTA_ID=$(get_mta_id ${APP_LOCATION}/mtad.yaml)
+        MTA_ID=$(find_mta_id_from_file ${APP_LOCATION}/mtad.yaml)
         echo_info "MTA ID detected from app location: ${APP_LOCATION} is ${MTA_ID}"
     fi
     local temp_directory_location="temp-${APP_LOCATION}"
