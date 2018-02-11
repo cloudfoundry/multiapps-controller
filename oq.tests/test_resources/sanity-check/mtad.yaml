@@ -1,17 +1,38 @@
-_schema-version: "2.0.0"
-ID: sanity-check
-version: 2.0.1
+_schema-version: 3
+ID: cf.samples.spring.music
+version: 1.0.0
 
 modules:
-- name: sanity-check-module
-  type: javascript.nodejs
-  path: baz
-  requires:
-    - name: sanity-check-service
-  
+  - name: spring-music-web
+    type: java.tomcat
+    path: build/libs/spring-music.jar
+    requires:
+      - name: news-provider
+        properties:
+          NEWS_URL: ~{url} # a reference to a property value, defined within the descriptor 
+      - name: spring-music-db
+      - name: spring-music-news-external
+    parameters:
+      buildpack: java_buildpack
+    properties:
+      POPULATE_ALBUM_REPOSITORY: true
+
+  - name: spring-music-news
+    type: javascript.nodejs
+    path: spring-music-news/
+    provides:
+      - name: news-provider
+        properties:
+          url: ${default-url}/news # a placeholder which must be resolved by the ALM service
+
 resources:
-- name: sanity-check-service
-  type: org.cloudfoundry.user-provided-service
-  parameters:
-    config:
-      user: some-test-user
+  - name: spring-music-db
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: postgresql
+      service-plan: v9.4-dev-large
+  - name: spring-music-news-external
+    type: org.cloudfoundry.user-provided-service
+    parameters:
+      config:
+        url: # unspecified, as its value is not known on app design time
