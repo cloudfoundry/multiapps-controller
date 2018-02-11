@@ -14,11 +14,6 @@ bash "Undeploy MTA leftovers/run.sh";
 if [[ $? -ne 0 ]] ; then 
 echo "EXECUTION FAILED!./SL4XS2/CF Tests/CF Canary Tests/OQ Tests/Test Suites/Functionality Tests/Blue Green with Content Change/Undeploy MTA leftovers";
 exit 1; fi
-echo "[INF]Running substep ./SL4XS2/CF Tests/CF Canary Tests/OQ Tests/Test Suites/Functionality Tests/Blue Green with Content Change/Delete Space"
-bash "Delete Space/run.sh";
-if [[ $? -ne 0 ]] ; then 
-echo "EXECUTION FAILED!./SL4XS2/CF Tests/CF Canary Tests/OQ Tests/Test Suites/Functionality Tests/Blue Green with Content Change/Delete Space";
-exit 1; fi
 echo "[INF]Running substep ./SL4XS2/CF Tests/CF Canary Tests/OQ Tests/Test Suites/Functionality Tests/Blue Green with Content Change/Test Normal Deploy Blue content"
 bash "Test Normal Deploy Blue content/run.sh";
 if [[ $? -ne 0 ]] ; then 
@@ -58,5 +53,10 @@ echo "[INF]Running substep ./SL4XS2/CF Tests/CF Canary Tests/OQ Tests/Test Suite
 bash "Undeploy MTA/run.sh";
 if [[ $? -ne 0 ]] ; then 
 echo "EXECUTION FAILED!./SL4XS2/CF Tests/CF Canary Tests/OQ Tests/Test Suites/Functionality Tests/Blue Green with Content Change/Undeploy MTA";
+exit 1; fi
+echo "[INF]Running substep ./SL4XS2/CF Tests/CF Canary Tests/OQ Tests/Test Suites/Functionality Tests/Blue Green with Content Change/Delete Space"
+bash "Delete Space/run.sh";
+if [[ $? -ne 0 ]] ; then 
+echo "EXECUTION FAILED!./SL4XS2/CF Tests/CF Canary Tests/OQ Tests/Test Suites/Functionality Tests/Blue Green with Content Change/Delete Space";
 exit 1; fi
 exit $rc;

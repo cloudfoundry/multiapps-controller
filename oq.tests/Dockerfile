@@ -31,8 +31,8 @@ WORKDIR /workspace
 
 #TODO find another way to assemble test resources
 RUN mkdir /workspace/sanity-check
-ADD https://github.com/nvvalchev/spring-music/blob/master/mta-assembly/spring-music.mtar?raw=true /workspace/sanity-check/
-ADD https://github.com/nvvalchev/spring-music/blob/master/config.mtaext?raw=true /workspace/sanity-check/
+ADD https://github.com/nvvalchev/spring-music/blob/master/mta-assembly/spring-music.mtar?raw=true /workspace/test_resources/sanity-check/sanity-check.mtar
+ADD https://github.com/nvvalchev/spring-music/blob/master/config.mtaext?raw=true /workspace/test_resources/sanity-check/
 
 
 ENTRYPOINT ["/bin/bash"]

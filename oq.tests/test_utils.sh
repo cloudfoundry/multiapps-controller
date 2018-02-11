@@ -1,10 +1,22 @@
-if [ -z $ROOT_SCRIPTS_DIR ] ; then
-    export ROOT_SCRIPTS_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
-fi
-
+#TODO delete if RUNTIME is never defined/used
 if [[ ! -z "${RUNTIME}" && -z "${RT}" ]] ; then
     export RT=${RUNTIME};
 fi
+
+function generate_local_executable(){
+    echo $@;
+    echo "generating local executable for ${1}"
+    local original_path=$1
+    local script_name=`basename ${original_path}`
+    local original_dir=`dirname ${original_path}`
+    local script_location="/var/tmp/${script_name}_$(date +"%m-%d-%y_%H-%M-%S").sh"
+    echo "#!/bin/bash" > ${script_location}
+    export -p | grep -v -E '(PWD)|(OLDPWD)|(SHELL)|(STORAGE)|(CPU)|(tesi)|(custom\.)|(smtp\.server)|(sl_auto)|(skip\.verifyDVDs)|(report\.recipients\.error)|(repo\.root\.dir)|(production\.server\.location)|(dashboard\.purpose)|(custom\.script\.run\.dir)|(ENV\.SL_AUTO_HOST)|(test\.purpose)' >> ${script_location}
+    echo "cd $(pwd)" >> ${script_location}
+    echo "eval ${original_path}" >> ${script_location}
+    chmod a+x ${script_location};
+    echo "re-execute script location is ${script_location}"
+}
 
 function assert_call_was_successful {
     if [ "$?" -ne 0 ]; then
@@ -124,7 +136,7 @@ function delete_space(){
     local RT=${1};
     local SPACE_NAME=${2};
 	
-	clean_space ${RUNTIME} "${SPACE_NAME}"
+	clean_space ${RT} "${SPACE_NAME}"
 	
 	echo_info "deleting space ${SPACE_NAME}"
     ${RT} delete-space -f "${SPACE_NAME}"
@@ -136,7 +148,7 @@ function delete_space(){
 function clean_space(){
     local RT=${1};
     local SPACE_NAME=${2};
-    
+    echo_info "cleaning space ${SPACE_NAME} with client: ${RT}"
     #because cf cli can't work without a target
     ${RT} target -o "${DEFAULT_ORG}" -s "${DEFAULT_SPACE}"
     ${RT} spaces | grep "^${SPACE_NAME}\s*.*\$"; 
@@ -191,18 +203,6 @@ function delete_applications {
       done
 }
 
-function find_mtar() {
-    local archive_location=${1}
-    if [ -z ${archive_location} ]; then
-        return;
-    fi
-    local content_dir=$(pwd);
-    if [ -d "${TEST_WORKING_DIRECTORY}" ] ; then
-        content_dir=${TEST_WORKING_DIRECTORY}
-    fi
-    find "${content_dir}/${archive_location}" -name '*.mtar' | head -1
-}
-
 function execute_deploy {
     local mta_archive_location=${1}
     local additional_arguments=${2}
@@ -239,20 +239,44 @@ function execute_undeploy {
     assert_call_was_successful "Undeploy"
 }
 
-function generate_local_executable(){
-    echo $@;
-    echo "generating local executable for ${1}"
-    local original_path=$1
-    local script_name=`basename ${original_path}`
-    local original_dir=`dirname ${original_path}`
-    local script_location="/var/tmp/${script_name}_$(date +"%m-%d-%y_%H-%M-%S").sh"
-    echo "#!/bin/bash" > ${script_location}
-    export -p | grep -v -E '(PWD)|(OLDPWD)|(SHELL)|(STORAGE)|(CPU)|(tesi)|(custom\.)|(smtp\.server)|(sl_auto)|(skip\.verifyDVDs)|(report\.recipients\.error)|(repo\.root\.dir)|(production\.server\.location)|(dashboard\.purpose)|(custom\.script\.run\.dir)|(ENV\.SL_AUTO_HOST)|(test\.purpose)' >> ${script_location}
-    echo "cd $(pwd)" >> ${script_location}
-    echo "eval ${original_path}" >> ${script_location}
-    chmod a+x ${script_location};
-    echo "re-execute script location is ${script_location}"
+function execute_blue_green_deploy {
+    local mta_archive_location=${1}
+    local additional_arguments=${2}
+
+    echo "executing: ${RT} bg-deploy ${mta_archive_location} ${additional_arguments} -f"
+    ${RT} bg-deploy ${mta_archive_location} ${additional_arguments} -f
+
+    assert_call_was_successful "Blue-Green Deploy"
 }
+
+function get_process_id {
+    local process_output=${1}
+
+    echo $(cat ${process_output} | grep "Use \".*\" to download the logs of the process" | grep -o "\-i .*" | cut -d " " -f2 | tail -1)
+}
+
+function execute_action_on_process {
+    local process_output=${1}
+    local action=${2}
+
+    eval $(cat ${process_output} | grep "Use \".*\" to ${action} the process" | cut -d "\"" -f2 | cut -d "\"" -f1 | tail -1)
+}
+
+function abort_process {
+    execute_action_on_process ${1} "abort"
+}
+
+function retry_process {
+    execute_action_on_process ${1} "retry"
+}
+
+function resume_process {
+    execute_action_on_process ${1} "resume"
+}
+
+
+
+
 
 function determine_existing_components_cnt {
     local command_output=${1}; shift
@@ -301,14 +325,28 @@ function assert_components_exist {
     echo_info "All ${component_type} exist!"
 }
 
+#Receives directory path, relative to the TEST_RESOURCE_DIRECTORY
+#outputs the first found *.mtar file
+function find_mtar() {
+    local archive_location=${1}
+    if [ -z ${archive_location} ]; then
+        echo_warning "Looking for archive; Archive location not specified."
+        return;
+    fi
+    find "${TEST_RESOURCE_DIRECTORY}/${archive_location}" -name '*.mtar' | head -1
+}
+#Receives the deployment descriptor's file path, relative to the TEST_RESOURCE_DIRECTORY
+#outputs the mtaid of the *.mtar file
 function get_mta_id {
-    	local content_dir=${TEST_WORKING_DIRECTORY}
-    	local deployment_descriptor_location="${content_dir}/${1}"
-    	echo $(trim $(cat ${deployment_descriptor_location} | grep -o "^ID: .*$" | cut -d " " -f2 | tail -1))
+    local deployment_descriptor_location="${TEST_RESOURCE_DIRECTORY}/${1}"
+    find_mta_id_from_file ${deployment_descriptor_location}
+#    echo $(trim $(cat ${deployment_descriptor_location} | grep -o "^ID: .*$" | cut -d " " -f2 | tail -1))
 }
 
+#Receives the deployment descriptor's file absolute path,
+#outputs the mtaid of the *.mtar file
 function find_mta_id_from_file {
-    	echo $(trim $(cat ${1} | grep -o "^ID: .*$" | cut -d " " -f2 | tail -1))
+    echo $(trim $(cat ${1} | grep -o "^ID: .*$" | cut -d " " -f2 | tail -1))
 }
 
 function cleanup(){

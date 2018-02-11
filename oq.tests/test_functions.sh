@@ -1,10 +1,6 @@
-export ROOT_SCRIPTS_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
 
-#the resource location is determined by finding the git repo root first
-#repo_root/test_scripts/<current script>.sh -> ../../test_resources
-#the content from this dir should be copied to the test workign dir before each execution
-SCRIPT_RESOURCES_ROOT="$(dirname $(dirname $0))/test_resources"
-
+#TODO - these probably are no longer set
 #Variables inherited from **** execution, which mess-up the nodejs maven build
 unset SUDO_GID;
 unset SUDO_UID;
@@ -17,11 +13,35 @@ CSRF_TOKEN=""
 API_ENDPOINT=""
 API_URL=""
 
-source "${ROOT_SCRIPTS_DIR}/test_utils.sh"
+source "${SCRIPT_DIR}/test_utils.sh"
 
 function dummy_test_function(){
   echo_info "DOING SOME IMPORTANT SCENARIO VALIDATION HERE..."
   return 0;
+}
+
+function test_blue_green_deploy() {
+    local temp_location="temp-${RANDOM}"
+    create_directory ${temp_location}
+    local action="${SLP_ACTION}"
+    if [ -z "${action}" ]; then
+      action="resume"
+    fi
+
+    execute_blue_green_deploy "${MTAR_LOCATION}" "${ADDITIONAL_OPTIONS}" | tee ${temp_location}/bg-deploy-output.txt
+    grep -q "Process finished" ${temp_location}/bg-deploy-output.txt;
+    local finished=$0 #if found(fnished)->0 if not finished -> 1;
+    if  [ $finished != 0 ] && [ "${action}" != "none" ] ; then #if not finished and SLP_ACTION is not 'none'
+        execute_action_on_process ${temp_location}/bg-deploy-output.txt "${action}"
+        assert_call_was_successful "Resume"
+    fi
+    ${RT} a > ${temp_location}/xs-a-output.txt
+    assert_components_exist applications ${temp_location}/xs-a-output.txt ${EXPECTED_APPLICATIONS}
+    assert_components_do_not_exist applications ${temp_location}/xs-a-output.txt ${UNEXPECTED_APPLICATIONS}
+    ${RT} s > ${temp_location}/xs-s-output.txt
+    assert_components_exist services ${temp_location}/xs-s-output.txt ${EXPECTED_SERVICES}
+
+    delete_directory ${temp_location}
 }
 
 function test_deploy() {
@@ -45,7 +65,7 @@ function test_deploy() {
 
 function test_undeploy() {
     if [ -z ${MTA_ID} ]; then
-        MTA_ID=$(find_mta_id_from_file ${APP_LOCATION}/mtad.yaml)
+        MTA_ID=$(get_mta_id ${APP_LOCATION}/mtad.yaml)
         echo_info "MTA ID detected from app location: ${APP_LOCATION} is ${MTA_ID}"
     fi
     local temp_directory_location="temp-${APP_LOCATION}"
