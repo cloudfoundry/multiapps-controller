@@ -275,8 +275,42 @@ function resume_process {
 }
 
 
+#expected input
+#MTA_ID
+#local action="${SLP_ACTION}"
+function apply_bg_action(){
+     if [ -z ${MTA_ID} ]; then
+        MTA_ID=$(get_mta_id ${APP_LOCATION}/mtad.yaml)
+        echo_info "MTA ID detected from app location: ${APP_LOCATION} is ${MTA_ID}"
+    fi
+    echo_info "Getting BG process id for ${MTA_ID}"
+    ${RT} mta-ops
+    echo "${RT} mta-ops | grep -e "BLUE_GREEN_DEPLOY\s*${MTA_ID}\s*ACTION_REQUIRED" | awk -v N=1 '{print \$N}'"
+    local process_id=$(${RT} mta-ops | grep -i -e "BLUE.*GREEN.*DEPLOY\s*${MTA_ID}\s*ACTION_REQUIRED" | awk -v N=1 '{print $N}')
+    local action="${SLP_ACTION}"
+    echo "applying action ${action} to process \"${process_id}\"."
+    ${RT} bg-deploy -i "${process_id}" -a "${action}"
+}
 
-
+function call_app_rest_api(){
+    local app_name="${1}"
+    local rest_path="${2}"
+    local expected_output="${3}"
+    #app_name="hello-router"
+    #the url is the 7th word in e.g. hello-router  STARTED 1/1 1.00 GB  <unlimited>  https://mo-4b9e0787b.mo.sap.corp:51240
+    echo_info "calling ${app_name}"
+    local column_number=7
+    if [[ "${RT}" == "cf" ]] ; then echo "parsing cf output"; column_number=6 ; fi 
+    echo "${RT} a | grep "${app_name} " 2>/dev/null | awk -v N=${column_number} '{print \$N}"
+    local app_uri=$(${RT} a | grep "${app_name} " 2>/dev/null | awk -v N=${column_number} '{print $N}')
+    if [[ ${RT} == "cf"  ]]; then 
+    app_uri="https://${app_uri}";
+    fi
+    echo_info "at ${app_uri}/hello"
+    local actual_output=$(curl "${app_uri}/hello" --insecure 2>/dev/null);
+    echo_info "got ${actual_output}, comparing wiht expected ${expected_output}"
+    assert_are_equal ${expected_output} ${actual_output}
+}
 
 function determine_existing_components_cnt {
     local command_output=${1}; shift

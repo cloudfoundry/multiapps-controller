@@ -7,3 +7,5 @@ SPACE_NAME: <>
 RT_API_ENDPOINT: <>
 USER_NAME: <>
 USER_PASS: <>
+slack-webhook: <>
+ci-host: <>

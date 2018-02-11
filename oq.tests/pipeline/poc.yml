@@ -40,6 +40,8 @@ jobs:
 #    - get: cf-mta-cli-plugin-git-repo
 #      trigger: false #should we run the OQs for each change in the client?
 #      passed: [build-docker-image]
+    - get: 15m  #Run every 15 minutes
+      trigger: true
     - get: test-environment-image
       trigger: false # if true, it will run whenever a new test content image is created :)
       passed: [build-docker-image]
@@ -73,6 +75,13 @@ jobs:
         RT_API_ENDPOINT: ((RT_API_ENDPOINT))
         USER_NAME: ((USER_NAME))
         USER_PASS: ((USER_PASS))
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          Oops, $BUILD_JOB_NAME OQ test failed:
+          http://((ci-host))/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          http://((ci-host))/builds/$BUILD_ID
 - name: run-bg-deploy-with-content-change-test
   plan:
   - aggregate: 
@@ -111,7 +120,36 @@ jobs:
         RT_API_ENDPOINT: ((RT_API_ENDPOINT))
         USER_NAME: ((USER_NAME))
         USER_PASS: ((USER_PASS))
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          Oops, $BUILD_JOB_NAME OQ test failed:
+          http://((ci-host))/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          http://((ci-host))/builds/$BUILD_ID
 
+- name: failing-with-notification-test
+  plan:
+  - aggregate: 
+    - get: test-environment-image
+      trigger: false # temporarily disable let's run whenever a new test content image is created :)
+      passed: [build-docker-image]
+      params:
+        tag: latest
+  - task: test-substep-1
+    image: test-environment-image
+    config:
+      platform: linux
+      run:
+        path: 'bash'
+        args: ["asdfsad;lkfjs"]
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          Oops, $BUILD_JOB_NAME OQ test failed:
+          http://((ci-host))/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          http://((ci-host))/builds/$BUILD_ID
 resources:
 - name: cf-mta-deploy-service-git-repo
   type: git
@@ -130,3 +168,17 @@ resources:
   source:
      repository: registry:5000/mta-test-image
      insecure_registries: [ "registry:5000" ]
+- name: 15m
+  type: time
+  source: {interval: 15m}
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: ((slack-webhook))
+
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
