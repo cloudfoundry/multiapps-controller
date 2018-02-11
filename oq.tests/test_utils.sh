@@ -310,3 +310,19 @@ function get_mta_id {
 function find_mta_id_from_file {
     	echo $(trim $(cat ${1} | grep -o "^ID: .*$" | cut -d " " -f2 | tail -1))
 }
+
+function cleanup(){
+    if [ -z ${MTA_ID} ]; then
+        MTA_ID=$(get_mta_id ${APP_LOCATION}/mtad.yaml)
+    fi
+    ${RT} undeploy ${MTA_ID} --delete-services --delete-service-brokers --do-not-fail-on-missing-permissions -f
+    for component_name in ${EXPECTED_APPLICATIONS}; do
+        echo_info "deleting ${component_name}"
+        ${RT} delete ${component_name} -f
+    done
+    for service_name in ${EXPECTED_SERVICES}; do
+        echo_info "deleting ${service_name}"
+        ${RT} delete-service ${service_name} -f
+    done
+}
+
