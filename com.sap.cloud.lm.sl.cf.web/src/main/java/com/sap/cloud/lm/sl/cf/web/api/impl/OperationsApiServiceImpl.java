@@ -146,7 +146,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     public Operation getOperation(String operationId, String embed, String spaceId) {
         Operation operation = dao.findRequired(operationId);
-        if (!operationsHelper.isProcessFound(operation) || !operation.getSpaceId().equals(spaceId)) {
+        if (!operation.getSpaceId().equals(spaceId)) {
             throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_NOT_FOUND, operationId, spaceId);
         }
         operationsHelper.addState(operation);
