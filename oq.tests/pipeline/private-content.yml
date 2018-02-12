@@ -9,3 +9,4 @@ USER_NAME: <>
 USER_PASS: <>
 slack-webhook: <>
 ci-host: <>
+slack-chanel: <>

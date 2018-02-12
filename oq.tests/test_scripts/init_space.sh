@@ -1,5 +1,5 @@
 export PARENT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
-source $(dirname "${PARENT_DIR}")/test_functions.sh
+source "${PARENT_DIR}"/test_functions.sh
 
 #required input: 
 #USER_NAME= to be set

@@ -1,13 +1,34 @@
 ---
+groups:
+- name: bg-with-content-change-multi-job
+  jobs:
+  - run-bg-deploy-with-content-change-test-init-space
+  - run-bg-deploy-with-content-change-test-undeploy-leftovers
+  - run-bg-deploy-with-content-change-test-normal-deployment
+  - run-bg-deploy-with-content-change-test-bg-no-action
+  - run-bg-deploy-with-content-change-test-bg-test-live-idle
+  - run-bg-deploy-with-content-change-test-bg-test-resume-bg
+  - run-bg-deploy-with-content-change-test-bg-test-live-app
+  - run-bg-deploy-with-content-change-test-bg-test-bg-no-confirm
+  - run-bg-deploy-with-content-change-test-bg-test-test-new-blue
+  - run-bg-deploy-with-content-change-test-bg-test-undeploy
+  - run-bg-deploy-with-content-change-test-bg-test-delete-space
+- name: single-job-tests
+  jobs:
+  - build-docker-image
+  - run-bg-deploy-with-content-change-test
+  - run-sanity-check-test
+  - run-multi-task-bg-deploy-with-content-change-test 
+  
 jobs:
 - name: build-docker-image
   public: true
   serial: true
   plan:
   - aggregate: 
-    - get: cf-mta-deploy-service-git-repo
+    - get: oqtests
       trigger: false #temp for debug
-    - get: cf-mta-cli-plugin-git-repo
+    - get: cliplugin
       trigger: true
   - task: prepare-docker-context
     config:
@@ -15,15 +36,14 @@ jobs:
       image_resource:
         type: docker-image
         source: {repository:  cloudfoundry/cli-ci}
+      inputs:
+      - name: oqtests
+        path: "oq-test-git-repo"
+      - name: cliplugin
+        path: "cliplugin"
       run:
         path: 'bash'
-#        args: ["oq-test-git-repo/oq.tests/pipeline/generate_timestamp.sh","ts/tag"]
-        args: ["oq-test-git-repo/oq.tests/pipeline/prepare-docker-context.sh","cf-mta-cli-plugin-git-repo","github.com/SAP/cf-mta-plugin","oq-test-git-repo/oq.tests","output/context"]
-      inputs:
-      - name: cf-mta-deploy-service-git-repo
-        path: "oq-test-git-repo"
-      - name: cf-mta-cli-plugin-git-repo
-        path: "cf-mta-cli-plugin-git-repo"
+        args: ["oq-test-git-repo/oq.tests/pipeline/prepare-docker-context.sh","cliplugin","github.com/SAP/cf-mta-plugin","oq-test-git-repo/oq.tests","output/context"]
       outputs:
       - name: "docker-context"
         path: "output"
@@ -31,15 +51,12 @@ jobs:
     params:
       build: docker-context/context
       tag_as_latest: true
+#Sanity check - single job, single task
 - name: run-sanity-check-test
   plan:
   - aggregate: 
-    - get: cf-mta-deploy-service-git-repo
+    - get: oqtests
       trigger: true #should we run the OQs for each change in the test's code?
-      #passed: [build-docker-image]
-#    - get: cf-mta-cli-plugin-git-repo
-#      trigger: false #should we run the OQs for each change in the client?
-#      passed: [build-docker-image]
     - get: 15m  #Run every 15 minutes
       trigger: true
     - get: test-environment-image
@@ -47,34 +64,20 @@ jobs:
       passed: [build-docker-image]
       params:
         tag: latest
-  - task: test-substep-1
+  - task: sanity-check-single-task
     image: test-environment-image
-    config:
-      platform: linux
-      inputs:
-      - name: cf-mta-deploy-service-git-repo
-        path: "oq-test-git-repo"
-      run:
-        path: 'bash'
-        args:
-        - -c
-        - |
-          cp -rv oq-test-git-repo/oq.tests/test_scenarios /workspace/
-          cp -rv oq-test-git-repo/oq.tests/test_scripts /workspace/
-          cp -rv oq-test-git-repo/oq.tests/*.sh /workspace/ 
-          bash -x "/workspace/test_scenarios/CF Tests/Sanity Check/run.sh"
-          
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEFAULT_ORG: ((DEFAULT_ORG))
-        DEFAULT_SPACE: ((DEFAULT_SPACE))
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
+    file: oqtests/oq.tests/test_scenarios/CF Tests/Sanity Check/single-task.yml
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEFAULT_ORG: ((DEFAULT_ORG))
+      DEFAULT_SPACE: ((DEFAULT_SPACE))
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
     on_failure:
       put: slack-alert
       params:
@@ -82,33 +85,207 @@ jobs:
           Oops, $BUILD_JOB_NAME OQ test failed:
           http://((ci-host))/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
           http://((ci-host))/builds/$BUILD_ID
+        channel: ((slack-chanel))
+#BG single job single task
 - name: run-bg-deploy-with-content-change-test
   plan:
   - aggregate: 
-    - get: cf-mta-deploy-service-git-repo
+    - get: oqtests
       trigger: true
     - get: test-environment-image
-      trigger: false # temporarily disable let's run whenever a new test content image is created :)
+      trigger: true # let's run whenever a new test content image is created :)
       passed: [build-docker-image]
       params:
         tag: latest
   - task: test-substep-1
     image: test-environment-image
-    config:
-      platform: linux
-      inputs:
-      - name: cf-mta-deploy-service-git-repo
-        path: "oq-test-git-repo"
-      run:
-      
-        path: 'bash'
-        args:
-        - -c
-        - |
-          cp -rv oq-test-git-repo/oq.tests/test_scenarios /workspace/
-          cp -rv oq-test-git-repo/oq.tests/test_scripts /workspace/
-          cp -rv oq-test-git-repo/oq.tests/*.sh /workspace/ 
-          bash "/workspace/test_scenarios/CF Tests/Blue Green with Content Change/run.sh"
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/single-task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEFAULT_ORG: ((DEFAULT_ORG))
+      DEFAULT_SPACE: ((DEFAULT_SPACE))
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          Oops, $BUILD_JOB_NAME OQ test failed:
+          http://((ci-host))/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          http://((ci-host))/builds/$BUILD_ID
+        channel: ((slack-chanel))
+#BG - single job multiple tasks
+- name: run-multi-task-bg-deploy-with-content-change-test
+  plan:
+  - aggregate: 
+    - get: oqtests
+      trigger: true
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [build-docker-image]
+      params:
+        tag: latest
+  - task: init-space
+    image: test-environment-image
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/1InitSpace/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEFAULT_ORG: ((DEFAULT_ORG))
+      DEFAULT_SPACE: ((DEFAULT_SPACE))
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-sjmt
+  - task: undeploy-leftovers
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Undeploy MTA leftovers/task.yml"
+    image: test-environment-image
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-sjmt
+  - task: normal-deploy
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test Normal Deploy Blue content/task.yml"
+    image: test-environment-image
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-sjmt
+  - task: bg-deploy-no-action
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/BG Deploy Green with no action/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-sjmt
+  - task: test-both-apps
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test Live and Idle Apps/task.yml"
+    image: test-environment-image
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-sjmt
+  - task: resume-bg-deploy
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Resume BG deploy/task.yml"
+    image: test-environment-image
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-sjmt
+  - task: test-new-version
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test New Green Live App content/task.yml"
+    image: test-environment-image
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-sjmt
+  - task: bg-deploy-no-confirm
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/BG Deploy Blue no confirm/task.yml"
+    image: test-environment-image
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-sjmt
+  - task: test-new-version
+    image: test-environment-image
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test New Blue Live App content/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-sjmt
+  - task: undeploy
+    image: test-environment-image
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Undeploy MTA/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-sjmt
+  - task: delete-space
+    image: test-environment-image
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Delete Space/task.yml"
+    on_failure:
+      put: slack-alert
+      params:
+        text: |
+          Oops, $BUILD_JOB_NAME OQ test failed:
+          http://((ci-host))/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+          http://((ci-host))/builds/$BUILD_ID
+        channel: ((slack-chanel))
+
+#BG-multiple jobs, single task each
+- name: run-bg-deploy-with-content-change-test-init-space
+  plan:
+  - aggregate: 
+    - get: oqtests
+      trigger: true
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [build-docker-image]
+      params:
+        tag: latest
+    - task: test-substep-1
+      file: 'oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/1InitSpace/task.yml'
       params:
         TEST_WORKING_DIRECTORY: "/workspace"
         DEFAULT_ORG: ((DEFAULT_ORG))
@@ -120,54 +297,239 @@ jobs:
         RT_API_ENDPOINT: ((RT_API_ENDPOINT))
         USER_NAME: ((USER_NAME))
         USER_PASS: ((USER_PASS))
-    on_failure:
-      put: slack-alert
-      params:
-        text: |
-          Oops, $BUILD_JOB_NAME OQ test failed:
-          http://((ci-host))/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-          http://((ci-host))/builds/$BUILD_ID
-
-- name: failing-with-notification-test
+        SPACE_PREFIX: oqpoc-mjst
+- name: run-bg-deploy-with-content-change-test-undeploy-leftovers
   plan:
   - aggregate: 
+    - get: oqtests
     - get: test-environment-image
-      trigger: false # temporarily disable let's run whenever a new test content image is created :)
-      passed: [build-docker-image]
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [run-bg-deploy-with-content-change-test-init-space]
       params:
         tag: latest
-  - task: test-substep-1
-    image: test-environment-image
-    config:
-      platform: linux
-      run:
-        path: 'bash'
-        args: ["asdfsad;lkfjs"]
-    on_failure:
-      put: slack-alert
+    - task: test-substep-1
+      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Undeploy MTA leftovers/task.yml"
       params:
-        text: |
-          Oops, $BUILD_JOB_NAME OQ test failed:
-          http://((ci-host))/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-          http://((ci-host))/builds/$BUILD_ID
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+        SPACE_PREFIX: oqpoc-mjst
+- name: run-bg-deploy-with-content-change-test-normal-deployment
+  plan:
+  - aggregate: 
+    - get: oqtests
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [run-bg-deploy-with-content-change-test-undeploy-leftovers]
+      params:
+        tag: latest
+    - task: test-substep-1
+      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test Normal Deploy Blue content/task.yml"
+      params:
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+        SPACE_PREFIX: oqpoc-mjst
+- name: run-bg-deploy-with-content-change-test-bg-no-action
+  plan:
+  - aggregate: 
+    - get: oqtests
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [run-bg-deploy-with-content-change-test-normal-deployment]
+      params:
+        tag: latest
+    - task: test-substep-1
+      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/BG Deploy Green with no action/task.yml"
+      params:
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+        SPACE_PREFIX: oqpoc-mjst
+- name: run-bg-deploy-with-content-change-test-bg-test-live-idle
+  plan:
+  - aggregate: 
+    - get: oqtests
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [run-bg-deploy-with-content-change-test-bg-no-action]
+      params:
+        tag: latest
+    - task: test-substep-1
+      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test Live and Idle Apps/task.yml"
+      params:
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+        SPACE_PREFIX: oqpoc-mjst
+- name: run-bg-deploy-with-content-change-test-bg-test-resume-bg
+  plan:
+  - aggregate: 
+    - get: oqtests
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [run-bg-deploy-with-content-change-test-bg-test-live-idle]
+      params:
+        tag: latest
+    - task: test-substep-1
+      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Resume BG deploy/task.yml"
+      params:
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+        SPACE_PREFIX: oqpoc-mjst
+- name: run-bg-deploy-with-content-change-test-bg-test-live-app
+  plan:
+  - aggregate: 
+    - get: oqtests
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [run-bg-deploy-with-content-change-test-bg-test-resume-bg]
+      params:
+        tag: latest
+    - task: test-substep-1
+      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test New Green Live App content/task.yml"
+      params:
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+        SPACE_PREFIX: oqpoc-mjst
+- name: run-bg-deploy-with-content-change-test-bg-test-bg-no-confirm
+  plan:
+  - aggregate: 
+    - get: oqtests
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [ run-bg-deploy-with-content-change-test-bg-test-live-app]
+      params:
+        tag: latest
+    - task: test-substep-1
+      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/BG Deploy Blue no confirm/task.yml"
+      params:
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+        SPACE_PREFIX: oqpoc-mjst
+- name: run-bg-deploy-with-content-change-test-bg-test-test-new-blue
+  plan:
+  - aggregate: 
+    - get: oqtests
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [run-bg-deploy-with-content-change-test-bg-test-bg-no-confirm]
+      params:
+        tag: latest
+    - task: test-substep-1
+      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test New Blue Live App content/task.yml"
+      params:
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+        SPACE_PREFIX: oqpoc-mjst
+- name: run-bg-deploy-with-content-change-test-bg-test-undeploy
+  plan:
+  - aggregate: 
+    - get: oqtests
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [ run-bg-deploy-with-content-change-test-bg-test-test-new-blue]
+      params:
+        tag: latest
+    - task: test-substep-1
+      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Undeploy MTA/task.yml"
+      params:
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+        SPACE_PREFIX: oqpoc-mjst
+- name: run-bg-deploy-with-content-change-test-bg-test-delete-space
+  plan:
+  - aggregate: 
+    - get: oqtests
+    - get: test-environment-image
+      trigger: true # let's run whenever a new test content image is created :)
+      passed: [ run-bg-deploy-with-content-change-test-bg-test-undeploy]
+      params:
+        tag: latest
+    - task: test-substep-1
+      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Delete Space/task.yml"
+      params:
+        TEST_WORKING_DIRECTORY: "/workspace"
+        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+        ORG_NAME: ((ORG_NAME))
+        SPACE_NAME: ((SPACE_NAME))
+        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+        USER_NAME: ((USER_NAME))
+        USER_PASS: ((USER_PASS))
+        SPACE_PREFIX: oqpoc-mjst
+
 resources:
-- name: cf-mta-deploy-service-git-repo
+- name: oqtests
   type: git
   source:
     uri: https://github.com/ddonchev/cf-mta-deploy-service.git
     branch: oq_poc
     skip_ssl_verification: true
-- name: cf-mta-cli-plugin-git-repo
+
+- name: cliplugin
   type: git
   source:
      uri: https://github.com/ddonchev/cf-mta-plugin.git
      branch: master
      skip_ssl_verification: true
+
 - name: test-environment-image
   type: docker-image
   source:
      repository: registry:5000/mta-test-image
      insecure_registries: [ "registry:5000" ]
+
 - name: 15m
   type: time
   source: {interval: 15m}

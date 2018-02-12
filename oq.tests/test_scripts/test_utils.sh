@@ -1,8 +1,4 @@
-#TODO delete if RUNTIME is never defined/used
-if [[ ! -z "${RUNTIME}" && -z "${RT}" ]] ; then
-    export RT=${RUNTIME};
-fi
-
+#!/bin/bash
 function generate_local_executable(){
     echo $@;
     echo "generating local executable for ${1}"
@@ -102,7 +98,7 @@ function get_apps {
 #USER_PASS
 function init_space(){
     local recreate_space="${1}"
-    
+
     ${RT} login -a ${RT_API_ENDPOINT} -u "${USER_NAME}" -p "${USER_PASS}" --skip-ssl-validation -o "${DEFAULT_ORG}" -s "${DEFAULT_SPACE}"
     if [ $? -ne 0 ] ; then
         echo_error "Could not log-in : -a ${RT_API_ENDPOINT} -u ${USER_NAME}"

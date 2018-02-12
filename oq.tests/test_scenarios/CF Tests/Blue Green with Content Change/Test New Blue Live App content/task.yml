@@ -1,0 +1,16 @@
+---
+  platform: linux
+  inputs:
+  - name: oqtests
+    path: "oq-test-git-repo"
+  run:
+  
+    path: 'bash'
+    args:
+    - -c
+    - |
+      cp -rv oq-test-git-repo/oq.tests/test_scenarios /workspace/
+      cp -rv oq-test-git-repo/oq.tests/test_scripts /workspace/
+      echo "${RT} login -a ${RT_API_ENDPOINT} -u ${USER_NAME} -p ${USER_PASS} --skip-ssl-validation -o ${ORG_NAME} -s ${SPACE_PREFIX}${SPACE_NAME}"
+      ${RT} login -a ${RT_API_ENDPOINT} -u "${USER_NAME}" -p "${USER_PASS}" --skip-ssl-validation -o "${ORG_NAME}" -s "${SPACE_PREFIX}${SPACE_NAME}" 
+      bash "/workspace/test_scenarios/CF Tests/Blue Green with Content Change/Test New Blue Live App content/run.sh"
