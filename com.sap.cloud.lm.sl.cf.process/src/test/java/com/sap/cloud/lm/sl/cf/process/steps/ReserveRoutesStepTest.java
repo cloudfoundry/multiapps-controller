@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort.ApplicationPortType;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -50,6 +51,7 @@ public class ReserveRoutesStepTest extends SyncActivitiStepTest<ReserveRoutesSte
     }
 
     private void prepareContext() {
+        context.setVariable(Constants.VAR_PORT_BASED_ROUTING, true);
         StepsUtil.setAllocatedPorts(context, stepInput.allocatedPorts);
         CloudApplicationExtended app = new CloudApplicationExtended(null, "appName");
         app.setApplicationPorts(stepInput.applicationPorts);
