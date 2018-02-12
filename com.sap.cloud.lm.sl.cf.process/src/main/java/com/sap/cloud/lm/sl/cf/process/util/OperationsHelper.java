@@ -39,20 +39,9 @@ public class OperationsHelper {
 
     public List<Operation> findOperations(OperationFilter operationFilter, List<State> statusList) {
         List<Operation> operations = dao.find(operationFilter);
-        List<Operation> existingOperations = filterExistingOperations(operations);
-        addOngoingOperationsState(existingOperations);
-        List<Operation> result = filterBasedOnStates(existingOperations, statusList);
+        addOngoingOperationsState(operations);
+        List<Operation> result = filterBasedOnStates(operations, statusList);
         return result;
-    }
-
-    private List<Operation> filterExistingOperations(List<Operation> operations) {
-        return operations.stream().filter(operation -> isProcessFound(operation)).collect(Collectors.toList());
-    }
-
-    public boolean isProcessFound(Operation operation) throws SLException {
-        List<String> processDefinitionKeys = getAllProcessDefinitionKeys(operation);
-        HistoricProcessInstance historicInstance = getHistoricInstance(operation, processDefinitionKeys);
-        return historicInstance != null;
     }
 
     public String getProcessDefinitionKey(Operation operation) {
