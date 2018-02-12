@@ -309,8 +309,9 @@ public class StepsUtil {
     @SuppressWarnings("unchecked")
     public static List<CloudServiceExtended> getServicesToCreate(DelegateExecution context) {
         List<String> services = (List<String>) context.getVariable(Constants.VAR_SERVICES_TO_CREATE);
-        return services.stream().map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class)).collect(
-            Collectors.toList());
+        return services.stream()
+            .map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class))
+            .collect(Collectors.toList());
     }
 
     static void setServicesToCreate(DelegateExecution context, List<CloudServiceExtended> services) {
@@ -321,8 +322,9 @@ public class StepsUtil {
     @SuppressWarnings("unchecked")
     public static List<CloudServiceExtended> getServicesToBind(DelegateExecution context) {
         List<String> services = (List<String>) context.getVariable(Constants.VAR_SERVICES_TO_BIND);
-        return services.stream().map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class)).collect(
-            Collectors.toList());
+        return services.stream()
+            .map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class))
+            .collect(Collectors.toList());
     }
 
     static void setServicesToBind(DelegateExecution context, List<CloudServiceExtended> services) {
@@ -608,7 +610,8 @@ public class StepsUtil {
     }
 
     static Set<Integer> getAllocatedPorts(DelegateExecution context) {
-        Integer[] allocatedPorts = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_ALLOCATED_PORTS), Integer[].class);
+        byte[] allocatedPortsBytes = (byte[]) context.getVariable(Constants.VAR_ALLOCATED_PORTS);
+        Integer[] allocatedPorts = allocatedPortsBytes != null ? JsonUtil.getFromBinaryJson(allocatedPortsBytes, Integer[].class) : null;
         return allocatedPorts != null ? Arrays.stream(allocatedPorts).collect(Collectors.toSet()) : Collections.emptySet();
     }
 

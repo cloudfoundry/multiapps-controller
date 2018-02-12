@@ -13,6 +13,7 @@ import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort.ApplicationPortType;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
@@ -30,7 +31,8 @@ public class ReserveRoutesStep extends SyncActivitiStep {
 
         try {
             CloudFoundryOperations client = execution.getCloudFoundryClient();
-            if (!(client instanceof ClientExtensions)) {
+            boolean portBasedRouting = StepsUtil.getVariableOrDefault(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
+            if (!(client instanceof ClientExtensions) || !portBasedRouting) {
                 return StepPhase.DONE;
             }
             Set<Integer> allocatedPorts = StepsUtil.getAllocatedPorts(execution.getContext());
