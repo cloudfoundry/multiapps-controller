@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
+import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 
 @Component
 public class DataTerminationService {
@@ -40,30 +41,33 @@ public class DataTerminationService {
     public void deleteOrphanUserData() {
         List<String> deleteSpaceEventsToBeDeleted = getDeleteSpaceEvents();
         for (String spaceId : deleteSpaceEventsToBeDeleted) {
-            
             deleteConfigurationSubscriptionOrphanData(spaceId);
-            AuditLoggingProvider.getFacade().logConfigDelete(
-                "Configuration subscription entry with spaceId:" + spaceId + " has been deleted from ConfigurationSubscription table");
             deleteConfigurationEntryOrphanData(spaceId);
-            AuditLoggingProvider.getFacade().logConfigDelete(
-                "Configuration entry with spaceId:" + spaceId + " has been deleted from ConfigurationEntry table");
         }
     }
 
     private void deleteConfigurationSubscriptionOrphanData(String spaceId) {
         List<ConfigurationSubscription> configurationSubscriptions = subscriptionDao.findAll(null, null, spaceId, null);
-        if(configurationSubscriptions.isEmpty()){
+        if (configurationSubscriptions.isEmpty()) {
             return;
         }
+        auditLogDeletion(configurationSubscriptions);
         subscriptionDao.removeAll(configurationSubscriptions);
     }
 
     private void deleteConfigurationEntryOrphanData(String spaceId) {
         List<ConfigurationEntry> configurationEntities = entryDao.find(spaceId);
-        if(configurationEntities.isEmpty()){
-           return;
+        if (configurationEntities.isEmpty()) {
+            return;
         }
+        auditLogDeletion(configurationEntities);
         entryDao.removeAll(configurationEntities);
+    }
+
+    private void auditLogDeletion(List<? extends AuditableConfiguration> configurationEntities) {
+        for (AuditableConfiguration configuration : configurationEntities) {
+            AuditLoggingProvider.getFacade().logConfigDelete(configuration);
+        }
     }
 
     protected CloudFoundryClient getCFClient() {

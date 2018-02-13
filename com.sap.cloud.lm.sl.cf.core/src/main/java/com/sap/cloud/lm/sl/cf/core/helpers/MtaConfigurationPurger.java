@@ -12,6 +12,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
@@ -65,6 +66,7 @@ public class MtaConfigurationPurger {
 
     private void purgeSubscription(ConfigurationSubscription subscription) {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_SUBSCRIPTION, subscription.getId()));
+        AuditLoggingProvider.getFacade().logConfigDelete(subscription);
         subscriptionDao.remove(subscription.getId());
     }
 
@@ -97,16 +99,20 @@ public class MtaConfigurationPurger {
         if (metadata == null) {
             return Collections.emptyList();
         }
-        return metadata.getProvidedDependencyNames().stream().map(
-            providedDependencyName -> toConfigurationEntry(metadata.getMtaMetadata(), providedDependencyName)).collect(Collectors.toList());
+        return metadata.getProvidedDependencyNames()
+            .stream()
+            .map(providedDependencyName -> toConfigurationEntry(metadata.getMtaMetadata(), providedDependencyName))
+            .collect(Collectors.toList());
     }
 
     private ConfigurationEntry toConfigurationEntry(DeployedMtaMetadata metadata, String providedDependencyName) {
-        return new ConfigurationEntry(null, computeProviderId(metadata, providedDependencyName), metadata.getVersion(), null, null, null, null);
+        return new ConfigurationEntry(null, computeProviderId(metadata, providedDependencyName), metadata.getVersion(), null, null, null,
+            null);
     }
 
     private void purgeConfigurationEntry(ConfigurationEntry entry) {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_ENTRY, entry.getId()));
+        AuditLoggingProvider.getFacade().logConfigDelete(entry);
         entryDao.remove(entry.getId());
     }
 

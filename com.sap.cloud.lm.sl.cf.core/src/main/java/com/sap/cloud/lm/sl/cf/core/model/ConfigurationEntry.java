@@ -1,14 +1,17 @@
 package com.sap.cloud.lm.sl.cf.core.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonAdapter;
+import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
+import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
-public class ConfigurationEntry {
+public class ConfigurationEntry implements AuditableConfiguration {
 
     private long id;
 
@@ -31,12 +34,12 @@ public class ConfigurationEntry {
 
     @Expose
     private List<CloudTarget> visibility;
-    
+
     @Expose
     private String spaceId;
 
-    public ConfigurationEntry(long id, String providerNid, String providerId, Version providerVersion, CloudTarget targetSpace, String content,
-        List<CloudTarget> visibility, String spaceId) {
+    public ConfigurationEntry(long id, String providerNid, String providerId, Version providerVersion, CloudTarget targetSpace,
+        String content, List<CloudTarget> visibility, String spaceId) {
         this.id = id;
         this.providerNid = providerNid;
         this.providerId = providerId;
@@ -86,5 +89,26 @@ public class ConfigurationEntry {
 
     public void setSpaceId(String spaceId) {
         this.spaceId = spaceId;
+    }
+
+    @Override
+    public String getConfigurationType() {
+        return "configuration entry";
+    }
+
+    @Override
+    public String getConfiguratioName() {
+        return String.valueOf(id);
+    }
+
+    @Override
+    public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
+        List<ConfigurationIdentifier> configurationIdentifiers = new ArrayList<>();
+        configurationIdentifiers.add(new ConfigurationIdentifier("provider namespace", providerNid));
+        configurationIdentifiers.add(new ConfigurationIdentifier("provider id", providerId));
+        configurationIdentifiers.add(new ConfigurationIdentifier("provider version", providerVersion.toString()));
+        configurationIdentifiers.add(new ConfigurationIdentifier("provider target", targetSpace.getOrg() + "/" + targetSpace.getSpace()));
+        configurationIdentifiers.add(new ConfigurationIdentifier("configuration content", content));
+        return configurationIdentifiers;
     }
 }

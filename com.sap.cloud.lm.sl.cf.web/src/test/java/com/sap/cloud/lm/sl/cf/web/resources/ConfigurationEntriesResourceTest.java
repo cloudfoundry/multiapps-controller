@@ -19,9 +19,12 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.google.gson.reflect.TypeToken;
+import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
+import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationEntryDto;
@@ -150,14 +153,13 @@ public class ConfigurationEntriesResourceTest {
 
         private List<String> requiredContent;
         private Map<String, Object> parsedRequiredContent;
-        
+
         public SearchRequestTestInput(List<String> requiredContent, String parsedRequiredContentLocation) throws Exception {
             this.requiredContent = requiredContent;
             this.parsedRequiredContent = JsonUtil.convertJsonToMap(
                 SearchRequestTestInput.class.getResourceAsStream(parsedRequiredContentLocation), new TypeToken<Map<String, String>>() {
                 }.getType());
         }
-
 
         public Map<String, Object> getParsedRequiredContent() {
             return parsedRequiredContent;
@@ -242,6 +244,8 @@ public class ConfigurationEntriesResourceTest {
 
         @Mock
         private ConfigurationEntryDao dao;
+        @Mock
+        private AuditLoggingFacadeSLImpl auditLoggingFacade;
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
@@ -265,6 +269,7 @@ public class ConfigurationEntriesResourceTest {
         @Override
         protected void setUp() throws Exception {
             MockitoAnnotations.initMocks(this);
+            AuditLoggingProvider.setFacade(auditLoggingFacade);
         }
 
         private ConfigurationEntryDto getDto() throws Exception {
@@ -353,8 +358,8 @@ public class ConfigurationEntriesResourceTest {
             when(userInfo.getName()).thenReturn("");
             when(clientProvider.getCloudFoundryClient("")).thenReturn(client);
             when(client.getSpaces()).thenReturn(Collections.emptyList());
-            when(dao.find(eq(PROVIDER_NID), eq(PROVIDER_ID), eq(PROVIDER_VERSION), eq(TARGET_SPACE),
-                eq(input.getParsedRequiredContent()), any(), any())).thenReturn(Collections.emptyList());
+            when(dao.find(eq(PROVIDER_NID), eq(PROVIDER_ID), eq(PROVIDER_VERSION), eq(TARGET_SPACE), eq(input.getParsedRequiredContent()),
+                any(), any())).thenReturn(Collections.emptyList());
         }
     }
 
@@ -362,6 +367,8 @@ public class ConfigurationEntriesResourceTest {
 
         @Mock
         private ConfigurationEntryDao dao;
+        @Mock
+        private AuditLoggingFacadeSLImpl auditLoggingFacade;
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
@@ -381,6 +388,9 @@ public class ConfigurationEntriesResourceTest {
         @Override
         protected void setUp() throws Exception {
             MockitoAnnotations.initMocks(this);
+            Mockito.when(dao.find(input.getId()))
+                .thenReturn(new ConfigurationEntry(input.getId(), null, null, null, null, null, null, null));
+            AuditLoggingProvider.setFacade(auditLoggingFacade);
         }
 
         protected void tearDown() throws Exception {
