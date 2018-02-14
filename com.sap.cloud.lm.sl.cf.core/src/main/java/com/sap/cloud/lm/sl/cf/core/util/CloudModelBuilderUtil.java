@@ -100,7 +100,7 @@ public class CloudModelBuilderUtil {
     private static ResourceType getResourceType(Resource resource, PropertiesAccessor propertiesAccessor) {
         Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
         String type = (String) resourceParameters.get(SupportedParameters.TYPE);
-        return type != null ? ResourceType.get(type) : null;
+        return ResourceType.get(type);
     }
 
     public static Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor) {
