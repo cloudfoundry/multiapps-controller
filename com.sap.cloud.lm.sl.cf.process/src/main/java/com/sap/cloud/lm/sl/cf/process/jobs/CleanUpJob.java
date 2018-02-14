@@ -41,8 +41,8 @@ import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.services.DatabaseFileService;
-import com.sap.cloud.lm.sl.persistence.services.FileSystemFileService;
+import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.persistence.services.ProcessLogsService;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
@@ -64,6 +64,9 @@ public class CleanUpJob implements Job {
     @Inject
     private DataTerminationService dataTerminationService;
 
+    @Inject
+    private AbstractFileService fileService;
+
     @Autowired
     @Qualifier("tokenStore")
     TokenStore tokenStore;
@@ -73,7 +76,8 @@ public class CleanUpJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
-        LOGGER.warn("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now().toString());
+        LOGGER.warn("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now()
+            .toString());
 
         executeDataTerminationJob();
 
@@ -87,7 +91,8 @@ public class CleanUpJob implements Job {
 
         removeExpiredTokens();
 
-        LOGGER.warn("Cleanup Job finished at: " + Instant.now().toString());
+        LOGGER.warn("Cleanup Job finished at: " + Instant.now()
+            .toString());
     }
 
     private String getInstanceIndex() {
@@ -108,7 +113,8 @@ public class CleanUpJob implements Job {
 
     private Date getExpirationTime() {
         long maxTtlForOldData = configuration.getMaxTtlForOldData();
-        Date cleanUpTimestamp = Date.from(Instant.now().minusSeconds(maxTtlForOldData));
+        Date cleanUpTimestamp = Date.from(Instant.now()
+            .minusSeconds(maxTtlForOldData));
         LOGGER.info("Will perform clean up for data stored before: " + cleanUpTimestamp.toString());
         return cleanUpTimestamp;
     }
@@ -135,15 +141,15 @@ public class CleanUpJob implements Job {
         Map<String, List<String>> spaceToProcessIds = getSpaceToProcessIds(finishedOperations);
         Map<String, List<String>> spaceToFileIds = getSpaceToFileIds(spaceToProcessIds, processIdToAppArchiveId);
 
-        removeOldFilesFromDb(spaceToFileIds);
-        removeOldFilesFromFs(spaceToFileIds);
+        removeOldFiles(spaceToFileIds);
 
         markOperationsAsCleanedUp(finishedOperations);
     }
 
     private void removeActivitiHistoricData(Date expirationTime) {
-        activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime).stream().forEach(
-            historicProcessInstance -> activitiFacade.deleteHistoricProcessInstance(historicProcessInstance.getId()));
+        activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime)
+            .stream()
+            .forEach(historicProcessInstance -> activitiFacade.deleteHistoricProcessInstance(historicProcessInstance.getId()));
     }
 
     private void removeExpiredTokens() {
@@ -163,18 +169,26 @@ public class CleanUpJob implements Job {
     }
 
     private List<Operation> getNotCleanedFinishedOperations(Date expirationTime) {
-        OperationFilter filter = new OperationFilter.Builder().startedBefore(
-            expirationTime).inFinalState().isNotCleanedUp().descending().build();
+        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime)
+            .inFinalState()
+            .isNotCleanedUp()
+            .descending()
+            .build();
         return dao.find(filter);
     }
 
     private List<Operation> getActiveOperationsInStateError(Date expirationTime) throws SLException {
-        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime).inNonFinalState().descending().build();
+        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime)
+            .inNonFinalState()
+            .descending()
+            .build();
         return operationsHelper.findOperations(filter, Arrays.asList(State.ERROR));
     }
 
     private List<String> getProcessIds(List<Operation> operations) {
-        return operations.stream().map(operationInError -> operationInError.getProcessId()).collect(Collectors.toList());
+        return operations.stream()
+            .map(operationInError -> operationInError.getProcessId())
+            .collect(Collectors.toList());
     }
 
     private void executeAbortOperationAction(List<String> processIds) {
@@ -185,18 +199,20 @@ public class CleanUpJob implements Job {
     }
 
     private void removeProgressMessages(List<String> oldFinishedOperationsIds) {
-        int removedProgressMessages = ProgressMessageService.getInstance().removeAllByProcessIds(oldFinishedOperationsIds);
+        int removedProgressMessages = ProgressMessageService.getInstance()
+            .removeAllByProcessIds(oldFinishedOperationsIds);
         LOGGER.info("Deleted progress messages rows count: " + removedProgressMessages);
     }
 
     private void removeProcessLogs(List<String> oldFinishedOperationsIds) {
-        int removedProcessLogs = ProcessLogsService.getInstance().deleteAllByProcessIds(oldFinishedOperationsIds);
+        int removedProcessLogs = ProcessLogsService.getInstance()
+            .deleteAllByProcessIds(oldFinishedOperationsIds);
         LOGGER.info("Deleted process logs rows count: " + removedProcessLogs);
     }
 
     private Map<String, String> getProcessIdToAppArchiveId() {
-        List<HistoricVariableInstance> appArchiveIds = activitiFacade.getHistoricVariableInstancesByVariableName(
-            Constants.PARAM_APP_ARCHIVE_ID);
+        List<HistoricVariableInstance> appArchiveIds = activitiFacade
+            .getHistoricVariableInstancesByVariableName(Constants.PARAM_APP_ARCHIVE_ID);
         Map<String, String> processIdToAppArchiveId = new HashMap<>();
         for (HistoricVariableInstance appArchiveId : appArchiveIds) {
             processIdToAppArchiveId.put(appArchiveId.getProcessInstanceId(), (String) appArchiveId.getValue());
@@ -205,8 +221,8 @@ public class CleanUpJob implements Job {
     }
 
     private Map<String, List<String>> getSpaceToProcessIds(List<Operation> operations) {
-        return operations.stream().collect(
-            Collectors.groupingBy(Operation::getSpaceId, Collectors.mapping(Operation::getProcessId, Collectors.toList())));
+        return operations.stream()
+            .collect(Collectors.groupingBy(Operation::getSpaceId, Collectors.mapping(Operation::getProcessId, Collectors.toList())));
     }
 
     private Map<String, List<String>> getSpaceToFileIds(Map<String, List<String>> spaceToProcessIds,
@@ -230,14 +246,13 @@ public class CleanUpJob implements Job {
         return spaceToFileIds;
     }
 
-    private void removeOldFilesFromDb(Map<String, List<String>> oldSpaceToFileIds) {
-        int removedOldFilesFromDb = DatabaseFileService.getInstance().deleteAllByFileIds(oldSpaceToFileIds);
-        LOGGER.info("Deleted MTA files from DB rows count: " + removedOldFilesFromDb);
-    }
-
-    private void removeOldFilesFromFs(Map<String, List<String>> oldSpaceToFileIds) {
-        int removedOldFilesFromFs = FileSystemFileService.getInstance().deleteAllByFileIds(oldSpaceToFileIds);
-        LOGGER.info("Deleted MTA files from File System Storage count: " + removedOldFilesFromFs);
+    private void removeOldFiles(Map<String, List<String>> spaceToFileIds) {
+        try {
+            int removedOldFiles = fileService.deleteAllByFileIds(spaceToFileIds);
+            LOGGER.info("Deleted MTA files: " + removedOldFiles);
+        } catch (FileStorageException e) {
+            throw new SLException(e);
+        }
     }
 
     private void markOperationsAsCleanedUp(List<Operation> finishedOperations) {
