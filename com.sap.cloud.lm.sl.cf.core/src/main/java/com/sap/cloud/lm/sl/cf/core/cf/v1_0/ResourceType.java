@@ -22,7 +22,7 @@ public enum ResourceType {
             if (v.value.equals(value))
                 return v;
         }
-        throw new IllegalArgumentException();
+        return null;
     }
 
     public static Set<ResourceType> getServiceTypes() {
