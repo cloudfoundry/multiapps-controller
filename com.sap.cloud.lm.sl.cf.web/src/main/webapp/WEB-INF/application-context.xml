@@ -57,5 +57,7 @@
         <bean id ="operationMetadataMapper" class="com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper" />
         
         <bean id="operationsApiServiceImpl" class = "com.sap.cloud.lm.sl.cf.web.api.impl.OperationsApiServiceImpl" />
+        
+        <bean id="prepareAppsRestartStep" class="com.sap.cloud.lm.sl.cf.process.steps.PrepareAppsRestartStep" scope="prototype" />
     </beans>
 </beans>
