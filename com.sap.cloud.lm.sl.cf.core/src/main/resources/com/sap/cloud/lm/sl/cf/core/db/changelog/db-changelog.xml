@@ -34,5 +34,4 @@
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_quartz_tables.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_add_cleaned_up_column.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_add_space_id_column.xml" />
-    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-cf-populate-spaceid_column_configuration_registry_table.xml" />
 </databaseChangeLog>
