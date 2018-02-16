@@ -5,7 +5,9 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
+import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class UriUtil {
@@ -108,7 +110,7 @@ public class UriUtil {
 
     public static CloudRoute findRoute(List<CloudRoute> routes, String uri, boolean isPortBasedRouting) {
         return routes.stream().filter(route -> routeMatchesUri(route, uri, isPortBasedRouting)).findAny().orElseThrow(
-            () -> new IllegalStateException("No matching route found for URI: " + uri));
+            () -> new NotFoundException(Messages.ROUTE_NOT_FOUND, uri));
     }
 
     public static boolean routeMatchesUri(CloudRoute route, String uri, boolean isPortBasedRouting) {

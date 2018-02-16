@@ -16,6 +16,7 @@ public final class Messages {
     public static final String PERMISSION_CHECK_FAILED_ORG_SPACE = "Could not check for permission to perform operation \"{0}\" in organization \"{1}\" and space \"{2}\"";
     public static final String PERMISSION_CHECK_FAILED_SPACE_ID = "Could not check for permission to perform operation \"{0}\" in space with ID \"{1}\"";
     public static final String ORG_AND_SPACE_NOT_FOUND = "Could not find organization and space by space ID \"{0}\"";
+    public static final String ROUTE_NOT_FOUND = "Could not find route \"{0}\"";
     public static final String ARCHIVE_MODULE_NOT_INTENDED_FOR_DEPLOYMENT = "MTA module \"{0}\" is part of MTA archive, but is not intended for deployment";
     public static final String OPERATION_NOT_FOUND = "MTA operation with ID \"{0}\" does not exist";
     public static final String OPERATION_ALREADY_EXISTS = "MTA operation with ID \"{0}\" already exists";
