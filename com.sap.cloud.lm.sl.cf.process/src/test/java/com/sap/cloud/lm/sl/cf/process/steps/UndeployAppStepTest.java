@@ -66,6 +66,10 @@ public class UndeployAppStepTest extends SyncActivitiStepTest<UndeployAppStep> {
           {
               "undeploy-apps-step-input-04.json", "undeploy-apps-step-output-04.json",
           },
+          // (5) There are not found routes matching app uri:
+          {
+              "undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json",
+          },
 // @formatter:on
         });
     }
