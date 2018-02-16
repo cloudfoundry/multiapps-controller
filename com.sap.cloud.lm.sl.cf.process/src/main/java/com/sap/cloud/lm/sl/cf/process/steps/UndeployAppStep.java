@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.OneOffTasksSupportChecker;
+import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("undeployAppStep")
@@ -104,8 +105,13 @@ public class UndeployAppStep extends SyncActivitiStep {
     private void deleteApplicationRoute(CloudApplication app, List<CloudRoute> routes, String uri, CloudFoundryOperations client) {
         getStepLogger().info(Messages.DELETING_ROUTE, uri);
         boolean isPortBasedRouting = isPortBasedRouting(client);
-        CloudRoute route = UriUtil.findRoute(routes, uri, isPortBasedRouting);
-        if (route.getAppsUsingRoute() > 1) {
+        try {
+            CloudRoute route = UriUtil.findRoute(routes, uri, isPortBasedRouting);
+            if (route.getAppsUsingRoute() > 1) {
+                return;
+            }
+        } catch (NotFoundException e) {
+            getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ROUTE_NOT_FOUND, uri);
             return;
         }
         new ClientHelper(client).deleteRoute(uri, isPortBasedRouting);
