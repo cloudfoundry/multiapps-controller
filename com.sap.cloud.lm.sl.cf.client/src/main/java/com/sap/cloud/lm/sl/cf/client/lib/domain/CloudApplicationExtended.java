@@ -6,10 +6,14 @@ import java.util.Map;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 
+import com.google.gson.annotations.JsonAdapter;
+import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
+
 public class CloudApplicationExtended extends CloudApplication {
 
     private String moduleName;
     private List<String> idleUris;
+    @JsonAdapter(PropertiesAdapterFactory.class)
     private Map<String, Map<String, Object>> bindingParameters;
     private List<CloudTask> tasks;
     private List<CloudRoute> routes;
