@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.ds;
+package com.sap.cloud.lm.sl.cf.web.service;
 
 import java.util.List;
 import java.util.Map;
@@ -6,12 +6,12 @@ import java.util.Map;
 import org.springframework.cloud.cloudfoundry.CloudFoundryServiceInfoCreator;
 import org.springframework.cloud.cloudfoundry.Tags;
 
-public class FileServiceInfoCreator extends CloudFoundryServiceInfoCreator<FileSystemServiceInfo> {
+public class FileSystemServiceInfoCreator extends CloudFoundryServiceInfoCreator<FileSystemServiceInfo> {
 
     private static final String DEFAULT_FILE_SERVICE_LABEL = "fs-storage";
     private static final String DEFAULT_FILE_SERVICE_ID = "deploy-service-fss";
 
-    public FileServiceInfoCreator() {
+    public FileSystemServiceInfoCreator() {
         super(new Tags(DEFAULT_FILE_SERVICE_LABEL), "");
     }
 
