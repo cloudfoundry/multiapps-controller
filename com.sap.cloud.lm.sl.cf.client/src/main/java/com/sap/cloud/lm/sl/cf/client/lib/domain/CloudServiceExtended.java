@@ -5,10 +5,14 @@ import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudService;
 
+import com.google.gson.annotations.JsonAdapter;
+import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
+
 public class CloudServiceExtended extends CloudService {
 
     private List<String> alternativeLabels;
     private String resourceName;
+    @JsonAdapter(PropertiesAdapterFactory.class)
     private Map<String, Object> credentials;
     private List<String> tags;
     private boolean isOptional;
