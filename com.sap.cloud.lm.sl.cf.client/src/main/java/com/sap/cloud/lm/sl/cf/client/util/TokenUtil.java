@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.client.util;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
@@ -69,15 +68,6 @@ public class TokenUtil {
 
     public static String getTokenUserId(OAuth2AccessToken token) {
         return (String) getTokenProperty(token, "user_id");
-    }
-
-    public static String asString(OAuth2AccessToken token) {
-        if (token != null) {
-            return MessageFormat.format("'{' value: {0}, refreshToken: {1}, expiresIn: {2} '}'", token.getValue(), token.getRefreshToken(),
-                token.getExpiresIn());
-        } else {
-            return "null";
-        }
     }
 
     private static Object getTokenProperty(OAuth2AccessToken token, String key) {
