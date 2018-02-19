@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.client.util;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -80,21 +81,22 @@ public class TokenUtil {
     }
 
     private static Object getTokenProperty(OAuth2AccessToken token, String key) {
-        Object value = token.getAdditionalInformation().get(key);
+        Object value = token.getAdditionalInformation()
+            .get(key);
         if (value == null) {
             value = getTokenInfo(token.getValue()).get(key);
         }
         return value;
     }
 
-    @SuppressWarnings("restriction")
     private static Map<String, Object> getTokenInfo(String tokenString) {
         String userJson = "{}";
         try {
             int x = tokenString.indexOf('.');
             int y = tokenString.indexOf('.', x + 1);
             String encodedString = tokenString.substring(x + 1, y);
-            byte[] decodedBytes = new sun.misc.BASE64Decoder().decodeBuffer(encodedString);
+            byte[] decodedBytes = Base64.getDecoder()
+                .decode(encodedString);
             userJson = new String(decodedBytes, 0, decodedBytes.length, "UTF-8");
         } catch (IndexOutOfBoundsException e) {
             // Do nothing
