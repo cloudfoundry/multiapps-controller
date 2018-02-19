@@ -8,6 +8,7 @@ import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudException;
 import org.springframework.cloud.CloudFactory;
 
+import com.sap.cloud.lm.sl.cf.web.service.FileSystemServiceInfo;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.DatabaseFileService;
 import com.sap.cloud.lm.sl.persistence.services.FileSystemFileService;

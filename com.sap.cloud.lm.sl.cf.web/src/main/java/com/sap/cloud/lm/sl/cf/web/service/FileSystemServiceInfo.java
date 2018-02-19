@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.ds;
+package com.sap.cloud.lm.sl.cf.web.service;
 
 import org.springframework.cloud.service.BaseServiceInfo;
 import org.springframework.cloud.service.ServiceInfo.ServiceLabel;
