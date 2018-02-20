@@ -19,7 +19,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
-import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
+import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.ClientFactory;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
@@ -41,6 +41,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     
     @Autowired
     Configuration configuration;
+    
+    @Autowired
+    TokenFactory tokenFactory;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -61,7 +64,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             OAuth2AccessToken token = (tokenProvider != null) ? tokenProvider.getToken() : null;
             if (token == null) {
                 if (configuration.areDummyTokensEnabled()) {
-                    token = TokenUtil.createDummyToken(userName, SecurityUtil.CLIENT_ID);
+                    token = tokenFactory.createDummyToken(userName, SecurityUtil.CLIENT_ID);
                 } else {
                     String message = "Null access token returned by cloud controller";
                     AuditLoggingProvider.getFacade().logSecurityIncident(message);

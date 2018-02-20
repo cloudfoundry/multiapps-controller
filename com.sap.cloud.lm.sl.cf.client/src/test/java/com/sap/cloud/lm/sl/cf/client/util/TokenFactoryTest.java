@@ -14,7 +14,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 @RunWith(Parameterized.class)
-public class TokenUtilTest {
+public class TokenFactoryTest {
 
     private static final String userNameMock = "test-user";
     private static final String clientIdMock = "test-cliend-id";
@@ -35,23 +35,24 @@ public class TokenUtilTest {
     private String userName;
     private String clientId;
 
-    public TokenUtilTest(String userName, String clientId) {
+    public TokenFactoryTest(String userName, String clientId) {
         this.userName = userName;
         this.clientId = clientId;
     }
 
     @Test
     public void testCreateToken() {
+        TokenFactory tokenFactory = new TokenFactory();
         OAuth2AccessToken token = null;
         if (userName.equals("") && clientId.equals("")) {
-            token = TokenUtil.createToken(SAMPLE_TOKEN);
+            token = tokenFactory.createToken(SAMPLE_TOKEN);
             assertToken(token, "XSMASTER", "cf", "155184");
         } else {
-            token = TokenUtil.createDummyToken(userName, clientId);
+            token = tokenFactory.createDummyToken(userName, clientId);
             assertToken(token, userName, clientId, new UUID(0, 0).toString());
         }
 
-        token = TokenUtil.createToken(getTestToken());
+        token = tokenFactory.createToken(getTestToken());
         assertTrue(token == null);
     }
 
