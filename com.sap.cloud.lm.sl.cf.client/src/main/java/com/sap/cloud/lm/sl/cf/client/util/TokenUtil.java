@@ -1,8 +1,10 @@
 package com.sap.cloud.lm.sl.cf.client.util;
 
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Base64.Decoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +31,7 @@ public class TokenUtil {
 
     @SuppressWarnings("unchecked")
     public static OAuth2AccessToken createToken(String tokenString) {
-        Map<String, Object> tokenInfo = getTokenInfo(tokenString);
+        Map<String, Object> tokenInfo = parseToken(tokenString);
         List<String> scope = (List<String>) tokenInfo.get("scope");
         Integer exp = (Integer) tokenInfo.get("exp");
         if (scope == null || exp == null) {
@@ -58,21 +60,19 @@ public class TokenUtil {
         return token;
     }
 
-    private static Map<String, Object> getTokenInfo(String tokenString) {
-        String userJson = "{}";
-        try {
-            int x = tokenString.indexOf('.');
-            int y = tokenString.indexOf('.', x + 1);
-            String encodedString = tokenString.substring(x + 1, y);
-            byte[] decodedBytes = Base64.getDecoder()
-                .decode(encodedString);
-            userJson = new String(decodedBytes, 0, decodedBytes.length, "UTF-8");
-        } catch (IndexOutOfBoundsException e) {
-            // Do nothing
-        } catch (IOException e) {
-            // Do nothing
+    private static Map<String, Object> parseToken(String tokenString) {
+        String[] tokenParts = tokenString.split("\\.", 3);
+        if (tokenParts.length != 3) {
+            // The token should have three parts (header, body and signature) separated by a dot. It doesn't, so we consider it as invalid.
+            return Collections.emptyMap();
         }
-        return (JsonUtil.convertJsonToMap(userJson));
+        String body = decode(tokenParts[1]);
+        return JsonUtil.convertJsonToMap(body);
+    }
+
+    private static String decode(String string) {
+        Decoder decoder = Base64.getDecoder();
+        return new String(decoder.decode(string), StandardCharsets.UTF_8);
     }
 
 }
