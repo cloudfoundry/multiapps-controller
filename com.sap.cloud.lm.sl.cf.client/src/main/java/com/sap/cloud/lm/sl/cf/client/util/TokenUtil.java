@@ -58,27 +58,6 @@ public class TokenUtil {
         return token;
     }
 
-    public static String getTokenClientId(OAuth2AccessToken token) {
-        return (String) getTokenProperty(token, "client_id");
-    }
-
-    public static String getTokenUserName(OAuth2AccessToken token) {
-        return (String) getTokenProperty(token, "user_name");
-    }
-
-    public static String getTokenUserId(OAuth2AccessToken token) {
-        return (String) getTokenProperty(token, "user_id");
-    }
-
-    private static Object getTokenProperty(OAuth2AccessToken token, String key) {
-        Object value = token.getAdditionalInformation()
-            .get(key);
-        if (value == null) {
-            value = getTokenInfo(token.getValue()).get(key);
-        }
-        return value;
-    }
-
     private static Map<String, Object> getTokenInfo(String tokenString) {
         String userJson = "{}";
         try {

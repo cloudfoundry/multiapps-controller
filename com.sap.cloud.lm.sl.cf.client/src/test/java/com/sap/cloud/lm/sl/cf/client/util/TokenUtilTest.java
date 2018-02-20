@@ -50,20 +50,22 @@ public class TokenUtilTest {
             token = TokenUtil.createDummyToken(userName, clientId);
             assertToken(token, userName, clientId, new UUID(0, 0).toString());
         }
-        
+
         token = TokenUtil.createToken(getTestToken());
         assertTrue(token == null);
     }
 
     private void assertToken(OAuth2AccessToken token, String userName, String clientId, String uuid) {
-        assertEquals(userName, TokenUtil.getTokenUserName(token));
-        assertEquals(clientId, TokenUtil.getTokenClientId(token));
-        assertEquals(uuid, TokenUtil.getTokenUserId(token));
+        TokenProperties tokenProperties = TokenProperties.fromToken(token);
+        assertEquals(clientId, tokenProperties.getClientId());
+        assertEquals(userName, tokenProperties.getUserName());
+        assertEquals(uuid, tokenProperties.getUserId());
     }
 
     private String getTestToken() {
         String testTokenJson = "{\"user_name\":\"test-user\"}";
-        byte[] encodedData = Base64.getEncoder().encode(testTokenJson.getBytes());
+        byte[] encodedData = Base64.getEncoder()
+            .encode(testTokenJson.getBytes());
         return "bearer test." + new String(encodedData) + ".test";
     }
 }
