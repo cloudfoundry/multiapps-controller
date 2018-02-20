@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 
-import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
+import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
 
 public class SecurityUtil {
 
@@ -27,11 +27,14 @@ public class SecurityUtil {
     }
 
     private static List<SimpleGrantedAuthority> getAuthorities(Set<String> scopes) {
-        return scopes.stream().map(scope -> new SimpleGrantedAuthority(scope)).collect(Collectors.toList());
+        return scopes.stream()
+            .map(scope -> new SimpleGrantedAuthority(scope))
+            .collect(Collectors.toList());
     }
 
     public static UserInfo getTokenUserInfo(OAuth2AccessToken token) {
-        return new UserInfo(TokenUtil.getTokenUserId(token), TokenUtil.getTokenUserName(token), token);
+        TokenProperties tokenProperties = TokenProperties.fromToken(token);
+        return new UserInfo(tokenProperties.getUserId(), tokenProperties.getUserName(), token);
     }
 
 }

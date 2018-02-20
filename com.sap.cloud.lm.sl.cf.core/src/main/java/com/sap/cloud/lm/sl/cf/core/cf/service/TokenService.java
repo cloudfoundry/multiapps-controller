@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
+import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
@@ -57,8 +57,9 @@ public class TokenService {
      * @param newToken the new token which will be inserted into the database
      */
     public void updateToken(UserInfo userInfo, OAuth2AccessToken oldToken, OAuth2AccessToken newToken) {
+        TokenProperties tokenProperties = TokenProperties.fromToken(newToken);
         // Create an authentication for the new token and add it to the token store
-        OAuth2Authentication auth = SecurityUtil.createAuthentication(TokenUtil.getTokenClientId(newToken), newToken.getScope(), userInfo);
+        OAuth2Authentication auth = SecurityUtil.createAuthentication(tokenProperties.getClientId(), newToken.getScope(), userInfo);
         try {
             tokenStore.storeAccessToken(newToken, auth);
         } catch (DataIntegrityViolationException e) {

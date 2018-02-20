@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
+import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
 import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
@@ -80,8 +81,8 @@ public class CustomTokenServices implements ResourceServerTokenServices {
             }
 
             // Create an authentication for the token and store it in the token store
-            auth = SecurityUtil.createAuthentication(TokenUtil.getTokenClientId(token), token.getScope(),
-                SecurityUtil.getTokenUserInfo(token));
+            TokenProperties tokenProperties = TokenProperties.fromToken(token);
+            auth = SecurityUtil.createAuthentication(tokenProperties.getClientId(), token.getScope(), SecurityUtil.getTokenUserInfo(token));
             try {
                 tokenStore.storeAccessToken(token, auth);
             } catch (DataIntegrityViolationException e) {
@@ -110,12 +111,14 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     }
 
     private void logToAuditLogAndThrow(String message, Exception e) throws InvalidTokenException {
-        AuditLoggingProvider.getFacade().logSecurityIncident(message);
+        AuditLoggingProvider.getFacade()
+            .logSecurityIncident(message);
         throw new InvalidTokenException(message, e);
     }
 
     private void logToAuditLogAndThrow(String message) throws InvalidTokenException {
-        AuditLoggingProvider.getFacade().logSecurityIncident(message);
+        AuditLoggingProvider.getFacade()
+            .logSecurityIncident(message);
         throw new InvalidTokenException(message);
     }
 
@@ -174,7 +177,8 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     private URL readTokenEndpoint(URL targetURL) {
         try {
             String infoURL = targetURL.toString() + "/v2/info";
-            Map<String, Object> infoMap = restTemplate.getForEntity(infoURL, Map.class).getBody();
+            Map<String, Object> infoMap = restTemplate.getForEntity(infoURL, Map.class)
+                .getBody();
             if (infoMap == null) {
                 throw new InternalAuthenticationServiceException("Invalid response returned from /v2/info");
             }
@@ -195,7 +199,8 @@ public class CustomTokenServices implements ResourceServerTokenServices {
         try {
             String tokenKeyURL = uaaUrl.toString() + "/token_key";
             Map<String, Object> tokenKeyMap = null;
-            tokenKeyMap = restTemplate.getForEntity(tokenKeyURL, Map.class).getBody();
+            tokenKeyMap = restTemplate.getForEntity(tokenKeyURL, Map.class)
+                .getBody();
             if (tokenKeyMap == null) {
                 throw new InternalAuthenticationServiceException("Invalid response returned from /token_key");
             }
