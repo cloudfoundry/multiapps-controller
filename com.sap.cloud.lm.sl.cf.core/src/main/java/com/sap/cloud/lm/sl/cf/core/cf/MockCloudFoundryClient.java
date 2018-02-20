@@ -51,7 +51,7 @@ import org.cloudfoundry.client.lib.domain.Staging;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.client.ResponseErrorHandler;
 
-import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
+import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 
 public class MockCloudFoundryClient implements CloudFoundryOperations {
 
@@ -95,17 +95,17 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
 
     @Override
     public List<UUID> getSpaceManagers(String orgName, String spaceName) {
-        return Arrays.asList(TokenUtil.DUMMY_UUID);
+        return Arrays.asList(TokenFactory.DUMMY_UUID);
     }
 
     @Override
     public List<UUID> getSpaceDevelopers(String orgName, String spaceName) {
-        return Arrays.asList(TokenUtil.DUMMY_UUID);
+        return Arrays.asList(TokenFactory.DUMMY_UUID);
     }
 
     @Override
     public List<UUID> getSpaceAuditors(String orgName, String spaceName) {
-        return Arrays.asList(TokenUtil.DUMMY_UUID);
+        return Arrays.asList(TokenFactory.DUMMY_UUID);
     }
 
     @Override

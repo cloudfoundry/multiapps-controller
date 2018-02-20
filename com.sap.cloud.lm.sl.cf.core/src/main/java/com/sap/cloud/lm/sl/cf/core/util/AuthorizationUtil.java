@@ -8,7 +8,7 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryOperationsExtended;
 import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
-import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
+import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetterFactory;
@@ -119,7 +119,7 @@ public class AuthorizationUtil {
     }
 
     private static boolean isDummyToken(UserInfo userInfo) {
-        return userInfo.getToken().getValue().equals(TokenUtil.DUMMY_TOKEN);
+        return userInfo.getToken().getValue().equals(TokenFactory.DUMMY_TOKEN);
     }
 
     private static boolean isAdminUser(UserInfo userInfo) {
@@ -127,6 +127,6 @@ public class AuthorizationUtil {
     }
 
     private static boolean hasAdminScope(UserInfo userInfo) {
-        return userInfo.getToken().getScope().contains(TokenUtil.SCOPE_CC_ADMIN);
+        return userInfo.getToken().getScope().contains(TokenFactory.SCOPE_CC_ADMIN);
     }
 }
