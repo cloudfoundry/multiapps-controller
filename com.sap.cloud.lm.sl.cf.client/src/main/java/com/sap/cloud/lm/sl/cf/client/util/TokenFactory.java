@@ -3,8 +3,8 @@ package com.sap.cloud.lm.sl.cf.client.util;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Base64.Decoder;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,8 +15,10 @@ import java.util.UUID;
 import org.cloudfoundry.client.lib.util.JsonUtil;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.stereotype.Component;
 
-public class TokenUtil {
+@Component
+public class TokenFactory {
 
     public static final String DUMMY_TOKEN = "DUMMY";
     public static final UUID DUMMY_UUID = new UUID(0, 0);
@@ -29,9 +31,13 @@ public class TokenUtil {
     public static final String SCOPE_PASSWORD_WRITE = "password.write";
     public static final String SCOPE_OPENID = "openid";
 
-    @SuppressWarnings("unchecked")
-    public static OAuth2AccessToken createToken(String tokenString) {
+    public OAuth2AccessToken createToken(String tokenString) {
         Map<String, Object> tokenInfo = parseToken(tokenString);
+        return createToken(tokenString, tokenInfo);
+    }
+
+    @SuppressWarnings("unchecked")
+    public OAuth2AccessToken createToken(String tokenString, Map<String, Object> tokenInfo) {
         List<String> scope = (List<String>) tokenInfo.get("scope");
         Integer exp = (Integer) tokenInfo.get("exp");
         if (scope == null || exp == null) {
@@ -44,7 +50,7 @@ public class TokenUtil {
         return token;
     }
 
-    public static OAuth2AccessToken createDummyToken(String userName, String clientId) {
+    public OAuth2AccessToken createDummyToken(String userName, String clientId) {
         List<String> scope = Arrays.asList(SCOPE_CC_READ, SCOPE_CC_WRITE, SCOPE_CC_ADMIN, SCOPE_SCIM_USERIDS, SCOPE_PASSWORD_WRITE,
             SCOPE_OPENID);
         Map<String, Object> tokenInfo = new HashMap<>();
@@ -60,7 +66,7 @@ public class TokenUtil {
         return token;
     }
 
-    private static Map<String, Object> parseToken(String tokenString) {
+    private Map<String, Object> parseToken(String tokenString) {
         String[] tokenParts = tokenString.split("\\.", 3);
         if (tokenParts.length != 3) {
             // The token should have three parts (header, body and signature) separated by a dot. It doesn't, so we consider it as invalid.
@@ -70,7 +76,7 @@ public class TokenUtil {
         return JsonUtil.convertJsonToMap(body);
     }
 
-    private static String decode(String string) {
+    private String decode(String string) {
         Decoder decoder = Base64.getDecoder();
         return new String(decoder.decode(string), StandardCharsets.UTF_8);
     }

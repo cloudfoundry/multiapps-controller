@@ -25,7 +25,7 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
-import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
+import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.SSLUtil;
@@ -39,6 +39,9 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     @Autowired
     @Qualifier("tokenStore")
     TokenStore tokenStore;
+    
+    @Autowired
+    TokenFactory tokenFactory;
 
     private Configuration configuration = Configuration.getInstance();
 
@@ -101,10 +104,10 @@ public class CustomTokenServices implements ResourceServerTokenServices {
         OAuth2AccessToken token = tokenStore.readAccessToken(tokenString);
         if (token == null) {
             // Create a new token from the received token string
-            if (configuration.areDummyTokensEnabled() && tokenString.equals(TokenUtil.DUMMY_TOKEN)) {
-                token = TokenUtil.createDummyToken("dummy", SecurityUtil.CLIENT_ID);
+            if (configuration.areDummyTokensEnabled() && tokenString.equals(TokenFactory.DUMMY_TOKEN)) {
+                token = tokenFactory.createDummyToken("dummy", SecurityUtil.CLIENT_ID);
             } else {
-                token = TokenUtil.createToken(tokenString);
+                token = tokenFactory.createToken(tokenString);
             }
         }
         return token;
@@ -137,7 +140,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     }
 
     private void verify(String tokenString) {
-        if (configuration.areDummyTokensEnabled() && tokenString.equals(TokenUtil.DUMMY_TOKEN)) {
+        if (configuration.areDummyTokensEnabled() && tokenString.equals(TokenFactory.DUMMY_TOKEN)) {
             return;
         }
         JwtHelper.decodeAndVerify(tokenString, getSignatureVerifier(getCachedTokenKey()));

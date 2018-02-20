@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
-import com.sap.cloud.lm.sl.cf.client.util.TokenUtil;
+import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.CompressUtil;
 
@@ -109,7 +109,8 @@ public class HanaSecureTokenStore extends JdbcTokenStore {
 
         List<SqlParameter> paramList = Arrays.asList(storeNameParam, forXsApplicationUserParam, keyParam, valueParam);
 
-        byte[] serializeAccessToken = token.getValue().getBytes(StandardCharsets.UTF_8);
+        byte[] serializeAccessToken = token.getValue()
+            .getBytes(StandardCharsets.UTF_8);
         byte[] compressedBytes = CompressUtil.compress(serializeAccessToken);
 
         try {
@@ -163,7 +164,7 @@ public class HanaSecureTokenStore extends JdbcTokenStore {
             throw new IllegalArgumentException(Messages.TOKEN_NOT_FOUND_IN_SECURE_STORE);
         }
         byte[] decompressedBytes = CompressUtil.decompress(tokenBytes);
-        OAuth2AccessToken accessToken = TokenUtil.createToken(new String(decompressedBytes, StandardCharsets.UTF_8));
+        OAuth2AccessToken accessToken = new TokenFactory().createToken(new String(decompressedBytes, StandardCharsets.UTF_8));
         return accessToken;
     }
 
@@ -215,7 +216,8 @@ public class HanaSecureTokenStore extends JdbcTokenStore {
      * function or procedure: USER_SECURESTORE_INSERT', and are not in current dependency tree.
      */
     private void throwIfShouldNotIgnore(BadSqlGrammarException e, String procedureName) {
-        String errorMessage = e.getCause().getMessage();
+        String errorMessage = e.getCause()
+            .getMessage();
         if (errorMessage.contains(procedureName)) {
             return;
         }
