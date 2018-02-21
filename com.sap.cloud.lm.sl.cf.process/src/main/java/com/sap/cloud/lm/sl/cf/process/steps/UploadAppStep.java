@@ -66,8 +66,8 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
             int uploadAppTimeoutSeconds = configuration.getUploadAppTimeout();
             getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadAppTimeoutSeconds);
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
-            ClientExtensions clientExtensions = execution.getClientExtensions();
+            CloudFoundryOperations client = execution.getCloudFoundryClientWithoutTimeout();
+            ClientExtensions clientExtensions = execution.getClientExtensionsWithoutTimeout();
 
             Future<?> future = asyncTaskExecutor.submit(getUploadAppStepRunnable(execution, app, client, clientExtensions));
             asyncTaskExecutor.schedule(getUploadAppStepRunnableKiller(execution.getContext(), future), uploadAppTimeoutSeconds,
