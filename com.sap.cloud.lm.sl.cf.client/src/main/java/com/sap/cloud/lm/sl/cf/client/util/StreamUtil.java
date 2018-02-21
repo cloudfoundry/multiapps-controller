@@ -102,10 +102,7 @@ public class StreamUtil {
     }
 
     public static boolean isArchiveEntryDirectory(String fileName) {
-        if (fileName.endsWith(ARCHIVE_ENTRY_SEPARATOR)) {
-            return true;
-        }
-        return false;
+        return fileName.endsWith(ARCHIVE_ENTRY_SEPARATOR);
     }
 
     public static Path resolveTempEntryPath(String entryName, String rootEntryName, Path tempDir) {
