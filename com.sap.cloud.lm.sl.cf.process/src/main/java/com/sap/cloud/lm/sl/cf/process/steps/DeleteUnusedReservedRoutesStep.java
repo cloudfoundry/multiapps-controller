@@ -7,7 +7,6 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -31,12 +30,11 @@ public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
             getStepLogger().info(Messages.DELETING_UNUSED_RESERVED_ROUTES);
             boolean portBasedRouting = StepsUtil.getVariableOrDefault(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
             List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(execution.getContext());
             String defaultDomain = getDefaultDomain(execution.getContext());
 
             if (portBasedRouting) {
-                PortAllocator portAllocator = clientProvider.getPortAllocator(client, defaultDomain);
+                PortAllocator portAllocator = clientProvider.getPortAllocator(execution.getClientExtensions(), defaultDomain);
                 portAllocator.setAllocatedPorts(StepsUtil.getAllocatedPorts(execution.getContext()));
 
                 Set<Integer> applicationPorts = getApplicationPorts(apps);

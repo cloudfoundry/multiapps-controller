@@ -46,7 +46,8 @@ public class CloudFoundryClientFactory extends ClientFactory {
         CloudControllerClientFactory factory = new CloudControllerClientFactory(null, configuration.shouldSkipSslValidation());
         CloudSpace sessionSpace = getSessionSpace(credentials, spaceId);
         OauthClient oauthClient = createOauthClient();
-        CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace, oauthClient);
+        CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace,
+            oauthClient);
         return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
             new CloudFoundryTokenProvider(oauthClient));
     }
