@@ -15,6 +15,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
+import com.sap.cloud.lm.sl.cf.client.util.TimeoutExecutor;
 
 public interface ClientExtensions {
 
@@ -129,5 +130,7 @@ public interface ClientExtensions {
      * @throws CloudFoundryException if there was an error
      */
     void updateServicePlan(String serviceName, String planName);
+
+    void withTimeoutExecutor(TimeoutExecutor timeoutExecutor);
 
 }
