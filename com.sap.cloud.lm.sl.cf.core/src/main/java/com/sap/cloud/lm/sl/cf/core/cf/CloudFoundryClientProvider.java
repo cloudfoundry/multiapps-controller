@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
@@ -35,8 +36,8 @@ public class CloudFoundryClientProvider {
     // Cached clients. These are stored in memory-sensitive cache, i.e. no OutOfMemory error would
     // occur before GC tries to release the not-used clients.
     @SuppressWarnings("unchecked")
-    private Map<String, Pair<CloudFoundryOperations, TokenProvider>> clients = Collections.synchronizedMap(
-        new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT));
+    private Map<String, Pair<CloudFoundryOperations, TokenProvider>> clients = Collections
+        .synchronizedMap(new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT));
 
     public CloudFoundryOperations getCloudFoundryClient(String userName, String org, String space, String processId) throws SLException {
         return getCloudFoundryClient(getValidToken(userName, org, space), org, space, processId);
@@ -71,7 +72,7 @@ public class CloudFoundryClientProvider {
         return client._1;
     }
 
-    public PortAllocator getPortAllocator(CloudFoundryOperations client, String domain) {
+    public PortAllocator getPortAllocator(ClientExtensions client, String domain) {
         return portAllocatorFactory.createPortAllocator(client, domain);
     }
 

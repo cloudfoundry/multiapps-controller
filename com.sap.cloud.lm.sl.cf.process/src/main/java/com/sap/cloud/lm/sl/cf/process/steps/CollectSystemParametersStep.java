@@ -19,6 +19,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
@@ -67,7 +68,8 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
             boolean portBasedRouting = isPortBasedRouting(client);
             getStepLogger().debug(Messages.PORT_BASED_ROUTING, portBasedRouting);
             if (portBasedRouting) {
-                portAllocator = clientProvider.getPortAllocator(client, defaultDomainName);
+                ClientExtensions clientExtensions = execution.getClientExtensions();
+                portAllocator = clientProvider.getPortAllocator(clientExtensions, defaultDomainName);
             }
 
             SystemParametersBuilder systemParametersBuilder = createParametersBuilder(execution.getContext(), client, portAllocator,
