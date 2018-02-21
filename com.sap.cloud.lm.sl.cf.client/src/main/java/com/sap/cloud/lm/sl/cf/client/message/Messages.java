@@ -72,7 +72,7 @@ public class Messages {
     public static final String CANT_GET_CONTROLLER_URL = "Could not get controller URL";
     public static final String CANT_RESERVE_PORT = "Could not reserve port for domain \"{0}\"";
     public static final String CANT_GET_SERVICE_TAGS = "Cloud not retrieve tags for service \"{0}\"";
-    public static final String CLIENT_NOT_SET_UP = "Client is not set up";
+    public static final String TIMEOUT_EXECUTOR_IS_NOT_SET_UP = "TimeoutExecutor is not set up";
     public static final String CANT_GET_TASKS_FOR_APP = "Could not get tasks for application \"{0}\"";
     public static final String CANT_RUN_TASK_ON_APP = "Could not run task \"{0}\" on application \"{1}\"";
     public static final String CANT_CANCEL_TASK = "Could not cancel task with GUID \"{0}\"";
