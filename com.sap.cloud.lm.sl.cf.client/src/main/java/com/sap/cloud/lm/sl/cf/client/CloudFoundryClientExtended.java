@@ -1,16 +1,20 @@
 package com.sap.cloud.lm.sl.cf.client;
 
+import static com.sap.cloud.lm.sl.cf.client.util.FunctionUtil.callable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.ApplicationLogListener;
 import org.cloudfoundry.client.lib.CloudFoundryClient;
+import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
@@ -29,373 +33,668 @@ import org.cloudfoundry.client.lib.rest.CloudControllerClient;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
+import com.sap.cloud.lm.sl.cf.client.util.TimeoutExecutor;
 
 public class CloudFoundryClientExtended extends CloudFoundryClient implements CloudFoundryOperationsExtended {
 
     private final ExecutionRetrier retrier = new ExecutionRetrier();
+    private TimeoutExecutor timeoutExecutor;
 
     public CloudFoundryClientExtended(CloudControllerClient cc) {
         super(cc);
     }
 
     @Override
+    public void withTimeoutExecutor(TimeoutExecutor timeoutExecutor) {
+        this.timeoutExecutor = timeoutExecutor;
+    }
+
+    @Override
     public List<String> getSpaceManagers2(String spaceName) {
-        return executeWithRetry(() -> super.getSpaceManagers(spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-            HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(
+                () -> super.getSpaceManagers(spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
+                HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<String> getSpaceDevelopers2(String spaceName) {
-        return executeWithRetry(
-            () -> super.getSpaceDevelopers(spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-            HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(
+                () -> super.getSpaceDevelopers(spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
+                HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<String> getSpaceAuditors2(String spaceName) {
-        return executeWithRetry(() -> super.getSpaceAuditors(spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-            HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(
+                () -> super.getSpaceAuditors(spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
+                HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<String> getSpaceManagers2(String orgName, String spaceName) {
-        return executeWithRetry(
-            () -> super.getSpaceManagers(orgName, spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-            HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(
+                () -> super.getSpaceManagers(orgName, spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
+                HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<String> getSpaceDevelopers2(String orgName, String spaceName) {
-        return executeWithRetry(
-            () -> super.getSpaceDevelopers(orgName, spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-            HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(
+                () -> super.getSpaceDevelopers(orgName, spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
+                HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<String> getSpaceAuditors2(String orgName, String spaceName) {
-        return executeWithRetry(
-            () -> super.getSpaceAuditors(orgName, spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-            HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(
+                () -> super.getSpaceAuditors(orgName, spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
+                HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void createService(CloudService service) {
-        executeWithRetry(() -> super.createService(service));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.createService(service))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void addDomain(String domainName) {
-        executeWithRetry(() -> super.addDomain(domainName));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.addDomain(domainName))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void addRoute(String host, String domainName) {
-        executeWithRetry(() -> super.addRoute(host, domainName));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.addRoute(host, domainName))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void bindService(String appName, String serviceName) {
-        executeWithRetry(() -> super.bindService(appName, serviceName));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.bindService(appName, serviceName))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void createApplication(String appName, Staging staging, Integer disk, Integer memory, List<String> uris,
         List<String> serviceNames) {
-        executeWithRetry(() -> super.createApplication(appName, staging, disk, memory, uris, serviceNames));
+        try {
+            executeWithTimeout(
+                callable(() -> executeWithRetry(() -> super.createApplication(appName, staging, disk, memory, uris, serviceNames))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void createServiceBroker(CloudServiceBroker serviceBroker) {
-        executeWithRetry(() -> super.createServiceBroker(serviceBroker));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.createServiceBroker(serviceBroker))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void createUserProvidedService(CloudService service, Map<String, Object> credentials) {
-        executeWithRetry(() -> super.createUserProvidedService(service, credentials));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.createUserProvidedService(service, credentials))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void deleteApplication(String appName) {
-        executeWithRetry(() -> super.deleteApplication(appName));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> {
+                super.deleteApplication(appName);
+            })));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void deleteDomain(String domainName) {
-        executeWithRetry(() -> super.deleteDomain(domainName));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.deleteDomain(domainName))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<CloudRoute> deleteOrphanedRoutes() {
-        return executeWithRetry(() -> super.deleteOrphanedRoutes(), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.deleteOrphanedRoutes(), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void deleteRoute(String host, String domainName) {
-        executeWithRetry(() -> super.deleteRoute(host, domainName));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.deleteRoute(host, domainName))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void deleteService(String service) {
-        executeWithRetry(() -> super.deleteService(service));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.deleteService(service))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void deleteServiceBroker(String name) {
-        executeWithRetry(() -> super.deleteServiceBroker(name));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.deleteServiceBroker(name))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudApplication getApplication(String appName) {
-        return executeWithRetry(() -> super.getApplication(appName));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getApplication(appName)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudApplication getApplication(String appName, boolean required) {
-        return executeWithRetry(() -> super.getApplication(appName, required));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getApplication(appName, required)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudApplication getApplication(UUID appGuid) {
-        return executeWithRetry(() -> super.getApplication(appGuid));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getApplication(appGuid)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudApplication getApplication(UUID appGuid, boolean required) {
-        return executeWithRetry(() -> super.getApplication(appGuid, required));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getApplication(appGuid, required)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public InstancesInfo getApplicationInstances(String appName) {
-        return executeWithRetry(() -> super.getApplicationInstances(appName));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getApplicationInstances(appName)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public InstancesInfo getApplicationInstances(CloudApplication app) {
-        return executeWithRetry(() -> super.getApplicationInstances(app));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getApplicationInstances(app)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<CloudApplication> getApplications() {
-        return executeWithRetry(() -> super.getApplications(), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getApplications(), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudDomain getDefaultDomain() {
-        return executeWithRetry(() -> super.getDefaultDomain());
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getDefaultDomain()));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<CloudDomain> getDomains() {
-        return executeWithRetry(() -> super.getDomains(), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getDomains(), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<CloudDomain> getDomainsForOrg() {
-        return executeWithRetry(() -> super.getDomainsForOrg(), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getDomainsForOrg(), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudOrganization getOrganization(String orgName) {
-        return executeWithRetry(() -> super.getOrganization(orgName));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getOrganization(orgName)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudOrganization getOrganization(String orgName, boolean required) {
-        return executeWithRetry(() -> super.getOrganization(orgName, required));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getOrganization(orgName, required)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<CloudDomain> getPrivateDomains() {
-        return executeWithRetry(() -> super.getPrivateDomains(), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getPrivateDomains(), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<ApplicationLog> getRecentLogs(String appName) {
-        return executeWithRetry(() -> super.getRecentLogs(appName), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getRecentLogs(appName), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<CloudRoute> getRoutes(String domainName) {
-        return executeWithRetry(() -> super.getRoutes(domainName), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getRoutes(domainName), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudServiceBroker getServiceBroker(String name) {
-        return executeWithRetry(() -> super.getServiceBroker(name));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getServiceBroker(name)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudServiceBroker getServiceBroker(String name, boolean required) {
-        return executeWithRetry(() -> super.getServiceBroker(name, required));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getServiceBroker(name, required)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @Override
     public List<CloudServiceBroker> getServiceBrokers() {
-        return executeWithRetry(() -> super.getServiceBrokers(), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getServiceBrokers(), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudServiceInstance getServiceInstance(String service) {
-        return executeWithRetry(() -> super.getServiceInstance(service));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getServiceInstance(service)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudServiceInstance getServiceInstance(String service, boolean required) {
-        return executeWithRetry(() -> super.getServiceInstance(service, required));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getServiceInstance(service, required)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<CloudDomain> getSharedDomains() {
-        return executeWithRetry(() -> super.getSharedDomains(), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSharedDomains(), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudSpace getSpace(String spaceName) {
-        return executeWithRetry(() -> super.getSpace(spaceName));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpace(spaceName)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudSpace getSpace(String spaceName, boolean required) {
-        return executeWithRetry(() -> super.getSpace(spaceName, required));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpace(spaceName, required)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<CloudSpace> getSpaces() {
-        return executeWithRetry(() -> super.getSpaces(), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaces(), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public String getStagingLogs(StartingInfo info, int offset) {
-        return executeWithRetry(() -> super.getStagingLogs(info, offset), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getStagingLogs(info, offset), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void rename(String appName, String newName) {
-        executeWithRetry(() -> super.rename(appName, newName));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.rename(appName, newName))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public StartingInfo restartApplication(String appName) {
-        return executeWithRetry(() -> super.restartApplication(appName));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.restartApplication(appName)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public StartingInfo startApplication(String appName) {
-        return executeWithRetry(() -> super.startApplication(appName));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.startApplication(appName)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void stopApplication(String appName) {
-        executeWithRetry(() -> super.stopApplication(appName));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.stopApplication(appName))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public StreamingLogToken streamLogs(String appName, ApplicationLogListener listener) {
-        return executeWithRetry(() -> super.streamLogs(appName, listener), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.streamLogs(appName, listener), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void unbindService(String appName, String serviceName) {
-        executeWithRetry(() -> super.unbindService(appName, serviceName));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.unbindService(appName, serviceName))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void updateApplicationDiskQuota(String appName, int disk) {
-        executeWithRetry(() -> super.updateApplicationDiskQuota(appName, disk));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.updateApplicationDiskQuota(appName, disk))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void updateApplicationEnv(String appName, Map<String, String> env) {
-        executeWithRetry(() -> super.updateApplicationEnv(appName, env));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.updateApplicationEnv(appName, env))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void updateApplicationEnv(String appName, List<String> env) {
-        executeWithRetry(() -> super.updateApplicationEnv(appName, env));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.updateApplicationEnv(appName, env))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void updateApplicationInstances(String appName, int instances) {
-        executeWithRetry(() -> super.updateApplicationInstances(appName, instances));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.updateApplicationInstances(appName, instances))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void updateApplicationMemory(String appName, int memory) {
-        executeWithRetry(() -> super.updateApplicationMemory(appName, memory));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.updateApplicationMemory(appName, memory))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void updateApplicationServices(String appName, List<String> services) {
-        executeWithRetry(() -> super.updateApplicationServices(appName, services), HttpStatus.NOT_FOUND);
+        try {
+            executeWithTimeout(
+                callable(() -> executeWithRetry(() -> super.updateApplicationServices(appName, services), HttpStatus.NOT_FOUND)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void updateApplicationStaging(String appName, Staging staging) {
-        executeWithRetry(() -> super.updateApplicationStaging(appName, staging));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.updateApplicationStaging(appName, staging))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void updateApplicationUris(String appName, List<String> uris) {
-        executeWithRetry(() -> super.updateApplicationUris(appName, uris), HttpStatus.NOT_FOUND);
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.updateApplicationUris(appName, uris), HttpStatus.NOT_FOUND)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void updateServiceBroker(CloudServiceBroker serviceBroker) {
-        executeWithRetry(() -> super.updateServiceBroker(serviceBroker));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.updateServiceBroker(serviceBroker))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void updateServicePlanVisibilityForBroker(String name, boolean visibility) {
-        executeWithRetry(() -> super.updateServicePlanVisibilityForBroker(name, visibility));
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.updateServicePlanVisibilityForBroker(name, visibility))));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void uploadApplication(String appName, File file, UploadStatusCallback callback) throws IOException {
-        executeWithRetry(() -> {
-            try {
-                super.uploadApplication(appName, file, callback);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> {
+                try {
+                    super.uploadApplication(appName, file, callback);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            })));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void uploadApplication(String appName, String fileName, InputStream inputStream) throws IOException {
-        executeWithRetry(() -> {
-            try {
-                super.uploadApplication(appName, fileName, inputStream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> {
+                try {
+                    super.uploadApplication(appName, fileName, inputStream);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            })));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public void uploadApplication(String appName, String fileName, InputStream inputStream, UploadStatusCallback callback)
         throws IOException {
-        executeWithRetry(() -> {
-            try {
-                super.uploadApplication(appName, fileName, inputStream, callback);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        try {
+            executeWithTimeout(callable(() -> executeWithRetry(() -> {
+                try {
+                    super.uploadApplication(appName, fileName, inputStream, callback);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            })));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudService getService(String service) {
-        return executeWithRetry(() -> super.getService(service));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getService(service)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public CloudService getService(String service, boolean required) {
-        return executeWithRetry(() -> super.getService(service, required));
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getService(service, required)));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public List<CloudService> getServices() {
-        return executeWithRetry(() -> super.getServices(), HttpStatus.NOT_FOUND);
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getServices(), HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private <T> T executeWithTimeout(Callable<T> callable) throws Exception {
+        if (timeoutExecutor == null) {
+            return callable.call();
+        }
+
+        return timeoutExecutor.executeWithTimeout(callable);
+    }
+
+    private static CloudFoundryException fromException(String message, Exception e, HttpStatus status) {
+        if (e instanceof CloudFoundryException) {
+            throw (CloudFoundryException) e;
+        }
+        CloudFoundryException ex = new CloudFoundryException(status, message + ": " + e.getMessage());
+        ex.initCause(e);
+        return ex;
     }
 
     private <T> T executeWithRetry(Supplier<T> supplier, HttpStatus... httpStatusesToIgnore) {
