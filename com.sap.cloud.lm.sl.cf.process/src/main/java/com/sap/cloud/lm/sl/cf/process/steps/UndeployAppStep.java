@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.OneOffTasksSupportChecker;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("undeployAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -97,6 +98,7 @@ public class UndeployAppStep extends SyncActivitiStep {
     private void deleteApplicationRoutes(CloudApplication app, CloudFoundryOperations client) {
         getStepLogger().info(Messages.DELETING_APP_ROUTES, app.getName());
         List<CloudRoute> appRoutes = applicationRoutesGetter.getRoutes(client, app.getName());
+        getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, app.getName(), JsonUtil.toJson(appRoutes));
         client.updateApplicationUris(app.getName(), Collections.emptyList());
         app.getUris().stream().forEach(uri -> deleteApplicationRoute(app, appRoutes, uri, client));
         getStepLogger().debug(Messages.DELETED_APP_ROUTES, app.getName());
