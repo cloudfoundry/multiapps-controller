@@ -49,7 +49,7 @@ public class ServiceCreatorTest {
     protected static final String SERVICE_PARAMETERS = "parameters";
     protected static final String SERVICE_TAGS = "tags";
 
-    protected static final String CREATE_SERVICE_URL = "/v2/service_instances?accepts_incomplete=false";
+    protected static final String CREATE_SERVICE_URL = "/v2/service_instances?accepts_incomplete=true";
     protected static final String SERVICE_PLAN = "test-plan";
 
     @Rule
