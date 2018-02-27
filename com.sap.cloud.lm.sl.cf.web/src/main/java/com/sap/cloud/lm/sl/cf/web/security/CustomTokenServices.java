@@ -28,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
+import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SSLUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
@@ -40,22 +41,24 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     private TokenStore tokenStore;
     private TokenFactory tokenFactory;
     private ApplicationConfiguration configuration;
+    private TokenParserChain tokenParserChain;
     private RestOperations restTemplate;
 
     private volatile Pair<String, String> tokenKey;
 
     @Inject
     public CustomTokenServices(@Named("tokenStore") TokenStore tokenStore, TokenFactory tokenFactory,
-        ApplicationConfiguration configuration) {
-        this(tokenStore, tokenFactory, configuration, new RestTemplate());
+        ApplicationConfiguration configuration, TokenParserChain tokenParserChain) {
+        this(tokenStore, tokenFactory, configuration, new RestTemplate(), tokenParserChain);
     }
 
     public CustomTokenServices(TokenStore tokenStore, TokenFactory tokenFactory, ApplicationConfiguration configuration,
-        RestOperations restTemplate) {
+        RestOperations restTemplate, TokenParserChain tokenParserChain) {
         this.tokenStore = tokenStore;
         this.tokenFactory = tokenFactory;
         this.configuration = configuration;
         this.restTemplate = restTemplate;
+        this.tokenParserChain = tokenParserChain;
         if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
@@ -110,12 +113,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
         // Check if an access token for the received token string already exists in the token store
         OAuth2AccessToken token = tokenStore.readAccessToken(tokenString);
         if (token == null) {
-            // Create a new token from the received token string
-            if (configuration.areDummyTokensEnabled() && tokenString.equals(TokenFactory.DUMMY_TOKEN)) {
-                token = tokenFactory.createDummyToken("dummy", SecurityUtil.CLIENT_ID);
-            } else {
-                token = tokenFactory.createToken(tokenString);
-            }
+            token = tokenParserChain.parse(tokenString);
         }
         return token;
     }
@@ -147,9 +145,6 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     }
 
     private void verify(String tokenString) {
-        if (configuration.areDummyTokensEnabled() && tokenString.equals(TokenFactory.DUMMY_TOKEN)) {
-            return;
-        }
         JwtHelper.decodeAndVerify(tokenString, getSignatureVerifier(getCachedTokenKey()));
     }
 
