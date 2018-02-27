@@ -126,7 +126,7 @@ public class Configuration {
     public static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
     public static final Integer DEFAULT_XS_CLIENT_QUEUE_CAPACITY = 8;
     public static final Integer DEFAULT_XS_CLIENT_KEEP_ALIVE = 60;
-    public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
+    public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "* * */6 ? * *"; // every 6 hours
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
     /*
      * In async local operations there are usually two threads. One does the actual work, while the other waits for a specific amount of
