@@ -23,7 +23,7 @@ public class TokenFactory {
     public static final String DUMMY_TOKEN = "DUMMY";
     public static final UUID DUMMY_UUID = new UUID(0, 0);
 
-    // Scopes
+    // Scopes:
     public static final String SCOPE_CC_READ = "cloud_controller.read";
     public static final String SCOPE_CC_WRITE = "cloud_controller.write";
     public static final String SCOPE_CC_ADMIN = "cloud_controller.admin";
@@ -36,31 +36,27 @@ public class TokenFactory {
         return createToken(tokenString, tokenInfo);
     }
 
+    public OAuth2AccessToken createDummyToken(String userName, String clientId) {
+        List<String> scope = Arrays.asList(SCOPE_CC_READ, SCOPE_CC_WRITE, SCOPE_CC_ADMIN, SCOPE_SCIM_USERIDS, SCOPE_PASSWORD_WRITE,
+            SCOPE_OPENID);
+        Map<String, Object> dummyTokenInfo = new HashMap<>();
+        dummyTokenInfo.put("scope", scope);
+        dummyTokenInfo.put("exp", Long.MAX_VALUE / 1000);
+        dummyTokenInfo.put("user_name", userName);
+        dummyTokenInfo.put("user_id", DUMMY_UUID.toString());
+        dummyTokenInfo.put("client_id", clientId);
+        return createToken(DUMMY_TOKEN, dummyTokenInfo);
+    }
+
     @SuppressWarnings("unchecked")
     public OAuth2AccessToken createToken(String tokenString, Map<String, Object> tokenInfo) {
         List<String> scope = (List<String>) tokenInfo.get("scope");
-        Integer exp = (Integer) tokenInfo.get("exp");
+        Number exp = (Number) tokenInfo.get("exp");
         if (scope == null || exp == null) {
             return null;
         }
         DefaultOAuth2AccessToken token = new DefaultOAuth2AccessToken(tokenString);
         token.setExpiration(new Date(exp.longValue() * 1000));
-        token.setScope(new HashSet<String>(scope));
-        token.setAdditionalInformation(tokenInfo);
-        return token;
-    }
-
-    public OAuth2AccessToken createDummyToken(String userName, String clientId) {
-        List<String> scope = Arrays.asList(SCOPE_CC_READ, SCOPE_CC_WRITE, SCOPE_CC_ADMIN, SCOPE_SCIM_USERIDS, SCOPE_PASSWORD_WRITE,
-            SCOPE_OPENID);
-        Map<String, Object> tokenInfo = new HashMap<>();
-        tokenInfo.put("scope", scope);
-        tokenInfo.put("exp", Long.MAX_VALUE / 1000);
-        tokenInfo.put("user_name", userName);
-        tokenInfo.put("user_id", DUMMY_UUID.toString());
-        tokenInfo.put("client_id", clientId);
-        DefaultOAuth2AccessToken token = new DefaultOAuth2AccessToken(DUMMY_TOKEN);
-        token.setExpiration(new Date(Long.MAX_VALUE));
         token.setScope(new HashSet<String>(scope));
         token.setAdditionalInformation(tokenInfo);
         return token;
