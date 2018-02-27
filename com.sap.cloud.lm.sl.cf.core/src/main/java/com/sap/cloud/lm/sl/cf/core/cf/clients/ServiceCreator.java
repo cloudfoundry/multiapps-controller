@@ -35,8 +35,9 @@ public class ServiceCreator extends CloudServiceOperator {
         LOGGER.debug(format("Service \"{0}\" has defined service offering alternatives \"{1}\" for default service offering \"{2}\"",
             service.getName(), service.getAlternativeLabels(), service.getLabel()));
         List<String> possibleServiceOfferings = computePossibleServiceOfferings(service);
-        Map<String, List<CloudServicePlan>> existingServiceOfferings = client.getServiceOfferings().stream().collect(
-            Collectors.toMap(CloudServiceOffering::getName, CloudServiceOffering::getCloudServicePlans));
+        Map<String, List<CloudServicePlan>> existingServiceOfferings = client.getServiceOfferings()
+            .stream()
+            .collect(Collectors.toMap(CloudServiceOffering::getName, CloudServiceOffering::getCloudServicePlans));
         List<String> validServiceOfferings = computeValidServiceOfferings(client, possibleServiceOfferings, service.getPlan(),
             existingServiceOfferings);
 
@@ -115,7 +116,7 @@ public class ServiceCreator extends CloudServiceOperator {
         CloudServicePlan cloudServicePlan = findPlanForService(service, restTemplate, cloudControllerUrl);
 
         Map<String, Object> serviceRequest = createServiceRequest(service, spaceId, cloudServicePlan);
-        restTemplate.postForObject(getUrl(cloudControllerUrl, CREATE_SERVICE_URL_ACCEPTS_INCOMPLETE_FALSE), serviceRequest, String.class);
+        restTemplate.postForObject(getUrl(cloudControllerUrl, CREATE_SERVICE_URL_ACCEPTS_INCOMPLETE_TRUE), serviceRequest, String.class);
     }
 
     private Map<String, Object> createServiceRequest(CloudServiceExtended service, String spaceId, CloudServicePlan cloudServicePlan) {
