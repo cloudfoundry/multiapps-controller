@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
@@ -118,7 +116,7 @@ public class ProcessStepHelper {
     }
 
     private void logTaskStartup(DelegateExecution context, String indexedStepName) {
-        String message = format(Messages.EXECUTING_ACTIVITI_TASK, context.getId(), context.getCurrentActivityId());
+        String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getId());
         progressMessageService.add(new ProgressMessage(getCorrelationId(context), indexedStepName, ProgressMessageType.TASK_STARTUP,
             message, new Timestamp(System.currentTimeMillis())));
     }
