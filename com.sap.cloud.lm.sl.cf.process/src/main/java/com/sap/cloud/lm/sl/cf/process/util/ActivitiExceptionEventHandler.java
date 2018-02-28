@@ -11,6 +11,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
@@ -42,33 +43,34 @@ public class ActivitiExceptionEventHandler {
         }
 
         try {
-            String taskId = getTaskId(event);
+            String taskId = getVariable(event, Constants.TASK_ID);
+            String taskIndex = getVariable(event, Constants.TASK_INDEX);
             String errorMessage = MessageFormat.format(Messages.EXCEPTION_OCCURED_ERROR_MSG, activitiExceptionMessage);
-            progressMessageService.add(new ProgressMessage(event.getProcessInstanceId(), taskId, ProgressMessageType.ERROR, errorMessage,
+            progressMessageService.add(new ProgressMessage(event.getProcessInstanceId(), taskId, taskIndex, ProgressMessageType.ERROR, errorMessage,
                 new Timestamp(System.currentTimeMillis())));
         } catch (SLException e) {
             LOGGER.warn(e.getMessage());
         }
     }
 
-    private String getTaskId(ActivitiEvent event) {
+    private String getVariable(ActivitiEvent event, String variableName) {
         VariableInstance variableInstance = event.getEngineServices()
             .getRuntimeService()
-            .getVariableInstance(event.getExecutionId(), com.sap.cloud.lm.sl.persistence.message.Constants.INDEXED_STEP_NAME);
+            .getVariableInstance(event.getExecutionId(), variableName);
 
         if (variableInstance == null) {
-            return getTakIdFromHistoryService(event);
+            return getVariableFromHistoryService(event, variableName);
         }
 
         return variableInstance.getTextValue();
     }
 
-    private String getTakIdFromHistoryService(ActivitiEvent event) {
+    private String getVariableFromHistoryService(ActivitiEvent event, String variableName) {
         HistoricVariableInstance historicVariableInstance = event.getEngineServices()
             .getHistoryService()
             .createHistoricVariableInstanceQuery()
             .executionId(event.getExecutionId())
-            .variableName(com.sap.cloud.lm.sl.persistence.message.Constants.INDEXED_STEP_NAME)
+            .variableName(variableName)
             .singleResult();
 
         if (historicVariableInstance == null) {
