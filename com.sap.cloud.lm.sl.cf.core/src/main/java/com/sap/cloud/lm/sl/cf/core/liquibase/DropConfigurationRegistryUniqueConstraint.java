@@ -12,6 +12,7 @@ import java.util.Set;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration.DatabaseType;
+import com.sap.cloud.lm.sl.persistence.liquibase.AbstractChange;
 import com.sap.cloud.lm.sl.persistence.util.JdbcUtil;
 
 import liquibase.database.Database;
