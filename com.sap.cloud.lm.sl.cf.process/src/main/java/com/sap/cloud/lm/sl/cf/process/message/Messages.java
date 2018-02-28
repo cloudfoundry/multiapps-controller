@@ -344,7 +344,7 @@ public class Messages {
     public static final String CURRENT_USER = "Current user: {0}";
     public static final String CLIENT_SPACE = "Client space: {0}";
     public static final String CLIENT_ORG = "Client org: {0}";
-    public static final String EXECUTING_ACTIVITI_TASK = "Executing Activiti task \"{1}\" of process \"{0}\"";
+    public static final String EXECUTING_TASK = "Executing task \"{0}\" of process \"{1}\"...";
     public static final String RECEIVED_ACTIVITI_EVENT = "Received Activiti event of type \"{0}\" for process \"{1}\" with definition \"{2}\"";
     public static final String DOMAIN_ALREADY_EXISTS = "Domain \"{0}\" already exists";
     public static final String SETTING_SERVICE_PARAMETERS = "Setting service \"{0}\" parameters from \"{1}\"";

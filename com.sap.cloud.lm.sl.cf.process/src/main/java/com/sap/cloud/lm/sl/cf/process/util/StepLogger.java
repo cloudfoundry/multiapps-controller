@@ -38,7 +38,7 @@ public class StepLogger implements UserMessageLogger {
     }
 
     public void logActivitiTask() {
-        String message = MessageFormat.format(Messages.EXECUTING_ACTIVITI_TASK, context.getId(), context.getCurrentActivityId());
+        String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getId(), context.getCurrentActivityId());
         debug(message);
     }
 
