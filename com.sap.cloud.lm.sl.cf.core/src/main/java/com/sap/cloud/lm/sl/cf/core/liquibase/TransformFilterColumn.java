@@ -15,6 +15,7 @@ import com.google.gson.JsonParser;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
+import com.sap.cloud.lm.sl.persistence.liquibase.AbstractDataTransformationChange;
 
 public class TransformFilterColumn extends AbstractDataTransformationChange<Map<Long, String>, Map<Long, String>> {
 
