@@ -154,15 +154,18 @@ public class StepLogger implements UserMessageLogger {
 
     private void sendProgressMessage(String message, ProgressMessageType type) {
         try {
-            progressMessageService.add(new ProgressMessage(StepsUtil.getCorrelationId(context), StepsUtil.getIndexedStepName(context), type,
-                message, new Timestamp(System.currentTimeMillis())));
+            String taskId = StepsUtil.getTaskId(context);
+            String taskIndex = StepsUtil.getTaskIndex(context);
+            progressMessageService.add(new ProgressMessage(StepsUtil.getCorrelationId(context), taskId, taskIndex, type, message,
+                new Timestamp(System.currentTimeMillis())));
         } catch (SLException e) {
             getProcessLogger().error(e);
         }
     }
 
     private org.apache.log4j.Logger getProcessLogger() {
-        return processLoggerProviderFactory.getDefaultLoggerProvider().getLogger(StepsUtil.getCorrelationId(context), PARENT_LOGGER);
+        return processLoggerProviderFactory.getDefaultLoggerProvider()
+            .getLogger(StepsUtil.getCorrelationId(context), PARENT_LOGGER);
     }
 
     private static String getPrefix(Logger logger) {

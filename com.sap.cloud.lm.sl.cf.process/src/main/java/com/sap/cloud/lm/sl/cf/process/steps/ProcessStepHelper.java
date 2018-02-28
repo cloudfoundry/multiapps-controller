@@ -30,18 +30,18 @@ public class ProcessStepHelper {
 
     private ContextExtensionDao contextExtensionDao;
     private ProgressMessageService progressMessageService;
-    protected ProcessLoggerProviderFactory processLoggerProviderFactory;
-    private StepIndexProvider stepIndexProvider;
+    private ProcessLoggerProviderFactory processLoggerProviderFactory;
+    private TaskIndexProvider taskIndexProvider;
 
-    private String indexedStepName;
-    private int stepIndex;
+    String taskId;
+    String taskIndex;
     private boolean isInError;
 
     public ProcessStepHelper(ProgressMessageService progressMessageService, ProcessLoggerProviderFactory processLoggerProviderFactory,
-        StepIndexProvider stepIndexProvider, ContextExtensionDao contextExtensionDao) {
+        TaskIndexProvider stepIndexProvider, ContextExtensionDao contextExtensionDao) {
         this.progressMessageService = progressMessageService;
         this.processLoggerProviderFactory = processLoggerProviderFactory;
-        this.stepIndexProvider = stepIndexProvider;
+        this.taskIndexProvider = stepIndexProvider;
         this.contextExtensionDao = contextExtensionDao;
     }
 
@@ -62,18 +62,19 @@ public class ProcessStepHelper {
     void preExecuteStep(DelegateExecution context, StepPhase initialPhase) throws SLException {
         init(context, initialPhase);
 
-        context.setVariable(Constants.INDEXED_STEP_NAME, indexedStepName);
+        context.setVariable(Constants.TASK_ID, taskId);
+        context.setVariable(Constants.TASK_INDEX, taskIndex);
 
         if (isInError) {
             deletePreviousExecutionData(context);
         }
-        logTaskStartup(context, indexedStepName);
+        logTaskStartup(context);
     }
 
     private void init(DelegateExecution context, StepPhase initialPhase) {
         this.isInError = isInError(context);
-        this.stepIndex = computeStepIndex(context, initialPhase, isInError);
-        this.indexedStepName = context.getCurrentActivityId() + stepIndex;
+        this.taskId = context.getCurrentActivityId();
+        this.taskIndex = Integer.toString(computeTaskIndex(context, initialPhase, isInError));
     }
 
     private boolean isInError(DelegateExecution context) {
@@ -86,47 +87,50 @@ public class ProcessStepHelper {
     }
 
     Job getJob(DelegateExecution context) {
-        JobQuery jobQuery = context.getEngineServices().getManagementService().createJobQuery();
+        JobQuery jobQuery = context.getEngineServices()
+            .getManagementService()
+            .createJobQuery();
         if (jobQuery == null) {
             return null;
         }
-        return jobQuery.processInstanceId(context.getProcessInstanceId()).singleResult();
+        return jobQuery.processInstanceId(context.getProcessInstanceId())
+            .singleResult();
     }
 
-    private int computeStepIndex(DelegateExecution context, StepPhase initialPhase, boolean isInError) {
-        int stepIndex = getLastStepIndex(context);
+    private int computeTaskIndex(DelegateExecution context, StepPhase initialPhase, boolean isInError) {
+        int taskIndex = getLastTaskIndex(context);
         if (!isInError && !initialPhase.equals(StepPhase.RETRY) && !initialPhase.equals(StepPhase.POLL)
             && !initialPhase.equals(StepPhase.WAIT)) {
-            return ++stepIndex;
+            return ++taskIndex;
         }
-        return stepIndex;
+        return taskIndex;
     }
 
-    private int getLastStepIndex(DelegateExecution context) throws SLException {
-        String activityId = context.getCurrentActivityId();
-        String lastTaskId = progressMessageService.findLastTaskId(getCorrelationId(context), activityId);
-        if (lastTaskId == null) {
-            return stepIndexProvider.getStepIndex(context);
+    private int getLastTaskIndex(DelegateExecution context) throws SLException {
+        String taskId = context.getCurrentActivityId();
+        String lastTaskExecutionId = progressMessageService.findLastTaskExecutionId(getCorrelationId(context), taskId);
+        if (lastTaskExecutionId == null) {
+            return taskIndexProvider.getTaskIndex(context);
         }
-        return Integer.parseInt(lastTaskId.substring(activityId.length()));
+        return Integer.parseInt(lastTaskExecutionId);
     }
 
     private String getCorrelationId(DelegateExecution context) {
         return (String) context.getVariable(CORRELATION_ID);
     }
 
-    private void logTaskStartup(DelegateExecution context, String indexedStepName) {
+    private void logTaskStartup(DelegateExecution context) {
         String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getId());
-        progressMessageService.add(new ProgressMessage(getCorrelationId(context), indexedStepName, ProgressMessageType.TASK_STARTUP,
+        progressMessageService.add(new ProgressMessage(getCorrelationId(context), taskId, taskIndex, ProgressMessageType.TASK_STARTUP,
             message, new Timestamp(System.currentTimeMillis())));
     }
 
     protected void deletePreviousExecutionData(DelegateExecution context) {
-        progressMessageService.removeByProcessIdAndTaskId(getCorrelationId(context), indexedStepName);
-        if (context.hasVariable(Constants.RETRY_STEP_NAME)) {
-            String taskId = (String) context.getVariable(Constants.RETRY_STEP_NAME) + stepIndex;
-            progressMessageService.removeByProcessIdAndTaskId(getCorrelationId(context), taskId);
-            context.removeVariable(Constants.RETRY_STEP_NAME);
+        progressMessageService.removeByProcessIdTaskIdAndTaskExecutionId(getCorrelationId(context), taskId, taskIndex);
+        if (context.hasVariable(Constants.RETRY_TASK_ID)) {
+            String retryTaskId = (String) context.getVariable(Constants.RETRY_TASK_ID);
+            progressMessageService.removeByProcessIdTaskIdAndTaskExecutionId(getCorrelationId(context), retryTaskId, taskIndex);
+            context.removeVariable(Constants.RETRY_TASK_ID);
         }
         String processId = context.getProcessInstanceId();
         ContextExtension contextExtension = contextExtensionDao.find(processId, Constants.VAR_ERROR_TYPE);
@@ -153,7 +157,7 @@ public class ProcessStepHelper {
 
     public void storeExceptionInProgressMessageService(DelegateExecution context, Throwable t) {
         try {
-            ProgressMessage msg = new ProgressMessage(getCorrelationId(context), indexedStepName, ProgressMessageType.ERROR,
+            ProgressMessage msg = new ProgressMessage(getCorrelationId(context), taskId, taskIndex, ProgressMessageType.ERROR,
                 MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()), new Timestamp(System.currentTimeMillis()));
             progressMessageService.add(msg);
         } catch (SLException e) {
@@ -166,7 +170,9 @@ public class ProcessStepHelper {
     }
 
     org.apache.log4j.Logger getLogger(DelegateExecution context) {
-        return processLoggerProviderFactory.getDefaultLoggerProvider().getLogger(getCorrelationId(context), this.getClass().getName());
+        return processLoggerProviderFactory.getDefaultLoggerProvider()
+            .getLogger(getCorrelationId(context), this.getClass()
+                .getName());
     }
 
     public void failStepIfProcessIsAborted(DelegateExecution context) throws SLException {

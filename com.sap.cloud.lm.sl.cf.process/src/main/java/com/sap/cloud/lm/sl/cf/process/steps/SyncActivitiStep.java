@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
-public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegate {
+public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegate {
 
     protected final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -132,7 +132,7 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
     }
 
     @Override
-    public Integer getStepIndex(DelegateExecution context) {
+    public int getTaskIndex(DelegateExecution context) {
         return (getIndexVariable() != null ? (int) context.getVariable(getIndexVariable()) : 0) - 1;
     }
 
