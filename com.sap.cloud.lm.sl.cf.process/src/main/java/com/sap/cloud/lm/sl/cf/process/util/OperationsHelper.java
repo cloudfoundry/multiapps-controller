@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.history.HistoricProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -54,10 +53,6 @@ public class OperationsHelper {
         processDefinitionKeys.add(metadataMapper.getActivitiDiagramId(processType));
         processDefinitionKeys.addAll(metadataMapper.getPreviousActivitiDiagramIds(processType));
         return processDefinitionKeys;
-    }
-
-    private HistoricProcessInstance getHistoricInstance(Operation operation, List<String> processDefinitionKeys) {
-        return activitiFacade.getHistoricProcessInstanceBySpaceId(operation.getProcessId(), operation.getSpaceId(), processDefinitionKeys);
     }
 
     private void addOngoingOperationsState(List<Operation> existingOngoingOperations) {
