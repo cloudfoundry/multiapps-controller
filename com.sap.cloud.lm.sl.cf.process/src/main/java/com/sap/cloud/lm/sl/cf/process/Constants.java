@@ -126,8 +126,9 @@ public class Constants {
     public static final String VAR_GIT_REPOSITORY_CONFIG_MAP = "gitRepositoryConfigMap";
     public static final String VAR_USE_IDLE_URIS = "useIdleUris";
     public static final String PROCESS_ABORTED = "__PROCESS_ABORTED";
-    public static final String INDEXED_STEP_NAME = "__INDEXED_STEP_NAME";
-    public static final String RETRY_STEP_NAME = "__RETRY_STEP_NAME";
+    public static final String TASK_ID = "__TASK_ID";
+    public static final String TASK_INDEX = "__TASK_INDEX";
+    public static final String RETRY_TASK_ID = "__RETRY_TASK_ID";
     public static final String EXECUTE_ONE_OFF_TASKS = "executeOneOffTasks";
     public static final String SHOULD_UPLOAD_APPLICATION_CONTENT = "shouldUploadApplicationContent";
     public static final String REBUILD_APP_ENV = "rebuildAppEnv";

@@ -72,7 +72,8 @@ public class StepsUtil {
 
     private static org.apache.log4j.Logger getAppLogger(DelegateExecution context, String appName,
         ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        return processLoggerProviderFactory.getLoggerProvider(appName).getLogger(getCorrelationId(context), PARENT_LOGGER, appName);
+        return processLoggerProviderFactory.getLoggerProvider(appName)
+            .getLogger(getCorrelationId(context), PARENT_LOGGER, appName);
     }
 
     static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,
@@ -190,7 +191,8 @@ public class StepsUtil {
     }
 
     private static BinaryJson getBinaryJsonForMtaModel() {
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PropertiesAdapterFactory()).create();
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PropertiesAdapterFactory())
+            .create();
         return new BinaryJson(gson);
     }
 
@@ -315,7 +317,9 @@ public class StepsUtil {
     }
 
     static void setServicesToCreate(DelegateExecution context, List<CloudServiceExtended> services) {
-        List<String> servicesAsStrings = services.stream().map(service -> JsonUtil.toJson(service)).collect(Collectors.toList());
+        List<String> servicesAsStrings = services.stream()
+            .map(service -> JsonUtil.toJson(service))
+            .collect(Collectors.toList());
         context.setVariable(Constants.VAR_SERVICES_TO_CREATE, servicesAsStrings);
     }
 
@@ -328,7 +332,9 @@ public class StepsUtil {
     }
 
     static void setServicesToBind(DelegateExecution context, List<CloudServiceExtended> services) {
-        List<String> servicesAsStrings = services.stream().map(service -> JsonUtil.toJson(service)).collect(Collectors.toList());
+        List<String> servicesAsStrings = services.stream()
+            .map(service -> JsonUtil.toJson(service))
+            .collect(Collectors.toList());
         context.setVariable(Constants.VAR_SERVICES_TO_BIND, servicesAsStrings);
     }
 
@@ -386,7 +392,9 @@ public class StepsUtil {
     }
 
     public static void setAppsToDeploy(DelegateExecution context, List<CloudApplicationExtended> apps) {
-        List<String> cloudApplicationsAsStrings = apps.stream().map(app -> JsonUtil.toJson(app)).collect(Collectors.toList());
+        List<String> cloudApplicationsAsStrings = apps.stream()
+            .map(app -> JsonUtil.toJson(app))
+            .collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
     }
 
@@ -612,7 +620,8 @@ public class StepsUtil {
     static Set<Integer> getAllocatedPorts(DelegateExecution context) {
         byte[] allocatedPortsBytes = (byte[]) context.getVariable(Constants.VAR_ALLOCATED_PORTS);
         Integer[] allocatedPorts = allocatedPortsBytes != null ? JsonUtil.getFromBinaryJson(allocatedPortsBytes, Integer[].class) : null;
-        return allocatedPorts != null ? Arrays.stream(allocatedPorts).collect(Collectors.toSet()) : Collections.emptySet();
+        return allocatedPorts != null ? Arrays.stream(allocatedPorts)
+            .collect(Collectors.toSet()) : Collections.emptySet();
     }
 
     static void setAllocatedPorts(DelegateExecution context, Set<Integer> allocatedPorts) {
@@ -732,7 +741,11 @@ public class StepsUtil {
         int index = (Integer) context.getVariable(Constants.VAR_APPS_INDEX);
         final String appToRestartName = appsToRestart.get(index);
         List<CloudApplicationExtended> appsToDeploy = StepsUtil.getAppsToDeploy(context);
-        return appsToDeploy.stream().filter((app) -> app.getName().equals(appToRestartName)).findFirst().get();
+        return appsToDeploy.stream()
+            .filter((app) -> app.getName()
+                .equals(appToRestartName))
+            .findFirst()
+            .get();
     }
 
     static CloudApplication getExistingApp(DelegateExecution context) {
@@ -748,11 +761,15 @@ public class StepsUtil {
     static Set<ApplicationStateAction> getAppStateActionsToExecute(DelegateExecution context) {
         @SuppressWarnings("unchecked")
         Set<String> actionsAsStrings = (Set<String>) context.getVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE);
-        return actionsAsStrings.stream().map(action -> ApplicationStateAction.valueOf(action)).collect(Collectors.toSet());
+        return actionsAsStrings.stream()
+            .map(action -> ApplicationStateAction.valueOf(action))
+            .collect(Collectors.toSet());
     }
 
     static void setAppStateActionsToExecute(DelegateExecution context, Set<ApplicationStateAction> actions) {
-        Set<String> actionsAsStrings = actions.stream().map(action -> action.toString()).collect(Collectors.toSet());
+        Set<String> actionsAsStrings = actions.stream()
+            .map(action -> action.toString())
+            .collect(Collectors.toSet());
         context.setVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE, actionsAsStrings);
     }
 
@@ -785,7 +802,8 @@ public class StepsUtil {
     static void setStartingInfo(DelegateExecution context, StartingInfo startingInfo) {
         byte[] binaryJson = (startingInfo != null) ? JsonUtil.getAsBinaryJson(startingInfo) : null;
         context.setVariable(Constants.VAR_STARTING_INFO, binaryJson);
-        String className = (startingInfo != null) ? startingInfo.getClass().getName() : StartingInfo.class.getName();
+        String className = (startingInfo != null) ? startingInfo.getClass()
+            .getName() : StartingInfo.class.getName();
         context.setVariable(Constants.VAR_STARTING_INFO_CLASSNAME, className);
     }
 
@@ -825,12 +843,15 @@ public class StepsUtil {
     }
 
     static void setUploadToken(ExecutionWrapper execution, String token) {
-        execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN, token);
+        execution.getContextExtensionDao()
+            .addOrUpdate(execution.getContext()
+                .getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN, token);
     }
 
     static String getUploadToken(ExecutionWrapper execution) {
         return execution.getContextExtensionDao()
-            .find(execution.getContext().getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN)
+            .find(execution.getContext()
+                .getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN)
             .getValue();
     }
 
@@ -838,8 +859,12 @@ public class StepsUtil {
         return (String) context.getVariable(Constants.VAR_CORRELATION_ID);
     }
 
-    public static String getIndexedStepName(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.persistence.message.Constants.INDEXED_STEP_NAME);
+    public static String getTaskId(DelegateExecution context) {
+        return (String) context.getVariable(Constants.TASK_ID);
+    }
+
+    public static String getTaskIndex(DelegateExecution context) {
+        return (String) context.getVariable(Constants.TASK_INDEX);
     }
 
     static ErrorType getErrorType(String processId, ContextExtensionDao contextExtensionDao) {
@@ -858,8 +883,9 @@ public class StepsUtil {
     }
 
     static StepPhase getStepPhase(ExecutionWrapper execution) {
-        ContextExtension stepTypeObject = execution.getContextExtensionDao().find(execution.getContext().getProcessInstanceId(),
-            Constants.VAR_STEP_PHASE);
+        ContextExtension stepTypeObject = execution.getContextExtensionDao()
+            .find(execution.getContext()
+                .getProcessInstanceId(), Constants.VAR_STEP_PHASE);
         if (stepTypeObject == null) {
             return StepPhase.EXECUTE;
         }
@@ -867,8 +893,9 @@ public class StepsUtil {
     }
 
     static void setStepPhase(ExecutionWrapper execution, StepPhase type) {
-        execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), Constants.VAR_STEP_PHASE,
-            type.toString());
+        execution.getContextExtensionDao()
+            .addOrUpdate(execution.getContext()
+                .getProcessInstanceId(), Constants.VAR_STEP_PHASE, type.toString());
     }
 
     static void appLog(DelegateExecution context, String appName, String message, Logger logger,
