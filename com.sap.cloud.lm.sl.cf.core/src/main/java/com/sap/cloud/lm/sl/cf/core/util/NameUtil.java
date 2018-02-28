@@ -3,6 +3,9 @@ package com.sap.cloud.lm.sl.cf.core.util;
 import static com.sap.cloud.lm.sl.mta.util.ValidatorUtil.getPrefixedName;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -113,5 +116,17 @@ public class NameUtil {
         }
         return resourceName;
     }
-
+    
+    public static List<String> splitFilesIds(List<String> fileIds) {
+        List<String> allFileIds = new ArrayList<>();
+        for (String fileId : fileIds) {
+            if (fileId == null || !fileId.contains(",")) {
+                allFileIds.add(fileId);
+            } else {
+                List<String> fileInChunks = Arrays.asList(fileId.split(","));
+                allFileIds.addAll(fileInChunks);
+            }
+        }
+        return allFileIds;
+    }
 }

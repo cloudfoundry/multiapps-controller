@@ -35,6 +35,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
 import com.sap.cloud.lm.sl.cf.core.security.data.termination.DataTerminationService;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
@@ -248,11 +249,21 @@ public class CleanUpJob implements Job {
 
     private void removeOldFiles(Map<String, List<String>> spaceToFileIds) {
         try {
-            int removedOldFiles = fileService.deleteAllByFileIds(spaceToFileIds);
+            Map<String, List<String>> spaceToFileChunkIds = splitAllFilesInChunks(spaceToFileIds);
+            int removedOldFiles = fileService.deleteAllByFileIds(spaceToFileChunkIds);
             LOGGER.info("Deleted MTA files: " + removedOldFiles);
         } catch (FileStorageException e) {
             throw new SLException(e);
         }
+    }
+
+    public Map<String, List<String>> splitAllFilesInChunks(Map<String, List<String>> spaceToFileIds) {
+        Map<String, List<String>> spaceToFileChunks = new HashMap<String, List<String>>();
+        for (String space : spaceToFileIds.keySet()) {
+            List<String> fileChunksInSpace = NameUtil.splitFilesIds(spaceToFileIds.get(space));
+            spaceToFileChunks.put(space, fileChunksInSpace);
+        }
+        return spaceToFileChunks;
     }
 
     private void markOperationsAsCleanedUp(List<Operation> finishedOperations) {
@@ -261,5 +272,4 @@ public class CleanUpJob implements Job {
             dao.merge(finishedOperation);
         }
     }
-
 }
