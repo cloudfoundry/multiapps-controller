@@ -96,15 +96,15 @@
     <sequenceFlow id="continueDeployProcessFlow" sourceRef="exclusivegateway7" targetRef="createSubscriptionsTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(appsCount == appsIndex)}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="incrementIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
+    <serviceTask id="incrementDeployAppsIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="deployNextAppFlow" sourceRef="exclusivegateway7" targetRef="startSubProcessTask"></sequenceFlow>
     <serviceTask id="restartUpdatedSubscribersTask" name="Restart Updated Subscribers" activiti:async="true" activiti:delegateExpression="${restartUpdatedSubscribersStep}"></serviceTask>
     <serviceTask id="updateSubscribedServiceBrokerTask" name="Update Subscriber Service Broker" activiti:async="true" activiti:delegateExpression="${updateSubscribedServiceBrokerStep}"></serviceTask>
     <sequenceFlow id="flow83" sourceRef="updateSubscribedServiceBrokerTask" targetRef="servicetask10"></sequenceFlow>
-    <sequenceFlow id="continueAppsDeploymentFlow" sourceRef="exclusivegateway6" targetRef="incrementIndexTask">
+    <sequenceFlow id="continueAppsDeploymentFlow" sourceRef="exclusivegateway6" targetRef="incrementDeployAppsIndexTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="flow85" sourceRef="incrementIndexTask" targetRef="exclusivegateway7"></sequenceFlow>
+    <sequenceFlow id="flow85" sourceRef="incrementDeployAppsIndexTask" targetRef="exclusivegateway7"></sequenceFlow>
     <serviceTask id="prepareToRestartServiceBrokersTask" name="Prepare To Restart Service Brokers" activiti:async="true" activiti:delegateExpression="${prepareToRestartServiceBrokersStep}"></serviceTask>
     <sequenceFlow id="flow86" sourceRef="restartUpdatedSubscribersTask" targetRef="prepareToRestartServiceBrokersTask"></sequenceFlow>
     <endEvent id="endEvent" name="End">
@@ -135,12 +135,12 @@
         <timeDuration>PT10S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <serviceTask id="servicetask7" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
+    <serviceTask id="incrementRestartAppsIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="restartNextAppFlow" sourceRef="exclusivegateway9" targetRef="startRestartAppSubProcess"></sequenceFlow>
     <sequenceFlow id="flow111" sourceRef="startRestartAppSubProcess" targetRef="exclusivegateway10"></sequenceFlow>
     <sequenceFlow id="waitRestartAppSubProcessFlow" sourceRef="exclusivegateway10" targetRef="timerintermediatecatchevent3"></sequenceFlow>
-    <sequenceFlow id="flow114" sourceRef="servicetask7" targetRef="exclusivegateway9"></sequenceFlow>
-    <sequenceFlow id="continueRestartAppSubprocessFlow" sourceRef="exclusivegateway10" targetRef="servicetask7">
+    <sequenceFlow id="flow114" sourceRef="incrementRestartAppsIndexTask" targetRef="exclusivegateway9"></sequenceFlow>
+    <sequenceFlow id="continueRestartAppSubprocessFlow" sourceRef="exclusivegateway10" targetRef="incrementRestartAppsIndexTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="continueBlueGreenProcessFlow" sourceRef="exclusivegateway9" targetRef="deleteIdleRoutesTask">
@@ -312,7 +312,7 @@
       <bpmndi:BPMNShape bpmnElement="exclusivegateway7" id="BPMNShape_exclusivegateway7">
         <omgdc:Bounds height="40.0" width="40.0" x="34.0" y="363.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="incrementIndexTask" id="BPMNShape_incrementIndexTask">
+      <bpmndi:BPMNShape bpmnElement="incrementDeployAppsIndexTask" id="BPMNShape_incrementDeployAppsIndexTask">
         <omgdc:Bounds height="55.0" width="105.0" x="167.0" y="470.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="restartUpdatedSubscribersTask" id="BPMNShape_restartUpdatedSubscribersTask">
@@ -351,7 +351,7 @@
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent3" id="BPMNShape_timerintermediatecatchevent3">
         <omgdc:Bounds height="35.0" width="35.0" x="1620.0" y="515.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetask7" id="BPMNShape_servicetask7">
+      <bpmndi:BPMNShape bpmnElement="incrementRestartAppsIndexTask" id="BPMNShape_incrementRestartAppsIndexTask">
         <omgdc:Bounds height="55.0" width="105.0" x="1450.0" y="345.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="prepareAppsRestartTask" id="BPMNShape_prepareAppsRestartTask">
