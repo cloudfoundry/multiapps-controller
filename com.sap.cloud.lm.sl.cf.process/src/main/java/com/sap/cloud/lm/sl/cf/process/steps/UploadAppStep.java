@@ -289,7 +289,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
             } catch (SLException | FileStorageException e) {
                 getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
                 logException(execution.getContext(), e);
-                throw new SLException(e.getMessage(), e);
+                throw new SLException(e, e.getMessage());
             } catch (CloudFoundryException cfe) {
                 SLException e = StepsUtil.createException(cfe);
                 getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
