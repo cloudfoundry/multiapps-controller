@@ -151,11 +151,11 @@
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="flow108" sourceRef="timerintermediatecatchevent2" targetRef="startAppDeploySubProcessTask"></sequenceFlow>
-    <sequenceFlow id="deployNextFlow" sourceRef="exclusivegateway3" targetRef="servicetask2">
+    <sequenceFlow id="deployNextFlow" sourceRef="exclusivegateway3" targetRef="incrementDeployAppsIndexTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="servicetask2" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
-    <sequenceFlow id="flow110" sourceRef="servicetask2" targetRef="exclusivegateway4"></sequenceFlow>
+    <serviceTask id="incrementDeployAppsIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
+    <sequenceFlow id="flow110" sourceRef="incrementDeployAppsIndexTask" targetRef="exclusivegateway4"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-deploy">
     <bpmndi:BPMNPlane bpmnElement="xs2-deploy" id="BPMNPlane_xs2-deploy">
@@ -309,7 +309,7 @@
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent2" id="BPMNShape_timerintermediatecatchevent2">
         <omgdc:Bounds height="35.0" width="35.0" x="584.0" y="427.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
+      <bpmndi:BPMNShape bpmnElement="incrementDeployAppsIndexTask" id="BPMNShape_incrementDeployAppsIndexTask">
         <omgdc:Bounds height="55.0" width="105.0" x="481.0" y="474.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
