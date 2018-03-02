@@ -25,7 +25,9 @@ import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
+import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.process.jobs.PopulateConfigurationRegistrySpaceIdColumnJob;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -61,6 +63,9 @@ public class BootstrapServlet extends HttpServlet {
 
     @Inject
     protected Configuration configuration;
+    
+    @Inject
+    private PopulateConfigurationRegistrySpaceIdColumnJob populateConfigurationRegistrySpaceIdColumnJob;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -73,6 +78,7 @@ public class BootstrapServlet extends HttpServlet {
             initializeActiviti();
             addDeployTargets();
             initExtras();
+            executeCustomDatabaseChanges();
             configuration.logFullConfig();
             processEngine.getProcessEngineConfiguration().getJobExecutor().start();
             LOGGER.info(Messages.ALM_SERVICE_ENV_INITIALIZED);
@@ -142,5 +148,19 @@ public class BootstrapServlet extends HttpServlet {
         }
         return handler.findTarget(rawTargets, target.getName()) != null;
     }
-
+    
+    private void executeCustomDatabaseChanges() {
+        if(!"0".equals(getInstanceIndex())) {
+            LOGGER.info("Custom database changes will not be executed on instance " + getInstanceIndex());
+            return;
+        }
+        LOGGER.info("Custom database changes will be executed on instance 0");
+        Thread populateConfigurationRegistrySpaceIdColumnThread = new Thread(populateConfigurationRegistrySpaceIdColumnJob);
+        populateConfigurationRegistrySpaceIdColumnThread.start();
+    }
+    
+    private String getInstanceIndex() {
+        Environment env = new Environment();
+        return env.getVariable("CF_INSTANCE_INDEX");
+    }
 }
