@@ -21,9 +21,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class TimeoutExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeoutExecutor.class);
 
-    private static final int DEFAULT_TIMEOUT = 120;
     private static TimeoutExecutor instance;
 
+    private int timeout;
     private ExecutorService executor;
 
     public static TimeoutExecutor getInstance() {
@@ -33,9 +33,10 @@ public class TimeoutExecutor {
         return instance;
     }
 
-    public void init(int coreThreads, int maxThreads, int queueCapacity, int keepAliveSeconds) {
+    public void init(int coreThreads, int maxThreads, int queueCapacity, int keepAliveSeconds, int timeout) {
         executor = new ThreadPoolExecutor(coreThreads, maxThreads, keepAliveSeconds, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(queueCapacity));
+        this.timeout = timeout;
     }
 
     public void destroy() {
@@ -45,7 +46,7 @@ public class TimeoutExecutor {
     }
 
     public <T> T executeWithTimeout(Callable<T> task) throws Exception {
-        return executeWithTimeout(task, DEFAULT_TIMEOUT);
+        return executeWithTimeout(task, timeout);
     }
 
     public <T> T executeWithTimeout(Callable<T> task, int timeout) throws Exception {

@@ -99,6 +99,7 @@ public class Configuration {
     static final String CFG_HEALTH_CHECK_USER = "HEALTH_CHECK_USER";
     static final String CFG_HEALTH_CHECK_TIME_RANGE = "HEALTH_CHECK_TIME_RANGE";
     static final String CFG_MAIL_API_URL = "MAIL_API_URL";
+    static final String CFG_CONTROLLER_OPERATIONS_TIMEOUT = "CFG_CONTROLLER_OPERATIONS_TIMEOUT";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -128,6 +129,7 @@ public class Configuration {
     public static final Integer DEFAULT_XS_CLIENT_KEEP_ALIVE = 60;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
+    public static final int DEFAULT_CONTROLLER_OPERATIONS_TIMEOUT = 900;
     /*
      * In async local operations there are usually two threads. One does the actual work, while the other waits for a specific amount of
      * time and then terminates the first if it is still alive (thus introducing a time-out period for the entire operation).
@@ -204,6 +206,7 @@ public class Configuration {
     private Boolean gatherUsageStatistics;
     private HealthCheckConfiguration healthCheckConfiguration;
     private String mailApiUrl;
+    private Integer timeout;
 
     public void load() {
         getPlatformType();
@@ -431,7 +434,7 @@ public class Configuration {
         }
         return globalAuditorUser;
     }
-    
+
     public String getGlobalAuditorPassword() {
         if (globalAuditorPassword == null) {
             globalAuditorPassword = getAdminPasswordFromEnvironment();
@@ -563,6 +566,19 @@ public class Configuration {
             mailApiUrl = getMailApiUrlFromEnvironment();
         }
         return mailApiUrl;
+    }
+
+    public Integer getControllerOperationsTimeout() {
+        if (timeout == null) {
+            timeout = getControllerOperationsTimeoutFromEnvironment();
+        }
+        return timeout;
+    }
+
+    private Integer getControllerOperationsTimeoutFromEnvironment() {
+        Integer timeout = getPositiveInt(CFG_CONTROLLER_OPERATIONS_TIMEOUT, DEFAULT_CONTROLLER_OPERATIONS_TIMEOUT);
+        LOGGER.info(format(Messages.CONTROLLER_OPERATIONS_TIMEOUT, timeout));
+        return timeout;
     }
 
     private PlatformType getPlatformTypeFromEnvironment() {
@@ -791,12 +807,12 @@ public class Configuration {
         LOGGER.info(format(Messages.ADMIN_USERNAME, value));
         return value;
     }
-    
-    private String getAdminPasswordFromEnvironment(){
+
+    private String getAdminPasswordFromEnvironment() {
         String value = getString(CFG_GLOBAL_AUDITOR_PASSWORD, DEFAULT_GLOBAL_AUDITOR_PASSWORD);
         return value;
     }
-    
+
     private Integer getDbConnectionThreadsFromEnvironment() {
         Integer value = getPositiveInt(CFG_DB_CONNECTION_THREADS, DEFAULT_DB_CONNECTION_THREADS);
         LOGGER.info(format(Messages.DB_CONNECTION_THREADS, value));
