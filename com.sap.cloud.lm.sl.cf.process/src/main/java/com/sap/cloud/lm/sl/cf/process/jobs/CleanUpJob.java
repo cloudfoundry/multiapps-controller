@@ -52,21 +52,20 @@ public class CleanUpJob implements Job {
 
     @Inject
     private Configuration configuration;
-
     @Inject
     private OperationDao dao;
-
     @Inject
     private ActivitiFacade activitiFacade;
-
     @Inject
     private OperationsHelper operationsHelper;
-
     @Inject
     private DataTerminationService dataTerminationService;
-
     @Inject
     private AbstractFileService fileService;
+    @Inject
+    private ProgressMessageService progressMessageService;
+    @Inject
+    private ProcessLogsService processLogsService;
 
     @Autowired
     @Qualifier("tokenStore")
@@ -200,14 +199,12 @@ public class CleanUpJob implements Job {
     }
 
     private void removeProgressMessages(List<String> oldFinishedOperationsIds) {
-        int removedProgressMessages = ProgressMessageService.getInstance()
-            .removeAllByProcessIds(oldFinishedOperationsIds);
+        int removedProgressMessages = progressMessageService.removeAllByProcessIds(oldFinishedOperationsIds);
         LOGGER.info("Deleted progress messages rows count: " + removedProgressMessages);
     }
 
     private void removeProcessLogs(List<String> oldFinishedOperationsIds) {
-        int removedProcessLogs = ProcessLogsService.getInstance()
-            .deleteAllByProcessIds(oldFinishedOperationsIds);
+        int removedProcessLogs = processLogsService.deleteAllByProcessIds(oldFinishedOperationsIds);
         LOGGER.info("Deleted process logs rows count: " + removedProcessLogs);
     }
 
