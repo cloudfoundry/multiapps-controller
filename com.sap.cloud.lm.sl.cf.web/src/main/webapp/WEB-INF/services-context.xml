@@ -36,11 +36,6 @@
         <constructor-arg name="databaseDialect" ref="databaseDialect" />
     </bean>
 
-    <bean id="logsService" class="com.sap.cloud.lm.sl.persistence.services.ProcessLogsService">
-        <constructor-arg name="dataSource" ref="dataSource" />
-        <constructor-arg name="databaseDialect" ref="databaseDialect" />
-    </bean>
-
     <bean class="com.sap.cloud.lm.sl.cf.web.exec.ScheduledThreadPoolExecutorFactoryBean" />
 
     <bean class="com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade" factory-method="getInstance" />

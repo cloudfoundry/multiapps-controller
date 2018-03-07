@@ -44,7 +44,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLogsService;
+import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 @DisallowConcurrentExecution
@@ -65,7 +65,7 @@ public class CleanUpJob implements Job {
     @Inject
     private ProgressMessageService progressMessageService;
     @Inject
-    private ProcessLogsService processLogsService;
+    private ProcessLogsPersistenceService processLogsPersistenceService;
 
     @Autowired
     @Qualifier("tokenStore")
@@ -204,7 +204,7 @@ public class CleanUpJob implements Job {
     }
 
     private void removeProcessLogs(List<String> oldFinishedOperationsIds) {
-        int removedProcessLogs = processLogsService.deleteAllByProcessIds(oldFinishedOperationsIds);
+        int removedProcessLogs = processLogsPersistenceService.deleteAllByNamespaces(oldFinishedOperationsIds);
         LOGGER.info("Deleted process logs rows count: " + removedProcessLogs);
     }
 
