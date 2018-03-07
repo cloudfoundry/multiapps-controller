@@ -84,7 +84,7 @@ public class BootstrapServlet extends HttpServlet {
 
     private void initializeTimeoutExecutor() {
         TimeoutExecutor.getInstance().init(configuration.getXsClientCoreThreads(), configuration.getXsClientMaxThreads(),
-            configuration.getXsClientQueueCapacity(), configuration.getXsClientKeepAlive());
+            configuration.getXsClientQueueCapacity(), configuration.getXsClientKeepAlive(), configuration.getControllerOperationsTimeout());
     }
 
     @Override

@@ -77,10 +77,9 @@ public class CleanUpJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
-        LOGGER.warn("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now()
-            .toString());
+        LOGGER.warn("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now().toString());
 
-        executeDataTerminationJob();
+        // executeDataTerminationJob();
 
         Date expirationTime = getExpirationTime();
 
@@ -92,8 +91,7 @@ public class CleanUpJob implements Job {
 
         removeExpiredTokens();
 
-        LOGGER.warn("Cleanup Job finished at: " + Instant.now()
-            .toString());
+        LOGGER.warn("Cleanup Job finished at: " + Instant.now().toString());
     }
 
     private String getInstanceIndex() {
@@ -114,8 +112,7 @@ public class CleanUpJob implements Job {
 
     private Date getExpirationTime() {
         long maxTtlForOldData = configuration.getMaxTtlForOldData();
-        Date cleanUpTimestamp = Date.from(Instant.now()
-            .minusSeconds(maxTtlForOldData));
+        Date cleanUpTimestamp = Date.from(Instant.now().minusSeconds(maxTtlForOldData));
         LOGGER.info("Will perform clean up for data stored before: " + cleanUpTimestamp.toString());
         return cleanUpTimestamp;
     }
@@ -179,17 +176,12 @@ public class CleanUpJob implements Job {
     }
 
     private List<Operation> getActiveOperationsInStateError(Date expirationTime) throws SLException {
-        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime)
-            .inNonFinalState()
-            .descending()
-            .build();
+        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime).inNonFinalState().descending().build();
         return operationsHelper.findOperations(filter, Arrays.asList(State.ERROR));
     }
 
     private List<String> getProcessIds(List<Operation> operations) {
-        return operations.stream()
-            .map(operationInError -> operationInError.getProcessId())
-            .collect(Collectors.toList());
+        return operations.stream().map(operationInError -> operationInError.getProcessId()).collect(Collectors.toList());
     }
 
     private void executeAbortOperationAction(List<String> processIds) {
@@ -200,14 +192,12 @@ public class CleanUpJob implements Job {
     }
 
     private void removeProgressMessages(List<String> oldFinishedOperationsIds) {
-        int removedProgressMessages = ProgressMessageService.getInstance()
-            .removeAllByProcessIds(oldFinishedOperationsIds);
+        int removedProgressMessages = ProgressMessageService.getInstance().removeAllByProcessIds(oldFinishedOperationsIds);
         LOGGER.info("Deleted progress messages rows count: " + removedProgressMessages);
     }
 
     private void removeProcessLogs(List<String> oldFinishedOperationsIds) {
-        int removedProcessLogs = ProcessLogsService.getInstance()
-            .deleteAllByProcessIds(oldFinishedOperationsIds);
+        int removedProcessLogs = ProcessLogsService.getInstance().deleteAllByProcessIds(oldFinishedOperationsIds);
         LOGGER.info("Deleted process logs rows count: " + removedProcessLogs);
     }
 
