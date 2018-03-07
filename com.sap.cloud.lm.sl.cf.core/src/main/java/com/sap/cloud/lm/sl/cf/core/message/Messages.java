@@ -150,6 +150,7 @@ public final class Messages {
     public static final String GATHER_STATISTICS = "Gather statistics: {0}";
     public static final String HEALTH_CHECK_CONFIGURATION = "Health check configuration: {0}";
     public static final String MAIL_API_URL = "Mail API URL: {0}";
+    public static final String CONTROLLER_OPERATIONS_TIMEOUT = "CFG_CONTROLLER_OPERATIONS_TIMEOUT: {0}";
 
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION = "About to perform action \"{0}\"";
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION_WITH_PARAMS = "About to perform action \"{0}\" with parameters \"{1}\"";
