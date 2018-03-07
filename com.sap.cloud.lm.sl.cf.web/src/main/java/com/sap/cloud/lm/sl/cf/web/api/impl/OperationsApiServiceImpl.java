@@ -49,7 +49,7 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLogsService;
+import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 @RequestScoped
@@ -62,7 +62,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Inject
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Inject
-    private ProcessLogsService logsService;
+    private ProcessLogsPersistenceService logsService;
     @Inject
     private ActivitiFacade activitiFacade;
     @Inject
