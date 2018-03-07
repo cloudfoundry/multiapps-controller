@@ -21,16 +21,19 @@ public class AddDomainsStep extends SyncActivitiStep {
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
-            getStepLogger().info(Messages.ADDING_DOMAINS);
-
             CloudFoundryOperations client = execution.getCloudFoundryClient();
+
+            List<String> customDomains = StepsUtil.getCustomDomains(execution.getContext());
+            getStepLogger().debug("Custom domains: " + customDomains);
+            if (customDomains.isEmpty()) {
+                return StepPhase.DONE;
+            }
+
+            getStepLogger().info(Messages.ADDING_DOMAINS);
 
             List<CloudDomain> existingDomains = client.getDomains();
             List<String> existingDomainNames = getDomainNames(existingDomains);
             getStepLogger().debug("Existing domains: " + existingDomainNames);
-
-            List<String> customDomains = StepsUtil.getCustomDomains(execution.getContext());
-            getStepLogger().debug("Custom domains: " + customDomains);
 
             addDomains(client, customDomains, existingDomainNames);
 
