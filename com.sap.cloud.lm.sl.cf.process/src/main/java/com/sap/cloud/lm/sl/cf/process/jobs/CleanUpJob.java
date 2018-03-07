@@ -77,10 +77,8 @@ public class CleanUpJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
-        LOGGER.warn("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now()
+        LOGGER.info("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now()
             .toString());
-
-        executeDataTerminationJob();
 
         Date expirationTime = getExpirationTime();
 
@@ -91,8 +89,10 @@ public class CleanUpJob implements Job {
         removeActivitiHistoricData(expirationTime);
 
         removeExpiredTokens();
+        
+        executeDataTerminationJob();
 
-        LOGGER.warn("Cleanup Job finished at: " + Instant.now()
+        LOGGER.info("Cleanup Job finished at: " + Instant.now()
             .toString());
     }
 
