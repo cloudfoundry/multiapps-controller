@@ -30,7 +30,6 @@ import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
-import com.sap.cloud.lm.sl.persistence.services.DatabaseFileService;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
@@ -48,11 +47,16 @@ public class FilesApiServiceImpl implements FilesApiService {
     public Response getMtaFiles(SecurityContext securityContext, String spaceGuid) {
         try {
             List<FileEntry> entries = fileService.listFiles(spaceGuid, null);
-            List<FileMetadata> files = entries.stream().map(entry -> parseFileEntry(entry)).collect(Collectors.toList());
-            return Response.ok().entity(files).build();
+            List<FileMetadata> files = entries.stream()
+                .map(entry -> parseFileEntry(entry))
+                .collect(Collectors.toList());
+            return Response.ok()
+                .entity(files)
+                .build();
 
         } catch (FileStorageException e) {
-            throw new WebApplicationException(e, Response.status(Status.INTERNAL_SERVER_ERROR).build());
+            throw new WebApplicationException(e, Response.status(Status.INTERNAL_SERVER_ERROR)
+                .build());
         }
     }
 
@@ -60,10 +64,13 @@ public class FilesApiServiceImpl implements FilesApiService {
         try {
             FileEntry fileEntry = uploadFiles(request, spaceGuid).get(0);
             FileMetadata fileMetadata = parseFileEntry(fileEntry);
-            return Response.status(Status.CREATED).entity(fileMetadata).build();
+            return Response.status(Status.CREATED)
+                .entity(fileMetadata)
+                .build();
 
         } catch (Exception e) {
-            throw new WebApplicationException(e, Response.status(Status.INTERNAL_SERVER_ERROR).build());
+            throw new WebApplicationException(e, Response.status(Status.INTERNAL_SERVER_ERROR)
+                .build());
         }
     }
 
@@ -89,8 +96,7 @@ public class FilesApiServiceImpl implements FilesApiService {
             InputStream in = null;
             try {
                 in = item.openStream();
-                FileEntry entry = getFileService().addFile(spaceGuid, item.getName(),
-                    getConfiguration().getFileUploadProcessor(), in);
+                FileEntry entry = fileService.addFile(spaceGuid, item.getName(), getConfiguration().getFileUploadProcessor(), in);
                 uploadedFiles.add(entry);
             } finally {
                 IOUtils.closeQuietly(in);
@@ -101,13 +107,6 @@ public class FilesApiServiceImpl implements FilesApiService {
 
     protected ServletFileUpload getFileUploadServlet() {
         return new ServletFileUpload();
-    }
-
-    public AbstractFileService getFileService() {
-        if (fileService == null) {
-            fileService = DatabaseFileService.getInstance();
-        }
-        return fileService;
     }
 
     protected Configuration getConfiguration() {

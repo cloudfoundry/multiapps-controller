@@ -5,28 +5,25 @@
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
 
-    <bean id="fileDatabaseService" class="com.sap.cloud.lm.sl.persistence.services.DatabaseFileService"
-        factory-method="getInstance">
-        <property name="dataSource" ref="dataSource" />
-        <property name="databaseDialect" ref="databaseDialect" />
+    <bean id="fileDatabaseService" class="com.sap.cloud.lm.sl.persistence.services.DatabaseFileService">
+        <constructor-arg name="dataSource" ref="dataSource" />
+        <constructor-arg name="databaseDialect" ref="databaseDialect" />
     </bean>
 
-    <bean id="fileSystemFileService" class="com.sap.cloud.lm.sl.persistence.services.FileSystemFileService"
-        factory-method="getInstance">
-        <property name="dataSource" ref="dataSource" />
-        <property name="databaseDialect" ref="databaseDialect" />
+    <bean id="fileSystemFileService" class="com.sap.cloud.lm.sl.persistence.services.FileSystemFileService">
+        <constructor-arg name="dataSource" ref="dataSource" />
+        <constructor-arg name="databaseDialect" ref="databaseDialect" />
     </bean>
 
     <bean id="fileService" class="com.sap.cloud.lm.sl.cf.web.ds.FileServiceFactoryBean">
         <property name="serviceName" value="deploy-service-fss" />
         <property name="fileDatabaseService" ref="fileDatabaseService" />
-        <property name="fileSystemFileService" ref="fileSystemFileService"></property>
+        <property name="fileSystemFileService" ref="fileSystemFileService" />
     </bean>
 
-    <bean id="processLogsPersistenceService" class="com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService"
-        factory-method="getInstance">
-        <property name="dataSource" ref="dataSource" />
-        <property name="databaseDialect" ref="databaseDialect" />
+    <bean id="processLogsPersistenceService" class="com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService">
+        <constructor-arg name="dataSource" ref="dataSource" />
+        <constructor-arg name="databaseDialect" ref="databaseDialect" />
     </bean>
 
     <bean id="processLoggerProviderFactory" class="com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory"
@@ -34,16 +31,14 @@
 
     <bean id="configuration" class="com.sap.cloud.lm.sl.cf.core.util.Configuration" factory-method="getInstance" />
 
-    <bean id="progressMessageService" class="com.sap.cloud.lm.sl.persistence.services.ProgressMessageService"
-        factory-method="getInstance">
-        <property name="dataSource" ref="dataSource" />
-        <property name="databaseDialect" ref="databaseDialect" />
+    <bean id="progressMessageService" class="com.sap.cloud.lm.sl.persistence.services.ProgressMessageService">
+        <constructor-arg name="dataSource" ref="dataSource" />
+        <constructor-arg name="databaseDialect" ref="databaseDialect" />
     </bean>
-    
-    <bean id="logsService" class="com.sap.cloud.lm.sl.persistence.services.ProcessLogsService"
-        factory-method="getInstance">
-        <property name="dataSource" ref="dataSource" />
-        <property name="databaseDialect" ref="databaseDialect" />
+
+    <bean id="logsService" class="com.sap.cloud.lm.sl.persistence.services.ProcessLogsService">
+        <constructor-arg name="dataSource" ref="dataSource" />
+        <constructor-arg name="databaseDialect" ref="databaseDialect" />
     </bean>
 
     <bean class="com.sap.cloud.lm.sl.cf.web.exec.ScheduledThreadPoolExecutorFactoryBean" />
