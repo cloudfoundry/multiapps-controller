@@ -10,10 +10,12 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.JsonAdapter;
+import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
+import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 
 import io.swagger.annotations.ApiModelProperty;
 
-public class Operation {
+public class Operation implements AuditableConfiguration {
 
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
@@ -256,7 +258,8 @@ public class Operation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, cleanedUp, state, messages, parameters);
+        return Objects.hash(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, cleanedUp, state, messages,
+            parameters);
     }
 
     @Override
@@ -288,5 +291,28 @@ public class Operation {
             return "null";
         }
         return o.toString().replace("\n", "\n    ");
+    }
+
+    @Override
+    public String getConfigurationType() {
+        return "MTA operation";
+    }
+
+    @Override
+    public String getConfiguratioName() {
+        return processId;
+    }
+
+    @Override
+    public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
+        List<ConfigurationIdentifier> identifiersList = new ArrayList<>();
+        identifiersList.add(new ConfigurationIdentifier("process type", processType.getName()));
+        identifiersList.add(new ConfigurationIdentifier("started at", startedAt.toString()));
+        identifiersList.add(new ConfigurationIdentifier("ended at", endedAt.toString()));
+        identifiersList.add(new ConfigurationIdentifier("space id", spaceId));
+        identifiersList.add(new ConfigurationIdentifier("mta id", mtaId));
+        identifiersList.add(new ConfigurationIdentifier("user", user));
+        identifiersList.add(new ConfigurationIdentifier("state", state.name()));
+        return identifiersList;
     }
 }

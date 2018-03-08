@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 
 public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
 
@@ -45,26 +46,28 @@ public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
     }
 
     @Override
-    public void logConfig(String name, Object value) {
-        String message = MessageFormat.format(Messages.AUDIT_LOG_CONFIG, name, value);
+    public void logConfig(AuditableConfiguration configuration) {
+        String message = MessageFormat.format(Messages.AUDIT_LOG_CONFIG, configuration.getConfigurationType(),
+            configuration.getConfiguratioName());
         writeMessage(auditLogManager.getConfigLogger(), message, Level.INFO);
     }
 
     @Override
-    public void logConfigUpdate(String name) {
-        String message = MessageFormat.format(Messages.AUDIT_LOG_UPDATE_CONFIG, name);
+    public void logConfigUpdate(AuditableConfiguration configuration) {
+        String message = MessageFormat.format(Messages.AUDIT_LOG_UPDATE_CONFIG, configuration.getConfiguratioName());
         writeMessage(auditLogManager.getConfigLogger(), message, Level.INFO);
     }
 
     @Override
-    public void logConfigDelete(String name) {
-        String message = MessageFormat.format(Messages.AUDIT_LOG_DELETE_CONFIG, name);
+    public void logConfigDelete(AuditableConfiguration configuration) {
+        String message = MessageFormat.format(Messages.AUDIT_LOG_DELETE_CONFIG, configuration.getConfiguratioName());
         writeMessage(auditLogManager.getConfigLogger(), message, Level.INFO);
     }
 
     @Override
-    public void logConfigCreate(String name) {
-        String message = MessageFormat.format(Messages.AUDIT_LOG_CREATE_CONFIG, name);
+    public void logConfigCreate(AuditableConfiguration configuration) {
+        String message = MessageFormat.format(Messages.AUDIT_LOG_CREATE_CONFIG, configuration.getConfigurationType(),
+            configuration.getConfiguratioName());
         writeMessage(auditLogManager.getConfigLogger(), message, Level.INFO);
     }
 

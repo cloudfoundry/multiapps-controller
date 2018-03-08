@@ -15,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
+import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -34,6 +36,9 @@ public class MtaConfigurationPurgerTest {
     private static final String APPLICATION_NAME_TO_KEEP = "app-to-keep";
     private static final String APPLICATION_NAME_TO_REMOVE = "app-to-remove";
     private static final String RESOURCE_LOCATION = "application-env-01.json";
+    private final ConfigurationEntry ENTRY_TO_DELETE = createEntry(ENTRY_ID_TO_REMOVE, "remove:true");
+    private final ConfigurationSubscription SUBSCRIPTION_TO_DELETE = createSubscription(SUBSCRIPTION_ID_TO_REMOVE,
+        APPLICATION_NAME_TO_REMOVE);
 
     private final static String TARGET_SPACE = "space";
     private final static String TARGET_ORG = "org";
@@ -47,6 +52,9 @@ public class MtaConfigurationPurgerTest {
     @Mock
     ConfigurationSubscriptionDao subscriptionDao;
 
+    @Mock
+    AuditLoggingFacadeSLImpl auditLoggingFacade;
+
     private static List<CloudApplication> applications = new ArrayList<>();
     private static List<ConfigurationEntry> configurationEntries = new ArrayList<>();
     private static List<ConfigurationSubscription> configurationSubscriptions = new ArrayList<>();
@@ -54,6 +62,7 @@ public class MtaConfigurationPurgerTest {
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
+        AuditLoggingProvider.setFacade(auditLoggingFacade);
         initApplicationsMock();
         initConfigurationEntriesMock();
         initConfigurationSubscriptionsMock();
@@ -69,6 +78,8 @@ public class MtaConfigurationPurgerTest {
         Mockito.verify(entryDao, Mockito.never()).remove(ENTRY_ID_TO_KEEP_1);
         Mockito.verify(entryDao, Mockito.never()).remove(ENTRY_ID_TO_KEEP_2);
         Mockito.verify(subscriptionDao, Mockito.never()).remove(SUBSCRIPTION_ID_TO_KEEP);
+        Mockito.verify(auditLoggingFacade).logConfigDelete(ENTRY_TO_DELETE);
+        Mockito.verify(auditLoggingFacade).logConfigDelete(SUBSCRIPTION_TO_DELETE);
     }
 
     private void initApplicationsMock() throws IOException {
@@ -78,15 +89,16 @@ public class MtaConfigurationPurgerTest {
     }
 
     private void initConfigurationEntriesMock() {
-        configurationEntries.add(createEntry(ENTRY_ID_TO_REMOVE, "remove:true"));
+        configurationEntries.add(ENTRY_TO_DELETE);
         configurationEntries.add(createEntry(ENTRY_ID_TO_KEEP_1, "anatz:dependency-1"));
         configurationEntries.add(createEntry(ENTRY_ID_TO_KEEP_2, "anatz:dependency-2"));
-        Mockito.when(entryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, new CloudTarget(TARGET_ORG, TARGET_SPACE), null,
-            null)).thenReturn(configurationEntries);
+        Mockito
+            .when(entryDao.find(ConfigurationEntriesUtil.PROVIDER_NID, null, null, new CloudTarget(TARGET_ORG, TARGET_SPACE), null, null))
+            .thenReturn(configurationEntries);
     }
 
     private void initConfigurationSubscriptionsMock() {
-        configurationSubscriptions.add(createSubscription(SUBSCRIPTION_ID_TO_REMOVE, APPLICATION_NAME_TO_REMOVE));
+        configurationSubscriptions.add(SUBSCRIPTION_TO_DELETE);
         configurationSubscriptions.add(createSubscription(SUBSCRIPTION_ID_TO_KEEP, APPLICATION_NAME_TO_KEEP));
         Mockito.when(subscriptionDao.findAll(null, null, null, null)).thenReturn(configurationSubscriptions);
     }
