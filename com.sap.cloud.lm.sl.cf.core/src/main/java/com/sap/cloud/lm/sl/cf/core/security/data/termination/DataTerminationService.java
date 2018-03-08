@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.security.data.termination;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -17,11 +18,14 @@ import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedEventGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
+import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 
 @Component
@@ -38,12 +42,26 @@ public class DataTerminationService {
     @Inject
     private ConfigurationSubscriptionDao subscriptionDao;
 
+    @Inject
+    private OperationDao operationDao;
+
     public void deleteOrphanUserData() {
         List<String> deleteSpaceEventsToBeDeleted = getDeleteSpaceEvents();
         for (String spaceId : deleteSpaceEventsToBeDeleted) {
             deleteConfigurationSubscriptionOrphanData(spaceId);
             deleteConfigurationEntryOrphanData(spaceId);
+            deleteUserOperationsOrphanData(spaceId);
         }
+    }
+
+    private void deleteUserOperationsOrphanData(String deleteEventSpaceId) {
+        OperationFilter operationFilter = new OperationFilter.Builder().isCleanedUp().spaceId(deleteEventSpaceId).build();
+        List<Operation> operationsToBeDeleted = operationDao.find(operationFilter);
+        List<String> result = operationsToBeDeleted.stream()
+            .map(cleanedUpOperation -> cleanedUpOperation.getProcessId())
+            .collect(Collectors.toList());
+        auditLogDeletion(operationsToBeDeleted);
+        operationDao.removeAll(result);
     }
 
     private void deleteConfigurationSubscriptionOrphanData(String spaceId) {
@@ -78,7 +96,6 @@ public class DataTerminationService {
         CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, Configuration.getInstance().getTargetURL(),
             Configuration.getInstance().shouldSkipSslValidation());
         cfClient.login();
-
         return cfClient;
     }
 
@@ -86,7 +103,6 @@ public class DataTerminationService {
         CloudFoundryClient cfClient = getCFClient();
         cfOptimizedEventGetter = new CFOptimizedEventGetter(cfClient);
         List<String> events = cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeTwoDays());
-
         return events;
     }
 
@@ -97,7 +113,6 @@ public class DataTerminationService {
         long timeInMillisBeforeTwoDays = currentDateInMillis - GET_EVENTS_DAYS_BEFORE * DateUtils.MILLIS_PER_DAY;
         Date dateBeforeTwoDays = new Date(timeInMillisBeforeTwoDays);
         String result = sdf.format(dateBeforeTwoDays);
-
         LOGGER.info(Messages.PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES, result);
         return result;
     }
