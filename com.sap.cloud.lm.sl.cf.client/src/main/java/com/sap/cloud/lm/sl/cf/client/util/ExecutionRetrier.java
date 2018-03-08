@@ -1,5 +1,8 @@
 package com.sap.cloud.lm.sl.cf.client.util;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
@@ -29,13 +32,15 @@ public class ExecutionRetrier {
     }
 
     public <T> T executeWithRetry(Supplier<T> supplier, HttpStatus... httpStatusesToIgnore) {
+        Set<HttpStatus> httpStatuses = new HashSet<>();
+        httpStatuses.addAll(Arrays.asList(httpStatusesToIgnore));
         for (int i = 1; i < retryCount; i++) {
             try {
                 return supplier.get();
             } catch (ResourceAccessException e) {
                 LOGGER.warn(e.getMessage(), e);
             } catch (CloudFoundryException e) {
-                if (!shouldIgnoreException(e, httpStatusesToIgnore)) {
+                if (!shouldIgnoreException(e, httpStatuses)) {
                     throw e;
                 }
                 LOGGER.warn("Retrying failed request with status: " + e.getStatusCode() + " and message: " + e.getMessage());
@@ -49,10 +54,10 @@ public class ExecutionRetrier {
         executeWithRetry(() -> {
             runnable.run();
             return null;
-        } , httpStatusesToIgnore);
+        }, httpStatusesToIgnore);
     }
 
-    private boolean shouldIgnoreException(CloudFoundryException ex, HttpStatus... httpStatusesToIgnore) {
+    private boolean shouldIgnoreException(CloudFoundryException ex, Set<HttpStatus> httpStatusesToIgnore) {
         for (HttpStatus status : httpStatusesToIgnore) {
             if (ex.getStatusCode().equals(status)) {
                 return true;

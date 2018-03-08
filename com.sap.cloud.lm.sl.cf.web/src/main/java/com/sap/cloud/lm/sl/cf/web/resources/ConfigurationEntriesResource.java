@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.reflect.TypeToken;
+import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
@@ -173,6 +174,7 @@ public class ConfigurationEntriesResource {
             throw new ParsingException(Messages.ORG_SPACE_NOT_SPECIFIED_2);
         }
         ConfigurationEntry result = entryDao.add(configurationEntry);
+        AuditLoggingProvider.getFacade().logConfigCreate(result);
         return Response.status(Response.Status.CREATED).entity(new ConfigurationEntryDto(result)).build();
         // TODO: check if this would work fine:
         // return Response.status(Response.Status.CREATED).entity(dto).build();
@@ -188,6 +190,7 @@ public class ConfigurationEntriesResource {
         }
 
         ConfigurationEntry result = entryDao.update(id, dto.toConfigurationEntry());
+        AuditLoggingProvider.getFacade().logConfigUpdate(result);
 
         return Response.status(Response.Status.OK).entity(new ConfigurationEntryDto(result)).build();
     }
@@ -199,7 +202,12 @@ public class ConfigurationEntriesResource {
     @Path("/{id}")
     @DELETE
     public Response deleteConfigurationEntry(@PathParam(ID) long id) throws SLException {
+        ConfigurationEntry entry = entryDao.find(id);
+        if (entry == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
         entryDao.remove(id);
+        AuditLoggingProvider.getFacade().logConfigDelete(entry);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
