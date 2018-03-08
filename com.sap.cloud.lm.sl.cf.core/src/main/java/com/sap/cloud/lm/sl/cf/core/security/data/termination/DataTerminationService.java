@@ -26,6 +26,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 
 @Component
 public class DataTerminationService {
@@ -48,28 +49,19 @@ public class DataTerminationService {
         List<String> deleteSpaceEventsToBeDeleted = getDeleteSpaceEvents();
         for (String spaceId : deleteSpaceEventsToBeDeleted) {
             deleteConfigurationSubscriptionOrphanData(spaceId);
-            AuditLoggingProvider.getFacade()
-                .logConfigDelete(
-                    "Configuration subscription entry with spaceId:" + spaceId + " has been deleted from ConfigurationSubscription table");
             deleteConfigurationEntryOrphanData(spaceId);
-            AuditLoggingProvider.getFacade()
-                .logConfigDelete("Configuration entry with spaceId:" + spaceId + " has been deleted from ConfigurationEntry table");
             deleteUserOperationsOrphanData(spaceId);
         }
     }
 
     private void deleteUserOperationsOrphanData(String deleteEventSpaceId) {
-        OperationFilter operationFilter = new OperationFilter.Builder().isCleanedUp()
-            .spaceId(deleteEventSpaceId).build();
+        OperationFilter operationFilter = new OperationFilter.Builder().isCleanedUp().spaceId(deleteEventSpaceId).build();
         List<Operation> operationsToBeDeleted = operationDao.find(operationFilter);
         List<String> result = operationsToBeDeleted.stream()
             .map(cleanedUpOperation -> cleanedUpOperation.getProcessId())
             .collect(Collectors.toList());
-        
+        auditLogDeletion(operationsToBeDeleted);
         operationDao.removeAll(result);
-        AuditLoggingProvider.getFacade()
-        .logConfigDelete(
-            "Operations for spaceId:" + deleteEventSpaceId + " with process ids:" + result.toString() + " has been deleted");
     }
 
     private void deleteConfigurationSubscriptionOrphanData(String spaceId) {
@@ -77,6 +69,7 @@ public class DataTerminationService {
         if (configurationSubscriptions.isEmpty()) {
             return;
         }
+        auditLogDeletion(configurationSubscriptions);
         subscriptionDao.removeAll(configurationSubscriptions);
     }
 
@@ -85,23 +78,24 @@ public class DataTerminationService {
         if (configurationEntities.isEmpty()) {
             return;
         }
+        auditLogDeletion(configurationEntities);
         entryDao.removeAll(configurationEntities);
+    }
+
+    private void auditLogDeletion(List<? extends AuditableConfiguration> configurationEntities) {
+        for (AuditableConfiguration configuration : configurationEntities) {
+            AuditLoggingProvider.getFacade().logConfigDelete(configuration);
+        }
     }
 
     protected CloudFoundryClient getCFClient() {
 
-        CloudCredentials cloudCredentials = new CloudCredentials(Configuration.getInstance()
-            .getGlobalAuditorUser(),
-            Configuration.getInstance()
-                .getGlobalAuditorPassword(),
-            SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
+        CloudCredentials cloudCredentials = new CloudCredentials(Configuration.getInstance().getGlobalAuditorUser(),
+            Configuration.getInstance().getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
 
-        CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, Configuration.getInstance()
-            .getTargetURL(),
-            Configuration.getInstance()
-                .shouldSkipSslValidation());
+        CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, Configuration.getInstance().getTargetURL(),
+            Configuration.getInstance().shouldSkipSslValidation());
         cfClient.login();
-
         return cfClient;
     }
 
@@ -109,7 +103,6 @@ public class DataTerminationService {
         CloudFoundryClient cfClient = getCFClient();
         cfOptimizedEventGetter = new CFOptimizedEventGetter(cfClient);
         List<String> events = cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeTwoDays());
-
         return events;
     }
 
@@ -120,7 +113,6 @@ public class DataTerminationService {
         long timeInMillisBeforeTwoDays = currentDateInMillis - GET_EVENTS_DAYS_BEFORE * DateUtils.MILLIS_PER_DAY;
         Date dateBeforeTwoDays = new Date(timeInMillisBeforeTwoDays);
         String result = sdf.format(dateBeforeTwoDays);
-
         LOGGER.info(Messages.PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES, result);
         return result;
     }

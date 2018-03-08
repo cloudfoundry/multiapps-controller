@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.api.impl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiAction;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
@@ -96,6 +98,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
                 .build();
         }
         action.executeAction(operationId);
+        AuditLoggingProvider.getFacade()
+            .logAboutToStart(MessageFormat.format("{0} over operation with id {1}", action, operation.getProcessId()));
         return Response.accepted().header("Location", getLocationHeader(operationId, spaceGuid)).build();
     }
 
@@ -135,6 +139,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
         ProcessInstance processInstance = activitiFacade.startProcess(userId, processDefinitionKey, operation.getParameters());
+        AuditLoggingProvider.getFacade().logConfigCreate(operation);
         return Response.accepted().header("Location", getLocationHeader(processInstance.getProcessInstanceId(), spaceGuid)).build();
     }
 

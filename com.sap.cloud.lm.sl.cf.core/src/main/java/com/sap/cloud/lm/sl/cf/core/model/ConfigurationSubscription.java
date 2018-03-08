@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 import static java.text.MessageFormat.format;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,6 +18,8 @@ import com.google.gson.annotations.Expose;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.mta.message.Messages;
+import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
+import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 import com.sap.cloud.lm.sl.mta.model.v2_0.ProvidedDependency;
@@ -24,7 +27,7 @@ import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
 
 @XmlRootElement(name = "configuration-subscription")
 @XmlAccessorType(value = XmlAccessType.FIELD)
-public class ConfigurationSubscription {
+public class ConfigurationSubscription implements AuditableConfiguration {
 
     @XmlElement
     private long id;
@@ -286,6 +289,25 @@ public class ConfigurationSubscription {
 
     public boolean matches(ConfigurationEntry entry) {
         return filter.matches(entry);
+    }
+
+    @Override
+    public String getConfigurationType() {
+        return "configuration subscription";
+    }
+
+    @Override
+    public String getConfiguratioName() {
+        return String.valueOf(id);
+    }
+
+    @Override
+    public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
+        List<ConfigurationIdentifier> configurationIdentifiers = new ArrayList<>();
+        configurationIdentifiers.add(new ConfigurationIdentifier("mta id", mtaId));
+        configurationIdentifiers.add(new ConfigurationIdentifier("application name", appName));
+        configurationIdentifiers.add(new ConfigurationIdentifier("space id", spaceId));
+        return configurationIdentifiers;
     }
 
 }

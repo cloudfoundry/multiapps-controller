@@ -2,6 +2,8 @@ package com.sap.cloud.lm.sl.cf.core.auditlogging;
 
 import java.util.Map;
 
+import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
+
 public interface AuditLoggingFacade {
 
     void logSecurityIncident(String message);
@@ -12,13 +14,13 @@ public interface AuditLoggingFacade {
 
     void logActionStarted(String action, boolean success);
 
-    void logConfig(String name, Object value);
+    void logConfig(AuditableConfiguration configuration);
 
-    void logConfigCreate(String name);
+    void logConfigCreate(AuditableConfiguration configuration);
 
-    void logConfigUpdate(String name);
+    void logConfigUpdate(AuditableConfiguration configuration);
 
-    void logConfigDelete(String name);
+    void logConfigDelete(AuditableConfiguration configuration);
 
     void logConfigUpdated(boolean success);
 

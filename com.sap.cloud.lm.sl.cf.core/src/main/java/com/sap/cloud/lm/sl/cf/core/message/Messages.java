@@ -71,6 +71,7 @@ public final class Messages {
     public static final String NO_CONTENT_TO_DEPLOY = "No content to deploy";
     public static final String UNABLE_TO_PARSE_PARAMETER = "Unable to parse parameter {0} with value {1}";
     public static final String LIQUIBASE_CF_CHECK_PLATFORM_TYPE = "Platform must be cloud foundry to execute this change. Current platform is: {0}";
+    public static final String CANNOT_SUBMIT_TASK = "Couldn't submit auditlogging task for execution in the executor service";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET = "Environment variable \"{0}\" is not set";
@@ -157,7 +158,7 @@ public final class Messages {
     public static final String AUDIT_LOGGING_FAILED = "Failed to write message to the audit log";
     public static final String AUDIT_LOG_CONFIG = "Deploy service configuration \"{0}\": {1}";
     public static final String AUDIT_LOG_UPDATE_CONFIG = "Updating configuration \"{0}\"";
-    public static final String AUDIT_LOG_CREATE_CONFIG = "Creating configuration \"{0}\"";
+    public static final String AUDIT_LOG_CREATE_CONFIG = "Creating configuration \"{0}\" \"{1}\"";
     public static final String AUDIT_LOG_DELETE_CONFIG = "Deleting configuration \"{0}\"";
     public static final String AUDIT_LOG_CONFIG_UPDATED = "Configuration was updated";
     public static final String AUDIT_LOG_CONFIG_UPDATE_FAILED = "Configuration update failed";

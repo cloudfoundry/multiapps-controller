@@ -31,6 +31,8 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
+import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
@@ -245,8 +247,30 @@ public class Configuration {
 
     public void logFullConfig() {
         for (Map.Entry<String, String> envVariable : getFilteredEnv().entrySet()) {
-            AuditLoggingProvider.getFacade().logConfig(envVariable.getKey(), envVariable.getValue());
+            AuditableConfiguration auditConfiguration = getAuditableConfiguration(envVariable.getKey(), envVariable.getValue());
+            AuditLoggingProvider.getFacade().logConfig(auditConfiguration);
         }
+    }
+
+    private AuditableConfiguration getAuditableConfiguration(String key, String value) {
+        return new AuditableConfiguration() {
+
+            @Override
+            public String getConfigurationType() {
+                return "environmental configuration";
+            }
+
+            @Override
+            public String getConfiguratioName() {
+                return key;
+            }
+
+            @Override
+            public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
+                return Arrays.asList(new ConfigurationIdentifier(key, value));
+            };
+
+        };
     }
 
     public Map<String, String> getFilteredEnv() {
