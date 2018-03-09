@@ -145,6 +145,7 @@ jobs:
       USER_NAME: ((USER_NAME))
       USER_PASS: ((USER_PASS))
       SPACE_PREFIX: oqpoc-sjmt
+      RT: cf
   - task: undeploy-leftovers
     file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Undeploy MTA leftovers/task.yml"
     image: test-environment-image
@@ -158,6 +159,7 @@ jobs:
       USER_NAME: ((USER_NAME))
       USER_PASS: ((USER_PASS))
       SPACE_PREFIX: oqpoc-sjmt
+      RT: cf
   - task: normal-deploy
     file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test Normal Deploy Blue content/task.yml"
     image: test-environment-image
@@ -171,6 +173,7 @@ jobs:
       USER_NAME: ((USER_NAME))
       USER_PASS: ((USER_PASS))
       SPACE_PREFIX: oqpoc-sjmt
+      RT: cf
   - task: bg-deploy-no-action
     file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/BG Deploy Green with no action/task.yml"
     params:
@@ -183,6 +186,7 @@ jobs:
       USER_NAME: ((USER_NAME))
       USER_PASS: ((USER_PASS))
       SPACE_PREFIX: oqpoc-sjmt
+      RT: cf
   - task: test-both-apps
     file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test Live and Idle Apps/task.yml"
     image: test-environment-image
@@ -196,6 +200,7 @@ jobs:
       USER_NAME: ((USER_NAME))
       USER_PASS: ((USER_PASS))
       SPACE_PREFIX: oqpoc-sjmt
+      RT: cf
   - task: resume-bg-deploy
     file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Resume BG deploy/task.yml"
     image: test-environment-image
@@ -209,6 +214,7 @@ jobs:
       USER_NAME: ((USER_NAME))
       USER_PASS: ((USER_PASS))
       SPACE_PREFIX: oqpoc-sjmt
+      RT: cf
   - task: test-new-version
     file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test New Green Live App content/task.yml"
     image: test-environment-image
@@ -222,6 +228,7 @@ jobs:
       USER_NAME: ((USER_NAME))
       USER_PASS: ((USER_PASS))
       SPACE_PREFIX: oqpoc-sjmt
+      RT: cf
   - task: bg-deploy-no-confirm
     file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/BG Deploy Blue no confirm/task.yml"
     image: test-environment-image
@@ -235,6 +242,7 @@ jobs:
       USER_NAME: ((USER_NAME))
       USER_PASS: ((USER_PASS))
       SPACE_PREFIX: oqpoc-sjmt
+      RT: cf
   - task: test-new-version
     image: test-environment-image
     file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test New Blue Live App content/task.yml"
@@ -248,6 +256,7 @@ jobs:
       USER_NAME: ((USER_NAME))
       USER_PASS: ((USER_PASS))
       SPACE_PREFIX: oqpoc-sjmt
+      RT: cf
   - task: undeploy
     image: test-environment-image
     file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Undeploy MTA/task.yml"
@@ -261,6 +270,7 @@ jobs:
       USER_NAME: ((USER_NAME))
       USER_PASS: ((USER_PASS))
       SPACE_PREFIX: oqpoc-sjmt
+      RT: cf
   - task: delete-space
     image: test-environment-image
     file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Delete Space/task.yml"
@@ -284,20 +294,21 @@ jobs:
       passed: [build-docker-image]
       params:
         tag: latest
-    - task: test-substep-1
-      file: 'oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/1InitSpace/task.yml'
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEFAULT_ORG: ((DEFAULT_ORG))
-        DEFAULT_SPACE: ((DEFAULT_SPACE))
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
+  - task: test-substep-1
+    file: 'oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/1InitSpace/task.yml'
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEFAULT_ORG: ((DEFAULT_ORG))
+      DEFAULT_SPACE: ((DEFAULT_SPACE))
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
 - name: run-bg-deploy-with-content-change-test-undeploy-leftovers
   plan:
   - aggregate: 
@@ -307,18 +318,19 @@ jobs:
       passed: [run-bg-deploy-with-content-change-test-init-space]
       params:
         tag: latest
-    - task: test-substep-1
-      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Undeploy MTA leftovers/task.yml"
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
+  - task: test-substep-1
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Undeploy MTA leftovers/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
 - name: run-bg-deploy-with-content-change-test-normal-deployment
   plan:
   - aggregate: 
@@ -328,18 +340,19 @@ jobs:
       passed: [run-bg-deploy-with-content-change-test-undeploy-leftovers]
       params:
         tag: latest
-    - task: test-substep-1
-      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test Normal Deploy Blue content/task.yml"
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
+  - task: test-substep-1
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test Normal Deploy Blue content/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
 - name: run-bg-deploy-with-content-change-test-bg-no-action
   plan:
   - aggregate: 
@@ -349,18 +362,19 @@ jobs:
       passed: [run-bg-deploy-with-content-change-test-normal-deployment]
       params:
         tag: latest
-    - task: test-substep-1
-      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/BG Deploy Green with no action/task.yml"
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
+  - task: test-substep-1
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/BG Deploy Green with no action/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
 - name: run-bg-deploy-with-content-change-test-bg-test-live-idle
   plan:
   - aggregate: 
@@ -370,18 +384,19 @@ jobs:
       passed: [run-bg-deploy-with-content-change-test-bg-no-action]
       params:
         tag: latest
-    - task: test-substep-1
-      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test Live and Idle Apps/task.yml"
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
+  - task: test-substep-1
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test Live and Idle Apps/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
 - name: run-bg-deploy-with-content-change-test-bg-test-resume-bg
   plan:
   - aggregate: 
@@ -391,18 +406,19 @@ jobs:
       passed: [run-bg-deploy-with-content-change-test-bg-test-live-idle]
       params:
         tag: latest
-    - task: test-substep-1
-      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Resume BG deploy/task.yml"
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
+  - task: test-substep-1
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Resume BG deploy/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
 - name: run-bg-deploy-with-content-change-test-bg-test-live-app
   plan:
   - aggregate: 
@@ -412,18 +428,19 @@ jobs:
       passed: [run-bg-deploy-with-content-change-test-bg-test-resume-bg]
       params:
         tag: latest
-    - task: test-substep-1
-      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test New Green Live App content/task.yml"
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
+  - task: test-substep-1
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test New Green Live App content/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
 - name: run-bg-deploy-with-content-change-test-bg-test-bg-no-confirm
   plan:
   - aggregate: 
@@ -433,18 +450,19 @@ jobs:
       passed: [ run-bg-deploy-with-content-change-test-bg-test-live-app]
       params:
         tag: latest
-    - task: test-substep-1
-      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/BG Deploy Blue no confirm/task.yml"
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
+  - task: test-substep-1
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/BG Deploy Blue no confirm/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
 - name: run-bg-deploy-with-content-change-test-bg-test-test-new-blue
   plan:
   - aggregate: 
@@ -454,18 +472,19 @@ jobs:
       passed: [run-bg-deploy-with-content-change-test-bg-test-bg-no-confirm]
       params:
         tag: latest
-    - task: test-substep-1
-      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test New Blue Live App content/task.yml"
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
+  - task: test-substep-1
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Test New Blue Live App content/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
 - name: run-bg-deploy-with-content-change-test-bg-test-undeploy
   plan:
   - aggregate: 
@@ -475,18 +494,19 @@ jobs:
       passed: [ run-bg-deploy-with-content-change-test-bg-test-test-new-blue]
       params:
         tag: latest
-    - task: test-substep-1
-      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Undeploy MTA/task.yml"
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
+  - task: test-substep-1
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Undeploy MTA/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
 - name: run-bg-deploy-with-content-change-test-bg-test-delete-space
   plan:
   - aggregate: 
@@ -496,19 +516,21 @@ jobs:
       passed: [ run-bg-deploy-with-content-change-test-bg-test-undeploy]
       params:
         tag: latest
-    - task: test-substep-1
-      file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Delete Space/task.yml"
-      params:
-        TEST_WORKING_DIRECTORY: "/workspace"
-        DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
-        DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
-        ORG_NAME: ((ORG_NAME))
-        SPACE_NAME: ((SPACE_NAME))
-        RT_API_ENDPOINT: ((RT_API_ENDPOINT))
-        USER_NAME: ((USER_NAME))
-        USER_PASS: ((USER_PASS))
-        SPACE_PREFIX: oqpoc-mjst
-
+  - task: test-substep-1
+    file: "oqtests/oq.tests/test_scenarios/CF Tests/Blue Green with Content Change/Delete Space/task.yml"
+    params:
+      TEST_WORKING_DIRECTORY: "/workspace"
+      DEPLOY_SERVICE_HOST: ((DEPLOY_SERVICE_HOST))
+      DEPLOY_SERVICE_URL: ((DEPLOY_SERVICE_URL))
+      ORG_NAME: ((ORG_NAME))
+      SPACE_NAME: ((SPACE_NAME))
+      RT_API_ENDPOINT: ((RT_API_ENDPOINT))
+      USER_NAME: ((USER_NAME))
+      USER_PASS: ((USER_PASS))
+      SPACE_PREFIX: oqpoc-mjst
+      RT: cf
+      
+  
 resources:
 - name: oqtests
   type: git
