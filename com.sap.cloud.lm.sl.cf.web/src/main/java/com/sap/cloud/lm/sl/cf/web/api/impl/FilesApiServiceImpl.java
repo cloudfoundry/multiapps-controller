@@ -22,8 +22,11 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.process.internal.RequestScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.web.api.FilesApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
@@ -44,33 +47,30 @@ public class FilesApiServiceImpl implements FilesApiService {
     @Named("fileService")
     private AbstractFileService fileService;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FilesApiServiceImpl.class);
+
+    @Override
     public Response getMtaFiles(SecurityContext securityContext, String spaceGuid) {
         try {
             List<FileEntry> entries = fileService.listFiles(spaceGuid, null);
-            List<FileMetadata> files = entries.stream()
-                .map(entry -> parseFileEntry(entry))
-                .collect(Collectors.toList());
-            return Response.ok()
-                .entity(files)
-                .build();
-
+            List<FileMetadata> files = entries.stream().map(entry -> parseFileEntry(entry)).collect(Collectors.toList());
+            return Response.ok().entity(files).build();
         } catch (FileStorageException e) {
-            throw new WebApplicationException(e, Response.status(Status.INTERNAL_SERVER_ERROR)
-                .build());
+            LOGGER.error(Messages.COULD_NOT_GET_FILES, e);
+            throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).build());
         }
     }
 
+    @Override
     public Response uploadMtaFile(HttpServletRequest request, SecurityContext securityContext, String spaceGuid) {
         try {
             FileEntry fileEntry = uploadFiles(request, spaceGuid).get(0);
             FileMetadata fileMetadata = parseFileEntry(fileEntry);
-            return Response.status(Status.CREATED)
-                .entity(fileMetadata)
-                .build();
-
+            AuditLoggingProvider.getFacade().logConfigCreate(fileMetadata);
+            return Response.status(Status.CREATED).entity(fileMetadata).build();
         } catch (Exception e) {
-            throw new WebApplicationException(e, Response.status(Status.INTERNAL_SERVER_ERROR)
-                .build());
+            LOGGER.error(Messages.COULD_NOT_UPLOAD_FILE, e);
+            throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).build());
         }
     }
 

@@ -41,6 +41,8 @@ public final class Messages {
     public static final String ORG_AND_SPACE_MUST_BE_SPECIFIED = "Org and space must be specified!";
     public static final String RETRIEVE_CONFIGURATION_SUBSCRIPTIONS_IN_ORG_AND_SPACE = "Retrieve configuration subscriptions in org {0} and space {1}";
     public static final String NOT_AUTHORIZED_TO_PERFORM_OPERATIONS_IN_SPACE = "You are not authorized to perform operations in the space with id {0}. You need a SpaceDeveloper role to operate in the space";
+    public static final String COULD_NOT_GET_FILES = "Could not get MTA files";
+    public static final String COULD_NOT_UPLOAD_FILE = "Could not upload MTA file";
 
     // WARN log messages
 

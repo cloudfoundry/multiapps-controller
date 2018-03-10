@@ -1,13 +1,17 @@
 package com.sap.cloud.lm.sl.cf.web.api.model;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
+import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 
 import io.swagger.annotations.ApiModelProperty;
 
-public class FileMetadata {
+public class FileMetadata implements AuditableConfiguration {
 
     private String id = null;
     private String name = null;
@@ -160,5 +164,26 @@ public class FileMetadata {
             return "null";
         }
         return o.toString().replace("\n", "\n    ");
+    }
+
+    @Override
+    public String getConfigurationType() {
+        return "file metadata";
+    }
+
+    @Override
+    public String getConfiguratioName() {
+        return name;
+    }
+
+    @Override
+    public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
+        List<ConfigurationIdentifier> configurationIdentifiers = new ArrayList<>();
+        configurationIdentifiers.add(new ConfigurationIdentifier("id", id));
+        configurationIdentifiers.add(new ConfigurationIdentifier("digest", digest));
+        configurationIdentifiers.add(new ConfigurationIdentifier("digestAlgorithm", digestAlgorithm));
+        configurationIdentifiers.add(new ConfigurationIdentifier("space", space));
+        configurationIdentifiers.add(new ConfigurationIdentifier("size", size.toString()));
+        return configurationIdentifiers;
     }
 }
