@@ -38,16 +38,16 @@ public class ConfigurationSubscriptionDao {
         return configurationSubscriptions;
     }
 
-    public ConfigurationSubscription add(ConfigurationSubscription subscriptionn) throws ConflictException {
-        return dao.add(new ConfigurationSubscriptionDto(subscriptionn)).toConfigurationSubscription();
+    public ConfigurationSubscription add(ConfigurationSubscription subscription) throws ConflictException {
+        return dao.add(new ConfigurationSubscriptionDto(subscription)).toConfigurationSubscription();
     }
 
     public List<ConfigurationSubscription> findAll(String mtaId, String appName, String spaceId, String resourceName) {
         return toConfigurationSubscriptions(dao.findAll(mtaId, appName, spaceId, resourceName));
     }
 
-    public List<ConfigurationSubscription> findAll(List<ConfigurationEntry> entriess) {
-        return findAll().stream().filter((subscriptionn) -> subscriptionn.matches(entriess)).collect(Collectors.toList());
+    public List<ConfigurationSubscription> findAll(List<ConfigurationEntry> entries) {
+        return findAll().stream().filter((subscription) -> subscription.matches(entries)).collect(Collectors.toList());
     }
     
     public List<ConfigurationSubscription> findAll(String spaceGuid){
