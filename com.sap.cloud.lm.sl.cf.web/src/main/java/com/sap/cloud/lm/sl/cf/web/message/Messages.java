@@ -53,6 +53,10 @@ public final class Messages {
     public static final String AUDIT_LOG_SERVICE_ACTION_SUCCESS = "Succesfuly performed action \"{0}\" on service \"{1}\"";
     public static final String AUDIT_LOG_SERVICE_ACTION_FAILURE = "Failed to perform action \"{0}\" on service \"{1}\"";
     public static final String CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER = "Cannot authenticate with cloud controller";
+    
+    // WARN log messages
+    public static final String FILE_SYSTEM_SERVICE_NAME_IS_NOT_SPECIFIED = "Failed to detect file service storage path, because the service name is not specified in the configuration files!";
+    public static final String FAILED_TO_DETECT_FILE_SERVICE_STORAGE_PATH = "Failed to detect file service storage path for service \"{0}\"!";
 
     // DEBUG log messages
     public static final String PARSED__CONTENT = "Parsed content: {0}";
