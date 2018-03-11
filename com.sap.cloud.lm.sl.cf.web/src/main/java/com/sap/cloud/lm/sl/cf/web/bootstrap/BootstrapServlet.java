@@ -34,7 +34,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.persistence.dialects.DatabaseDialect;
+import com.sap.cloud.lm.sl.persistence.dialects.DataSourceDialect;
 
 public class BootstrapServlet extends HttpServlet {
 
@@ -45,9 +45,6 @@ public class BootstrapServlet extends HttpServlet {
     @Inject
     @Qualifier("dataSource")
     protected DataSource dataSource;
-
-    @Inject
-    protected DatabaseDialect databaseDialect;
 
     @Inject
     protected com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDao deployTargetDaoV1;
@@ -80,7 +77,9 @@ public class BootstrapServlet extends HttpServlet {
             initExtras();
             executeCustomDatabaseChanges();
             configuration.logFullConfig();
-            processEngine.getProcessEngineConfiguration().getJobExecutor().start();
+            processEngine.getProcessEngineConfiguration()
+                .getJobExecutor()
+                .start();
             LOGGER.info(Messages.ALM_SERVICE_ENV_INITIALIZED);
         } catch (Exception e) {
             LOGGER.error("Initialization error", e);
@@ -89,13 +88,15 @@ public class BootstrapServlet extends HttpServlet {
     }
 
     private void initializeTimeoutExecutor() {
-        TimeoutExecutor.getInstance().init(configuration.getXsClientCoreThreads(), configuration.getXsClientMaxThreads(),
-            configuration.getXsClientQueueCapacity(), configuration.getXsClientKeepAlive(), configuration.getControllerOperationsTimeout());
+        TimeoutExecutor.getInstance()
+            .init(configuration.getXsClientCoreThreads(), configuration.getXsClientMaxThreads(), configuration.getXsClientQueueCapacity(),
+                configuration.getXsClientKeepAlive(), configuration.getControllerOperationsTimeout());
     }
 
     @Override
     public void destroy() {
-        TimeoutExecutor.getInstance().destroy();
+        TimeoutExecutor.getInstance()
+            .destroy();
 
         destroyExtras();
     }
@@ -118,7 +119,8 @@ public class BootstrapServlet extends HttpServlet {
     }
 
     private void initializeActiviti() throws IOException {
-        ActivitiFacade.getInstance().init(processEngine);
+        ActivitiFacade.getInstance()
+            .init(processEngine);
     }
 
     private void addDeployTargets() {
