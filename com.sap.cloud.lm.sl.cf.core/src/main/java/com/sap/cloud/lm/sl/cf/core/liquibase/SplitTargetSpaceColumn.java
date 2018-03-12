@@ -9,7 +9,7 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
-import com.sap.cloud.lm.sl.persistence.liquibase.AbstractDataTransformationChange;
+import com.sap.cloud.lm.sl.persistence.changes.liquibase.AbstractDataTransformationChange;
 
 public class SplitTargetSpaceColumn extends AbstractDataTransformationChange<Map<Long, String>, Map<Long, CloudTarget>> {
 

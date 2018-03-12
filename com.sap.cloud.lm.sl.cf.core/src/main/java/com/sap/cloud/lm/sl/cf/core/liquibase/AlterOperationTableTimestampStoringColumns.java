@@ -14,7 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration.DatabaseType;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.persistence.liquibase.AbstractDataTransformationChange;
+import com.sap.cloud.lm.sl.persistence.changes.liquibase.AbstractDataTransformationChange;
 
 import liquibase.database.Database;
 import liquibase.exception.CustomChangeException;
