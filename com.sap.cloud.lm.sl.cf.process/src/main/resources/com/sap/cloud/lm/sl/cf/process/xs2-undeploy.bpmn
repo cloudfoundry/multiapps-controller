@@ -50,36 +50,16 @@
     <sequenceFlow id="doNotRestartSubscribersFlow" name="Don't restart subscribers" sourceRef="shouldRestartSubscribersGateway" targetRef="endEvent">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(noRestartSubscribedApps == true)}]]></conditionExpression>
     </sequenceFlow>
-    <exclusiveGateway id="shouldRestartServiceBrokerGateway" name="Restart Service Broker Gateway" default="restartServiceBrokerSubscriberFlow"></exclusiveGateway>
-    <serviceTask id="restartServiceBrokerSubscriberTask" name="Restart Servive Broker Subscriber" activiti:async="true" activiti:delegateExpression="${restartServiceBrokerSubscriberStep}"></serviceTask>
-    <sequenceFlow id="restartServiceBrokerSubscriberFlow" sourceRef="shouldRestartServiceBrokerGateway" targetRef="restartServiceBrokerSubscriberTask"></sequenceFlow>
-    <serviceTask id="pollServiceBrokerRestartStatusTask" name="Poll Service Broker Restart Status" activiti:async="true" activiti:delegateExpression="${pollServiceBrokerRestartStatus}"></serviceTask>
-    <sequenceFlow id="flow14" sourceRef="restartServiceBrokerSubscriberTask" targetRef="pollServiceBrokerRestartStatusTask"></sequenceFlow>
+    <exclusiveGateway id="shouldRestartServiceBrokerGateway" name="Restart Service Broker Gateway" default="startServiceBrokerRestartSubProcessFlow"></exclusiveGateway>
     <sequenceFlow id="updatedSubscribersRestarted" sourceRef="shouldRestartServiceBrokerGateway" targetRef="endEvent">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(updatedSubscribersCount == updatedSubscribersIndex)}]]></conditionExpression>
     </sequenceFlow>
-    <exclusiveGateway id="isBrokerStartedGateway" name="Is Broker Started" default="waitForBrokerToBeStartedFlow"></exclusiveGateway>
-    <sequenceFlow id="flow16" sourceRef="pollServiceBrokerRestartStatusTask" targetRef="isBrokerStartedGateway"></sequenceFlow>
-    <intermediateCatchEvent id="startBrokerPollingIntervalTimer" name="Start Broker Polling Interval Timer">
-      <timerEventDefinition>
-        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
-      </timerEventDefinition>
-    </intermediateCatchEvent>
-    <sequenceFlow id="waitForBrokerToBeStartedFlow" sourceRef="isBrokerStartedGateway" targetRef="startBrokerPollingIntervalTimer"></sequenceFlow>
-    <sequenceFlow id="flow18" sourceRef="startBrokerPollingIntervalTimer" targetRef="pollServiceBrokerRestartStatusTask"></sequenceFlow>
-    <serviceTask id="updateSubscribedServiceBrokerTask" name="Update Service Broker" activiti:async="true" activiti:delegateExpression="${updateSubscribedServiceBrokerStep}"></serviceTask>
-    <sequenceFlow id="brokerStartedFlow" sourceRef="isBrokerStartedGateway" targetRef="updateSubscribedServiceBrokerTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(Step_RestartServiceBrokerSubscriberStep == "SUCCESS")}]]></conditionExpression>
-    </sequenceFlow>
-    <serviceTask id="incrementIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
-    <sequenceFlow id="flow20" sourceRef="updateSubscribedServiceBrokerTask" targetRef="incrementIndexTask"></sequenceFlow>
-    <sequenceFlow id="flow21" sourceRef="incrementIndexTask" targetRef="shouldRestartServiceBrokerGateway"></sequenceFlow>
     <serviceTask id="prepareToRestartServiceBrokersTask" name="Prepare To Restart Service Brokers" activiti:async="true" activiti:delegateExpression="${prepareToRestartServiceBrokersStep}"></serviceTask>
     <sequenceFlow id="flow22" sourceRef="restartUpdatedSubscribersTask" targetRef="prepareToRestartServiceBrokersTask"></sequenceFlow>
     <sequenceFlow id="flow23" sourceRef="prepareToRestartServiceBrokersTask" targetRef="shouldRestartServiceBrokerGateway"></sequenceFlow>
-    <serviceTask id="prepareToUndeployAppsTask" name="Prepare to undeploy apps" activiti:async="true" activiti:delegateExpression="${prepareToUndeployAppsStep}"></serviceTask>
+    <serviceTask id="prepareToUndeployAppsTask" name="Prepare To Undeploy Apps" activiti:async="true" activiti:delegateExpression="${prepareToUndeployAppsStep}"></serviceTask>
     <exclusiveGateway id="shouldUndeployAppGateway" name="Should Undeploy Apps" default="undeployAppFlow"></exclusiveGateway>
-    <serviceTask id="undeployAppTask" name="Undeploy app" activiti:async="true" activiti:delegateExpression="${undeployAppStep}"></serviceTask>
+    <serviceTask id="undeployAppTask" name="Undeploy App" activiti:async="true" activiti:delegateExpression="${undeployAppStep}"></serviceTask>
     <serviceTask id="incrementUndeployAppsIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="flow24" sourceRef="deleteServiceBrokersTask" targetRef="prepareToUndeployAppsTask"></sequenceFlow>
     <sequenceFlow id="prepareToUndeployAppsFlow" sourceRef="shouldDeleteDiscontinuedServiceBrokersGateway" targetRef="prepareToUndeployAppsTask">
@@ -93,6 +73,24 @@
     <sequenceFlow id="flow31" sourceRef="incrementUndeployAppsIndexTask" targetRef="shouldUndeployAppGateway"></sequenceFlow>
     <sequenceFlow id="undeployAppFlow" sourceRef="shouldUndeployAppGateway" targetRef="undeployAppTask"></sequenceFlow>
     <sequenceFlow id="deleteServiceBrokersFlow" sourceRef="shouldDeleteDiscontinuedServiceBrokersGateway" targetRef="deleteServiceBrokersTask"></sequenceFlow>
+    <serviceTask id="startServiceBrokerRestartSubProcessTask" name="Start Service Broker Restart Sub Process" activiti:async="true" activiti:delegateExpression="${startServiceBrokerRestartSubProcessStep}"></serviceTask>
+    <sequenceFlow id="startServiceBrokerRestartSubProcessFlow" sourceRef="shouldRestartServiceBrokerGateway" targetRef="startServiceBrokerRestartSubProcessTask"></sequenceFlow>
+    <serviceTask id="updateSubscribedServiceBrokerTask" name="Update Subscriber Service Broker" activiti:async="true" activiti:delegateExpression="${updateSubscribedServiceBrokerStep}"></serviceTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="waitBrokerRestartSubProcessFlow"></exclusiveGateway>
+    <sequenceFlow id="flow33" sourceRef="startServiceBrokerRestartSubProcessTask" targetRef="exclusivegateway1"></sequenceFlow>
+    <intermediateCatchEvent id="timerintermediatecatchevent1" name="PT10S">
+      <timerEventDefinition>
+        <timeDuration>PT10S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="waitBrokerRestartSubProcessFlow" sourceRef="exclusivegateway1" targetRef="timerintermediatecatchevent1"></sequenceFlow>
+    <sequenceFlow id="flow35" sourceRef="timerintermediatecatchevent1" targetRef="startServiceBrokerRestartSubProcessTask"></sequenceFlow>
+    <sequenceFlow id="flow36" sourceRef="exclusivegateway1" targetRef="updateSubscribedServiceBrokerTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="incrementServiceBrokerSubscribersToRestartIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
+    <sequenceFlow id="flow37" sourceRef="updateSubscribedServiceBrokerTask" targetRef="incrementServiceBrokerSubscribersToRestartIndexTask"></sequenceFlow>
+    <sequenceFlow id="flow38" sourceRef="incrementServiceBrokerSubscribersToRestartIndexTask" targetRef="shouldRestartServiceBrokerGateway"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-undeploy">
     <bpmndi:BPMNPlane bpmnElement="xs2-undeploy" id="BPMNPlane_xs2-undeploy">
@@ -147,24 +145,6 @@
       <bpmndi:BPMNShape bpmnElement="shouldRestartServiceBrokerGateway" id="BPMNShape_shouldRestartServiceBrokerGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="342.0" y="407.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="restartServiceBrokerSubscriberTask" id="BPMNShape_restartServiceBrokerSubscriberTask">
-        <omgdc:Bounds height="60.0" width="105.0" x="310.0" y="496.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="pollServiceBrokerRestartStatusTask" id="BPMNShape_pollServiceBrokerRestartStatusTask">
-        <omgdc:Bounds height="60.0" width="105.0" x="484.0" y="496.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="isBrokerStartedGateway" id="BPMNShape_isBrokerStartedGateway">
-        <omgdc:Bounds height="40.0" width="40.0" x="658.0" y="505.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="startBrokerPollingIntervalTimer" id="BPMNShape_startBrokerPollingIntervalTimer">
-        <omgdc:Bounds height="35.0" width="35.0" x="661.0" y="580.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="updateSubscribedServiceBrokerTask" id="BPMNShape_updateSubscribedServiceBrokerTask">
-        <omgdc:Bounds height="60.0" width="105.0" x="626.0" y="398.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="incrementIndexTask" id="BPMNShape_incrementIndexTask">
-        <omgdc:Bounds height="60.0" width="105.0" x="480.0" y="397.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="prepareToRestartServiceBrokersTask" id="BPMNShape_prepareToRestartServiceBrokersTask">
         <omgdc:Bounds height="60.0" width="105.0" x="310.0" y="301.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -179,6 +159,21 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="incrementUndeployAppsIndexTask" id="BPMNShape_incrementUndeployAppsIndexTask">
         <omgdc:Bounds height="60.0" width="105.0" x="812.0" y="301.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startServiceBrokerRestartSubProcessTask" id="BPMNShape_startServiceBrokerRestartSubProcessTask">
+        <omgdc:Bounds height="64.0" width="105.0" x="440.0" y="396.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="updateSubscribedServiceBrokerTask" id="BPMNShape_updateSubscribedServiceBrokerTask">
+        <omgdc:Bounds height="64.0" width="105.0" x="708.0" y="396.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="610.0" y="407.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent1" id="BPMNShape_timerintermediatecatchevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="613.0" y="490.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="incrementServiceBrokerSubscribersToRestartIndexTask" id="BPMNShape_incrementServiceBrokerSubscribersToRestartIndexTask">
+        <omgdc:Bounds height="64.0" width="105.0" x="876.0" y="396.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="61.0" y="103.0"></omgdi:waypoint>
@@ -251,43 +246,10 @@
           <omgdc:Bounds height="42.0" width="100.0" x="70.0" y="231.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="restartServiceBrokerSubscriberFlow" id="BPMNEdge_restartServiceBrokerSubscriberFlow">
-        <omgdi:waypoint x="362.0" y="447.0"></omgdi:waypoint>
-        <omgdi:waypoint x="362.0" y="496.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
-        <omgdi:waypoint x="415.0" y="526.0"></omgdi:waypoint>
-        <omgdi:waypoint x="484.0" y="526.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="updatedSubscribersRestarted" id="BPMNEdge_updatedSubscribersRestarted">
         <omgdi:waypoint x="342.0" y="427.0"></omgdi:waypoint>
         <omgdi:waypoint x="40.0" y="426.0"></omgdi:waypoint>
         <omgdi:waypoint x="40.0" y="240.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
-        <omgdi:waypoint x="589.0" y="526.0"></omgdi:waypoint>
-        <omgdi:waypoint x="658.0" y="525.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="waitForBrokerToBeStartedFlow" id="BPMNEdge_waitForBrokerToBeStartedFlow">
-        <omgdi:waypoint x="678.0" y="545.0"></omgdi:waypoint>
-        <omgdi:waypoint x="678.0" y="580.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
-        <omgdi:waypoint x="661.0" y="597.0"></omgdi:waypoint>
-        <omgdi:waypoint x="536.0" y="597.0"></omgdi:waypoint>
-        <omgdi:waypoint x="536.0" y="556.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="brokerStartedFlow" id="BPMNEdge_brokerStartedFlow">
-        <omgdi:waypoint x="678.0" y="505.0"></omgdi:waypoint>
-        <omgdi:waypoint x="678.0" y="458.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
-        <omgdi:waypoint x="626.0" y="428.0"></omgdi:waypoint>
-        <omgdi:waypoint x="585.0" y="427.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
-        <omgdi:waypoint x="480.0" y="427.0"></omgdi:waypoint>
-        <omgdi:waypoint x="382.0" y="427.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
         <omgdi:waypoint x="252.0" y="330.0"></omgdi:waypoint>
@@ -334,6 +296,37 @@
         <omgdi:waypoint x="1247.0" y="103.0"></omgdi:waypoint>
         <omgdi:waypoint x="1262.0" y="103.0"></omgdi:waypoint>
         <omgdi:waypoint x="1262.0" y="193.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="startServiceBrokerRestartSubProcessFlow" id="BPMNEdge_startServiceBrokerRestartSubProcessFlow">
+        <omgdi:waypoint x="382.0" y="427.0"></omgdi:waypoint>
+        <omgdi:waypoint x="440.0" y="428.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow33" id="BPMNEdge_flow33">
+        <omgdi:waypoint x="545.0" y="428.0"></omgdi:waypoint>
+        <omgdi:waypoint x="610.0" y="427.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="waitBrokerRestartSubProcessFlow" id="BPMNEdge_waitBrokerRestartSubProcessFlow">
+        <omgdi:waypoint x="630.0" y="447.0"></omgdi:waypoint>
+        <omgdi:waypoint x="630.0" y="490.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
+        <omgdi:waypoint x="613.0" y="507.0"></omgdi:waypoint>
+        <omgdi:waypoint x="492.0" y="507.0"></omgdi:waypoint>
+        <omgdi:waypoint x="492.0" y="460.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="650.0" y="427.0"></omgdi:waypoint>
+        <omgdi:waypoint x="708.0" y="428.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
+        <omgdi:waypoint x="813.0" y="428.0"></omgdi:waypoint>
+        <omgdi:waypoint x="876.0" y="428.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
+        <omgdi:waypoint x="928.0" y="460.0"></omgdi:waypoint>
+        <omgdi:waypoint x="928.0" y="545.0"></omgdi:waypoint>
+        <omgdi:waypoint x="361.0" y="545.0"></omgdi:waypoint>
+        <omgdi:waypoint x="362.0" y="447.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
