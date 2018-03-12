@@ -82,25 +82,25 @@
     <sequenceFlow id="flow49" sourceRef="buildUndeployModelTask" targetRef="checkForCreationConflictsTask"></sequenceFlow>
     <sequenceFlow id="flow50" sourceRef="checkForCreationConflictsTask" targetRef="addDomainsTask"></sequenceFlow>
     <sequenceFlow id="flow68" sourceRef="prepareAppsDeploymentTask" targetRef="exclusivegateway7"></sequenceFlow>
-    <serviceTask id="startSubProcessTask" name="Start Deploy App Sub Process" activiti:async="true" activiti:delegateExpression="${startAppDeploySubProcessStep}"></serviceTask>
+    <serviceTask id="startAppDeploySubProcessTask" name="Start Deploy App Sub Process" activiti:async="true" activiti:delegateExpression="${startAppDeploySubProcessStep}"></serviceTask>
     <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway" default="waitSubProcessFlow"></exclusiveGateway>
-    <sequenceFlow id="flow70" sourceRef="startSubProcessTask" targetRef="exclusivegateway6"></sequenceFlow>
+    <sequenceFlow id="flow70" sourceRef="startAppDeploySubProcessTask" targetRef="exclusivegateway6"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent1" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT10S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="waitSubProcessFlow" sourceRef="exclusivegateway6" targetRef="timerintermediatecatchevent1"></sequenceFlow>
-    <sequenceFlow id="flow72" sourceRef="timerintermediatecatchevent1" targetRef="startSubProcessTask"></sequenceFlow>
+    <sequenceFlow id="flow72" sourceRef="timerintermediatecatchevent1" targetRef="startAppDeploySubProcessTask"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway" default="deployNextAppFlow"></exclusiveGateway>
     <sequenceFlow id="continueDeployProcessFlow" sourceRef="exclusivegateway7" targetRef="createSubscriptionsTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(appsCount == appsIndex)}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="incrementDeployAppsIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
-    <sequenceFlow id="deployNextAppFlow" sourceRef="exclusivegateway7" targetRef="startSubProcessTask"></sequenceFlow>
+    <sequenceFlow id="deployNextAppFlow" sourceRef="exclusivegateway7" targetRef="startAppDeploySubProcessTask"></sequenceFlow>
     <serviceTask id="restartUpdatedSubscribersTask" name="Restart Updated Subscribers" activiti:async="true" activiti:delegateExpression="${restartUpdatedSubscribersStep}"></serviceTask>
     <serviceTask id="updateSubscribedServiceBrokerTask" name="Update Subscriber Service Broker" activiti:async="true" activiti:delegateExpression="${updateSubscribedServiceBrokerStep}"></serviceTask>
-    <sequenceFlow id="flow83" sourceRef="updateSubscribedServiceBrokerTask" targetRef="servicetask10"></sequenceFlow>
+    <sequenceFlow id="flow83" sourceRef="updateSubscribedServiceBrokerTask" targetRef="incrementServiceBrokerSubscribersToRestartIndexTask"></sequenceFlow>
     <sequenceFlow id="continueAppsDeploymentFlow" sourceRef="exclusivegateway6" targetRef="incrementDeployAppsIndexTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
     </sequenceFlow>
@@ -156,12 +156,12 @@
         <timeDuration>PT10S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
-    <serviceTask id="servicetask10" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
+    <serviceTask id="incrementServiceBrokerSubscribersToRestartIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="startServiceBrokerRestartSubProcessFlow" sourceRef="exclusivegateway11" targetRef="startServiceBrokerRestartSubProcessTask"></sequenceFlow>
     <sequenceFlow id="flow121" sourceRef="startServiceBrokerRestartSubProcessTask" targetRef="exclusivegateway12"></sequenceFlow>
     <sequenceFlow id="waitBrokerRestartSubProcessFlow" sourceRef="exclusivegateway12" targetRef="timerintermediatecatchevent4"></sequenceFlow>
     <sequenceFlow id="flow124" sourceRef="timerintermediatecatchevent4" targetRef="startServiceBrokerRestartSubProcessTask"></sequenceFlow>
-    <sequenceFlow id="flow127" sourceRef="servicetask10" targetRef="exclusivegateway11"></sequenceFlow>
+    <sequenceFlow id="flow127" sourceRef="incrementServiceBrokerSubscribersToRestartIndexTask" targetRef="exclusivegateway11"></sequenceFlow>
     <sequenceFlow id="continueProcessFlow" sourceRef="exclusivegateway11" targetRef="endEvent">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(updatedSubscribersCount == updatedSubscribersIndex)}]]></conditionExpression>
     </sequenceFlow>
@@ -300,7 +300,7 @@
       <bpmndi:BPMNShape bpmnElement="checkForCreationConflictsTask" id="BPMNShape_checkForCreationConflictsTask">
         <omgdc:Bounds height="70.0" width="115.0" x="108.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="startSubProcessTask" id="BPMNShape_startSubProcessTask">
+      <bpmndi:BPMNShape bpmnElement="startAppDeploySubProcessTask" id="BPMNShape_startAppDeploySubProcessTask">
         <omgdc:Bounds height="61.0" width="105.0" x="185.0" y="353.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
@@ -369,7 +369,7 @@
       <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent4" id="BPMNShape_timerintermediatecatchevent4">
         <omgdc:Bounds height="35.0" width="35.0" x="746.0" y="839.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetask10" id="BPMNShape_servicetask10">
+      <bpmndi:BPMNShape bpmnElement="incrementServiceBrokerSubscribersToRestartIndexTask" id="BPMNShape_incrementServiceBrokerSubscribersToRestartIndexTask">
         <omgdc:Bounds height="55.0" width="105.0" x="700.0" y="879.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="collectSystemParametersTask" id="BPMNShape_collectSystemParametersTask">
