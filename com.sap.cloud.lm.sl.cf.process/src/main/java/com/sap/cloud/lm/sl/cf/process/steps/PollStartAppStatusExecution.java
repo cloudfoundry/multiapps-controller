@@ -38,16 +38,20 @@ public class PollStartAppStatusExecution extends AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {
-        execution.getStepLogger().logActivitiTask();
+        execution.getStepLogger()
+            .logActivitiTask();
 
         CloudApplication app = getAppToPoll(execution.getContext());
         CloudFoundryOperations client = execution.getCloudFoundryClient();
 
         try {
-            execution.getStepLogger().debug(Messages.CHECKING_APP_STATUS, app.getName());
+            execution.getStepLogger()
+                .debug(Messages.CHECKING_APP_STATUS, app.getName());
 
             StartupStatus status = getStartupStatus(execution, client, app.getName());
-            return checkStartupStatus(execution, client, app, status);
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
+                execution.getProcessLoggerProviderFactory());
+            return checkStartupStatus(execution, app, status);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
             onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
@@ -59,11 +63,13 @@ public class PollStartAppStatusExecution extends AsyncExecution {
     }
 
     protected void onError(ExecutionWrapper execution, String message, Exception e) {
-        execution.getStepLogger().error(e, message);
+        execution.getStepLogger()
+            .error(e, message);
     }
 
     protected void onError(ExecutionWrapper execution, String message) {
-        execution.getStepLogger().error(message);
+        execution.getStepLogger()
+            .error(message);
     }
 
     protected CloudApplication getAppToPoll(DelegateExecution context) {
@@ -103,11 +109,8 @@ public class PollStartAppStatusExecution extends AsyncExecution {
         return StartupStatus.STARTING;
     }
 
-    private AsyncExecutionState checkStartupStatus(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
-        StartupStatus status) throws SLException {
+    private AsyncExecutionState checkStartupStatus(ExecutionWrapper execution, CloudApplication app, StartupStatus status) {
 
-        StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-            execution.getProcessLoggerProviderFactory());
         if (status.equals(StartupStatus.CRASHED) || status.equals(StartupStatus.FLAPPING)) {
             // Application failed to start
             String message = format(Messages.ERROR_STARTING_APP_2, app.getName(), getMessageForStatus(status));
@@ -117,10 +120,12 @@ public class PollStartAppStatusExecution extends AsyncExecution {
             // Application started successfully
             List<String> uris = app.getUris();
             if (uris.isEmpty()) {
-                execution.getStepLogger().info(Messages.APP_STARTED, app.getName());
+                execution.getStepLogger()
+                    .info(Messages.APP_STARTED, app.getName());
             } else {
                 String urls = CommonUtil.toCommaDelimitedString(uris, getProtocolPrefix());
-                execution.getStepLogger().info(Messages.APP_STARTED_URLS, app.getName(), urls);
+                execution.getStepLogger()
+                    .info(Messages.APP_STARTED_URLS, app.getName(), urls);
             }
             return AsyncExecutionState.FINISHED;
         }
@@ -145,7 +150,8 @@ public class PollStartAppStatusExecution extends AsyncExecution {
             stateCounts.put(InstanceState.STARTING.toString(), 0);
         } else {
             for (InstanceInfo instance : instances) {
-                final String state = instance.getState().toString();
+                final String state = instance.getState()
+                    .toString();
                 final Integer stateCount = stateCounts.get(state);
                 stateCounts.put(state, (stateCount == null) ? 1 : (stateCount + 1));
             }
@@ -154,13 +160,15 @@ public class PollStartAppStatusExecution extends AsyncExecution {
         // Compose state strings
         List<String> stateStrings = new ArrayList<>();
         for (Map.Entry<String, Integer> sc : stateCounts.entrySet()) {
-            stateStrings.add(format("{0} {1}", sc.getValue(), sc.getKey().toLowerCase()));
+            stateStrings.add(format("{0} {1}", sc.getValue(), sc.getKey()
+                .toLowerCase()));
         }
 
         // Print message
         String message = format(Messages.X_OF_Y_INSTANCES_RUNNING, runningInstances, expectedInstances,
             CommonUtil.toCommaDelimitedString(stateStrings, ""));
-        execution.getStepLogger().info(message);
+        execution.getStepLogger()
+            .info(message);
     }
 
     private static List<InstanceInfo> getApplicationInstances(CloudFoundryOperations client, CloudApplication app) {
@@ -171,7 +179,8 @@ public class PollStartAppStatusExecution extends AsyncExecution {
     private static int getInstanceCount(List<InstanceInfo> instances, InstanceState state) {
         int count = 0;
         for (InstanceInfo instance : instances) {
-            if (instance.getState().equals(state)) {
+            if (instance.getState()
+                .equals(state)) {
                 count++;
             }
         }
@@ -179,7 +188,8 @@ public class PollStartAppStatusExecution extends AsyncExecution {
     }
 
     private String getProtocolPrefix() {
-        return configuration.getTargetURL().getProtocol() + "://";
+        return configuration.getTargetURL()
+            .getProtocol() + "://";
     }
 
 }

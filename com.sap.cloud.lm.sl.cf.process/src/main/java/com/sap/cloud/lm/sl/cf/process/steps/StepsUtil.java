@@ -793,6 +793,11 @@ public class StepsUtil {
         }
     }
 
+    static void appLog(DelegateExecution context, String appName, String message, Logger logger,
+        ProcessLoggerProviderFactory processLoggerProviderFactory) {
+        getAppLogger(context, appName, processLoggerProviderFactory).debug(getPrefix(logger) + "[" + appName + "] " + message);
+    }
+
     static StartingInfo getStartingInfo(DelegateExecution context) {
         String className = (String) context.getVariable(Constants.VAR_STARTING_INFO_CLASSNAME);
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_STARTING_INFO);
@@ -896,11 +901,6 @@ public class StepsUtil {
         execution.getContextExtensionDao()
             .addOrUpdate(execution.getContext()
                 .getProcessInstanceId(), Constants.VAR_STEP_PHASE, type.toString());
-    }
-
-    static void appLog(DelegateExecution context, String appName, String message, Logger logger,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        getAppLogger(context, appName, processLoggerProviderFactory).debug(getPrefix(logger) + "[" + appName + "] " + message);
     }
 
     @SuppressWarnings("unchecked")
