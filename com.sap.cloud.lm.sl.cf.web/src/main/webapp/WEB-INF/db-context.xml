@@ -64,6 +64,8 @@
                 </props>
             </property>
         </bean>
+
+        <bean id="indexProcessIdsOfProgressMessagesChange" class="com.sap.cloud.lm.sl.persistence.changes.IndexProcessIdsOfProgressMessagesPostgreSQLChange" />
     </beans>
 
     <beans>
