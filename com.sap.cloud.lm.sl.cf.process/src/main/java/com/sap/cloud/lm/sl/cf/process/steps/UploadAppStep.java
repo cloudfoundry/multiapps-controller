@@ -96,7 +96,8 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
                 File file = null;
-                long maxStreamSize = Configuration.getInstance().getMaxResourceFileSize();
+                long maxStreamSize = Configuration.getInstance()
+                    .getMaxResourceFileSize();
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Start uploading application content
                     file = saveToFile(fileName, streamProducer);
@@ -121,7 +122,8 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
                 File file = null;
-                long maxStreamSize = Configuration.getInstance().getMaxResourceFileSize();
+                long maxStreamSize = Configuration.getInstance()
+                    .getMaxResourceFileSize();
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Upload application content
                     file = saveToFile(fileName, streamProducer);
@@ -190,7 +192,8 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         }
 
         if (entryName.equals(fileName)) {
-            return streamUtil.saveZipStreamToDirectory(fileName, Configuration.getInstance().getMaxResourceFileSize());
+            return streamUtil.saveZipStreamToDirectory(fileName, Configuration.getInstance()
+                .getMaxResourceFileSize());
         }
         Path destinationDirectory = StreamUtil.getTempDirectory(fileName);
         while (stream != null) {
@@ -268,24 +271,11 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     protected Runnable getUploadAppStepRunnable(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client,
         ClientExtensions clientExtensions) {
         return () -> {
-            String processId = execution.getContext().getProcessInstanceId();
+            String processId = execution.getContext()
+                .getProcessInstanceId();
             getStepLogger().trace("Started upload app step runnable for process \"{0}\"", processId);
-            AsyncExecutionState status = AsyncExecutionState.ERROR;
             try {
-                String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
-                String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
-                getStepLogger().debug("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName());
-                if (clientExtensions != null) {
-                    String uploadToken = asyncUploadFiles(execution.getContext(), clientExtensions, client, app, appArchiveId, fileName);
-                    execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(),
-                        Constants.VAR_UPLOAD_TOKEN, uploadToken);
-                    getStepLogger().debug("Started async upload of application \"{0}\"", fileName, app.getName());
-                    status = AsyncExecutionState.RUNNING;
-                } else {
-                    uploadFiles(execution.getContext(), client, app, appArchiveId, fileName);
-                    getStepLogger().debug(Messages.APP_UPLOADED, app.getName());
-                    status = AsyncExecutionState.FINISHED;
-                }
+                uploadApp(execution, app, client, clientExtensions);
             } catch (SLException | FileStorageException e) {
                 getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
                 logException(execution.getContext(), e);
@@ -305,13 +295,38 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
                     // Errors and other should be handled elsewhere
                     throw e;
                 }
-            } finally {
-                StepsUtil.setStepPhase(execution, StepPhase.POLL);
-                execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), Constants.VAR_UPLOAD_STATE,
-                    status.name());
             }
-            getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", execution.getContext().getProcessInstanceId());
+            getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", execution.getContext()
+                .getProcessInstanceId());
         };
+    }
+
+    private void uploadApp(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client,
+        ClientExtensions clientExtensions) throws FileStorageException {
+        AsyncExecutionState status = AsyncExecutionState.ERROR;
+        try {
+            String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+            String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
+            getStepLogger().debug("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName());
+            if (clientExtensions != null) {
+                String uploadToken = asyncUploadFiles(execution.getContext(), clientExtensions, client, app, appArchiveId, fileName);
+                execution.getContextExtensionDao()
+                    .addOrUpdate(execution.getContext()
+                        .getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN, uploadToken);
+                getStepLogger().debug("Started async upload of application \"{0}\"", fileName, app.getName());
+                status = AsyncExecutionState.RUNNING;
+            } else {
+                uploadFiles(execution.getContext(), client, app, appArchiveId, fileName);
+                getStepLogger().debug(Messages.APP_UPLOADED, app.getName());
+                status = AsyncExecutionState.FINISHED;
+            }
+
+        } finally {
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
+            execution.getContextExtensionDao()
+                .addOrUpdate(execution.getContext()
+                    .getProcessInstanceId(), Constants.VAR_UPLOAD_STATE, status.name());
+        }
     }
 
     @Override
