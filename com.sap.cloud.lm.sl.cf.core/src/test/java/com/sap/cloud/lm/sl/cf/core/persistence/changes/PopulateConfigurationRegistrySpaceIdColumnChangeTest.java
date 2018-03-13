@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.process.jobs;
+package com.sap.cloud.lm.sl.cf.core.persistence.changes;
 
 import static org.junit.Assert.assertEquals;
 
@@ -14,10 +14,11 @@ import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.persistence.changes.PopulateConfigurationRegistrySpaceIdColumnChange;
 
-public class PopulateConfigurationRegistrySpaceIdColumnJobTest {
+public class PopulateConfigurationRegistrySpaceIdColumnChangeTest {
 
-    private PopulateConfigurationRegistrySpaceIdColumnJob classUnderTest;
+    private PopulateConfigurationRegistrySpaceIdColumnChange change;
     private Map<CloudTarget, String> spaces;
     private UUID uuid = new UUID(1234l, 1234l);
 
@@ -25,7 +26,7 @@ public class PopulateConfigurationRegistrySpaceIdColumnJobTest {
     public void setUp() {
 
         spaces = getSpaces();
-        classUnderTest = new PopulateConfigurationRegistrySpaceIdColumnJob() {
+        change = new PopulateConfigurationRegistrySpaceIdColumnChange() {
 
             protected String getSpaceId(String org, String space, CloudFoundryClient cfClient) {
                 return spaces.get(new CloudTarget(org, space));
@@ -47,7 +48,7 @@ public class PopulateConfigurationRegistrySpaceIdColumnJobTest {
 
     @Test
     public void testTransformData() {
-        Map<Long, ConfigurationEntry> transformedData = classUnderTest.transformData(getConfigurationEntries());
+        Map<Long, ConfigurationEntry> transformedData = change.transformData(getConfigurationEntries());
 
         assertEquals("Transformed data size must be 2 ", 2, transformedData.size());
         assertEquals("Transformed entry guid must be: " + uuid.toString(), uuid.toString(), transformedData.get(1l)
@@ -58,7 +59,7 @@ public class PopulateConfigurationRegistrySpaceIdColumnJobTest {
 
     @Test
     public void testFilterAlreadyPopulatedSpaceIds() {
-        Map<Long, ConfigurationEntry> extractedData = classUnderTest.extractData();
+        Map<Long, ConfigurationEntry> extractedData = change.extractData();
         assertEquals("Transformed data size must be 5 ", 5, extractedData.size());
     }
 

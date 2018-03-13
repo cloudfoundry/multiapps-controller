@@ -1,10 +1,11 @@
-package com.sap.cloud.lm.sl.cf.process.jobs;
+package com.sap.cloud.lm.sl.cf.core.persistence.changes;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.cloudfoundry.client.lib.CloudCredentials;
@@ -12,7 +13,7 @@ import org.cloudfoundry.client.lib.CloudFoundryClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
@@ -21,11 +22,12 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
+import com.sap.cloud.lm.sl.persistence.changes.AsyncChange;
 
-@Service
-public class PopulateConfigurationRegistrySpaceIdColumnJob implements Runnable {
+@Component
+public class PopulateConfigurationRegistrySpaceIdColumnChange implements AsyncChange {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PopulateConfigurationRegistrySpaceIdColumnJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PopulateConfigurationRegistrySpaceIdColumnChange.class);
     private CFOptimizedSpaceGetter cfOptimizedSpaceGetter = new CFOptimizedSpaceGetter();
 
     @Inject
@@ -35,16 +37,16 @@ public class PopulateConfigurationRegistrySpaceIdColumnJob implements Runnable {
     private Configuration configuration;
 
     @Override
-    public void run() {
-        PlatformType platformType = Configuration.getInstance().getPlatformType();
+    public void execute(DataSource dataSource) {
+        PlatformType platformType = configuration.getPlatformType();
         if (PlatformType.CF != platformType) {
             return;
         }
-        LOGGER.info("Start executing PopulateConfigurationRegistrySpaceIdColumn job...");
+        LOGGER.info("Executing PopulateConfigurationRegistrySpaceIdColumnChange...");
         Map<Long, ConfigurationEntry> extractedConfigurationEntries = extractData();
         Map<Long, ConfigurationEntry> transformedonfigurationEntries = transformData(extractedConfigurationEntries);
         updateConfigurationEntries(transformedonfigurationEntries);
-        LOGGER.info("Finish executing PopulateConfigurationRegistrySpaceIdColumn job.");
+        LOGGER.info("Executed PopulateConfigurationRegistrySpaceIdColumnChange.");
     }
 
     private void updateConfigurationEntries(Map<Long, ConfigurationEntry> transformedData) {
