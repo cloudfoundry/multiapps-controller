@@ -35,7 +35,7 @@ public class ContextExtensionDao {
 
     public ContextExtension add(ContextExtension entry) throws ConflictException {
         try {
-            return new TransactionalExecutor<ContextExtension>(createEntintyManager()).execute((manager) -> {
+            return new TransactionalExecutor<ContextExtension>(createEntityManager()).execute((manager) -> {
 
                 manager.persist(entry);
                 return entry;
@@ -49,7 +49,7 @@ public class ContextExtensionDao {
 
     public ContextExtension update(long id, ContextExtension entryDelta) throws ConflictException, NotFoundException {
         try {
-            return new TransactionalExecutor<ContextExtension>(createEntintyManager()).execute((manager) -> {
+            return new TransactionalExecutor<ContextExtension>(createEntityManager()).execute((manager) -> {
 
                 ContextExtension existingEntry = findInternal(manager, id);
                 if (existingEntry == null) {
@@ -69,7 +69,7 @@ public class ContextExtensionDao {
     }
 
     public ContextExtension addOrUpdate(String processId, String name, String value) throws SLException {
-        return new TransactionalExecutor<ContextExtension>(createEntintyManager()).execute((manager) -> {
+        return new TransactionalExecutor<ContextExtension>(createEntityManager()).execute((manager) -> {
 
             ContextExtension entryToPersist = new ContextExtension(processId, name, value, new Date(), new Date());
             ContextExtension existingEntry = findInternal(processId, name, manager);
@@ -83,7 +83,7 @@ public class ContextExtensionDao {
     }
 
     public void remove(long id) throws NotFoundException {
-        new TransactionalExecutor<Void>(createEntintyManager()).execute((manager) -> {
+        new TransactionalExecutor<Void>(createEntityManager()).execute((manager) -> {
 
             ContextExtension entry = findInternal(manager, id);
             if (entry == null) {
@@ -97,7 +97,7 @@ public class ContextExtensionDao {
 
     @SuppressWarnings("unchecked")
     public List<ContextExtension> findAll() {
-        return new Executor<List<ContextExtension>>(createEntintyManager()).execute((manager) -> {
+        return new Executor<List<ContextExtension>>(createEntityManager()).execute((manager) -> {
 
             return manager.createNamedQuery(NamedQueries.FIND_ALL_CONTEXT_EXTENSION_ENTRIES).getResultList();
 
@@ -106,7 +106,7 @@ public class ContextExtensionDao {
 
     @SuppressWarnings("unchecked")
     public List<ContextExtension> findAll(String processId) {
-        return new Executor<List<ContextExtension>>(createEntintyManager()).execute((manager) -> {
+        return new Executor<List<ContextExtension>>(createEntityManager()).execute((manager) -> {
 
             return manager.createNamedQuery(NamedQueries.FIND_ALL_CONTEXT_EXTENSION_ENTRIES_BY_PROCESS_ID).setParameter(
                 FieldNames.PROCESS_ID, processId).getResultList();
@@ -115,7 +115,7 @@ public class ContextExtensionDao {
     }
 
     public ContextExtension find(long id) throws NotFoundException {
-        return new Executor<ContextExtension>(createEntintyManager()).execute((manager) -> {
+        return new Executor<ContextExtension>(createEntityManager()).execute((manager) -> {
 
             ContextExtension entry = findInternal(manager, id);
             if (entry == null) {
@@ -126,7 +126,7 @@ public class ContextExtensionDao {
     }
 
     public ContextExtension find(String processId, String name) {
-        return new Executor<ContextExtension>(createEntintyManager()).execute((manager) -> {
+        return new Executor<ContextExtension>(createEntityManager()).execute((manager) -> {
 
             return findInternal(processId, name, manager);
 
@@ -135,7 +135,7 @@ public class ContextExtensionDao {
     }
 
     public boolean exists(long id) {
-        return new Executor<Boolean>(createEntintyManager()).execute((manager) -> {
+        return new Executor<Boolean>(createEntityManager()).execute((manager) -> {
 
             return findInternal(manager, id) != null;
 
@@ -194,7 +194,7 @@ public class ContextExtensionDao {
         return manager.find(ContextExtension.class, id);
     }
 
-    private EntityManager createEntintyManager() {
+    private EntityManager createEntityManager() {
         return emf.createEntityManager();
     }
 }
