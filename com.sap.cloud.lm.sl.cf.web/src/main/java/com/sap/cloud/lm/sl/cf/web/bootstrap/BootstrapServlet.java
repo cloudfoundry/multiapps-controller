@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.bootstrap;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +28,13 @@ import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
-import com.sap.cloud.lm.sl.cf.process.jobs.PopulateConfigurationRegistrySpaceIdColumnJob;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.persistence.dialects.DataSourceDialect;
+import com.sap.cloud.lm.sl.persistence.changes.AsyncChange;
 
 public class BootstrapServlet extends HttpServlet {
 
@@ -60,9 +60,12 @@ public class BootstrapServlet extends HttpServlet {
 
     @Inject
     protected Configuration configuration;
-    
+
     @Inject
-    private PopulateConfigurationRegistrySpaceIdColumnJob populateConfigurationRegistrySpaceIdColumnJob;
+    private List<AsyncChange> asyncChanges;
+
+    @Inject
+    private Environment environment;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -75,7 +78,7 @@ public class BootstrapServlet extends HttpServlet {
             initializeActiviti();
             addDeployTargets();
             initExtras();
-            executeCustomDatabaseChanges();
+            executeAsyncDatabaseChanges();
             configuration.logFullConfig();
             processEngine.getProcessEngineConfiguration()
                 .getJobExecutor()
@@ -150,19 +153,32 @@ public class BootstrapServlet extends HttpServlet {
         }
         return handler.findTarget(rawTargets, target.getName()) != null;
     }
-    
-    private void executeCustomDatabaseChanges() {
-        if(!"0".equals(getInstanceIndex())) {
-            LOGGER.info("Custom database changes will not be executed on instance " + getInstanceIndex());
+
+    private void executeAsyncDatabaseChanges() {
+        String appInstanceIndex = getAppInstanceIndex();
+        // Problems may arise if the changes are executed in parallel on multiple instances. Since there will always be *at least* one
+        // instance, we always execute the changes on the first.
+        if (!"0".equals(appInstanceIndex)) {
+            LOGGER.info(MessageFormat.format(Messages.ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE, appInstanceIndex));
             return;
         }
-        LOGGER.info("Custom database changes will be executed on instance 0");
-        Thread populateConfigurationRegistrySpaceIdColumnThread = new Thread(populateConfigurationRegistrySpaceIdColumnJob);
-        populateConfigurationRegistrySpaceIdColumnThread.start();
+        for (AsyncChange asyncChange : asyncChanges) {
+            new Thread(toRunnable(asyncChange)).start();
+        }
     }
-    
-    private String getInstanceIndex() {
-        Environment env = new Environment();
-        return env.getVariable("CF_INSTANCE_INDEX");
+
+    private Runnable toRunnable(AsyncChange asyncChange) {
+        return () -> {
+            try {
+                asyncChange.execute(dataSource);
+            } catch (SQLException e) {
+                LOGGER.error(e.getMessage(), e);
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        };
+    }
+
+    private String getAppInstanceIndex() {
+        return environment.getVariable("CF_INSTANCE_INDEX");
     }
 }
