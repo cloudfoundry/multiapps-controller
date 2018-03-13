@@ -29,7 +29,8 @@ public class PollExecuteTaskStatusExecution extends AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
-        execution.getStepLogger().logActivitiTask();
+        execution.getStepLogger()
+            .logActivitiTask();
 
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
         CloudTask task = StepsUtil.getStartedTask(execution.getContext());
@@ -37,10 +38,12 @@ public class PollExecuteTaskStatusExecution extends AsyncExecution {
             return new PollExecuteTaskStatusDelegate(execution).execute();
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
+            execution.getStepLogger()
+                .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
             throw cfe;
         } catch (SLException e) {
-            execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
+            execution.getStepLogger()
+                .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
             throw e;
         }
     }
@@ -68,16 +71,23 @@ public class PollExecuteTaskStatusExecution extends AsyncExecution {
             ClientExtensions clientExtensions = execution.getClientExtensions();
             List<CloudTask> allTasksForApp = clientExtensions.getTasks(app.getName());
 
-            return findTaskWithGuid(allTasksForApp, taskToPoll.getMeta().getGuid()).getState();
+            return findTaskWithGuid(allTasksForApp, taskToPoll.getMeta()
+                .getGuid()).getState();
         }
 
         private CloudTask findTaskWithGuid(List<CloudTask> allTasksForApp, UUID guid) {
-            return allTasksForApp.stream().filter(task -> task.getMeta().getGuid().equals(guid)).findAny().orElseThrow(
-                () -> new IllegalStateException(format(Messages.COULD_NOT_FIND_TASK_WITH_GUID, guid)));
+            return allTasksForApp.stream()
+                .filter(task -> task.getMeta()
+                    .getGuid()
+                    .equals(guid))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException(format(Messages.COULD_NOT_FIND_TASK_WITH_GUID, guid)));
         }
 
         private void reportCurrentState(CloudTask.State currentState) {
-            execution.getStepLogger().info(Messages.TASK_EXECUTION_STATUS, currentState.toString().toLowerCase());
+            execution.getStepLogger()
+                .info(Messages.TASK_EXECUTION_STATUS, currentState.toString()
+                    .toLowerCase());
         }
 
         private void saveAppLogs() {
@@ -90,7 +100,7 @@ public class PollExecuteTaskStatusExecution extends AsyncExecution {
             if (isFinalState(currentState)) {
                 return handleFinalState(currentState);
             }
-            return checkTimeout();
+            return AsyncExecutionState.RUNNING;
         }
 
         private boolean isFinalState(CloudTask.State currentState) {
@@ -99,20 +109,13 @@ public class PollExecuteTaskStatusExecution extends AsyncExecution {
 
         private AsyncExecutionState handleFinalState(CloudTask.State state) {
             if (state.equals(CloudTask.State.FAILED)) {
-                execution.getStepLogger().error(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName());
+                execution.getStepLogger()
+                    .error(Messages.ERROR_EXECUTING_TASK_ON_APP, taskToPoll.getName(), app.getName());
                 return AsyncExecutionState.ERROR;
             }
             return AsyncExecutionState.FINISHED;
         }
 
-        private AsyncExecutionState checkTimeout() {
-            // if (StepsUtil.hasTimedOut(execution.getContext(), currentTimeSupplier)) {
-            // String message = format(Messages.EXECUTING_TASK_ON_APP_TIMED_OUT, taskToPoll.getName(), app.getName());
-            // execution.getStepLogger().error(message);
-            // return AsyncExecutionState.ERROR;
-            // }
-            return AsyncExecutionState.RUNNING;
-        }
     }
 
 }

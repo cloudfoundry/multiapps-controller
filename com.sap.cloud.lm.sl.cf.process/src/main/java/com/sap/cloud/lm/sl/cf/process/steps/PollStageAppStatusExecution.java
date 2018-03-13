@@ -31,27 +31,32 @@ public class PollStageAppStatusExecution extends AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
-        execution.getStepLogger().logActivitiTask();
+        execution.getStepLogger()
+            .logActivitiTask();
 
         CloudApplication app = StepsUtil.getApp(execution.getContext());
         CloudFoundryOperations client = execution.getCloudFoundryClient();
 
         try {
-            execution.getStepLogger().debug(Messages.CHECKING_APP_STATUS, app.getName());
+            execution.getStepLogger()
+                .debug(Messages.CHECKING_APP_STATUS, app.getName());
 
             Pair<ApplicationStagingState, String> state = getStagingState(execution, client, app);
             if (!state._1.equals(ApplicationStagingState.STAGED)) {
                 return checkStagingState(execution, client, app, state);
             }
 
-            execution.getStepLogger().info(Messages.APP_STAGED, app.getName());
+            execution.getStepLogger()
+                .info(Messages.APP_STAGED, app.getName());
             return AsyncExecutionState.FINISHED;
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            execution.getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
+            execution.getStepLogger()
+                .error(e, Messages.ERROR_STAGING_APP_1, app.getName());
             throw cfe;
         } catch (SLException e) {
-            execution.getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
+            execution.getStepLogger()
+                .error(e, Messages.ERROR_STAGING_APP_1, app.getName());
             throw e;
         }
     }
@@ -73,7 +78,8 @@ public class PollStageAppStatusExecution extends AsyncExecution {
         CloudApplication app) {
         try {
             StartingInfo startingInfo = StepsUtil.getStartingInfo(execution.getContext());
-            int offset = (Integer) execution.getContext().getVariable(Constants.VAR_OFFSET);
+            int offset = (Integer) execution.getContext()
+                .getVariable(Constants.VAR_OFFSET);
             String stagingLogs = client.getStagingLogs(startingInfo, offset);
             if (stagingLogs != null) {
                 // Staging logs successfully retrieved
@@ -81,9 +87,11 @@ public class PollStageAppStatusExecution extends AsyncExecution {
                 if (!stagingLogs.isEmpty()) {
                     // TODO delete filtering when parallel app push is implemented
                     stagingLogs = new XMLValueFilter(stagingLogs).getFiltered();
-                    execution.getStepLogger().info(stagingLogs);
+                    execution.getStepLogger()
+                        .info(stagingLogs);
                     offset += stagingLogs.length();
-                    execution.getContext().setVariable(Constants.VAR_OFFSET, offset);
+                    execution.getContext()
+                        .setVariable(Constants.VAR_OFFSET, offset);
                 }
                 return new Pair<>(ApplicationStagingState.PENDING, null);
             } else {
@@ -92,7 +100,8 @@ public class PollStageAppStatusExecution extends AsyncExecution {
             }
         } catch (CloudFoundryException e) {
             // "400 Bad Request" might mean that staging had already finished
-            if (e.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+            if (e.getStatusCode()
+                .equals(HttpStatus.BAD_REQUEST)) {
                 return new Pair<>(ApplicationStagingState.STAGED, null);
             } else {
                 return new Pair<>(ApplicationStagingState.FAILED, e.getMessage());
@@ -106,19 +115,13 @@ public class PollStageAppStatusExecution extends AsyncExecution {
         if (state._1.equals(ApplicationStagingState.FAILED)) {
             // Application staging failed
             String message = format(Messages.ERROR_STAGING_APP_2, app.getName(), state._2);
-            execution.getStepLogger().error(message);
+            execution.getStepLogger()
+                .error(message);
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
             return AsyncExecutionState.ERROR;
         } else {
-            // Application not staged yet, wait and try again unless it's a timeout
-            // if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
-            // String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-            // execution.getStepLogger().error(message);
-            // StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-            // execution.getProcessLoggerProviderFactory());
-            // return AsyncExecutionState.ERROR;
-            // }
+            // Application not staged yet, wait and try again unless it's a timeout.
             return AsyncExecutionState.RUNNING;
         }
     }
