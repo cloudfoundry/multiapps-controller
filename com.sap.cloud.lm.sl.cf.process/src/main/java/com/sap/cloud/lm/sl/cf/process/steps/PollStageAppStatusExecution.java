@@ -42,8 +42,10 @@ public class PollStageAppStatusExecution extends AsyncExecution {
                 .debug(Messages.CHECKING_APP_STATUS, app.getName());
 
             Pair<ApplicationStagingState, String> state = getStagingState(execution, client, app);
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
+                execution.getProcessLoggerProviderFactory());
             if (!state._1.equals(ApplicationStagingState.STAGED)) {
-                return checkStagingState(execution, client, app, state);
+                return checkStagingState(execution, app, state);
             }
 
             execution.getStepLogger()
@@ -109,21 +111,18 @@ public class PollStageAppStatusExecution extends AsyncExecution {
         }
     }
 
-    private AsyncExecutionState checkStagingState(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
-        Pair<ApplicationStagingState, String> state) throws SLException {
+    private AsyncExecutionState checkStagingState(ExecutionWrapper execution, CloudApplication app,
+        Pair<ApplicationStagingState, String> state) {
 
         if (state._1.equals(ApplicationStagingState.FAILED)) {
             // Application staging failed
             String message = format(Messages.ERROR_STAGING_APP_2, app.getName(), state._2);
             execution.getStepLogger()
                 .error(message);
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-                execution.getProcessLoggerProviderFactory());
             return AsyncExecutionState.ERROR;
-        } else {
-            // Application not staged yet, wait and try again unless it's a timeout.
-            return AsyncExecutionState.RUNNING;
         }
+        // Application not staged yet, wait and try again unless it's a timeout.
+        return AsyncExecutionState.RUNNING;
     }
 
 }

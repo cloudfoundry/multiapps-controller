@@ -51,6 +51,8 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
             CloudFoundryOperations client = execution.getCloudFoundryClient();
             ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
             Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, attributesGetter, app);
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
+                execution.getProcessLoggerProviderFactory());
             return checkAppExecutionStatus(execution, client, attributesGetter, app, status);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
@@ -116,15 +118,11 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
             String message = format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status._2);
             execution.getStepLogger()
                 .error(message);
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-                execution.getProcessLoggerProviderFactory());
             return AsyncExecutionState.ERROR;
         } else if (status._1.equals(AppExecutionStatus.SUCCEEDED)) {
             // Application executed successfully
             execution.getStepLogger()
                 .info(Messages.APP_EXECUTED, app.getName());
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-                execution.getProcessLoggerProviderFactory());
             // Stop the application if specified
             boolean stopApp = attributesGetter.getAttribute(SupportedParameters.STOP_APP, Boolean.class, false);
             if (stopApp) {
