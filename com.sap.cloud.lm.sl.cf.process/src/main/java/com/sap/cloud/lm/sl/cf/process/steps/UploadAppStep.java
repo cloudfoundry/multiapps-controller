@@ -320,12 +320,11 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
                 getStepLogger().debug(Messages.APP_UPLOADED, app.getName());
                 status = AsyncExecutionState.FINISHED;
             }
-
         } finally {
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
             execution.getContextExtensionDao()
                 .addOrUpdate(execution.getContext()
                     .getProcessInstanceId(), Constants.VAR_UPLOAD_STATE, status.name());
+            StepsUtil.setStepPhase(execution, StepPhase.POLL);
         }
     }
 
