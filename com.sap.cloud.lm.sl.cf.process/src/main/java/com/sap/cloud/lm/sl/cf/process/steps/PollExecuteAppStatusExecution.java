@@ -39,7 +39,8 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
-        execution.getStepLogger().logActivitiTask();
+        execution.getStepLogger()
+            .logActivitiTask();
         CloudApplication app = getNextApp(execution.getContext());
         Set<ApplicationStateAction> actions = StepsUtil.getAppStateActionsToExecute(execution.getContext());
 
@@ -53,10 +54,12 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
             return checkAppExecutionStatus(execution, client, attributesGetter, app, status);
         } catch (CloudFoundryException cfe) {
             SLException e = StepsUtil.createException(cfe);
-            execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
+            execution.getStepLogger()
+                .error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw cfe;
         } catch (SLException e) {
-            execution.getStepLogger().error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
+            execution.getStepLogger()
+                .error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw e;
         }
     }
@@ -89,13 +92,15 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
 
     private Pair<AppExecutionStatus, String> getAppExecutionStatus(ApplicationLog log, long startTime, Pair<MessageType, String> sm,
         Pair<MessageType, String> fm, String id) {
-        long time = log.getTimestamp().getTime();
+        long time = log.getTimestamp()
+            .getTime();
         String sourceName = log.getSourceName();
         sourceName = (sourceName.length() >= 3) ? sourceName.substring(0, 3) : sourceName;
         if (time < startTime || !sourceName.equalsIgnoreCase("APP"))
             return null;
         MessageType mt = log.getMessageType();
-        String msg = log.getMessage().trim();
+        String msg = log.getMessage()
+            .trim();
         if (mt != null && mt.equals(sm._1) && msg.matches(sm._2) && ((id == null) || msg.contains(id))) {
             return new Pair<>(AppExecutionStatus.SUCCEEDED, null);
         } else if (mt != null && mt.equals(fm._1) && msg.matches(fm._2) && ((id == null) || msg.contains(id))) {
@@ -109,32 +114,29 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
         if (status._1.equals(AppExecutionStatus.FAILED)) {
             // Application execution failed
             String message = format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status._2);
-            execution.getStepLogger().error(message);
+            execution.getStepLogger()
+                .error(message);
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
             return AsyncExecutionState.ERROR;
         } else if (status._1.equals(AppExecutionStatus.SUCCEEDED)) {
             // Application executed successfully
-            execution.getStepLogger().info(Messages.APP_EXECUTED, app.getName());
+            execution.getStepLogger()
+                .info(Messages.APP_EXECUTED, app.getName());
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
             // Stop the application if specified
             boolean stopApp = attributesGetter.getAttribute(SupportedParameters.STOP_APP, Boolean.class, false);
             if (stopApp) {
-                execution.getStepLogger().info(Messages.STOPPING_APP, app.getName());
+                execution.getStepLogger()
+                    .info(Messages.STOPPING_APP, app.getName());
                 client.stopApplication(app.getName());
-                execution.getStepLogger().debug(Messages.APP_STOPPED, app.getName());
+                execution.getStepLogger()
+                    .debug(Messages.APP_STOPPED, app.getName());
             }
             return AsyncExecutionState.FINISHED;
         } else {
-            // Application not executed yet, wait and try again unless it's a timeout
-            // if (StepsUtil.hasTimedOut(execution.getContext(), () -> System.currentTimeMillis())) {
-            // String message = format(Messages.APP_START_TIMED_OUT, app.getName());
-            // execution.getStepLogger().error(message);
-            // StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-            // execution.getProcessLoggerProviderFactory());
-            // return AsyncExecutionState.ERROR;
-            // }
+            // Application not executed yet, wait and try again unless it's a timeout.
             return AsyncExecutionState.RUNNING;
         }
     }
@@ -146,10 +148,12 @@ public class PollExecuteAppStatusExecution extends AsyncExecution {
         String attr = attributesGetter.getAttribute(attribute, String.class, defaultValue);
         if (attr.startsWith(MessageType.STDERR.toString() + ":")) {
             messageType = MessageType.STDERR;
-            text = attr.substring(MessageType.STDERR.toString().length() + 1);
+            text = attr.substring(MessageType.STDERR.toString()
+                .length() + 1);
         } else if (attr.startsWith(MessageType.STDOUT.toString() + ":")) {
             messageType = MessageType.STDOUT;
-            text = attr.substring(MessageType.STDOUT.toString().length() + 1);
+            text = attr.substring(MessageType.STDOUT.toString()
+                .length() + 1);
         } else {
             messageType = MessageType.STDOUT;
             text = attr;
