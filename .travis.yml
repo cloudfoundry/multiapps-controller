@@ -6,5 +6,5 @@ notifications:
     on_success: change
     on_failure: always
 script:
-   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean install; fi'
+   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn clean install sonar:sonar -Dsonar.organization=cf-deploy-service -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=c1b5a7f51b100a8828347e0d242fba6563e813b9; fi'
    - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn deploy --settings .travis.settings.xml; fi'
