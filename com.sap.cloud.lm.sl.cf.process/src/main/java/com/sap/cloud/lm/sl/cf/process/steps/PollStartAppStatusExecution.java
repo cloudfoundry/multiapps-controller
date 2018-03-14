@@ -14,6 +14,8 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.InstanceInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
@@ -22,7 +24,9 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
-public class PollStartAppStatusExecution extends AsyncExecution {
+public class PollStartAppStatusExecution implements AsyncExecution {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PollStartAppStatusExecution.class);
 
     enum StartupStatus {
         STARTING, STARTED, CRASHED, FLAPPING

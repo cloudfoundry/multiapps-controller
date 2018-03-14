@@ -11,7 +11,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-public class PollUploadAppStatusExecution extends AsyncExecution {
+public class PollUploadAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {

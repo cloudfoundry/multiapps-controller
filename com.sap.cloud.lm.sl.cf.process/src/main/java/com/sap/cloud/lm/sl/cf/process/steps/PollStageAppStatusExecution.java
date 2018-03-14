@@ -6,6 +6,8 @@ import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStagingState;
@@ -17,7 +19,9 @@ import com.sap.cloud.lm.sl.cf.process.util.XMLValueFilter;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
-public class PollStageAppStatusExecution extends AsyncExecution {
+public class PollStageAppStatusExecution implements AsyncExecution {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PollStageAppStatusExecution.class);
 
     private RecentLogsRetriever recentLogsRetriever;
     private ApplicationStagingStateGetter applicationStagingStateGetter;
