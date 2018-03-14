@@ -8,6 +8,8 @@ import java.util.function.Supplier;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -16,7 +18,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-public class PollExecuteTaskStatusExecution extends AsyncExecution {
+public class PollExecuteTaskStatusExecution implements AsyncExecution {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PollExecuteTaskStatusExecution.class);
 
     protected Supplier<Long> currentTimeSupplier;
 

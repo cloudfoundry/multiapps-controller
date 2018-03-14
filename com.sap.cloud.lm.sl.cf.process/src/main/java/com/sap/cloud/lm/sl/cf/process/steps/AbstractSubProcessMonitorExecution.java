@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-public abstract class AbstractSubProcessMonitorExecution extends AsyncExecution {
+public abstract class AbstractSubProcessMonitorExecution implements AsyncExecution {
 
     protected ActivitiFacade activitiFacade;
 

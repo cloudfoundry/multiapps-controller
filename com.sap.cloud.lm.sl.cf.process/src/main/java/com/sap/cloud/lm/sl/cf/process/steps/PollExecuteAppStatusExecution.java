@@ -12,6 +12,8 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
@@ -22,7 +24,9 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
-public class PollExecuteAppStatusExecution extends AsyncExecution {
+public class PollExecuteAppStatusExecution implements AsyncExecution {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PollExecuteAppStatusExecution.class);
 
     enum AppExecutionStatus {
         EXECUTING, SUCCEEDED, FAILED
