@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
@@ -14,6 +16,11 @@ import org.springframework.web.client.RestTemplate;
 public class ApplicationRoutesGetter extends CustomControllerClient {
 
     private CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
+
+    @Inject
+    public ApplicationRoutesGetter(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
 
     public List<CloudRoute> getRoutes(CloudFoundryOperations client, String appName) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetRoutes(client, appName));

@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -32,8 +31,8 @@ public class ServiceBrokerCreatorTest {
     private RestTemplateFactory restTemplateFactory;
     @Mock
     private RestTemplate restTemplate;
-    @InjectMocks
-    private ServiceBrokerCreator serviceBrokerCreator = new ServiceBrokerCreator();
+
+    private ServiceBrokerCreator serviceBrokerCreator;
 
     private String serviceBrokerToCreateJsonLocation;
     private CloudServiceBrokerExtended serviceBrokerToCreate;
@@ -79,6 +78,7 @@ public class ServiceBrokerCreatorTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        this.serviceBrokerCreator = new ServiceBrokerCreator(restTemplateFactory);
         String serviceBrokerToCreateJson = TestUtil.getResourceAsString(serviceBrokerToCreateJsonLocation, getClass());
         this.serviceBrokerToCreate = JsonUtil.fromJson(serviceBrokerToCreateJson, CloudServiceBrokerExtended.class);
 

@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -113,23 +112,14 @@ public class ServiceCreatorTest {
 
     @Mock
     protected CloudEntityResourceMapper resourceMapper;
-
     @Mock
     protected RestTemplate restTemplate;
-
     @Mock
     protected RestTemplateFactory restTemplateFactory;
-
     @Mock
     protected CloudFoundryOperations client;
 
-    @InjectMocks
-    private ServiceCreator serviceCreator = new ServiceCreator() {
-        @Override
-        protected CloudEntityResourceMapper getResourceMapper() {
-            return resourceMapper;
-        }
-    };
+    private ServiceCreator serviceCreator;
 
     protected StepInput input;
     private String expectedExceptionMessage;
@@ -146,6 +136,12 @@ public class ServiceCreatorTest {
     @Before
     public void setUp() throws MalformedURLException {
         MockitoAnnotations.initMocks(this);
+        this.serviceCreator = new ServiceCreator(restTemplateFactory) {
+            @Override
+            protected CloudEntityResourceMapper getResourceMapper() {
+                return resourceMapper;
+            }
+        };
         setUpException();
         setUpExistingOfferings();
         setUpServiceRequests();

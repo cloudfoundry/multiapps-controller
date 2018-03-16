@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -43,8 +42,7 @@ public class ApplicationStagingStateGetterTest {
     @Mock
     private CloudFoundryOperations client;
 
-    @InjectMocks
-    private ApplicationStagingStateGetter applicationStagingStateGetter = new ApplicationStagingStateGetter();
+    private ApplicationStagingStateGetter applicationStagingStateGetter;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -68,6 +66,7 @@ public class ApplicationStagingStateGetterTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        this.applicationStagingStateGetter = new ApplicationStagingStateGetter(restTemplateFactory);
         this.response = TestUtil.getResourceAsString(responseLocation, getClass());
         Mockito.when(restTemplateFactory.getRestTemplate(client))
             .thenReturn(restTemplate);

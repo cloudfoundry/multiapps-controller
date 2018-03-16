@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -26,6 +28,11 @@ import com.sap.cloud.lm.sl.cf.client.message.Messages;
 public class ServiceCreator extends CloudServiceOperator {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ServiceCreator.class);
+
+    @Inject
+    public ServiceCreator(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
 
     public void createService(CloudFoundryOperations client, CloudServiceExtended service, String spaceId) {
         if (CollectionUtils.isEmpty(service.getAlternativeLabels())) {

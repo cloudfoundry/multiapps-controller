@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -14,6 +16,11 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class ServiceInstanceGetter extends CustomControllerClient {
 
     private static final String SERVICE_INSTANCES_URL = "/v2/service_instances?q=name:{name}&q=space_guid:{space_guid}";
+
+    @Inject
+    public ServiceInstanceGetter(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
 
     public Map<String, Object> getServiceInstance(CloudFoundryOperations client, String serviceName, String spaceId) {
         return new CustomControllerClientErrorHandler()

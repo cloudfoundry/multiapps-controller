@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
@@ -15,6 +17,11 @@ public class ServiceBrokersGetter extends CustomControllerClient {
 
     private static final String SERVICE_BROKERS_URL = "/v2/service_brokers";
     private CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
+
+    @Inject
+    public ServiceBrokersGetter(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
 
     public List<CloudServiceBrokerExtended> getServiceBrokers(CloudFoundryOperations client) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetServiceBrokers(client));

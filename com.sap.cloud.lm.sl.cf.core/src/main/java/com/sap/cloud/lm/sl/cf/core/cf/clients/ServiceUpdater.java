@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudService;
@@ -22,6 +24,11 @@ public class ServiceUpdater extends CloudServiceOperator {
     private static final String SERVICE_CREDENTIALS = "credentials";
     private static final String ACCEPTS_INCOMPLETE_TRUE = "?accepts_incomplete=true";
     private static final String SERVICE_PARAMETERS = "parameters";
+
+    @Inject
+    public ServiceUpdater(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
 
     public void updateServicePlanQuietly(CloudFoundryOperations client, String serviceName, String servicePlan) {
         ignoreBadGatewayErrors(() -> updateServicePlan(client, serviceName, servicePlan));

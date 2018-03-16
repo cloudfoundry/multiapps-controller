@@ -2,6 +2,8 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.util.CloudUtil;
 import org.springframework.web.client.RestTemplate;
@@ -11,6 +13,11 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class LoggingEndpointGetter extends CustomControllerClient {
 
     private static final String V2_INFO_ENDPOINT = "/v2/info";
+
+    @Inject
+    public LoggingEndpointGetter(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
 
     public String getLoggingEndpoint(CloudFoundryOperations client) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attmeptToGetLoggingEndpoint(client));

@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
@@ -12,6 +14,11 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 public class ServiceBrokerCreator extends CustomControllerClient {
 
     private static final String SERVICE_BROKERS_URL = "/v2/service_brokers";
+
+    @Inject
+    public ServiceBrokerCreator(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
 
     public void createServiceBroker(CloudFoundryOperations client, CloudServiceBrokerExtended serviceBroker) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToCreateServiceBroker(client, serviceBroker));

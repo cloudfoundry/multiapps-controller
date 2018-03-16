@@ -18,7 +18,6 @@ import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
@@ -30,13 +29,7 @@ public class ServiceUpdaterTest extends ServiceCreatorTest {
 
     private static final String SERVICE_INSTANCES_URL = "/v2/service_instances";
 
-    @InjectMocks
-    private ServiceUpdater serviceUpdater = new ServiceUpdater() {
-        @Override
-        protected CloudEntityResourceMapper getResourceMapper() {
-            return resourceMapper;
-        }
-    };
+    private ServiceUpdater serviceUpdater;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -66,6 +59,12 @@ public class ServiceUpdaterTest extends ServiceCreatorTest {
     @Override
     public void setUp() throws MalformedURLException {
         super.setUp();
+        this.serviceUpdater = new ServiceUpdater(restTemplateFactory) {
+            @Override
+            protected CloudEntityResourceMapper getResourceMapper() {
+                return resourceMapper;
+            }
+        };
         prepareClient();
     }
 

@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -51,12 +50,10 @@ public class ApplicationStagingUpdaterTest {
 
     @Mock
     private RestTemplateFactory restTemplateFactory;
-
     @Mock
     private CloudFoundryOperations client;
 
-    @InjectMocks
-    private ApplicationStagingUpdater applicationStagingUpdater = new ApplicationStagingUpdater();
+    private ApplicationStagingUpdater applicationStagingUpdater;
 
     private StepInput input;
     private Staging updateStaging;
@@ -68,6 +65,7 @@ public class ApplicationStagingUpdaterTest {
     @Before
     public void setUp() throws MalformedURLException {
         MockitoAnnotations.initMocks(this);
+        this.applicationStagingUpdater = new ApplicationStagingUpdater(restTemplateFactory);
         Mockito.when(client.getCloudControllerUrl())
             .thenReturn(new URL(CONTROLLER_ENDPOINT));
         Mockito.when(client.getApplication(input.application.appName))
