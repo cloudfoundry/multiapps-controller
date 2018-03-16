@@ -67,7 +67,7 @@ public final class Messages {
     public static final String ILLEGAL_SERVICE_OPERATION_TYPE = "Illegal service operation type: {0}";
     public static final String MULTIPLE_CONFIGURATION_ENTRIES = "Multiple configuration entries were found matching the filter specified in resource \"{0}\": \"{1}\"";
     public static final String INVALID_TCP_ROUTE = "TCP route can either be TCP or TCPS";
-    public static final String NO_SERVICE_PLAN_FOUND = "Could not create service instance {0}. Service plan {1} for service {2} not found";
+    public static final String NO_SERVICE_PLAN_FOUND = "Could not create service instance \"{0}\". Service plan \"{1}\" from service offering \"{2}\" was not found.";
     public static final String NO_CONTENT_TO_DEPLOY = "No content to deploy";
     public static final String UNABLE_TO_PARSE_PARAMETER = "Unable to parse parameter {0} with value {1}";
     public static final String LIQUIBASE_CF_CHECK_PLATFORM_TYPE = "Platform must be cloud foundry to execute this change. Current platform is: {0}";
