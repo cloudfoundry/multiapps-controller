@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class ServiceCreatorTest extends CloudServiceOperatorTest {
+public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest {
 
     private static final String CREATE_SERVICE_URL = "/v2/service_instances?accepts_incomplete=true";
     private static final String SPACE_ID = "TEST_SPACE";
@@ -104,14 +104,15 @@ public class ServiceCreatorTest extends CloudServiceOperatorTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     private ServiceCreator serviceCreator;
+    private ServiceWithAlternativesCreator serviceWithAlternativesCreator;
 
     private Input input;
     private String expectedExceptionMessage;
     private Class<? extends RuntimeException> expectedExceptionType;
 
-    public ServiceCreatorTest(String inputLocation, String expected, Class<? extends RuntimeException> expectedExceptionClass)
+    public ServiceWithAlternativesCreatorTest(String inputLocation, String expected, Class<? extends RuntimeException> expectedExceptionClass)
         throws ParsingException, IOException {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, ServiceCreatorTest.class), Input.class);
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, ServiceWithAlternativesCreatorTest.class), Input.class);
         this.expectedExceptionMessage = expected;
         this.expectedExceptionType = expectedExceptionClass;
     }
@@ -119,6 +120,7 @@ public class ServiceCreatorTest extends CloudServiceOperatorTest {
     @Before
     public void setUp() {
         serviceCreator = new ServiceCreator(getMockedRestTemplateFactory());
+        serviceWithAlternativesCreator = new ServiceWithAlternativesCreator(serviceCreator);
         setUpException();
         setUpServiceRequests();
     }
@@ -143,7 +145,7 @@ public class ServiceCreatorTest extends CloudServiceOperatorTest {
 
     @Test
     public void testExecuteServiceOperation() {
-        serviceCreator.createService(getMockedClient(), input.service, SPACE_ID);
+        serviceWithAlternativesCreator.createService(getMockedClient(), input.service, SPACE_ID);
 
         validateRestCall();
     }

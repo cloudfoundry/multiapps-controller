@@ -27,8 +27,8 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
@@ -46,7 +46,9 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     private Map<CloudServiceExtended, CloudServiceInstance> existingServiceInstances;
 
     @Mock
-    private ServiceCreator serviceCreator;
+    private ServiceWithAlternativesCreator serviceCreator;
+    @Mock
+    private ServiceWithAlternativesCreator.Factory serviceCreatorFactory;
     @Mock
     private ServiceUpdater serviceUpdater;
 
@@ -128,6 +130,8 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
 
     @Before
     public void setUp() throws Exception {
+        Mockito.when(serviceCreatorFactory.createInstance())
+            .thenReturn(serviceCreator);
         loadParameters();
         prepareContext();
         prepareClient();
