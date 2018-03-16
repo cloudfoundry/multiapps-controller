@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,16 +40,25 @@ public abstract class CustomControllerClient {
     }
 
     @SuppressWarnings("unchecked")
-    protected String addPageOfResources(RestTemplate restTemplate, String controllerUrl, String nextUrl,
+    protected String addPageOfResources(RestTemplate restTemplate, String controllerUrl, String path,
         List<Map<String, Object>> allResources, Map<String, Object> urlVariables) {
-        String response = restTemplate.getForObject(getUrl(controllerUrl, nextUrl), String.class, urlVariables);
+        String response = restTemplate.getForObject(getUrl(controllerUrl, path), String.class, urlVariables);
         Map<String, Object> responseMap = JsonUtil.convertJsonToMap(response);
         validateResponse(responseMap);
         List<Map<String, Object>> newResources = (List<Map<String, Object>>) responseMap.get("resources");
         if (newResources != null && newResources.size() > 0) {
             allResources.addAll(newResources);
         }
-        return (String) responseMap.get("next_url");
+        String nextUrl = (String) responseMap.get("next_url");
+        return nextUrl == null ? null : decode(nextUrl);
+    }
+
+    private String decode(String url) {
+        try {
+            return URLDecoder.decode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
     }
 
     protected void validateResponse(Map<String, Object> response) {
