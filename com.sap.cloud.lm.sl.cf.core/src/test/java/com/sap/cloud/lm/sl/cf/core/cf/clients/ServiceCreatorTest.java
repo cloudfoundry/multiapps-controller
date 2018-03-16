@@ -80,7 +80,7 @@ public class ServiceCreatorTest {
             },
             // (5) Service plan doesn't exist
             {
-                "service-06.json", "Could not create service instance test-service. Service plan different-plan for service some-label not found", CloudFoundryException.class
+                "service-06.json", "Could not create service instance \"test-service\". Service plan \"different-plan\" from service offering \"some-label\" was not found.", CloudFoundryException.class
             },
             // (6) Service has defined alternatives and default offering is matching
             {

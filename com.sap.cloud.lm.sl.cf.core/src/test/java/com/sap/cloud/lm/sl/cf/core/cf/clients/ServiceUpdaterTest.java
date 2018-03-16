@@ -1,160 +1,101 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
+
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudService;
-import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
-import org.cloudfoundry.client.lib.domain.CloudServicePlan;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.RestClientException;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.common.ParsingException;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 
-public class ServiceUpdaterTest extends ServiceCreatorTest {
+public class ServiceUpdaterTest extends CloudServiceOperatorTest {
 
-    private static final String SERVICE_INSTANCES_URL = "/v2/service_instances";
+    private static final String SERVICE_INSTANCES_ENDPOINT = "/v2/service_instances";
+    private static final String EXISTING_SERVICE_GUID = "6061e8a8-3c0a-4826-9c01-cc676447af59";
+    private static final String EXISTING_SERVICE_NAME = "foo";
+    private static final String EXISTING_SERVICE_PLAN = "v3.4-large";
+    private static final String EXISTING_SERVICE_LABEL = "mongodb";
+    private static final CloudService EXISTING_SERVICE = new CloudService();
+    static {
+        EXISTING_SERVICE.setMeta(new Meta(UUID.fromString(EXISTING_SERVICE_GUID), null, null));
+        EXISTING_SERVICE.setName(EXISTING_SERVICE_NAME);
+        EXISTING_SERVICE.setPlan(EXISTING_SERVICE_PLAN);
+        EXISTING_SERVICE.setLabel(EXISTING_SERVICE_LABEL);
+    }
 
     private ServiceUpdater serviceUpdater;
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-            // (0) Service with a changed plan
-            {
-                "service-update-01.json", null, null
-            },
-            // (1) With non-existing service
-            {
-                "service-update-02.json", "404 Not Found: Service 'com.sap.sample.mta.test' not found", CloudFoundryException.class
-            },
-            // (2) With non-existing service plan
-            {
-                "service-update-03.json", "Could not create service instance com.sap.sample.mta.test. Service plan test-new-plan for service some-label not found", CloudFoundryException.class
-            }
-// @formatter:on
-        });
-    }
-
-    public ServiceUpdaterTest(String inputLocation, String expected, Class<? extends RuntimeException> expectedExceptionClass)
-        throws ParsingException, IOException {
-        super(inputLocation, expected, expectedExceptionClass);
-    }
-
-    @Override
-    public void setUp() throws MalformedURLException {
-        super.setUp();
-        this.serviceUpdater = new ServiceUpdater(restTemplateFactory, resourceMapper);
-        prepareClient();
-    }
-
-    @Override
-    protected void setUpExistingOfferings() throws MalformedURLException {
-        List<Map<String, Object>> resourcesList = new ArrayList<>();
-        Map<String, Object> resourceMap = new HashMap<>();
-        CloudServiceOffering offering = new CloudServiceOffering(null, getServiceLabel());
-        offering.addCloudServicePlan(new CloudServicePlan(new Meta(SERVICE_PLAN_GUID, null, null), getCloudServicePlan()));
-        resourcesList.add(new HashMap<>());
-        Mockito.when(resourceMapper.mapResource(new HashMap<String, Object>(), CloudServiceOffering.class))
-            .thenReturn(offering);
-
-        resourceMap.put("resources", resourcesList);
-        Mockito.when(client.getCloudControllerUrl())
-            .thenReturn(new URL(CONTROLLER_ENDPOINT));
-        Mockito
-            .when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)), String.class,
-                Collections.emptyMap()))
-            .thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
-
-        Mockito.when(restTemplateFactory.getRestTemplate(client))
-            .thenReturn(restTemplate);
-    }
-
-    private void prepareClient() {
-        CloudService existingService = ((StepInput) input).getExistingService();
-        if (existingService != null) {
-            Mockito.when(client.getService(input.getService()
-                .getName()))
-                .thenReturn(existingService);
-        } else {
-            Mockito.when(client.getService(input.getService()
-                .getName()))
-                .thenThrow(new CloudFoundryException(HttpStatus.NOT_FOUND, "Not Found", "Service '" + input.getService()
-                    .getName() + "' not found."));
-        }
-    }
-
-    @Override
-    protected String getCloudServicePlan() {
-        return input.getService()
-            .getPlan();
-    }
-
-    @Override
-    protected String getServiceLabel() {
-        return ((StepInput) input).getService()
-            .getLabel();
+    @Before
+    public void createServiceUpdater() {
+        serviceUpdater = new ServiceUpdater(getMockedRestTemplateFactory());
     }
 
     @Test
-    public void testExecuteServiceOperation() throws RestClientException, MalformedURLException {
-        serviceUpdater.updateServicePlan(client, input.getService()
-            .getName(),
-            input.getService()
-                .getPlan());
+    public void testUpdateServicePlan1() throws MalformedURLException {
+        // Given:
+        CloudFoundryOperations client = getMockedClient();
+        Mockito.when(client.getService(EXISTING_SERVICE_NAME))
+            .thenReturn(EXISTING_SERVICE);
 
-        validateRestCall();
+        // When:
+        serviceUpdater.updateServicePlan(client, EXISTING_SERVICE_NAME, "v3.0-small");
+
+        // Then:
+        validatePlanUpdate("8e886beb-85cb-4455-9474-b6dfda36ffeb");
     }
 
-    @Override
-    protected void validateRestCall() throws RestClientException, MalformedURLException {
-        Map<String, Object> serviceRequest = new HashMap<String, Object>();
-        serviceRequest.put("service_plan_guid", SERVICE_PLAN_GUID.toString());
-        Mockito.verify(restTemplate)
-            .put(getUrl(getServiceUpdateUrl(), new URL(CONTROLLER_ENDPOINT)), serviceRequest);
+    private void validatePlanUpdate(String servicePlanGuid) throws MalformedURLException {
+        Map<String, Object> serviceRequest = MapUtil.asMap("service_plan_guid", servicePlanGuid);
+        String updateServicePlanUrl = getUpdateServicePlanUrl();
+        Mockito.verify(getMockedRestTemplate())
+            .put(updateServicePlanUrl, serviceRequest);
     }
 
-    private String getServiceUpdateUrl() {
-        return SERVICE_INSTANCES_URL + "/" + input.getService()
-            .getMeta()
-            .getGuid()
-            .toString() + "?accepts_incomplete=true";
+    private String getUpdateServicePlanUrl() {
+        return getControllerUrl() + SERVICE_INSTANCES_ENDPOINT + "/" + EXISTING_SERVICE_GUID + "?accepts_incomplete=true";
     }
 
-    @Override
-    protected Class<? extends StepInput> getStepinput() {
-        return StepInput.class;
-    }
+    @Test
+    public void testUpdateServicePlan2() {
+        // Given:
+        CloudFoundryOperations client = getMockedClient();
+        Mockito.when(client.getService(EXISTING_SERVICE_NAME))
+            .thenReturn(EXISTING_SERVICE);
 
-    private static class StepInput extends ServiceCreatorTest.StepInput {
-        CloudService existingService;
-
-        public CloudServiceExtended getService() {
-            CloudServiceExtended service = super.getService();
-            service.setMeta(new Meta(SERVICE_PLAN_GUID, null, null));
-            return service;
+        try {
+            // When:
+            serviceUpdater.updateServicePlan(client, EXISTING_SERVICE_NAME, "v3.0-large");
+        } catch (CloudFoundryException e) {
+            // Then:
+            assertEquals(
+                "404 Not Found: Could not create service instance \"foo\". Service plan \"v3.0-large\" from service offering \"mongodb\" was not found.",
+                e.getMessage());
         }
+    }
 
-        public CloudService getExistingService() {
-            if (existingService == null) {
-                return null;
-            }
-            existingService.setMeta(new Meta(SERVICE_PLAN_GUID, null, null));
-            return existingService;
+    @Test
+    public void testUpdateServicePlan3() {
+        // Given:
+        CloudFoundryOperations client = getMockedClient();
+        Mockito.when(client.getService(EXISTING_SERVICE_NAME))
+            .thenThrow(
+                new CloudFoundryException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(), "Service \"foo\" was not found!"));
+
+        try {
+            // When:
+            serviceUpdater.updateServicePlan(client, EXISTING_SERVICE_NAME, "v3.0-small");
+        } catch (CloudFoundryException e) {
+            // Then:
+            assertEquals("404 Not Found: Service \"foo\" was not found!", e.getMessage());
         }
     }
 

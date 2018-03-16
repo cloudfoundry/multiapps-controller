@@ -1,0 +1,101 @@
+{
+  "total_results": 2,
+  "total_pages": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "metadata": {
+        "guid": "bc3690b2-cc50-4475-b2cf-44d68c51f9d3",
+        "url": "/v2/services/bc3690b2-cc50-4475-b2cf-44d68c51f9d3",
+        "created_at": "2016-07-22T07:50:01Z",
+        "updated_at": "2018-03-16T14:08:07Z"
+      },
+      "entity": {
+        "label": "mongodb",
+        "description": "Store JSON-like documents in a document-oriented database.",
+        "active": true,
+        "bindable": true,
+        "unique_id": "3c266123-8e6e-4034-a2aa-e48e13fbf893",
+        "tags": [
+          "mongodb"
+        ],
+        "service_plans": [
+          {
+            "metadata": {
+              "guid": "5ce47ab7-eebc-42ce-8667-ea5e20496162",
+              "url": "/v2/service_plans/5ce47ab7-eebc-42ce-8667-ea5e20496162",
+              "created_at": "2018-01-24T20:10:54Z",
+              "updated_at": "2018-03-16T14:08:07Z"
+            },
+            "entity": {
+              "name": "v3.4-large",
+              "free": true,
+              "description": "MongoDB 3.4 service with WiredTiger storage engine for development (non-productive usage)"
+            }
+          },
+          {
+            "metadata": {
+              "guid": "8e886beb-85cb-4455-9474-b6dfda36ffeb",
+              "url": "/v2/service_plans/8e886beb-85cb-4455-9474-b6dfda36ffeb",
+              "created_at": "2017-04-28T09:59:32Z",
+              "updated_at": "2018-03-16T14:08:07Z"
+            },
+            "entity": {
+              "name": "v3.0-small",
+              "free": false,
+              "description": "MongoDB 3.0 service x-small"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "guid": "c4ec80ae-5949-4a79-99ef-e42a894d73d3",
+        "url": "/v2/services/c4ec80ae-5949-4a79-99ef-e42a894d73d3",
+        "created_at": "2016-07-22T07:50:01Z",
+        "updated_at": "2018-03-16T14:08:07Z"
+      },
+      "entity": {
+        "label": "postgresql",
+        "description": "Relational database with an object-oriented model.",
+        "active": true,
+        "bindable": true,
+        "unique_id": "6db542eb-8187-4afc-8a85-e08b4a3cc24e",
+        "tags": [
+          "postgresql",
+          "relational"
+        ],
+        "service_plans": [
+          {
+            "metadata": {
+              "guid": "61626e4f-683f-4952-984c-b3ccc7254225",
+              "url": "/v2/service_plans/61626e4f-683f-4952-984c-b3ccc7254225",
+              "created_at": "2017-08-23T15:43:05Z",
+              "updated_at": "2018-03-16T14:08:07Z"
+            },
+            "entity": {
+              "name": "v9.6-tiny",
+              "free": false,
+              "description": "PostgreSQL relational database service - tiny plan"
+            }
+          },
+          {
+            "metadata": {
+              "guid": "edce0629-89d6-4503-aff1-158824f80fab",
+              "url": "/v2/service_plans/edce0629-89d6-4503-aff1-158824f80fab",
+              "created_at": "2017-11-29T06:52:15Z",
+              "updated_at": "2018-03-16T14:08:07Z"
+            },
+            "entity": {
+              "name": "v9.6-xxsmall",
+              "free": false,
+              "description": "PostgreSQL relational database service - xxsmall plan"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
