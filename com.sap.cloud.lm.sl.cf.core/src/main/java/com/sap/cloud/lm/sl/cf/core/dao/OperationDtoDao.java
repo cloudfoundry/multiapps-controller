@@ -83,7 +83,8 @@ public class OperationDtoDao {
     @SuppressWarnings("unchecked")
     public List<OperationDto> findAll() {
         return new Executor<List<OperationDto>>(createEntityManager()).execute((manager) -> {
-            return manager.createNamedQuery("find_all").getResultList();
+            return manager.createNamedQuery("find_all")
+                .getResultList();
         });
     }
 
@@ -105,7 +106,8 @@ public class OperationDtoDao {
 
         Predicate[] predicates = getPredicates(operationFilter, criteriaBuilder, root);
 
-        query.select(root).where(predicates);
+        query.select(root)
+            .where(predicates);
         if (operationFilter.getOrderAttribute() != null) {
             setOrdering(operationFilter, criteriaBuilder, query, root);
         }
@@ -130,10 +132,12 @@ public class OperationDtoDao {
             predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.USER), operationFilter.getUser()));
         }
         if (operationFilter.isInNonFinalState()) {
-            predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE).isNull());
+            predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
+                .isNull());
         }
         if (operationFilter.isInFinalState()) {
-            predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE).isNotNull());
+            predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
+                .isNotNull());
         }
         if (operationFilter.hasNotAcquiredLock()) {
             predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.ACQUIRED_LOCK), false));
@@ -148,11 +152,12 @@ public class OperationDtoDao {
             predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.CLEANED_UP), false));
         }
         if (operationFilter.getStates() != null) {
-            predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE).in(toStrings(operationFilter.getStates())));
+            predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
+                .in(toStrings(operationFilter.getStates())));
         }
         if (operationFilter.getStartTimeUpperBound() != null) {
             predicates
-            .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.STARTED_AT), operationFilter.getStartTimeUpperBound()));
+                .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.STARTED_AT), operationFilter.getStartTimeUpperBound()));
         }
         if (operationFilter.getEndTimeUpperBound() != null) {
             predicates
@@ -176,7 +181,9 @@ public class OperationDtoDao {
     }
 
     private Object toStrings(List<State> states) {
-        return states.stream().map(state -> state.toString()).collect(Collectors.toList());
+        return states.stream()
+            .map(state -> state.toString())
+            .collect(Collectors.toList());
     }
 
 }

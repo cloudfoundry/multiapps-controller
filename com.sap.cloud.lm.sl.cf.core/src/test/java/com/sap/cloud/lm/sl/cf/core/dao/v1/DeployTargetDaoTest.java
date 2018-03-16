@@ -107,7 +107,8 @@ public class DeployTargetDaoTest {
         List<PersistentObject<Target>> targets = dao.findAll();
         assertEquals(2, targets.size());
 
-        Target target2 = targets.get(1).getObject();
+        Target target2 = targets.get(1)
+            .getObject();
 
         assertDeployTargets(target1, target2);
         dao.add(target1);
@@ -120,9 +121,12 @@ public class DeployTargetDaoTest {
 
         Target target = loadDeployTarget(mergeInput.getDeployTargetResource());
 
-        PersistentObject<? extends Target> merged = dao.merge(dao.findAll().get(0).getId(), target);
+        PersistentObject<? extends Target> merged = dao.merge(dao.findAll()
+            .get(0)
+            .getId(), target);
 
-        assertDeployTargets(target, dao.find(merged.getId()).getObject());
+        assertDeployTargets(target, dao.find(merged.getId())
+            .getObject());
     }
 
     @Test
@@ -133,8 +137,10 @@ public class DeployTargetDaoTest {
 
         List<PersistentObject<Target>> targets = dao.findAll();
         assertEquals(1, targets.size());
-        dao.remove(targets.get(0).getId());
-        assertEquals(0, dao.findAll().size());
+        dao.remove(targets.get(0)
+            .getId());
+        assertEquals(0, dao.findAll()
+            .size());
 
         dao.remove(removeInput.getIdToRemove());
     }

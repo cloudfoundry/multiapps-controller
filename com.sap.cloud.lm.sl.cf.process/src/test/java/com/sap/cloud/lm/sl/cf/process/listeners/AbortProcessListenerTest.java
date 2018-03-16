@@ -117,7 +117,8 @@ public class AbortProcessListenerTest {
         public void testDeleteDeploymentFiles() throws Exception {
             abortListener.deleteDeploymentFiles(mock(HistoryService.class), PROCESS_INSTANCE_ID);
             for (String fileId : expectedFileIdsToSweep) {
-                Mockito.verify(fileService).deleteFile(SPACE_ID, fileId);
+                Mockito.verify(fileService)
+                    .deleteFile(SPACE_ID, fileId);
             }
         }
 
@@ -144,7 +145,8 @@ public class AbortProcessListenerTest {
 
             private HistoricVariableInstance createInstanceMock(Object parameterValue) {
                 HistoricVariableInstance instanceMock = Mockito.mock(HistoricVariableInstance.class);
-                Mockito.when(instanceMock.getValue()).thenReturn(parameterValue);
+                Mockito.when(instanceMock.getValue())
+                    .thenReturn(parameterValue);
                 return instanceMock;
             }
 
@@ -179,24 +181,34 @@ public class AbortProcessListenerTest {
 
         @Test
         public void testDeleteAllocatedRoutes1() throws Exception {
-            Mockito.when(clientProvider.getCloudFoundryClient(USER, ORG, SPACE, null)).thenReturn(client);
-            Mockito.when(client.getDefaultDomain()).thenReturn(new CloudDomain(null, DEFAULT_DOMAIN, null));
-            Mockito.doThrow(CloudFoundryException.class).when(client).deleteRoute(Integer.toString(1), DEFAULT_DOMAIN);
-            Mockito.doThrow(CloudFoundryException.class).when(client).deleteRoute(Integer.toString(3), DEFAULT_DOMAIN);
+            Mockito.when(clientProvider.getCloudFoundryClient(USER, ORG, SPACE, null))
+                .thenReturn(client);
+            Mockito.when(client.getDefaultDomain())
+                .thenReturn(new CloudDomain(null, DEFAULT_DOMAIN, null));
+            Mockito.doThrow(CloudFoundryException.class)
+                .when(client)
+                .deleteRoute(Integer.toString(1), DEFAULT_DOMAIN);
+            Mockito.doThrow(CloudFoundryException.class)
+                .when(client)
+                .deleteRoute(Integer.toString(3), DEFAULT_DOMAIN);
 
             allocatedPorts = new TreeSet<>(Arrays.asList(1, 2, 3, 4));
 
             abortListener.deleteAllocatedRoutes(mock(HistoryService.class), PROCESS_INSTANCE_ID);
 
-            Mockito.verify(client).deleteRoute(Integer.toString(2), DEFAULT_DOMAIN);
-            Mockito.verify(client).deleteRoute(Integer.toString(4), DEFAULT_DOMAIN);
+            Mockito.verify(client)
+                .deleteRoute(Integer.toString(2), DEFAULT_DOMAIN);
+            Mockito.verify(client)
+                .deleteRoute(Integer.toString(4), DEFAULT_DOMAIN);
         }
 
         @Test
         public void testDeleteAllocatedRoutes2() throws Exception {
-            Mockito.when(clientProvider.getCloudFoundryClient(USER, ORG, SPACE, null)).thenReturn(client);
+            Mockito.when(clientProvider.getCloudFoundryClient(USER, ORG, SPACE, null))
+                .thenReturn(client);
             abortListener.deleteAllocatedRoutes(mock(HistoryService.class), PROCESS_INSTANCE_ID);
-            Mockito.verify(client, Mockito.never()).deleteRoute(Mockito.anyString(), Mockito.any());
+            Mockito.verify(client, Mockito.never())
+                .deleteRoute(Mockito.anyString(), Mockito.any());
         }
 
         private class AbortProcessListenerMock extends AbortProcessListener {
@@ -222,7 +234,8 @@ public class AbortProcessListenerTest {
 
             private HistoricVariableInstance createInstanceMock(Object parameterValue) {
                 HistoricVariableInstance instanceMock = Mockito.mock(HistoricVariableInstance.class);
-                Mockito.when(instanceMock.getValue()).thenReturn(parameterValue);
+                Mockito.when(instanceMock.getValue())
+                    .thenReturn(parameterValue);
                 return instanceMock;
             }
 

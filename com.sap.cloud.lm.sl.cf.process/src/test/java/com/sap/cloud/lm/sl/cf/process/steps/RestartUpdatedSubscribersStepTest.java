@@ -33,8 +33,10 @@ public class RestartUpdatedSubscribersStepTest extends SyncActivitiStepTest<Rest
         step.execute(context);
 
         // Then:
-        Mockito.verify(clientProvider, Mockito.atLeastOnce()).getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString());
-        Mockito.verify(clientProvider, Mockito.atLeastOnce()).getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString());
+        Mockito.verify(clientProvider, Mockito.atLeastOnce())
+            .getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString());
+        Mockito.verify(clientProvider, Mockito.atLeastOnce())
+            .getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString());
     }
 
     @Test
@@ -47,20 +49,24 @@ public class RestartUpdatedSubscribersStepTest extends SyncActivitiStepTest<Rest
 
         CloudFoundryOperations clientForSpaceFoo = Mockito.mock(CloudFoundryOperations.class);
         CloudFoundryOperations clientForSpaceBar = Mockito.mock(CloudFoundryOperations.class);
-        Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString())).thenReturn(
-            clientForSpaceFoo);
-        Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString())).thenReturn(
-            clientForSpaceBar);
+        Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString()))
+            .thenReturn(clientForSpaceFoo);
+        Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString()))
+            .thenReturn(clientForSpaceBar);
 
         // When:
         step.execute(context);
 
         // Then:
         assertStepFinishedSuccessfully();
-        Mockito.verify(clientForSpaceFoo).stopApplication("app-1");
-        Mockito.verify(clientForSpaceFoo).startApplication("app-1");
-        Mockito.verify(clientForSpaceBar).stopApplication("app-2");
-        Mockito.verify(clientForSpaceBar).startApplication("app-2");
+        Mockito.verify(clientForSpaceFoo)
+            .stopApplication("app-1");
+        Mockito.verify(clientForSpaceFoo)
+            .startApplication("app-1");
+        Mockito.verify(clientForSpaceBar)
+            .stopApplication("app-2");
+        Mockito.verify(clientForSpaceBar)
+            .startApplication("app-2");
     }
 
     @Test
@@ -76,20 +82,24 @@ public class RestartUpdatedSubscribersStepTest extends SyncActivitiStepTest<Rest
         CloudFoundryOperations clientForSpaceBar = Mockito.mock(CloudFoundryOperations.class,
             withSettings().extraInterfaces(ClientExtensions.class));
 
-        Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString())).thenReturn(
-            clientForSpaceFoo);
-        Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString())).thenReturn(
-            clientForSpaceBar);
+        Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString()))
+            .thenReturn(clientForSpaceFoo);
+        Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString()))
+            .thenReturn(clientForSpaceBar);
 
         // When:
         step.execute(context);
 
         // Then:
         assertStepFinishedSuccessfully();
-        Mockito.verify(clientForSpaceFoo).stopApplication("app-1");
-        Mockito.verify((ClientExtensions) clientForSpaceFoo).startApplication("app-1", false);
-        Mockito.verify(clientForSpaceBar).stopApplication("app-2");
-        Mockito.verify((ClientExtensions) clientForSpaceBar).startApplication("app-2", false);
+        Mockito.verify(clientForSpaceFoo)
+            .stopApplication("app-1");
+        Mockito.verify((ClientExtensions) clientForSpaceFoo)
+            .startApplication("app-1", false);
+        Mockito.verify(clientForSpaceBar)
+            .stopApplication("app-2");
+        Mockito.verify((ClientExtensions) clientForSpaceBar)
+            .startApplication("app-2", false);
     }
 
     @Test
@@ -112,16 +122,21 @@ public class RestartUpdatedSubscribersStepTest extends SyncActivitiStepTest<Rest
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace(ORG_NAME, SPACE_NAME)));
         StepsUtil.setUpdatedSubscribers(context, updatedSubscribers);
 
-        Mockito.doThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR)).when(client).stopApplication("app-1");
+        Mockito.doThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR))
+            .when(client)
+            .stopApplication("app-1");
 
         // When:
         step.execute(context);
 
         // Then:
         assertStepFinishedSuccessfully();
-        Mockito.verify(client).stopApplication("app-1");
-        Mockito.verify(client).stopApplication("app-2");
-        Mockito.verify(clientExtensions).startApplication("app-2", false);
+        Mockito.verify(client)
+            .stopApplication("app-1");
+        Mockito.verify(client)
+            .stopApplication("app-2");
+        Mockito.verify(clientExtensions)
+            .startApplication("app-2", false);
     }
 
     private CloudApplication createCloudApplication(String appName, CloudSpace space) {

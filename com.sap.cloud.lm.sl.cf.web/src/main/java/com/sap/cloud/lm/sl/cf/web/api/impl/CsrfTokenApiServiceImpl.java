@@ -14,6 +14,7 @@ import com.sap.cloud.lm.sl.cf.web.api.CsrfTokenApiService;
 public class CsrfTokenApiServiceImpl implements CsrfTokenApiService {
     @Override
     public Response getCsrfToken(SecurityContext securityContext) {
-        return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.status(Response.Status.NO_CONTENT)
+            .build();
     }
 }

@@ -10,7 +10,13 @@ public class CustomApplicationContextInitializer implements ApplicationContextIn
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         Configuration configuration = Configuration.getInstance();
-        applicationContext.getEnvironment().addActiveProfile(configuration.getPlatformType().toString().toLowerCase());
-        applicationContext.getEnvironment().addActiveProfile(configuration.getDatabaseType().toString().toLowerCase());
+        applicationContext.getEnvironment()
+            .addActiveProfile(configuration.getPlatformType()
+                .toString()
+                .toLowerCase());
+        applicationContext.getEnvironment()
+            .addActiveProfile(configuration.getDatabaseType()
+                .toString()
+                .toLowerCase());
     }
 }

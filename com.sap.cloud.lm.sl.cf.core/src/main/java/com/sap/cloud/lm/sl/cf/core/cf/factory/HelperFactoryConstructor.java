@@ -37,7 +37,7 @@ public interface HelperFactoryConstructor {
     ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
         XsPlaceholderResolver xsPlaceholderResolver, String deployId);
-    
+
     ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
         XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger userMessageLogger);

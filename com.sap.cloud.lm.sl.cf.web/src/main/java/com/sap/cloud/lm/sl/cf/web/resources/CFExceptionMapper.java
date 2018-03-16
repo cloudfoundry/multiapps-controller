@@ -43,7 +43,10 @@ public class CFExceptionMapper implements ExceptionMapper<Throwable> {
         }
 
         LOGGER.error(Messages.ERROR_EXECUTING_REST_API_CALL, t);
-        return Response.status(status).entity(message).type(MediaType.TEXT_PLAIN_TYPE).build();
+        return Response.status(status)
+            .entity(message)
+            .type(MediaType.TEXT_PLAIN_TYPE)
+            .build();
     }
 
 }

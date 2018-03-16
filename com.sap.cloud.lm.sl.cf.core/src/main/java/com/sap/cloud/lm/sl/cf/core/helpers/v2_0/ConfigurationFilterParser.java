@@ -5,9 +5,9 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.builders.v2_0.ParametersChainBuilder;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Resource;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Target;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Platform;
 
 public class ConfigurationFilterParser extends com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ConfigurationFilterParser {
 
@@ -19,7 +19,7 @@ public class ConfigurationFilterParser extends com.sap.cloud.lm.sl.cf.core.helpe
     protected CloudTarget getCurrentOrgAndSpace() {
         Pair<String, String> currentOrgSpace = new OrgAndSpaceHelper((com.sap.cloud.lm.sl.mta.model.v2_0.Target) target,
             (com.sap.cloud.lm.sl.mta.model.v2_0.Platform) platform).getOrgAndSpace();
-        
+
         return new CloudTarget(currentOrgSpace._1, currentOrgSpace._2);
     }
 

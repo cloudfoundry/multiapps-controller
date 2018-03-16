@@ -78,7 +78,8 @@ public class TasksValidatorTest {
 
     @Test
     public void testGetContainerType() {
-        assertTrue(new TasksValidator().getContainerType().isAssignableFrom(Module.class));
+        assertTrue(new TasksValidator().getContainerType()
+            .isAssignableFrom(Module.class));
     }
 
 }

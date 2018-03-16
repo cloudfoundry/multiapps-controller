@@ -25,7 +25,8 @@ public class OauthClientExtended extends OauthClient {
 
         // If the current token will expire in the next 2 minutes, then get a new token from the token store
         if (token.getExpiresIn() < 120) {
-            token = tokenService.getToken((String) token.getAdditionalInformation().get("user_name"));
+            token = tokenService.getToken((String) token.getAdditionalInformation()
+                .get("user_name"));
         }
 
         return token;

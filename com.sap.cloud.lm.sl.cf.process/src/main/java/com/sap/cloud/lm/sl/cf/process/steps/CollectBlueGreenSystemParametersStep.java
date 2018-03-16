@@ -15,7 +15,8 @@ public class CollectBlueGreenSystemParametersStep extends CollectSystemParameter
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         // Temporary routes should only be used for testing. If the user does not want to be asked for a confirmation,
         // then he does not want to test the new apps. If that is the case - temporary routes are not needed:
-        boolean reserveTemporaryRoute = !(boolean) execution.getContext().getVariable(Constants.PARAM_NO_CONFIRM);
+        boolean reserveTemporaryRoute = !(boolean) execution.getContext()
+            .getVariable(Constants.PARAM_NO_CONFIRM);
         return executeStepInternal(execution, reserveTemporaryRoute);
     }
 

@@ -49,7 +49,8 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
     private Configuration configuration;
 
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = () -> new CredentialsGenerator();
-    protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
+    protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()
+        .getTime());
 
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         return executeStepInternal(execution, false);
@@ -84,7 +85,8 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
                 StepsUtil.setAllocatedPorts(execution.getContext(), portAllocator.getAllocatedPorts());
                 getStepLogger().debug(Messages.ALLOCATED_PORTS, portAllocator.getAllocatedPorts());
             }
-            execution.getContext().setVariable(Constants.VAR_PORT_BASED_ROUTING, portBasedRouting);
+            execution.getContext()
+                .setVariable(Constants.VAR_PORT_BASED_ROUTING, portBasedRouting);
 
             StepsUtil.setSystemParameters(execution.getContext(), systemParameters);
         } catch (CloudFoundryException cfe) {
@@ -126,7 +128,8 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
         boolean useNamespaces = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES);
 
-        String authorizationEndpoint = client.getCloudInfo().getAuthorizationEndpoint();
+        String authorizationEndpoint = client.getCloudInfo()
+            .getAuthorizationEndpoint();
         int routerPort = configuration.getRouterPort();
         String user = (String) context.getVariable(Constants.VAR_USER);
 
@@ -194,11 +197,13 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         if (deployedMta == null) {
             return DeploymentType.DEPLOYMENT;
         }
-        if (deployedMta.getMetadata().isVersionUnknown()) {
+        if (deployedMta.getMetadata()
+            .isVersionUnknown()) {
             getStepLogger().warn(Messages.IGNORING_VERSION_RULE);
             return DeploymentType.UPGRADE;
         }
-        Version deployedMtaVersion = deployedMta.getMetadata().getVersion();
+        Version deployedMtaVersion = deployedMta.getMetadata()
+            .getVersion();
         getStepLogger().info(Messages.DEPLOYED_MTA_VERSION, deployedMtaVersion);
         return DeploymentType.fromVersions(deployedMtaVersion, newMtaVersion);
     }

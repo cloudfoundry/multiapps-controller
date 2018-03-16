@@ -49,7 +49,7 @@ public class OperationFilter {
     public Date getStartTimeUpperBound() {
         return startTimeUpperBound;
     }
-    
+
     public Date getEndTimeUpperBound() {
         return endTimeUpperBound;
     }
@@ -85,11 +85,11 @@ public class OperationFilter {
     public boolean hasAcquiredLock() {
         return withAcquiredLock;
     }
-    
+
     public boolean isCleanedUp() {
         return isCleanedUp;
     }
-    
+
     public boolean isNotCleanedUp() {
         return isNotCleanedUp;
     }
@@ -134,7 +134,7 @@ public class OperationFilter {
             this.startTimeUpperBound = startTimeUpperBound;
             return this;
         }
-        
+
         public Builder endedBefore(Date endTimeUpperBound) {
             this.endTimeUpperBound = endTimeUpperBound;
             return this;
@@ -179,12 +179,12 @@ public class OperationFilter {
             this.withAcquiredLock = true;
             return this;
         }
-        
+
         public Builder isCleanedUp() {
             this.isCleanedUp = true;
             return this;
         }
-        
+
         public Builder isNotCleanedUp() {
             this.isNotCleanedUp = true;
             return this;

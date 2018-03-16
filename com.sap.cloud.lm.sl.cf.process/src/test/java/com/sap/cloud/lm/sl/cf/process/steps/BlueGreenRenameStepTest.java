@@ -72,8 +72,8 @@ public class BlueGreenRenameStepTest extends SyncActivitiStepTest<BlueGreenRenam
     // Test what happens when there are 2 color(s) deployed:
     @Test
     public void testExecute2() throws Exception {
-        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenThrow(
-            new ConflictException(Messages.CONFLICTING_APP_COLORS));
+        when(applicationColorDetector.detectSingularDeployedApplicationColor(any()))
+            .thenThrow(new ConflictException(Messages.CONFLICTING_APP_COLORS));
         when(applicationColorDetector.detectFirstDeployedApplicationColor(any())).thenReturn(ApplicationColor.GREEN);
 
         step.execute(context);

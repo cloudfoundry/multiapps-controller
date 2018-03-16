@@ -65,9 +65,12 @@ public class NameUtil {
     }
 
     public static String createValidContainerName(String organization, String space, String serviceName) throws SLException {
-        String properOrganization = organization.toUpperCase(Locale.US).replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
-        String properSpace = space.toUpperCase(Locale.US).replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
-        String properServiceName = serviceName.toUpperCase(Locale.US).replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
+        String properOrganization = organization.toUpperCase(Locale.US)
+            .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
+        String properSpace = space.toUpperCase(Locale.US)
+            .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
+        String properServiceName = serviceName.toUpperCase(Locale.US)
+            .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
         return getNameWithProperLength(String.format("%s_%s_%s", properOrganization, properSpace, properServiceName),
             NameRequirements.CONTAINER_NAME_MAX_LENGTH).toUpperCase(Locale.US);
     }
@@ -116,7 +119,7 @@ public class NameUtil {
         }
         return resourceName;
     }
-    
+
     public static List<String> splitFilesIds(List<String> fileIds) {
         List<String> allFileIds = new ArrayList<>();
         for (String fileId : fileIds) {

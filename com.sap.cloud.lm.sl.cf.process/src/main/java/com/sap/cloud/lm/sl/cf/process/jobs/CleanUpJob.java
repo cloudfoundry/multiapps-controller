@@ -77,7 +77,8 @@ public class CleanUpJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
-        LOGGER.info("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now().toString());
+        LOGGER.info("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now()
+            .toString());
 
         Date expirationTime = getExpirationTime();
 
@@ -93,7 +94,8 @@ public class CleanUpJob implements Job {
 
         executeDataTerminationJob();
 
-        LOGGER.info("Cleanup Job finished at: " + Instant.now().toString());
+        LOGGER.info("Cleanup Job finished at: " + Instant.now()
+            .toString());
     }
 
     private String getInstanceIndex() {
@@ -114,7 +116,8 @@ public class CleanUpJob implements Job {
 
     private Date getExpirationTime() {
         long maxTtlForOldData = configuration.getMaxTtlForOldData();
-        Date cleanUpTimestamp = Date.from(Instant.now().minusSeconds(maxTtlForOldData));
+        Date cleanUpTimestamp = Date.from(Instant.now()
+            .minusSeconds(maxTtlForOldData));
         LOGGER.info("Will perform clean up for data stored before: " + cleanUpTimestamp.toString());
         return cleanUpTimestamp;
     }
@@ -163,8 +166,9 @@ public class CleanUpJob implements Job {
     }
 
     private void removeActivitiHistoricData(Date expirationTime) {
-        activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime).stream().forEach(
-            historicProcessInstance -> activitiFacade.deleteHistoricProcessInstance(historicProcessInstance.getId()));
+        activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime)
+            .stream()
+            .forEach(historicProcessInstance -> activitiFacade.deleteHistoricProcessInstance(historicProcessInstance.getId()));
     }
 
     private void removeExpiredTokens() {
@@ -193,12 +197,17 @@ public class CleanUpJob implements Job {
     }
 
     private List<Operation> getActiveOperationsInStateError(Date expirationTime) throws SLException {
-        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime).inNonFinalState().descending().build();
+        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime)
+            .inNonFinalState()
+            .descending()
+            .build();
         return operationsHelper.findOperations(filter, Arrays.asList(State.ERROR));
     }
 
     private List<String> getProcessIds(List<Operation> operations) {
-        return operations.stream().map(operationInError -> operationInError.getProcessId()).collect(Collectors.toList());
+        return operations.stream()
+            .map(operationInError -> operationInError.getProcessId())
+            .collect(Collectors.toList());
     }
 
     private void executeAbortOperationAction(List<String> processIds) {

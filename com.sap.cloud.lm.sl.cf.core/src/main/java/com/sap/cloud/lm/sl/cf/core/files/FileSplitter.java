@@ -25,7 +25,11 @@ public class FileSplitter {
     private FilePartConfiguration configuration;
 
     public FileSplitter(Path filePath) throws IOException {
-        this(filePath.getFileName().toString(), filePath.toAbsolutePath().toString(), Files.newInputStream(filePath), null);
+        this(filePath.getFileName()
+            .toString(),
+            filePath.toAbsolutePath()
+                .toString(),
+            Files.newInputStream(filePath), null);
         this.fileSize = Files.size(filePath);
     }
 

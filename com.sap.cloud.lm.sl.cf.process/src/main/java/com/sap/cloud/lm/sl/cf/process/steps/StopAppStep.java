@@ -27,7 +27,8 @@ public class StopAppStep extends SyncActivitiStep {
         CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
 
         try {
-            if (existingApp != null && !existingApp.getState().equals(AppState.STOPPED)) {
+            if (existingApp != null && !existingApp.getState()
+                .equals(AppState.STOPPED)) {
                 getStepLogger().info(Messages.STOPPING_APP, app.getName());
 
                 // Get a cloud foundry client

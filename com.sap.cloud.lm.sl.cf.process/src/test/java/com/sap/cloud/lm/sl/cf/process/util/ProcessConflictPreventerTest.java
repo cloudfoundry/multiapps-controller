@@ -39,7 +39,10 @@ public class ProcessConflictPreventerTest {
                 .mtaId(testMtaId)
                 .acquiredLock(false)
                 .cleanedUp(false);
-            OperationFilter expectedFilter = new OperationFilter.Builder().mtaId(testMtaId).spaceId(testSpaceId).withAcquiredLock().build();
+            OperationFilter expectedFilter = new OperationFilter.Builder().mtaId(testMtaId)
+                .spaceId(testSpaceId)
+                .withAcquiredLock()
+                .build();
             when(daoMock.find(expectedFilter)).thenReturn(Arrays.asList(operation));
             processConflictPreventerMock.attemptToAcquireLock(testMtaId, testSpaceId, testProcessId);
             verify(daoMock).merge(daoMock.findRequired(testProcessId));
@@ -61,7 +64,11 @@ public class ProcessConflictPreventerTest {
 
     private OperationDao getOperationDaoMock() throws SLException {
         OperationDao daoMock = mock(OperationDao.class);
-        Operation operation = new Operation().processId(testProcessId).processType(ProcessType.DEPLOY).mtaId(testMtaId).acquiredLock(false).cleanedUp(false);
+        Operation operation = new Operation().processId(testProcessId)
+            .processType(ProcessType.DEPLOY)
+            .mtaId(testMtaId)
+            .acquiredLock(false)
+            .cleanedUp(false);
         when(daoMock.findRequired(testProcessId)).thenReturn(operation);
         return daoMock;
     }

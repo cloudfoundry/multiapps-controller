@@ -49,7 +49,8 @@ public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.cor
         Map<String, ResolvedConfigurationReference> resolvedResources) {
         ResolvedConfigurationReference resolvedReference = resolvedResources.get(dependency.getName());
         ConfigurationFilter filter = resolvedReference.getReferenceFilter();
-        String appName = (String) module.getParameters().get(SupportedParameters.APP_NAME);
+        String appName = (String) module.getParameters()
+            .get(SupportedParameters.APP_NAME);
         com.sap.cloud.lm.sl.mta.model.v1_0.Resource resource = resolvedReference.getReference();
         Module adaptedModule = getContainingOneRequiresDependency(module, dependency);
 
@@ -74,7 +75,8 @@ public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.cor
     }
 
     private boolean shouldCreateSubscription(RequiredDependency dependency) {
-        return (boolean) dependency.getParameters().getOrDefault(SupportedParameters.MANAGED, false);
+        return (boolean) dependency.getParameters()
+            .getOrDefault(SupportedParameters.MANAGED, false);
     }
 
 }

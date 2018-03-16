@@ -86,16 +86,20 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncActiviti
         context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, stepInput.spaceId);
         context.setVariable(Constants.VAR_ORG, stepInput.org);
         context.setVariable(Constants.PARAM_MTA_ID, stepInput.mtaId);
-        Mockito.when(context.getProcessInstanceId()).thenReturn("process-instance-id");
-        Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any())).thenReturn(Arrays.asList("test-subprocess-id"));
+        Mockito.when(context.getProcessInstanceId())
+            .thenReturn("process-instance-id");
+        Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any()))
+            .thenReturn(Arrays.asList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
         Mockito.when(activitiFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
             .thenReturn(varInstanceMock);
-        Mockito.when(varInstanceMock.getValue()).thenReturn(getBytes(stepInput.publishedEntries));
+        Mockito.when(varInstanceMock.getValue())
+            .thenReturn(getBytes(stepInput.publishedEntries));
         HistoricVariableInstance varInstanceMockDeletedEntries = Mockito.mock(HistoricVariableInstance.class);
         Mockito.when(activitiFacade.getHistoricVariableInstance("process-instance-id", Constants.VAR_DELETED_ENTRIES))
             .thenReturn(varInstanceMockDeletedEntries);
-        Mockito.when(varInstanceMockDeletedEntries.getValue()).thenReturn(getBytes(getEntriesToDelete()));
+        Mockito.when(varInstanceMockDeletedEntries.getValue())
+            .thenReturn(getBytes(getEntriesToDelete()));
     }
 
     private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {
@@ -125,7 +129,10 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncActiviti
     }
 
     private ConfigurationEntry findEntry(List<ConfigurationEntry> entries, long id) {
-        return entries.stream().filter((entry) -> entry.getId() == id).findFirst().orElse(null);
+        return entries.stream()
+            .filter((entry) -> entry.getId() == id)
+            .findFirst()
+            .orElse(null);
     }
 
     private String toJson(List<ConfigurationEntry> entries) {

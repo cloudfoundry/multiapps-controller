@@ -90,7 +90,11 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
     }
 
     private CloudServiceBrokerExtended findServiceBroker(List<CloudServiceBrokerExtended> serviceBrokers, String name) {
-        return serviceBrokers.stream().filter((broker) -> broker.getName().equals(name)).findFirst().get();
+        return serviceBrokers.stream()
+            .filter((broker) -> broker.getName()
+                .equals(name))
+            .findFirst()
+            .get();
     }
 
     private List<CloudServiceBrokerExtended> getServiceBrokersToCreate(List<CloudApplicationExtended> appsToDeploy,
@@ -150,7 +154,9 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
     }
 
     public static List<String> getServiceBrokerNames(List<? extends CloudServiceBroker> serviceBrokers) {
-        return serviceBrokers.stream().map((broker) -> broker.getName()).collect(Collectors.toList());
+        return serviceBrokers.stream()
+            .map((broker) -> broker.getName())
+            .collect(Collectors.toList());
     }
 
     protected void updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudFoundryOperations client) {

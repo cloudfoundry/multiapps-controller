@@ -63,7 +63,7 @@ public class TokenFactory {
     }
 
     private Map<String, Object> parseToken(String tokenString) {
-    String[] tokenParts = tokenString.split("\\.");
+        String[] tokenParts = tokenString.split("\\.");
         if (tokenParts.length != 3) {
             // The token should have three parts (header, body and signature) separated by a dot. It doesn't, so we consider it as invalid.
             return Collections.emptyMap();

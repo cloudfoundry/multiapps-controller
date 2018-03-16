@@ -94,8 +94,8 @@ public class CreateSubscriptionsStepTest extends SyncActivitiStepTest<CreateSubs
             if (resourceDto == null) {
                 continue;
             }
-            when(dao.findAll(subscription.getMtaId(), subscription.getAppName(), subscription.getSpaceId(),
-                resourceDto.getName())).thenReturn(Arrays.asList(setId(subscription, DUMMY_ID)));
+            when(dao.findAll(subscription.getMtaId(), subscription.getAppName(), subscription.getSpaceId(), resourceDto.getName()))
+                .thenReturn(Arrays.asList(setId(subscription, DUMMY_ID)));
         }
     }
 
@@ -122,11 +122,13 @@ public class CreateSubscriptionsStepTest extends SyncActivitiStepTest<CreateSubs
         StepOutput output = new StepOutput();
 
         argumentCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);
-        Mockito.verify(dao, times(input.subscriptionsToUpdate.size())).update(eq(DUMMY_ID), argumentCaptor.capture());
+        Mockito.verify(dao, times(input.subscriptionsToUpdate.size()))
+            .update(eq(DUMMY_ID), argumentCaptor.capture());
         output.updatedSubscriptions = argumentCaptor.getAllValues();
 
         argumentCaptor = ArgumentCaptor.forClass(ConfigurationSubscription.class);
-        Mockito.verify(dao, times(input.subscriptionsToCreate.size())).add(argumentCaptor.capture());
+        Mockito.verify(dao, times(input.subscriptionsToCreate.size()))
+            .add(argumentCaptor.capture());
         output.createdSubscriptions = argumentCaptor.getAllValues();
 
         return output;

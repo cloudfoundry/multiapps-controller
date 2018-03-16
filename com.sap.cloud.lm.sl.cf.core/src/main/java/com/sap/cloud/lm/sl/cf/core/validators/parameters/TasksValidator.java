@@ -25,9 +25,14 @@ public class TasksValidator implements ParameterValidator {
     private static final MapElement TASK = new MapElement();
 
     static {
-        TASK.add(TASK_NAME_KEY, new ElementBuilder().type(String.class).required(true).buildSimple());
-        TASK.add(TASK_COMMAND_KEY, new ElementBuilder().type(String.class).required(true).buildSimple());
-        TASK.add(TASK_ENV_KEY, new ElementBuilder().type(Map.class).buildSimple());
+        TASK.add(TASK_NAME_KEY, new ElementBuilder().type(String.class)
+            .required(true)
+            .buildSimple());
+        TASK.add(TASK_COMMAND_KEY, new ElementBuilder().type(String.class)
+            .required(true)
+            .buildSimple());
+        TASK.add(TASK_ENV_KEY, new ElementBuilder().type(Map.class)
+            .buildSimple());
     }
 
     @SuppressWarnings("unchecked")

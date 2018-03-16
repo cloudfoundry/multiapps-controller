@@ -68,9 +68,12 @@ public class ApplicationStagingUpdaterTest {
     @Before
     public void setUp() throws MalformedURLException {
         MockitoAnnotations.initMocks(this);
-        Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_ENDPOINT));
-        Mockito.when(client.getApplication(input.application.appName)).thenReturn(input.application.toCloudApp());
-        Mockito.when(restTemplateFactory.getRestTemplate(Mockito.eq(client))).thenReturn(restTemplate);
+        Mockito.when(client.getCloudControllerUrl())
+            .thenReturn(new URL(CONTROLLER_ENDPOINT));
+        Mockito.when(client.getApplication(input.application.appName))
+            .thenReturn(input.application.toCloudApp());
+        Mockito.when(restTemplateFactory.getRestTemplate(Mockito.eq(client)))
+            .thenReturn(restTemplate);
         updateStaging = input.staging.toStaging();
     }
 
@@ -82,8 +85,10 @@ public class ApplicationStagingUpdaterTest {
     }
 
     private void validateRestCall() {
-        Mockito.verify(restTemplate).put(Mockito.eq(V2_APPS_ENDPOINT), Mockito.eq(getStagingMap(updateStaging)),
-            Mockito.eq(input.application.toCloudApp().getMeta().getGuid()));
+        Mockito.verify(restTemplate)
+            .put(Mockito.eq(V2_APPS_ENDPOINT), Mockito.eq(getStagingMap(updateStaging)), Mockito.eq(input.application.toCloudApp()
+                .getMeta()
+                .getGuid()));
     }
 
     private Map<String, Object> getStagingMap(Staging staging) {

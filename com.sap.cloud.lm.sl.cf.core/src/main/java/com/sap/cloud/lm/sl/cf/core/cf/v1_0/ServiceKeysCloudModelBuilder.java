@@ -41,7 +41,9 @@ public class ServiceKeysCloudModelBuilder {
 
     protected List<ServiceKey> getServiceKeysForService(Resource resource) throws ContentException {
         List<Map<String, Object>> serviceKeysMaps = getServiceKeysMaps(resource);
-        return serviceKeysMaps.stream().map(keysMap -> getServiceKey(resource, keysMap)).collect(Collectors.toList());
+        return serviceKeysMaps.stream()
+            .map(keysMap -> getServiceKey(resource, keysMap))
+            .collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")
@@ -56,7 +58,8 @@ public class ServiceKeysCloudModelBuilder {
 
     @SuppressWarnings("unchecked")
     protected List<Map<String, Object>> getServiceKeysMaps(Resource resource) throws ContentException {
-        Object serviceKeys = propertiesAccessor.getParameters(resource).get(SupportedParameters.SERVICE_KEYS);
+        Object serviceKeys = propertiesAccessor.getParameters(resource)
+            .get(SupportedParameters.SERVICE_KEYS);
         if (serviceKeys == null) {
             return Collections.emptyList();
         }
@@ -69,6 +72,7 @@ public class ServiceKeysCloudModelBuilder {
     protected String getInvalidServiceKeysErrorMessage(String serviceName, Object serviceConfig) {
         return MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.INVALID_TYPE_FOR_KEY,
             ValidatorUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_KEYS), Map.class.getSimpleName(),
-            serviceConfig.getClass().getSimpleName());
+            serviceConfig.getClass()
+                .getSimpleName());
     }
 }

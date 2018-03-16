@@ -126,7 +126,9 @@ public class DeleteServiceBrokersStepTest extends SyncActivitiStepTest<DeleteSer
     }
 
     private List<CloudServiceBrokerExtended> toCloudServiceBrokers(List<String> serviceBrokerNames) {
-        return serviceBrokerNames.stream().map((serviceBrokerName) -> toCloudServiceBroker(serviceBrokerName)).collect(Collectors.toList());
+        return serviceBrokerNames.stream()
+            .map((serviceBrokerName) -> toCloudServiceBroker(serviceBrokerName))
+            .collect(Collectors.toList());
     }
 
     private CloudServiceBrokerExtended toCloudServiceBroker(String serviceBrokerName) {
@@ -134,29 +136,36 @@ public class DeleteServiceBrokersStepTest extends SyncActivitiStepTest<DeleteSer
     }
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> applications) {
-        return applications.stream().map((application) -> application.toCloudApplication()).collect(Collectors.toList());
+        return applications.stream()
+            .map((application) -> application.toCloudApplication())
+            .collect(Collectors.toList());
     }
 
     private void prepareClient() {
-        Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false))).then(new Answer<CloudServiceBroker>() {
-            @Override
-            public CloudServiceBroker answer(InvocationOnMock invocation) {
-                String serviceBrokerName = (String) invocation.getArguments()[0];
-                if (input.existingServiceBrokers.contains(serviceBrokerName)) {
-                    return new CloudServiceBroker(null, serviceBrokerName, null, null, null);
+        Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
+            .then(new Answer<CloudServiceBroker>() {
+                @Override
+                public CloudServiceBroker answer(InvocationOnMock invocation) {
+                    String serviceBrokerName = (String) invocation.getArguments()[0];
+                    if (input.existingServiceBrokers.contains(serviceBrokerName)) {
+                        return new CloudServiceBroker(null, serviceBrokerName, null, null, null);
+                    }
+                    return null;
                 }
-                return null;
-            }
-        });
+            });
         if (deleteException != null) {
-            Mockito.doThrow(deleteException).when(client).deleteServiceBroker(Mockito.any());
+            Mockito.doThrow(deleteException)
+                .when(client)
+                .deleteServiceBroker(Mockito.any());
         }
     }
 
     private String[] captureStepOutput() {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(client, Mockito.times(expectedDeletedBrokers.length)).deleteServiceBroker(captor.capture());
-        return captor.getAllValues().toArray(new String[0]);
+        Mockito.verify(client, Mockito.times(expectedDeletedBrokers.length))
+            .deleteServiceBroker(captor.capture());
+        return captor.getAllValues()
+            .toArray(new String[0]);
     }
 
     private static class StepInput {

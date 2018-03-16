@@ -13,7 +13,7 @@ public class ServiceOperationExecutor {
         executeServiceOperation(service, () -> {
             serviceOperation.run();
             return null;
-        } , stepLogger);
+        }, stepLogger);
     }
 
     public <T> T executeServiceOperation(CloudServiceExtended service, Supplier<T> serviceOperation, StepLogger stepLogger) {

@@ -61,12 +61,15 @@ public class MtaConfigurationPurger {
     }
 
     private Set<String> getNames(List<CloudApplication> apps) {
-        return apps.stream().map(app -> app.getName()).collect(Collectors.toSet());
+        return apps.stream()
+            .map(app -> app.getName())
+            .collect(Collectors.toSet());
     }
 
     private void purgeSubscription(ConfigurationSubscription subscription) {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_SUBSCRIPTION, subscription.getId()));
-        AuditLoggingProvider.getFacade().logConfigDelete(subscription);
+        AuditLoggingProvider.getFacade()
+            .logConfigDelete(subscription);
         subscriptionDao.remove(subscription.getId());
     }
 
@@ -83,15 +86,21 @@ public class MtaConfigurationPurger {
     }
 
     private boolean isStillRelevant(List<ConfigurationEntry> stillRelevantEntries, ConfigurationEntry entry) {
-        return stillRelevantEntries.stream().anyMatch(currentEntry -> haveSameProviderIdAndVersion(currentEntry, entry));
+        return stillRelevantEntries.stream()
+            .anyMatch(currentEntry -> haveSameProviderIdAndVersion(currentEntry, entry));
     }
 
     private boolean haveSameProviderIdAndVersion(ConfigurationEntry entry1, ConfigurationEntry entry2) {
-        return entry1.getProviderId().equals(entry2.getProviderId()) && entry1.getProviderVersion().equals(entry2.getProviderVersion());
+        return entry1.getProviderId()
+            .equals(entry2.getProviderId())
+            && entry1.getProviderVersion()
+                .equals(entry2.getProviderVersion());
     }
 
     private List<ConfigurationEntry> getStillRelevantConfigurationEntries(List<CloudApplication> apps) {
-        return apps.stream().flatMap(app -> getStillRelevantConfigurationEntries(app).stream()).collect(Collectors.toList());
+        return apps.stream()
+            .flatMap(app -> getStillRelevantConfigurationEntries(app).stream())
+            .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getStillRelevantConfigurationEntries(CloudApplication app) {
@@ -112,7 +121,8 @@ public class MtaConfigurationPurger {
 
     private void purgeConfigurationEntry(ConfigurationEntry entry) {
         LOGGER.debug(MessageFormat.format(Messages.DELETING_ENTRY, entry.getId()));
-        AuditLoggingProvider.getFacade().logConfigDelete(entry);
+        AuditLoggingProvider.getFacade()
+            .logConfigDelete(entry);
         entryDao.remove(entry.getId());
     }
 

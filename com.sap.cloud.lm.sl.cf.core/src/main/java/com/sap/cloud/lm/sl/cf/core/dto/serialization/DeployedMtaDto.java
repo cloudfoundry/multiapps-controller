@@ -38,11 +38,15 @@ public class DeployedMtaDto {
     }
 
     private static List<DeployedMtaModuleDto> toDtos(List<DeployedMtaModule> modules) {
-        return modules.stream().map(module -> new DeployedMtaModuleDto(module)).collect(Collectors.toList());
+        return modules.stream()
+            .map(module -> new DeployedMtaModuleDto(module))
+            .collect(Collectors.toList());
     }
 
     private static List<DeployedMtaModule> toDeployedMtaModules(List<DeployedMtaModuleDto> modules) {
-        return modules.stream().map(module -> module.toDeployedMtaModule()).collect(Collectors.toList());
+        return modules.stream()
+            .map(module -> module.toDeployedMtaModule())
+            .collect(Collectors.toList());
     }
 
     public DeployedMtaMetadataDto getMetadata() {

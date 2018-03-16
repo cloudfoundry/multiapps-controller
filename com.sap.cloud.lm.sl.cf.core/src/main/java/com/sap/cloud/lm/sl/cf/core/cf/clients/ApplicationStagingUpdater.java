@@ -25,9 +25,11 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
     }
 
     private void attemptToUpdateApplicationStaging(CloudFoundryOperations client, String appName, Staging staging) {
-        String applicationsEndpoint = getApplicationsEndpoint(client.getCloudControllerUrl().toString());
+        String applicationsEndpoint = getApplicationsEndpoint(client.getCloudControllerUrl()
+            .toString());
         CloudApplication application = client.getApplication(appName);
-        UUID applicationId = application.getMeta().getGuid();
+        UUID applicationId = application.getMeta()
+            .getGuid();
         Map<String, Object> stagingParameters = createStagingParameters(staging);
         getRestTemplate(client).put(applicationsEndpoint, stagingParameters, applicationId);
     }

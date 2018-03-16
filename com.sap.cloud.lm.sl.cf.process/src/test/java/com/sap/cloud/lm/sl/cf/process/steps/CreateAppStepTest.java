@@ -115,8 +115,8 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
 
     private void validateApplicationUpdate() {
         if (stepInput.platform == PlatformType.CF) {
-            Mockito.verify(applicationUpdater).updateApplicationStaging(eq(client), eq(application.getName()),
-                eq(application.getStaging()));
+            Mockito.verify(applicationUpdater)
+                .updateApplicationStaging(eq(client), eq(application.getName()), eq(application.getStaging()));
         }
     }
 
@@ -139,7 +139,10 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
     }
 
     private List<CloudServiceExtended> mapToCloudServiceExtended() {
-        return application.getServices().stream().map(serviceName -> extracted(serviceName)).collect(Collectors.toList());
+        return application.getServices()
+            .stream()
+            .map(serviceName -> extracted(serviceName))
+            .collect(Collectors.toList());
     }
 
     private CloudServiceExtended extracted(String serviceName) {
@@ -152,11 +155,13 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
     }
 
     private void prepareClient() {
-        Mockito.when(configuration.getPlatformType()).thenReturn(stepInput.platform);
+        Mockito.when(configuration.getPlatformType())
+            .thenReturn(stepInput.platform);
         for (SimpleService simpleService : stepInput.services) {
             CloudServiceExtended service = simpleService.toCloudServiceExtended();
             if (!service.isOptional()) {
-                Mockito.when(client.getService(service.getName())).thenReturn(service);
+                Mockito.when(client.getService(service.getName()))
+                    .thenReturn(service);
             }
         }
 
@@ -171,7 +176,8 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
 
         for (String serviceName : stepInput.existingServiceKeys.keySet()) {
             List<ServiceKey> serviceKeys = stepInput.existingServiceKeys.get(serviceName);
-            Mockito.when(client.getServiceKeys(eq(serviceName))).thenReturn(ListUtil.upcast(serviceKeys));
+            Mockito.when(client.getServiceKeys(eq(serviceName)))
+                .thenReturn(ListUtil.upcast(serviceKeys));
         }
     }
 
@@ -179,20 +185,24 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
         Integer diskQuota = (application.getDiskQuota() != 0) ? application.getDiskQuota() : null;
         Integer memory = (application.getMemory() != 0) ? application.getMemory() : null;
 
-        Mockito.verify(client).createApplication(eq(application.getName()),
-            argThat(GenericArgumentMatcher.forObject(application.getStaging())), eq(diskQuota), eq(memory), eq(application.getUris()),
-            eq(Collections.emptyList()));
+        Mockito.verify(client)
+            .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
+                eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()));
         for (String service : application.getServices()) {
             if (!isOptional(service)) {
-                if (application.getBindingParameters() == null || application.getBindingParameters().get(service) == null) {
-                    Mockito.verify(client).bindService(application.getName(), service);
+                if (application.getBindingParameters() == null || application.getBindingParameters()
+                    .get(service) == null) {
+                    Mockito.verify(client)
+                        .bindService(application.getName(), service);
                 } else {
-                    Mockito.verify(clientExtensions).bindService(application.getName(), service,
-                        application.getBindingParameters().get(service));
+                    Mockito.verify(clientExtensions)
+                        .bindService(application.getName(), service, application.getBindingParameters()
+                            .get(service));
                 }
             }
         }
-        Mockito.verify(client).updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
+        Mockito.verify(client)
+            .updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
     }
 
     private boolean isOptional(String service) {

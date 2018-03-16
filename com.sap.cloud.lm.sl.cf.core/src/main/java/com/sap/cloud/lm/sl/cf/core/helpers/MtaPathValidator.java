@@ -14,7 +14,8 @@ public class MtaPathValidator {
         if (!path.equals(FilenameUtils.separatorsToUnix(path))) {
             throw new ContentException(Messages.PATH_MUST_NOT_CONTAIN_WINDOWS_SEPARATORS, path);
         }
-        if (Paths.get(path).isAbsolute()) {
+        if (Paths.get(path)
+            .isAbsolute()) {
             throw new ContentException(Messages.PATH_SHOULD_NOT_BE_ABSOLUTE, path);
         }
         if (!path.equals(FilenameUtils.normalize(path, true))) {

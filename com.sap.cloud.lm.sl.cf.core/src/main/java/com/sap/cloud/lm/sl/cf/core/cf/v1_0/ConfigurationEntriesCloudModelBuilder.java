@@ -49,7 +49,10 @@ public class ConfigurationEntriesCloudModelBuilder {
     }
 
     private List<ProvidedDependency> getPublicProvidedDependencies(Module module) {
-        return module.getProvidedDependencies1_0().stream().filter(CloudModelBuilderUtil::isPublic).collect(Collectors.toList());
+        return module.getProvidedDependencies1_0()
+            .stream()
+            .filter(CloudModelBuilderUtil::isPublic)
+            .collect(Collectors.toList());
     }
 
     private Map<String, List<ConfigurationEntry>> createConfigurationEntries(DeploymentDescriptor deploymentDescriptor,
@@ -64,8 +67,9 @@ public class ConfigurationEntriesCloudModelBuilder {
 
     private List<ConfigurationEntry> createConfigurationEntriesForModule(DeploymentDescriptor deploymentDescriptor,
         List<ProvidedDependency> providedDependencies) {
-        return providedDependencies.stream().map(
-            providedDependency -> createConfigurationEntry(deploymentDescriptor, providedDependency)).collect(Collectors.toList());
+        return providedDependencies.stream()
+            .map(providedDependency -> createConfigurationEntry(deploymentDescriptor, providedDependency))
+            .collect(Collectors.toList());
     }
 
     private ConfigurationEntry createConfigurationEntry(DeploymentDescriptor deploymentDescriptor, ProvidedDependency providedDependency) {
@@ -98,7 +102,8 @@ public class ConfigurationEntriesCloudModelBuilder {
             return null;
         }
         ParametersContainer dependency = (ParametersContainer) providedDependency;
-        return CommonUtil.cast(dependency.getParameters().get(SupportedParameters.VISIBILITY));
+        return CommonUtil.cast(dependency.getParameters()
+            .get(SupportedParameters.VISIBILITY));
     }
 
     private String getElement(Map<String, Object> map, String elementName) {

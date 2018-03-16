@@ -73,7 +73,9 @@ public class PublishConfigurationEntriesStep extends SyncActivitiStep {
 
     private ConfigurationEntry getExistingEntry(ConfigurationEntry targetEntry) {
         List<ConfigurationEntry> existingEntries = configurationEntryDao.find(targetEntry.getProviderNid(), targetEntry.getProviderId(),
-            targetEntry.getProviderVersion().toString(), targetEntry.getTargetSpace(), Collections.emptyMap(), null);
+            targetEntry.getProviderVersion()
+                .toString(),
+            targetEntry.getTargetSpace(), Collections.emptyMap(), null);
         return existingEntries.isEmpty() ? null : existingEntries.get(0);
     }
 

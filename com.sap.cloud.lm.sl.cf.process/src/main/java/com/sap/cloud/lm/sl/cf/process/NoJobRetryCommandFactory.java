@@ -35,7 +35,9 @@ public class NoJobRetryCommandFactory implements FailedJobCommandFactory {
 
         @Override
         public Object execute(CommandContext commandContext) {
-            JobEntity job = Context.getCommandContext().getJobEntityManager().findJobById(jobId);
+            JobEntity job = Context.getCommandContext()
+                .getJobEntityManager()
+                .findJobById(jobId);
             job.setRetries(NO_RETRIES);
             job.setLockOwner(null);
             job.setLockExpirationTime(null);
@@ -62,7 +64,8 @@ public class NoJobRetryCommandFactory implements FailedJobCommandFactory {
 
         private void addTransactionListener(CommandContext commandContext) {
 
-            final JobExecutor jobExecutor = Context.getProcessEngineConfiguration().getJobExecutor();
+            final JobExecutor jobExecutor = Context.getProcessEngineConfiguration()
+                .getJobExecutor();
             TransactionContext transactionContext = commandContext.getTransactionContext();
             transactionContext.addTransactionListener(TransactionState.COMMITTED, new TransactionListener() {
 

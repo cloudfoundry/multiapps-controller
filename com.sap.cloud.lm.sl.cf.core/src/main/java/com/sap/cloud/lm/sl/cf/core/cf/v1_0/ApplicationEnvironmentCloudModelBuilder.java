@@ -33,7 +33,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
     protected XsPlaceholderResolver xsPlaceholderResolver;
     protected DescriptorHandler handler;
     protected String deployId;
-    
+
     private static final int MTA_MAJOR_VERSION = 1;
 
     public ApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration, DeploymentDescriptor deploymentDescriptor,
@@ -81,9 +81,11 @@ public class ApplicationEnvironmentCloudModelBuilder {
     }
 
     protected void addProvidedDependenciesMetadata(Map<String, Object> env, Module module) {
-        List<String> mtaModuleProvidedDependencies = module.getProvidedDependencies1_0().stream().filter(
-            providedDependency -> CloudModelBuilderUtil.isPublic(providedDependency)).map(
-                providedDependency -> providedDependency.getName()).collect(Collectors.toList());
+        List<String> mtaModuleProvidedDependencies = module.getProvidedDependencies1_0()
+            .stream()
+            .filter(providedDependency -> CloudModelBuilderUtil.isPublic(providedDependency))
+            .map(providedDependency -> providedDependency.getName())
+            .collect(Collectors.toList());
         env.put(Constants.ENV_MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES, mtaModuleProvidedDependencies);
     }
 
@@ -93,7 +95,8 @@ public class ApplicationEnvironmentCloudModelBuilder {
 
     protected void addAttributes(Map<String, Object> env, List<String> descriptorDefinedUris, Map<String, Object> properties) {
         Map<String, Object> attributes = new TreeMap<>(properties);
-        attributes.keySet().retainAll(SupportedParameters.APP_ATTRIBUTES);
+        attributes.keySet()
+            .retainAll(SupportedParameters.APP_ATTRIBUTES);
         resolveUrlsInAppAttributes(attributes);
         addDescriptorDefinedUris(attributes, descriptorDefinedUris);
         if (!attributes.isEmpty()) {
@@ -162,15 +165,20 @@ public class ApplicationEnvironmentCloudModelBuilder {
     }
 
     public Map<String, Object> removeSpecialApplicationProperties(Map<String, Object> properties) {
-        properties.keySet().removeAll(SupportedParameters.APP_ATTRIBUTES);
-        properties.keySet().removeAll(SupportedParameters.APP_PROPS);
-        properties.keySet().removeAll(SupportedParameters.SPECIAL_MT_PROPS);
+        properties.keySet()
+            .removeAll(SupportedParameters.APP_ATTRIBUTES);
+        properties.keySet()
+            .removeAll(SupportedParameters.APP_PROPS);
+        properties.keySet()
+            .removeAll(SupportedParameters.SPECIAL_MT_PROPS);
         return properties;
     }
 
     public Map<String, Object> removeSpecialServiceProperties(Map<String, Object> properties) {
-        properties.keySet().removeAll(SupportedParameters.SPECIAL_RT_PROPS);
-        properties.keySet().removeAll(SupportedParameters.SERVICE_PROPS);
+        properties.keySet()
+            .removeAll(SupportedParameters.SPECIAL_RT_PROPS);
+        properties.keySet()
+            .removeAll(SupportedParameters.SERVICE_PROPS);
         return properties;
     }
 
@@ -191,7 +199,8 @@ public class ApplicationEnvironmentCloudModelBuilder {
     }
 
     protected void addToGroup(Map<String, List<Object>> groups, String group, String name, Map<String, Object> properties) {
-        groups.computeIfAbsent(group, key -> new ArrayList<>()).add(createExtendedProperties(name, properties));
+        groups.computeIfAbsent(group, key -> new ArrayList<>())
+            .add(createExtendedProperties(name, properties));
     }
 
     protected static Map<String, Object> createExtendedProperties(String name, Map<String, Object> properties) {
@@ -213,7 +222,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         }
         return result;
     }
-    
+
     protected HandlerFactory getHandlerFactory() {
         return new HandlerFactory(MTA_MAJOR_VERSION);
     }

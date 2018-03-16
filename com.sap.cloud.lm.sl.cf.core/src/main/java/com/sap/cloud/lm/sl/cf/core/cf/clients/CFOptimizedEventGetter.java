@@ -65,7 +65,7 @@ public class CFOptimizedEventGetter {
     private String getSpaceIdValue(Map<String, Object> cloudEvent) {
         Map<String, Object> entity = (Map<String, Object>) cloudEvent.get("entity");
         String spaceId = (String) entity.get("space_guid");
-        return  spaceId;
+        return spaceId;
     }
 
     @SuppressWarnings("unchecked")
@@ -104,7 +104,8 @@ public class CFOptimizedEventGetter {
     }
 
     protected String getUrl(String path) {
-        return cfClient.getCloudControllerUrl().toString() + (path.startsWith("/") ? path : "/" + path);
+        return cfClient.getCloudControllerUrl()
+            .toString() + (path.startsWith("/") ? path : "/" + path);
     }
 
     private Map<String, Object> parseResponse(String response) {

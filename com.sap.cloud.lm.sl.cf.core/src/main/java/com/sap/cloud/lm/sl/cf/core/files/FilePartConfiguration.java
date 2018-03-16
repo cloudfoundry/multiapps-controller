@@ -44,7 +44,8 @@ public class FilePartConfiguration {
         if (filePartsPath == null) {
             filePartsPath = Files.createTempDirectory(FILE_PARTS_TEMP_DIR_PREFIX);
         }
-        return filePartsPath.toAbsolutePath().toString();
+        return filePartsPath.toAbsolutePath()
+            .toString();
     }
 
 }

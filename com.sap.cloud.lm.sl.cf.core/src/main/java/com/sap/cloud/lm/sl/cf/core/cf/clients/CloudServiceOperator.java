@@ -38,7 +38,8 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
         offerings = filterByVersion(offerings, service);
         for (CloudServiceOffering offering : offerings) {
             for (CloudServicePlan plan : offering.getCloudServicePlans()) {
-                if (plan.getName().equals(newServicePlan)) {
+                if (plan.getName()
+                    .equals(newServicePlan)) {
                     return plan;
                 }
             }
@@ -51,7 +52,10 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
         if (service.getVersion() == null) {
             return offerings;
         }
-        return offerings.stream().filter(offering -> service.getVersion().equals(offering.getVersion())).collect(Collectors.toList());
+        return offerings.stream()
+            .filter(offering -> service.getVersion()
+                .equals(offering.getVersion()))
+            .collect(Collectors.toList());
     }
 
     protected List<CloudServiceOffering> getServiceOfferings(String label, RestTemplate restTemplate, String cloudControllerUrl) {
@@ -59,7 +63,8 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
         List<CloudServiceOffering> results = new ArrayList<CloudServiceOffering>();
         for (Map<String, Object> resource : resourceList) {
             CloudServiceOffering cloudServiceOffering = getResourceMapper().mapResource(resource, CloudServiceOffering.class);
-            if (cloudServiceOffering.getLabel().equals(label)) {
+            if (cloudServiceOffering.getLabel()
+                .equals(label)) {
                 results.add(cloudServiceOffering);
             }
         }

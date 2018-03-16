@@ -40,7 +40,9 @@ public class RecentLogsRetriever extends CustomControllerClient {
     }
 
     private List<ApplicationLog> attemptToGetRecentLogs(CloudFoundryOperations client, String appName) {
-        UUID applicationGuid = client.getApplication(appName).getMeta().getGuid();
+        UUID applicationGuid = client.getApplication(appName)
+            .getMeta()
+            .getGuid();
         String dopplerEndpoint = getDopplerEndpoint(loggingEndpointGetter.getLoggingEndpoint(client));
 
         String recentLogsUrl = dopplerEndpoint + "/apps/{guid}/recentlogs";
@@ -59,15 +61,19 @@ public class RecentLogsRetriever extends CustomControllerClient {
     }
 
     private List<ApplicationLog> convertToApplicationLogs(List<LogMessageConverter> logMessages) {
-        return logMessages.stream().map(message -> message.convertToApplicationLog()).collect(Collectors.toList());
+        return logMessages.stream()
+            .map(message -> message.convertToApplicationLog())
+            .collect(Collectors.toList());
     }
 
     private List<LogMessageConverter> extractLogMessages(ResponseEntity<Resource> responseResource)
         throws MalformedStreamException, InvalidProtocolBufferException, IOException {
         List<LogMessageConverter> parsedLogs = new ArrayList<>();
-        MediaType contentType = responseResource.getHeaders().getContentType();
+        MediaType contentType = responseResource.getHeaders()
+            .getContentType();
         String boundary = contentType.getParameter("boundary");
-        InputStream responseInputStream = responseResource.getBody().getInputStream();
+        InputStream responseInputStream = responseResource.getBody()
+            .getInputStream();
         try {
             MultipartStream multipartStream = new MultipartStream(responseInputStream, boundary.getBytes(StandardCharsets.UTF_8), 16 * 1024,
                 null);
@@ -107,8 +113,9 @@ public class RecentLogsRetriever extends CustomControllerClient {
         }
 
         public ApplicationLog convertToApplicationLog() {
-            return new ApplicationLog(logMessage.getAppId(), logMessage.getMessage().toStringUtf8(), new Date(logMessage.getTimestamp()),
-                getMessageType(), logMessage.getSourceType(), logMessage.getSourceInstance());
+            return new ApplicationLog(logMessage.getAppId(), logMessage.getMessage()
+                .toStringUtf8(), new Date(logMessage.getTimestamp()), getMessageType(), logMessage.getSourceType(),
+                logMessage.getSourceInstance());
         }
 
         private org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType getMessageType() {

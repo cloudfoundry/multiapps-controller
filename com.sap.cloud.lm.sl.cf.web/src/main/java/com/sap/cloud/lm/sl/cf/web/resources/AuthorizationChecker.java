@@ -25,8 +25,8 @@ public class AuthorizationChecker {
     public static void ensureUserIsAuthorized(HttpServletRequest request, CloudFoundryClientProvider clientProvider, UserInfo userInfo,
         String organization, String space, String action) {
         try {
-            if (!AuthorizationUtil.checkPermissions(clientProvider, userInfo, organization, space,
-                request.getMethod().equals(HttpMethod.GET), null)) {
+            if (!AuthorizationUtil.checkPermissions(clientProvider, userInfo, organization, space, request.getMethod()
+                .equals(HttpMethod.GET), null)) {
                 String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_ORG_SPACE, action, organization, space);
                 failWithForbiddenStatus(message);
             }
@@ -39,7 +39,8 @@ public class AuthorizationChecker {
     public static void ensureUserIsAuthorized(HttpServletRequest request, CloudFoundryClientProvider clientProvider, UserInfo userInfo,
         String spaceGuid, String action) {
         try {
-            if (!AuthorizationUtil.checkPermissions(clientProvider, userInfo, spaceGuid, request.getMethod().equals(HttpMethod.GET))) {
+            if (!AuthorizationUtil.checkPermissions(clientProvider, userInfo, spaceGuid, request.getMethod()
+                .equals(HttpMethod.GET))) {
                 String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_SPACE_ID, action, spaceGuid);
                 failWithForbiddenStatus(message);
             }
@@ -59,7 +60,8 @@ public class AuthorizationChecker {
 
     private static void failWithStatus(Status status, String message) {
         LOGGER.warn(message);
-        AuditLoggingProvider.getFacade().logSecurityIncident(message);
+        AuditLoggingProvider.getFacade()
+            .logSecurityIncident(message);
         throw new WebApplicationException(ResponseRenderer.renderResponseForStatus(status, message));
     }
 

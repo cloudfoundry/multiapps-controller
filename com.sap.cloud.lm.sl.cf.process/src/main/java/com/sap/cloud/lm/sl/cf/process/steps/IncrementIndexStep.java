@@ -15,7 +15,8 @@ public class IncrementIndexStep extends SyncActivitiStep {
         getStepLogger().logActivitiTask();
 
         // Continue the iteration over the collection:
-        String indexVariableName = (String) execution.getContext().getVariable(Constants.VAR_INDEX_VARIABLE_NAME);
+        String indexVariableName = (String) execution.getContext()
+            .getVariable(Constants.VAR_INDEX_VARIABLE_NAME);
         StepsUtil.incrementVariable(execution.getContext(), indexVariableName);
 
         return StepPhase.DONE;

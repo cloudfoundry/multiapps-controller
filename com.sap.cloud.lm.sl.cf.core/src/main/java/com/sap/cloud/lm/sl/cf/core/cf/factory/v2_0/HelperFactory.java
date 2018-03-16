@@ -52,7 +52,7 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1_0.H
         return new ApplicationsCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor) deploymentDescriptor,
             configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId);
     }
-    
+
     @Override
     public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,

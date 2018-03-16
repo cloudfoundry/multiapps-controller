@@ -12,8 +12,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupState;
-import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupStateCalculator;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 

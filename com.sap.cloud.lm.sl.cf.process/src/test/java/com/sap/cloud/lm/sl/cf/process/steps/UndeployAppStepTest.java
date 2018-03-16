@@ -85,7 +85,8 @@ public class UndeployAppStepTest extends SyncActivitiStepTest<UndeployAppStep> {
     public void setUp() throws Exception {
         prepareContext();
         prepareClient();
-        Mockito.when(oneOffTasksSupportChecker.areOneOffTasksSupported(client)).thenReturn(!stepInput.tasksPerApplication.isEmpty());
+        Mockito.when(oneOffTasksSupportChecker.areOneOffTasksSupported(client))
+            .thenReturn(!stepInput.tasksPerApplication.isEmpty());
     }
 
     @Test
@@ -101,7 +102,8 @@ public class UndeployAppStepTest extends SyncActivitiStepTest<UndeployAppStep> {
         step.execute(context);
         assertStepFinishedSuccessfully();
         verify(client).stopApplication(cloudApplication.getName());
-        if (!cloudApplication.getUris().isEmpty()) {
+        if (!cloudApplication.getUris()
+            .isEmpty()) {
             verify(client).updateApplicationUris(cloudApplication.getName(), Collections.emptyList());
         }
         verify(client).deleteApplication(cloudApplication.getName());
@@ -136,20 +138,24 @@ public class UndeployAppStepTest extends SyncActivitiStepTest<UndeployAppStep> {
 
     private void prepareClient() {
         CloudInfoExtended info = Mockito.mock(CloudInfoExtended.class);
-        Mockito.when(info.isPortBasedRouting()).thenReturn(stepInput.portBasedRouting);
-        Mockito.when(client.getCloudInfo()).thenReturn(info);
-        Mockito.when(applicationRoutesGetter.getRoutes(any(), anyString())).thenAnswer((invocation) -> {
+        Mockito.when(info.isPortBasedRouting())
+            .thenReturn(stepInput.portBasedRouting);
+        Mockito.when(client.getCloudInfo())
+            .thenReturn(info);
+        Mockito.when(applicationRoutesGetter.getRoutes(any(), anyString()))
+            .thenAnswer((invocation) -> {
 
-            String appName = (String) invocation.getArguments()[1];
-            return stepInput.appRoutesPerApplication.get(appName);
+                String appName = (String) invocation.getArguments()[1];
+                return stepInput.appRoutesPerApplication.get(appName);
 
-        });
-        Mockito.when(clientExtensions.getTasks(anyString())).thenAnswer((invocation) -> {
+            });
+        Mockito.when(clientExtensions.getTasks(anyString()))
+            .thenAnswer((invocation) -> {
 
-            String appName = (String) invocation.getArguments()[0];
-            return stepInput.tasksPerApplication.get(appName);
+                String appName = (String) invocation.getArguments()[0];
+                return stepInput.tasksPerApplication.get(appName);
 
-        });
+            });
     }
 
     private static class StepInput {

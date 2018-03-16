@@ -24,10 +24,12 @@ public class UpdateContextStep extends SyncActivitiStep {
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         getStepLogger().logActivitiTask();
         try {
-            List<ContextExtension> contextExtensionEntries = contextExtensionDao.findAll(execution.getContext().getProcessInstanceId());
+            List<ContextExtension> contextExtensionEntries = contextExtensionDao.findAll(execution.getContext()
+                .getProcessInstanceId());
 
             for (ContextExtension contextExtension : contextExtensionEntries) {
-                execution.getContext().setVariable(contextExtension.getName(), contextExtension.getValue());
+                execution.getContext()
+                    .setVariable(contextExtension.getName(), contextExtension.getValue());
                 contextExtensionDao.remove(contextExtension.getId());
             }
 

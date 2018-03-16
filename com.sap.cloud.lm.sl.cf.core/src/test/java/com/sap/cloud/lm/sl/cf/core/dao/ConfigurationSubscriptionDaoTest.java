@@ -121,8 +121,8 @@ public class ConfigurationSubscriptionDaoTest {
             Type type = new TypeToken<List<ConfigurationSubscription>>() {
             }.getType();
 
-            List<ConfigurationSubscription> subscriptions = JsonUtil.convertJsonToList(
-                TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), type);
+            List<ConfigurationSubscription> subscriptions = JsonUtil
+                .convertJsonToList(TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), type);
 
             for (ConfigurationSubscription subscription : subscriptions) {
                 dao.add(subscription);
@@ -226,7 +226,7 @@ public class ConfigurationSubscriptionDaoTest {
             }
 
         }
-        
+
         private static class FindAllGuidTest extends TestCase<FindOneTestInput> {
 
             public FindAllGuidTest(FindOneTestInput input, String expected) {
@@ -272,7 +272,7 @@ public class ConfigurationSubscriptionDaoTest {
         private static List<ConfigurationSubscription> findAll(FindAllTestInput input, ConfigurationSubscriptionDao dao) {
             return dao.findAll(input.entries);
         }
-        
+
         private static List<ConfigurationSubscription> findAll(String guid, ConfigurationSubscriptionDao dao) {
             List<ConfigurationSubscription> subscriptions = dao.findAll(guid);
             return subscriptions;

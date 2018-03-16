@@ -45,13 +45,17 @@ public class MtasApiServiceImpl implements MtasApiService {
         if (mta == null) {
             throw new NotFoundException(Messages.MTA_NOT_FOUND, mtaId);
         }
-        return Response.ok().entity(getMta(mta)).build();
+        return Response.ok()
+            .entity(getMta(mta))
+            .build();
     }
 
     public Response getMtas(SecurityContext securityContext, String spaceGuid, HttpServletRequest request) {
         AuthorizationChecker.ensureUserIsAuthorized(request, clientProvider, SecurityContextUtil.getUserInfo(), spaceGuid, ACTION);
         DeployedComponents deployedComponents = detectDeployedComponents(spaceGuid);
-        return Response.ok().entity(getMtas(deployedComponents)).build();
+        return Response.ok()
+            .entity(getMtas(deployedComponents))
+            .build();
 
     }
 
@@ -105,7 +109,8 @@ public class MtasApiServiceImpl implements MtasApiService {
     private Metadata getMetadata(DeployedMtaMetadata metadata) {
         Metadata result = new Metadata();
         result.setId(metadata.getId());
-        result.setVersion(metadata.getVersion().toString());
+        result.setVersion(metadata.getVersion()
+            .toString());
         return result;
     }
 }

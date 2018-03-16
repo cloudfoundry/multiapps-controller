@@ -96,7 +96,8 @@ public class ConfigurationFilter {
         if (providerId != null && !providerId.equals(entry.getProviderId())) {
             return false;
         }
-        if (providerVersion != null && (entry.getProviderVersion() == null || !entry.getProviderVersion().satisfies(providerVersion))) {
+        if (providerVersion != null && (entry.getProviderVersion() == null || !entry.getProviderVersion()
+            .satisfies(providerVersion))) {
             return false;
         }
         if (requiredContent != null && !CONTENT_FILTER.apply(entry.getContent(), requiredContent)) {
@@ -116,7 +117,9 @@ public class ConfigurationFilter {
             if (parsedContent == null) {
                 return false;
             }
-            return requiredProperties.entrySet().stream().allMatch((requiredEntry) -> exists(parsedContent, requiredEntry));
+            return requiredProperties.entrySet()
+                .stream()
+                .allMatch((requiredEntry) -> exists(parsedContent, requiredEntry));
         }
 
         private boolean exists(Map<String, Object> content, Map.Entry<String, Object> requiredEntry) {
@@ -129,7 +132,8 @@ public class ConfigurationFilter {
                 return null;
             }
             try {
-                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PropertiesAdapterFactory()).create();
+                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PropertiesAdapterFactory())
+                    .create();
                 return gson.fromJson(content, new TypeToken<Map<String, Object>>() {
                 }.getType());
             } catch (Exception e) {

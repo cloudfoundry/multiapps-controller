@@ -35,7 +35,7 @@ public class MemoryParametersParser implements ParametersParser<Integer> {
         }
         throw new ContentException(MessageFormat.format(Messages.UNABLE_TO_PARSE_PARAMETER, parameterName, value));
     }
-    
+
     private int getNumberFromString(String value) {
         return Integer.parseInt(value.replaceAll("[^0-9]", ""));
     }

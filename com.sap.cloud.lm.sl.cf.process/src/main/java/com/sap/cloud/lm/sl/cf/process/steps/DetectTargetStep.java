@@ -49,7 +49,9 @@ public class DetectTargetStep extends SyncActivitiStep {
     protected Function<HandlerFactory, List<Target>> targetsSupplier = (handlerFactory) -> {
         DeployTargetDao<?, ?> targetDao = handlerFactory.getDeployTargetDao(deployTargetDaoV1, deployTargetDaoV2, deployTargetDaoV3);
         List<PersistentObject<Target>> persistentTargets = cast(targetDao.findAll());
-        return persistentTargets.stream().map((target) -> target.getObject()).collect(Collectors.toList());
+        return persistentTargets.stream()
+            .map((target) -> target.getObject())
+            .collect(Collectors.toList());
     };
 
     @Override
@@ -67,19 +69,25 @@ public class DetectTargetStep extends SyncActivitiStep {
                 throw new NotFoundException(Messages.NO_PLATFORMS_CONFIGURED);
             }
 
-            String targetName = (String) execution.getContext().getVariable(Constants.PARAM_TARGET_NAME);
+            String targetName = (String) execution.getContext()
+                .getVariable(Constants.PARAM_TARGET_NAME);
             if (targetName == null || targetName.isEmpty()) {
                 targetName = computeDefaultTargetName(execution.getContext());
-                execution.getContext().setVariable(Constants.PARAM_TARGET_NAME, targetName);
+                execution.getContext()
+                    .setVariable(Constants.PARAM_TARGET_NAME, targetName);
             }
 
-            String space = (String) execution.getContext().getVariable(Constants.VAR_SPACE);
-            String org = (String) execution.getContext().getVariable(Constants.VAR_ORG);
+            String space = (String) execution.getContext()
+                .getVariable(Constants.VAR_SPACE);
+            String org = (String) execution.getContext()
+                .getVariable(Constants.VAR_ORG);
 
             List<Target> targets = targetsSupplier.apply(handlerFactory);
             getStepLogger().debug(Messages.PLATFORMS, new SecureSerializationFacade().toJson(targets));
 
-            Target implicitTarget = handlerFactory.getDeployTargetFactory().create(org, space, platforms.get(0).getName());
+            Target implicitTarget = handlerFactory.getDeployTargetFactory()
+                .create(org, space, platforms.get(0)
+                    .getName());
             DescriptorHandler descriptorHandler = handlerFactory.getDescriptorHandler();
 
             Target target = CloudModelBuilderUtil.findTarget(descriptorHandler, targets, targetName, implicitTarget);
@@ -110,7 +118,8 @@ public class DetectTargetStep extends SyncActivitiStep {
 
     private void validateOrgAndSpace(DelegateExecution context, Target target, Platform platform, HandlerFactory handlerFactory)
         throws SLException {
-        Pair<String, String> orgSpace = handlerFactory.getOrgAndSpaceHelper(target, platform).getOrgAndSpace();
+        Pair<String, String> orgSpace = handlerFactory.getOrgAndSpaceHelper(target, platform)
+            .getOrgAndSpace();
         getStepLogger().debug(Messages.ORG_SPACE, orgSpace._1, orgSpace._2);
 
         validateOrgAndSpace(context, orgSpace._1, orgSpace._2);

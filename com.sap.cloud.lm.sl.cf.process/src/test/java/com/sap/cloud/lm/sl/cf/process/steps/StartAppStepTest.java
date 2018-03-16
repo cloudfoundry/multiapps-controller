@@ -30,8 +30,10 @@ public class StartAppStepTest extends SyncActivitiStepTest<StartAppStep> {
         step.execute(context);
         assertStepFinishedSuccessfully();
 
-        Mockito.verify(client, Mockito.never()).stopApplication(APP_NAME);
-        Mockito.verify(clientExtensions, Mockito.times(1)).startApplication(APP_NAME, false);
+        Mockito.verify(client, Mockito.never())
+            .stopApplication(APP_NAME);
+        Mockito.verify(clientExtensions, Mockito.times(1))
+            .startApplication(APP_NAME, false);
 
         assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(StepsUtil.getStartingInfo(context)));
     }
@@ -50,8 +52,10 @@ public class StartAppStepTest extends SyncActivitiStepTest<StartAppStep> {
         step.execute(context);
         assertStepFinishedSuccessfully();
 
-        Mockito.verify(client).stopApplication(APP_NAME);
-        Mockito.verify(clientExtensions).startApplication(APP_NAME, false);
+        Mockito.verify(client)
+            .stopApplication(APP_NAME);
+        Mockito.verify(clientExtensions)
+            .startApplication(APP_NAME, false);
 
         assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(StepsUtil.getStartingInfo(context)));
     }
@@ -63,8 +67,10 @@ public class StartAppStepTest extends SyncActivitiStepTest<StartAppStep> {
     }
 
     private void prepareContextAndClient(CloudApplicationExtended app, StartingInfo startingInfo) {
-        Mockito.when(client.getApplication(APP_NAME)).thenReturn(app);
-        Mockito.when(clientExtensions.startApplication(APP_NAME, false)).thenReturn(startingInfo);
+        Mockito.when(client.getApplication(APP_NAME))
+            .thenReturn(app);
+        Mockito.when(clientExtensions.startApplication(APP_NAME, false))
+            .thenReturn(startingInfo);
         StepsUtil.setApp(context, app);
     }
 

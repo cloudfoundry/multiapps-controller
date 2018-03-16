@@ -50,8 +50,8 @@ public class ProcessDescriptorStepTest extends SyncActivitiStepTest<ProcessDescr
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor(DESCRIPTOR_PARSER, "node-hello-mtad.yaml",
         ProcessDescriptorStepTest.class);
-    private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json",
-        ProcessDescriptorStepTest.class).get(0);
+    private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json", ProcessDescriptorStepTest.class)
+        .get(0);
     private static final Target TARGET = loadTargets(CONFIGURATION_PARSER, "platforms-01.json", ProcessDescriptorStepTest.class).get(0);
 
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
@@ -121,7 +121,8 @@ public class ProcessDescriptorStepTest extends SyncActivitiStepTest<ProcessDescr
 
         when(client.getSpaces()).thenReturn(Arrays.asList(space));
 
-        assertEquals("cc51b819-7428-3ab7-9cef-9e94fe778cc9", step.getSpaceIdSupplier(client).apply(ORG_NAME, SPACE_NAME));
+        assertEquals("cc51b819-7428-3ab7-9cef-9e94fe778cc9", step.getSpaceIdSupplier(client)
+            .apply(ORG_NAME, SPACE_NAME));
     }
 
     @Test
@@ -131,7 +132,8 @@ public class ProcessDescriptorStepTest extends SyncActivitiStepTest<ProcessDescr
 
         when(client.getSpace(SPACE_NAME)).thenReturn(space);
 
-        assertNull(step.getSpaceIdSupplier(client).apply("not-initial", SPACE_NAME));
+        assertNull(step.getSpaceIdSupplier(client)
+            .apply("not-initial", SPACE_NAME));
     }
 
     @Override

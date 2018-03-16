@@ -35,7 +35,8 @@ public class DeployAppsStepTest extends SyncActivitiStepTest<PrepareAppsDeployme
     @Before
     public void setUp() throws Exception {
         prepareContext();
-        Mockito.when(configuration.getPlatformType()).thenReturn(Configuration.DEFAULT_TYPE);
+        Mockito.when(configuration.getPlatformType())
+            .thenReturn(Configuration.DEFAULT_TYPE);
     }
 
     @Test

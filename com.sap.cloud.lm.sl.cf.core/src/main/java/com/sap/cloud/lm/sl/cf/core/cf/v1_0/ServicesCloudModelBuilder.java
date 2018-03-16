@@ -137,7 +137,8 @@ public class ServicesCloudModelBuilder {
     protected String getInvalidServiceConfigTypeErrorMessage(String serviceName, Object serviceParameters) {
         return MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.INVALID_TYPE_FOR_KEY,
             ValidatorUtil.getPrefixedName(serviceName, SupportedParameters.SERVICE_CONFIG), Map.class.getSimpleName(),
-            serviceParameters.getClass().getSimpleName());
+            serviceParameters.getClass()
+                .getSimpleName());
     }
 
     protected CloudServiceExtended createCloudService(String name, String label, String plan, String provider, String version,

@@ -58,6 +58,7 @@ public class CollectedDataSender {
         params.put(Constants.TOOL_TYPE, XS2);
         params.put(Constants.FEEDBACK_MAIL, collectedXmlData);
 
-        restTemplate.postForLocation(Configuration.getInstance().getMailApiUrl(), params);
+        restTemplate.postForLocation(Configuration.getInstance()
+            .getMailApiUrl(), params);
     }
 }

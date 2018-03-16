@@ -56,7 +56,7 @@ public class HelperFactory implements HelperFactoryConstructor {
         return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
             deployId);
     }
-    
+
     @Override
     public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,

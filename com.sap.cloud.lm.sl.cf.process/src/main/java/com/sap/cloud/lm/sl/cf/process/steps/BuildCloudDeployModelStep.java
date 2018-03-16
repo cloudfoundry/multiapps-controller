@@ -90,7 +90,8 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
             StepsUtil.setServicesToCreate(execution.getContext(), servicesToCreate);
 
             // Needed by CreateOrUpdateServicesStep, as it is used as an iteration variable:
-            execution.getContext().setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
+            execution.getContext()
+                .setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
 
             getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
             return StepPhase.DONE;
@@ -106,7 +107,8 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
 
     protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context,
         DeploymentDescriptor deploymentDescriptor) {
-        return new ServiceKeysCloudModelBuilder(deploymentDescriptor, StepsUtil.getHandlerFactory(context).getPropertiesAccessor());
+        return new ServiceKeysCloudModelBuilder(deploymentDescriptor, StepsUtil.getHandlerFactory(context)
+            .getPropertiesAccessor());
     }
 
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {

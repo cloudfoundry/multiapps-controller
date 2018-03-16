@@ -73,7 +73,8 @@ public class RegisterServiceUrlsStepTest extends SyncActivitiStepTest<RegisterSe
         assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
 
         for (ServiceUrl serviceUrl : expectedOutput.serviceUrlsToRegister) {
-            Mockito.verify(clientExtensions).registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
+            Mockito.verify(clientExtensions)
+                .registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
         }
     }
 
@@ -100,7 +101,9 @@ public class RegisterServiceUrlsStepTest extends SyncActivitiStepTest<RegisterSe
     }
 
     private List<CloudApplicationExtended> toCloudApplications() {
-        return input.applications.stream().map(app -> app.toCloudApplicationExtended()).collect(Collectors.toList());
+        return input.applications.stream()
+            .map(app -> app.toCloudApplicationExtended())
+            .collect(Collectors.toList());
     }
 
     private static class StepInput {

@@ -55,7 +55,8 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
         }
 
         private String getProcessId(CommandContext commandContext) {
-            JobEntity job = commandContext.getJobEntityManager().findJobById(jobId);
+            JobEntity job = commandContext.getJobEntityManager()
+                .findJobById(jobId);
             return job.getProcessInstanceId();
         }
 
@@ -81,11 +82,13 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
         }
 
         private HistoryService getHistoryService(CommandContext commandContext) {
-            return commandContext.getProcessEngineConfiguration().getHistoryService();
+            return commandContext.getProcessEngineConfiguration()
+                .getHistoryService();
         }
 
         private RuntimeService getRuntimeService(CommandContext commandContext) {
-            return commandContext.getProcessEngineConfiguration().getRuntimeService();
+            return commandContext.getProcessEngineConfiguration()
+                .getRuntimeService();
         }
 
     }

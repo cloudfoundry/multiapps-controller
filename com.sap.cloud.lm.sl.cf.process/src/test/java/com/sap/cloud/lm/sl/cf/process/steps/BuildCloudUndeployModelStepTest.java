@@ -145,13 +145,15 @@ public class BuildCloudUndeployModelStepTest extends SyncActivitiStepTest<BuildC
 
     private void prepareDao() {
         if (deployedMta != null) {
-            when(dao.findAll(deployedMta.getMetadata().getId(), null, SPACE_ID, null)).thenReturn(filter(existingSubscriptions));
+            when(dao.findAll(deployedMta.getMetadata()
+                .getId(), null, SPACE_ID, null)).thenReturn(filter(existingSubscriptions));
         }
     }
 
     private List<ConfigurationSubscription> filter(List<ConfigurationSubscription> existingSubscriptions) {
-        return existingSubscriptions.stream().filter((subscription) -> SPACE_ID.equals(subscription.getSpaceId())).collect(
-            Collectors.toList());
+        return existingSubscriptions.stream()
+            .filter((subscription) -> SPACE_ID.equals(subscription.getSpaceId()))
+            .collect(Collectors.toList());
     }
 
     @Test
@@ -172,7 +174,9 @@ public class BuildCloudUndeployModelStepTest extends SyncActivitiStepTest<BuildC
         if (appsToUndeploy == null) {
             return null;
         }
-        return appsToUndeploy.stream().map((app) -> app.getName()).collect(Collectors.toList());
+        return appsToUndeploy.stream()
+            .map((app) -> app.getName())
+            .collect(Collectors.toList());
     }
 
     private static class StepInput {

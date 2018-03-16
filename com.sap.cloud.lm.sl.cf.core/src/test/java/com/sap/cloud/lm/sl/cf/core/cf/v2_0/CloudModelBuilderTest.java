@@ -402,8 +402,8 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1_0.C
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, CloudModelConfiguration configuration) {
         deploymentDescriptor = new DescriptorReferenceResolver(
-            (com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor) deploymentDescriptor, new ResolverBuilder(),
-            new ResolverBuilder()).resolve();
+            (com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor) deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder())
+                .resolve();
         return new com.sap.cloud.lm.sl.cf.core.cf.v2_0.ApplicationsCloudModelBuilder(
             (com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor) deploymentDescriptor, configuration, null, systemParameters,
             xsPlaceholderResolver, DEPLOY_ID);

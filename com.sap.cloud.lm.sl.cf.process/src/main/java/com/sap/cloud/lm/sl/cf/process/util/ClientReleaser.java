@@ -23,7 +23,8 @@ public class ClientReleaser {
     }
 
     public void releaseClient() {
-        HistoryService historyService = event.getEngineServices().getHistoryService();
+        HistoryService historyService = event.getEngineServices()
+            .getHistoryService();
         String processInstanceId = event.getProcessInstanceId();
 
         String user = getCurrentUser(historyService, processInstanceId);
@@ -46,7 +47,9 @@ public class ClientReleaser {
     }
 
     public HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId, String parameter) {
-        return historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstanceId).variableName(
-            parameter).singleResult();
+        return historyService.createHistoricVariableInstanceQuery()
+            .processInstanceId(processInstanceId)
+            .variableName(parameter)
+            .singleResult();
     }
 }

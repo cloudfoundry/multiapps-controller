@@ -20,8 +20,12 @@ public class ActivitiEventToDelegateExecutionAdapter implements DelegateExecutio
 
     @Override
     public Object getVariable(String variableName) {
-        HistoricVariableInstance result = event.getEngineServices().getHistoryService().createHistoricVariableInstanceQuery().processInstanceId(
-            getProcessInstanceId()).variableName(variableName).singleResult();
+        HistoricVariableInstance result = event.getEngineServices()
+            .getHistoryService()
+            .createHistoricVariableInstanceQuery()
+            .processInstanceId(getProcessInstanceId())
+            .variableName(variableName)
+            .singleResult();
         if (result != null) {
             return result.getValue();
         }

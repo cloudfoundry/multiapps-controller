@@ -77,7 +77,9 @@ public class UriUtil {
     }
 
     public static List<String> getUrisWithoutScheme(List<String> uris) {
-        return uris.stream().map(uri -> getUriWithoutScheme(uri)).collect(Collectors.toList());
+        return uris.stream()
+            .map(uri -> getUriWithoutScheme(uri))
+            .collect(Collectors.toList());
     }
 
     public static boolean isValidPort(int port) {
@@ -109,8 +111,10 @@ public class UriUtil {
     }
 
     public static CloudRoute findRoute(List<CloudRoute> routes, String uri, boolean isPortBasedRouting) {
-        return routes.stream().filter(route -> routeMatchesUri(route, uri, isPortBasedRouting)).findAny().orElseThrow(
-            () -> new NotFoundException(Messages.ROUTE_NOT_FOUND, uri));
+        return routes.stream()
+            .filter(route -> routeMatchesUri(route, uri, isPortBasedRouting))
+            .findAny()
+            .orElseThrow(() -> new NotFoundException(Messages.ROUTE_NOT_FOUND, uri));
     }
 
     public static boolean routeMatchesUri(CloudRoute route, String uri, boolean isPortBasedRouting) {
@@ -122,7 +126,11 @@ public class UriUtil {
         }
         String host = hostAndDomain._1;
         String domain = hostAndDomain._2;
-        return route.getHost().equals(host) && route.getDomain().getName().equals(domain);
+        return route.getHost()
+            .equals(host)
+            && route.getDomain()
+                .getName()
+                .equals(domain);
     }
 
 }

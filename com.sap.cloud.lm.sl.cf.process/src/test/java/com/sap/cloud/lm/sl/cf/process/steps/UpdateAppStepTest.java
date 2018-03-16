@@ -166,42 +166,50 @@ public class UpdateAppStepTest extends SyncActivitiStepTest<UpdateAppStep> {
         String appName = input.application.name;
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         if (input.updateStaging && platform == PlatformType.XS2) {
-            Mockito.verify(client).updateApplicationStaging(Mockito.eq(appName),
-                Mockito.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
+            Mockito.verify(client)
+                .updateApplicationStaging(Mockito.eq(appName), Mockito.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
         }
         if (input.updateMemory) {
-            Mockito.verify(client).updateApplicationMemory(appName, cloudApp.getMemory());
+            Mockito.verify(client)
+                .updateApplicationMemory(appName, cloudApp.getMemory());
         }
         if (input.updateDiskQuota) {
-            Mockito.verify(client).updateApplicationDiskQuota(appName, cloudApp.getDiskQuota());
+            Mockito.verify(client)
+                .updateApplicationDiskQuota(appName, cloudApp.getDiskQuota());
         }
         if (input.updateUris) {
-            Mockito.verify(client).updateApplicationUris(appName, cloudApp.getUris());
+            Mockito.verify(client)
+                .updateApplicationUris(appName, cloudApp.getUris());
         }
         if (input.updateEnv) {
-            Mockito.verify(client).updateApplicationEnv(appName, cloudApp.getEnvAsMap());
+            Mockito.verify(client)
+                .updateApplicationEnv(appName, cloudApp.getEnvAsMap());
         }
         if (platform == PlatformType.CF) {
-            Mockito.verify(applicationUpdaterMock).updateApplicationStaging(eq(client), eq(cloudApp.getName()),
-                Matchers.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
+            Mockito.verify(applicationUpdaterMock)
+                .updateApplicationStaging(eq(client), eq(cloudApp.getName()),
+                    Matchers.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
         }
     }
 
     private void validateBindServices() {
-        Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp().getBindingParameters();
+        Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp()
+            .getBindingParameters();
         for (String serviceToBind : expectedServicesToBind) {
             if (currentBindingParameters != null && currentBindingParameters.get(serviceToBind) != null) {
-                Mockito.verify(clientExtensions).bindService(input.existingApplication.name, serviceToBind,
-                    currentBindingParameters.get(serviceToBind));
+                Mockito.verify(clientExtensions)
+                    .bindService(input.existingApplication.name, serviceToBind, currentBindingParameters.get(serviceToBind));
             } else {
-                Mockito.verify(client).bindService(input.existingApplication.name, serviceToBind);
+                Mockito.verify(client)
+                    .bindService(input.existingApplication.name, serviceToBind);
             }
         }
     }
 
     private void validateUnbindServices() {
         for (String notRquiredService : notRequiredServices) {
-            Mockito.verify(client).unbindService(input.existingApplication.name, notRquiredService);
+            Mockito.verify(client)
+                .unbindService(input.existingApplication.name, notRquiredService);
         }
     }
 
@@ -210,7 +218,8 @@ public class UpdateAppStepTest extends SyncActivitiStepTest<UpdateAppStep> {
 
         prepareServicesToBind();
 
-        Mockito.when(configuration.getPlatformType()).thenReturn(platform);
+        Mockito.when(configuration.getPlatformType())
+            .thenReturn(platform);
 
         prepareExistingServiceBindings();
     }
@@ -222,18 +231,23 @@ public class UpdateAppStepTest extends SyncActivitiStepTest<UpdateAppStep> {
             for (SimpleBinding simpleBinding : input.existingServiceBindings.get(serviceName)) {
                 serviceBindings.add(simpleBinding.toCloudServiceBinding());
             }
-            Mockito.when(cloudServiceInstance.getBindings()).thenReturn(serviceBindings);
-            Mockito.when(client.getServiceInstance(serviceName)).thenReturn(cloudServiceInstance);
+            Mockito.when(cloudServiceInstance.getBindings())
+                .thenReturn(serviceBindings);
+            Mockito.when(client.getServiceInstance(serviceName))
+                .thenReturn(cloudServiceInstance);
         }
 
         for (String serviceName : input.existingServiceKeys.keySet()) {
             List<ServiceKey> serviceKeys = input.existingServiceKeys.get(serviceName);
-            Mockito.when(client.getServiceKeys(eq(serviceName))).thenReturn(ListUtil.upcast(serviceKeys));
+            Mockito.when(client.getServiceKeys(eq(serviceName)))
+                .thenReturn(ListUtil.upcast(serviceKeys));
         }
     }
 
     private List<CloudServiceExtended> mapToCloudServices() {
-        return input.application.services.stream().map(serviceName -> mapToCloudService(serviceName)).collect(Collectors.toList());
+        return input.application.services.stream()
+            .map(serviceName -> mapToCloudService(serviceName))
+            .collect(Collectors.toList());
     }
 
     private CloudServiceExtended mapToCloudService(String serviceName) {
@@ -252,7 +266,8 @@ public class UpdateAppStepTest extends SyncActivitiStepTest<UpdateAppStep> {
                 continue;
             }
 
-            Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp().getBindingParameters();
+            Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp()
+                .getBindingParameters();
 
             boolean existingBindingParametersAreEmptyOrNull = existingBindingForApplication.bindingOptions == null
                 || existingBindingForApplication.bindingOptions.isEmpty();
@@ -264,8 +279,8 @@ public class UpdateAppStepTest extends SyncActivitiStepTest<UpdateAppStep> {
                 expectedServicesToBind.add(service);
                 continue;
             }
-            if (!currentBindingParametersAreNull
-                && !currentBindingParameters.get(service).equals(existingBindingForApplication.bindingOptions)) {
+            if (!currentBindingParametersAreNull && !currentBindingParameters.get(service)
+                .equals(existingBindingForApplication.bindingOptions)) {
                 expectedServicesToBind.add(service);
                 continue;
             }

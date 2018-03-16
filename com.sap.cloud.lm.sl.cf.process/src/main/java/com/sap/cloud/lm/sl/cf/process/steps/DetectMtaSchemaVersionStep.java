@@ -34,8 +34,10 @@ public class DetectMtaSchemaVersionStep extends SyncActivitiStep {
             if (!SupportedVersions.isSupported(schemaVersion)) {
                 throw new SLException(com.sap.cloud.lm.sl.mta.message.Messages.UNSUPPORTED_VERSION, schemaVersion);
             }
-            execution.getContext().setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
-            execution.getContext().setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, schemaVersion.getMinor());
+            execution.getContext()
+                .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
+            execution.getContext()
+                .setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, schemaVersion.getMinor());
 
             getStepLogger().info(Messages.MTA_SCHEMA_VERSION_DETECTED_AS, schemaVersion);
 

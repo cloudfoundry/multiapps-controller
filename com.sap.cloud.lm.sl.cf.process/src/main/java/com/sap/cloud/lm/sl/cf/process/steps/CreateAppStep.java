@@ -144,7 +144,8 @@ public class CreateAppStep extends SyncActivitiStep {
     private Map<String, Object> getServiceKeyCredentials(CloudFoundryOperations client, ServiceKeyToInject serviceKeyToInject) {
         List<ServiceKey> existingServiceKeys = client.getServiceKeys(serviceKeyToInject.getServiceName());
         for (ServiceKey existingServiceKey : existingServiceKeys) {
-            if (existingServiceKey.getName().equals(serviceKeyToInject.getServiceKeyName())) {
+            if (existingServiceKey.getName()
+                .equals(serviceKeyToInject.getServiceKeyName())) {
                 return existingServiceKey.getCredentials();
             }
         }
@@ -169,7 +170,9 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     protected static List<CloudServiceExtended> getServices(List<CloudServiceExtended> services, List<String> serviceNames) {
-        return services.stream().filter((service) -> serviceNames.contains(service.getName())).collect(Collectors.toList());
+        return services.stream()
+            .filter((service) -> serviceNames.contains(service.getName()))
+            .collect(Collectors.toList());
     }
 
     private Map<String, Map<String, Object>> getFileProvidedBindingParameters(DelegateExecution context, String moduleName,
@@ -193,8 +196,8 @@ public class CreateAppStep extends SyncActivitiStep {
         FileContentProcessor fileProcessor = new FileContentProcessor() {
             @Override
             public void processFileContent(InputStream archive) throws SLException {
-                try (
-                    InputStream file = ArchiveHandler.getInputStream(archive, fileName, Configuration.getInstance().getMaxManifestSize())) {
+                try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, Configuration.getInstance()
+                    .getMaxManifestSize())) {
                     MapUtil.addNonNull(result, serviceName, JsonUtil.convertJsonToMap(file));
                 } catch (IOException e) {
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
@@ -218,7 +221,11 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     private CloudServiceExtended findServiceCloudModel(List<CloudServiceExtended> servicesCloudModel, String serviceName) {
-        return servicesCloudModel.stream().filter(service -> service.getName().equals(serviceName)).findAny().orElse(null);
+        return servicesCloudModel.stream()
+            .filter(service -> service.getName()
+                .equals(serviceName))
+            .findAny()
+            .orElse(null);
     }
 
     protected void bindService(ExecutionWrapper execution, CloudFoundryOperations client, String appName, String serviceName,

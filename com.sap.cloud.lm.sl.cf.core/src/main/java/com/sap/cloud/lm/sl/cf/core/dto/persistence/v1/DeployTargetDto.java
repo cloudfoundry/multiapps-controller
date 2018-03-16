@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.dto.persistence.v1;
 
 import static com.sap.cloud.lm.sl.common.util.CommonUtil.cast;
+
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -54,14 +55,15 @@ public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.persistence
     public void setDeployTarget(Target target) {
         this.name = target.getName();
         this.type = target.getType();
-        this.xmlContent = XmlUtil.toXml(
-            new com.sap.cloud.lm.sl.cf.core.dto.serialization.v1.DeployTargetDto(new PersistentObject<Target>(id, target)));
+        this.xmlContent = XmlUtil
+            .toXml(new com.sap.cloud.lm.sl.cf.core.dto.serialization.v1.DeployTargetDto(new PersistentObject<Target>(id, target)));
     }
 
     @Override
     public PersistentObject<Target> toDeployTarget() {
         PersistentObject<Target> persistentTarget = cast(
-            XmlUtil.fromXml(xmlContent, com.sap.cloud.lm.sl.cf.core.dto.serialization.v1.DeployTargetDto.class).toDeployTarget());
+            XmlUtil.fromXml(xmlContent, com.sap.cloud.lm.sl.cf.core.dto.serialization.v1.DeployTargetDto.class)
+                .toDeployTarget());
         persistentTarget.setId(id);
         return persistentTarget;
     }

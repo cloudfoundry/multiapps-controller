@@ -410,7 +410,9 @@ public class ConfigurationEntriesResourceTest {
         @Override
         public boolean matches(Object entry) {
             try {
-                return xml.trim().equals(XmlUtil.toXml(new ConfigurationEntryDto((ConfigurationEntry) entry), true).trim());
+                return xml.trim()
+                    .equals(XmlUtil.toXml(new ConfigurationEntryDto((ConfigurationEntry) entry), true)
+                        .trim());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

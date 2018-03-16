@@ -7,11 +7,11 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.mta.builders.v2_0.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Resource;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Resource.ResourceBuilder;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Target;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Platform;
 
 public class UserProvidedResourceResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver {
 

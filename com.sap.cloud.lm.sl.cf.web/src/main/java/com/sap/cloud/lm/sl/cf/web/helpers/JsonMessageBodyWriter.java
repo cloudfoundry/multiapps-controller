@@ -73,7 +73,8 @@ public class JsonMessageBodyWriter<T> implements MessageBodyWriter<T> {
     }
 
     private Charset getCharset(MediaType mediaType) {
-        String charsetName = mediaType.getParameters().get(MediaType.CHARSET_PARAMETER);
+        String charsetName = mediaType.getParameters()
+            .get(MediaType.CHARSET_PARAMETER);
         return charsetName == null ? StandardCharsets.UTF_8 : Charset.forName(charsetName);
     }
 

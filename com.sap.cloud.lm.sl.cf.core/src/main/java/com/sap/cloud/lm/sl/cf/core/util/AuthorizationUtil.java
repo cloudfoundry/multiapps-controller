@@ -49,13 +49,18 @@ public class AuthorizationUtil {
     }
 
     private static String getSpaceCacheKey(String orgName, String spaceName, String processId) {
-        return new StringBuilder().append(orgName).append(SPACE_CACHE_SEPARATOR).append(spaceName).append(SPACE_CACHE_SEPARATOR).append(
-            processId).toString();
+        return new StringBuilder().append(orgName)
+            .append(SPACE_CACHE_SEPARATOR)
+            .append(spaceName)
+            .append(SPACE_CACHE_SEPARATOR)
+            .append(processId)
+            .toString();
     }
 
     public static boolean checkPermissions(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String orgName, String spaceName,
         boolean readOnly, String processId) throws SLException {
-        if (Configuration.getInstance().areDummyTokensEnabled() && isDummyToken(userInfo)) {
+        if (Configuration.getInstance()
+            .areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }
         if (isAdminUser(userInfo) || hasAdminScope(userInfo)) {
@@ -67,7 +72,8 @@ public class AuthorizationUtil {
 
     public static boolean checkPermissions(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String spaceGuid, boolean readOnly)
         throws SLException {
-        if (Configuration.getInstance().areDummyTokensEnabled() && isDummyToken(userInfo)) {
+        if (Configuration.getInstance()
+            .areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }
         if (isAdminUser(userInfo) || hasAdminScope(userInfo)) {
@@ -89,14 +95,17 @@ public class AuthorizationUtil {
 
     private static boolean hasPermissions(CloudFoundryOperationsExtended client, String userId, String orgName, String spaceName,
         boolean readOnly) {
-        if (client.getSpaceDevelopers2(orgName, spaceName).contains(userId)) {
+        if (client.getSpaceDevelopers2(orgName, spaceName)
+            .contains(userId)) {
             return true;
         }
         if (readOnly) {
-            if (client.getSpaceAuditors2(orgName, spaceName).contains(userId)) {
+            if (client.getSpaceAuditors2(orgName, spaceName)
+                .contains(userId)) {
                 return true;
             }
-            if (client.getSpaceManagers2(orgName, spaceName).contains(userId)) {
+            if (client.getSpaceManagers2(orgName, spaceName)
+                .contains(userId)) {
                 return true;
             }
         }
@@ -119,14 +128,20 @@ public class AuthorizationUtil {
     }
 
     private static boolean isDummyToken(UserInfo userInfo) {
-        return userInfo.getToken().getValue().equals(TokenFactory.DUMMY_TOKEN);
+        return userInfo.getToken()
+            .getValue()
+            .equals(TokenFactory.DUMMY_TOKEN);
     }
 
     private static boolean isAdminUser(UserInfo userInfo) {
-        return userInfo.getName().equals(Configuration.getInstance().getGlobalAuditorUser());
+        return userInfo.getName()
+            .equals(Configuration.getInstance()
+                .getGlobalAuditorUser());
     }
 
     private static boolean hasAdminScope(UserInfo userInfo) {
-        return userInfo.getToken().getScope().contains(TokenFactory.SCOPE_CC_ADMIN);
+        return userInfo.getToken()
+            .getScope()
+            .contains(TokenFactory.SCOPE_CC_ADMIN);
     }
 }

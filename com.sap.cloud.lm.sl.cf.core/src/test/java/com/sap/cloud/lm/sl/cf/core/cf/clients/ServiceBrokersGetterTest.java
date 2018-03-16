@@ -32,8 +32,10 @@ public class ServiceBrokersGetterTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         String getServiceBrokersResponse = TestUtil.getResourceAsString("valid-get-service-brokers-response.json", getClass());
-        Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_URL));
-        Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
+        Mockito.when(client.getCloudControllerUrl())
+            .thenReturn(new URL(CONTROLLER_URL));
+        Mockito.when(restTemplateFactory.getRestTemplate(client))
+            .thenReturn(restTemplate);
         Mockito.when(restTemplate.getForObject(CONTROLLER_URL + SERVICE_BROKERS_ENDPOINT, String.class, Collections.emptyMap()))
             .thenReturn(getServiceBrokersResponse);
     }

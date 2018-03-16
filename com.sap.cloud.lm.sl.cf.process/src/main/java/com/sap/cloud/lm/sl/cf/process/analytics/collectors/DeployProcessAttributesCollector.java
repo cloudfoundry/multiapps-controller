@@ -67,7 +67,10 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
     }
 
     private Integer getOperationsCount(Map<String, ServiceOperationType> serviceOperations, ServiceOperationType targetType) {
-        return (int) serviceOperations.values().stream().filter(operationType -> operationType == targetType).count();
+        return (int) serviceOperations.values()
+            .stream()
+            .filter(operationType -> operationType == targetType)
+            .count();
     }
 
     private <T> T getAttribute(DelegateExecution context, String variableName, Supplier<T> attributeValueSupplier) {

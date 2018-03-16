@@ -78,9 +78,11 @@ public class CheckAppStepTest extends SyncActivitiStepTest<CheckAppStep> {
 
     private void prepareClient() {
         if (stepInput.isExistingApplication) {
-            Mockito.when(client.getApplication(application.getName(), false)).thenReturn(expectedResult);
+            Mockito.when(client.getApplication(application.getName(), false))
+                .thenReturn(expectedResult);
         } else {
-            Mockito.when(client.getApplication(application.getName(), false)).thenReturn(null);
+            Mockito.when(client.getApplication(application.getName(), false))
+                .thenReturn(null);
         }
     }
 

@@ -79,7 +79,8 @@ public class UndeployAppStep extends SyncActivitiStep {
 
     private void cancelTask(CloudTask task, CloudApplication appToUndeploy, ClientExtensions clientExtensions) {
         getStepLogger().info(Messages.CANCELING_TASK_ON_APP, task.getName(), appToUndeploy.getName());
-        clientExtensions.cancelTask(task.getMeta().getGuid());
+        clientExtensions.cancelTask(task.getMeta()
+            .getGuid());
         getStepLogger().debug(Messages.CANCELED_TASK_ON_APP, task.getName(), appToUndeploy.getName());
     }
 
@@ -100,7 +101,9 @@ public class UndeployAppStep extends SyncActivitiStep {
         List<CloudRoute> appRoutes = applicationRoutesGetter.getRoutes(client, app.getName());
         getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, app.getName(), JsonUtil.toJson(appRoutes));
         client.updateApplicationUris(app.getName(), Collections.emptyList());
-        app.getUris().stream().forEach(uri -> deleteApplicationRoute(app, appRoutes, uri, client));
+        app.getUris()
+            .stream()
+            .forEach(uri -> deleteApplicationRoute(app, appRoutes, uri, client));
         getStepLogger().debug(Messages.DELETED_APP_ROUTES, app.getName());
     }
 

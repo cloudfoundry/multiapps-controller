@@ -44,7 +44,8 @@ public class AlterOperationTableTimestampStoringColumns extends
 
     @Override
     public void setUp() throws SetupException {
-        DatabaseType databaseType = Configuration.getInstance().getDatabaseType();
+        DatabaseType databaseType = Configuration.getInstance()
+            .getDatabaseType();
         switch (databaseType) {
             case POSTGRESQL:
                 alterStatements = POSTGRESQL_ALTER_STATEMENTS;
@@ -88,7 +89,9 @@ public class AlterOperationTableTimestampStoringColumns extends
 
     @Override
     public List<TransformedOperation> transformData(List<OriginalOperation> retrievedData) {
-        return retrievedData.stream().map(operation -> transformOperation(operation)).collect(Collectors.toList());
+        return retrievedData.stream()
+            .map(operation -> transformOperation(operation))
+            .collect(Collectors.toList());
     }
 
     private TransformedOperation transformOperation(OriginalOperation originalOperation) {
@@ -104,7 +107,8 @@ public class AlterOperationTableTimestampStoringColumns extends
             return null;
         }
         ZonedDateTime parsedZonedDateTime = ZonedDateTime.parse(zonedDateTime, Operation.DATE_TIME_FORMATTER);
-        return new Timestamp(parsedZonedDateTime.toInstant().toEpochMilli());
+        return new Timestamp(parsedZonedDateTime.toInstant()
+            .toEpochMilli());
     }
 
     @Override

@@ -128,8 +128,8 @@ public class MtaArchiveValidatorTest {
 
     private void prepareConfigurationDao() {
         dao = Mockito.mock(ConfigurationEntryDao.class);
-        Mockito.when(dao.find("mta", "mta-sample:provides-dependency", "0.0.1", new CloudTarget("initial", "initial"), null, null, null)).thenReturn(
-            Arrays.asList(new ConfigurationEntry(0, "mta", "mta-sample:provides-dependency",
+        Mockito.when(dao.find("mta", "mta-sample:provides-dependency", "0.0.1", new CloudTarget("initial", "initial"), null, null, null))
+            .thenReturn(Arrays.asList(new ConfigurationEntry(0, "mta", "mta-sample:provides-dependency",
                 com.sap.cloud.lm.sl.mta.model.Version.parseVersion("0.0.1"), null, "{\"baz\":\"baz\",\"bar\":\"bar\", \"foo\":\"foo\"}",
                 null, "")));
     }
@@ -143,6 +143,7 @@ public class MtaArchiveValidatorTest {
     }
 
     public static String getResourceAsString(String name) throws IOException {
-        return IOUtils.toString(MtaArchiveValidatorTest.class.getResourceAsStream(name)).replace("\r", "");
+        return IOUtils.toString(MtaArchiveValidatorTest.class.getResourceAsStream(name))
+            .replace("\r", "");
     }
 }

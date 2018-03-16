@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
-import com.sap.cloud.lm.sl.cf.core.persistence.changes.PopulateConfigurationRegistrySpaceIdColumnChange;
 
 public class PopulateConfigurationRegistrySpaceIdColumnChangeTest {
 
@@ -78,7 +77,7 @@ public class PopulateConfigurationRegistrySpaceIdColumnChangeTest {
         Map<CloudTarget, String> result = new HashMap<>();
         result.put(new CloudTarget("org1", "space1"), uuid.toString());
         result.put(new CloudTarget("org2", "space2"), null);
-        
+
         return result;
     }
 }

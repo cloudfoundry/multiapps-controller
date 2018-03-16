@@ -104,7 +104,8 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
             if (boundMtaMetadata == null) {
                 namesOfBoundStandaloneApplications.add(boundApplication.getName());
             } else if (mtaIsOwnerOfService(boundMtaMetadata, serviceToCreate)) {
-                idsOfMtasThatOwnTheService.add(boundMtaMetadata.getMtaMetadata().getId());
+                idsOfMtasThatOwnTheService.add(boundMtaMetadata.getMtaMetadata()
+                    .getId());
             }
         }
         if (!namesOfBoundStandaloneApplications.isEmpty()) {
@@ -118,7 +119,8 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
     }
 
     private boolean mtaIsOwnerOfService(ApplicationMtaMetadata mtaMetadata, CloudServiceExtended service) {
-        return mtaMetadata.getServices().contains(service.getName());
+        return mtaMetadata.getServices()
+            .contains(service.getName());
     }
 
     private List<CloudServiceBinding> getServiceBindings(CloudFoundryOperations client, CloudServiceExtended service) {
@@ -127,7 +129,12 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
     }
 
     private CloudApplication getBoundApplication(CloudServiceBinding binding, List<CloudApplication> deployedApps) {
-        return deployedApps.stream().filter(app -> app.getMeta().getGuid().equals(binding.getAppGuid())).findAny().get();
+        return deployedApps.stream()
+            .filter(app -> app.getMeta()
+                .getGuid()
+                .equals(binding.getAppGuid()))
+            .findAny()
+            .get();
     }
 
     private void validateApplicationsToDeploy(DelegateExecution context, DeployedMta deployedMta, List<CloudApplication> deployedApps) {
@@ -155,22 +162,31 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
             getStepLogger().warn(Messages.APPLICATION_EXISTS_AS_STANDALONE, applicationToDeploy.getName());
             return;
         }
-        String owningMtaId = owningMta.get().getMetadata().getId();
+        String owningMtaId = owningMta.get()
+            .getMetadata()
+            .getId();
         throw new SLException(Messages.APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA, applicationToDeploy.getName(), owningMtaId);
     }
 
     private Optional<DeployedMta> detectOwningMta(CloudApplicationExtended application, Collection<CloudApplication> deployedApps) {
         List<DeployedMta> deployedMtas = getDeployedMtas(deployedApps);
-        return deployedMtas.stream().filter(mta -> deployedMtaContainsApplication(mta, application)).findAny();
+        return deployedMtas.stream()
+            .filter(mta -> deployedMtaContainsApplication(mta, application))
+            .findAny();
     }
 
     private List<DeployedMta> getDeployedMtas(Collection<CloudApplication> deployedApps) {
-        return new DeployedComponentsDetector().detectAllDeployedComponents(deployedApps).getMtas();
+        return new DeployedComponentsDetector().detectAllDeployedComponents(deployedApps)
+            .getMtas();
     }
 
     private boolean deployedMtaContainsApplication(DeployedMta deployedMta, CloudApplication existingApp) {
         String appName = existingApp.getName();
-        return deployedMta == null ? false : deployedMta.getModules().stream().anyMatch(module -> module.getAppName().equals(appName));
+        return deployedMta == null ? false
+            : deployedMta.getModules()
+                .stream()
+                .anyMatch(module -> module.getAppName()
+                    .equals(appName));
     }
 
     private Map<String, CloudApplication> createExistingApplicationsMap(List<CloudApplication> existingApps) {
@@ -186,7 +202,9 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
     }
 
     private Set<String> getApplicationsInDeployedMta(List<DeployedMtaModule> modules) {
-        return modules.stream().map(module -> module.getAppName()).collect(Collectors.toSet());
+        return modules.stream()
+            .map(module -> module.getAppName())
+            .collect(Collectors.toSet());
     }
 
 }

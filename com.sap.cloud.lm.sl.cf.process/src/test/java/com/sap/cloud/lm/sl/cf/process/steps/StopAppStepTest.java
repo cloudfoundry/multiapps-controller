@@ -84,9 +84,11 @@ public class StopAppStepTest extends SyncActivitiStepTest<StopAppStep> {
     private void validateStoppedApplications() {
         String appName = application.name;
         if (shouldBeStopped) {
-            Mockito.verify(client).stopApplication(appName);
+            Mockito.verify(client)
+                .stopApplication(appName);
         } else {
-            Mockito.verify(client, Mockito.times(0)).stopApplication(appName);
+            Mockito.verify(client, Mockito.times(0))
+                .stopApplication(appName);
         }
     }
 

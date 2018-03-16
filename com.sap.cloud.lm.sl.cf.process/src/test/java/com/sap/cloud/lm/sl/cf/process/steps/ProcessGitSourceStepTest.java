@@ -55,8 +55,10 @@ public class ProcessGitSourceStepTest extends SyncActivitiStepTest<ProcessGitSou
     public void getGitUriFromRepositoryName() throws SLException {
         String repoName = "someRepo";
         String urlService = "https://somehost.com/service/someService";
-        Mockito.when(cloudInfo.getServiceUrl("git-service")).thenReturn(urlService);
-        Mockito.when(client.getCloudInfo()).thenReturn(cloudInfo);
+        Mockito.when(cloudInfo.getServiceUrl("git-service"))
+            .thenReturn(urlService);
+        Mockito.when(client.getCloudInfo())
+            .thenReturn(cloudInfo);
         // step.clientSupplier = (context) -> client;
         context.setVariable(Constants.PARAM_GIT_URI, repoName);
 
@@ -104,13 +106,18 @@ public class ProcessGitSourceStepTest extends SyncActivitiStepTest<ProcessGitSou
 
         @Test
         public void testZipRepoContent() throws Exception {
-            Path repoDir = Paths.get(getClass().getResource(repository).toURI());
+            Path repoDir = Paths.get(getClass().getResource(repository)
+                .toURI());
             Path mtarZip = null;
             try {
                 mtarZip = step.zipRepoContent(repoDir.toAbsolutePath());
-                URI jarMtarUri = URI.create("jar:" + mtarZip.toAbsolutePath().toUri().toString());
+                URI jarMtarUri = URI.create("jar:" + mtarZip.toAbsolutePath()
+                    .toUri()
+                    .toString());
                 try (FileSystem mtarFS = FileSystems.newFileSystem(jarMtarUri, new HashMap<>())) {
-                    Path mtarRoot = mtarFS.getRootDirectories().iterator().next();
+                    Path mtarRoot = mtarFS.getRootDirectories()
+                        .iterator()
+                        .next();
                     assertFalse(Files.exists(mtarRoot.resolve(".git")));
                     assertFalse(Files.exists(mtarRoot.resolve(".gitignore")));
                     assertTrue(Files.exists(mtarRoot.resolve("a/cool-script.script")));

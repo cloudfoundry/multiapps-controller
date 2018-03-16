@@ -16,12 +16,13 @@ public class ServiceInstanceGetter extends CustomControllerClient {
     private static final String SERVICE_INSTANCES_URL = "/v2/service_instances?q=name:{name}&q=space_guid:{space_guid}";
 
     public Map<String, Object> getServiceInstance(CloudFoundryOperations client, String serviceName, String spaceId) {
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(
-            () -> attemptToGetServiceInstance(client, serviceName, spaceId));
+        return new CustomControllerClientErrorHandler()
+            .handleErrorsOrReturnResult(() -> attemptToGetServiceInstance(client, serviceName, spaceId));
     }
 
     private Map<String, Object> attemptToGetServiceInstance(CloudFoundryOperations client, String serviceName, String spaceId) {
-        String serviceInstancesEndpoint = getUrl(client.getCloudControllerUrl().toString(), SERVICE_INSTANCES_URL);
+        String serviceInstancesEndpoint = getUrl(client.getCloudControllerUrl()
+            .toString(), SERVICE_INSTANCES_URL);
         Map<String, Object> queryParameters = buildQueryParameters(serviceName, spaceId);
 
         return getCloudServiceInstance(client, serviceInstancesEndpoint, queryParameters);
@@ -50,7 +51,8 @@ public class ServiceInstanceGetter extends CustomControllerClient {
         validateServiceInstanceResponse(serviceInstancesResponse);
         List<Map<String, Object>> cloudServiceInstanceResources = getResourcesFromResponse(serviceInstancesResponse);
         if (!cloudServiceInstanceResources.isEmpty()) {
-            return (Map<String, Object>) cloudServiceInstanceResources.get(0).get("entity");
+            return (Map<String, Object>) cloudServiceInstanceResources.get(0)
+                .get("entity");
         }
         return null;
     }

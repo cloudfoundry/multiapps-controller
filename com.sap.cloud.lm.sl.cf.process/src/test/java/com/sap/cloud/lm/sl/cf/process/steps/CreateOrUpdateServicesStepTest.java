@@ -167,17 +167,22 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     }
 
     private void prepareClient() throws Exception {
-        Mockito.when(client.getServices()).thenReturn(ListUtil.upcastUnmodifiable(stepInput.existingServices));
+        Mockito.when(client.getServices())
+            .thenReturn(ListUtil.upcastUnmodifiable(stepInput.existingServices));
 
         prepareServiceInstances();
         prepareBoundApplications();
 
         Map<String, List<ServiceKey>> existingServiceKeys = stepInput.getExistingServiceKeys();
         for (String serviceName : existingServiceKeys.keySet()) {
-            Mockito.when(client.getServiceKeys(serviceName)).thenReturn(existingServiceKeys.get(serviceName));
+            Mockito.when(client.getServiceKeys(serviceName))
+                .thenReturn(existingServiceKeys.get(serviceName));
         }
-        Mockito.doNothing().when(clientExtensions).deleteServiceKey(Mockito.any(), Mockito.any());
-        Mockito.when(clientExtensions.createServiceKey(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(null);
+        Mockito.doNothing()
+            .when(clientExtensions)
+            .deleteServiceKey(Mockito.any(), Mockito.any());
+        Mockito.when(clientExtensions.createServiceKey(Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(null);
     }
 
     private Map<CloudServiceExtended, CloudServiceInstance> createServiceInstances(StepInput stepInput) throws Exception {
@@ -196,11 +201,15 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     }
 
     private boolean exists(List<CloudServiceExtended> services, String serviceName) {
-        return services.stream().anyMatch((service) -> service.getName().equals(serviceName));
+        return services.stream()
+            .anyMatch((service) -> service.getName()
+                .equals(serviceName));
     }
 
     private List<SimpleApplication> findBoundApplications(String serviceName, List<SimpleApplication> applications) {
-        return applications.stream().filter((application) -> application.boundServices.contains(serviceName)).collect(Collectors.toList());
+        return applications.stream()
+            .filter((application) -> application.boundServices.contains(serviceName))
+            .collect(Collectors.toList());
     }
 
     private CloudServiceInstance createServiceInstance(CloudServiceExtended service, List<SimpleApplication> boundApplications) {
@@ -211,7 +220,9 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     }
 
     private List<CloudServiceBinding> createServiceBindings(List<SimpleApplication> boundApplications) {
-        return boundApplications.stream().map((boundApplication) -> createServiceBinding(boundApplication)).collect(Collectors.toList());
+        return boundApplications.stream()
+            .map((boundApplication) -> createServiceBinding(boundApplication))
+            .collect(Collectors.toList());
     }
 
     private CloudServiceBinding createServiceBinding(SimpleApplication boundApplication) {
@@ -221,7 +232,9 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     }
 
     private List<CloudApplicationExtended> toCloudApplications(List<SimpleApplication> applications) {
-        return applications.stream().map((application) -> application.toCloudApplication()).collect(Collectors.toList());
+        return applications.stream()
+            .map((application) -> application.toCloudApplication())
+            .collect(Collectors.toList());
     }
 
     private void prepareServiceInstances() {
@@ -229,17 +242,21 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     }
 
     private void prepareServiceInstance(CloudServiceExtended service, CloudServiceInstance instance) {
-        Mockito.when(client.getServiceInstance(service.getName())).thenReturn(instance);
+        Mockito.when(client.getServiceInstance(service.getName()))
+            .thenReturn(instance);
     }
 
     private void prepareBoundApplications() {
         Mockito.when(client.getApplications())
-            .thenReturn(stepInput.existingApplications.stream().map(app -> app.toCloudApplication()).collect(Collectors.toList()));
+            .thenReturn(stepInput.existingApplications.stream()
+                .map(app -> app.toCloudApplication())
+                .collect(Collectors.toList()));
         stepInput.existingApplications.forEach((application) -> prepareBoundApplication(application));
     }
 
     private void prepareBoundApplication(SimpleApplication application) {
-        Mockito.when(client.getApplication(NameUtil.getUUID(application.name))).thenReturn(application.toCloudApplication());
+        Mockito.when(client.getApplication(NameUtil.getUUID(application.name)))
+            .thenReturn(application.toCloudApplication());
     }
 
     private void validateClient() {
@@ -253,13 +270,13 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     private void validateServicesToBeUpdated() {
         for (CloudServiceExtended service : existingServiceInstances.keySet()) {
             if (shouldHavePlanBeenUpdated(service)) {
-                Mockito.verify(serviceUpdater).updateServicePlan(client, service.getName(),
-                    findService(service.getName(), stepInput.services).getPlan());
+                Mockito.verify(serviceUpdater)
+                    .updateServicePlan(client, service.getName(), findService(service.getName(), stepInput.services).getPlan());
             }
 
             if (shouldHaveTagsBeenUpdated(service)) {
-                Mockito.verify(serviceUpdater).updateServiceTags(client, service.getName(),
-                    findService(service.getName(), stepInput.services).getTags());
+                Mockito.verify(serviceUpdater)
+                    .updateServiceTags(client, service.getName(), findService(service.getName(), stepInput.services).getTags());
             }
         }
     }
@@ -287,8 +304,8 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
         for (String serviceName : stepInput.expectedCreatedServiceKeys.keySet()) {
             for (String keyName : stepInput.expectedCreatedServiceKeys.get(serviceName)) {
                 ServiceKey keyToCreate = findKey(serviceKeysToCreate, serviceName, keyName);
-                Mockito.verify(clientExtensions).createServiceKey(serviceName, keyToCreate.getName(),
-                    JsonUtil.toJson(keyToCreate.getParameters()));
+                Mockito.verify(clientExtensions)
+                    .createServiceKey(serviceName, keyToCreate.getName(), JsonUtil.toJson(keyToCreate.getParameters()));
             }
         }
     }
@@ -296,21 +313,30 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     private void validateServiceKeysToDelete() {
         for (String serviceName : stepInput.expectedDeletedServiceKeys.keySet()) {
             for (String keyName : stepInput.expectedDeletedServiceKeys.get(serviceName)) {
-                Mockito.verify(clientExtensions).deleteServiceKey(serviceName, keyName);
+                Mockito.verify(clientExtensions)
+                    .deleteServiceKey(serviceName, keyName);
             }
         }
     }
 
     private ServiceKey findKey(Map<String, List<ServiceKey>> serviceKeysToCreate, String serviceName, String keyName) {
-        return serviceKeysToCreate.get(serviceName).stream().filter(key -> key.getName().equals(keyName)).findAny().orElse(null);
+        return serviceKeysToCreate.get(serviceName)
+            .stream()
+            .filter(key -> key.getName()
+                .equals(keyName))
+            .findAny()
+            .orElse(null);
     }
 
     private void validateServiceWasDeleted(CloudServiceExtended service, CloudServiceInstance instance) {
         for (CloudServiceBinding binding : instance.getBindings()) {
-            String applicationName = client.getApplication(binding.getAppGuid()).getName();
-            Mockito.verify(client, Mockito.times(1)).unbindService(applicationName, service.getName());
+            String applicationName = client.getApplication(binding.getAppGuid())
+                .getName();
+            Mockito.verify(client, Mockito.times(1))
+                .unbindService(applicationName, service.getName());
         }
-        Mockito.verify(client, Mockito.times(1)).deleteService(service.getName());
+        Mockito.verify(client, Mockito.times(1))
+            .deleteService(service.getName());
     }
 
     private boolean shouldHaveBeenRecreated(CloudServiceExtended existingService) {
@@ -339,7 +365,11 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     }
 
     private CloudServiceExtended findService(String serviceName, List<CloudServiceExtended> services) {
-        return services.stream().filter(service -> service.getName().equals(serviceName)).findAny().orElse(null);
+        return services.stream()
+            .filter(service -> service.getName()
+                .equals(serviceName))
+            .findAny()
+            .orElse(null);
     }
 
     private void validateServicesToCreate() {
@@ -348,11 +378,13 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
                 continue;
             }
             if (service.isUserProvided()) {
-                Mockito.verify(client, Mockito.times(1)).createUserProvidedService(
-                    Matchers.argThat(GenericArgumentMatcher.forObject(service)), Matchers.eq(service.getCredentials()));
+                Mockito.verify(client, Mockito.times(1))
+                    .createUserProvidedService(Matchers.argThat(GenericArgumentMatcher.forObject(service)),
+                        Matchers.eq(service.getCredentials()));
             } else {
-                Mockito.verify(serviceCreator, Mockito.times(1)).createService(Mockito.eq(client),
-                    Matchers.argThat(GenericArgumentMatcher.forObject(service)), Mockito.eq(TEST_SPACE_ID));
+                Mockito.verify(serviceCreator, Mockito.times(1))
+                    .createService(Mockito.eq(client), Matchers.argThat(GenericArgumentMatcher.forObject(service)),
+                        Mockito.eq(TEST_SPACE_ID));
             }
         }
     }

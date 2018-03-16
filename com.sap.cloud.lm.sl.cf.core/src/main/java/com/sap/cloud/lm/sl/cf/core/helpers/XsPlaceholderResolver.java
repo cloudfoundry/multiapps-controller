@@ -74,7 +74,9 @@ public class XsPlaceholderResolver {
     }
 
     public List<String> resolve(List<String> values) {
-        return values.stream().map(value -> resolve(value)).collect(Collectors.toList());
+        return values.stream()
+            .map(value -> resolve(value))
+            .collect(Collectors.toList());
     }
 
     private String replaceIfReplacementValueIsSet(String value, String placeholder, String replacementValue) {

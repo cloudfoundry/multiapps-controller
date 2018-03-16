@@ -88,7 +88,9 @@ public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesS
     }
 
     private void loadParameters() {
-        servicesToDelete = stepInput.servicesToDelete.stream().map((service) -> service.name).collect(Collectors.toList());
+        servicesToDelete = stepInput.servicesToDelete.stream()
+            .map((service) -> service.name)
+            .collect(Collectors.toList());
         if (expectedExceptionMessage != null) {
             expectedException.expect(SLException.class);
             expectedException.expectMessage(expectedExceptionMessage);
@@ -102,10 +104,13 @@ public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesS
 
     private void prepareClient() {
         for (SimpleService service : stepInput.servicesToDelete) {
-            Mockito.when(client.getServiceInstance(service.name)).thenReturn(createServiceInstance(service));
+            Mockito.when(client.getServiceInstance(service.name))
+                .thenReturn(createServiceInstance(service));
             if (service.httpErrorCodeToReturnOnDelete != null) {
                 HttpStatus httpStatusToReturnOnDelete = HttpStatus.valueOf(service.httpErrorCodeToReturnOnDelete);
-                Mockito.doThrow(new CloudFoundryException(httpStatusToReturnOnDelete)).when(client).deleteService(service.name);
+                Mockito.doThrow(new CloudFoundryException(httpStatusToReturnOnDelete))
+                    .when(client)
+                    .deleteService(service.name);
             }
         }
     }
@@ -121,7 +126,8 @@ public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesS
     private void verifyClient() {
         for (SimpleService service : stepInput.servicesToDelete) {
             if (!service.hasBoundApplications) {
-                Mockito.verify(client, Mockito.times(1)).deleteService(service.name);
+                Mockito.verify(client, Mockito.times(1))
+                    .deleteService(service.name);
             }
         }
     }

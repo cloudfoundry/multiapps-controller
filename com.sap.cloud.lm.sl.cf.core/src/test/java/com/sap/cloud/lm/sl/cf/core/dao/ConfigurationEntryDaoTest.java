@@ -175,8 +175,8 @@ public class ConfigurationEntryDaoTest {
             Type type = new TypeToken<List<ConfigurationEntry>>() {
             }.getType();
 
-            List<ConfigurationEntry> entries = JsonUtil.convertJsonToList(
-                TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), type);
+            List<ConfigurationEntry> entries = JsonUtil
+                .convertJsonToList(TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), type);
 
             for (ConfigurationEntry entry : entries) {
                 dao.add(entry);
@@ -280,7 +280,8 @@ public class ConfigurationEntryDaoTest {
             protected void test() throws Exception {
                 TestUtil.test(() -> {
 
-                    return dao.update(findConfigurationEntries(input, dao).get(0).getId(), input.configurationEntry);
+                    return dao.update(findConfigurationEntries(input, dao).get(0)
+                        .getId(), input.configurationEntry);
 
                 }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
@@ -318,7 +319,8 @@ public class ConfigurationEntryDaoTest {
             public void test() {
                 TestUtil.test(() -> {
 
-                    return dao.find(findConfigurationEntries(input, dao).get(0).getId());
+                    return dao.find(findConfigurationEntries(input, dao).get(0)
+                        .getId());
 
                 }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
@@ -339,7 +341,7 @@ public class ConfigurationEntryDaoTest {
                 }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
         }
-        
+
         private static class FindAllGuidTest extends TestCase<FindTestInput> {
 
             public FindAllGuidTest(FindTestInput input, String expected) {
@@ -354,11 +356,11 @@ public class ConfigurationEntryDaoTest {
                 }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
         }
-        
+
         private static List<ConfigurationEntry> findConfigurationEntries(FindTestInput input, ConfigurationEntryDao dao) {
             return dao.find(input.nid, input.id, input.version, input.target, input.requiredProperties, input.mtaId, input.cloudTargets);
         }
-        
+
         private static List<ConfigurationEntry> findConfigurationEntriesGuid(FindTestInput input, ConfigurationEntryDao dao) {
             return dao.find(input.spaceId);
         }

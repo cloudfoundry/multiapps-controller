@@ -25,7 +25,7 @@ public class ProcessTypeToOperationMetadataMapper {
     public String getActivitiDiagramId(ProcessType processType) {
         return getOperationMetadata(processType).getActivitiDiagramId();
     }
-    
+
     public List<String> getPreviousActivitiDiagramIds(ProcessType processType) {
         return getOperationMetadata(processType).getPreviousActivitiDiagramIds();
     }

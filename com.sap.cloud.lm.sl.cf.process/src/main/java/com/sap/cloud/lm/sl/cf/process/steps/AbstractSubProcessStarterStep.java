@@ -24,10 +24,12 @@ public abstract class AbstractSubProcessStarterStep extends AsyncActivitiStep {
             String userId = StepsUtil.determineCurrentUser(execution.getContext(), getStepLogger());
 
             int nextIterationIndex = getNextIterationIndex(execution);
-            execution.getContext().setVariable(getIterationVariableName(),
-                getIterationVariable(execution.getContext(), nextIterationIndex));
-            Map<String, Object> parentProcessVariables = execution.getContext().getVariables();
-            parentProcessVariables.put(Constants.VAR_PARENTPROCESS_ID, execution.getContext().getProcessInstanceId());
+            execution.getContext()
+                .setVariable(getIterationVariableName(), getIterationVariable(execution.getContext(), nextIterationIndex));
+            Map<String, Object> parentProcessVariables = execution.getContext()
+                .getVariables();
+            parentProcessVariables.put(Constants.VAR_PARENTPROCESS_ID, execution.getContext()
+                .getProcessInstanceId());
             ProcessInstance subProcessInstance = actvitiFacade.startProcess(userId, getProcessDefinitionKey(), parentProcessVariables);
             StepsUtil.setSubProcessId(execution.getContext(), subProcessInstance.getProcessInstanceId());
 
@@ -43,7 +45,8 @@ public abstract class AbstractSubProcessStarterStep extends AsyncActivitiStep {
         if (indexVariable == null) {
             return DEFAULT_ITERATION_INDEX;
         }
-        return (int) execution.getContext().getVariable(indexVariable);
+        return (int) execution.getContext()
+            .getVariable(indexVariable);
     }
 
     protected abstract String getIterationVariableName();

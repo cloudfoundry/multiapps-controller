@@ -82,8 +82,10 @@ public class ServiceBrokerCreatorTest {
         String serviceBrokerToCreateJson = TestUtil.getResourceAsString(serviceBrokerToCreateJsonLocation, getClass());
         this.serviceBrokerToCreate = JsonUtil.fromJson(serviceBrokerToCreateJson, CloudServiceBrokerExtended.class);
 
-        Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_URL));
-        Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
+        Mockito.when(client.getCloudControllerUrl())
+            .thenReturn(new URL(CONTROLLER_URL));
+        Mockito.when(restTemplateFactory.getRestTemplate(client))
+            .thenReturn(restTemplate);
     }
 
     @Test
@@ -92,11 +94,11 @@ public class ServiceBrokerCreatorTest {
             serviceBrokerCreator.createServiceBroker(client, serviceBrokerToCreate);
 
             ArgumentCaptor<Object> requestCaptor = ArgumentCaptor.forClass(Object.class);
-            Mockito.verify(restTemplate).postForObject(Mockito.eq(CONTROLLER_URL + SERVICE_BROKERS_ENDPOINT), requestCaptor.capture(),
-                Mockito.eq(String.class));
+            Mockito.verify(restTemplate)
+                .postForObject(Mockito.eq(CONTROLLER_URL + SERVICE_BROKERS_ENDPOINT), requestCaptor.capture(), Mockito.eq(String.class));
 
             return requestCaptor.getValue();
-        } , expected, getClass());
+        }, expected, getClass());
     }
 
 }

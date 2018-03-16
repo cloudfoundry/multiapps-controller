@@ -66,12 +66,14 @@ public class ConfigurationReferenceResolver {
 
     protected Map<String, Object> removeConfigurationParameters(Map<String, Object> resourcePropertiesMap) {
         Map<String, Object> result = new TreeMap<>(resourcePropertiesMap);
-        result.keySet().removeAll(SupportedParameters.CONFIGURATION_REFERENCE_PARAMETERS);
+        result.keySet()
+            .removeAll(SupportedParameters.CONFIGURATION_REFERENCE_PARAMETERS);
         return result;
     }
 
     protected Map<String, Object> mergeProperties(Resource resource, ConfigurationEntry configurationEntry) throws ParsingException {
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PropertiesAdapterFactory()).create();
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PropertiesAdapterFactory())
+            .create();
         Map<String, Object> contentMap = gson.fromJson(configurationEntry.getContent(), new TypeToken<Map<String, Object>>() {
         }.getType());
         return merge(contentMap, removeConfigurationParameters(resource.getProperties()));

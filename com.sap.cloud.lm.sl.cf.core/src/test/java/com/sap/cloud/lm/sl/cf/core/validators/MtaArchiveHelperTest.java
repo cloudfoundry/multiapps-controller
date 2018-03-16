@@ -39,7 +39,8 @@ public class MtaArchiveHelperTest {
 
     public MtaArchiveHelperTest(String mtarLocation, String deploymentDescriptorLocation) throws SLException {
         InputStream stream = getClass().getResourceAsStream(mtarLocation);
-        helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, Configuration.getInstance().getMaxManifestSize()));
+        helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, Configuration.getInstance()
+            .getMaxManifestSize()));
 
         DescriptorParser parser = new DescriptorParser();
         descriptor = parser.parseDeploymentDescriptorYaml(getClass().getResourceAsStream(deploymentDescriptorLocation));
@@ -64,7 +65,8 @@ public class MtaArchiveHelperTest {
     @Test
     public void testResources() {
         Set<String> descriptorResources = getResourcesNamesFromDescriptor();
-        Set<String> mtaResources = helper.getMtaArchiveResources().keySet();
+        Set<String> mtaResources = helper.getMtaArchiveResources()
+            .keySet();
 
         assertEquals(descriptorResources.size(), mtaResources.size());
 
@@ -76,7 +78,8 @@ public class MtaArchiveHelperTest {
     @Test
     public void testDependencies() {
         Set<String> descriptorDependencies = getRequiredDependenciesNamesFromDescriptor();
-        Set<String> mtaDependencies = helper.getMtaRequiresDependencies().keySet();
+        Set<String> mtaDependencies = helper.getMtaRequiresDependencies()
+            .keySet();
 
         assertEquals(descriptorDependencies.size(), mtaDependencies.size());
 
@@ -86,16 +89,25 @@ public class MtaArchiveHelperTest {
     }
 
     private Set<String> getModulesNamesFromDescriptor() {
-        return descriptor.getModules1_0().stream().map(m -> m.getName()).collect(Collectors.toSet());
+        return descriptor.getModules1_0()
+            .stream()
+            .map(m -> m.getName())
+            .collect(Collectors.toSet());
     }
 
     private Set<String> getResourcesNamesFromDescriptor() {
-        return descriptor.getResources1_0().stream().map(r -> r.getName()).collect(Collectors.toSet());
+        return descriptor.getResources1_0()
+            .stream()
+            .map(r -> r.getName())
+            .collect(Collectors.toSet());
     }
 
     private Set<String> getRequiredDependenciesNamesFromDescriptor() {
-        return descriptor.getModules1_0().stream().map(m -> m.getRequiredDependencies1_0()).flatMap(d -> d.stream()).collect(
-            Collectors.toSet());
+        return descriptor.getModules1_0()
+            .stream()
+            .map(m -> m.getRequiredDependencies1_0())
+            .flatMap(d -> d.stream())
+            .collect(Collectors.toSet());
     }
 
 }

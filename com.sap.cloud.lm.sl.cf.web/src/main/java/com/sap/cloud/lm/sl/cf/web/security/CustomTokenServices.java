@@ -24,8 +24,8 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
+import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.SSLUtil;
@@ -39,7 +39,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     @Autowired
     @Qualifier("tokenStore")
     TokenStore tokenStore;
-    
+
     @Autowired
     TokenFactory tokenFactory;
 

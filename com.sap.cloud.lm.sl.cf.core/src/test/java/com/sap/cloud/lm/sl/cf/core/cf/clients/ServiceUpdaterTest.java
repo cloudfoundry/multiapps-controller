@@ -76,39 +76,53 @@ public class ServiceUpdaterTest extends ServiceCreatorTest {
         CloudServiceOffering offering = new CloudServiceOffering(null, getServiceLabel());
         offering.addCloudServicePlan(new CloudServicePlan(new Meta(SERVICE_PLAN_GUID, null, null), getCloudServicePlan()));
         resourcesList.add(new HashMap<>());
-        Mockito.when(resourceMapper.mapResource(new HashMap<String, Object>(), CloudServiceOffering.class)).thenReturn(offering);
+        Mockito.when(resourceMapper.mapResource(new HashMap<String, Object>(), CloudServiceOffering.class))
+            .thenReturn(offering);
 
         resourceMap.put("resources", resourcesList);
-        Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_ENDPOINT));
-        Mockito.when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)), String.class,
-            Collections.emptyMap())).thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
+        Mockito.when(client.getCloudControllerUrl())
+            .thenReturn(new URL(CONTROLLER_ENDPOINT));
+        Mockito
+            .when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)), String.class,
+                Collections.emptyMap()))
+            .thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
 
-        Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
+        Mockito.when(restTemplateFactory.getRestTemplate(client))
+            .thenReturn(restTemplate);
     }
 
     private void prepareClient() {
         CloudService existingService = ((StepInput) input).getExistingService();
         if (existingService != null) {
-            Mockito.when(client.getService(input.getService().getName())).thenReturn(existingService);
+            Mockito.when(client.getService(input.getService()
+                .getName()))
+                .thenReturn(existingService);
         } else {
-            Mockito.when(client.getService(input.getService().getName())).thenThrow(
-                new CloudFoundryException(HttpStatus.NOT_FOUND, "Not Found", "Service '" + input.getService().getName() + "' not found."));
+            Mockito.when(client.getService(input.getService()
+                .getName()))
+                .thenThrow(new CloudFoundryException(HttpStatus.NOT_FOUND, "Not Found", "Service '" + input.getService()
+                    .getName() + "' not found."));
         }
     }
 
     @Override
     protected String getCloudServicePlan() {
-        return input.getService().getPlan();
+        return input.getService()
+            .getPlan();
     }
 
     @Override
     protected String getServiceLabel() {
-        return ((StepInput) input).getService().getLabel();
+        return ((StepInput) input).getService()
+            .getLabel();
     }
 
     @Test
     public void testExecuteServiceOperation() throws RestClientException, MalformedURLException {
-        serviceUpdater.updateServicePlan(client, input.getService().getName(), input.getService().getPlan());
+        serviceUpdater.updateServicePlan(client, input.getService()
+            .getName(),
+            input.getService()
+                .getPlan());
 
         validateRestCall();
     }
@@ -117,11 +131,15 @@ public class ServiceUpdaterTest extends ServiceCreatorTest {
     protected void validateRestCall() throws RestClientException, MalformedURLException {
         Map<String, Object> serviceRequest = new HashMap<String, Object>();
         serviceRequest.put("service_plan_guid", SERVICE_PLAN_GUID.toString());
-        Mockito.verify(restTemplate).put(getUrl(getServiceUpdateUrl(), new URL(CONTROLLER_ENDPOINT)), serviceRequest);
+        Mockito.verify(restTemplate)
+            .put(getUrl(getServiceUpdateUrl(), new URL(CONTROLLER_ENDPOINT)), serviceRequest);
     }
 
     private String getServiceUpdateUrl() {
-        return SERVICE_INSTANCES_URL + "/" + input.getService().getMeta().getGuid().toString() + "?accepts_incomplete=true";
+        return SERVICE_INSTANCES_URL + "/" + input.getService()
+            .getMeta()
+            .getGuid()
+            .toString() + "?accepts_incomplete=true";
     }
 
     @Override

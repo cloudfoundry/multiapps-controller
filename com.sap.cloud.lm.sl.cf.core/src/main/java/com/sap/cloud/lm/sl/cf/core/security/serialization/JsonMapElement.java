@@ -9,7 +9,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class JsonMapElement extends JsonElement<JsonObject>implements MapElement {
+public class JsonMapElement extends JsonElement<JsonObject> implements MapElement {
 
     public JsonMapElement(String name, String prefix, JsonObject element) {
         super(name, prefix, element);

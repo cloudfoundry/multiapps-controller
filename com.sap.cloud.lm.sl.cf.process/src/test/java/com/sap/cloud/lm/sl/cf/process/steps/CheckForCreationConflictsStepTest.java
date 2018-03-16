@@ -110,7 +110,8 @@ public class CheckForCreationConflictsStepTest extends SyncActivitiStepTest<Chec
 
         assertStepFinishedSuccessfully();
         if (shouldWarn) {
-            Mockito.verify(stepLogger, Mockito.atLeastOnce()).warn(Mockito.anyString());
+            Mockito.verify(stepLogger, Mockito.atLeastOnce())
+                .warn(Mockito.anyString());
         }
     }
 
@@ -170,7 +171,9 @@ public class CheckForCreationConflictsStepTest extends SyncActivitiStepTest<Chec
     }
 
     private List<SimpleApplication> findBoundApplications(String serviceName, List<SimpleApplication> applications) {
-        return applications.stream().filter((application) -> application.boundServices.contains(serviceName)).collect(Collectors.toList());
+        return applications.stream()
+            .filter((application) -> application.boundServices.contains(serviceName))
+            .collect(Collectors.toList());
     }
 
     private CloudServiceInstance createServiceInstance(CloudServiceExtended service, List<SimpleApplication> boundApplications) {
@@ -181,7 +184,9 @@ public class CheckForCreationConflictsStepTest extends SyncActivitiStepTest<Chec
     }
 
     private List<CloudServiceBinding> createServiceBindings(List<SimpleApplication> boundApplications) {
-        return boundApplications.stream().map(boundApplication -> createServiceBinding(boundApplication)).collect(Collectors.toList());
+        return boundApplications.stream()
+            .map(boundApplication -> createServiceBinding(boundApplication))
+            .collect(Collectors.toList());
     }
 
     private CloudServiceBinding createServiceBinding(SimpleApplication boundApplication) {
@@ -193,7 +198,8 @@ public class CheckForCreationConflictsStepTest extends SyncActivitiStepTest<Chec
     private void prepareExistingServices() {
         List<CloudService> existingServices = new ArrayList<>();
         stepInput.existingServices.forEach(service -> existingServices.add(service));
-        Mockito.when(client.getServices()).thenReturn(existingServices);
+        Mockito.when(client.getServices())
+            .thenReturn(existingServices);
         prepareServiceInstances();
 
     }
@@ -203,7 +209,8 @@ public class CheckForCreationConflictsStepTest extends SyncActivitiStepTest<Chec
     }
 
     private void prepareServiceInstance(CloudServiceExtended service, CloudServiceInstance instance) {
-        Mockito.when(client.getServiceInstance(service.getName())).thenReturn(instance);
+        Mockito.when(client.getServiceInstance(service.getName()))
+            .thenReturn(instance);
     }
 
     @Override

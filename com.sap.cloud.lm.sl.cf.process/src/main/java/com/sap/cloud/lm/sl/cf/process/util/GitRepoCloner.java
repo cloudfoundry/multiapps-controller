@@ -60,7 +60,8 @@ public class GitRepoCloner {
 
     public void cloneRepo(final String gitUri, final Path repoDir) throws InvalidRemoteException, GitAPIException, IOException {
         if (Files.exists(repoDir)) {
-            LOGGER.debug("Deleting left-over repo dir" + repoDir.toAbsolutePath().toString());
+            LOGGER.debug("Deleting left-over repo dir" + repoDir.toAbsolutePath()
+                .toString());
             com.sap.cloud.lm.sl.cf.core.util.FileUtils.deleteDirectory(repoDir);
         }
 
@@ -74,10 +75,11 @@ public class GitRepoCloner {
             cloneCommand.setBranch(fullRefName);
         }
         cloneCommand.setTimeout(290);
-        cloneCommand.setDirectory(repoDir.toAbsolutePath().toFile());
+        cloneCommand.setDirectory(repoDir.toAbsolutePath()
+            .toFile());
         cloneCommand.setURI(gitUri);
-        LOGGER.debug(
-            MessageFormat.format("cloning repo with url {0} in repo dir {1} ref '{2}'", gitUri, repoDir.toAbsolutePath().toString()));
+        LOGGER.debug(MessageFormat.format("cloning repo with url {0} in repo dir {1} ref '{2}'", gitUri, repoDir.toAbsolutePath()
+            .toString()));
         try (Git callInstance = cloneCommand.call()) {
             Repository repo = callInstance.getRepository();
             repo.close();
@@ -104,7 +106,8 @@ public class GitRepoCloner {
                 gitServiceUrlString, gitRepoUri));
             return false;
         }
-        return repoUrl.getHost().equals(serviceUrl.getHost()) && repoUrl.getPort() == serviceUrl.getPort();
+        return repoUrl.getHost()
+            .equals(serviceUrl.getHost()) && repoUrl.getPort() == serviceUrl.getPort();
 
     }
 

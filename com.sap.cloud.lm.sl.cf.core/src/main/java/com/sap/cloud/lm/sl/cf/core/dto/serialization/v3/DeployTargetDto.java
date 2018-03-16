@@ -70,12 +70,18 @@ public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.serializati
 
     public DeployTargetDto(PersistentObject<? extends Target> target) {
         this.id = target.getId();
-        this.name = target.getObject().getName();
-        this.type = target.getObject().getType();
-        this.description = target.getObject().getDescription();
-        this.parameters = target.getObject().getParameters();
-        this.platformModuleTypes = MT_ADAPTER.marshal(target.getObject().getModuleTypes3_1());
-        this.platformResourceTypes = RT_ADAPTER.marshal(target.getObject().getResourceTypes3_1());
+        this.name = target.getObject()
+            .getName();
+        this.type = target.getObject()
+            .getType();
+        this.description = target.getObject()
+            .getDescription();
+        this.parameters = target.getObject()
+            .getParameters();
+        this.platformModuleTypes = MT_ADAPTER.marshal(target.getObject()
+            .getModuleTypes3_1());
+        this.platformResourceTypes = RT_ADAPTER.marshal(target.getObject()
+            .getResourceTypes3_1());
     }
 
     @Override

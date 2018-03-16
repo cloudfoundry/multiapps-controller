@@ -38,9 +38,12 @@ public class ClientHelper {
     }
 
     public String computeSpaceId(String orgName, String spaceName) {
-        CloudSpace space = new SpaceGetterFactory().createSpaceGetter().findSpace(client, orgName, spaceName);
+        CloudSpace space = new SpaceGetterFactory().createSpaceGetter()
+            .findSpace(client, orgName, spaceName);
         if (space != null) {
-            return space.getMeta().getGuid().toString();
+            return space.getMeta()
+                .getGuid()
+                .toString();
         }
         return null;
     }
@@ -48,22 +51,26 @@ public class ClientHelper {
     public Pair<String, String> computeOrgAndSpace(String spaceId) {
         CloudSpace space = attemptToFindSpace(spaceId);
         if (space != null) {
-            return new Pair<>(space.getOrganization().getName(), space.getName());
+            return new Pair<>(space.getOrganization()
+                .getName(), space.getName());
         }
         return null;
     }
 
     private CloudSpace attemptToFindSpace(String spaceId) {
         try {
-            return new SpaceGetterFactory().createSpaceGetter().getSpace(client, spaceId);
+            return new SpaceGetterFactory().createSpaceGetter()
+                .getSpace(client, spaceId);
         } catch (CloudFoundryException e) {
             // From our point of view 403 means the same as 404 - the user does not have access to a space, so it is like it does not exist
             // for him.
-            if (e.getStatusCode().equals(HttpStatus.FORBIDDEN)) {
+            if (e.getStatusCode()
+                .equals(HttpStatus.FORBIDDEN)) {
                 LOGGER.debug(MessageFormat.format("The user does not have access to space with ID {0}!", spaceId));
                 return null;
             }
-            if (e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+            if (e.getStatusCode()
+                .equals(HttpStatus.NOT_FOUND)) {
                 LOGGER.debug(MessageFormat.format("Space with ID {0} does not exist!", spaceId));
                 return null;
             }

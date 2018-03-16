@@ -277,7 +277,8 @@ public class SystemParametersBuilder {
     }
 
     private String getDefaultHost(String moduleName) throws SLException {
-        String host = (targetName + " " + moduleName).replaceAll("\\s", "-").toLowerCase();
+        String host = (targetName + " " + moduleName).replaceAll("\\s", "-")
+            .toLowerCase();
         if (!HOST_VALIDATOR.isValid(host)) {
             return HOST_VALIDATOR.attemptToCorrect(host);
         }

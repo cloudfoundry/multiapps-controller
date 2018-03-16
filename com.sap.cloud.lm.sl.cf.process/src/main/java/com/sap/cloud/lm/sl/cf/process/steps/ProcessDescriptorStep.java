@@ -72,10 +72,12 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
             descriptor = userProvidedServiceResolver.resolve();
 
             // Merge DeploymentDescriptor and Target
-            handlerFactory.getTargetMerger(target).mergeInto(descriptor);
+            handlerFactory.getTargetMerger(target)
+                .mergeInto(descriptor);
 
             // Merge DeploymentDescriptor and Platform
-            handlerFactory.getPlatformMerger(platform).mergeInto(descriptor);
+            handlerFactory.getPlatformMerger(platform)
+                .mergeInto(descriptor);
 
             List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
             StepsUtil.setSubscriptionsToCreate(execution.getContext(), subscriptions);

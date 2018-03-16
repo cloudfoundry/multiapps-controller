@@ -7,7 +7,7 @@ import org.cloudfoundry.client.lib.CloudFoundryException;
 public interface PortAllocator {
 
     int allocatePort() throws CloudFoundryException;
-    
+
     int allocateTcpPort(boolean tcps) throws CloudFoundryException;
 
     void freeAll();

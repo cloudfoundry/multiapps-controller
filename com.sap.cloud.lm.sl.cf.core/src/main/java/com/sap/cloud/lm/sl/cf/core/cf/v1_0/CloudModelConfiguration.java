@@ -47,5 +47,4 @@ public class CloudModelConfiguration {
         this.allowInvalidEnvNames = allowInvalidEnvNames;
     }
 
-
 }

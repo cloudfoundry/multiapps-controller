@@ -51,15 +51,18 @@ public class MtaArchiveHelper {
 
     private Map<String, String> getEntriesWithAttribute(String attributeName) throws ContentException {
         Map<String, String> result = new HashMap<>();
-        for (Map.Entry<String, Attributes> entry : manifest.getEntries().entrySet()) {
-            String attributeValue = entry.getValue().getValue(attributeName);
+        for (Map.Entry<String, Attributes> entry : manifest.getEntries()
+            .entrySet()) {
+            String attributeValue = entry.getValue()
+                .getValue(attributeName);
             if (attributeValue == null) {
                 continue;
             }
             String fileName = entry.getKey();
             MtaPathValidator.validatePath(fileName);
             if (attributeName.equals(ATTR_MTA_MODULE)) {
-                Arrays.asList(attributeValue.split(Constants.MODULE_SEPARATOR)).forEach(module -> result.put(module.trim(), fileName));
+                Arrays.asList(attributeValue.split(Constants.MODULE_SEPARATOR))
+                    .forEach(module -> result.put(module.trim(), fileName));
             } else {
                 result.put(attributeValue, fileName);
             }

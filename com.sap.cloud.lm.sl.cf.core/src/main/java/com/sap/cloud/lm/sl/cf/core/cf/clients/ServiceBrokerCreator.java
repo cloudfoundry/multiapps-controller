@@ -20,7 +20,8 @@ public class ServiceBrokerCreator extends CustomControllerClient {
     private void attemptToCreateServiceBroker(CloudFoundryOperations client, CloudServiceBrokerExtended serviceBroker) {
         validateEntity(serviceBroker);
         Map<String, Object> serviceBrokerCreationRequest = getServiceBrokerCreationRequest(serviceBroker);
-        String controllerUrl = client.getCloudControllerUrl().toString();
+        String controllerUrl = client.getCloudControllerUrl()
+            .toString();
         RestTemplate restTemplate = getRestTemplate(client);
         restTemplate.postForObject(getUrl(controllerUrl, SERVICE_BROKERS_URL), serviceBrokerCreationRequest, String.class);
     }

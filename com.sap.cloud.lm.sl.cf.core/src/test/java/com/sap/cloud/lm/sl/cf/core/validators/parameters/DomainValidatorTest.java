@@ -70,6 +70,7 @@ public class DomainValidatorTest {
 
     @Test
     public void testGetContainerType() {
-        assertTrue(validator.getContainerType().isAssignableFrom(Module.class));
+        assertTrue(validator.getContainerType()
+            .isAssignableFrom(Module.class));
     }
 }

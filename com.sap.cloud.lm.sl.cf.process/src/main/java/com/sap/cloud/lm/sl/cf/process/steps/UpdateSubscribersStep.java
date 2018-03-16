@@ -151,7 +151,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
         // because the value of the 'inline-relations-depth' is hardcoded to 1
         // (see the findApplicationResource method of
         // org.cloudfoundry.client.lib.rest.CloudControllerClientImpl).
-        if (application.getSpace() == null || application.getSpace().getOrganization() == null) {
+        if (application.getSpace() == null || application.getSpace()
+            .getOrganization() == null) {
             CloudSpace space = createDummySpace(orgAndSpace);
             application.setSpace(space);
         }
@@ -169,7 +170,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     private List<CloudApplication> removeDuplicates(List<CloudApplication> applications) {
         Map<UUID, CloudApplication> applicationsMap = new LinkedHashMap<>();
         for (CloudApplication application : applications) {
-            applicationsMap.put(application.getMeta().getGuid(), application);
+            applicationsMap.put(application.getMeta()
+                .getGuid(), application);
         }
         return new ArrayList<>(applicationsMap.values());
     }
@@ -201,7 +203,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
         getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
             secureSerializer.toJson(dummyDescriptor));
         dummyDescriptor = handlerFactory
-            .getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder()).resolve();
+            .getDescriptorReferenceResolver(dummyDescriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder())
+            .resolve();
         getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
             secureSerializer.toJson(dummyDescriptor));
 
@@ -209,10 +212,13 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
             StepsUtil.getCloudBuilderConfiguration(context, shouldUsePrettyPrinting()), null, getEmptySystemParameters(),
             new XsPlaceholderResolver(), "");
 
-        String moduleName = dummyDescriptor.getModules1_0().get(0).getName();
+        String moduleName = dummyDescriptor.getModules1_0()
+            .get(0)
+            .getName();
         Set<String> moduleNamesSet = new TreeSet<>(Arrays.asList(moduleName));
 
-        CloudApplicationExtended application = appsCloudModelBuilder.build(moduleNamesSet, moduleNamesSet, Collections.emptySet()).get(0);
+        CloudApplicationExtended application = appsCloudModelBuilder.build(moduleNamesSet, moduleNamesSet, Collections.emptySet())
+            .get(0);
         CloudApplication existingApplication = client.getApplication(subscription.getAppName());
 
         Map<String, String> updatedEnvironment = application.getEnvAsMap();
@@ -236,7 +242,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
         String listName = getRequiredDependency(subscription).getList();
         if (listName == null) {
             result.addAll(getPropertiesWithReferencesToConfigurationResource(subscription));
-            result.addAll(getRequiredDependency(subscription).getProperties().keySet());
+            result.addAll(getRequiredDependency(subscription).getProperties()
+                .keySet());
         } else {
             result.add(listName);
         }
@@ -245,7 +252,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
 
     private List<String> getPropertiesWithReferencesToConfigurationResource(ConfigurationSubscription subscription) {
         ReferenceDetector detector = new ReferenceDetector(getRequiredDependency(subscription).getName());
-        new VisitableObject(subscription.getModuleDto().getProperties()).accept(detector);
+        new VisitableObject(subscription.getModuleDto()
+            .getProperties()).accept(detector);
         return getFirstComponents(detector.getRelevantProperties());
     }
 
@@ -264,7 +272,9 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     }
 
     private List<String> getFirstComponents(List<String> properties) {
-        return properties.stream().map((propertyName) -> getFirstComponent(propertyName)).collect(Collectors.toList());
+        return properties.stream()
+            .map((propertyName) -> getFirstComponent(propertyName))
+            .collect(Collectors.toList());
     }
 
     private String getFirstComponent(String propertyName) {
@@ -276,7 +286,9 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     }
 
     private RequiredDependencyDto getRequiredDependency(ConfigurationSubscription subscription) {
-        return subscription.getModuleDto().getRequiredDependencies().get(0);
+        return subscription.getModuleDto()
+            .getRequiredDependencies()
+            .get(0);
     }
 
     private SystemParameters getEmptySystemParameters() {
@@ -307,7 +319,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
         dummyDescriptorMap.put(DeploymentDescriptorParser.VERSION, DUMMY_VERSION);
         dummyDescriptorMap.put(DeploymentDescriptorParser.RESOURCES, Arrays.asList(resourceMap));
 
-        return handlerFactory.getDescriptorParser().parseDeploymentDescriptor(dummyDescriptorMap);
+        return handlerFactory.getDescriptorParser()
+            .parseDeploymentDescriptor(dummyDescriptorMap);
     }
 
     protected boolean shouldUsePrettyPrinting() {

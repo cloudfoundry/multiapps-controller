@@ -104,11 +104,15 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
         TestUtil.test(new Runnable() {
             @Override
             public void run() throws Exception {
-                int currentOperationsCnt = dao.findAll().size();
-                Operation operation1 = new Operation().processId(processId).acquiredLock(false).cleanedUp(false);
+                int currentOperationsCnt = dao.findAll()
+                    .size();
+                Operation operation1 = new Operation().processId(processId)
+                    .acquiredLock(false)
+                    .cleanedUp(false);
                 dao.add(operation1);
 
-                assertEquals(currentOperationsCnt + 1, dao.findAll().size());
+                assertEquals(currentOperationsCnt + 1, dao.findAll()
+                    .size());
 
                 Operation operation2 = dao.findRequired(processId);
 
@@ -124,10 +128,12 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
         TestUtil.test(new Runnable() {
             @Override
             public void run() throws Exception {
-                int currentOperationsCnt = dao.findAll().size();
+                int currentOperationsCnt = dao.findAll()
+                    .size();
                 dao.remove(processId);
 
-                assertEquals(currentOperationsCnt - 1, dao.findAll().size());
+                assertEquals(currentOperationsCnt - 1, dao.findAll()
+                    .size());
             }
         }, expected);
     }
@@ -139,7 +145,9 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
         TestUtil.test(new Runnable() {
             @Override
             public void run() throws Exception {
-                Operation operation1 = new Operation().processId(processId).acquiredLock(false).cleanedUp(false);
+                Operation operation1 = new Operation().processId(processId)
+                    .acquiredLock(false)
+                    .cleanedUp(false);
                 Operation operation2 = dao.findRequired(processId);
 
                 assertEquals(operation1.getProcessId(), operation2.getProcessId());
@@ -164,7 +172,8 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
         assumeTrue(operation.equals(DaoOperation.FIND_ALL_IN_SPACE));
 
         TestUtil.test(() -> {
-            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID).build();
+            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID)
+                .build();
             return dao.find(filter);
         }, expected, getClass());
     }
@@ -188,7 +197,9 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
         assumeTrue(operation.equals(DaoOperation.FIND_ACTIVE_IN_SPACE));
 
         TestUtil.test(() -> {
-            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID).inNonFinalState().build();
+            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID)
+                .inNonFinalState()
+                .build();
             return dao.find(filter);
         }, expected, getClass());
     }
@@ -198,7 +209,9 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
         assumeTrue(operation.equals(DaoOperation.FIND_FINISHED_IN_SPACE));
 
         TestUtil.test(() -> {
-            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID).inFinalState().build();
+            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID)
+                .inFinalState()
+                .build();
             return dao.find(filter);
         }, expected, getClass());
     }

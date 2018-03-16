@@ -59,8 +59,10 @@ public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
 
     private Set<Integer> getApplicationPorts(List<CloudApplicationExtended> apps) {
         OccupiedPortsDetector occupiedPortsDetector = new OccupiedPortsDetector();
-        return apps.stream().flatMap(app -> occupiedPortsDetector.detectOccupiedPorts(app).stream()).collect(
-            Collectors.toCollection(() -> new TreeSet<>()));
+        return apps.stream()
+            .flatMap(app -> occupiedPortsDetector.detectOccupiedPorts(app)
+                .stream())
+            .collect(Collectors.toCollection(() -> new TreeSet<>()));
     }
 
 }

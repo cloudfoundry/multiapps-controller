@@ -61,7 +61,7 @@ public class XsPlaceholderResolverInvokerTest {
             descriptor.accept(new XsPlaceholderResolverInvoker(schemaVersion, xsPlaceholderResolver));
             return descriptor;
 
-        } , expected, getClass());
+        }, expected, getClass());
     }
 
     private DescriptorParser getDescriptorParser() {

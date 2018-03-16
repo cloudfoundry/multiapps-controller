@@ -35,7 +35,8 @@ public class ConfigurationSubscriptionDtoDao {
     public List<ConfigurationSubscriptionDto> findAll() {
         return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute((manager) -> {
 
-            return manager.createNamedQuery(NamedQueries.FIND_ALL_SUBSCRIPTIONS).getResultList();
+            return manager.createNamedQuery(NamedQueries.FIND_ALL_SUBSCRIPTIONS)
+                .getResultList();
 
         });
     }
@@ -52,8 +53,9 @@ public class ConfigurationSubscriptionDtoDao {
     public List<ConfigurationSubscriptionDto> findAll(String guid) {
         return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute((manager) -> {
 
-            return manager.createNamedQuery(NamedQueries.FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID).setParameter(
-                ConfigurationSubscriptionDto.FieldNames.SPACE_ID, guid).getResultList();
+            return manager.createNamedQuery(NamedQueries.FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID)
+                .setParameter(ConfigurationSubscriptionDto.FieldNames.SPACE_ID, guid)
+                .getResultList();
         });
     }
 
@@ -164,7 +166,8 @@ public class ConfigurationSubscriptionDtoDao {
             predicates.add(builder.equal(root.get(FieldNames.MTA_ID), builder.parameter(String.class, FieldNames.MTA_ID)));
         }
 
-        return manager.createQuery(query.select(root).where(predicates.toArray(new Predicate[0])));
+        return manager.createQuery(query.select(root)
+            .where(predicates.toArray(new Predicate[0])));
     }
 
     private ConfigurationSubscriptionDto merge(ConfigurationSubscriptionDto existingSubscription, ConfigurationSubscriptionDto delta) {

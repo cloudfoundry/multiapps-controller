@@ -62,7 +62,7 @@ public class ConfigurationSubscriptionFactoryTest {
         Map<String, ResolvedConfigurationReference> resolvedResources = getResolvedConfigurationReferences(mtad);
         TestUtil.test(() -> {
             return new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId);
-        } , expected, getClass());
+        }, expected, getClass());
     }
 
     private Map<String, ResolvedConfigurationReference> getResolvedConfigurationReferences(DeploymentDescriptor descriptor) {

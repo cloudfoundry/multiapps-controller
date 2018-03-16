@@ -55,7 +55,7 @@ public class SaveFileStreamToDirectoryTest {
     @Test
     public void testSaveStreamToDirectory() throws Exception {
         InputStream stream = StreamUtil.class.getResourceAsStream(mtar);
-        try (InputStreamProducer streamProducer = new InputStreamProducer(stream, fileName, 250 * 1024 * 1024 )) {
+        try (InputStreamProducer streamProducer = new InputStreamProducer(stream, fileName, 250 * 1024 * 1024)) {
             InputStream streamToSave = streamProducer.getNextInputStream();
             String streamEntryName = streamProducer.getStreamEntryName();
             directoryPath = StreamUtil.getTempDirectory(fileName);
@@ -68,12 +68,16 @@ public class SaveFileStreamToDirectoryTest {
                 streamEntryName = streamProducer.getStreamEntryName();
             }
             assertTrue(Files.exists(directoryPath));
-            assertEquals(rootLevelEntryCount, directoryPath.toFile().list().length);
-            Path path1 = directoryPath.resolve("node_modules").resolve("sap-hdi-deploy").resolve("package.json");
+            assertEquals(rootLevelEntryCount, directoryPath.toFile()
+                .list().length);
+            Path path1 = directoryPath.resolve("node_modules")
+                .resolve("sap-hdi-deploy")
+                .resolve("package.json");
             assertEquals(10762, Files.size(path1));
             Path path2 = directoryPath.resolve("package.json");
             assertEquals(209, Files.size(path2));
-            Path path3 = directoryPath.resolve("src").resolve("job_log.hdbtable");
+            Path path3 = directoryPath.resolve("src")
+                .resolve("job_log.hdbtable");
             assertEquals(459, Files.size(path3));
         }
     }

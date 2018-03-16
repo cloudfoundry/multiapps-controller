@@ -4,7 +4,8 @@ import java.util.EnumSet;
 import java.util.Set;
 
 public enum ResourceType {
-    MANAGED_SERVICE("managed-service"), USER_PROVIDED_SERVICE("user-provided-service"), EXISTING_SERVICE("existing-service"), EXISTING_SERVICE_KEY("existing-service-key");
+    MANAGED_SERVICE("managed-service"), USER_PROVIDED_SERVICE("user-provided-service"), EXISTING_SERVICE(
+        "existing-service"), EXISTING_SERVICE_KEY("existing-service-key");
 
     private String value;
 

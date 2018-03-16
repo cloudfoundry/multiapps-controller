@@ -57,7 +57,7 @@ public class OperationDto {
 
     @Column(name = "acquired_lock")
     private boolean acquiredLock;
-    
+
     @Column(name = "cleaned_up")
     private boolean cleanedUp;
 
@@ -113,7 +113,7 @@ public class OperationDto {
     public boolean hasAcquiredLock() {
         return acquiredLock;
     }
-    
+
     public boolean isCleanedUp() {
         return cleanedUp;
     }

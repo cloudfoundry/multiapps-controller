@@ -51,7 +51,9 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
 
             getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
-            List<String> appNames = appsToDeploy.stream().map((app) -> app.getName()).collect(Collectors.toList());
+            List<String> appNames = appsToDeploy.stream()
+                .map((app) -> app.getName())
+                .collect(Collectors.toList());
 
             List<DeployedMtaModule> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames);
             getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, secureSerializer.toJson(modulesToUndeploy));
@@ -80,8 +82,12 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
     }
 
     private List<DeployedMtaModule> computeModulesToKeep(List<DeployedMtaModule> modulesToUndeploy, DeployedMta deployedMta) {
-        return deployedMta.getModules().stream().filter((existingModule) -> modulesToUndeploy.stream().noneMatch(
-            (module) -> module.getModuleName().equals(existingModule.getModuleName()))).collect(Collectors.toList());
+        return deployedMta.getModules()
+            .stream()
+            .filter((existingModule) -> modulesToUndeploy.stream()
+                .noneMatch((module) -> module.getModuleName()
+                    .equals(existingModule.getModuleName())))
+            .collect(Collectors.toList());
     }
 
     private void setComponentsToUndeploy(DelegateExecution context, List<String> services, List<CloudApplication> apps,
@@ -92,49 +98,62 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
     }
 
     private List<String> computeServicesToDelete(Set<String> createdService, List<DeployedMtaModule> modulesToKeep) {
-        return createdService.stream().filter(
-            (service) -> modulesToKeep.stream().noneMatch((module) -> module.getServices().contains(service))).collect(Collectors.toList());
+        return createdService.stream()
+            .filter((service) -> modulesToKeep.stream()
+                .noneMatch((module) -> module.getServices()
+                    .contains(service)))
+            .collect(Collectors.toList());
     }
 
     private List<DeployedMtaModule> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules, List<String> appsToDeploy) {
-        return deployedMta.getModules().stream().filter((deployedModule) -> {
+        return deployedMta.getModules()
+            .stream()
+            .filter((deployedModule) -> {
 
-            if (!mtaModules.contains(deployedModule.getModuleName())) {
-                return true; // Obsolete module;
-            } else if (!appsToDeploy.contains(deployedModule.getAppName())) {
-                return true; // Module resulting in an app with a different name; This could occur
-                             // if for example namespaces for applications were used previously, but
-                             // are not used now.
-            } else {
-                return false;
-            }
+                if (!mtaModules.contains(deployedModule.getModuleName())) {
+                    return true; // Obsolete module;
+                } else if (!appsToDeploy.contains(deployedModule.getAppName())) {
+                    return true; // Module resulting in an app with a different name; This could occur
+                                 // if for example namespaces for applications were used previously, but
+                                 // are not used now.
+                } else {
+                    return false;
+                }
 
-        }).collect(Collectors.toList());
+            })
+            .collect(Collectors.toList());
     }
 
     private List<CloudApplication> computeAppsToUndeploy(List<DeployedMtaModule> modulesToUndeploy, List<CloudApplication> deployedApps) {
-        return deployedApps.stream().filter(
-            (app) -> modulesToUndeploy.stream().anyMatch((module) -> module.getAppName().equals(app.getName()))).collect(
-                Collectors.toList());
+        return deployedApps.stream()
+            .filter((app) -> modulesToUndeploy.stream()
+                .anyMatch((module) -> module.getAppName()
+                    .equals(app.getName())))
+            .collect(Collectors.toList());
     }
 
     private List<ConfigurationSubscription> computeSubscriptionsToDelete(List<ConfigurationSubscription> subscriptionsToCreate,
         DeployedMta deployedMta, String spaceId) {
-        String mtaId = deployedMta.getMetadata().getId();
+        String mtaId = deployedMta.getMetadata()
+            .getId();
         List<ConfigurationSubscription> existingSubscriptions = dao.findAll(mtaId, null, spaceId, null);
-        return existingSubscriptions.stream().filter(
-            (subscription) -> !willBeCreatedOrUpdated(subscription, subscriptionsToCreate)).collect(Collectors.toList());
+        return existingSubscriptions.stream()
+            .filter((subscription) -> !willBeCreatedOrUpdated(subscription, subscriptionsToCreate))
+            .collect(Collectors.toList());
     }
 
     private boolean willBeCreatedOrUpdated(ConfigurationSubscription existingSubscription,
         List<ConfigurationSubscription> createdOrUpdatedSubscriptions) {
-        return createdOrUpdatedSubscriptions.stream().anyMatch((subscription) -> areEqual(subscription, existingSubscription));
+        return createdOrUpdatedSubscriptions.stream()
+            .anyMatch((subscription) -> areEqual(subscription, existingSubscription));
     }
 
     protected boolean areEqual(ConfigurationSubscription subscription1, ConfigurationSubscription subscription2) {
         return Objects.equals(subscription1.getAppName(), subscription2.getAppName())
-            && Objects.equals(subscription1.getSpaceId(), subscription2.getSpaceId())
-            && Objects.equals(subscription1.getResourceDto().getName(), subscription2.getResourceDto().getName());
+            && Objects.equals(subscription1.getSpaceId(), subscription2.getSpaceId()) && Objects.equals(subscription1.getResourceDto()
+                .getName(),
+                subscription2.getResourceDto()
+                    .getName());
     }
 
 }

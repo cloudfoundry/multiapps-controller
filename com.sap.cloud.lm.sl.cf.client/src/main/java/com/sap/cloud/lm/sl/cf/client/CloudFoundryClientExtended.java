@@ -52,9 +52,9 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     @Override
     public List<String> getSpaceManagers2(String spaceName) {
         try {
-            return executeWithTimeout(() -> executeWithRetry(
-                () -> super.getSpaceManagers(spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-                HttpStatus.NOT_FOUND));
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceManagers(spaceName).stream()
+                .map(uuid -> uuid.toString())
+                .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -63,9 +63,9 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     @Override
     public List<String> getSpaceDevelopers2(String spaceName) {
         try {
-            return executeWithTimeout(() -> executeWithRetry(
-                () -> super.getSpaceDevelopers(spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-                HttpStatus.NOT_FOUND));
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceDevelopers(spaceName).stream()
+                .map(uuid -> uuid.toString())
+                .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -74,9 +74,9 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     @Override
     public List<String> getSpaceAuditors2(String spaceName) {
         try {
-            return executeWithTimeout(() -> executeWithRetry(
-                () -> super.getSpaceAuditors(spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-                HttpStatus.NOT_FOUND));
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceAuditors(spaceName).stream()
+                .map(uuid -> uuid.toString())
+                .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -85,9 +85,9 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     @Override
     public List<String> getSpaceManagers2(String orgName, String spaceName) {
         try {
-            return executeWithTimeout(() -> executeWithRetry(
-                () -> super.getSpaceManagers(orgName, spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-                HttpStatus.NOT_FOUND));
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceManagers(orgName, spaceName).stream()
+                .map(uuid -> uuid.toString())
+                .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -96,9 +96,9 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     @Override
     public List<String> getSpaceDevelopers2(String orgName, String spaceName) {
         try {
-            return executeWithTimeout(() -> executeWithRetry(
-                () -> super.getSpaceDevelopers(orgName, spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-                HttpStatus.NOT_FOUND));
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceDevelopers(orgName, spaceName).stream()
+                .map(uuid -> uuid.toString())
+                .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -107,9 +107,9 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     @Override
     public List<String> getSpaceAuditors2(String orgName, String spaceName) {
         try {
-            return executeWithTimeout(() -> executeWithRetry(
-                () -> super.getSpaceAuditors(orgName, spaceName).stream().map(uuid -> uuid.toString()).collect(Collectors.toList()),
-                HttpStatus.NOT_FOUND));
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceAuditors(orgName, spaceName).stream()
+                .map(uuid -> uuid.toString())
+                .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
         } catch (Exception e) {
             throw fromException(e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -69,11 +69,15 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
         }
         StartingInfo startingInfo = startApp(execution, client, app);
         StepsUtil.setStartingInfo(execution.getContext(), startingInfo);
-        if (execution.getContext().getVariable(Constants.VAR_START_TIME) == null) {
-            execution.getContext().setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
+        if (execution.getContext()
+            .getVariable(Constants.VAR_START_TIME) == null) {
+            execution.getContext()
+                .setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
         }
-        if (execution.getContext().getVariable(Constants.VAR_OFFSET) == null) {
-            execution.getContext().setVariable(Constants.VAR_OFFSET, 0);
+        if (execution.getContext()
+            .getVariable(Constants.VAR_OFFSET) == null) {
+            execution.getContext()
+                .setVariable(Constants.VAR_OFFSET, 0);
         }
     }
 
@@ -84,9 +88,11 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
     private boolean isAppStarted(CloudFoundryOperations client, String appName) {
         try {
             CloudApplication app2 = client.getApplication(appName);
-            return app2.getState().equals(AppState.STARTED);
+            return app2.getState()
+                .equals(AppState.STARTED);
         } catch (CloudFoundryException e) {
-            if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+            if (e.getStatusCode()
+                .equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
                 LOGGER.warn(e.getMessage(), e);
                 return false;
             }

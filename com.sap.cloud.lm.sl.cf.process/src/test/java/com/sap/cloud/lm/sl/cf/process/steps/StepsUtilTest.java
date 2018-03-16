@@ -33,11 +33,25 @@ public class StepsUtilTest {
         List<CloudServiceExtended> actualServicesToCreate = StepsUtil.getServicesToCreate(context);
 
         assertEquals(1, actualServicesToCreate.size());
-        assertTrue(!actualServicesToCreate.get(0).getCredentials().isEmpty());
-        assertEquals(Integer.class, actualServicesToCreate.get(0).getCredentials().get("integer-value").getClass());
-        assertEquals(Integer.class, actualServicesToCreate.get(0).getCredentials().get("int-double-value").getClass());
-        assertEquals(Double.class, actualServicesToCreate.get(0).getCredentials().get("real-double-value").getClass());
-        assertEquals(String.class, actualServicesToCreate.get(0).getCredentials().get("string-value").getClass());
+        assertTrue(!actualServicesToCreate.get(0)
+            .getCredentials()
+            .isEmpty());
+        assertEquals(Integer.class, actualServicesToCreate.get(0)
+            .getCredentials()
+            .get("integer-value")
+            .getClass());
+        assertEquals(Integer.class, actualServicesToCreate.get(0)
+            .getCredentials()
+            .get("int-double-value")
+            .getClass());
+        assertEquals(Double.class, actualServicesToCreate.get(0)
+            .getCredentials()
+            .get("real-double-value")
+            .getClass());
+        assertEquals(String.class, actualServicesToCreate.get(0)
+            .getCredentials()
+            .get("string-value")
+            .getClass());
     }
 
     @Test
@@ -56,12 +70,33 @@ public class StepsUtilTest {
         List<CloudApplicationExtended> actualAppsToDeploy = StepsUtil.getAppsToDeploy(context);
 
         assertEquals(1, actualAppsToDeploy.size());
-        assertTrue(!actualAppsToDeploy.get(0).getBindingParameters().isEmpty());
-        assertTrue(!actualAppsToDeploy.get(0).getBindingParameters().get("service-1").isEmpty());
-        assertEquals(Integer.class, actualAppsToDeploy.get(0).getBindingParameters().get("service-1").get("integer-value").getClass());
-        assertEquals(Integer.class, actualAppsToDeploy.get(0).getBindingParameters().get("service-1").get("int-double-value").getClass());
-        assertEquals(Double.class, actualAppsToDeploy.get(0).getBindingParameters().get("service-1").get("real-double-value").getClass());
-        assertEquals(String.class, actualAppsToDeploy.get(0).getBindingParameters().get("service-1").get("string-value").getClass());
+        assertTrue(!actualAppsToDeploy.get(0)
+            .getBindingParameters()
+            .isEmpty());
+        assertTrue(!actualAppsToDeploy.get(0)
+            .getBindingParameters()
+            .get("service-1")
+            .isEmpty());
+        assertEquals(Integer.class, actualAppsToDeploy.get(0)
+            .getBindingParameters()
+            .get("service-1")
+            .get("integer-value")
+            .getClass());
+        assertEquals(Integer.class, actualAppsToDeploy.get(0)
+            .getBindingParameters()
+            .get("service-1")
+            .get("int-double-value")
+            .getClass());
+        assertEquals(Double.class, actualAppsToDeploy.get(0)
+            .getBindingParameters()
+            .get("service-1")
+            .get("real-double-value")
+            .getClass());
+        assertEquals(String.class, actualAppsToDeploy.get(0)
+            .getBindingParameters()
+            .get("service-1")
+            .get("string-value")
+            .getClass());
     }
 
 }

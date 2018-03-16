@@ -109,7 +109,7 @@ public class ApplicationsCloudModelBuilder {
         initializeModulesDependecyTypes(deploymentDescriptor);
         for (Module module : handler.getSortedModules(deploymentDescriptor, SupportedParameters.DEPENDENCY_TYPE, DEPENDECY_TYPE_HARD)) {
             if (!mtaModulesInArchive.contains(module.getName()) || module.getType() == null) {
-                if (deployedModules.contains(module.getName())){
+                if (deployedModules.contains(module.getName())) {
                     printMTAModuleNotFoundWarning(module.getName());
                 }
                 continue;
@@ -146,7 +146,8 @@ public class ApplicationsCloudModelBuilder {
     }
 
     protected String getDependencyType(Module module) {
-        return (String) propertiesAccessor.getParameters(module).getOrDefault(SupportedParameters.DEPENDENCY_TYPE, DEPENDECY_TYPE_SOFT);
+        return (String) propertiesAccessor.getParameters(module)
+            .getOrDefault(SupportedParameters.DEPENDENCY_TYPE, DEPENDECY_TYPE_SOFT);
     }
 
     protected CloudApplicationExtended getApplication(Module module) throws SLException {
@@ -187,7 +188,8 @@ public class ApplicationsCloudModelBuilder {
     }
 
     protected String getApplicationName(Module module) {
-        return (String) propertiesAccessor.getParameters(module).get(SupportedParameters.APP_NAME);
+        return (String) propertiesAccessor.getParameters(module)
+            .get(SupportedParameters.APP_NAME);
     }
 
     protected <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {

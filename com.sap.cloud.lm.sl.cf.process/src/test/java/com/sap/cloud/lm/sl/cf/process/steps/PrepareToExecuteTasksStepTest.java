@@ -42,7 +42,8 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
         assertEquals(3, context.getVariable(Constants.VAR_TASKS_COUNT));
         assertEquals(0, context.getVariable(Constants.VAR_TASKS_INDEX));
         assertEquals(Constants.VAR_TASKS_INDEX, context.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
-        assertEquals(3, StepsUtil.getTasksToExecute(context).size());
+        assertEquals(3, StepsUtil.getTasksToExecute(context)
+            .size());
     }
 
     @Test

@@ -89,7 +89,9 @@ public class ConfigurationEntriesResource {
     protected Response filterConfigurationEntries(ConfigurationFilter filter) throws ParsingException {
         try {
             List<ConfigurationEntry> entries = findConfigurationEntries(entryDao, filter, getUserTargets());
-            return Response.status(Response.Status.OK).entity(wrap(entries)).build();
+            return Response.status(Response.Status.OK)
+                .entity(wrap(entries))
+                .build();
         } catch (IllegalArgumentException e) {
             /**
              * Thrown if the version parameter is not a valid version requirement.
@@ -101,11 +103,15 @@ public class ConfigurationEntriesResource {
     private List<CloudTarget> getUserTargets() {
         UserInfo userInfo = userInfoSupplier.get();
         CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
-        return client.getSpaces().stream().map(cloudSpace -> getCloudTarget(cloudSpace)).collect(Collectors.toList());
+        return client.getSpaces()
+            .stream()
+            .map(cloudSpace -> getCloudTarget(cloudSpace))
+            .collect(Collectors.toList());
     }
 
     private CloudTarget getCloudTarget(CloudSpace cloudSpace) {
-        return new CloudTarget(cloudSpace.getOrganization().getName(), cloudSpace.getName());
+        return new CloudTarget(cloudSpace.getOrganization()
+            .getName(), cloudSpace.getName());
     }
 
     private ConfigurationEntriesDto wrap(List<ConfigurationEntry> entries) {
@@ -119,7 +125,9 @@ public class ConfigurationEntriesResource {
     @Path("/{id}")
     @GET
     public Response getConfigurationEntry(@PathParam(ID) long id) throws SLException {
-        return Response.status(Response.Status.OK).entity(new ConfigurationEntryDto(entryDao.find(id))).build();
+        return Response.status(Response.Status.OK)
+            .entity(new ConfigurationEntryDto(entryDao.find(id)))
+            .build();
     }
 
     private Map<String, Object> parseContentFilterParameter(List<String> content) throws ParsingException {
@@ -174,8 +182,11 @@ public class ConfigurationEntriesResource {
             throw new ParsingException(Messages.ORG_SPACE_NOT_SPECIFIED_2);
         }
         ConfigurationEntry result = entryDao.add(configurationEntry);
-        AuditLoggingProvider.getFacade().logConfigCreate(result);
-        return Response.status(Response.Status.CREATED).entity(new ConfigurationEntryDto(result)).build();
+        AuditLoggingProvider.getFacade()
+            .logConfigCreate(result);
+        return Response.status(Response.Status.CREATED)
+            .entity(new ConfigurationEntryDto(result))
+            .build();
         // TODO: check if this would work fine:
         // return Response.status(Response.Status.CREATED).entity(dto).build();
     }
@@ -190,9 +201,12 @@ public class ConfigurationEntriesResource {
         }
 
         ConfigurationEntry result = entryDao.update(id, dto.toConfigurationEntry());
-        AuditLoggingProvider.getFacade().logConfigUpdate(result);
+        AuditLoggingProvider.getFacade()
+            .logConfigUpdate(result);
 
-        return Response.status(Response.Status.OK).entity(new ConfigurationEntryDto(result)).build();
+        return Response.status(Response.Status.OK)
+            .entity(new ConfigurationEntryDto(result))
+            .build();
     }
 
     private ConfigurationEntryDto parseDto(String dXml, URL schemaLocation) throws ParsingException {
@@ -204,11 +218,14 @@ public class ConfigurationEntriesResource {
     public Response deleteConfigurationEntry(@PathParam(ID) long id) throws SLException {
         ConfigurationEntry entry = entryDao.find(id);
         if (entry == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                .build();
         }
         entryDao.remove(id);
-        AuditLoggingProvider.getFacade().logConfigDelete(entry);
-        return Response.status(Response.Status.NO_CONTENT).build();
+        AuditLoggingProvider.getFacade()
+            .logConfigDelete(entry);
+        return Response.status(Response.Status.NO_CONTENT)
+            .build();
     }
 
     @GET
@@ -241,7 +258,9 @@ public class ConfigurationEntriesResource {
     @POST
     public Response purgeConfigurationRegistry(@QueryParam("org") String org, @QueryParam("space") String space) {
         if (CommonUtil.isNullOrEmpty(org) || CommonUtil.isNullOrEmpty(space)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED)
+                .build();
         }
 
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
@@ -249,6 +268,7 @@ public class ConfigurationEntriesResource {
         CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName(), org, space, null);
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
         purger.purge(org, space);
-        return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.status(Response.Status.NO_CONTENT)
+            .build();
     }
 }

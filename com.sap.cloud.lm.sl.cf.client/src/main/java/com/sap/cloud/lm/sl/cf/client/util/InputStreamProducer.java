@@ -21,7 +21,8 @@ public class InputStreamProducer implements Closeable {
 
     public InputStream getNextInputStream() throws IOException {
         for (ZipEntry zipEntry; (zipEntry = stream.getNextEntry()) != null;) {
-            if (zipEntry.getName().startsWith(entryName)) {
+            if (zipEntry.getName()
+                .startsWith(entryName)) {
                 StreamUtil.validateZipEntrySize(zipEntry, maxEntrySize);
                 streamEntryName = zipEntry.getName();
                 return stream;
@@ -33,7 +34,7 @@ public class InputStreamProducer implements Closeable {
     public String getStreamEntryName() {
         return streamEntryName;
     }
-    
+
     public long getMaxEntrySize() {
         return maxEntrySize;
     }

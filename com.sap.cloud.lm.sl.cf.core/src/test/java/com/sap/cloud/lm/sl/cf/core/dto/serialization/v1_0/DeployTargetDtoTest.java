@@ -46,7 +46,6 @@ public class DeployTargetDtoTest {
             JsonUtil.toJson(properties, true));
     }
 
-
     @Test
     public void testMarshalling() throws Exception {
         com.sap.cloud.lm.sl.cf.core.dto.serialization.DeployTargetDto properties = JsonUtil.fromJson(jsonTargetContent, getTestedClass());

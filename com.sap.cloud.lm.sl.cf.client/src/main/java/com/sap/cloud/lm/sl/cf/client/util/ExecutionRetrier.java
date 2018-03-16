@@ -59,12 +59,17 @@ public class ExecutionRetrier {
 
     private boolean shouldIgnoreException(CloudFoundryException ex, Set<HttpStatus> httpStatusesToIgnore) {
         for (HttpStatus status : httpStatusesToIgnore) {
-            if (ex.getStatusCode().equals(status)) {
+            if (ex.getStatusCode()
+                .equals(status)) {
                 return true;
             }
         }
-        return ex.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR) || ex.getStatusCode().equals(HttpStatus.BAD_GATEWAY)
-            || ex.getStatusCode().equals(HttpStatus.SERVICE_UNAVAILABLE);
+        return ex.getStatusCode()
+            .equals(HttpStatus.INTERNAL_SERVER_ERROR)
+            || ex.getStatusCode()
+                .equals(HttpStatus.BAD_GATEWAY)
+            || ex.getStatusCode()
+                .equals(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     private void sleep(long millis) {

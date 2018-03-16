@@ -10,8 +10,8 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 public class UserProvidedResourceResolverTest extends com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolverTest {
 
@@ -32,8 +32,7 @@ public class UserProvidedResourceResolverTest extends com.sap.cloud.lm.sl.cf.cor
         });
     }
 
-    public UserProvidedResourceResolverTest(String descriptorLocation, String targetLocation, String platformLocation,
-        String expected) {
+    public UserProvidedResourceResolverTest(String descriptorLocation, String targetLocation, String platformLocation, String expected) {
         super(descriptorLocation, targetLocation, platformLocation, expected);
     }
 
@@ -56,8 +55,7 @@ public class UserProvidedResourceResolverTest extends com.sap.cloud.lm.sl.cf.cor
     protected UserProvidedResourceResolver getUserProidedResourceResolver(DeploymentDescriptor descriptor, Target target,
         Platform platform) {
         return new com.sap.cloud.lm.sl.cf.core.helpers.v2_0.UserProvidedResourceResolver(getResourceTypeFinder(),
-            (com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor) descriptor,
-            (com.sap.cloud.lm.sl.mta.model.v2_0.Target) target,
+            (com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor) descriptor, (com.sap.cloud.lm.sl.mta.model.v2_0.Target) target,
             (com.sap.cloud.lm.sl.mta.model.v2_0.Platform) platform);
     }
 }

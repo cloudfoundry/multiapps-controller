@@ -394,7 +394,8 @@ public class CloudModelBuilderTest {
 
         DescriptorHandler handler = getDescriptorHandler();
 
-        String targetName = extensionDescriptor.getDeployTargets().get(0);
+        String targetName = extensionDescriptor.getDeployTargets()
+            .get(0);
         Target target = handler.findTarget(targets, targetName, null);
         Platform platform = handler.findPlatform(platforms, target.getType());
 

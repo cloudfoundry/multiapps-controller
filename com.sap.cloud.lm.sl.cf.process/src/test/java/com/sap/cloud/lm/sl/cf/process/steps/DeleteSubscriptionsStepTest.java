@@ -77,7 +77,9 @@ public class DeleteSubscriptionsStepTest extends SyncActivitiStepTest<DeleteSubs
     }
 
     private List<ConfigurationSubscription> asSubscriptions(List<Integer> subscriptionsToDelete) {
-        return subscriptionsToDelete.stream().map((subscription) -> asSubscription(subscription)).collect(Collectors.toList());
+        return subscriptionsToDelete.stream()
+            .map((subscription) -> asSubscription(subscription))
+            .collect(Collectors.toList());
     }
 
     private ConfigurationSubscription asSubscription(Integer subscriptionnId) {
@@ -106,9 +108,11 @@ public class DeleteSubscriptionsStepTest extends SyncActivitiStepTest<DeleteSubs
 
         for (Integer subscription : input.existingSubscriptions) {
             if (input.subscriptionsToDelete.contains(subscription)) {
-                Mockito.verify(dao, times(1)).remove(subscription);
+                Mockito.verify(dao, times(1))
+                    .remove(subscription);
             } else {
-                Mockito.verify(dao, times(0)).remove(subscription);
+                Mockito.verify(dao, times(0))
+                    .remove(subscription);
             }
         }
     }

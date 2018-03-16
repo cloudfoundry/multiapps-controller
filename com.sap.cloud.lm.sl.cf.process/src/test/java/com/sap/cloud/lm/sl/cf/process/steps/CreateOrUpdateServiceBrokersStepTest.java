@@ -165,14 +165,17 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncActivitiStepTest<C
 
         assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
         if (expectedWarningMessage != null) {
-            Mockito.verify(stepLogger).warn(expectedWarningMessage);
+            Mockito.verify(stepLogger)
+                .warn(expectedWarningMessage);
         }
 
         List<CloudServiceBrokerExtended> actuallyCreatedServiceBrokers = StepsUtil.getServiceBrokersToCreate(context);
-        Collections.sort(actuallyCreatedServiceBrokers, (broker1, broker2) -> broker1.getName().compareTo(broker2.getName()));
+        Collections.sort(actuallyCreatedServiceBrokers, (broker1, broker2) -> broker1.getName()
+            .compareTo(broker2.getName()));
         List<CloudServiceBrokerExtended> expectedServiceBrokersToCreate = new ArrayList<>(expectedOutput.createdServiceBrokers);
         expectedServiceBrokersToCreate.addAll(expectedOutput.updatedServiceBrokers);
-        Collections.sort(expectedServiceBrokersToCreate, (broker1, broker2) -> broker1.getName().compareTo(broker2.getName()));
+        Collections.sort(expectedServiceBrokersToCreate, (broker1, broker2) -> broker1.getName()
+            .compareTo(broker2.getName()));
 
         assertEquals(JsonUtil.toJson(expectedServiceBrokersToCreate, true), JsonUtil.toJson(actuallyCreatedServiceBrokers, true));
     }
@@ -188,7 +191,8 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncActivitiStepTest<C
         }
         context.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);
         input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, getClass()), StepInput.class);
-        Mockito.when(configuration.getPlatformType()).thenReturn(input.platformType);
+        Mockito.when(configuration.getPlatformType())
+            .thenReturn(input.platformType);
     }
 
     private void prepareContext() {
@@ -197,16 +201,23 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncActivitiStepTest<C
     }
 
     private List<CloudApplicationExtended> toCloudApplications(List<SimpleApplication> applications) {
-        return applications.stream().map((application) -> application.toCloudApplication()).collect(Collectors.toList());
+        return applications.stream()
+            .map((application) -> application.toCloudApplication())
+            .collect(Collectors.toList());
     }
 
     private void prepareClient() {
-        Mockito.when(serviceBrokersGetter.getServiceBrokers(client)).thenReturn(input.existingServiceBrokers);
+        Mockito.when(serviceBrokersGetter.getServiceBrokers(client))
+            .thenReturn(input.existingServiceBrokers);
         if (updateException != null) {
-            Mockito.doThrow(updateException).when(client).updateServiceBroker(Mockito.any());
+            Mockito.doThrow(updateException)
+                .when(client)
+                .updateServiceBroker(Mockito.any());
         }
         if (createException != null) {
-            Mockito.doThrow(createException).when(serviceBrokerCreator).createServiceBroker(Mockito.any(), Mockito.any());
+            Mockito.doThrow(createException)
+                .when(serviceBrokerCreator)
+                .createServiceBroker(Mockito.any(), Mockito.any());
         }
     }
 
@@ -216,13 +227,14 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncActivitiStepTest<C
 
         ArgumentCaptor<CloudServiceBrokerExtended> createArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBrokerExtended.class);
         int expectedCreatedBrokersCnt = expectedOutput.createdServiceBrokers.size();
-        Mockito.verify(serviceBrokerCreator, Mockito.times(expectedCreatedBrokersCnt)).createServiceBroker(Mockito.eq(client),
-            createArgumentCaptor.capture());
+        Mockito.verify(serviceBrokerCreator, Mockito.times(expectedCreatedBrokersCnt))
+            .createServiceBroker(Mockito.eq(client), createArgumentCaptor.capture());
         actualOutput.createdServiceBrokers = createArgumentCaptor.getAllValues();
 
         ArgumentCaptor<CloudServiceBrokerExtended> updateArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBrokerExtended.class);
         int expectedUpdatedBrokersCnt = expectedOutput.updatedServiceBrokers.size();
-        Mockito.verify(client, Mockito.times(expectedUpdatedBrokersCnt)).updateServiceBroker(updateArgumentCaptor.capture());
+        Mockito.verify(client, Mockito.times(expectedUpdatedBrokersCnt))
+            .updateServiceBroker(updateArgumentCaptor.capture());
         actualOutput.updatedServiceBrokers = updateArgumentCaptor.getAllValues();
 
         return actualOutput;

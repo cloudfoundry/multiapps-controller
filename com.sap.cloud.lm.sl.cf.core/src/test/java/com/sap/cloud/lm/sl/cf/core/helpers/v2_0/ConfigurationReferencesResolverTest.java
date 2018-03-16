@@ -68,9 +68,11 @@ public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.
     @BeforeClass
     public static void initializeTargetAndPlatformType() throws Exception {
         ConfigurationParser parser = new ConfigurationParser();
-        target = parser.parseTargetsJson2_0(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/targets-v2.json")).get(2);
-        platform = parser.parsePlatformsJson2_0(
-            ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/platform-types-v2.json")).get(0);
+        target = parser.parseTargetsJson2_0(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/targets-v2.json"))
+            .get(2);
+        platform = parser
+            .parsePlatformsJson2_0(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/platform-types-v2.json"))
+            .get(0);
     }
 
     @Override

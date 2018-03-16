@@ -75,7 +75,9 @@ public class UnregisterServiceUrlsStepTest extends SyncActivitiStepTest<Unregist
     }
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> apps) {
-        return apps.stream().map((app) -> app.toCloudApplication()).collect(Collectors.toList());
+        return apps.stream()
+            .map((app) -> app.toCloudApplication())
+            .collect(Collectors.toList());
     }
 
     @Test
@@ -91,8 +93,10 @@ public class UnregisterServiceUrlsStepTest extends SyncActivitiStepTest<Unregist
 
     private String[] captureStepOutput() {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(clientExtensions, Mockito.times(expectedUnregisteredServiceUrls.length)).unregisterServiceURL(captor.capture());
-        return captor.getAllValues().toArray(new String[0]);
+        Mockito.verify(clientExtensions, Mockito.times(expectedUnregisteredServiceUrls.length))
+            .unregisterServiceURL(captor.capture());
+        return captor.getAllValues()
+            .toArray(new String[0]);
     }
 
     private static class StepInput {

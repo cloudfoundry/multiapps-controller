@@ -99,7 +99,8 @@ public class ContextExtensionDao {
     public List<ContextExtension> findAll() {
         return new Executor<List<ContextExtension>>(createEntityManager()).execute((manager) -> {
 
-            return manager.createNamedQuery(NamedQueries.FIND_ALL_CONTEXT_EXTENSION_ENTRIES).getResultList();
+            return manager.createNamedQuery(NamedQueries.FIND_ALL_CONTEXT_EXTENSION_ENTRIES)
+                .getResultList();
 
         });
     }
@@ -108,8 +109,9 @@ public class ContextExtensionDao {
     public List<ContextExtension> findAll(String processId) {
         return new Executor<List<ContextExtension>>(createEntityManager()).execute((manager) -> {
 
-            return manager.createNamedQuery(NamedQueries.FIND_ALL_CONTEXT_EXTENSION_ENTRIES_BY_PROCESS_ID).setParameter(
-                FieldNames.PROCESS_ID, processId).getResultList();
+            return manager.createNamedQuery(NamedQueries.FIND_ALL_CONTEXT_EXTENSION_ENTRIES_BY_PROCESS_ID)
+                .setParameter(FieldNames.PROCESS_ID, processId)
+                .getResultList();
 
         });
     }
@@ -180,7 +182,8 @@ public class ContextExtensionDao {
                 builder.parameter(String.class, ContextExtension.FieldNames.NAME)));
         }
 
-        return manager.createQuery(query.select(root).where(predicates.toArray(new Predicate[0])));
+        return manager.createQuery(query.select(root)
+            .where(predicates.toArray(new Predicate[0])));
 
     }
 

@@ -46,10 +46,12 @@ public class AnalyticsCollector {
         long endTime = getEndTime();
         long processDuration = getProcessDurationInSeconds(context, processId);
         String mtaId = (String) context.getVariable(Constants.PARAM_MTA_ID);
-        String platform = configuration.getPlatformType().toString();
+        String platform = configuration.getPlatformType()
+            .toString();
         String org = StepsUtil.getOrg(context);
         String space = StepsUtil.getSpace(context);
-        String targetUrl = configuration.getTargetURL().toString();
+        String targetUrl = configuration.getTargetURL()
+            .toString();
         AbstractCommonProcessAttributes attributes = getProcessType(processType).collectProcessVariables(context);
 
         return new AnalyticsData(processId, processType, startTime, endTime, processDuration, null, mtaId, platform, org, space, targetUrl,
@@ -68,11 +70,13 @@ public class AnalyticsCollector {
     }
 
     public long getStartTime(DelegateExecution context, String processId) {
-        HistoryService historyService = context.getEngineServices().getHistoryService();
+        HistoryService historyService = context.getEngineServices()
+            .getHistoryService();
         HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
             .processInstanceId(processId)
             .singleResult();
-        return processInstance.getStartTime().getTime();
+        return processInstance.getStartTime()
+            .getTime();
     }
 
     protected long getEndTime() {

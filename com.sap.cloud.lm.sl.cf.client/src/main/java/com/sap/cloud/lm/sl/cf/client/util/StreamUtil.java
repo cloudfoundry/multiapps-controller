@@ -72,13 +72,15 @@ public class StreamUtil {
         ZipInputStream zis = (ZipInputStream) inputStream;
         for (ZipEntry e; (e = zis.getNextEntry()) != null;) {
             String currentEntryName = e.getName();
-            if (!e.getName().startsWith(rootEntryName)) {
+            if (!e.getName()
+                .startsWith(rootEntryName)) {
                 continue;
             }
             validateZipEntrySize(e, maxZipEntrySize);
             validateEntry(currentEntryName);
             Path filePath = resolveTempEntryPath(currentEntryName, rootEntryName, tempDirectory);
-            if (e.getName().endsWith(ARCHIVE_ENTRY_SEPARATOR)) {
+            if (e.getName()
+                .endsWith(ARCHIVE_ENTRY_SEPARATOR)) {
                 Files.createDirectories(filePath);
             } else {
                 createFile(filePath);
@@ -113,7 +115,8 @@ public class StreamUtil {
         if (!entryName.equals(FilenameUtils.normalize(entryName, true))) {
             throw new IllegalArgumentException(MessageFormat.format(PATH_SHOULD_BE_NORMALIZED, entryName));
         }
-        if (Paths.get(entryName).isAbsolute()) {
+        if (Paths.get(entryName)
+            .isAbsolute()) {
             throw new IllegalArgumentException(MessageFormat.format(PATH_SHOULD_NOT_BE_ABSOLUTE, entryName));
         }
     }

@@ -70,13 +70,15 @@ public class StreamManager {
         ZipInputStream zipInputStream = (ZipInputStream) inputStream;
         for (ZipEntry zipEntry; (zipEntry = zipInputStream.getNextEntry()) != null;) {
             String currentEntryName = zipEntry.getName();
-            if (!zipEntry.getName().startsWith(rootEntryName)) {
+            if (!zipEntry.getName()
+                .startsWith(rootEntryName)) {
                 continue;
             }
             StreamUtil.validateZipEntrySize(zipEntry, maxZipEntrySize);
             StreamUtil.validateEntry(currentEntryName);
             Path filePath = StreamUtil.resolveTempEntryPath(currentEntryName, rootEntryName, tempDirectory);
-            if (zipEntry.getName().endsWith(ARCHIVE_ENTRY_SEPARATOR)) {
+            if (zipEntry.getName()
+                .endsWith(ARCHIVE_ENTRY_SEPARATOR)) {
                 Files.createDirectories(filePath);
             } else {
                 createFile(filePath);

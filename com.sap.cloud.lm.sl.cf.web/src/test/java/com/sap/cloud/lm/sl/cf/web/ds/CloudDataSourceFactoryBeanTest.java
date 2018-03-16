@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import javax.sql.DataSource;
 
@@ -18,10 +21,6 @@ import org.springframework.cloud.service.relational.DataSourceConfig;
 
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.LambdaArgumentMatcher;
-
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class CloudDataSourceFactoryBeanTest {
 
@@ -68,7 +67,8 @@ public class CloudDataSourceFactoryBeanTest {
         when(configurationMock.getDbConnectionThreads()).thenReturn(DB_CONNECTIONS);
 
         ArgumentMatcher<DataSourceConfig> dataSourceConfigMatcher = new LambdaArgumentMatcher<DataSourceConfig>(
-            (Object input) -> DB_CONNECTIONS == ((DataSourceConfig) input).getPoolConfig().getMaxTotal());
+            (Object input) -> DB_CONNECTIONS == ((DataSourceConfig) input).getPoolConfig()
+                .getMaxTotal());
         when(springCloudMock.getServiceConnector(eq(SERVICE_NAME), eq(DataSource.class), argThat(dataSourceConfigMatcher)))
             .thenReturn(createdDataSource);
 

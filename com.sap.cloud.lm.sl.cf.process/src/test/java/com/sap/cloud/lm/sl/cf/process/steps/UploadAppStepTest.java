@@ -181,7 +181,8 @@ public class UploadAppStepTest {
         }
 
         private void assertCall(String variableName, String variableValue) {
-            Mockito.verify(contextExtensionDao).addOrUpdate(TEST_PROCESS_INSTANCE_ID, variableName, variableValue);
+            Mockito.verify(contextExtensionDao)
+                .addOrUpdate(TEST_PROCESS_INSTANCE_ID, variableName, variableValue);
         }
 
         public void loadParameters() throws Exception {
@@ -214,10 +215,12 @@ public class UploadAppStepTest {
                 }
             } else {
                 if (expectedIOExceptionMessage != null) {
-                    doThrow(IO_EXCEPTION).when(client).uploadApplication(eq(APP_NAME), eq(appFile), any());
+                    doThrow(IO_EXCEPTION).when(client)
+                        .uploadApplication(eq(APP_NAME), eq(appFile), any());
                 }
                 if (expectedCFExceptionMessage != null) {
-                    doThrow(CF_EXCEPTION).when(client).uploadApplication(eq(APP_NAME), eq(appFile), any());
+                    doThrow(CF_EXCEPTION).when(client)
+                        .uploadApplication(eq(APP_NAME), eq(appFile), any());
                 }
             }
             when(client.getApplication(APP_NAME)).thenReturn(new SimpleApplication(APP_NAME, 2).toCloudApplication());
@@ -231,7 +234,8 @@ public class UploadAppStepTest {
                     ((FileDownloadProcessor) invocation.getArguments()[0]).processContent(null);
                     return null;
                 }
-            }).when(fileService).processFileContent(any());
+            }).when(fileService)
+                .processFileContent(any());
         }
 
         private class UploadAppStepMock extends UploadAppStep {
@@ -245,11 +249,13 @@ public class UploadAppStepTest {
             }
 
             @Override
-            InputStreamProducer getInputStreamProducer(InputStream appArchiveStream, String fileName, long maxStreamSize) throws SLException {
+            InputStreamProducer getInputStreamProducer(InputStream appArchiveStream, String fileName, long maxStreamSize)
+                throws SLException {
                 if (!fileName.equals(APP_FILE)) {
                     return super.getInputStreamProducer(appArchiveStream, fileName, maxStreamSize);
                 }
-                return new InputStreamProducer(getClass().getResourceAsStream(APP_FILE), fileName, Configuration.getInstance().getMaxResourceFileSize()) {
+                return new InputStreamProducer(getClass().getResourceAsStream(APP_FILE), fileName, Configuration.getInstance()
+                    .getMaxResourceFileSize()) {
                     @Override
                     public InputStream getNextInputStream() {
                         return getClass().getResourceAsStream(APP_FILE);

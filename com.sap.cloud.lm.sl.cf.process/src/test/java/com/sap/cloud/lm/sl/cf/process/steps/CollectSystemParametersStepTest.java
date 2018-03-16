@@ -182,8 +182,8 @@ public class CollectSystemParametersStepTest extends SyncActivitiStepTest<Collec
     private void loadParameters() throws Exception {
         String deploymentDescriptorString = TestUtil.getResourceAsString(input.deploymentDescriptorLocation, getClass());
 
-        descriptor = new HandlerFactory(input.majorMtaSchemaVersion,
-            input.minorMtaSchemaVersion).getDescriptorParser().parseDeploymentDescriptorYaml(deploymentDescriptorString);
+        descriptor = new HandlerFactory(input.majorMtaSchemaVersion, input.minorMtaSchemaVersion).getDescriptorParser()
+            .parseDeploymentDescriptorYaml(deploymentDescriptorString);
         if (input.deployedMtaLocation != null) {
             String deployedMtaString = TestUtil.getResourceAsString(input.deployedMtaLocation, getClass());
             deployedMta = JsonUtil.fromJson(deployedMtaString, DeployedMta.class);

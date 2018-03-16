@@ -85,9 +85,11 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncActivitiStepTest<
     }
 
     private void prepareClient() {
-        Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false))).thenReturn(null);
+        Mockito.when(client.getServiceBroker(Mockito.anyString(), Mockito.eq(false)))
+            .thenReturn(null);
         if (input.brokerApplication.brokerName.equals(input.brokerFromClient.name)) {
-            Mockito.when(client.getServiceBroker(input.brokerFromClient.name, false)).thenReturn(input.brokerFromClient.toServiceBroker());
+            Mockito.when(client.getServiceBroker(input.brokerFromClient.name, false))
+                .thenReturn(input.brokerFromClient.toServiceBroker());
         }
     }
 
@@ -107,11 +109,13 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncActivitiStepTest<
 
     private void validateExecution() {
         if (warningMessage != null) {
-            Mockito.verify(stepLogger).warn(warningMessage);
+            Mockito.verify(stepLogger)
+                .warn(warningMessage);
         } else {
             CloudServiceBroker expectedBroker = new CloudServiceBroker(null, input.brokerApplication.brokerName,
                 input.brokerApplication.brokerUrl, input.brokerApplication.brokerUsername, input.brokerApplication.brokerPassword);
-            Mockito.verify(client).updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
+            Mockito.verify(client)
+                .updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
         }
     }
 

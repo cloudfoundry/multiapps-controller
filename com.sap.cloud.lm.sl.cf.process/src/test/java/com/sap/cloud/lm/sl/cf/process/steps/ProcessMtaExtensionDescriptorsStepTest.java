@@ -68,13 +68,15 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncActivitiStepTest
             @Override
             public Void answer(InvocationOnMock invocation) throws Exception {
                 FileDownloadProcessor contentProcessor = (FileDownloadProcessor) invocation.getArguments()[0];
-                int fileId = Integer.parseInt(contentProcessor.getFileEntry().getId());
+                int fileId = Integer.parseInt(contentProcessor.getFileEntry()
+                    .getId());
 
                 contentProcessor.processContent(getClass().getResourceAsStream(descriptorFileLocations.get(fileId)));
                 return null;
             }
 
-        }).when(fileService).processFileContent(any());
+        }).when(fileService)
+            .processFileContent(any());
     }
 
     private void validateOutput() throws Exception {

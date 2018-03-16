@@ -45,7 +45,9 @@ public class ServiceUpdater extends CloudServiceOperator {
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = getCloudControllerUrl(client);
 
-        String servicePlanGuid = findPlanForService(service, servicePlan, restTemplate, cloudControllerUrl).getMeta().getGuid().toString();
+        String servicePlanGuid = findPlanForService(service, servicePlan, restTemplate, cloudControllerUrl).getMeta()
+            .getGuid()
+            .toString();
         attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_PLAN_GUID, servicePlanGuid);
     }
 
@@ -54,7 +56,8 @@ public class ServiceUpdater extends CloudServiceOperator {
     }
 
     private String getCloudControllerUrl(CloudFoundryOperations client) {
-        return client.getCloudControllerUrl().toString();
+        return client.getCloudControllerUrl()
+            .toString();
     }
 
     public void updateServiceParametersQuietly(CloudFoundryOperations client, String serviceName, Map<String, Object> parameters) {
@@ -84,8 +87,9 @@ public class ServiceUpdater extends CloudServiceOperator {
 
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = getCloudControllerUrl(client);
-        String updateServiceUrl = getUrl(cloudControllerUrl,
-            getUpdateServiceUrl(serviceUrl, service.getMeta().getGuid().toString(), ACCEPTS_INCOMPLETE_TRUE));
+        String updateServiceUrl = getUrl(cloudControllerUrl, getUpdateServiceUrl(serviceUrl, service.getMeta()
+            .getGuid()
+            .toString(), ACCEPTS_INCOMPLETE_TRUE));
 
         Map<String, Object> serviceRequest = createUpdateServiceRequest(parameterName, parameter);
         restTemplate.put(updateServiceUrl, serviceRequest);
@@ -110,7 +114,8 @@ public class ServiceUpdater extends CloudServiceOperator {
         try {
             runnable.run();
         } catch (CloudFoundryException e) {
-            if (!e.getStatusCode().equals(HttpStatus.BAD_GATEWAY)) {
+            if (!e.getStatusCode()
+                .equals(HttpStatus.BAD_GATEWAY)) {
                 throw e;
             }
             LOGGER.warn(MessageFormat.format("Controller operation failed. Status Code: {0}, Status Text: {1}, Description: {2}",

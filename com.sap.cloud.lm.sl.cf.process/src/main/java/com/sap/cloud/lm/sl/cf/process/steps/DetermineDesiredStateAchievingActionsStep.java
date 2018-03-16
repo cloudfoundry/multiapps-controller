@@ -60,12 +60,14 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
 
     private ApplicationStartupState computeCurrentState(ExecutionWrapper execution, CloudApplication app) {
         CloudFoundryOperations client = execution.getCloudFoundryClient();
-        return appStateCalculatorSupplier.get().computeCurrentState(client.getApplication(app.getName()));
+        return appStateCalculatorSupplier.get()
+            .computeCurrentState(client.getApplication(app.getName()));
     }
 
     private ApplicationStartupState computeDesiredState(DelegateExecution context, CloudApplication app) {
         boolean shouldNotStartAnyApp = (boolean) context.getVariable(Constants.PARAM_NO_START);
-        return appStateCalculatorSupplier.get().computeDesiredState(app, shouldNotStartAnyApp);
+        return appStateCalculatorSupplier.get()
+            .computeDesiredState(app, shouldNotStartAnyApp);
     }
 
     private ActionCalculator getActionsCalculator(DelegateExecution context) {

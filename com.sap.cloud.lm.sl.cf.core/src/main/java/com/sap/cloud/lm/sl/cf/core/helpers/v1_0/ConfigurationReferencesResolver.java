@@ -67,8 +67,10 @@ public class ConfigurationReferencesResolver extends Visitor {
     }
 
     protected List<Resource> getResolvedResources(DeploymentDescriptor descriptor) {
-        return descriptor.getResources1_0().stream().flatMap((resource) -> getResolvedResources(resource).stream()).collect(
-            Collectors.toList());
+        return descriptor.getResources1_0()
+            .stream()
+            .flatMap((resource) -> getResolvedResources(resource).stream())
+            .collect(Collectors.toList());
     }
 
     protected List<Resource> getResolvedResources(Resource resource) {

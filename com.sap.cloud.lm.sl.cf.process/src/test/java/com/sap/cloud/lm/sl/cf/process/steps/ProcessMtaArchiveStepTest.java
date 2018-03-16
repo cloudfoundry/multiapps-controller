@@ -72,13 +72,15 @@ public class ProcessMtaArchiveStepTest extends SyncActivitiStepTest<ProcessMtaAr
             @Override
             public Void answer(InvocationOnMock invocation) throws Exception {
                 FileDownloadProcessor contentProcessor = (FileDownloadProcessor) invocation.getArguments()[0];
-                int fileId = Integer.parseInt(contentProcessor.getFileEntry().getId());
+                int fileId = Integer.parseInt(contentProcessor.getFileEntry()
+                    .getId());
 
                 contentProcessor.processContent(getClass().getResourceAsStream(input.archiveFileLocations.get(fileId)));
                 return null;
             }
 
-        }).when(fileService).processFileContent(any());
+        }).when(fileService)
+            .processFileContent(any());
     }
 
     @Test
@@ -129,15 +131,16 @@ public class ProcessMtaArchiveStepTest extends SyncActivitiStepTest<ProcessMtaAr
         @Override
         protected MtaArchiveHelper getHelper(Manifest manifest) {
             MtaArchiveHelper helper = Mockito.mock(MtaArchiveHelper.class);
-            when(helper.getMtaArchiveModules())
-                .thenReturn(input.expectedModules.stream().collect(Collectors.toMap(m -> m, Function.identity())));
-            when(helper.getMtaArchiveResources())
-                .thenReturn(input.expectedResources.stream().collect(Collectors.toMap(r -> r, Function.identity())));
-            when(helper.getMtaRequiresDependencies())
-                .thenReturn(input.expectedRequiredDependencies.stream().collect(Collectors.toMap(d -> d, Function.identity())));
+            when(helper.getMtaArchiveModules()).thenReturn(input.expectedModules.stream()
+                .collect(Collectors.toMap(m -> m, Function.identity())));
+            when(helper.getMtaArchiveResources()).thenReturn(input.expectedResources.stream()
+                .collect(Collectors.toMap(r -> r, Function.identity())));
+            when(helper.getMtaRequiresDependencies()).thenReturn(input.expectedRequiredDependencies.stream()
+                .collect(Collectors.toMap(d -> d, Function.identity())));
 
             try {
-                doAnswer(a -> null).when(helper).init();
+                doAnswer(a -> null).when(helper)
+                    .init();
             } catch (SLException e) {
                 // Ignore...
             }

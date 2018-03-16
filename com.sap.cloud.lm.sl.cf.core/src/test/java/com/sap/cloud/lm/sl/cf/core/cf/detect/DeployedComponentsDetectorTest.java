@@ -101,7 +101,9 @@ public class DeployedComponentsDetectorTest {
     }
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> simpleApplications) {
-        return simpleApplications.stream().map((application) -> application.toCloudApplication()).collect(Collectors.toList());
+        return simpleApplications.stream()
+            .map((application) -> application.toCloudApplication())
+            .collect(Collectors.toList());
     }
 
     @Test

@@ -16,7 +16,8 @@ public class InputStreamProducerTest {
     @Test(expected = ContentException.class)
     public void testGetNextInputStreamExceedsSize() throws IOException {
 
-        InputStream inputStream = this.getClass().getResourceAsStream(MTAR);
+        InputStream inputStream = this.getClass()
+            .getResourceAsStream(MTAR);
         inputStreamProducer = new InputStreamProducer(inputStream, ENTRY_NAME, 128l);
         inputStreamProducer.getNextInputStream();
     }
@@ -24,7 +25,8 @@ public class InputStreamProducerTest {
     @Test
     public void testGetNextInputStream() throws IOException {
 
-        InputStream inputStream = this.getClass().getResourceAsStream(MTAR);
+        InputStream inputStream = this.getClass()
+            .getResourceAsStream(MTAR);
         inputStreamProducer = new InputStreamProducer(inputStream, ENTRY_NAME, 1024 * 1024l);
         inputStreamProducer.getNextInputStream();
     }

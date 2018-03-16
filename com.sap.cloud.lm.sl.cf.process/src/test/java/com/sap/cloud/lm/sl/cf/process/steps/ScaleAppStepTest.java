@@ -70,7 +70,8 @@ public class ScaleAppStepTest extends SyncActivitiStepTest<ScaleAppStep> {
     private void validateUpdatedApplications() {
         if (application.instances != 0) {
             if (existingApplication == null || application.instances != existingApplication.instances) {
-                Mockito.verify(client).updateApplicationInstances(application.name, application.instances);
+                Mockito.verify(client)
+                    .updateApplicationInstances(application.name, application.instances);
             }
         }
     }

@@ -26,12 +26,14 @@ public class AuditLogManagerTest {
 
     @After
     public void tearDown() throws Exception {
-        testDataSource.getConnection().close();
+        testDataSource.getConnection()
+            .close();
     }
 
     @Test
     public void test() throws Exception {
-        auditLogManager.getSecurityLogger().info("That's a security message");
+        auditLogManager.getSecurityLogger()
+            .info("That's a security message");
         Exception e = auditLogManager.getException();
         if (e != null) {
             throw e;

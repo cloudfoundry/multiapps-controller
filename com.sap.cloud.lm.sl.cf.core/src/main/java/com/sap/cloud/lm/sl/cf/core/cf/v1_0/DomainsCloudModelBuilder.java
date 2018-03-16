@@ -31,7 +31,8 @@ public class DomainsCloudModelBuilder {
 
     public List<String> build() {
         Set<String> domains = new TreeSet<>();
-        String defaultDomain = (String) systemParameters.getGeneralParameters().getOrDefault(SupportedParameters.DEFAULT_DOMAIN, null);
+        String defaultDomain = (String) systemParameters.getGeneralParameters()
+            .getOrDefault(SupportedParameters.DEFAULT_DOMAIN, null);
         for (Module module : deploymentDescriptor.getModules1_0()) {
             domains.addAll(getDomains(module));
         }

@@ -22,8 +22,8 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 @RunWith(Enclosed.class)
 public class CustomControllerClientErrorHandlerTest {
 
-    private static final ExecutionRetrier NULL_RETRIER = new ExecutionRetrier().withRetryCount(
-        0).withWaitTimeBetweenRetriesInMillis(0);
+    private static final ExecutionRetrier NULL_RETRIER = new ExecutionRetrier().withRetryCount(0)
+        .withWaitTimeBetweenRetriesInMillis(0);
 
     public static class StandardTest {
 
@@ -93,11 +93,14 @@ public class CustomControllerClientErrorHandlerTest {
         private static HttpStatusCodeException prepareHttpStatusCodeException(HttpStatus statusCode, String statusText,
             String locationOfFileContainingResponseBody) throws IOException {
             HttpStatusCodeException exception = Mockito.mock(HttpStatusCodeException.class);
-            Mockito.when(exception.getStatusCode()).thenReturn(statusCode);
-            Mockito.when(exception.getStatusText()).thenReturn(statusText);
+            Mockito.when(exception.getStatusCode())
+                .thenReturn(statusCode);
+            Mockito.when(exception.getStatusText())
+                .thenReturn(statusText);
             String responseBody = TestUtil.getResourceAsString(locationOfFileContainingResponseBody,
                 CustomControllerClientErrorHandlerTest.class);
-            Mockito.when(exception.getResponseBodyAsString()).thenReturn(responseBody);
+            Mockito.when(exception.getResponseBodyAsString())
+                .thenReturn(responseBody);
             return exception;
         }
 

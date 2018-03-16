@@ -78,7 +78,8 @@ public class OperationDaoFindWithFilterTest extends AbstractOperationDaoParamete
     @Before
     public void loadFilter() throws Exception {
         String filterJson = TestUtil.getResourceAsString(filterJsonLocation, getClass());
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z['z']'").create();
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z['z']'")
+            .create();
         this.filter = gson.fromJson(filterJson, OperationFilter.class);
     }
 

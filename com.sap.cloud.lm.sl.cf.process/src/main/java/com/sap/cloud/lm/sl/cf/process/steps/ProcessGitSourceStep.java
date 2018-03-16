@@ -63,8 +63,10 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
             getStepLogger().info(Messages.DOWNLOADING_DEPLOYABLE);
 
             final String gitUri = getGitUri(execution);
-            final String gitRepoPath = (String) execution.getContext().getVariable(Constants.PARAM_GIT_REPO_PATH);
-            String processId = execution.getContext().getProcessInstanceId();
+            final String gitRepoPath = (String) execution.getContext()
+                .getVariable(Constants.PARAM_GIT_REPO_PATH);
+            String processId = execution.getContext()
+                .getProcessInstanceId();
             final String repoName = extractRepoName(gitUri, processId);
             final Path reposDir = Paths.get(REPOSITORY_DIRECTORY_NAME, repoName);
             Path gitConfigFilePath = generateGitConfigFilepath(processId);
@@ -77,7 +79,8 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
                 GitRepoCloner cloner = createCloner(execution);
                 getStepLogger().info(Messages.CLONING_REPOSITORY, gitUri);
                 cloner.cloneRepo(gitUri, reposDir);
-                final Path mtaRepoPath = reposDir.resolve(gitRepoPath).normalize();
+                final Path mtaRepoPath = reposDir.resolve(gitRepoPath)
+                    .normalize();
                 mtarZip = zipRepoContent(mtaRepoPath);
                 uploadZipToDB(execution.getContext(), mtarZip);
             } finally {
@@ -113,7 +116,8 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
         String userName = StepsUtil.determineCurrentUser(context, getStepLogger());
         String token;
         try {
-            token = clientProvider.getValidToken(userName).getValue();
+            token = clientProvider.getValidToken(userName)
+                .getValue();
             cloner.setCredentials(userName, token);
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_RETRIEVING_OAUT_TOKEN);
@@ -163,7 +167,8 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
     }
 
     private CloudInfoExtended getCloudInfoExtended(ExecutionWrapper execution) throws SLException {
-        return (CloudInfoExtended) execution.getCloudFoundryClient().getCloudInfo();
+        return (CloudInfoExtended) execution.getCloudFoundryClient()
+            .getCloudInfo();
     }
 
     private boolean isClientExtensionsAvailable(ExecutionWrapper execution) throws SLException {
@@ -186,13 +191,15 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
     protected void uploadZipToDB(DelegateExecution context, final Path mtarZip) throws SLException, FileStorageException, IOException {
         InputStream mtarInputStream = null;
         getStepLogger().info(Messages.UPLOADING_MTAR);
-        getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath().toString() + " to DB");
+        getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath()
+            .toString() + " to DB");
         try {
             com.sap.cloud.lm.sl.persistence.util.Configuration fileConfiguration = configuration.getFileConfiguration();
             String spaceId = StepsUtil.getSpaceId(context);
             mtarInputStream = Files.newInputStream(mtarZip);
             String serviceId = StepsUtil.getServiceId(context);
-            String mtarName = mtarZip.getFileName().toString();
+            String mtarName = mtarZip.getFileName()
+                .toString();
             FileEntry entry = fileService.addFile(spaceId, serviceId, mtarName, fileConfiguration.getFileUploadProcessor(),
                 mtarInputStream);
             String uploadedMtarId = entry.getId();
@@ -233,11 +240,15 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
     }
 
     private boolean shouldOmmitDirectory(Path dir) {
-        return dir.toFile().getName().equals(org.eclipse.jgit.lib.Constants.DOT_GIT);
+        return dir.toFile()
+            .getName()
+            .equals(org.eclipse.jgit.lib.Constants.DOT_GIT);
     }
 
     private boolean shouldOmmitFile(Path file) {
-        return file.toFile().getName().equals(org.eclipse.jgit.lib.Constants.DOT_GIT_IGNORE);
+        return file.toFile()
+            .getName()
+            .equals(org.eclipse.jgit.lib.Constants.DOT_GIT_IGNORE);
     }
 
     private String getPathName(Path parentFolder, Path fileToAppend) {

@@ -53,14 +53,15 @@ public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.persistence
     public void setDeployTarget(Target target) {
         this.name = target.getName();
         this.type = target.getType();
-        this.xmlContent = XmlUtil.toXml(
-            new com.sap.cloud.lm.sl.cf.core.dto.serialization.v3.DeployTargetDto(new PersistentObject<Target>(id, target)));
+        this.xmlContent = XmlUtil
+            .toXml(new com.sap.cloud.lm.sl.cf.core.dto.serialization.v3.DeployTargetDto(new PersistentObject<Target>(id, target)));
     }
 
     @Override
     public PersistentObject<Target> toDeployTarget() {
         PersistentObject<Target> persistentTarget = cast(
-            XmlUtil.fromXml(xmlContent, com.sap.cloud.lm.sl.cf.core.dto.serialization.v3.DeployTargetDto.class).toDeployTarget());
+            XmlUtil.fromXml(xmlContent, com.sap.cloud.lm.sl.cf.core.dto.serialization.v3.DeployTargetDto.class)
+                .toDeployTarget());
         persistentTarget.setId(id);
         return persistentTarget;
     }

@@ -106,7 +106,8 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
     }
 
     protected Throwable getWithProperMessage(Throwable t) {
-        if (t.getMessage() == null || t.getMessage().isEmpty()) {
+        if (t.getMessage() == null || t.getMessage()
+            .isEmpty()) {
             return new Exception("An unknown error occurred", t);
         }
         return t;

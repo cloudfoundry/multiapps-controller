@@ -60,7 +60,8 @@ public class ExecuteTaskStep extends TimeoutAsyncActivitiStep {
         CloudTask startedTask = runTask(clientExtensions, app, taskToExecute);
 
         StepsUtil.setStartedTask(execution.getContext(), startedTask);
-        execution.getContext().setVariable(Constants.VAR_START_TIME, currentTimeSupplier.get());
+        execution.getContext()
+            .setVariable(Constants.VAR_START_TIME, currentTimeSupplier.get());
         return StepPhase.POLL;
     }
 

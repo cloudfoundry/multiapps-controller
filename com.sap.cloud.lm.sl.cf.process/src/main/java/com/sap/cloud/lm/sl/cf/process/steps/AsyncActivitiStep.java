@@ -21,7 +21,8 @@ public abstract class AsyncActivitiStep extends SyncActivitiStep {
         if (stepPhase == StepPhase.POLL) {
             return executeStepExecution(execution);
         }
-        execution.getContext().setVariable(Constants.ASYNC_STEP_EXECUTION_INDEX, DEFAULT_STEP_EXECUTION_INDEX);
+        execution.getContext()
+            .setVariable(Constants.ASYNC_STEP_EXECUTION_INDEX, DEFAULT_STEP_EXECUTION_INDEX);
         return executeAsyncStep(execution);
     }
 

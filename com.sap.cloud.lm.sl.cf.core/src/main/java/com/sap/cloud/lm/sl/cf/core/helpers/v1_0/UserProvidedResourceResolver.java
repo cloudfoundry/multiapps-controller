@@ -12,10 +12,10 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.builders.v1_0.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource.ResourceBuilder;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 
 public class UserProvidedResourceResolver {
 

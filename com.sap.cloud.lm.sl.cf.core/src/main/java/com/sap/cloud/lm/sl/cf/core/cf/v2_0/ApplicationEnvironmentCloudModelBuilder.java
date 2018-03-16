@@ -19,15 +19,15 @@ public class ApplicationEnvironmentCloudModelBuilder extends com.sap.cloud.lm.sl
 
     private static final int MTA_MAJOR_VERSION = 2;
 
-    public ApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration,
-        DeploymentDescriptor deploymentDescriptor, XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler,
-        String deployId) {
+    public ApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration, DeploymentDescriptor deploymentDescriptor,
+        XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler, String deployId) {
         super(configuration, deploymentDescriptor, xsPlaceholderResolver, handler, deployId);
     }
 
     @Override
     protected void addToGroup(Map<String, List<Object>> groups, String group, String name, Map<String, Object> properties) {
-        groups.computeIfAbsent(group, key -> new ArrayList<>()).add(properties);
+        groups.computeIfAbsent(group, key -> new ArrayList<>())
+            .add(properties);
     }
 
     @Override

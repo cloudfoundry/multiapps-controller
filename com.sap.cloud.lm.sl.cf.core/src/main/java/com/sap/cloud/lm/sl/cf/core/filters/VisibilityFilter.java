@@ -32,10 +32,12 @@ public class VisibilityFilter implements BiFunction<ConfigurationEntry, List<Clo
             if ("*".equals(visibleTarget.getOrg()) && "*".equals(visibleTarget.getSpace())) {
                 return true;
             }
-            if ("*".equals(visibleTarget.getOrg()) && visibleTarget.getSpace().equals(cloudTarget.getSpace())) {
+            if ("*".equals(visibleTarget.getOrg()) && visibleTarget.getSpace()
+                .equals(cloudTarget.getSpace())) {
                 return true;
             }
-            if (visibleTarget.getOrg().equals(cloudTarget.getOrg()) && "*".equals(visibleTarget.getSpace())) {
+            if (visibleTarget.getOrg()
+                .equals(cloudTarget.getOrg()) && "*".equals(visibleTarget.getSpace())) {
                 return true;
             }
         }
@@ -45,7 +47,8 @@ public class VisibilityFilter implements BiFunction<ConfigurationEntry, List<Clo
     private static List<CloudTarget> getVisibilityTargets(ConfigurationEntry entry) {
         List<CloudTarget> visibleTargets = entry.getVisibility();
         if (visibleTargets == null) {
-            String org = entry.getTargetSpace().getOrg();
+            String org = entry.getTargetSpace()
+                .getOrg();
             visibleTargets = Arrays.asList(new CloudTarget(org, "*"));
         }
         return visibleTargets;

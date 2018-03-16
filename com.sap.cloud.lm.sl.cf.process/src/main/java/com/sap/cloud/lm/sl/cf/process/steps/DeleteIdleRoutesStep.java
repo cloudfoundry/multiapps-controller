@@ -27,7 +27,8 @@ public class DeleteIdleRoutesStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.DELETING_IDLE_URIS);
             CloudFoundryOperations client = execution.getCloudFoundryClient();
-            boolean portBasedRouting = (boolean) execution.getContext().getVariable(Constants.VAR_PORT_BASED_ROUTING);
+            boolean portBasedRouting = (boolean) execution.getContext()
+                .getVariable(Constants.VAR_PORT_BASED_ROUTING);
 
             List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(execution.getContext());
             for (CloudApplicationExtended app : apps) {
@@ -55,7 +56,8 @@ public class DeleteIdleRoutesStep extends SyncActivitiStep {
         try {
             new ClientHelper(client).deleteRoute(uri, portBasedRouting);
         } catch (CloudFoundryException ex) {
-            if (!ex.getStatusCode().equals(HttpStatus.CONFLICT)) {
+            if (!ex.getStatusCode()
+                .equals(HttpStatus.CONFLICT)) {
                 throw ex;
             }
             getStepLogger().info(Messages.ROUTE_NOT_DELETED, uri);

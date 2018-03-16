@@ -291,7 +291,8 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
 
     @Override
     public StartingInfo startApplication(String appName) {
-        apps.get(appName).setState(AppState.STARTED);
+        apps.get(appName)
+            .setState(AppState.STARTED);
         return null;
     }
 
@@ -330,7 +331,8 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
 
     @Override
     public void updateApplicationInstances(String appName, int instances) {
-        apps.get(appName).setInstances(instances);
+        apps.get(appName)
+            .setInstances(instances);
     }
 
     @Override
@@ -512,7 +514,8 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
             return null;
         }
         List<Map<String, Object>> attributes = new ArrayList<Map<String, Object>>();
-        for (int i = 0; i < apps.get(app.getName()).getInstances(); i++) {
+        for (int i = 0; i < apps.get(app.getName())
+            .getInstances(); i++) {
             Map<String, Object> data = new HashMap<String, Object>();
             data.put("state", InstanceState.RUNNING.toString());
             attributes.add(data);

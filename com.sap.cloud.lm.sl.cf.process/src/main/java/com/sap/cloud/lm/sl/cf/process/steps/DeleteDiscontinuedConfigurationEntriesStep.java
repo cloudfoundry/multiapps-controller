@@ -35,7 +35,8 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
         getStepLogger().logActivitiTask();
 
         getStepLogger().info(Messages.DELETING_PUBLISHED_DEPENDENCIES);
-        String mtaId = (String) execution.getContext().getVariable(Constants.PARAM_MTA_ID);
+        String mtaId = (String) execution.getContext()
+            .getVariable(Constants.PARAM_MTA_ID);
         String org = StepsUtil.getOrg(execution.getContext());
         String space = StepsUtil.getSpace(execution.getContext());
         CloudTarget newTarget = new CloudTarget(org, space);
@@ -76,7 +77,9 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget target, List<ConfigurationEntry> publishedEntries) {
         List<ConfigurationEntry> allEntriesForCurrentMta = getEntries(mtaId, target);
         List<Long> publishedEntryIds = getEntryIds(publishedEntries);
-        return allEntriesForCurrentMta.stream().filter((entry) -> !publishedEntryIds.contains(entry.getId())).collect(Collectors.toList());
+        return allEntriesForCurrentMta.stream()
+            .filter((entry) -> !publishedEntryIds.contains(entry.getId()))
+            .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> getEntries(String mtaId, CloudTarget target) {
@@ -84,7 +87,9 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
     }
 
     private List<Long> getEntryIds(List<ConfigurationEntry> configurationEntries) {
-        return configurationEntries.stream().map((entry) -> entry.getId()).collect(Collectors.toList());
+        return configurationEntries.stream()
+            .map((entry) -> entry.getId())
+            .collect(Collectors.toList());
     }
 
 }

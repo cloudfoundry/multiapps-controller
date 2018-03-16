@@ -150,14 +150,13 @@ public class ContextExtensionDaoTest {
                     dao.remove(entry.getId());
                     assertTrue(!dao.exists(entry.getId()));
 
-                } , expected);
+                }, expected);
             }
 
         }
 
         private static class AddTestInput extends TestInput {
             public ContextExtension entry;
-
 
             public AddTestInput(String input) throws Exception {
                 entry = TestInput.loadJsonInput(input, ContextExtension.class, getClass());
@@ -179,7 +178,7 @@ public class ContextExtensionDaoTest {
 
                     return dao.add(input.entry);
 
-                } , expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
         }
 
@@ -206,7 +205,7 @@ public class ContextExtensionDaoTest {
                 TestUtil.test(() -> {
                     ContextExtension entry = findExtensionEntry(input, dao);
                     return dao.find(entry.getId());
-                } , expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
         }
 
@@ -222,7 +221,7 @@ public class ContextExtensionDaoTest {
             protected void test() throws Exception {
                 TestUtil.test(() -> {
                     return dao.findAll(input.processId);
-                } , expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
@@ -239,7 +238,7 @@ public class ContextExtensionDaoTest {
             protected void test() throws Exception {
                 TestUtil.test(() -> {
                     return dao.findAll();
-                } , expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
@@ -268,9 +267,9 @@ public class ContextExtensionDaoTest {
             protected void test() throws Exception {
                 TestUtil.test(() -> {
                     return dao.update(findExtensionEntry(input, dao).getId(), input.entry);
-                } , expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expected, getClass(), new JsonSerializationOptions(true, false));
             }
-            
+
         }
 
         private static ContextExtension findExtensionEntry(BaseTestInput input, ContextExtensionDao dao) {

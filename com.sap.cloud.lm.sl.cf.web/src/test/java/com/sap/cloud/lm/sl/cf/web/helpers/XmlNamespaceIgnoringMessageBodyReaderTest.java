@@ -79,7 +79,7 @@ public class XmlNamespaceIgnoringMessageBodyReaderTest<T> {
     public void testReadFrom() {
         TestUtil.test(() -> {
             return reader.readFrom(classOfT, null, null, null, null, (getClass().getResourceAsStream(entityLocation)));
-        } , expectedResult, getClass());
+        }, expectedResult, getClass());
     }
 
 }

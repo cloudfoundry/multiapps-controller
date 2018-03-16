@@ -72,20 +72,28 @@ public class MtaConfigurationPurgerTest {
     public void testPurge() {
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
         purger.purge("org", "space");
-        Mockito.verify(entryDao).remove(ENTRY_ID_TO_REMOVE);
-        Mockito.verify(subscriptionDao).remove(SUBSCRIPTION_ID_TO_REMOVE);
+        Mockito.verify(entryDao)
+            .remove(ENTRY_ID_TO_REMOVE);
+        Mockito.verify(subscriptionDao)
+            .remove(SUBSCRIPTION_ID_TO_REMOVE);
 
-        Mockito.verify(entryDao, Mockito.never()).remove(ENTRY_ID_TO_KEEP_1);
-        Mockito.verify(entryDao, Mockito.never()).remove(ENTRY_ID_TO_KEEP_2);
-        Mockito.verify(subscriptionDao, Mockito.never()).remove(SUBSCRIPTION_ID_TO_KEEP);
-        Mockito.verify(auditLoggingFacade).logConfigDelete(ENTRY_TO_DELETE);
-        Mockito.verify(auditLoggingFacade).logConfigDelete(SUBSCRIPTION_TO_DELETE);
+        Mockito.verify(entryDao, Mockito.never())
+            .remove(ENTRY_ID_TO_KEEP_1);
+        Mockito.verify(entryDao, Mockito.never())
+            .remove(ENTRY_ID_TO_KEEP_2);
+        Mockito.verify(subscriptionDao, Mockito.never())
+            .remove(SUBSCRIPTION_ID_TO_KEEP);
+        Mockito.verify(auditLoggingFacade)
+            .logConfigDelete(ENTRY_TO_DELETE);
+        Mockito.verify(auditLoggingFacade)
+            .logConfigDelete(SUBSCRIPTION_TO_DELETE);
     }
 
     private void initApplicationsMock() throws IOException {
         applications.add(createApplication(APPLICATION_NAME_TO_KEEP, getAppEnvFromFile(RESOURCE_LOCATION)));
         applications.add(createApplication("app-2", new HashMap<>()));
-        Mockito.when(client.getApplications()).thenReturn(applications);
+        Mockito.when(client.getApplications())
+            .thenReturn(applications);
     }
 
     private void initConfigurationEntriesMock() {
@@ -100,7 +108,8 @@ public class MtaConfigurationPurgerTest {
     private void initConfigurationSubscriptionsMock() {
         configurationSubscriptions.add(SUBSCRIPTION_TO_DELETE);
         configurationSubscriptions.add(createSubscription(SUBSCRIPTION_ID_TO_KEEP, APPLICATION_NAME_TO_KEEP));
-        Mockito.when(subscriptionDao.findAll(null, null, null, null)).thenReturn(configurationSubscriptions);
+        Mockito.when(subscriptionDao.findAll(null, null, null, null))
+            .thenReturn(configurationSubscriptions);
     }
 
     private CloudApplication createApplication(String appName, Map<Object, Object> env) {

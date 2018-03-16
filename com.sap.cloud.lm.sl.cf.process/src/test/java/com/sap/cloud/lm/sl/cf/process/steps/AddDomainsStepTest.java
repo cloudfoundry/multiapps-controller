@@ -50,7 +50,8 @@ public class AddDomainsStepTest extends SyncActivitiStepTest<AddDomainsStep> {
     @Before
     public void setUp() throws Exception {
         prepareContext();
-        Mockito.when(client.getDomains()).thenReturn(getExistingDomainsList());
+        Mockito.when(client.getDomains())
+            .thenReturn(getExistingDomainsList());
         nonExistingCustomDomains = getNonExistingDomainsList();
     }
 
@@ -61,7 +62,8 @@ public class AddDomainsStepTest extends SyncActivitiStepTest<AddDomainsStep> {
         assertStepFinishedSuccessfully();
 
         for (String nonExistingCustomDomain : nonExistingCustomDomains) {
-            Mockito.verify(client, Mockito.times(1)).addDomain(nonExistingCustomDomain);
+            Mockito.verify(client, Mockito.times(1))
+                .addDomain(nonExistingCustomDomain);
         }
     }
 

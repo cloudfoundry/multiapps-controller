@@ -147,14 +147,16 @@ public class MtaArchiveValidator {
         byte[] mtar = IOUtils.toByteArray(mtarStream);
 
         // Read the MTAR manifest
-        Manifest manifest = ArchiveHandler.getManifest(new ByteArrayInputStream(mtar), Configuration.getInstance().getMaxManifestSize());
+        Manifest manifest = ArchiveHandler.getManifest(new ByteArrayInputStream(mtar), Configuration.getInstance()
+            .getMaxManifestSize());
 
         // Create and initialize MTA archive helper
         MtaArchiveHelper mtaArchiveHelper = new MtaArchiveHelper(manifest);
         mtaArchiveHelper.init();
 
         // Get module sets
-        Set<String> mtaArchiveModules = mtaArchiveHelper.getMtaArchiveModules().keySet();
+        Set<String> mtaArchiveModules = mtaArchiveHelper.getMtaArchiveModules()
+            .keySet();
         LOGGER.debug(format("MTA Archive Modules: {0}", mtaArchiveModules));
 
         // Get descriptor strings
@@ -175,15 +177,17 @@ public class MtaArchiveValidator {
 
         // Determine target and platform
         DescriptorHandler handler = handlerFactory.getDescriptorHandler();
-        Target implicitTarget = createTarget(platformName, platforms.get(0).getName());
+        Target implicitTarget = createTarget(platformName, platforms.get(0)
+            .getName());
         Target target = CloudModelBuilderUtil.findTarget(handler, targets, platformName, implicitTarget);
-        
+
         LOGGER.debug(format("Target: {0}", JsonUtil.toJson(target, true)));
         Platform platform = CloudModelBuilderUtil.findPlatform(handler, platforms, target);
         LOGGER.debug(format("Platform: {0}", JsonUtil.toJson(platform, true)));
 
         // Get organization and space
-        Pair<String, String> orgSpace = handlerFactory.getOrgAndSpaceHelper(target, platform).getOrgAndSpace();
+        Pair<String, String> orgSpace = handlerFactory.getOrgAndSpaceHelper(target, platform)
+            .getOrgAndSpace();
         organization = orgSpace._1;
         space = orgSpace._2;
         LOGGER.debug(format("Organization: {0}, space: {1}", organization, space));
@@ -208,11 +212,13 @@ public class MtaArchiveValidator {
         deploymentDescriptor = descriptorProcessor.resolve(deploymentDescriptor);
 
         // Merge DeploymentDescriptor and Target
-        handlerFactory.getTargetMerger(target).mergeInto(deploymentDescriptor);
+        handlerFactory.getTargetMerger(target)
+            .mergeInto(deploymentDescriptor);
 
         // Merge DeploymentDescriptor and Platform
-        handlerFactory.getPlatformMerger(platform).mergeInto(deploymentDescriptor);
-        
+        handlerFactory.getPlatformMerger(platform)
+            .mergeInto(deploymentDescriptor);
+
         // Get MTA modules
         Set<String> mtaModules = CloudModelBuilderUtil.getModuleNames(deploymentDescriptor);
         LOGGER.debug(format("MTA Modules: {0}", mtaModules));
@@ -230,24 +236,26 @@ public class MtaArchiveValidator {
         config.setUseNamespacesForServices(false);
 
         // Build a list of custom domains and save them in the context
-        customDomains = handlerFactory.getDomainsCloudModelBuilder(systemParameters, xsPlaceholderResolver, deploymentDescriptor).build();
+        customDomains = handlerFactory.getDomainsCloudModelBuilder(systemParameters, xsPlaceholderResolver, deploymentDescriptor)
+            .build();
         LOGGER.debug(format("Custom domains: {0}", customDomains));
 
         // Build a list of cloud applications and save them in the context
-        applications = handlerFactory.getApplicationsCloudModelBuilder(deploymentDescriptor, config, deployedMta, systemParameters,
-            xsPlaceholderResolver, deployId).build(mtaArchiveModules, mtaModules, Collections.emptySet());
+        applications = handlerFactory
+            .getApplicationsCloudModelBuilder(deploymentDescriptor, config, deployedMta, systemParameters, xsPlaceholderResolver, deployId)
+            .build(mtaArchiveModules, mtaModules, Collections.emptySet());
         LOGGER.debug(format("Cloud applications: {0}", JsonUtil.toJson(applications, true)));
 
         // Build a list of cloud services and save them in the context
-        services = handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), config).build(
-            mtaArchiveModules);
+        services = handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), config)
+            .build(mtaArchiveModules);
         LOGGER.debug(format("Cloud services: {0}", JsonUtil.toJson(services, true)));
     }
-    
-    public Target createTarget(String targetName, String targetType){
-        
+
+    public Target createTarget(String targetName, String targetType) {
+
         TargetBuilder targetBuilder = new TargetBuilder();
-        if(targetName == null || !targetName.matches(IMPLICIT_PLATFORM_NAME_PATTERN)){
+        if (targetName == null || !targetName.matches(IMPLICIT_PLATFORM_NAME_PATTERN)) {
             return null;
         }
         Map<String, Object> properties = new HashMap<>();

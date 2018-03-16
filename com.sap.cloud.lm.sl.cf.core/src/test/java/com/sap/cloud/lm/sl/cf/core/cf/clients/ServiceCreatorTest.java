@@ -153,7 +153,8 @@ public class ServiceCreatorTest {
 
     private void setUpServiceRequests() throws RestClientException, MalformedURLException {
         List<String> requestedServiceOfferings = new ArrayList<String>(Arrays.asList(getServiceLabel()));
-        List<String> alternativeLabels = input.getService().getAlternativeLabels();
+        List<String> alternativeLabels = input.getService()
+            .getAlternativeLabels();
         if (!CollectionUtils.isEmpty(alternativeLabels)) {
             requestedServiceOfferings.addAll(1, alternativeLabels);
         }
@@ -161,17 +162,22 @@ public class ServiceCreatorTest {
         for (String requestedServiceOffering : requestedServiceOfferings) {
             Map<String, Object> serviceRequest = new HashMap<String, Object>();
             serviceRequest.put(SPACE_GUID, SPACE_ID);
-            serviceRequest.put(SERVICE_NAME, input.getService().getName());
+            serviceRequest.put(SERVICE_NAME, input.getService()
+                .getName());
             serviceRequest.put("service_plan_guid", getUUID(requestedServiceOffering));
-            serviceRequest.put(SERVICE_PARAMETERS, input.getService().getCredentials());
-            serviceRequest.put(SERVICE_TAGS, input.getService().getTags());
+            serviceRequest.put(SERVICE_PARAMETERS, input.getService()
+                .getCredentials());
+            serviceRequest.put(SERVICE_TAGS, input.getService()
+                .getTags());
             serviceRequests.put(requestedServiceOffering, serviceRequest);
         }
 
         if (input.getDefaultServiceOfferingHttpReturnCode() != 0) {
             HttpStatus httpStatusCode = HttpStatus.valueOf(input.getDefaultServiceOfferingHttpReturnCode());
-            Mockito.when(restTemplate.postForObject(getUrl("/v2/service_instances?accepts_incomplete=false", new URL(CONTROLLER_ENDPOINT)),
-                serviceRequests.get(getServiceLabel()), String.class)).thenThrow(new CloudFoundryException(httpStatusCode));
+            Mockito
+                .when(restTemplate.postForObject(getUrl("/v2/service_instances?accepts_incomplete=false", new URL(CONTROLLER_ENDPOINT)),
+                    serviceRequests.get(getServiceLabel()), String.class))
+                .thenThrow(new CloudFoundryException(httpStatusCode));
         }
 
     }
@@ -182,7 +188,8 @@ public class ServiceCreatorTest {
         if (input.getExistingServiceOfferings() == null) {
             existingServiceOfferingNames = Arrays.asList(getServiceLabel());
         } else {
-            existingServiceOfferingNames = new ArrayList<String>(input.getExistingServiceOfferings().keySet());
+            existingServiceOfferingNames = new ArrayList<String>(input.getExistingServiceOfferings()
+                .keySet());
             definedExistingServiceOfferings = true;
         }
         List<CloudServiceOffering> existingServiceOfferings = new ArrayList<CloudServiceOffering>();
@@ -193,7 +200,8 @@ public class ServiceCreatorTest {
             CloudServiceOffering offering = new CloudServiceOffering(null, existingServiceOfferingName);
 
             if (definedExistingServiceOfferings) {
-                List<String> existingPlans = input.getExistingServiceOfferings().get(existingServiceOfferingName);
+                List<String> existingPlans = input.getExistingServiceOfferings()
+                    .get(existingServiceOfferingName);
                 for (String existingPlan : existingPlans) {
                     offering.addCloudServicePlan(
                         new CloudServicePlan(new Meta(getUUID(existingServiceOfferingName), null, null), existingPlan));
@@ -206,21 +214,28 @@ public class ServiceCreatorTest {
             Map<String, Object> nextResourceMap = new HashMap<String, Object>();
             nextResourceMap.put(existingServiceOfferingName, null);
             resourcesList.add(nextResourceMap);
-            Mockito.when(resourceMapper.mapResource(nextResourceMap, CloudServiceOffering.class)).thenReturn(offering);
+            Mockito.when(resourceMapper.mapResource(nextResourceMap, CloudServiceOffering.class))
+                .thenReturn(offering);
         }
 
         resourceMap.put("resources", resourcesList);
-        Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_ENDPOINT));
-        Mockito.when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)), String.class,
-            Collections.emptyMap())).thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
+        Mockito.when(client.getCloudControllerUrl())
+            .thenReturn(new URL(CONTROLLER_ENDPOINT));
+        Mockito
+            .when(restTemplate.getForObject(getUrl("/v2/services?inline-relations-depth=1", new URL(CONTROLLER_ENDPOINT)), String.class,
+                Collections.emptyMap()))
+            .thenReturn(org.cloudfoundry.client.lib.util.JsonUtil.convertToJson(resourceMap));
 
-        Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
+        Mockito.when(restTemplateFactory.getRestTemplate(client))
+            .thenReturn(restTemplate);
 
-        Mockito.when(client.getServiceOfferings()).thenReturn(existingServiceOfferings);
+        Mockito.when(client.getServiceOfferings())
+            .thenReturn(existingServiceOfferings);
     }
 
     protected String getServiceLabel() {
-        return input.getService().getLabel();
+        return input.getService()
+            .getLabel();
     }
 
     protected String getCloudServicePlan() {
@@ -250,8 +265,9 @@ public class ServiceCreatorTest {
     }
 
     protected void validateRestCall() throws RestClientException, MalformedURLException {
-        Mockito.verify(restTemplate).postForObject(getUrl(CREATE_SERVICE_URL, new URL(CONTROLLER_ENDPOINT)),
-            serviceRequests.get(input.getService().getLabel()), String.class);
+        Mockito.verify(restTemplate)
+            .postForObject(getUrl(CREATE_SERVICE_URL, new URL(CONTROLLER_ENDPOINT)), serviceRequests.get(input.getService()
+                .getLabel()), String.class);
     }
 
     protected Class<? extends StepInput> getStepinput() {

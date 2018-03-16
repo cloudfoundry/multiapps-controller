@@ -36,7 +36,8 @@ public class BlueGreenRenameStep extends SyncActivitiStep {
                 if (deployedMtaColor != null) {
                     getStepLogger().info(Messages.DEPLOYED_MTA_COLOR, deployedMtaColor);
                     mtaColor = deployedMtaColor.getAlternativeColor();
-                    execution.getContext().setVariable("deployedMtaColor", deployedMtaColor);
+                    execution.getContext()
+                        .setVariable("deployedMtaColor", deployedMtaColor);
                 } else {
                     mtaColor = DEFAULT_MTA_COLOR;
                 }
@@ -52,7 +53,8 @@ public class BlueGreenRenameStep extends SyncActivitiStep {
 
             visit(execution, descriptor, mtaColor, deployedMtaColor);
 
-            execution.getContext().setVariable("mtaColor", mtaColor);
+            execution.getContext()
+                .setVariable("mtaColor", mtaColor);
 
             return StepPhase.DONE;
         } catch (SLException e) {

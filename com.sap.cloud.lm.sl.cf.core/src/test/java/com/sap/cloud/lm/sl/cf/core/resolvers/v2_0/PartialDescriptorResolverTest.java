@@ -16,7 +16,7 @@ public class PartialDescriptorResolverTest {
         PartialDescriptorReferenceResolver resolver = new PartialDescriptorReferenceResolver(descriptor, Arrays.asList("plugins"));
         TestUtil.test(() -> {
             return resolver.resolve();
-        } , "R:resolved-mtad.json", getClass());
+        }, "R:resolved-mtad.json", getClass());
     }
 
 }

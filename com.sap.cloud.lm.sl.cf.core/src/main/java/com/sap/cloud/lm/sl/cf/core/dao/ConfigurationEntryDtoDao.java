@@ -103,7 +103,8 @@ public class ConfigurationEntryDtoDao {
     public List<ConfigurationEntryDto> findAll() {
         return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
 
-            return manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES).getResultList();
+            return manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES)
+                .getResultList();
 
         });
     }
@@ -121,8 +122,9 @@ public class ConfigurationEntryDtoDao {
     public List<ConfigurationEntryDto> find(String spaceGuid) {
         return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
 
-            return manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID).setParameter(ConfigurationEntryDto.FieldNames.SPACE_ID,
-                spaceGuid).getResultList();
+            return manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID)
+                .setParameter(ConfigurationEntryDto.FieldNames.SPACE_ID, spaceGuid)
+                .getResultList();
 
         });
     }
@@ -181,7 +183,8 @@ public class ConfigurationEntryDtoDao {
             predicates.add(builder.like(root.get(FieldNames.PROVIDER_ID), mtaId + ":%"));
         }
 
-        return manager.createQuery(query.select(root).where(predicates.toArray(new Predicate[0])));
+        return manager.createQuery(query.select(root)
+            .where(predicates.toArray(new Predicate[0])));
     }
 
     private ConfigurationEntryDto findInternal(long id, EntityManager manager) {

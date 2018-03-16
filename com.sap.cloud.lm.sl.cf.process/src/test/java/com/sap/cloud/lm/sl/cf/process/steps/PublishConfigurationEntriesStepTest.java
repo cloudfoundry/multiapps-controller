@@ -80,17 +80,19 @@ public class PublishConfigurationEntriesStepTest extends SyncActivitiStepTest<Pu
 
     public void prepareDao() throws Exception {
         for (ConfigurationEntry entry : exisitingConfigurationEntries) {
-            Mockito.when(configurationEntryDaoMock.find(Mockito.matches(entry.getProviderNid()), Mockito.matches(entry.getProviderId()),
-                Mockito.matches(entry.getProviderVersion().toString()),
-                Mockito.eq(entry.getTargetSpace()), Mockito.any(),
-                Mockito.eq(null))).thenReturn(Arrays.asList(entry));
+            Mockito
+                .when(configurationEntryDaoMock.find(Mockito.matches(entry.getProviderNid()), Mockito.matches(entry.getProviderId()),
+                    Mockito.matches(entry.getProviderVersion()
+                        .toString()),
+                    Mockito.eq(entry.getTargetSpace()), Mockito.any(), Mockito.eq(null)))
+                .thenReturn(Arrays.asList(entry));
         }
     }
 
     private void prepareContext() {
         StepsUtil.setConfigurationEntriesToPublish(context, MapUtil.asMap("test-app-name", input.entriesToPublish));
-        Mockito.when(context.getVariable(Constants.VAR_APP_TO_DEPLOY)).thenReturn(
-            JsonUtil.toJson(new CloudApplicationExtended(Meta.defaultMeta(), "test-app-name")));
+        Mockito.when(context.getVariable(Constants.VAR_APP_TO_DEPLOY))
+            .thenReturn(JsonUtil.toJson(new CloudApplicationExtended(Meta.defaultMeta(), "test-app-name")));
     }
 
     @Test
@@ -118,15 +120,15 @@ public class PublishConfigurationEntriesStepTest extends SyncActivitiStepTest<Pu
 
     private List<ConfigurationEntry> getCreatedEntries() {
         ArgumentCaptor<ConfigurationEntry> configurationEntryCaptor = ArgumentCaptor.forClass(ConfigurationEntry.class);
-        Mockito.verify(configurationEntryDaoMock, Mockito.times(input.expectedCreatedEntries.size())).add(
-            configurationEntryCaptor.capture());
+        Mockito.verify(configurationEntryDaoMock, Mockito.times(input.expectedCreatedEntries.size()))
+            .add(configurationEntryCaptor.capture());
         return configurationEntryCaptor.getAllValues();
     }
 
     private List<ConfigurationEntry> getUpdatedEntries() {
         ArgumentCaptor<ConfigurationEntry> configurationEntryCaptor = ArgumentCaptor.forClass(ConfigurationEntry.class);
-        Mockito.verify(configurationEntryDaoMock, Mockito.times(input.expectedUpdatedEntries.size())).update(Mockito.anyLong(),
-            configurationEntryCaptor.capture());
+        Mockito.verify(configurationEntryDaoMock, Mockito.times(input.expectedUpdatedEntries.size()))
+            .update(Mockito.anyLong(), configurationEntryCaptor.capture());
         return configurationEntryCaptor.getAllValues();
     }
 

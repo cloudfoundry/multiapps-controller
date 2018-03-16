@@ -8,7 +8,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target.TargetBuilder;
 
 public class DeployTargetFactory {
-    
+
     public Target create(String org, String space, String targetType) {
 
         TargetBuilder builder = new TargetBuilder();

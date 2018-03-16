@@ -61,14 +61,14 @@ public class DetectDeployedMtaStepTest extends SyncActivitiStepTest<DetectDeploy
 
             return StepsUtil.getDeployedMta(context);
 
-        } , TestUtil.RESOURCE_PREFIX + ":" + DEPLOYED_MTA_LOCATION, getClass());
+        }, TestUtil.RESOURCE_PREFIX + ":" + DEPLOYED_MTA_LOCATION, getClass());
     }
 
     @Test
     public void testExecute4() throws Exception {
         when(client.getApplications()).thenReturn(Collections.emptyList());
-        when(componentsDetector.detectAllDeployedComponents(Collections.emptyList())).thenReturn(
-            new DeployedComponents(Collections.emptyList(), Collections.emptyList()));
+        when(componentsDetector.detectAllDeployedComponents(Collections.emptyList()))
+            .thenReturn(new DeployedComponents(Collections.emptyList(), Collections.emptyList()));
 
         step.execute(context);
 

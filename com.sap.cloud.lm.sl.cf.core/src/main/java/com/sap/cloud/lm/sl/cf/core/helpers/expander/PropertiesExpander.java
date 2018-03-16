@@ -24,7 +24,8 @@ public class PropertiesExpander extends ReferencingPropertiesVisitor implements 
     }
 
     protected PropertiesExpander(String originalDependencyName, List<String> newDependencyNames, List<String> expandedProperties) {
-        super(REFERENCE_PATTERN, (reference) -> reference.getDependencyName().equals(originalDependencyName));
+        super(REFERENCE_PATTERN, (reference) -> reference.getDependencyName()
+            .equals(originalDependencyName));
         this.expandedProperties = expandedProperties;
         this.newDependencyNames = newDependencyNames;
     }
@@ -40,7 +41,9 @@ public class PropertiesExpander extends ReferencingPropertiesVisitor implements 
     }
 
     private List<String> expandReferences(List<Reference> references, String value) {
-        List<StringBuilder> result = newDependencyNames.stream().map((irrelevant) -> new StringBuilder(value)).collect(Collectors.toList());
+        List<StringBuilder> result = newDependencyNames.stream()
+            .map((irrelevant) -> new StringBuilder(value))
+            .collect(Collectors.toList());
         for (Reference reference : references) {
             for (int i = 0; i < newDependencyNames.size(); i++) {
                 String newDependencyName = newDependencyNames.get(i);
@@ -49,7 +52,9 @@ public class PropertiesExpander extends ReferencingPropertiesVisitor implements 
                 replaceAll(result.get(i), oldReference, newReference);
             }
         }
-        return result.stream().map((builder) -> builder.toString()).collect(Collectors.toList());
+        return result.stream()
+            .map((builder) -> builder.toString())
+            .collect(Collectors.toList());
     }
 
     @Override

@@ -69,10 +69,14 @@ public class ApplicationStagingStateGetterTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         this.response = TestUtil.getResourceAsString(responseLocation, getClass());
-        Mockito.when(restTemplateFactory.getRestTemplate(client)).thenReturn(restTemplate);
-        Mockito.when(restTemplate.getForObject(APP_URL, String.class)).thenReturn(response);
-        Mockito.when(client.getCloudControllerUrl()).thenReturn(new URL(CONTROLLER_URL));
-        Mockito.when(client.getApplication(APP_NAME)).thenReturn(APP);
+        Mockito.when(restTemplateFactory.getRestTemplate(client))
+            .thenReturn(restTemplate);
+        Mockito.when(restTemplate.getForObject(APP_URL, String.class))
+            .thenReturn(response);
+        Mockito.when(client.getCloudControllerUrl())
+            .thenReturn(new URL(CONTROLLER_URL));
+        Mockito.when(client.getApplication(APP_NAME))
+            .thenReturn(APP);
     }
 
     @Test

@@ -41,7 +41,8 @@ public class RestTemplateFactory {
         }
 
         private String computeAuthorizationToken() {
-            return client.login().toString();
+            return client.login()
+                .toString();
         }
 
     }

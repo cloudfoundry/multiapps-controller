@@ -33,7 +33,8 @@ public class DropConfigurationRegistryUniqueConstraint extends AbstractChange {
 
     @Override
     public void setUp() throws SetupException {
-        this.databaseType = Configuration.getInstance().getDatabaseType();
+        this.databaseType = Configuration.getInstance()
+            .getDatabaseType();
     }
 
     @Override
@@ -79,7 +80,8 @@ public class DropConfigurationRegistryUniqueConstraint extends AbstractChange {
             case POSTGRESQL:
                 return POSTGRESQL_SEARCH_QUERY;
             case HANA:
-                String schemaName = jdbcConnection.getUnderlyingConnection().getSchema();
+                String schemaName = jdbcConnection.getUnderlyingConnection()
+                    .getSchema();
                 return String.format(HANA_SEARCH_QUERY, schemaName);
             default:
                 throw new IllegalStateException();

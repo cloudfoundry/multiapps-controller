@@ -47,7 +47,8 @@ public class XmlNamespaceIgnoringMessageBodyReader<T> implements MessageBodyRead
         MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws WebApplicationException {
 
         try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(type).createUnmarshaller();
+            Unmarshaller unmarshaller = JAXBContext.newInstance(type)
+                .createUnmarshaller();
             String declaredNamespaceForType = getDeclaredNamespaceForType(type);
             XMLFilter filter = createXmlFilter(unmarshaller, declaredNamespaceForType);
 
@@ -68,11 +69,13 @@ public class XmlNamespaceIgnoringMessageBodyReader<T> implements MessageBodyRead
     }
 
     private XMLReader createXmlReader() throws SAXException, ParserConfigurationException {
-        return factory.newSAXParser().getXMLReader();
+        return factory.newSAXParser()
+            .getXMLReader();
     }
 
     private String getDeclaredNamespaceForType(Class<T> type) {
-        XmlSchema xmlSchemaAnnotation = type.getPackage().getAnnotation(XmlSchema.class);
+        XmlSchema xmlSchemaAnnotation = type.getPackage()
+            .getAnnotation(XmlSchema.class);
         return xmlSchemaAnnotation == null ? null : xmlSchemaAnnotation.namespace();
     }
 

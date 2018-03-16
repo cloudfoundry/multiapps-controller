@@ -21,14 +21,17 @@ public class ServiceBrokersGetter extends CustomControllerClient {
     }
 
     private List<CloudServiceBrokerExtended> attemptToGetServiceBrokers(CloudFoundryOperations client) {
-        String controllerUrl = client.getCloudControllerUrl().toString();
+        String controllerUrl = client.getCloudControllerUrl()
+            .toString();
         RestTemplate restTemplate = getRestTemplate(client);
         List<Map<String, Object>> resources = getAllResources(restTemplate, controllerUrl, SERVICE_BROKERS_URL);
         return toCloudServiceBrokers(resources);
     }
 
     private List<CloudServiceBrokerExtended> toCloudServiceBrokers(List<Map<String, Object>> resources) {
-        return resources.stream().map(resource -> toCloudServiceBroker(resource)).collect(Collectors.toList());
+        return resources.stream()
+            .map(resource -> toCloudServiceBroker(resource))
+            .collect(Collectors.toList());
     }
 
     private CloudServiceBrokerExtended toCloudServiceBroker(Map<String, Object> resource) {

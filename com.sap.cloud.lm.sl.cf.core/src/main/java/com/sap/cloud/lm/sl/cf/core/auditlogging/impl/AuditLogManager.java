@@ -23,8 +23,10 @@ class AuditLogManager {
             stmt.setString(1, userInfo == null ? null : userInfo.getName());
             stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
             stmt.setString(3, category);
-            stmt.setString(4, event.getLevel().toString());
-            stmt.setString(5, event.getMessage().toString());
+            stmt.setString(4, event.getLevel()
+                .toString());
+            stmt.setString(5, event.getMessage()
+                .toString());
         }
     };
 

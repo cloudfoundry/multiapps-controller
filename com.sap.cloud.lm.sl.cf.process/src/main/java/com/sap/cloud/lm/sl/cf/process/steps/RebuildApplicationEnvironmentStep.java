@@ -66,7 +66,11 @@ public class RebuildApplicationEnvironmentStep extends SyncActivitiStep {
     }
 
     private CloudApplicationExtended findApplication(List<CloudApplicationExtended> apps, String applicationName) {
-        return apps.stream().filter(app -> app.getName().equals(applicationName)).findFirst().get();
+        return apps.stream()
+            .filter(app -> app.getName()
+                .equals(applicationName))
+            .findFirst()
+            .get();
     }
 
 }

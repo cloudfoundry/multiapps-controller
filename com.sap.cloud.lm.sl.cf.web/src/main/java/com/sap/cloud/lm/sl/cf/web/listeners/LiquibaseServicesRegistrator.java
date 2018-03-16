@@ -11,7 +11,8 @@ public class LiquibaseServicesRegistrator implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent event) {
-        LockServiceFactory.getInstance().register(new RecoveringLockService());
+        LockServiceFactory.getInstance()
+            .register(new RecoveringLockService());
     }
 
     @Override

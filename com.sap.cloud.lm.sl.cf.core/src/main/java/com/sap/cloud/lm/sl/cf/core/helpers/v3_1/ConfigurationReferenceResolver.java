@@ -23,8 +23,7 @@ public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.
         return asResource(entry, (Resource) resource, index, entriesCount);
     }
 
-    private Resource asResource(ConfigurationEntry entry, Resource resource, int index,
-        int entriesCount) throws ParsingException {
+    private Resource asResource(ConfigurationEntry entry, Resource resource, int index, int entriesCount) throws ParsingException {
         Resource resource3_1 = cast(resource);
         String indexedResourceName = getIndexedName(resource.getName(), index, entriesCount, RESOURCE_INDEX_DELIMITER);
         Map<String, Object> properties = mergeProperties(resource, entry);

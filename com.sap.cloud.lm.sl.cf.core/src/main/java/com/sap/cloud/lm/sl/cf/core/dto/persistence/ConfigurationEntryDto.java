@@ -35,10 +35,8 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 @Table(name = TableNames.CONFIGURATION_ENTRY_TABLE, uniqueConstraints = {
     @UniqueConstraint(columnNames = { TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_NID, TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_ID,
         TableColumnNames.CONFIGURATION_ENTRY_PROVIDER_VERSION, TableColumnNames.CONFIGURATION_ENTRY_TARGET_SPACE }) })
-@NamedQueries({
-    @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_ENTRIES, query = "SELECT ce FROM ConfigurationEntryDto ce"),
-    @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID, query="SELECT ce FROM ConfigurationEntryDto ce WHERE ce.spaceId = :spaceId")
-}) 
+@NamedQueries({ @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_ENTRIES, query = "SELECT ce FROM ConfigurationEntryDto ce"),
+    @NamedQuery(name = PersistenceMetadata.NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID, query = "SELECT ce FROM ConfigurationEntryDto ce WHERE ce.spaceId = :spaceId") })
 @SequenceGenerator(name = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, sequenceName = SequenceNames.CONFIGURATION_ENTRY_SEQUENCE, initialValue = 1, allocationSize = 1)
 @XmlRootElement(name = "configuration-entry")
 @XmlAccessorType(value = XmlAccessType.FIELD)
@@ -82,7 +80,7 @@ public class ConfigurationEntryDto {
     @XmlElement(name = "target-space")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_TARGET_SPACE, nullable = false)
     private String targetSpace;
-    
+
     @XmlElement(name = "space-id")
     @Column(name = TableColumnNames.CONFIGURATION_ENTRY_SPACE_ID, nullable = false)
     private String spaceId;
@@ -119,8 +117,12 @@ public class ConfigurationEntryDto {
         this.providerNid = getNotNull(entry.getProviderNid());
         this.providerId = entry.getProviderId();
         this.providerVersion = getNotNull(entry.getProviderVersion());
-        this.targetSpace = entry.getTargetSpace() == null ? null : entry.getTargetSpace().getSpace();
-        this.targetOrg = entry.getTargetSpace() == null ? null : entry.getTargetSpace().getOrg();
+        this.targetSpace = entry.getTargetSpace() == null ? null
+            : entry.getTargetSpace()
+                .getSpace();
+        this.targetOrg = entry.getTargetSpace() == null ? null
+            : entry.getTargetSpace()
+                .getOrg();
         this.content = entry.getContent();
         this.visibility = entry.getVisibility() == null ? null : JsonUtil.toJson(entry.getVisibility());
         this.spaceId = entry.getSpaceId();
@@ -137,8 +139,8 @@ public class ConfigurationEntryDto {
     public String getTargetSpace() {
         return targetSpace;
     }
-    
-    public String getTargetOrg(){
+
+    public String getTargetOrg() {
         return targetOrg;
     }
 
@@ -159,8 +161,8 @@ public class ConfigurationEntryDto {
     }
 
     public ConfigurationEntry toConfigurationEntry() {
-        return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)), new CloudTarget(targetOrg, targetSpace),
-            content, getParsedVisibility(visibility), spaceId);
+        return new ConfigurationEntry(id, getOriginal(providerNid), providerId, getParsedVersion(getOriginal(providerVersion)),
+            new CloudTarget(targetOrg, targetSpace), content, getParsedVisibility(visibility), spaceId);
     }
 
     private Version getParsedVersion(String versionString) {
@@ -191,7 +193,7 @@ public class ConfigurationEntryDto {
         }
         return source.toString();
     }
-    
+
     public String getSpaceId() {
         return spaceId;
     }

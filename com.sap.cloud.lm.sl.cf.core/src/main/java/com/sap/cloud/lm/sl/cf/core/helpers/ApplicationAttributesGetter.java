@@ -30,13 +30,16 @@ public class ApplicationAttributesGetter {
         Object attributeValue = attributes.getOrDefault(attributeName, defaultValue);
         if (attributeValue != null && !attributeType.isInstance(attributeValue)) {
             throw new SLException(MessageFormat.format(Messages.ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3, attributeName, appName,
-                attributeValue.getClass().getName(), attributeType.getName()));
+                attributeValue.getClass()
+                    .getName(),
+                attributeType.getName()));
         }
         return (T) attributeValue;
     }
 
     public static ApplicationAttributesGetter forApplication(CloudApplication app) throws ParsingException {
-        String attributes = app.getEnvAsMap().get(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES);
+        String attributes = app.getEnvAsMap()
+            .get(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES);
         Map<String, Object> parsedAttributes = parseAttributes(attributes);
         return new ApplicationAttributesGetter(app.getName(), parsedAttributes);
     }

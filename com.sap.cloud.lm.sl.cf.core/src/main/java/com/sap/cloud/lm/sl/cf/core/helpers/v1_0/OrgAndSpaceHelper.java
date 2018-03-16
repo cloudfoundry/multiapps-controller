@@ -7,8 +7,8 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class OrgAndSpaceHelper {

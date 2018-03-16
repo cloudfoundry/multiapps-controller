@@ -16,13 +16,14 @@ public class ApplicationStagingStateGetter extends CustomControllerClient {
     private static final String STAGING_STATE_ATTRIBUTE_NAME = "package_state";
 
     public ApplicationStagingState getApplicationStagingState(CloudFoundryOperations client, String appName) {
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(
-            () -> attemptToGetApplicationStagingState(client, appName));
+        return new CustomControllerClientErrorHandler()
+            .handleErrorsOrReturnResult(() -> attemptToGetApplicationStagingState(client, appName));
     }
 
     private ApplicationStagingState attemptToGetApplicationStagingState(CloudFoundryOperations client, String appName) {
         CloudApplication app = client.getApplication(appName);
-        String appUrl = getAppUrl(app.getMeta().getGuid());
+        String appUrl = getAppUrl(app.getMeta()
+            .getGuid());
         return doGetApplicationStagingState(client, appUrl);
     }
 
@@ -32,7 +33,8 @@ public class ApplicationStagingStateGetter extends CustomControllerClient {
 
     private ApplicationStagingState doGetApplicationStagingState(CloudFoundryOperations client, String appUrl) {
         RestTemplate restTemplate = getRestTemplate(client);
-        String cloudControllerUrl = client.getCloudControllerUrl().toString();
+        String cloudControllerUrl = client.getCloudControllerUrl()
+            .toString();
         String response = restTemplate.getForObject(getUrl(cloudControllerUrl, appUrl), String.class);
         return parseApplicationStagingState(response);
     }

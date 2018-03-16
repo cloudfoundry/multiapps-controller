@@ -54,7 +54,9 @@ public class OperationFactory {
     }
 
     protected Date toDate(ZonedDateTime zonedDateTime) {
-        return zonedDateTime == null ? null : new Date(zonedDateTime.toInstant().toEpochMilli());
+        return zonedDateTime == null ? null
+            : new Date(zonedDateTime.toInstant()
+                .toEpochMilli());
     }
 
     protected ProcessType toProcessType(String processType) {

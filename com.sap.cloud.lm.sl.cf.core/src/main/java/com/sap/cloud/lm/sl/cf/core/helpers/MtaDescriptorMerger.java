@@ -11,8 +11,8 @@ import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorValidator;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 public class MtaDescriptorMerger {
 
@@ -41,8 +41,8 @@ public class MtaDescriptorMerger {
         }
 
         // Build an extension descriptor chain:
-        extensionDescriptors = handlerFactory.getDescriptorHandler().getExtensionDescriptorChain(deploymentDescriptor, extensionDescriptors,
-            false);
+        extensionDescriptors = handlerFactory.getDescriptorHandler()
+            .getExtensionDescriptorChain(deploymentDescriptor, extensionDescriptors, false);
 
         DescriptorValidator validator = handlerFactory.getDescriptorValidator();
         validator.validateDeploymentDescriptor(deploymentDescriptor, platform);
@@ -72,7 +72,8 @@ public class MtaDescriptorMerger {
         return extensionDescriptors;
     }
 
-    private DeploymentDescriptor parseDeploymentDescriptor(String deploymentDescriptorString, DescriptorParser parser) throws ContentException {
+    private DeploymentDescriptor parseDeploymentDescriptor(String deploymentDescriptorString, DescriptorParser parser)
+        throws ContentException {
         return parser.parseDeploymentDescriptorYaml(deploymentDescriptorString);
     }
 

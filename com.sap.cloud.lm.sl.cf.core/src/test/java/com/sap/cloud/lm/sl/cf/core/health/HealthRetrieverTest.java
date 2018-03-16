@@ -61,7 +61,8 @@ public class HealthRetrieverTest {
             .userName(USER_NAME)
             .timeRangeInSeconds(TIME_RANGE_IN_SECONDS)
             .build();
-        Mockito.when(configuration.getHealthCheckConfiguration()).thenReturn(healthCheckConfiguration);
+        Mockito.when(configuration.getHealthCheckConfiguration())
+            .thenReturn(healthCheckConfiguration);
     }
 
     @Before
@@ -92,9 +93,11 @@ public class HealthRetrieverTest {
         Health health = healthRetriever.getHealth();
 
         assertTrue(health.isHealthy());
-        assertEquals(1, health.getHealthCheckOperations().size());
+        assertEquals(1, health.getHealthCheckOperations()
+            .size());
 
-        HealthCheckOperation healthCheckOperation = health.getHealthCheckOperations().get(0);
+        HealthCheckOperation healthCheckOperation = health.getHealthCheckOperations()
+            .get(0);
         assertEquals(OPERATION_ID, healthCheckOperation.getId());
         assertEquals(MTA_ID, healthCheckOperation.getMtaId());
         assertEquals(USER_NAME, healthCheckOperation.getUser());

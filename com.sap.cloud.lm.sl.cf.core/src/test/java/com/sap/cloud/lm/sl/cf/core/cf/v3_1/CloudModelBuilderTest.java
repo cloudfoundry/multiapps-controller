@@ -89,7 +89,8 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2_0.C
 
         DescriptorHandler handler = getDescriptorHandler();
 
-        String targetName = extensionDescriptor.getDeployTargets().get(0);
+        String targetName = extensionDescriptor.getDeployTargets()
+            .get(0);
         Target target = handler.findTarget(targets, targetName, null);
         Platform platform = handler.findPlatform(platforms, target.getType());
 
@@ -146,8 +147,8 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2_0.C
     @Override
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration) {
-        return new ServicesCloudModelBuilder(deploymentDescriptor,
-            new HandlerFactory(2).getPropertiesAccessor(), configuration, userMessageLogger);
+        return new ServicesCloudModelBuilder(deploymentDescriptor, new HandlerFactory(2).getPropertiesAccessor(), configuration,
+            userMessageLogger);
     }
 
     @Override
@@ -176,7 +177,8 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2_0.C
     @Test
     public void testWarnMessage() {
         servicesBuilder.build(mtaArchiveModules);
-        Mockito.verify(userMessageLogger).warn(Mockito.anyString(), Mockito.any());
+        Mockito.verify(userMessageLogger)
+            .warn(Mockito.anyString(), Mockito.any());
     }
 
     @Test

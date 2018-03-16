@@ -164,8 +164,8 @@ public class DetectTargetStepTest extends SyncActivitiStepTest<DetectTargetStep>
         context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, input.minorSchemaVersion);
         context.setVariable(Constants.PARAM_TARGET_NAME, input.targetName);
 
-        Mockito.when(configuration.getPlatforms(Mockito.any(), Mockito.anyInt())).thenReturn(
-            loadPlatforms(configurationParser, input.platformTypesLocation, getClass()));
+        Mockito.when(configuration.getPlatforms(Mockito.any(), Mockito.anyInt()))
+            .thenReturn(loadPlatforms(configurationParser, input.platformTypesLocation, getClass()));
         step.targetsSupplier = (factory) -> loadTargets(configurationParser, input.platformsLocation, getClass());
     }
 

@@ -75,7 +75,8 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
         getStepLogger().logActivitiTask();
         try {
-            execution.getStepLogger().info(Messages.CREATING_OR_UPDATING_SERVICES);
+            execution.getStepLogger()
+                .info(Messages.CREATING_OR_UPDATING_SERVICES);
 
             CloudFoundryOperations client = execution.getCloudFoundryClient();
             Map<String, List<String>> defaultTags = computeDefaultTags(client);
@@ -90,7 +91,8 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
             Map<String, ServiceOperationType> triggeredServiceOperations = createOrUpdateServices(execution, client, services,
                 existingServicesMap, serviceKeys, defaultTags);
-            execution.getStepLogger().debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
+            execution.getStepLogger()
+                .debug(Messages.TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toJson(triggeredServiceOperations, true));
             StepsUtil.setTriggeredServiceOperations(execution.getContext(), triggeredServiceOperations);
 
             getStepLogger().debug(Messages.SERVICES_CREATED_OR_UPDATED);
@@ -160,10 +162,12 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             createServiceKeys(clientExtensions, serviceKeysToUpdate);
         } else {
             serviceKeysToDelete.forEach((key) -> {
-                getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getService().getName());
+                getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getService()
+                    .getName());
             });
             serviceKeysToUpdate.forEach((key) -> {
-                getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(), key.getService().getName());
+                getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(), key.getService()
+                    .getName());
             });
         }
         createServiceKeys(clientExtensions, serviceKeysToCreate);
@@ -174,15 +178,21 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private List<ServiceKey> getServiceKeysToCreate(List<ServiceKey> serviceKeys, List<ServiceKey> existingServiceKeys) {
-        return serviceKeys.stream().filter(key -> shouldCreate(key, existingServiceKeys)).collect(Collectors.toList());
+        return serviceKeys.stream()
+            .filter(key -> shouldCreate(key, existingServiceKeys))
+            .collect(Collectors.toList());
     }
 
     private List<ServiceKey> getServiceKeysToUpdate(List<ServiceKey> serviceKeys, List<ServiceKey> existingServiceKeys) {
-        return serviceKeys.stream().filter(key -> shouldUpdate(key, existingServiceKeys)).collect(Collectors.toList());
+        return serviceKeys.stream()
+            .filter(key -> shouldUpdate(key, existingServiceKeys))
+            .collect(Collectors.toList());
     }
 
     private List<ServiceKey> getServiceKeysToDelete(List<ServiceKey> serviceKeys, List<ServiceKey> existingServiceKeys) {
-        return existingServiceKeys.stream().filter(key -> shouldDelete(key, serviceKeys)).collect(Collectors.toList());
+        return existingServiceKeys.stream()
+            .filter(key -> shouldDelete(key, serviceKeys))
+            .collect(Collectors.toList());
     }
 
     private boolean shouldCreate(ServiceKey key, List<ServiceKey> existingKeys) {
@@ -199,7 +209,11 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private ServiceKey getWithName(List<ServiceKey> serviceKeys, String name) {
-        return serviceKeys.stream().filter(key -> key.getName().equals(name)).findAny().orElse(null);
+        return serviceKeys.stream()
+            .filter(key -> key.getName()
+                .equals(name))
+            .findAny()
+            .orElse(null);
     }
 
     private boolean areServiceKeysEqual(ServiceKey key1, ServiceKey key2) {
@@ -207,21 +221,27 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private void deleteServiceKeys(ClientExtensions client, List<ServiceKey> serviceKeys) {
-        serviceKeys.stream().forEach(key -> deleteServiceKey(client, key));
+        serviceKeys.stream()
+            .forEach(key -> deleteServiceKey(client, key));
     }
 
     private void createServiceKeys(ClientExtensions client, List<ServiceKey> serviceKeys) {
-        serviceKeys.stream().forEach(key -> createServiceKey(client, key));
+        serviceKeys.stream()
+            .forEach(key -> createServiceKey(client, key));
     }
 
     private void createServiceKey(ClientExtensions client, ServiceKey key) {
-        getStepLogger().info(Messages.CREATING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService().getName());
-        client.createServiceKey(key.getService().getName(), key.getName(), JsonUtil.toJson(key.getParameters()));
+        getStepLogger().info(Messages.CREATING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
+            .getName());
+        client.createServiceKey(key.getService()
+            .getName(), key.getName(), JsonUtil.toJson(key.getParameters()));
     }
 
     private void deleteServiceKey(ClientExtensions client, ServiceKey key) {
-        getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService().getName());
-        client.deleteServiceKey(key.getService().getName(), key.getName());
+        getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
+            .getName());
+        client.deleteServiceKey(key.getService()
+            .getName(), key.getName());
     }
 
     private ServiceOperationType createOrUpdateService(ExecutionWrapper execution, CloudFoundryOperations client, String spaceId,
@@ -244,7 +264,8 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         getStepLogger().debug(Messages.SERVICE_ALREADY_EXISTS, service.getName());
         List<ServiceAction> actions = determineActions(client, spaceId, service, existingService, defaultTags);
         if (actions.contains(ServiceAction.ACTION_RECREATE)) {
-            boolean deleteAllowed = (boolean) execution.getContext().getVariable(Constants.PARAM_DELETE_SERVICES);
+            boolean deleteAllowed = (boolean) execution.getContext()
+                .getVariable(Constants.PARAM_DELETE_SERVICES);
             if (!deleteAllowed) {
                 getStepLogger().warn(Messages.WILL_NOT_RECREATE_SERVICE, service.getName());
                 return null;
@@ -412,8 +433,8 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         FileContentProcessor parametersFileProcessor = new FileContentProcessor() {
             @Override
             public void processFileContent(InputStream appArchiveStream) throws SLException {
-                try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName,
-                    Configuration.getInstance().getMaxManifestSize())) {
+                try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, Configuration.getInstance()
+                    .getMaxManifestSize())) {
                     mergeCredentials(service, is);
                 } catch (IOException e) {
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
@@ -470,8 +491,12 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     private List<String> getBoundAppNames(CloudFoundryOperations client, List<CloudApplicationExtended> apps,
         List<CloudApplication> appsToUndeploy, List<CloudServiceBinding> bindings) {
-        Set<String> appNames = apps.stream().map(app -> app.getName()).collect(Collectors.toSet());
-        appNames.addAll(appsToUndeploy.stream().map((app) -> app.getName()).collect(Collectors.toSet()));
+        Set<String> appNames = apps.stream()
+            .map(app -> app.getName())
+            .collect(Collectors.toSet());
+        appNames.addAll(appsToUndeploy.stream()
+            .map((app) -> app.getName())
+            .collect(Collectors.toSet()));
 
         List<CloudApplication> existingApps = client.getApplications();
         return bindings.stream()
@@ -481,7 +506,12 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private CloudApplication getApplication(CloudFoundryOperations client, CloudServiceBinding binding, List<CloudApplication> apps) {
-        return apps.stream().filter(app -> app.getMeta().getGuid().equals(binding.getAppGuid())).findFirst().get();
+        return apps.stream()
+            .filter(app -> app.getMeta()
+                .getGuid()
+                .equals(binding.getAppGuid()))
+            .findFirst()
+            .get();
     }
 
     private enum ServiceAction {

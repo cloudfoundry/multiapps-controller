@@ -89,7 +89,9 @@ public class OperationsHelper {
         if (CommonUtil.isNullOrEmpty(statusList)) {
             return operations;
         }
-        return operations.stream().filter(operation -> statusList.contains(operation.getState())).collect(Collectors.toList());
+        return operations.stream()
+            .filter(operation -> statusList.contains(operation.getState()))
+            .collect(Collectors.toList());
     }
 
 }

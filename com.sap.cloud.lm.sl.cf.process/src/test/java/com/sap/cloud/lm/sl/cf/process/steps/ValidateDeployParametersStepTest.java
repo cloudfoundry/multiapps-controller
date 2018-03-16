@@ -85,9 +85,10 @@ public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<Valid
     }
 
     private void prepareConfiguration() {
-        Mockito.when(configuration.getMaxMtaDescriptorSize()).thenReturn(Configuration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
-        Mockito.when(configuration.getFileConfiguration()).thenReturn(
-            new DefaultConfiguration(Configuration.DEFAULT_MAX_UPLOAD_SIZE, Configuration.DEFAULT_SCAN_UPLOADS));
+        Mockito.when(configuration.getMaxMtaDescriptorSize())
+            .thenReturn(Configuration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+        Mockito.when(configuration.getFileConfiguration())
+            .thenReturn(new DefaultConfiguration(Configuration.DEFAULT_MAX_UPLOAD_SIZE, Configuration.DEFAULT_SCAN_UPLOADS));
 
     }
 
@@ -100,7 +101,8 @@ public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<Valid
     private void validate() throws IOException {
         assertStepFinishedSuccessfully();
         if (isArchiveChunked) {
-            Path mergedArchiveAbsolutePath = Paths.get(MERGED_ARCHIVE_NAME).toAbsolutePath();
+            Path mergedArchiveAbsolutePath = Paths.get(MERGED_ARCHIVE_NAME)
+                .toAbsolutePath();
             assertFalse(Files.exists(mergedArchiveAbsolutePath));
         }
     }
@@ -122,26 +124,30 @@ public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<Valid
     }
 
     private void prepareFileService() throws FileStorageException {
-        Mockito.when(fileService.getFile("space-id", EXISTING_FILE_ID)).thenReturn(createFileEntry(EXISTING_FILE_ID, null, 1024 * 1024l));
-        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0")).thenReturn(
-            createFileEntry(MERGED_ARCHIVE_NAME + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024l));
+        Mockito.when(fileService.getFile("space-id", EXISTING_FILE_ID))
+            .thenReturn(createFileEntry(EXISTING_FILE_ID, null, 1024 * 1024l));
+        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.0"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.0", MERGED_ARCHIVE_NAME + ".part.0", 1024 * 1024l));
 
-        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.1")).thenReturn(
-            createFileEntry(MERGED_ARCHIVE_NAME + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024l));
+        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.1"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.1", MERGED_ARCHIVE_NAME + ".part.1", 1024 * 1024l));
 
-        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.2")).thenReturn(
-            createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024l));
+        Mockito.when(fileService.getFile("space-id", MERGED_ARCHIVE_NAME + ".part.2"))
+            .thenReturn(createFileEntry(MERGED_ARCHIVE_NAME + ".part.2", MERGED_ARCHIVE_NAME + ".part.2", 1024 * 1024l));
 
-        Mockito.when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID)).thenReturn(
-            createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024l + 1));
-        Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID)).thenReturn(null);
-        Mockito.when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.any(), Mockito.any(),
-            Mockito.<File> any())).thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024l));
+        Mockito.when(fileService.getFile("space-id", EXISTING_BIGGER_FILE_ID))
+            .thenReturn(createFileEntry(EXISTING_BIGGER_FILE_ID, "extDescriptorFile", 1024 * 1024l + 1));
+        Mockito.when(fileService.getFile("space-id", NOT_EXISTING_FILE_ID))
+            .thenReturn(null);
+        Mockito
+            .when(fileService.addFile(Mockito.eq("space-id"), Mockito.eq("service-id"), Mockito.any(), Mockito.any(), Mockito.<File> any()))
+            .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024l));
     }
 
     private void prepareArchiveMerger() throws IOException {
         merger = Mockito.mock(FilePartsMerger.class);
-        Mockito.when(merger.getMergedFilePath()).thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
+        Mockito.when(merger.getMergedFilePath())
+            .thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));
     }
 
     private static FileEntry createFileEntry(String id, String name, long size) {

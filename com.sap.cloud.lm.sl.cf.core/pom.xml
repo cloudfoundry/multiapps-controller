@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
@@ -73,7 +74,8 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <tasks>
-                                <copy file="${project.build.outputDirectory}/enhance.xml" toFile="./enhance.xml" overwrite="true" />
+                                <copy file="${project.build.outputDirectory}/enhance.xml" toFile="./enhance.xml"
+                                    overwrite="true" />
                             </tasks>
                         </configuration>
                         <goals>
@@ -82,18 +84,18 @@
                     </execution>
                 </executions>
             </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.0.2</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -170,7 +172,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
         </dependency>
@@ -215,7 +217,7 @@
             <groupId>com.sap.cloud.lm.sl.cf</groupId>
             <artifactId>com.sap.cloud.lm.sl.cf.client</artifactId>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>com.sap.cloud.lm.sl.cf</groupId>
             <artifactId>com.sap.cloud.lm.sl.cf.api</artifactId>
         </dependency>

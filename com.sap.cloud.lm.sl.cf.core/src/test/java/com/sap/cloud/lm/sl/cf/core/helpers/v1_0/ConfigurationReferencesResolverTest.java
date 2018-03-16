@@ -85,9 +85,10 @@ public class ConfigurationReferencesResolverTest {
     @BeforeClass
     public static void initializePlatformAndPlatformType() throws Exception {
         ConfigurationParser parser = new ConfigurationParser();
-        target = parser.parseTargetsJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/targets.json")).get(2);
-        platform = parser.parsePlatformsJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/platform-types.json")).get(
-            0);
+        target = parser.parseTargetsJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/targets.json"))
+            .get(2);
+        platform = parser.parsePlatformsJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/platform-types.json"))
+            .get(0);
     }
 
     @Before

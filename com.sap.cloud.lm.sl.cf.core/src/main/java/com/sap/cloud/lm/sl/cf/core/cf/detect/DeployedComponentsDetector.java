@@ -40,7 +40,8 @@ public class DeployedComponentsDetector {
                 // This application is an MTA module;
                 String moduleName = (appMetadata.getModuleName() != null) ? appMetadata.getModuleName() : appName;
                 List<String> providedDependencies = (appMetadata.getProvidedDependencyNames() != null)
-                    ? appMetadata.getProvidedDependencyNames() : new ArrayList<>();
+                    ? appMetadata.getProvidedDependencyNames()
+                    : new ArrayList<>();
                 List<String> appServices = (appMetadata.getServices() != null) ? appMetadata.getServices() : new ArrayList<>();
                 Map<String, Object> deployAttributes = (appMetadata.getDeployAttributes() != null) ? appMetadata.getDeployAttributes()
                     : new HashMap<>();
@@ -48,8 +49,10 @@ public class DeployedComponentsDetector {
                 DeployedMtaMetadata mtaMetadata = appMetadata.getMtaMetadata();
 
                 List<DeployedMtaModule> modules = modulesMap.getOrDefault(mtaMetadata, new ArrayList<>());
-                Date createdOn = app.getMeta().getCreated();
-                Date updatedOn = app.getMeta().getUpdated();
+                Date createdOn = app.getMeta()
+                    .getCreated();
+                Date updatedOn = app.getMeta()
+                    .getUpdated();
                 DeployedMtaModule module = new DeployedMtaModule(moduleName, appName, createdOn, updatedOn, appServices,
                     providedDependencies, deployAttributes, app.getUris());
                 modules.add(module);
@@ -93,11 +96,18 @@ public class DeployedComponentsDetector {
     }
 
     private Set<String> getMtaIds(List<DeployedMta> mtas) {
-        return mtas.stream().map((mta) -> mta.getMetadata().getId()).collect(Collectors.toSet());
+        return mtas.stream()
+            .map((mta) -> mta.getMetadata()
+                .getId())
+            .collect(Collectors.toSet());
     }
 
     private List<DeployedMta> getMtasWithSameId(List<DeployedMta> mtas, String id) {
-        return mtas.stream().filter((mta) -> mta.getMetadata().getId().equals(id)).collect(Collectors.toList());
+        return mtas.stream()
+            .filter((mta) -> mta.getMetadata()
+                .getId()
+                .equals(id))
+            .collect(Collectors.toList());
     }
 
     private DeployedMta mergeMtas(String mtaId, List<DeployedMta> mtas) {

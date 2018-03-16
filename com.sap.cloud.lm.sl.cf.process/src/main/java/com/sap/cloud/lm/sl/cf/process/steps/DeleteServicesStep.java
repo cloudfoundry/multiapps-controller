@@ -54,7 +54,8 @@ public class DeleteServicesStep extends SyncActivitiStep {
         try {
             attemptToDeleteService(client, serviceName);
         } catch (CloudFoundryException e) {
-            if (e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+            if (e.getStatusCode()
+                .equals(HttpStatus.NOT_FOUND)) {
                 getStepLogger().warn(e, Messages.COULD_NOT_DELETE_SERVICE, serviceName);
                 return;
             }

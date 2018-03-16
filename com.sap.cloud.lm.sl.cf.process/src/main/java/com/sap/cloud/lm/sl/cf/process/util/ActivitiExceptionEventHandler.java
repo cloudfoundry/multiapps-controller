@@ -36,7 +36,8 @@ public class ActivitiExceptionEventHandler {
         ActivitiExceptionEvent activitiExceptionEvent = (ActivitiExceptionEvent) event;
         String activitiExceptionStackTrace = ExceptionUtils.getStackTrace(activitiExceptionEvent.getCause());
         LOGGER.error(activitiExceptionStackTrace);
-        String activitiExceptionMessage = activitiExceptionEvent.getCause().getMessage();
+        String activitiExceptionMessage = activitiExceptionEvent.getCause()
+            .getMessage();
 
         if (activitiExceptionMessage == null) {
             return;
@@ -46,8 +47,8 @@ public class ActivitiExceptionEventHandler {
             String taskId = getVariable(event, Constants.TASK_ID);
             String taskIndex = getVariable(event, Constants.TASK_INDEX);
             String errorMessage = MessageFormat.format(Messages.EXCEPTION_OCCURED_ERROR_MSG, activitiExceptionMessage);
-            progressMessageService.add(new ProgressMessage(event.getProcessInstanceId(), taskId, taskIndex, ProgressMessageType.ERROR, errorMessage,
-                new Timestamp(System.currentTimeMillis())));
+            progressMessageService.add(new ProgressMessage(event.getProcessInstanceId(), taskId, taskIndex, ProgressMessageType.ERROR,
+                errorMessage, new Timestamp(System.currentTimeMillis())));
         } catch (SLException e) {
             LOGGER.warn(e.getMessage());
         }

@@ -71,7 +71,8 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
         FileDownloadProcessor manifestProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId,
             appArchiveStream -> {
                 // Create and initialize helper
-                Manifest manifest = ArchiveHandler.getManifest(appArchiveStream, Configuration.getInstance().getMaxManifestSize());
+                Manifest manifest = ArchiveHandler.getManifest(appArchiveStream, Configuration.getInstance()
+                    .getMaxManifestSize());
                 MtaArchiveHelper helper = getHelper(manifest);
                 helper.init();
 
@@ -101,8 +102,8 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
         Map<String, Object> descriptorMap = YamlUtil.convertYamlToMap(descriptorString);
         String mtaId = (String) descriptorMap.get(DeploymentDescriptorParser.ID);
         context.setVariable(Constants.PARAM_MTA_ID, mtaId);
-        conflictPreventerSupplier.apply(operationDao).attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(context),
-            StepsUtil.getCorrelationId(context));
+        conflictPreventerSupplier.apply(operationDao)
+            .attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(context), StepsUtil.getCorrelationId(context));
     }
 
     protected MtaArchiveHelper getHelper(Manifest manifest) {

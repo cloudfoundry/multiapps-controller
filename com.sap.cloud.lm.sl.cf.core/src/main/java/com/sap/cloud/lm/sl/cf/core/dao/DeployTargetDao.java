@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.dao;
 
+import static com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableColumnNames.DEPLOY_TARGET_NAME;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import static com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.TableColumnNames.DEPLOY_TARGET_NAME;
 
 public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTargetDto<Tgt>> {
 
@@ -132,7 +133,8 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
     public List<PersistentObject<Tgt>> findAll() {
         List<Dto> dtos;
         dtos = new Executor<List<Dto>>(createEntityManager()).execute((manager) -> {
-            return (List<Dto>) manager.createNamedQuery(findAllQueryName).getResultList();
+            return (List<Dto>) manager.createNamedQuery(findAllQueryName)
+                .getResultList();
         });
         return unwrap(dtos);
     }
@@ -152,7 +154,8 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
         Root<Dto> entity = query.from(this.classVersion);
 
         Predicate namePredicate = builder.equal(entity.get(DEPLOY_TARGET_NAME), name);
-        return em.createQuery(query.select(entity).where(namePredicate));
+        return em.createQuery(query.select(entity)
+            .where(namePredicate));
     }
 
 }

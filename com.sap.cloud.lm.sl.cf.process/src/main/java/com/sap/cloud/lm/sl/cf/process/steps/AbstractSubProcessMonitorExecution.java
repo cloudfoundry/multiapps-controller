@@ -26,7 +26,8 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
         String subProcessId = StepsUtil.getSubProcessId(execution.getContext());
-        execution.getStepLogger().debug(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId);
+        execution.getStepLogger()
+            .debug(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId);
         try {
             HistoricProcessInstance subProcess = getSubProcess(execution.getContext(), subProcessId);
             return getSubProcessStatus(subProcess, execution);
@@ -36,14 +37,18 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
     }
 
     private HistoricProcessInstance getSubProcess(DelegateExecution context, String subProcessId) {
-        HistoryService historyService = context.getEngineServices().getHistoryService();
-        return historyService.createHistoricProcessInstanceQuery().processInstanceId(subProcessId).singleResult();
+        HistoryService historyService = context.getEngineServices()
+            .getHistoryService();
+        return historyService.createHistoricProcessInstanceQuery()
+            .processInstanceId(subProcessId)
+            .singleResult();
     }
 
     private AsyncExecutionState getSubProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution)
         throws MonitoringException {
         ErrorType errorType = getSubProcessErrorType(subProcess, execution.getContextExtensionDao());
-        execution.getStepLogger().debug(Messages.ERROR_TYPE_OF_SUBPROCESS, subProcess.getId(), errorType);
+        execution.getStepLogger()
+            .debug(Messages.ERROR_TYPE_OF_SUBPROCESS, subProcess.getId(), errorType);
 
         Execution subProcessInstanceExecution = activitiFacade.getProcessExecution(subProcess.getId());
         if (subProcessInstanceExecution != null) {
@@ -70,7 +75,8 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
     }
 
     private AsyncExecutionState suspendProcessInstance(ExecutionWrapper execution) {
-        String processInstanceId = execution.getContext().getProcessInstanceId();
+        String processInstanceId = execution.getContext()
+            .getProcessInstanceId();
         activitiFacade.suspendProcessInstance(processInstanceId);
         StepsUtil.setStepPhase(execution, StepPhase.POLL);
         return AsyncExecutionState.RUNNING;

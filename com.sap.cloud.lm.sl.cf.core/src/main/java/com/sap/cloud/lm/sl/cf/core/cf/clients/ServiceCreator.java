@@ -105,14 +105,16 @@ public class ServiceCreator extends CloudServiceOperator {
     }
 
     protected boolean shouldIgnoreException(CloudFoundryException ex) {
-        return ex.getStatusCode().equals(HttpStatus.FORBIDDEN);
+        return ex.getStatusCode()
+            .equals(HttpStatus.FORBIDDEN);
     }
 
     private void attemptToCreateService(CloudFoundryOperations client, CloudServiceExtended service, String spaceId) {
         assertServiceAttributes(service);
 
         RestTemplate restTemplate = getRestTemplate(client);
-        String cloudControllerUrl = client.getCloudControllerUrl().toString();
+        String cloudControllerUrl = client.getCloudControllerUrl()
+            .toString();
         CloudServicePlan cloudServicePlan = findPlanForService(service, restTemplate, cloudControllerUrl);
 
         Map<String, Object> serviceRequest = createServiceRequest(service, spaceId, cloudServicePlan);
@@ -123,7 +125,8 @@ public class ServiceCreator extends CloudServiceOperator {
         Map<String, Object> serviceRequest = new HashMap<String, Object>();
         serviceRequest.put(SPACE_GUID, spaceId);
         serviceRequest.put(SERVICE_NAME, service.getName());
-        serviceRequest.put(SERVICE_PLAN_GUID, cloudServicePlan.getMeta().getGuid());
+        serviceRequest.put(SERVICE_PLAN_GUID, cloudServicePlan.getMeta()
+            .getGuid());
         serviceRequest.put(SERVICE_PARAMETERS, service.getCredentials());
         serviceRequest.put(SERVICE_TAGS, service.getTags());
         return serviceRequest;

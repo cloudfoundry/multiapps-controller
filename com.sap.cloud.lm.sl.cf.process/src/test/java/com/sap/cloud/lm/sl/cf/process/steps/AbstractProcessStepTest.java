@@ -44,7 +44,8 @@ public class AbstractProcessStepTest extends SyncActivitiStepTest<AbstractProces
 
     @Before
     public void setUp() {
-        Mockito.when(context.getProcessInstanceId()).thenReturn(PROCESS_ID);
+        Mockito.when(context.getProcessInstanceId())
+            .thenReturn(PROCESS_ID);
     }
 
     @Test
@@ -54,7 +55,8 @@ public class AbstractProcessStepTest extends SyncActivitiStepTest<AbstractProces
             step.execute(context);
             fail();
         } catch (Exception e) {
-            Mockito.verify(contextExtensionDao).addOrUpdate(PROCESS_ID, Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
+            Mockito.verify(contextExtensionDao)
+                .addOrUpdate(PROCESS_ID, Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
         }
     }
 

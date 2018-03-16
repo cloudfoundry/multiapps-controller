@@ -55,7 +55,9 @@ public class DataTerminationService {
     }
 
     private void deleteUserOperationsOrphanData(String deleteEventSpaceId) {
-        OperationFilter operationFilter = new OperationFilter.Builder().isCleanedUp().spaceId(deleteEventSpaceId).build();
+        OperationFilter operationFilter = new OperationFilter.Builder().isCleanedUp()
+            .spaceId(deleteEventSpaceId)
+            .build();
         List<Operation> operationsToBeDeleted = operationDao.find(operationFilter);
         List<String> result = operationsToBeDeleted.stream()
             .map(cleanedUpOperation -> cleanedUpOperation.getProcessId())
@@ -84,17 +86,23 @@ public class DataTerminationService {
 
     private void auditLogDeletion(List<? extends AuditableConfiguration> configurationEntities) {
         for (AuditableConfiguration configuration : configurationEntities) {
-            AuditLoggingProvider.getFacade().logConfigDelete(configuration);
+            AuditLoggingProvider.getFacade()
+                .logConfigDelete(configuration);
         }
     }
 
     protected CloudFoundryClient getCFClient() {
 
-        CloudCredentials cloudCredentials = new CloudCredentials(Configuration.getInstance().getGlobalAuditorUser(),
-            Configuration.getInstance().getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
+        CloudCredentials cloudCredentials = new CloudCredentials(Configuration.getInstance()
+            .getGlobalAuditorUser(),
+            Configuration.getInstance()
+                .getGlobalAuditorPassword(),
+            SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
 
-        CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, Configuration.getInstance().getTargetURL(),
-            Configuration.getInstance().shouldSkipSslValidation());
+        CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, Configuration.getInstance()
+            .getTargetURL(),
+            Configuration.getInstance()
+                .shouldSkipSslValidation());
         cfClient.login();
         return cfClient;
     }

@@ -51,14 +51,20 @@ public class RestartUpdatedSubscribersStep extends SyncActivitiStep {
     }
 
     private CloudFoundryOperations getClientForApp(ExecutionWrapper execution, CloudApplication app) {
-        String orgName = app.getSpace().getOrganization().getName();
-        String spaceName = app.getSpace().getName();
+        String orgName = app.getSpace()
+            .getOrganization()
+            .getName();
+        String spaceName = app.getSpace()
+            .getName();
         return execution.getCloudFoundryClient(orgName, spaceName);
     }
 
     private ClientExtensions getClientExtensionsForApp(ExecutionWrapper execution, CloudApplication app) {
-        String orgName = app.getSpace().getOrganization().getName();
-        String spaceName = app.getSpace().getName();
+        String orgName = app.getSpace()
+            .getOrganization()
+            .getName();
+        String spaceName = app.getSpace()
+            .getName();
         return execution.getClientExtensions(orgName, spaceName);
     }
 

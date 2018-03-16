@@ -26,7 +26,9 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
         List<Map<String, Object>> tasks = (List<Map<String, Object>>) PropertiesUtil.getPropertyValue(parametersList, parameterName,
             Collections.emptyList());
 
-        return tasks.stream().map(task -> toCloudTask(task)).collect(Collectors.toList());
+        return tasks.stream()
+            .map(task -> toCloudTask(task))
+            .collect(Collectors.toList());
     }
 
     private CloudTask toCloudTask(Map<String, Object> rawTask) {

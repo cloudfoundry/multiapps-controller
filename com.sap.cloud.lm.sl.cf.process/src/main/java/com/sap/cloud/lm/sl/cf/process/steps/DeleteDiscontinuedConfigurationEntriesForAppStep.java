@@ -38,7 +38,8 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivi
             return StepPhase.DONE;
         }
         getStepLogger().info(Messages.DELETING_DISCONTINUED_CONFIGURATION_ENTRIES_FOR_APP, existingApp.getName());
-        String mtaId = (String) execution.getContext().getVariable(Constants.PARAM_MTA_ID);
+        String mtaId = (String) execution.getContext()
+            .getVariable(Constants.PARAM_MTA_ID);
         ApplicationMtaMetadata mtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(existingApp);
         if (mtaMetadata == null) {
             return StepPhase.DONE;
@@ -48,7 +49,9 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivi
         String space = StepsUtil.getSpace(execution.getContext());
         CloudTarget newTarget = new CloudTarget(org, space);
         CloudTarget oldTarget = new CloudTarget(null, StepsUtil.getSpaceId(execution.getContext()));
-        String oldMtaVersion = mtaMetadata.getMtaMetadata().getVersion().toString();
+        String oldMtaVersion = mtaMetadata.getMtaMetadata()
+            .getVersion()
+            .toString();
         List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntries(execution.getContext());
 
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, oldMtaVersion, newTarget, oldTarget, providedDependencyNames,
@@ -86,11 +89,14 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivi
 
     private List<ConfigurationEntry> getEntriesNotUpdatedByThisProcess(List<ConfigurationEntry> entriesForCurrentModule,
         List<ConfigurationEntry> publishedEntries) {
-        return entriesForCurrentModule.stream().filter(entry -> !hasId(entry, publishedEntries)).collect(Collectors.toList());
+        return entriesForCurrentModule.stream()
+            .filter(entry -> !hasId(entry, publishedEntries))
+            .collect(Collectors.toList());
     }
 
     private boolean hasId(ConfigurationEntry entry, List<ConfigurationEntry> publishedEntries) {
-        return publishedEntries.stream().anyMatch(publishedEntry -> publishedEntry.getId() == entry.getId());
+        return publishedEntries.stream()
+            .anyMatch(publishedEntry -> publishedEntry.getId() == entry.getId());
     }
 
     private List<String> getProviderIds(String mtaId, List<String> providedDependencyNames) {
@@ -100,11 +106,15 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivi
     }
 
     private List<ConfigurationEntry> getConfigurationEntriesWithProviderIds(List<ConfigurationEntry> entries, List<String> providerIds) {
-        return entries.stream().filter(entry -> hasProviderId(entry, providerIds)).collect(Collectors.toList());
+        return entries.stream()
+            .filter(entry -> hasProviderId(entry, providerIds))
+            .collect(Collectors.toList());
     }
 
     private boolean hasProviderId(ConfigurationEntry entry, List<String> providerIds) {
-        return providerIds.stream().anyMatch(providerId -> entry.getProviderId().equals(providerId));
+        return providerIds.stream()
+            .anyMatch(providerId -> entry.getProviderId()
+                .equals(providerId));
     }
 
     private List<ConfigurationEntry> getEntries(String mtaId, String mtaVersion, CloudTarget target) {

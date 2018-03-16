@@ -39,9 +39,11 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
 
             List<CloudApplication> deployedApps = client.getApplications();
             StepsUtil.setDeployedApps(execution.getContext(), deployedApps);
-            String mtaId = (String) execution.getContext().getVariable(Constants.PARAM_MTA_ID);
+            String mtaId = (String) execution.getContext()
+                .getVariable(Constants.PARAM_MTA_ID);
 
-            DeployedMta deployedMta = componentsDetector.apply(deployedApps).findDeployedMta(mtaId);
+            DeployedMta deployedMta = componentsDetector.apply(deployedApps)
+                .findDeployedMta(mtaId);
             if (deployedMta == null) {
                 getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
             } else {

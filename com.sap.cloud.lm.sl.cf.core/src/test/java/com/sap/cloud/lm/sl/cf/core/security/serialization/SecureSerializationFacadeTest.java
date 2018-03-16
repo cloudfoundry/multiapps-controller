@@ -62,7 +62,9 @@ public class SecureSerializationFacadeTest {
     public void testToJson() throws Exception {
         Object object = JsonUtil.fromJson(TestUtil.getResourceAsString(objectLocation, getClass()), clasz);
         test(() -> {
-            return new SecureSerializationFacade().setFormattedOutput(true).setSensitiveElementNames(sensitiveElementNames).toJson(object);
+            return new SecureSerializationFacade().setFormattedOutput(true)
+                .setSensitiveElementNames(sensitiveElementNames)
+                .toJson(object);
         }, expectedResult, getClass(), false);
     }
 

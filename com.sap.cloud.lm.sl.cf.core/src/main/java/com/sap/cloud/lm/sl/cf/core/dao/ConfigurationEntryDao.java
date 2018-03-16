@@ -36,39 +36,46 @@ public class ConfigurationEntryDao {
     }
 
     private List<ConfigurationEntry> filter(List<ConfigurationEntry> entries, String version, List<CloudTarget> cloudTargets) {
-        return entries.stream().filter((entry) -> VERSION_FILTER.apply(entry, version)).filter(
-            (entry) -> VISIBILITY_FILTER.apply(entry, cloudTargets)).collect(Collectors.toList());
+        return entries.stream()
+            .filter((entry) -> VERSION_FILTER.apply(entry, version))
+            .filter((entry) -> VISIBILITY_FILTER.apply(entry, cloudTargets))
+            .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> toConfigurationEntries(List<ConfigurationEntryDto> dtos) {
-        return dtos.stream().map((dto) -> dto.toConfigurationEntry()).collect(Collectors.toList());
+        return dtos.stream()
+            .map((dto) -> dto.toConfigurationEntry())
+            .collect(Collectors.toList());
     }
 
     public ConfigurationEntry update(long id, ConfigurationEntry entry) throws ConflictException, NotFoundException {
-        return dao.update(id, new ConfigurationEntryDto(entry)).toConfigurationEntry();
+        return dao.update(id, new ConfigurationEntryDto(entry))
+            .toConfigurationEntry();
     }
 
     public ConfigurationEntry find(long id) throws NotFoundException {
-        return dao.find(id).toConfigurationEntry();
+        return dao.find(id)
+            .toConfigurationEntry();
     }
-    
-    public List<ConfigurationEntry> find(String spaceGuid){
+
+    public List<ConfigurationEntry> find(String spaceGuid) {
         return toConfigurationEntries(dao.find(spaceGuid));
     }
 
     public void remove(long id) throws NotFoundException {
         dao.remove(id);
     }
-    
-    public List<ConfigurationEntry> removeAll(List<ConfigurationEntry> configurationEntries){
-        for(ConfigurationEntry configurationEntry: configurationEntries){
+
+    public List<ConfigurationEntry> removeAll(List<ConfigurationEntry> configurationEntries) {
+        for (ConfigurationEntry configurationEntry : configurationEntries) {
             dao.remove(configurationEntry.getId());
         }
         return configurationEntries;
     }
 
     public ConfigurationEntry add(ConfigurationEntry entry) throws ConflictException {
-        return dao.add(new ConfigurationEntryDto(entry)).toConfigurationEntry();
+        return dao.add(new ConfigurationEntryDto(entry))
+            .toConfigurationEntry();
     }
 
     public boolean exists(long id) {

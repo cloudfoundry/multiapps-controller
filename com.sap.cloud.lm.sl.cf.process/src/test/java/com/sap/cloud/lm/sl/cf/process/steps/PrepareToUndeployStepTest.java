@@ -21,7 +21,8 @@ public class PrepareToUndeployStepTest extends SyncActivitiStepTest<PrepareToUnd
         context.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
 
         step.conflictPreventerSupplier = (dao) -> mock(ProcessConflictPreventer.class);
-        Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any())).thenReturn(Collections.emptyList());
+        Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any()))
+            .thenReturn(Collections.emptyList());
     }
 
     @Test

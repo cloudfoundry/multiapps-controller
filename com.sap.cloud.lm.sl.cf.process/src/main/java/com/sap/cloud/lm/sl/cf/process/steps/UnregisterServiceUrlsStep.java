@@ -53,7 +53,9 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
     }
 
     private List<String> getServiceNames(List<ServiceUrl> serviceUrls) {
-        return serviceUrls.stream().map((serviceUrl) -> serviceUrl.getServiceName()).collect(Collectors.toList());
+        return serviceUrls.stream()
+            .map((serviceUrl) -> serviceUrl.getServiceName())
+            .collect(Collectors.toList());
     }
 
     private void unregisterServiceUrlIfNecessary(DelegateExecution context, CloudApplication app, List<String> serviceUrlsToRegister,

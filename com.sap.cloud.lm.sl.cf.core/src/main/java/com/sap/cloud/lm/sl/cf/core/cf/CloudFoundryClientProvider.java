@@ -143,7 +143,8 @@ public class CloudFoundryClientProvider {
     private void updateTokenIfNecessary(TokenProvider client, OAuth2AccessToken token, String org, String space) {
         OAuth2AccessToken newToken = (client != null) ? client.getToken() : null;
 
-        if (newToken != null && !newToken.getValue().equals(token.getValue())) {
+        if (newToken != null && !newToken.getValue()
+            .equals(token.getValue())) {
             tokenService.updateToken(SecurityUtil.getTokenUserInfo(newToken), token, newToken);
             if (org != null && space != null) {
                 updateClientInCache(token, newToken, org, space);
@@ -221,13 +222,19 @@ public class CloudFoundryClientProvider {
 
     private String getKey(OAuth2AccessToken token, String org, String space) {
         StringBuilder sb = new StringBuilder();
-        sb.append(token.getValue()).append("|").append(org).append("|").append(space);
+        sb.append(token.getValue())
+            .append("|")
+            .append(org)
+            .append("|")
+            .append(space);
         return sb.toString();
     }
 
     private String getKey(OAuth2AccessToken token, String spaceId) {
         StringBuilder sb = new StringBuilder();
-        sb.append(token.getValue()).append("|").append(spaceId);
+        sb.append(token.getValue())
+            .append("|")
+            .append(spaceId);
         return sb.toString();
     }
 }

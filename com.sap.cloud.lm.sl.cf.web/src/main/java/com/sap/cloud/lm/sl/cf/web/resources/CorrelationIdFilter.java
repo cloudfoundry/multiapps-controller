@@ -21,7 +21,8 @@ public class CorrelationIdFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        MDC.put(Constants.ATTR_CORRELATION_ID, UUID.randomUUID().toString());
+        MDC.put(Constants.ATTR_CORRELATION_ID, UUID.randomUUID()
+            .toString());
         filterChain.doFilter(request, response);
     }
 }

@@ -53,11 +53,16 @@ public class FilesApiServiceImpl implements FilesApiService {
     public Response getMtaFiles(SecurityContext securityContext, String spaceGuid) {
         try {
             List<FileEntry> entries = fileService.listFiles(spaceGuid, null);
-            List<FileMetadata> files = entries.stream().map(entry -> parseFileEntry(entry)).collect(Collectors.toList());
-            return Response.ok().entity(files).build();
+            List<FileMetadata> files = entries.stream()
+                .map(entry -> parseFileEntry(entry))
+                .collect(Collectors.toList());
+            return Response.ok()
+                .entity(files)
+                .build();
         } catch (FileStorageException e) {
             LOGGER.error(Messages.COULD_NOT_GET_FILES, e);
-            throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).build());
+            throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR)
+                .build());
         }
     }
 
@@ -66,11 +71,15 @@ public class FilesApiServiceImpl implements FilesApiService {
         try {
             FileEntry fileEntry = uploadFiles(request, spaceGuid).get(0);
             FileMetadata fileMetadata = parseFileEntry(fileEntry);
-            AuditLoggingProvider.getFacade().logConfigCreate(fileMetadata);
-            return Response.status(Status.CREATED).entity(fileMetadata).build();
+            AuditLoggingProvider.getFacade()
+                .logConfigCreate(fileMetadata);
+            return Response.status(Status.CREATED)
+                .entity(fileMetadata)
+                .build();
         } catch (Exception e) {
             LOGGER.error(Messages.COULD_NOT_UPLOAD_FILE, e);
-            throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).build());
+            throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR)
+                .build());
         }
     }
 

@@ -67,7 +67,8 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
         String orgGuid = getOrgGuid(client, orgName);
 
         Map<String, Object> urlVariables = getAsUrlVariablesForFindSpaceRequest(orgGuid, spaceName);
-        return executeFindSpaceRequest(restTemplate, client.getCloudControllerUrl().toString(), url, urlVariables);
+        return executeFindSpaceRequest(restTemplate, client.getCloudControllerUrl()
+            .toString(), url, urlVariables);
     }
 
     private String getOrgGuid(CloudFoundryOperations client, String orgName) {
@@ -76,7 +77,9 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
         }
 
         CloudOrganization org = client.getOrganization(orgName, false);
-        return org != null ? org.getMeta().getGuid().toString() : null;
+        return org != null ? org.getMeta()
+            .getGuid()
+            .toString() : null;
     }
 
     private String buildEndpoint(String orgName, String spaceName) {
@@ -130,8 +133,8 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
         Assert.isTrue(parsedSpacesResponse.size() <= 1,
             "The response of finding a space by org and space names should not have more than one resource element");
         if (!parsedSpacesResponse.isEmpty()) {
-            Assert.isNull(parsedSpacesResponse.get(0).get("next_url"),
-                "The response of finding a space by org and space names should contain just one page");
+            Assert.isNull(parsedSpacesResponse.get(0)
+                .get("next_url"), "The response of finding a space by org and space names should contain just one page");
         }
     }
 
@@ -156,7 +159,9 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
             return Collections.emptyList();
         }
 
-        return resources.stream().map(resource -> toCloudSpace(resource)).collect(Collectors.toList());
+        return resources.stream()
+            .map(resource -> toCloudSpace(resource))
+            .collect(Collectors.toList());
     }
 
     @Override

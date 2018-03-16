@@ -26,13 +26,15 @@ public class PropertiesAccessor {
 
     private Map<String, Object> getOnlyProperties(Map<String, Object> properties, Set<String> supportedParameters) {
         Map<String, Object> result = new TreeMap<>(properties);
-        result.keySet().removeAll(supportedParameters);
+        result.keySet()
+            .removeAll(supportedParameters);
         return result;
     }
 
     private Map<String, Object> getOnlyParameters(Map<String, Object> properties, Set<String> supportedParameters) {
         Map<String, Object> result = new TreeMap<>(properties);
-        result.keySet().retainAll(supportedParameters);
+        result.keySet()
+            .retainAll(supportedParameters);
         return result;
     }
 

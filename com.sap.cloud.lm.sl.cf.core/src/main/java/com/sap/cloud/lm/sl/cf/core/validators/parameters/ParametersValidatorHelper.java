@@ -27,7 +27,8 @@ public class ParametersValidatorHelper {
         throws SLException {
         Map<String, Object> validParameters = new TreeMap<String, Object>();
         for (ParameterValidator validator : parameterValidators) {
-            if (!validator.getContainerType().isAssignableFrom(containerClass)) {
+            if (!validator.getContainerType()
+                .isAssignableFrom(containerClass)) {
                 continue;
             }
             Object initialParameterValue = parameters.get(validator.getParameterName());

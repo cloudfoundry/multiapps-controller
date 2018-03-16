@@ -42,7 +42,9 @@ public class ModuleSystemParameterCopier implements ParameterValidator {
 
     @SuppressWarnings("unchecked")
     private <T> T getModuleSystemParameter(String moduleName) {
-        return (T) systemParameters.getModuleParameters().getOrDefault(moduleName, Collections.emptyMap()).get(parameterName);
+        return (T) systemParameters.getModuleParameters()
+            .getOrDefault(moduleName, Collections.emptyMap())
+            .get(parameterName);
     }
 
 }

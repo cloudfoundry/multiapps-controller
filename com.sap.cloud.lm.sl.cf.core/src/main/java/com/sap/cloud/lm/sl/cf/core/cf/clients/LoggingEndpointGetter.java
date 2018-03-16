@@ -18,7 +18,8 @@ public class LoggingEndpointGetter extends CustomControllerClient {
 
     private String attmeptToGetLoggingEndpoint(CloudFoundryOperations client) {
         RestTemplate restTemplate = getRestTemplate(client);
-        String controllerUrl = client.getCloudControllerUrl().toString();
+        String controllerUrl = client.getCloudControllerUrl()
+            .toString();
         String infoV2Url = getUrl(controllerUrl, V2_INFO_ENDPOINT);
 
         String infoV2Json = restTemplate.getForObject(infoV2Url, String.class);

@@ -41,7 +41,7 @@ public class ConfigurationEntryDto {
     @XmlElementWrapper(name = "visibility")
     @XmlElement(name = "target")
     private List<CloudTarget> visibility;
-    
+
     @XmlElement(name = "space-id")
     private String spaceId;
 
@@ -92,7 +92,7 @@ public class ConfigurationEntryDto {
     public List<CloudTarget> getVisibility() {
         return visibility;
     }
-    
+
     public String getSpaceId() {
         return spaceId;
     }

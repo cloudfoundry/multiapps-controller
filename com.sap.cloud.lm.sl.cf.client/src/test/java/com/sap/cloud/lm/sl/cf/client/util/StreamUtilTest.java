@@ -86,7 +86,8 @@ public class StreamUtilTest {
         try {
             ZipInputStream zis = new ZipInputStream(is);
             for (ZipEntry e; (e = zis.getNextEntry()) != null;) {
-                if (e.getName().equals(entryName)) {
+                if (e.getName()
+                    .equals(entryName)) {
                     return zis;
                 }
             }

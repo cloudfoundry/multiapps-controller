@@ -9,7 +9,8 @@ public class CsrfTokenResource {
 
     @GET
     public Response getCsrfToken() {
-        return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.status(Response.Status.NO_CONTENT)
+            .build();
     }
 
 }

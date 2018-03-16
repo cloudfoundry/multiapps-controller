@@ -251,7 +251,8 @@ public class Configuration {
     public void logFullConfig() {
         for (Map.Entry<String, String> envVariable : getFilteredEnv().entrySet()) {
             AuditableConfiguration auditConfiguration = getAuditableConfiguration(envVariable.getKey(), envVariable.getValue());
-            AuditLoggingProvider.getFacade().logConfig(auditConfiguration);
+            AuditLoggingProvider.getFacade()
+                .logConfig(auditConfiguration);
         }
     }
 
@@ -279,8 +280,10 @@ public class Configuration {
     public Map<String, String> getFilteredEnv() {
         Set<String> notSensitiveConfigVariables = getNotSensitiveConfigVariables();
         Map<String, String> env = environment.getVariables();
-        return env.entrySet().stream().filter(envVariable -> notSensitiveConfigVariables.contains(envVariable.getKey())).collect(
-            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return env.entrySet()
+            .stream()
+            .filter(envVariable -> notSensitiveConfigVariables.contains(envVariable.getKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private Set<String> getNotSensitiveConfigVariables() {
@@ -787,7 +790,8 @@ public class Configuration {
     }
 
     private int computeDefaultRouterPort() {
-        return getTargetURL().getProtocol().equals("http") ? DEFAULT_HTTP_ROUTER_PORT : DEFAULT_HTTPS_ROUTER_PORT;
+        return getTargetURL().getProtocol()
+            .equals("http") ? DEFAULT_HTTP_ROUTER_PORT : DEFAULT_HTTPS_ROUTER_PORT;
     }
 
     private String getDeployServiceUrlFromEnvironment() {

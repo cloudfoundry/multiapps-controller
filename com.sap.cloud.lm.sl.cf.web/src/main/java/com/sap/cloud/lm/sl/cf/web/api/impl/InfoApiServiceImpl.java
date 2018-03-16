@@ -18,6 +18,8 @@ public class InfoApiServiceImpl implements InfoApiService {
         // TODO: implement api version
         Info deployServiceInfo = new Info();
         deployServiceInfo.setApiVersion(1);
-        return Response.ok().entity(deployServiceInfo).build();
+        return Response.ok()
+            .entity(deployServiceInfo)
+            .build();
     }
 }

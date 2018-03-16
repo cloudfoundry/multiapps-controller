@@ -21,7 +21,8 @@ public enum ServiceOperationState {
 
     public static ServiceOperationState fromString(String value) {
         for (ServiceOperationState state : ServiceOperationState.values()) {
-            if (state.toString().equals(value)) {
+            if (state.toString()
+                .equals(value)) {
                 return state;
             }
         }

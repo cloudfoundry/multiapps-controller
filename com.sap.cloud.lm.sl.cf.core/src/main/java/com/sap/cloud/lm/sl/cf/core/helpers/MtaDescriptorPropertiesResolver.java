@@ -70,15 +70,20 @@ public class MtaDescriptorPropertiesResolver {
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) throws SLException {
         // Resolve placeholders in parameters:
-        descriptor = (DeploymentDescriptor) handlerFactory.getDescriptorPlaceholderResolver(descriptor, platform, target, systemParameters,
-            new NullPropertiesResolverBuilder(), new ResolverBuilder()).resolve();
+        descriptor = (DeploymentDescriptor) handlerFactory
+            .getDescriptorPlaceholderResolver(descriptor, platform, target, systemParameters, new NullPropertiesResolverBuilder(),
+                new ResolverBuilder())
+            .resolve();
 
-        descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, getValidatorsList()).validate();
+        descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, getValidatorsList())
+            .validate();
         LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_AFTER_PARAMETER_CORRECTION, secureSerializer.toJson(descriptor)));
 
         // Resolve placeholders in properties:
-        descriptor = (DeploymentDescriptor) handlerFactory.getDescriptorPlaceholderResolver(descriptor, platform, target, systemParameters,
-            new ResolverBuilder(), new NullPropertiesResolverBuilder()).resolve();
+        descriptor = (DeploymentDescriptor) handlerFactory
+            .getDescriptorPlaceholderResolver(descriptor, platform, target, systemParameters, new ResolverBuilder(),
+                new NullPropertiesResolverBuilder())
+            .resolve();
 
         DeploymentDescriptor descriptorWithUnresolvedReferences = descriptor.copyOf();
 
@@ -90,20 +95,24 @@ public class MtaDescriptorPropertiesResolver {
 
         subscriptions = createSubscriptions(descriptorWithUnresolvedReferences, resolver.getResolvedReferences());
 
-        descriptor = (DeploymentDescriptor) handlerFactory.getDescriptorReferenceResolver(descriptor, new ResolverBuilder(),
-            new ResolverBuilder(), new ResolverBuilder()).resolve();
+        descriptor = (DeploymentDescriptor) handlerFactory
+            .getDescriptorReferenceResolver(descriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder())
+            .resolve();
         LOGGER.debug(format(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor)));
 
-        descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, getValidatorsList(), true).validate();
+        descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, getValidatorsList(), true)
+            .validate();
 
         return descriptor;
     }
 
     private List<ConfigurationSubscription> createSubscriptions(DeploymentDescriptor descriptorWithUnresolvedReferences,
         Map<String, ResolvedConfigurationReference> resolvedResources) {
-        Pair<String, String> currentOrgAndSpace = handlerFactory.getOrgAndSpaceHelper(target, platform).getOrgAndSpace();
+        Pair<String, String> currentOrgAndSpace = handlerFactory.getOrgAndSpaceHelper(target, platform)
+            .getOrgAndSpace();
         String spaceId = spaceIdSupplier.apply(currentOrgAndSpace._1, currentOrgAndSpace._2);
-        return handlerFactory.getConfigurationSubscriptionFactory().create(descriptorWithUnresolvedReferences, resolvedResources, spaceId);
+        return handlerFactory.getConfigurationSubscriptionFactory()
+            .create(descriptorWithUnresolvedReferences, resolvedResources, spaceId);
     }
 
     public List<ConfigurationSubscription> getSubscriptions() {

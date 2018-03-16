@@ -181,7 +181,8 @@ public class UpdateAppStep extends CreateAppStep {
                 bindService(execution, client, app.getName(), serviceName, bindingParametersForCurrentService);
                 continue;
             }
-            List<CloudServiceBinding> existingServiceBindings = client.getServiceInstance(serviceName).getBindings();
+            List<CloudServiceBinding> existingServiceBindings = client.getServiceInstance(serviceName)
+                .getBindings();
             CloudServiceBinding existingBindingForApplication = getServiceBindingsForApplication(existingApp, existingServiceBindings);
             if (existingBindingForApplication == null) {
                 hasUpdatedService = true;
@@ -203,7 +204,9 @@ public class UpdateAppStep extends CreateAppStep {
     protected CloudServiceBinding getServiceBindingsForApplication(CloudApplication existingApp,
         List<CloudServiceBinding> serviceBindings) {
         Optional<CloudServiceBinding> optCloudServiceBinding = serviceBindings.stream()
-            .filter(serviceBinding -> existingApp.getMeta().getGuid().equals(serviceBinding.getAppGuid()))
+            .filter(serviceBinding -> existingApp.getMeta()
+                .getGuid()
+                .equals(serviceBinding.getAppGuid()))
             .findFirst();
         if (optCloudServiceBinding.isPresent()) {
             return optCloudServiceBinding.get();

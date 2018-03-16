@@ -149,7 +149,8 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
 
     @SuppressWarnings("unchecked")
     protected Map<String, Object> getBindingParameters(RequiredDependency dependency, String moduleName) throws ContentException {
-        Object bindingParameters = dependency.getParameters().get(SupportedParameters.SERVICE_BINDING_CONFIG);
+        Object bindingParameters = dependency.getParameters()
+            .get(SupportedParameters.SERVICE_BINDING_CONFIG);
         if (bindingParameters == null) {
             return null;
         }
@@ -163,7 +164,8 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         String prefix = ValidatorUtil.getPrefixedName(moduleName, dependencyName);
         return MessageFormat.format(com.sap.cloud.lm.sl.mta.message.Messages.INVALID_TYPE_FOR_KEY,
             ValidatorUtil.getPrefixedName(prefix, SupportedParameters.SERVICE_BINDING_CONFIG), Map.class.getSimpleName(),
-            bindingParameters.getClass().getSimpleName());
+            bindingParameters.getClass()
+                .getSimpleName());
     }
 
     @Override
@@ -213,7 +215,8 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
             Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
             String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
             String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
-            String envVarName = (String) dependency.getParameters().getOrDefault(SupportedParameters.ENV_VAR_NAME, serviceKeyName);
+            String envVarName = (String) dependency.getParameters()
+                .getOrDefault(SupportedParameters.ENV_VAR_NAME, serviceKeyName);
             ensureValidEnvName(envVarName, configuration.shouldAllowInvalidEnvNames());
             return new ServiceKeyToInject(envVarName, serviceName, serviceKeyName);
         }

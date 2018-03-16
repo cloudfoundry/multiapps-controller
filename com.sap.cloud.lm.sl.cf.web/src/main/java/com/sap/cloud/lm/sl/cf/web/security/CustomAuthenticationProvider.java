@@ -38,10 +38,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     @Qualifier("cloudFoundryClientFactory")
     ClientFactory cloudFoundryClientFactory;
-    
+
     @Autowired
     Configuration configuration;
-    
+
     @Autowired
     TokenFactory tokenFactory;
 
@@ -67,7 +67,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                     token = tokenFactory.createDummyToken(userName, SecurityUtil.CLIENT_ID);
                 } else {
                     String message = "Null access token returned by cloud controller";
-                    AuditLoggingProvider.getFacade().logSecurityIncident(message);
+                    AuditLoggingProvider.getFacade()
+                        .logSecurityIncident(message);
                     throw new AuthenticationServiceException(message);
                 }
             }
@@ -89,7 +90,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             return auth2;
         } catch (CloudFoundryException e) {
             String message = Messages.CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER;
-            AuditLoggingProvider.getFacade().logSecurityIncident(message);
+            AuditLoggingProvider.getFacade()
+                .logSecurityIncident(message);
             throw new BadCredentialsException(message, e);
         }
     }

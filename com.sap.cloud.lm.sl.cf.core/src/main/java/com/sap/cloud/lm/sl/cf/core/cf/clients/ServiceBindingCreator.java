@@ -22,11 +22,14 @@ public class ServiceBindingCreator extends CustomControllerClient {
     }
 
     private void attemptToBindService(CloudFoundryOperations client, String appName, String serviceName, Map<String, Object> parameters) {
-        String serviceBindingsUrl = getUrl(client.getCloudControllerUrl().toString(), SERVICE_BINDINGS_ENDPOINT);
+        String serviceBindingsUrl = getUrl(client.getCloudControllerUrl()
+            .toString(), SERVICE_BINDINGS_ENDPOINT);
         CloudApplication cloudApplication = client.getApplication(appName);
-        UUID appGuid = cloudApplication.getMeta().getGuid();
+        UUID appGuid = cloudApplication.getMeta()
+            .getGuid();
         CloudService cloudService = client.getService(serviceName);
-        UUID serviceGuid = cloudService.getMeta().getGuid();
+        UUID serviceGuid = cloudService.getMeta()
+            .getGuid();
         Map<String, Object> request = createServiceBindingRequest(appGuid, serviceGuid, parameters);
         RestTemplate restTemplate = getRestTemplate(client);
         restTemplate.postForObject(serviceBindingsUrl, request, String.class);

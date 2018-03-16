@@ -96,7 +96,8 @@ public class StartProcessListenerTest {
         MockitoAnnotations.initMocks(this);
         loadParameters();
         prepareContext();
-        Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(stepLogger);
+        Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+            .thenReturn(stepLogger);
     }
 
     @Test
@@ -108,9 +109,12 @@ public class StartProcessListenerTest {
 
     private void prepareContext() {
         listener.currentTimeSupplier = currentTimeSupplier;
-        Mockito.when(context.getProcessInstanceId()).thenReturn(processInstanceId);
-        Mockito.when(context.getVariables()).thenReturn(Collections.emptyMap());
-        Mockito.when(processTypeParser.getProcessType(context)).thenReturn(processType);
+        Mockito.when(context.getProcessInstanceId())
+            .thenReturn(processInstanceId);
+        Mockito.when(context.getVariables())
+            .thenReturn(Collections.emptyMap());
+        Mockito.when(processTypeParser.getProcessType(context))
+            .thenReturn(processType);
         context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         context.setVariable(Constants.VAR_USER, USER);
     }
@@ -131,7 +135,8 @@ public class StartProcessListenerTest {
             .user(user)
             .acquiredLock(false)
             .cleanedUp(false);
-        Mockito.verify(dao).add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
+        Mockito.verify(dao)
+            .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
     }
 
 }

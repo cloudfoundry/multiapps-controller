@@ -45,14 +45,19 @@ public class PrepareToExecuteTasksStep extends SyncActivitiStep {
     private StepPhase attemptToPrepareExecutionOfTasks(ExecutionWrapper execution, List<CloudTask> tasksToExecute) {
         StepsUtil.setTasksToExecute(execution.getContext(), tasksToExecute);
 
-        execution.getContext().setVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS, platformSupportsTasks(execution));
+        execution.getContext()
+            .setVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS, platformSupportsTasks(execution));
 
         // Initialize the iteration over the tasks:
-        execution.getContext().setVariable(Constants.VAR_TASKS_COUNT, tasksToExecute.size());
-        execution.getContext().setVariable(Constants.VAR_TASKS_INDEX, 0);
-        execution.getContext().setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
+        execution.getContext()
+            .setVariable(Constants.VAR_TASKS_COUNT, tasksToExecute.size());
+        execution.getContext()
+            .setVariable(Constants.VAR_TASKS_INDEX, 0);
+        execution.getContext()
+            .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
 
-        execution.getContext().setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
+        execution.getContext()
+            .setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
 
         return StepPhase.DONE;
     }

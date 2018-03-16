@@ -87,7 +87,8 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
             setOperationInAbortedState(correlationId);
         });
 
-        HistoryService historyService = event.getEngineServices().getHistoryService();
+        HistoryService historyService = event.getEngineServices()
+            .getHistoryService();
 
         new SafeExecutor().executeSafely(() -> {
             deleteAllocatedRoutes(historyService, processInstanceId);
@@ -109,8 +110,8 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
     }
 
     private String getCorrelationId(ActivitiEvent event) {
-        HistoricVariableInstance correlationId = getHistoricVarInstanceValue(event.getEngineServices().getHistoryService(),
-            event.getProcessInstanceId(), Constants.VAR_CORRELATION_ID);
+        HistoricVariableInstance correlationId = getHistoricVarInstanceValue(event.getEngineServices()
+            .getHistoryService(), event.getProcessInstanceId(), Constants.VAR_CORRELATION_ID);
         if (correlationId != null) {
             return (String) correlationId.getValue();
         }
@@ -134,7 +135,8 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
             return;
         }
         CloudFoundryOperations client = getCloudFoundryClient(historyService, processInstanceId);
-        String defaultDomain = client.getDefaultDomain() != null ? client.getDefaultDomain().getName() : null;
+        String defaultDomain = client.getDefaultDomain() != null ? client.getDefaultDomain()
+            .getName() : null;
         if (defaultDomain == null) {
             LOGGER.warn(Messages.COULD_NOT_COMPUTE_DEFAULT_DOMAIN);
             return;

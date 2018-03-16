@@ -8,7 +8,7 @@ import java.util.Collection;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
-public class JsonListElement extends JsonElement<JsonArray>implements ListElement {
+public class JsonListElement extends JsonElement<JsonArray> implements ListElement {
 
     public JsonListElement(String name, String prefix, JsonArray element) {
         super(name, prefix, element);

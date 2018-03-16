@@ -27,9 +27,12 @@ public class PrepareToRestartServiceBrokersStep extends SyncActivitiStep {
         List<CloudApplicationExtended> serviceBrokersToRestart = StepsUtil.getServiceBrokerSubscribersToRestart(execution.getContext());
         prepareServiceBrokersToRestart(execution.getContext(), serviceBrokersToRestart);
 
-        execution.getContext().setVariable(Constants.REBUILD_APP_ENV, false);
-        execution.getContext().setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
-        execution.getContext().setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
+        execution.getContext()
+            .setVariable(Constants.REBUILD_APP_ENV, false);
+        execution.getContext()
+            .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, false);
+        execution.getContext()
+            .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
 
         return StepPhase.DONE;
 
