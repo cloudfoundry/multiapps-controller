@@ -28,8 +28,15 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
     protected static final String SERVICE_PARAMETERS = "parameters";
     protected static final String SERVICE_TAGS = "tags";
 
+    private final CloudEntityResourceMapper resourceMapper;
+
     protected CloudServiceOperator(RestTemplateFactory restTemplateFactory) {
+        this(restTemplateFactory, new CloudEntityResourceMapper());
+    }
+
+    protected CloudServiceOperator(RestTemplateFactory restTemplateFactory, CloudEntityResourceMapper resourceMapper) {
         super(restTemplateFactory);
+        this.resourceMapper = resourceMapper;
     }
 
     protected CloudServicePlan findPlanForService(CloudService service, RestTemplate restTemplate, String cloudControllerUrl) {
@@ -66,7 +73,7 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
         List<Map<String, Object>> resourceList = getAllResources(restTemplate, cloudControllerUrl, SERVICES_URL);
         List<CloudServiceOffering> results = new ArrayList<CloudServiceOffering>();
         for (Map<String, Object> resource : resourceList) {
-            CloudServiceOffering cloudServiceOffering = getResourceMapper().mapResource(resource, CloudServiceOffering.class);
+            CloudServiceOffering cloudServiceOffering = resourceMapper.mapResource(resource, CloudServiceOffering.class);
             if (cloudServiceOffering.getLabel()
                 .equals(label)) {
                 results.add(cloudServiceOffering);
@@ -75,7 +82,4 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
         return results;
     }
 
-    protected CloudEntityResourceMapper getResourceMapper() {
-        return new CloudEntityResourceMapper();
-    }
 }

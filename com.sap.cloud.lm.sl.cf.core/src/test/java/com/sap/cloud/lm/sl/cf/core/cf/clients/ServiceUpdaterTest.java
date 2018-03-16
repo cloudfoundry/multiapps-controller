@@ -15,7 +15,6 @@ import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
-import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
@@ -59,12 +58,7 @@ public class ServiceUpdaterTest extends ServiceCreatorTest {
     @Override
     public void setUp() throws MalformedURLException {
         super.setUp();
-        this.serviceUpdater = new ServiceUpdater(restTemplateFactory) {
-            @Override
-            protected CloudEntityResourceMapper getResourceMapper() {
-                return resourceMapper;
-            }
-        };
+        this.serviceUpdater = new ServiceUpdater(restTemplateFactory, resourceMapper);
         prepareClient();
     }
 
