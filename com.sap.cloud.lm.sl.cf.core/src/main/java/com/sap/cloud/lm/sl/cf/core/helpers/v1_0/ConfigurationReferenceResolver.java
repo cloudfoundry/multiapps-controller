@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
+import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
 public class ConfigurationReferenceResolver {
@@ -76,7 +76,7 @@ public class ConfigurationReferenceResolver {
     }
 
     protected Map<String, Object> mergeProperties(Resource resource, ConfigurationEntry configurationEntry) throws ParsingException {
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PropertiesAdapterFactory())
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MapWithNumbersAdapterFactory())
             .create();
         Map<String, Object> contentMap = gson.fromJson(configurationEntry.getContent(), new TypeToken<Map<String, Object>>() {
         }.getType());

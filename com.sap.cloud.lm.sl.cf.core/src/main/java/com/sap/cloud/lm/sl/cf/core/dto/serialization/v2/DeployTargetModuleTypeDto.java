@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
-import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
+import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.mta.model.v2_0.TargetModuleType;
 
@@ -17,11 +17,11 @@ public class DeployTargetModuleTypeDto {
     @XmlElement
     private String name;
     @Expose
-    @JsonAdapter(PropertiesAdapterFactory.class)
+    @JsonAdapter(MapWithNumbersAdapterFactory.class)
     @XmlJavaTypeAdapter(PropertiesAdapter.class)
     private Map<String, Object> properties;
     @Expose
-    @JsonAdapter(PropertiesAdapterFactory.class)
+    @JsonAdapter(MapWithNumbersAdapterFactory.class)
     @XmlJavaTypeAdapter(PropertiesAdapter.class)
     private Map<String, Object> parameters;
 

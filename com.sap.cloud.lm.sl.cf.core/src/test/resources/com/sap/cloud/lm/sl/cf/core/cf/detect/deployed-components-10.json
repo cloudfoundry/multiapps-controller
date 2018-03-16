@@ -12,9 +12,9 @@
           "services": [],
           "providedDependencyNames": [],
           "deployAttributes": {
-            "success-marker": "SUCCESS",
+            "executeApp": true,
             "failure-marker": "FAILURE",
-            "executeApp": true
+            "success-marker": "SUCCESS"
           }
         }
       ],
