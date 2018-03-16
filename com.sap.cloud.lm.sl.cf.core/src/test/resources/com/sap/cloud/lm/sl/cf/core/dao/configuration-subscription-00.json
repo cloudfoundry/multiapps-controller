@@ -24,9 +24,9 @@
   "resourceDto": {
     "name": "plugin",
     "properties": {
-      "foo": "foo",
       "bar": "bar",
-      "baz": "baz"
+      "baz": "baz",
+      "foo": "foo"
     }
   }
 }

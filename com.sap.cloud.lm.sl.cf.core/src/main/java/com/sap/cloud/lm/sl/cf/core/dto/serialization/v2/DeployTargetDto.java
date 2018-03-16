@@ -16,7 +16,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
-import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
+import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.common.model.xml.Wrapper;
 import com.sap.cloud.lm.sl.mta.model.v2_0.TargetModuleType;
@@ -47,7 +47,7 @@ public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.serializati
     private String description;
 
     @Expose
-    @JsonAdapter(PropertiesAdapterFactory.class)
+    @JsonAdapter(MapWithNumbersAdapterFactory.class)
     @XmlJavaTypeAdapter(PropertiesAdapter.class)
     private Map<String, Object> parameters;
 

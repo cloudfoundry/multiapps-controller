@@ -56,7 +56,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.BinaryJson;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
+import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
@@ -191,7 +191,7 @@ public class StepsUtil {
     }
 
     private static BinaryJson getBinaryJsonForMtaModel() {
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PropertiesAdapterFactory())
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MapWithNumbersAdapterFactory())
             .create();
         return new BinaryJson(gson);
     }
@@ -637,7 +637,7 @@ public class StepsUtil {
         Map<String, Object> replacementValues = getXsPlaceholderReplacementValues(context);
         XsPlaceholderResolver resolver = new XsPlaceholderResolver();
         resolver.setControllerEndpoint((String) replacementValues.get(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER));
-        resolver.setRouterPort(((Double) replacementValues.get(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER)).intValue());
+        resolver.setRouterPort((int) replacementValues.get(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER));
         resolver.setAuthorizationEndpoint((String) replacementValues.get(SupportedParameters.XSA_AUTHORIZATION_ENDPOINT_PLACEHOLDER));
         resolver.setDeployServiceUrl((String) replacementValues.get(SupportedParameters.XSA_DEPLOY_SERVICE_URL_PLACEHOLDER));
         resolver.setProtocol((String) replacementValues.get(SupportedParameters.XSA_PROTOCOL_PLACEHOLDER));

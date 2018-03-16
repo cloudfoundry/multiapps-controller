@@ -16,7 +16,7 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
-import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
+import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 
 @XmlRootElement(name = "configuration-filter")
@@ -129,7 +129,7 @@ public class ConfigurationFilter {
                 return null;
             }
             try {
-                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new PropertiesAdapterFactory())
+                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MapWithNumbersAdapterFactory())
                     .create();
                 return gson.fromJson(content, new TypeToken<Map<String, Object>>() {
                 }.getType());
