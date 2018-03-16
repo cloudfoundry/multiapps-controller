@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,8 +13,11 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class CustomControllerClient {
 
-    @Inject
-    protected RestTemplateFactory restTemplateFactory;
+    private RestTemplateFactory restTemplateFactory;
+
+    protected CustomControllerClient(RestTemplateFactory restTemplateFactory) {
+        this.restTemplateFactory = restTemplateFactory;
+    }
 
     protected RestTemplate getRestTemplate(CloudFoundryOperations client) {
         return restTemplateFactory.getRestTemplate(client);

@@ -34,11 +34,11 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
     private CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
     public CFOptimizedSpaceGetter() {
-        this(new RestTemplateFactory());
+        super();
     }
 
     protected CFOptimizedSpaceGetter(RestTemplateFactory restTemplateFactory) {
-        this.restTemplateFactory = restTemplateFactory;
+        super(restTemplateFactory);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
     }
 
     private List<Map<String, Object>> attemptToFindSpace(CloudFoundryOperations client, String orgName, String spaceName) {
-        RestTemplate restTemplate = restTemplateFactory.getRestTemplate(client);
+        RestTemplate restTemplate = getRestTemplate(client);
         String url = buildEndpoint(orgName, spaceName);
 
         String orgGuid = getOrgGuid(client, orgName);
@@ -170,7 +170,7 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
     }
 
     private CloudSpace attemptToGetSpace(CloudFoundryOperations client, String spaceId) {
-        RestTemplate restTemplate = restTemplateFactory.getRestTemplate(client);
+        RestTemplate restTemplate = getRestTemplate(client);
         String url = getUrlForEndpoint(client, GET_SPACE_ENDPOINT);
         Map<String, Object> urlVariables = MapUtil.asMap("id", spaceId);
         return executeGetSpaceRequest(restTemplate, url, urlVariables);

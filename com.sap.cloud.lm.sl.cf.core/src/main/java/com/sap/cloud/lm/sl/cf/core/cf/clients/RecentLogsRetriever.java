@@ -32,8 +32,13 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 public class RecentLogsRetriever extends CustomControllerClient {
 
+    private final LoggingEndpointGetter loggingEndpointGetter;
+
     @Inject
-    protected LoggingEndpointGetter loggingEndpointGetter;
+    public RecentLogsRetriever(RestTemplateFactory restTemplateFactory, LoggingEndpointGetter loggingEndpointGetter) {
+        super(restTemplateFactory);
+        this.loggingEndpointGetter = loggingEndpointGetter;
+    }
 
     public List<ApplicationLog> getRecentLogs(CloudFoundryOperations client, String appName) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetRecentLogs(client, appName));

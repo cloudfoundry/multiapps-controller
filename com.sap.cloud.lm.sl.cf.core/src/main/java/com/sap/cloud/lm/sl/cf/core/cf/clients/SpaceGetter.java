@@ -12,6 +12,14 @@ import org.springframework.http.HttpStatus;
 
 public class SpaceGetter extends CustomControllerClient {
 
+    public SpaceGetter() {
+        this(new RestTemplateFactory());
+    }
+
+    protected SpaceGetter(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
+
     public CloudSpace findSpace(CloudFoundryOperations client, String orgName, String spaceName) {
         return filterSpaces(client, orgName, spaceName).findAny()
             .orElse(null);

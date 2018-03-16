@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.Staging;
@@ -19,6 +21,11 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
     private static final String COMMAND_PARAMETER = "command";
     private static final String BUILDPACK_PARAMETER = "buildpack";
     private static final String ENABLE_SSH_PARAMETER = "enable_ssh";
+
+    @Inject
+    public ApplicationStagingUpdater(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
 
     public void updateApplicationStaging(CloudFoundryOperations client, String appName, Staging staging) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToUpdateApplicationStaging(client, appName, staging));

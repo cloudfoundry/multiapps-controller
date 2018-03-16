@@ -28,6 +28,10 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
     protected static final String SERVICE_PARAMETERS = "parameters";
     protected static final String SERVICE_TAGS = "tags";
 
+    protected CloudServiceOperator(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
+
     protected CloudServicePlan findPlanForService(CloudService service, RestTemplate restTemplate, String cloudControllerUrl) {
         return findPlanForService(service, service.getPlan(), restTemplate, cloudControllerUrl);
     }

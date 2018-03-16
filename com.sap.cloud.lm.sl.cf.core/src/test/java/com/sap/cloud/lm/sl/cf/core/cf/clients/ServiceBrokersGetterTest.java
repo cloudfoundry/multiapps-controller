@@ -6,7 +6,6 @@ import java.util.Collections;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -25,12 +24,13 @@ public class ServiceBrokersGetterTest {
     private RestTemplateFactory restTemplateFactory;
     @Mock
     private RestTemplate restTemplate;
-    @InjectMocks
-    private ServiceBrokersGetter serviceBrokersGetter = new ServiceBrokersGetter();
+
+    private ServiceBrokersGetter serviceBrokersGetter;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        this.serviceBrokersGetter = new ServiceBrokersGetter(restTemplateFactory);
         String getServiceBrokersResponse = TestUtil.getResourceAsString("valid-get-service-brokers-response.json", getClass());
         Mockito.when(client.getCloudControllerUrl())
             .thenReturn(new URL(CONTROLLER_URL));

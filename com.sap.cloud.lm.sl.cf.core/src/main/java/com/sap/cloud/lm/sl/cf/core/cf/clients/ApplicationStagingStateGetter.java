@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
@@ -14,6 +16,11 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class ApplicationStagingStateGetter extends CustomControllerClient {
 
     private static final String STAGING_STATE_ATTRIBUTE_NAME = "package_state";
+
+    @Inject
+    public ApplicationStagingStateGetter(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
 
     public ApplicationStagingState getApplicationStagingState(CloudFoundryOperations client, String appName) {
         return new CustomControllerClientErrorHandler()

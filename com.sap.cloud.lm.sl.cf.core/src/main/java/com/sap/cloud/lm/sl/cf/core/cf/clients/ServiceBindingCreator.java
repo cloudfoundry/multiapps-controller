@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
@@ -16,6 +18,11 @@ public class ServiceBindingCreator extends CustomControllerClient {
     private static final String SERVICE_BINDINGS_PARAMETERS = "parameters";
     private static final String SERVICE_INSTANCE_GUID = "service_instance_guid";
     private static final String APP_GUID = "app_guid";
+
+    @Inject
+    public ServiceBindingCreator(RestTemplateFactory restTemplateFactory) {
+        super(restTemplateFactory);
+    }
 
     public void bindService(CloudFoundryOperations client, String appName, String serviceName, Map<String, Object> parameters) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToBindService(client, appName, serviceName, parameters));
