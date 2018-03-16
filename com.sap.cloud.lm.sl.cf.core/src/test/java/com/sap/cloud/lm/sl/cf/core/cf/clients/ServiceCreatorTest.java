@@ -136,12 +136,7 @@ public class ServiceCreatorTest {
     @Before
     public void setUp() throws MalformedURLException {
         MockitoAnnotations.initMocks(this);
-        this.serviceCreator = new ServiceCreator(restTemplateFactory) {
-            @Override
-            protected CloudEntityResourceMapper getResourceMapper() {
-                return resourceMapper;
-            }
-        };
+        this.serviceCreator = new ServiceCreator(restTemplateFactory, resourceMapper);
         setUpException();
         setUpExistingOfferings();
         setUpServiceRequests();

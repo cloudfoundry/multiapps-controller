@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,10 @@ public class ServiceUpdater extends CloudServiceOperator {
     @Inject
     public ServiceUpdater(RestTemplateFactory restTemplateFactory) {
         super(restTemplateFactory);
+    }
+
+    protected ServiceUpdater(RestTemplateFactory restTemplateFactory, CloudEntityResourceMapper resourceMapper) {
+        super(restTemplateFactory, resourceMapper);
     }
 
     public void updateServicePlanQuietly(CloudFoundryOperations client, String serviceName, String servicePlan) {
