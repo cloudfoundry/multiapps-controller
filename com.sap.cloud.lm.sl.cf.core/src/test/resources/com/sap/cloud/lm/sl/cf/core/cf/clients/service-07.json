@@ -4,27 +4,13 @@
       
     },
     "name": "foo",
-    "label": "postgresql",
-    "alternativeLabels": [
-      "postgresql-trial"
-    ],
+    "label": "hana",
     "tags": [],
     "credentials": {
-      
+      "username": "FsiGRKTK1[@nJLmI",
+      "password": "Xw]*Pw11&dnT(mL[",
+      "admin": true
     },
-    "plan": "v9.4-large"
-  },
-  "expectedExchanges": [
-    {
-      "requestBody": {
-        "space_guid": "TEST_SPACE",
-        "name": "foo",
-        "service_plan_guid": "edce0629-89d6-4503-aff1-158824f80fab",
-        "parameters": {
-          
-        },
-        "tags": []
-      }
-    }
-  ]
+    "plan": "v2.0-sp3"
+  }
 }

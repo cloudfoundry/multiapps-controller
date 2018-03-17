@@ -56,29 +56,45 @@ public class ServiceCreatorTest extends CloudServiceOperatorTest {
             {
                 "service-06.json", "Could not create service instance \"foo\". Service plan \"v3.4-extra-large\" from service offering \"mongodb\" was not found.", CloudFoundryException.class
             },
-            // (6) Service has defined alternatives and default offering is matching:
+            // (6) Service offering doesn't exist:
             {
-                "service-07.json",  null, null
+                "service-07.json", "Could not create service instance \"foo\". Service plan \"v2.0-sp3\" from service offering \"hana\" was not found.", CloudFoundryException.class
             },
-            // (7) Service has defined alternatives and one of them is used, because the default offering does not exist:
+            // (7) Service has defined alternatives and default offering is matching:
             {
                 "service-08.json",  null, null
             },
-            // (8) Service has defined alternatives and one of them is used, because creating with the default offering fails:
+            // (8) Service has defined alternatives and one of them is used, because the default offering does not exist:
             {
                 "service-09.json",  null, null
             },
-            // (9) Service has defined alternatives, but none of them exist:
+            // (9) Service has defined alternatives and one of them is used, because creating with the default offering fails:
             {
-                "service-10.json",  "Service \"foo\" could not be created because none of the service offering(s) \"[mysql, mysql-trial]\" match with existing service offerings or provide service plan \"v5.7-small\"" , CloudFoundryException.class
+                "service-10.json",  null, null
             },
-            // (10) Service has defined alternatives and one of them is used, because the default offering does not provide the required service plan:
+            // (10) Service has defined alternatives, but none of them exist:
             {
-                "service-11.json",  null, null
+                "service-11.json",  "Service \"foo\" could not be created because none of the service offering(s) \"[mysql, mysql-trial]\" match with existing service offerings or provide service plan \"v5.7-small\"" , CloudFoundryException.class
             },
-            // (11) Service with tags:
+            // (11) Service has defined alternatives that exist, but do not provide the required plan:
             {
-                "service-12.json",  null, null
+                "service-12.json",  "Service \"foo\" could not be created because none of the service offering(s) \"[postgresql, postgresql-trial]\" match with existing service offerings or provide service plan \"v9.6-small\"" , CloudFoundryException.class
+            },
+            // (12) Service has defined alternatives and one of them is used, because the default offering does not provide the required service plan:
+            {
+                "service-13.json",  null, null
+            },
+            // (13) Service has defined alternatives, but creating a service fails with all of them:
+            {
+                "service-14.json",  "400 Could not create service \"foo\"", CloudFoundryException.class
+            },
+            // (14) Service with tags:
+            {
+                "service-15.json",  null, null
+            },
+            // (15) Service has defined alternatives, but the creation fails with 401 Unauthorized:
+            {
+                "service-16.json", "401 Unauthorized", CloudFoundryException.class
             },
 // @formatter:on
         });

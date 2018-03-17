@@ -4,27 +4,14 @@
       
     },
     "name": "foo",
-    "label": "postgresql",
+    "label": "mysql",
     "alternativeLabels": [
-      "postgresql-trial"
+      "mysql-trial"
     ],
     "tags": [],
     "credentials": {
       
     },
-    "plan": "v9.6-medium"
-  },
-  "expectedExchanges": [
-    {
-      "requestBody": {
-        "space_guid": "TEST_SPACE",
-        "name": "foo",
-        "service_plan_guid": "34a895ae-9f8a-4cbc-9531-e272374cba6b",
-        "parameters": {
-          
-        },
-        "tags": []
-      }
-    }
-  ]
+    "plan": "v5.7-small"
+  }
 }
