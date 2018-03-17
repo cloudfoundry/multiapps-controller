@@ -4,22 +4,22 @@
       
     },
     "name": "foo",
-    "label": "hana",
+    "label": "postgresql",
     "alternativeLabels": [
-      "hana-trial"
+      "postgresql-trial"
     ],
     "tags": [],
     "credentials": {
       
     },
-    "plan": "v2.0-sp3"
+    "plan": "v9.6-medium"
   },
   "expectedExchanges": [
     {
       "requestBody": {
         "space_guid": "TEST_SPACE",
         "name": "foo",
-        "service_plan_guid": "6ed9aa0c-4d8f-412f-989f-26a19fa366aa",
+        "service_plan_guid": "34a895ae-9f8a-4cbc-9531-e272374cba6b",
         "parameters": {
           
         },

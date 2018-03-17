@@ -4,26 +4,29 @@
       
     },
     "name": "foo",
-    "label": "hana",
-    "alternativeLabels": [
-      "hana-trial"
+    "label": "mongodb",
+    "tags": [
+      "mongodb",
+      "db"
     ],
-    "tags": [],
     "credentials": {
       
     },
-    "plan": "v2.0-sp3"
+    "plan": "v3.4-large"
   },
   "expectedExchanges": [
     {
       "requestBody": {
         "space_guid": "TEST_SPACE",
         "name": "foo",
-        "service_plan_guid": "6ed9aa0c-4d8f-412f-989f-26a19fa366aa",
+        "service_plan_guid": "5ce47ab7-eebc-42ce-8667-ea5e20496162",
         "parameters": {
           
         },
-        "tags": []
+        "tags": [
+          "mongodb",
+          "db"
+        ]
       }
     }
   ]

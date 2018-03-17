@@ -12,19 +12,32 @@
     "credentials": {
       
     },
-    "plan": "v9.4-large"
+    "plan": "v9.6-large"
   },
   "expectedExchanges": [
     {
       "requestBody": {
         "space_guid": "TEST_SPACE",
         "name": "foo",
-        "service_plan_guid": "edce0629-89d6-4503-aff1-158824f80fab",
+        "service_plan_guid": "61626e4f-683f-4952-984c-b3ccc7254225",
         "parameters": {
           
         },
         "tags": []
-      }
+      },
+      "responseCode": 403
+    },
+    {
+      "requestBody": {
+        "space_guid": "TEST_SPACE",
+        "name": "foo",
+        "service_plan_guid": "6e0f00cc-3b44-4e2c-96ed-9b5b4aeaf7a3",
+        "parameters": {
+          
+        },
+        "tags": []
+      },
+      "responseCode": 403
     }
   ]
 }
