@@ -1,20 +1,30 @@
 {
   "service": {
-    "resourceName": "test",
-    "credentials": {
-      "password": "test-pass",
-      "url": "test-url",
-      "user": "test-user"
+    "meta": {
+      
     },
+    "name": "foo",
+    "label": "postgresql",
+    "alternativeLabels": [
+      "postgresql-trial"
+    ],
     "tags": [],
-    "meta": {},
-    "name": "com.sap.sample.mta.test",
-    "label": "default-label",
-    "plan": "test-plan",
-    "alternativeLabels": ["alternative-label"]
+    "credentials": {
+      
     },
-  "existingServiceOfferings" : {
-    "default-label": ["test-plan"],
-    "alternative-label": ["test-plan"]
-   }
+    "plan": "v9.4-large"
+  },
+  "expectedExchanges": [
+    {
+      "requestBody": {
+        "space_guid": "TEST_SPACE",
+        "name": "foo",
+        "service_plan_guid": "edce0629-89d6-4503-aff1-158824f80fab",
+        "parameters": {
+          
+        },
+        "tags": []
+      }
+    }
+  ]
 }

@@ -1,15 +1,16 @@
 {
   "service": {
-    "resourceName": "test",
-    "credentials": {
-      "password": "test-pass",
-      "url": "test-url",
-      "user": "test-user"
+    "meta": {
+      
     },
+    "name": "foo",
+    "label": "mongodb",
     "tags": [],
-    "meta": {},
-    "name": "test-service",
-    "label": "some-label",
-    "plan": "different-plan"
-    }
+    "credentials": {
+      "username": "FsiGRKTK1[@nJLmI",
+      "password": "Xw]*Pw11&dnT(mL[",
+      "admin": true
+    },
+    "plan": "v3.4-extra-large"
+  }
 }

@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudService;
-import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
+import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -31,10 +31,6 @@ public class ServiceUpdater extends CloudServiceOperator {
         super(restTemplateFactory);
     }
 
-    protected ServiceUpdater(RestTemplateFactory restTemplateFactory, CloudEntityResourceMapper resourceMapper) {
-        super(restTemplateFactory, resourceMapper);
-    }
-
     public void updateServicePlanQuietly(CloudFoundryOperations client, String serviceName, String servicePlan) {
         ignoreBadGatewayErrors(() -> updateServicePlan(client, serviceName, servicePlan));
     }
@@ -51,15 +47,11 @@ public class ServiceUpdater extends CloudServiceOperator {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToUpdateServiceTags(client, serviceName, serviceTags));
     }
 
-    private void attemptToUpdateServicePlan(CloudFoundryOperations client, String serviceName, String servicePlan) {
+    private void attemptToUpdateServicePlan(CloudFoundryOperations client, String serviceName, String servicePlanName) {
         CloudService service = client.getService(serviceName);
 
-        RestTemplate restTemplate = getRestTemplate(client);
-        String cloudControllerUrl = getCloudControllerUrl(client);
-
-        String servicePlanGuid = findPlanForService(service, servicePlan, restTemplate, cloudControllerUrl).getMeta()
-            .getGuid()
-            .toString();
+        CloudServicePlan servicePlan = findPlanForService(client, service, servicePlanName);
+        String servicePlanGuid = servicePlan.getMeta().getGuid().toString();
         attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_PLAN_GUID, servicePlanGuid);
     }
 

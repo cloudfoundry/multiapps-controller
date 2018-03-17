@@ -1,15 +1,33 @@
 {
   "service": {
-    "resourceName": "test",
-    "credentials": {
-      "password": "test-pass",
-      "url": "test-url",
-      "user": "test-user"
+    "meta": {
+      
     },
-    "tags": ["tag1", "tag2"],
-    "meta": {},
-    "name": "com.sap.sample.mta.test",
-    "label": "some-label",
-    "plan": "test-plan"
+    "name": "foo",
+    "label": "mongodb",
+    "tags": [
+      "mongodb",
+      "db"
+    ],
+    "credentials": {
+      
+    },
+    "plan": "v3.4-large"
+  },
+  "expectedExchanges": [
+    {
+      "requestBody": {
+        "space_guid": "TEST_SPACE",
+        "name": "foo",
+        "service_plan_guid": "5ce47ab7-eebc-42ce-8667-ea5e20496162",
+        "parameters": {
+          
+        },
+        "tags": [
+          "mongodb",
+          "db"
+        ]
+      }
     }
+  ]
 }

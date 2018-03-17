@@ -1,24 +1,24 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
+import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.client.RestTemplate;
 
+import com.google.gson.reflect.TypeToken;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 public abstract class CloudServiceOperatorTest {
 
     private static final String CONTROLLER_URL = "https://api.cf.sap.hana.ondemand.com";
-    private static final String SERVICES_ENDPOINT = "/v2/services?inline-relations-depth=1";
-
     private static final String SERVICE_OFFERINGS_RESPONSE_PATH = "service-offerings.json";
 
     @Mock
@@ -31,20 +31,8 @@ public abstract class CloudServiceOperatorTest {
     @Before
     public void prepareClients() throws IOException {
         MockitoAnnotations.initMocks(this);
-        prepareRestTemplate();
         prepareRestTemplateFactory();
         prepareClient();
-    }
-
-    private void prepareRestTemplate() throws IOException {
-        String serviceOfferingsResponse = getResourceAsString(SERVICE_OFFERINGS_RESPONSE_PATH);
-        String serviceOfferingsUrl = CONTROLLER_URL + SERVICES_ENDPOINT;
-        Mockito.when(restTemplate.getForObject(serviceOfferingsUrl, String.class, Collections.emptyMap()))
-            .thenReturn(serviceOfferingsResponse);
-    }
-
-    private String getResourceAsString(String serviceOfferingsResponsePath) throws IOException {
-        return TestUtil.getResourceAsString(serviceOfferingsResponsePath, getClass());
     }
 
     private void prepareRestTemplateFactory() {
@@ -52,10 +40,20 @@ public abstract class CloudServiceOperatorTest {
             .thenReturn(restTemplate);
     }
 
-    private void prepareClient() throws MalformedURLException {
+    private void prepareClient() throws IOException {
         URL controllerUrl = new URL(CONTROLLER_URL);
         Mockito.when(client.getCloudControllerUrl())
             .thenReturn(controllerUrl);
+
+        List<CloudServiceOffering> serviceOfferings = loadServiceOfferingsFromFile(SERVICE_OFFERINGS_RESPONSE_PATH);
+        Mockito.when(client.getServiceOfferings())
+            .thenReturn(serviceOfferings);
+    }
+
+    private List<CloudServiceOffering> loadServiceOfferingsFromFile(String filePath) throws IOException {
+        String serviceOfferingsJson = TestUtil.getResourceAsString(filePath, getClass());
+        return JsonUtil.fromJson(serviceOfferingsJson, new TypeToken<List<CloudServiceOffering>>() {
+        }.getType());
     }
 
     protected static String getControllerUrl() {

@@ -16,7 +16,6 @@ import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
-import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -33,10 +32,6 @@ public class ServiceCreator extends CloudServiceOperator {
     @Inject
     public ServiceCreator(RestTemplateFactory restTemplateFactory) {
         super(restTemplateFactory);
-    }
-
-    protected ServiceCreator(RestTemplateFactory restTemplateFactory, CloudEntityResourceMapper resourceMapper) {
-        super(restTemplateFactory, resourceMapper);
     }
 
     public void createService(CloudFoundryOperations client, CloudServiceExtended service, String spaceId) {
@@ -127,7 +122,7 @@ public class ServiceCreator extends CloudServiceOperator {
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = client.getCloudControllerUrl()
             .toString();
-        CloudServicePlan cloudServicePlan = findPlanForService(service, restTemplate, cloudControllerUrl);
+        CloudServicePlan cloudServicePlan = findPlanForService(client, service);
 
         Map<String, Object> serviceRequest = createServiceRequest(service, spaceId, cloudServicePlan);
         restTemplate.postForObject(getUrl(cloudControllerUrl, CREATE_SERVICE_URL_ACCEPTS_INCOMPLETE_TRUE), serviceRequest, String.class);
@@ -138,7 +133,8 @@ public class ServiceCreator extends CloudServiceOperator {
         serviceRequest.put(SPACE_GUID, spaceId);
         serviceRequest.put(SERVICE_NAME, service.getName());
         serviceRequest.put(SERVICE_PLAN_GUID, cloudServicePlan.getMeta()
-            .getGuid());
+            .getGuid()
+            .toString());
         serviceRequest.put(SERVICE_PARAMETERS, service.getCredentials());
         serviceRequest.put(SERVICE_TAGS, service.getTags());
         return serviceRequest;
