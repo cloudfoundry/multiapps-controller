@@ -1,11 +1,27 @@
 {
   "service": {
-    "resourceName": "test",
-    "credentials": {},
+    "meta": {
+      
+    },
+    "name": "foo",
+    "label": "mongodb",
     "tags": [],
-    "meta": {},
-    "name": "com.sap.sample.mta.test",
-    "label": "some-label",
-    "plan": "test-plan"
+    "credentials": {
+      
+    },
+    "plan": "v3.4-large"
+  },
+  "expectedExchanges": [
+    {
+      "requestBody": {
+        "space_guid": "TEST_SPACE",
+        "name": "foo",
+        "service_plan_guid": "5ce47ab7-eebc-42ce-8667-ea5e20496162",
+        "parameters": {
+          
+        },
+        "tags": []
+      }
     }
+  ]
 }

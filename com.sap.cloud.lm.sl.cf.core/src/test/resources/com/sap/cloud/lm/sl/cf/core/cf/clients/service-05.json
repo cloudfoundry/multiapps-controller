@@ -1,14 +1,15 @@
 {
   "service": {
-    "resourceName": "test",
-    "credentials": {
-      "password": "test-pass",
-      "url": "test-url",
-      "user": "test-user"
+    "meta": {
+      
     },
+    "name": "foo",
+    "label": "mongodb",
     "tags": [],
-    "meta": {},
-    "name": "com.sap.sample.mta.test",
-    "label": "some-label"
+    "credentials": {
+      "username": "FsiGRKTK1[@nJLmI",
+      "password": "Xw]*Pw11&dnT(mL[",
+      "admin": true
     }
+  }
 }
