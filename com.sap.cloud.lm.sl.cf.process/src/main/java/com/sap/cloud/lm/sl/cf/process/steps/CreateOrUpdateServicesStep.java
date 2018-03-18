@@ -357,7 +357,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         if (service.isUserProvided()) {
             client.createUserProvidedService(service, service.getCredentials());
         } else {
-            serviceCreatorFactory.createInstance()
+            serviceCreatorFactory.createInstance(getStepLogger())
                 .createService(client, service, StepsUtil.getSpaceId(context));
         }
         getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());

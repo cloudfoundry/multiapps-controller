@@ -130,7 +130,7 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
 
     @Before
     public void setUp() throws Exception {
-        Mockito.when(serviceCreatorFactory.createInstance())
+        Mockito.when(serviceCreatorFactory.createInstance(Mockito.any()))
             .thenReturn(serviceCreator);
         loadParameters();
         prepareContext();
