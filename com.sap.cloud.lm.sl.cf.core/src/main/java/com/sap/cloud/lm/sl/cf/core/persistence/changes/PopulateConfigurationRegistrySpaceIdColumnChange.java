@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import org.apache.commons.lang.StringUtils;
 import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.CloudFoundryClient;
+import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,29 +45,26 @@ public class PopulateConfigurationRegistrySpaceIdColumnChange implements AsyncCh
         }
         LOGGER.info("Executing PopulateConfigurationRegistrySpaceIdColumnChange...");
         Map<Long, ConfigurationEntry> extractedConfigurationEntries = extractData();
-        Map<Long, ConfigurationEntry> transformedonfigurationEntries = transformData(extractedConfigurationEntries);
-        updateConfigurationEntries(transformedonfigurationEntries);
+        Map<Long, ConfigurationEntry> transformedConfigurationEntries = transformData(extractedConfigurationEntries);
+        updateConfigurationEntries(transformedConfigurationEntries);
         LOGGER.info("Executed PopulateConfigurationRegistrySpaceIdColumnChange.");
     }
 
     private void updateConfigurationEntries(Map<Long, ConfigurationEntry> transformedData) {
-        ConfigurationEntry configurationEntry;
         for (Long id : transformedData.keySet()) {
-            configurationEntry = transformedData.get(id);
+            ConfigurationEntry configurationEntry = transformedData.get(id);
             entryDao.update(id, configurationEntry);
         }
     }
 
     protected Map<Long, ConfigurationEntry> transformData(Map<Long, ConfigurationEntry> retrievedData) {
         HashMap<Long, ConfigurationEntry> result = new HashMap<>();
-        CloudFoundryClient cfClient = getCFClient();
-        CloudTarget cloudTarget;
-        String organization, space;
+        CloudFoundryOperations cfClient = getCFClient();
         for (Long id : retrievedData.keySet()) {
-            cloudTarget = retrievedData.get(id)
+            CloudTarget cloudTarget = retrievedData.get(id)
                 .getTargetSpace();
-            organization = cloudTarget.getOrg();
-            space = cloudTarget.getSpace();
+            String organization = cloudTarget.getOrg();
+            String space = cloudTarget.getSpace();
             if (StringUtils.isEmpty(space)) {
                 continue;
             }
@@ -86,7 +84,6 @@ public class PopulateConfigurationRegistrySpaceIdColumnChange implements AsyncCh
 
     protected Map<Long, ConfigurationEntry> extractData() {
         Map<Long, ConfigurationEntry> result = new HashMap<>();
-        CloudTarget cloudTarget;
         List<ConfigurationEntry> allConfigurationEntries = getAllConfigurationEntries();
 
         for (ConfigurationEntry configurationEntry : allConfigurationEntries) {
@@ -94,7 +91,7 @@ public class PopulateConfigurationRegistrySpaceIdColumnChange implements AsyncCh
                 continue;
             }
             long id = configurationEntry.getId();
-            cloudTarget = configurationEntry.getTargetSpace();
+            CloudTarget cloudTarget = configurationEntry.getTargetSpace();
             result.put(id, configurationEntry);
             LOGGER.debug(String.format("Retrieve data from row ID: '%s', TARGET_ORG: '%s' and TARGET_SPACE: '%s'", id, cloudTarget.getOrg(),
                 cloudTarget.getSpace()));
@@ -106,7 +103,7 @@ public class PopulateConfigurationRegistrySpaceIdColumnChange implements AsyncCh
         return entryDao.findAll();
     }
 
-    protected String getSpaceId(String orgName, String spaceName, CloudFoundryClient cfClient) {
+    protected String getSpaceId(String orgName, String spaceName, CloudFoundryOperations cfClient) {
         CloudSpace cloudSpace = cfOptimizedSpaceGetter.findSpace(cfClient, orgName, spaceName);
         if (cloudSpace == null) {
             return null;
@@ -117,14 +114,14 @@ public class PopulateConfigurationRegistrySpaceIdColumnChange implements AsyncCh
             .toString();
     }
 
-    protected CloudFoundryClient getCFClient() {
+    protected CloudFoundryOperations getCFClient() {
         CloudCredentials cloudCredentials = new CloudCredentials(Configuration.getInstance()
             .getGlobalAuditorUser(),
             Configuration.getInstance()
                 .getGlobalAuditorPassword(),
             SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
 
-        CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, configuration.getTargetURL(),
+        CloudFoundryOperations cfClient = new CloudFoundryClient(cloudCredentials, configuration.getTargetURL(),
             configuration.shouldSkipSslValidation());
         cfClient.login();
 

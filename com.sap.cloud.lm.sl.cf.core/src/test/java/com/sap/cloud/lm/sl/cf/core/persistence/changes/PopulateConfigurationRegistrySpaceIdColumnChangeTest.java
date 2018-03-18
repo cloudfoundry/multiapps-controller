@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudFoundryClient;
+import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,14 +27,17 @@ public class PopulateConfigurationRegistrySpaceIdColumnChangeTest {
         spaces = getSpaces();
         change = new PopulateConfigurationRegistrySpaceIdColumnChange() {
 
-            protected String getSpaceId(String org, String space, CloudFoundryClient cfClient) {
+            @Override
+            protected String getSpaceId(String org, String space, CloudFoundryOperations cfClient) {
                 return spaces.get(new CloudTarget(org, space));
             }
 
-            protected CloudFoundryClient getCFClient() {
+            @Override
+            protected CloudFoundryOperations getCFClient() {
                 return null;
             }
 
+            @Override
             protected List<ConfigurationEntry> getAllConfigurationEntries() {
                 List<ConfigurationEntry> configurationEntries = new ArrayList<ConfigurationEntry>(getConfigurationEntries().values());
                 configurationEntries.add(new ConfigurationEntry(6, null, null, null, new CloudTarget("org", "sap"), null, null, "spaceId"));
