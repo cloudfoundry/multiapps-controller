@@ -14,10 +14,12 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -104,6 +106,9 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Mock
+    private UserMessageLogger userMessageLogger;
+    
     private ServiceCreator serviceCreator;
     private ServiceWithAlternativesCreator serviceWithAlternativesCreator;
 
@@ -121,7 +126,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     @Before
     public void setUp() {
         serviceCreator = new ServiceCreator(getMockedRestTemplateFactory());
-        serviceWithAlternativesCreator = new ServiceWithAlternativesCreator(serviceCreator);
+        serviceWithAlternativesCreator = new ServiceWithAlternativesCreator(serviceCreator, userMessageLogger);
         setUpException();
         setUpServiceRequests();
     }

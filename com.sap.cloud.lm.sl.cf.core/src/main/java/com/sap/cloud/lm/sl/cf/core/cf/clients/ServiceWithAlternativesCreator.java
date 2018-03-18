@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
-import static java.text.MessageFormat.format;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,23 +13,22 @@ import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class ServiceWithAlternativesCreator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceWithAlternativesCreator.class);
-
     private final ServiceCreator serviceCreator;
+    private final UserMessageLogger userMessageLogger;
 
-    public ServiceWithAlternativesCreator(ServiceCreator serviceCreator) {
+    public ServiceWithAlternativesCreator(ServiceCreator serviceCreator, UserMessageLogger userMessageLogger) {
         this.serviceCreator = serviceCreator;
+        this.userMessageLogger = userMessageLogger;
     }
 
     public void createService(CloudFoundryOperations client, CloudServiceExtended service, String spaceId) {
@@ -39,8 +36,8 @@ public class ServiceWithAlternativesCreator {
             serviceCreator.createService(client, service, spaceId);
             return;
         }
-        LOGGER.debug(format("Service \"{0}\" has defined service offering alternatives \"{1}\" for default service offering \"{2}\"",
-            service.getName(), service.getAlternativeLabels(), service.getLabel()));
+        userMessageLogger.debug("Service \"{0}\" has defined service offering alternatives \"{1}\" for default service offering \"{2}\"",
+            service.getName(), service.getAlternativeLabels(), service.getLabel());
         List<String> possibleServiceOfferings = computePossibleServiceOfferings(service);
         Map<String, List<CloudServicePlan>> existingServiceOfferings = client.getServiceOfferings()
             .stream()
@@ -49,8 +46,8 @@ public class ServiceWithAlternativesCreator {
             existingServiceOfferings);
 
         if (CollectionUtils.isEmpty(validServiceOfferings)) {
-            throw new SLException(Messages.CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN,
-                service.getName(), possibleServiceOfferings, service.getPlan());
+            throw new SLException(Messages.CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN, service.getName(), possibleServiceOfferings,
+                service.getPlan());
         }
 
         attemptToFindServiceOfferingAndCreateService(client, service, spaceId, validServiceOfferings);
@@ -67,7 +64,7 @@ public class ServiceWithAlternativesCreator {
         List<String> validServiceOfferings = new ArrayList<String>();
         for (String possibleServiceOffering : possibleServiceOfferings) {
             if (!existingServiceOfferings.containsKey(possibleServiceOffering)) {
-                LOGGER.warn(format("Service offering \"{0}\" does not exist", possibleServiceOffering));
+                userMessageLogger.warnWithoutProgressMessage("Service offering \"{0}\" does not exist", possibleServiceOffering);
                 continue;
             }
             Optional<CloudServicePlan> existingCloudServicePlan = existingServiceOfferings.get(possibleServiceOffering)
@@ -75,8 +72,8 @@ public class ServiceWithAlternativesCreator {
                 .filter(servicePlan -> desiredServicePlan.equals(servicePlan.getName()))
                 .findFirst();
             if (!existingCloudServicePlan.isPresent()) {
-                LOGGER.warn(
-                    format("Service offering \"{0}\" does not provide service plan \"{1}\"", possibleServiceOffering, desiredServicePlan));
+                userMessageLogger.warnWithoutProgressMessage("Service offering \"{0}\" does not provide service plan \"{1}\"", possibleServiceOffering,
+                    desiredServicePlan);
                 continue;
             }
             validServiceOfferings.add(possibleServiceOffering);
@@ -95,8 +92,8 @@ public class ServiceWithAlternativesCreator {
                 if (!shouldIgnoreException(e)) {
                     throw e;
                 }
-                LOGGER.warn(format("Service \"{0}\" creation with service offering \"{1}\" failed with \"{2}\"", service.getName(),
-                    validServiceOffering, e.getMessage()));
+                userMessageLogger.warn("Service \"{0}\" creation with service offering \"{1}\" failed with \"{2}\"", service.getName(),
+                    validServiceOffering, e.getMessage());
             }
         }
         throw new SLException(Messages.CANT_CREATE_SERVICE, service.getName(), validServiceOfferings);
@@ -117,8 +114,8 @@ public class ServiceWithAlternativesCreator {
             this.serviceCreator = serviceCreator;
         }
 
-        public ServiceWithAlternativesCreator createInstance() {
-            return new ServiceWithAlternativesCreator(serviceCreator);
+        public ServiceWithAlternativesCreator createInstance(UserMessageLogger userMessageLogger) {
+            return new ServiceWithAlternativesCreator(serviceCreator, userMessageLogger);
         }
 
     }
