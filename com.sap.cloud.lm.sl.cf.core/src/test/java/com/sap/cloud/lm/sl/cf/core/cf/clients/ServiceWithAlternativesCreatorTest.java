@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.common.ParsingException;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -74,11 +75,11 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
             },
             // (10) Service has defined alternatives, but none of them exist:
             {
-                "service-11.json",  "Service \"foo\" could not be created because none of the service offering(s) \"[mysql, mysql-trial]\" match with existing service offerings or provide service plan \"v5.7-small\"" , CloudFoundryException.class
+                "service-11.json",  "Service \"foo\" could not be created because none of the service offering(s) \"[mysql, mysql-trial]\" match with existing service offerings or provide service plan \"v5.7-small\"" , SLException.class
             },
             // (11) Service has defined alternatives that exist, but do not provide the required plan:
             {
-                "service-12.json",  "Service \"foo\" could not be created because none of the service offering(s) \"[postgresql, postgresql-trial]\" match with existing service offerings or provide service plan \"v9.6-small\"" , CloudFoundryException.class
+                "service-12.json",  "Service \"foo\" could not be created because none of the service offering(s) \"[postgresql, postgresql-trial]\" match with existing service offerings or provide service plan \"v9.6-small\"" , SLException.class
             },
             // (12) Service has defined alternatives and one of them is used, because the default offering does not provide the required service plan:
             {
@@ -86,7 +87,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
             },
             // (13) Service has defined alternatives, but creating a service fails with all of them:
             {
-                "service-14.json",  "400 Could not create service \"foo\"", CloudFoundryException.class
+                "service-14.json",  "Service \"foo\" could not be created because all attempt(s) to use service offerings \"[postgresql, postgresql-trial]\" failed", SLException.class
             },
             // (14) Service with tags:
             {

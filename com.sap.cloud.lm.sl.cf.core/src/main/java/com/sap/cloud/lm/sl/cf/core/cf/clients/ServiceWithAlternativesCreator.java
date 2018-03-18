@@ -21,7 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.common.SLException;
 
 public class ServiceWithAlternativesCreator {
 
@@ -48,11 +49,8 @@ public class ServiceWithAlternativesCreator {
             existingServiceOfferings);
 
         if (CollectionUtils.isEmpty(validServiceOfferings)) {
-            LOGGER.error(format(
-                "Service \"{0}\" could not be created because none of the service offering(s) \"{1}\" match with existing service offerings \"{2}\" or provide service plan \"{3}\"",
-                service.getName(), possibleServiceOfferings, existingServiceOfferings.keySet(), service.getPlan()));
-            throw new CloudFoundryException(HttpStatus.BAD_REQUEST, format(Messages.CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN,
-                service.getName(), possibleServiceOfferings, service.getPlan()));
+            throw new SLException(Messages.CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN,
+                service.getName(), possibleServiceOfferings, service.getPlan());
         }
 
         attemptToFindServiceOfferingAndCreateService(client, service, spaceId, validServiceOfferings);
@@ -94,16 +92,14 @@ public class ServiceWithAlternativesCreator {
                 serviceCreator.createService(client, service, spaceId);
                 return;
             } catch (CloudFoundryException e) {
-                LOGGER.warn(format("Service \"{0}\" creation with service offering \"{1}\" failed with \"{2}\"", service.getName(),
-                    validServiceOffering, e.getMessage()));
                 if (!shouldIgnoreException(e)) {
                     throw e;
                 }
+                LOGGER.warn(format("Service \"{0}\" creation with service offering \"{1}\" failed with \"{2}\"", service.getName(),
+                    validServiceOffering, e.getMessage()));
             }
         }
-        LOGGER.error(format("Service \"{0}\" could not be created because all atempt(s) to use service offerings \"{1}\" failed",
-            service.getName(), validServiceOfferings));
-        throw new CloudFoundryException(HttpStatus.BAD_REQUEST, format(Messages.CANT_CREATE_SERVICE, service.getName()));
+        throw new SLException(Messages.CANT_CREATE_SERVICE, service.getName(), validServiceOfferings);
     }
 
     private boolean shouldIgnoreException(CloudFoundryException e) {
