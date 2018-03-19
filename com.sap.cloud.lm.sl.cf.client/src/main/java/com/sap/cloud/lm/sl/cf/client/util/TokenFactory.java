@@ -73,7 +73,7 @@ public class TokenFactory {
     }
 
     private String decode(String string) {
-        Decoder decoder = Base64.getDecoder();
+        Decoder decoder = Base64.getUrlDecoder();
         return new String(decoder.decode(string), StandardCharsets.UTF_8);
     }
 
