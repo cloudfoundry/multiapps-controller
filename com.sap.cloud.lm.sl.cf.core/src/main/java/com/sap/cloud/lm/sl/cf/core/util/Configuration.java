@@ -464,7 +464,7 @@ public class Configuration {
 
     public String getGlobalAuditorPassword() {
         if (globalAuditorPassword == null) {
-            globalAuditorPassword = getAdminPasswordFromEnvironment();
+            globalAuditorPassword = getGlobalAuditorPasswordFromEnvironment();
         }
         return globalAuditorPassword;
     }
@@ -836,7 +836,7 @@ public class Configuration {
         return value;
     }
 
-    private String getAdminPasswordFromEnvironment() {
+    private String getGlobalAuditorPasswordFromEnvironment() {
         String value = getString(CFG_GLOBAL_AUDITOR_PASSWORD, DEFAULT_GLOBAL_AUDITOR_PASSWORD);
         return value;
     }

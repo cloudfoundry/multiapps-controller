@@ -63,7 +63,7 @@ public class AuthorizationUtil {
             .areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }
-        if (isAdminUser(userInfo) || hasAdminScope(userInfo)) {
+        if (hasAdminScope(userInfo)) {
             return true;
         }
         CloudFoundryOperations client = getCloudFoundryClient(clientProvider, userInfo);
@@ -76,7 +76,7 @@ public class AuthorizationUtil {
             .areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }
-        if (isAdminUser(userInfo) || hasAdminScope(userInfo)) {
+        if (hasAdminScope(userInfo)) {
             return true;
         }
         CloudFoundryOperations client = getCloudFoundryClient(clientProvider, userInfo);
@@ -131,12 +131,6 @@ public class AuthorizationUtil {
         return userInfo.getToken()
             .getValue()
             .equals(TokenFactory.DUMMY_TOKEN);
-    }
-
-    private static boolean isAdminUser(UserInfo userInfo) {
-        return userInfo.getName()
-            .equals(Configuration.getInstance()
-                .getGlobalAuditorUser());
     }
 
     private static boolean hasAdminScope(UserInfo userInfo) {
