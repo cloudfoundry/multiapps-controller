@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.jobs;
 
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +51,8 @@ import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 @DisallowConcurrentExecution
 public class CleanUpJob implements Job {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CleanUpJob.class);
+    private static final String LOG_ERROR_MESSAGE_PATTERN = "[Clean up Job] Error during cleaning up: {0}";
 
     @Inject
     private Configuration configuration;
@@ -72,8 +75,6 @@ public class CleanUpJob implements Job {
     @Qualifier("tokenStore")
     TokenStore tokenStore;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CleanUpJob.class);
-
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
@@ -81,18 +82,29 @@ public class CleanUpJob implements Job {
             .toString());
 
         Date expirationTime = getExpirationTime();
+        executeSafely(() -> {
+            abortOldOperationsInStateError(expirationTime);
+        });
 
-        abortOldOperationsInStateError(expirationTime);
+        executeSafely(() -> {
+            cleanUpFinishedOperationsData(expirationTime);
+        });
 
-        cleanUpFinishedOperationsData(expirationTime);
+        executeSafely(() -> {
+            removeActivitiHistoricData(expirationTime);
+        });
 
-        removeActivitiHistoricData(expirationTime);
+        executeSafely(() -> {
+            removeOldOrphanedFiles(expirationTime);
+        });
 
-        removeOldOrphanedFiles(expirationTime);
+        executeSafely(() -> {
+            removeExpiredTokens();
+        });
 
-        removeExpiredTokens();
-
-        executeDataTerminationJob();
+        executeSafely(() -> {
+            executeDataTerminationJob();
+        });
 
         LOGGER.info("Cleanup Job finished at: " + Instant.now()
             .toString());
@@ -290,6 +302,14 @@ public class CleanUpJob implements Job {
         for (Operation finishedOperation : finishedOperations) {
             finishedOperation.setCleanedUp(true);
             dao.merge(finishedOperation);
+        }
+    }
+
+    private void executeSafely(Runnable r) {
+        try {
+            r.run();
+        } catch (Exception e) {
+            LOGGER.error(MessageFormat.format(LOG_ERROR_MESSAGE_PATTERN, e.getMessage()), e);
         }
     }
 }
