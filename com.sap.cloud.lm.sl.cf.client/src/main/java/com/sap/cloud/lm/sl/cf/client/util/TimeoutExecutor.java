@@ -45,24 +45,18 @@ public class TimeoutExecutor {
         }
     }
 
-    public <T> T executeWithTimeout(Callable<T> task) throws Exception {
+    public <T> T executeWithTimeout(Callable<T> task) throws ExecutionException {
         return executeWithTimeout(task, timeout);
     }
 
-    public <T> T executeWithTimeout(Callable<T> task, int timeout) throws Exception {
+    public <T> T executeWithTimeout(Callable<T> task, int timeout) throws ExecutionException {
         Future<T> future = submitTask(task);
         T result = null;
         try {
             result = future.get(timeout, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
             future.cancel(true);
-            Throwable cause = e.getCause();
-            // if we got an unchecked exception throw it as it is
-            if (cause instanceof Error) {
-                throw (Error) cause;
-            }
-
-            throw (Exception) e.getCause();
+            throw e;
         } catch (TimeoutException e) {
             future.cancel(true);
             throw new SLException(e, MessageFormat.format("Operation timed out after {0} seconds", timeout));
