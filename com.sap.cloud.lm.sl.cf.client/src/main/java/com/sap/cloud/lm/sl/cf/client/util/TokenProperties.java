@@ -14,7 +14,7 @@ public class TokenProperties {
     private String userName;
     private String userId;
 
-    protected TokenProperties(String clientId, String userName, String userId) {
+    public TokenProperties(String clientId, String userId, String userName) {
         this.clientId = clientId;
         this.userName = userName;
         this.userId = userId;
@@ -36,7 +36,7 @@ public class TokenProperties {
         String clientId = (String) getTokenProperty(token, CLIENT_ID_KEY);
         String userName = (String) getTokenProperty(token, USER_NAME_KEY);
         String userId = (String) getTokenProperty(token, USER_ID_KEY);
-        return new TokenProperties(clientId, userName, userId);
+        return new TokenProperties(clientId, userId, userName);
     }
 
     @SuppressWarnings("unchecked")
