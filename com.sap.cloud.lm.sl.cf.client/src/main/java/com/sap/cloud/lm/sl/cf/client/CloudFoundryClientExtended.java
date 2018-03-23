@@ -754,11 +754,9 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
             }
 
             return timeoutExecutor.executeWithTimeout(callable);
+        } catch (ExecutionException e) {
+            throw e;
         } catch (Exception e) {
-            if (e instanceof ExecutionException) {
-                throw (ExecutionException) e;
-            }
-
             throw new ExecutionException(e);
         }
     }
