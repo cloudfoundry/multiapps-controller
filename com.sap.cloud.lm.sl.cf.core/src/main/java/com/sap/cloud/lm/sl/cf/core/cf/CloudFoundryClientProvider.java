@@ -17,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorFactory;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
@@ -40,35 +39,22 @@ public class CloudFoundryClientProvider {
         .synchronizedMap(new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT));
 
     public CloudFoundryOperations getCloudFoundryClient(String userName, String org, String space, String processId) throws SLException {
-        return getCloudFoundryClient(getValidToken(userName, org, space), org, space, processId);
-    }
-
-    public CloudFoundryOperations getCloudFoundryClient(OAuth2AccessToken token, String org, String space, String processId)
-        throws SLException {
-        Pair<CloudFoundryOperations, TokenProvider> client = retrieveClientForToken(token, org, space, processId);
-        updateTokenIfNecessary(client._2, token);
+        Pair<CloudFoundryOperations, TokenProvider> client = retrieveClientForToken(userName, org, space, processId);
         return client._1;
     }
 
-    public CloudFoundryOperations getCloudFoundryClient(OAuth2AccessToken token, String spaceGuid, String processId) throws SLException {
-        Pair<CloudFoundryOperations, TokenProvider> client = retrieveClientForToken(token, spaceGuid, processId);
-        updateTokenIfNecessary(client._2, token);
+    public CloudFoundryOperations getCloudFoundryClient(String userName, String spaceGuid, String processId) throws SLException {
+        Pair<CloudFoundryOperations, TokenProvider> client = retrieveClientForToken(userName, spaceGuid, processId);
         return client._1;
     }
 
-    public CloudFoundryOperations getCloudFoundryClient(OAuth2AccessToken token, String spaceGuid) throws SLException {
-        Pair<CloudFoundryOperations, TokenProvider> client = retrieveClientForToken(token, spaceGuid);
-        updateTokenIfNecessary(client._2, token);
+    public CloudFoundryOperations getCloudFoundryClient(String userName, String spaceGuid) throws SLException {
+        Pair<CloudFoundryOperations, TokenProvider> client = retrieveClientForToken(userName, spaceGuid);
         return client._1;
     }
 
     public CloudFoundryOperations getCloudFoundryClient(String userName) throws SLException {
-        return getCloudFoundryClient(getValidToken(userName));
-    }
-
-    public CloudFoundryOperations getCloudFoundryClient(OAuth2AccessToken token) throws SLException {
-        Pair<CloudFoundryOperations, TokenProvider> client = createClientForToken(token);
-        updateTokenIfNecessary(client._2, token);
+        Pair<CloudFoundryOperations, TokenProvider> client = createClientForToken(userName);
         return client._1;
     }
 
@@ -77,7 +63,7 @@ public class CloudFoundryClientProvider {
     }
 
     public void releaseClient(String userName, String org, String space) throws SLException {
-        releaseClientFromCache(getValidToken(userName, org, space), org, space);
+        releaseClientFromCache(userName, org, space);
     }
 
     public OAuth2AccessToken getValidToken(String userName) throws SLException {
@@ -93,7 +79,7 @@ public class CloudFoundryClientProvider {
         if (token.isExpired() && token.getRefreshToken() == null) {
             tokenService.removeToken(token);
             if (org != null && space != null) {
-                releaseClientFromCache(token, org, space);
+                releaseClientFromCache(userName, org, space);
             }
             throw new SLException(Messages.TOKEN_EXPIRED, userName);
         }
@@ -101,54 +87,37 @@ public class CloudFoundryClientProvider {
         return token;
     }
 
-    private Pair<CloudFoundryOperations, TokenProvider> retrieveClientForToken(OAuth2AccessToken token, String org, String space,
-        String processId) throws SLException {
+    private Pair<CloudFoundryOperations, TokenProvider> retrieveClientForToken(String userName, String org, String space, String processId)
+        throws SLException {
         try {
-            return getClientFromCache(token, org, space, processId);
+            return getClientFromCache(userName, org, space, processId);
         } catch (CloudFoundryException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT_2, org, space);
         }
     }
 
-    private Pair<CloudFoundryOperations, TokenProvider> retrieveClientForToken(OAuth2AccessToken token, String spaceGuid, String processId)
+    private Pair<CloudFoundryOperations, TokenProvider> retrieveClientForToken(String userName, String spaceGuid, String processId)
         throws SLException {
         try {
-            return getClientFromCache(token, spaceGuid, processId);
+            return getClientFromCache(userName, spaceGuid, processId);
         } catch (CloudFoundryException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT_FOR_SPACE_ID, spaceGuid);
         }
     }
 
-    private Pair<CloudFoundryOperations, TokenProvider> retrieveClientForToken(OAuth2AccessToken token, String spaceGuid)
-        throws SLException {
+    private Pair<CloudFoundryOperations, TokenProvider> retrieveClientForToken(String userName, String spaceGuid) throws SLException {
         try {
-            return getClientFromCache(token, spaceGuid);
+            return getClientFromCache(userName, spaceGuid);
         } catch (CloudFoundryException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT_FOR_SPACE_ID, spaceGuid);
         }
     }
 
-    private Pair<CloudFoundryOperations, TokenProvider> createClientForToken(OAuth2AccessToken token) throws SLException {
+    private Pair<CloudFoundryOperations, TokenProvider> createClientForToken(String userName) throws SLException {
         try {
-            return cloudFoundryClientFactory.createClient(token);
+            return cloudFoundryClientFactory.createClient(getValidToken(userName));
         } catch (CloudFoundryException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT);
-        }
-    }
-
-    private void updateTokenIfNecessary(TokenProvider client, OAuth2AccessToken token) {
-        updateTokenIfNecessary(client, token, null, null);
-    }
-
-    private void updateTokenIfNecessary(TokenProvider client, OAuth2AccessToken token, String org, String space) {
-        OAuth2AccessToken newToken = (client != null) ? client.getToken() : null;
-
-        if (newToken != null && !newToken.getValue()
-            .equals(token.getValue())) {
-            tokenService.updateToken(SecurityUtil.getTokenUserInfo(newToken), token, newToken);
-            if (org != null && space != null) {
-                updateClientInCache(token, newToken, org, space);
-            }
         }
     }
 
@@ -162,17 +131,16 @@ public class CloudFoundryClientProvider {
      * @return a CF client for the specified access token, organization, and space
      * @throws MalformedURLException if the configured target URL is malformed
      */
-    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(OAuth2AccessToken token, String org, String space) {
-        return getClientFromCache(token, org, space, null);
+    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(String userName, String org, String space) {
+        return getClientFromCache(userName, org, space, null);
     }
 
-    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(OAuth2AccessToken token, String org, String space,
-        String processId) {
+    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(String userName, String org, String space, String processId) {
         // Get a client from the cache or create a new one if needed
-        String key = getKey(token, org, space);
+        String key = getKey(userName, org, space);
         Pair<CloudFoundryOperations, TokenProvider> client = clients.get(key);
         if (client == null) {
-            client = cloudFoundryClientFactory.createClient(token, org, space);
+            client = cloudFoundryClientFactory.createClient(getValidToken(userName), org, space);
             if (processId != null) {
                 clients.put(key, client);
             }
@@ -180,12 +148,12 @@ public class CloudFoundryClientProvider {
         return client;
     }
 
-    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(OAuth2AccessToken token, String spaceId) {
+    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(String userName, String spaceId) {
         // Get a client from the cache or create a new one if needed
-        String key = getKey(token, spaceId);
+        String key = getKey(userName, spaceId);
         Pair<CloudFoundryOperations, TokenProvider> client = clients.get(key);
         if (client == null) {
-            client = cloudFoundryClientFactory.createClient(token, spaceId);
+            client = cloudFoundryClientFactory.createClient(getValidToken(userName), spaceId);
             clients.put(key, client);
         }
         return client;
@@ -200,11 +168,11 @@ public class CloudFoundryClientProvider {
      * @param org the organization associated with the client
      * @param space the space associated with the client
      */
-    public void updateClientInCache(OAuth2AccessToken oldToken, OAuth2AccessToken newToken, String org, String space) {
-        String key = getKey(oldToken, org, space);
+    public void updateClientInCache(String userName, String org, String space) {
+        String key = getKey(userName, org, space);
         Pair<CloudFoundryOperations, TokenProvider> client = clients.remove(key);
         if (client != null) {
-            String key2 = getKey(newToken, org, space);
+            String key2 = getKey(userName, org, space);
             clients.put(key2, client);
         }
     }
@@ -216,13 +184,13 @@ public class CloudFoundryClientProvider {
      * @param org the organization associated with the client
      * @param space the space associated with the client
      */
-    public void releaseClientFromCache(OAuth2AccessToken token, String org, String space) {
-        clients.remove(getKey(token, org, space));
+    public void releaseClientFromCache(String userName, String org, String space) {
+        clients.remove(getKey(userName, org, space));
     }
 
-    private String getKey(OAuth2AccessToken token, String org, String space) {
+    private String getKey(String userName, String org, String space) {
         StringBuilder sb = new StringBuilder();
-        sb.append(token.getValue())
+        sb.append(userName)
             .append("|")
             .append(org)
             .append("|")
@@ -230,9 +198,9 @@ public class CloudFoundryClientProvider {
         return sb.toString();
     }
 
-    private String getKey(OAuth2AccessToken token, String spaceId) {
+    private String getKey(String userName, String spaceId) {
         StringBuilder sb = new StringBuilder();
-        sb.append(token.getValue())
+        sb.append(userName)
             .append("|")
             .append(spaceId);
         return sb.toString();

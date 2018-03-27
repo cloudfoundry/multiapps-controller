@@ -66,7 +66,7 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     private CloudFoundryOperations getCloudFoundryClient(String spaceGuid) throws SLException {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getCloudFoundryClient(userInfo.getToken(), spaceGuid);
+        return clientProvider.getCloudFoundryClient(userInfo.getName(), spaceGuid);
     }
 
     private List<Mta> getMtas(DeployedComponents components) {
