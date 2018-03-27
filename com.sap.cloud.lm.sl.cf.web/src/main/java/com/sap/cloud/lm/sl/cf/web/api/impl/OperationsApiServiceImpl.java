@@ -304,7 +304,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private CloudFoundryOperations getCloudFoundryClient(String spaceGuid) throws SLException {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getCloudFoundryClient(userInfo.getToken(), spaceGuid);
+        return clientProvider.getCloudFoundryClient(userInfo.getName(), spaceGuid);
     }
 
     private List<Message> getOperationMessages(Operation operation) {

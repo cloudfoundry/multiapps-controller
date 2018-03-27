@@ -119,12 +119,12 @@ public class AuthorizationUtil {
 
     private static CloudFoundryOperations getCloudFoundryClient(CloudFoundryClientProvider clientProvider, UserInfo userInfo)
         throws SLException {
-        return clientProvider.getCloudFoundryClient(userInfo.getToken());
+        return clientProvider.getCloudFoundryClient(userInfo.getName());
     }
 
     private static CloudFoundryOperations getCloudFoundryClient(CloudFoundryClientProvider clientProvider, UserInfo userInfo,
         String orgName, String spaceName, String processId) throws SLException {
-        return clientProvider.getCloudFoundryClient(userInfo.getToken());
+        return clientProvider.getCloudFoundryClient(userInfo.getName());
     }
 
     private static boolean isDummyToken(UserInfo userInfo) {

@@ -103,7 +103,7 @@ public class AuthorizationUtilTest {
         }
         when(client.getSpaces()).thenReturn(spaces);
         when(client.getSpaceDevelopers2(ORG, SPACE)).thenReturn(spaceDevelopersList);
-        when(clientProvider.getCloudFoundryClient(userInfo.getToken())).thenReturn(client);
+        when(clientProvider.getCloudFoundryClient(userInfo.getName())).thenReturn(client);
     }
 
     private void setUpException() {
