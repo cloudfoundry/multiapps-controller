@@ -19,6 +19,9 @@
 
     <bean id="jobExecutor" class="org.activiti.engine.impl.jobexecutor.DefaultJobExecutor">
         <property name="lockTimeInMillis" value="1800000" /> <!-- 30 minute(s) -->
+        <property name="queueSize" value="16" /> 
+        <property name="corePoolSize" value="8" />
+        <property name="maxPoolSize" value="32" />
     </bean>
 
     <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
