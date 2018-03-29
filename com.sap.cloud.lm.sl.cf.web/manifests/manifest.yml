@@ -6,6 +6,7 @@ applications:
   instances: 1
   path: ../${project.build.finalName}.war
   buildpack: java_buildpack
+  timeout: 180 # If the landscape and/or our Liquibase changes are very slow, the application may take longer than 60 seconds to start up.
   services:
     - deploy-service-database
   env:
