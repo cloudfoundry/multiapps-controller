@@ -47,8 +47,6 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
     private AsyncExecutionState getSubProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution)
         throws MonitoringException {
         ErrorType errorType = getSubProcessErrorType(subProcess, execution.getContextExtensionDao());
-        execution.getStepLogger()
-            .debug(Messages.ERROR_TYPE_OF_SUBPROCESS, subProcess.getId(), errorType);
 
         Execution subProcessInstanceExecution = activitiFacade.getProcessExecution(subProcess.getId());
         if (subProcessInstanceExecution != null) {
@@ -71,6 +69,8 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
         if (executionJob.getExceptionMessage() == null) {
             return AsyncExecutionState.RUNNING;
         }
+        execution.getStepLogger()
+            .debug(Messages.ERROR_TYPE_OF_SUBPROCESS, subProcess.getId(), errorType);
         return onError(execution.getContext(), errorType);
     }
 
