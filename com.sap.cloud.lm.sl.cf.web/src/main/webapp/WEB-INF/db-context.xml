@@ -68,6 +68,9 @@
         <bean id="indexProcessIdsOfProgressMessagesChange" class="com.sap.cloud.lm.sl.persistence.changes.IndexProcessIdsOfProgressMessagesPostgreSQLChange" />
         
         <bean id="indexSpaceOfLmSlPersistenceChange" class="com.sap.cloud.lm.sl.persistence.changes.IndexSpaceOfLmSlPersistenceFilePostgreSQLChange" />
+        
+        <bean id="indexSpaceIdOfOperationChange" class="com.sap.cloud.lm.sl.cf.core.changes.IndexSpaceIdOfOperationPostgreSQLChange" />
+        
     </beans>
 
     <beans>
