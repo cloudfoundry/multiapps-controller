@@ -100,7 +100,7 @@
         </bean>
 
         <bean id="contextExtensionEntityManagerFactory" parent="baseEntityManagerFactory">
-            <property name="persistenceUnitName" value="ContextExtensionmManagement" />
+            <property name="persistenceUnitName" value="ContextExtensionManagement" />
         </bean>
 
         <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
