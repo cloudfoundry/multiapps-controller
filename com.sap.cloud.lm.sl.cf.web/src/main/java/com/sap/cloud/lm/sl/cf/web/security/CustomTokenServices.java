@@ -87,6 +87,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
             TokenProperties tokenProperties = TokenProperties.fromToken(token);
             auth = SecurityUtil.createAuthentication(tokenProperties.getClientId(), token.getScope(), SecurityUtil.getTokenUserInfo(token));
             try {
+                LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.web.message.Messages.TOKEN_LOADED_INTO_TOKEN_STORE, token.getExpiresIn(), tokenProperties.getUserName()));
                 tokenStore.storeAccessToken(token, auth);
             } catch (DataIntegrityViolationException e) {
                 LOGGER.debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
