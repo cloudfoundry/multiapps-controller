@@ -22,7 +22,6 @@ public class Constants {
     public static final String ENV_MTA_METADATA = "MTA_METADATA";
     public static final String ENV_MTA_MODULE_METADATA = "MTA_MODULE_METADATA";
     public static final String ENV_MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES = "MTA_MODULE_PROVIDED_DEPENDENCIES";
-    public static final String ENV_MTA_PROPERTIES = "MTA_PROPERTIES";
     public static final String ENV_MTA_SERVICES = "MTA_SERVICES";
     public static final String ENV_DEPLOY_ATTRIBUTES = "DEPLOY_ATTRIBUTES";
     public static final String ENV_DEPLOY_ID = "DEPLOY_ID";

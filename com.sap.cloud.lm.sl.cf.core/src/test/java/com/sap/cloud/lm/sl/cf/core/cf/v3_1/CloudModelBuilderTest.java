@@ -46,10 +46,10 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2_0.C
     private DomainsCloudModelBuilder domainsBuilder;
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-        String targetsLocation, boolean useNamespaces, boolean useNamespacesForServices, boolean allowInvalidEnvNames,
-        String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, String[] expected) {
+        String targetsLocation, boolean useNamespaces, boolean useNamespacesForServices, String[] mtaArchiveModules, String[] mtaModules,
+        String[] deployedApps, String[] expected) {
         super(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, targetsLocation, useNamespaces,
-            useNamespacesForServices, allowInvalidEnvNames, mtaArchiveModules, mtaModules, deployedApps, expected);
+            useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expected);
         MockitoAnnotations.initMocks(this);
     }
 
@@ -60,7 +60,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2_0.C
             // (00) Test missing resource type definition:
             {
                 "mtad-missing-resource-type-definition.yaml", "config-01.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
-                false, false, false,
+                false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
@@ -89,8 +89,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2_0.C
 
         DescriptorHandler handler = getDescriptorHandler();
 
-        String targetName = extensionDescriptor.getDeployTargets()
-            .get(0);
+        String targetName = extensionDescriptor.getDeployTargets().get(0);
         Target target = handler.findTarget(targets, targetName, null);
         Platform platform = handler.findPlatform(platforms, target.getType());
 
@@ -111,7 +110,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2_0.C
         CloudModelConfiguration configuration = new CloudModelConfiguration();
         configuration.setPortBasedRouting(defaultDomain.equals(DEFAULT_DOMAIN_XS));
         configuration.setPrettyPrinting(false);
-        configuration.setAllowInvalidEnvNames(allowInvalidEnvNames);
         configuration.setUseNamespaces(useNamespaces);
         configuration.setUseNamespacesForServices(useNamespacesForServices);
         appsBuilder = getApplicationsCloudModelBuilder(deploymentDescriptor, systemParameters, xsPlaceholderResolver, configuration);
@@ -177,8 +175,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2_0.C
     @Test
     public void testWarnMessage() {
         servicesBuilder.build(mtaArchiveModules);
-        Mockito.verify(userMessageLogger)
-            .warn(Mockito.anyString(), Mockito.any());
+        Mockito.verify(userMessageLogger).warn(Mockito.anyString(), Mockito.any());
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v1_0;
 
-import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.ensureValidEnvName;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 
 import java.util.ArrayList;
@@ -235,7 +234,6 @@ public class ApplicationsCloudModelBuilder {
             Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
             String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
             String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
-            ensureValidEnvName(serviceKeyName, configuration.shouldAllowInvalidEnvNames());
             return new ServiceKeyToInject(serviceKeyName, serviceName, serviceKeyName);
         }
         return null;

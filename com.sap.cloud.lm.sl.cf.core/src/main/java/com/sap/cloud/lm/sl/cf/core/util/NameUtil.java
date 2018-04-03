@@ -10,18 +10,15 @@ import java.util.Locale;
 import java.util.UUID;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class NameUtil {
 
     public static class NameRequirements {
 
-        public static final String ENVIRONMENT_NAME_PATTERN = "[_a-zA-Z][_a-zA-Z0-9]{0,63}";
         public static final String XS_APP_NAME_PATTERN = "(?!sap_system)[a-zA-Z0-9\\._\\-\\\\/]{1,240}";
         public static final String CONTAINER_NAME_PATTERN = "[A-Z0-9][_A-Z0-9]{0,63}";
 
-        public static final int ENVIRONMENT_NAME_MAX_LENGTH = 64;
         public static final int XS_APP_NAME_MAX_LENGTH = 240;
         public static final int APP_NAME_MAX_LENGTH = 1024;
         public static final int SERVICE_NAME_MAX_LENGTH = 50; // TODO: Make this configurable.
@@ -44,13 +41,6 @@ public class NameUtil {
 
     public static boolean isValidName(String name, String namePattern) {
         return name.matches(namePattern);
-    }
-
-    public static void ensureValidEnvName(String name, boolean shouldAllowInvalidEnvNames) {
-        if (name.matches(NameRequirements.ENVIRONMENT_NAME_PATTERN) || shouldAllowInvalidEnvNames) {
-            return;
-        }
-        throw new ContentException(Messages.INVALID_ENVIRONMENT_VARIABLE_NAME, name);
     }
 
     public static String getApplicationName(String moduleName, String mtaId, boolean useNamespaces) throws SLException {

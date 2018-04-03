@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2_0;
 
-import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.ensureValidEnvName;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.mergeProperties;
 
@@ -217,7 +216,6 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
             String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
             String envVarName = (String) dependency.getParameters()
                 .getOrDefault(SupportedParameters.ENV_VAR_NAME, serviceKeyName);
-            ensureValidEnvName(envVarName, configuration.shouldAllowInvalidEnvNames());
             return new ServiceKeyToInject(envVarName, serviceName, serviceKeyName);
         }
         return null;

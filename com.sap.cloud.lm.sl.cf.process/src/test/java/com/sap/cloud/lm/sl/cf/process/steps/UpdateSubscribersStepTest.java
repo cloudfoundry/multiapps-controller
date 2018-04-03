@@ -158,7 +158,6 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
             .getName());
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, majorSchemaVersion);
-        context.setVariable(Constants.PARAM_ALLOW_INVALID_ENV_NAMES, false);
         context.setVariable(Constants.PARAM_USE_NAMESPACES, false);
         context.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
         context.setVariable(Constants.VAR_PORT_BASED_ROUTING, false);

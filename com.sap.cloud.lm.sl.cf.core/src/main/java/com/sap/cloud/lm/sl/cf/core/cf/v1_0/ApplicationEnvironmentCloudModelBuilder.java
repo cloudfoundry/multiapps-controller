@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v1_0;
 
-import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.ensureValidEnvName;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertiesList;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.mergeProperties;
 
@@ -53,8 +52,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         addAttributes(env, descriptorDefinedUris, parameters);
         addProperties(env, properties);
         addDependencies(env, module);
-        Map<String, Object> result = removeInvalidEnvNames(env);
-        return MapUtil.unmodifiable(new MapToEnvironmentConverter(configuration.isPrettyPrinting()).asEnv(result));
+        return MapUtil.unmodifiable(new MapToEnvironmentConverter(configuration.isPrettyPrinting()).asEnv(env));
     }
 
     protected void addMetadata(Map<String, Object> env, Module module) {
@@ -208,19 +206,6 @@ public class ApplicationEnvironmentCloudModelBuilder {
         extendedProperties.put(Constants.ATTR_NAME, name);
         extendedProperties.putAll(properties);
         return extendedProperties;
-    }
-
-    protected Map<String, Object> removeInvalidEnvNames(Map<String, Object> env) throws ContentException {
-        Map<String, Object> result = new TreeMap<>();
-        Map<String, Object> properties = new TreeMap<>();
-        for (String key : env.keySet()) {
-            ensureValidEnvName(key, configuration.shouldAllowInvalidEnvNames());
-            result.put(key, env.get(key));
-        }
-        if (!properties.isEmpty()) {
-            result.put(Constants.ENV_MTA_PROPERTIES, properties);
-        }
-        return result;
     }
 
     protected HandlerFactory getHandlerFactory() {
