@@ -1001,12 +1001,10 @@ public class StepsUtil {
     }
 
     static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {
-        Boolean allowInvalidEnvNames = getVariableOrDefault(context, Constants.PARAM_ALLOW_INVALID_ENV_NAMES, Boolean.FALSE);
         Boolean useNamespaces = getVariableOrDefault(context, Constants.PARAM_USE_NAMESPACES, Boolean.FALSE);
         Boolean useNamespacesForServices = getVariableOrDefault(context, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, Boolean.FALSE);
         Boolean portBasedRouting = getVariableOrDefault(context, Constants.VAR_PORT_BASED_ROUTING, Boolean.FALSE);
         CloudModelConfiguration configuration = new CloudModelConfiguration();
-        configuration.setAllowInvalidEnvNames(allowInvalidEnvNames);
         configuration.setPortBasedRouting(portBasedRouting);
         configuration.setPrettyPrinting(prettyPrinting);
         configuration.setUseNamespaces(useNamespaces);

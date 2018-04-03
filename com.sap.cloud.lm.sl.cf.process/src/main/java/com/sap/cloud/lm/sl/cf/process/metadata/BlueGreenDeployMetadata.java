@@ -51,11 +51,6 @@ public class BlueGreenDeployMetadata {
             .type(ParameterType.BOOLEAN)
             .build());
         PARAMS.add(ParameterMetadata.builder()
-            .id(Constants.PARAM_ALLOW_INVALID_ENV_NAMES)
-            .defaultValue(false)
-            .type(ParameterType.BOOLEAN)
-            .build());
-        PARAMS.add(ParameterMetadata.builder()
             .id(Constants.PARAM_VERSION_RULE)
             .defaultValue(VersionRule.SAME_HIGHER.toString())
             .type(ParameterType.STRING)

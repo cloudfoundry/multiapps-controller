@@ -4,7 +4,6 @@ import static com.sap.cloud.lm.sl.common.util.CommonUtil.repeat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,15 +11,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil.NameRequirements;
-import com.sap.cloud.lm.sl.common.ContentException;
 
 public class NameUtilTest {
-
-    private static final String LONG_ENV_NAME = repeat("f", NameRequirements.ENVIRONMENT_NAME_MAX_LENGTH + 1);
-    private static final List<String> VALID_ENV_NAMES = Arrays.asList("_foo", "Foo", "foo_bar", "Foo_Bar", "x_1");
-    private static final List<String> INVALID_ENV_NAMES = Arrays.asList("1foo", "   ", "foo bar", "foo-bar", "x&y", LONG_ENV_NAME);
 
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
@@ -39,16 +32,6 @@ public class NameUtilTest {
     }
 
     @Test
-    public void testIsValidEnvNameWhenNamesAreValid() {
-        testIsValidName(VALID_ENV_NAMES, NameRequirements.ENVIRONMENT_NAME_PATTERN, true);
-    }
-
-    @Test
-    public void testIsValidEnvNameWhenNamesAreInvalid() {
-        testIsValidName(INVALID_ENV_NAMES, NameRequirements.ENVIRONMENT_NAME_PATTERN, false);
-    }
-
-    @Test
     public void testIsValidContainerNameWhenNamesAreValid() {
         testIsValidName(Arrays.asList("FOO", "FOO_BAR", "1_FOO", "FOO_1_BAR"), NameRequirements.CONTAINER_NAME_PATTERN, true);
     }
@@ -64,29 +47,6 @@ public class NameUtilTest {
     private void testIsValidName(List<String> names, String namePattern, boolean expectedResult) {
         for (String name : names) {
             assertEquals(name, expectedResult, NameUtil.isValidName(name, namePattern));
-        }
-    }
-
-    @Test
-    public void testEnsureValidEnvNameAreValidNotAllowInvalidEnvNames() {
-        for (String validEnvName : VALID_ENV_NAMES) {
-            NameUtil.ensureValidEnvName(validEnvName, false);
-        }
-    }
-
-    @Test
-    public void testEnsureValidEnvNameAreInvalidNotAllowInvalidEnvNames() {
-        for (String invalidEnvName : INVALID_ENV_NAMES) {
-            expectedEx.expect(ContentException.class);
-            expectedEx.expectMessage(MessageFormat.format(Messages.INVALID_ENVIRONMENT_VARIABLE_NAME, invalidEnvName));
-            NameUtil.ensureValidEnvName(invalidEnvName, false);
-        }
-    }
-
-    @Test
-    public void testEnsureValidEnvNameAreInvalidAllowInvalidEnvNames() {
-        for (String invalidEnvName : INVALID_ENV_NAMES) {
-            NameUtil.ensureValidEnvName(invalidEnvName, true);
         }
     }
 

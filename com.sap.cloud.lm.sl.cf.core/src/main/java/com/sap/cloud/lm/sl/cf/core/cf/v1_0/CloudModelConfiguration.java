@@ -5,7 +5,6 @@ public class CloudModelConfiguration {
     protected boolean prettyPrinting;
     protected boolean useNamespaces;
     protected boolean useNamespacesForServices;
-    protected boolean allowInvalidEnvNames;
 
     public boolean isPortBasedRouting() {
         return portBasedRouting;
@@ -37,14 +36,6 @@ public class CloudModelConfiguration {
 
     public void setUseNamespacesForServices(boolean useNamespacesForServices) {
         this.useNamespacesForServices = useNamespacesForServices;
-    }
-
-    public boolean shouldAllowInvalidEnvNames() {
-        return allowInvalidEnvNames;
-    }
-
-    public void setAllowInvalidEnvNames(boolean allowInvalidEnvNames) {
-        this.allowInvalidEnvNames = allowInvalidEnvNames;
     }
 
 }

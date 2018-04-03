@@ -229,7 +229,6 @@ public class MtaArchiveValidator {
 
         // Get a cloud model builder from the helper
         CloudModelConfiguration config = new CloudModelConfiguration();
-        config.setAllowInvalidEnvNames(false);
         config.setPortBasedRouting(portBasedRouting);
         config.setPrettyPrinting(true);
         config.setUseNamespaces(false);

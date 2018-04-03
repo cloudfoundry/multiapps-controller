@@ -47,11 +47,6 @@ public class DeployMetadata {
             .defaultValue(false)
             .build());
         PARAMS.add(ParameterMetadata.builder()
-            .id(Constants.PARAM_ALLOW_INVALID_ENV_NAMES)
-            .type(ParameterType.BOOLEAN)
-            .defaultValue(false)
-            .build());
-        PARAMS.add(ParameterMetadata.builder()
             .id(Constants.PARAM_VERSION_RULE)
             .type(ParameterType.STRING)
             .defaultValue(VersionRule.SAME_HIGHER.toString())
