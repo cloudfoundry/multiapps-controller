@@ -162,18 +162,18 @@ public class CleanUpJob implements Job {
                 .map(appArchiveId -> (String) appArchiveId.getValue())
                 .collect(Collectors.toList());
 
-            List<FileEntry> orhpanedFileEntries = fileService.listByModificationTime(expirationTime)
+            List<FileEntry> orphanedFileEntries = fileService.listByModificationTime(expirationTime)
                 .stream()
                 .filter(oldFileEntry -> !appArchiveIds.contains(oldFileEntry.getId()))
                 .collect(Collectors.toList());
 
-            Map<String, List<String>> spaceToFileIds = orhpanedFileEntries.stream()
+            Map<String, List<String>> spaceToFileIds = orphanedFileEntries.stream()
                 .collect(Collectors.groupingBy(FileEntry::getSpace, Collectors.mapping(FileEntry::getId, Collectors.toList())));
 
             int removedOldOrhpanedFiles = fileService.deleteAllByFileIds(spaceToFileIds);
             LOGGER.info("Deleted old orphaned MTA files: " + removedOldOrhpanedFiles);
         } catch (FileStorageException e) {
-            throw new SLException(e, "Deletiion of old orphaned MTA files failed");
+            throw new SLException(e, "Deletion of old orphaned MTA files failed");
         }
     }
 
