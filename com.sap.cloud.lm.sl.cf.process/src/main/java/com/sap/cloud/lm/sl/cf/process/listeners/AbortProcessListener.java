@@ -146,7 +146,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
             try {
                 client.deleteRoute(port.toString(), defaultDomain);
             } catch (CloudFoundryException e) {
-                LOGGER.warn(format(Messages.COULD_NOT_DELETE_ROUTE_FOR_PORT, port));
+                LOGGER.warn(format(Messages.COULD_NOT_DELETE_ROUTE_FOR_PORT, port.toString()));
             }
         }
     }
