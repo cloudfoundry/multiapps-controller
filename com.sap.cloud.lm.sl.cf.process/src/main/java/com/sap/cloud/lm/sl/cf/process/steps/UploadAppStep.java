@@ -266,6 +266,12 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
             cleanUpTempFile(context, file);
         }
 
+        @Override
+        public void onError(String description) {
+            getStepLogger().error(Messages.ERROR_UPLOADING_APP_BECAUSE_OF, app.getName(), description);
+            cleanUpTempFile(context, file);
+        }
+
     }
 
     protected Runnable getUploadAppStepRunnable(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client,
