@@ -128,8 +128,10 @@ public class SystemParametersBuilder {
             systemParameters.put(SupportedParameters.DEFAULT_IDLE_DOMAIN, getDefaultDomain());
         }
         systemParameters.put(SupportedParameters.XS_TARGET_API_URL, getTargetUrl());
+        systemParameters.put(SupportedParameters.CONTROLLER_URL, getTargetUrl());
         systemParameters.put(SupportedParameters.XS_TYPE, xsType.toString());
         systemParameters.put(SupportedParameters.XS_AUTHORIZATION_ENDPOINT, getAuthorizationEndpoint());
+        systemParameters.put(SupportedParameters.AUTHORIZATION_URL, getAuthorizationEndpoint());
         systemParameters.put(SupportedParameters.DEPLOY_SERVICE_URL, getDeployServiceUrl());
 
         return systemParameters;
