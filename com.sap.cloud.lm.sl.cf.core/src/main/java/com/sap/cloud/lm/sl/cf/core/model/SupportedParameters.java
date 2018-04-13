@@ -26,8 +26,12 @@ public class SupportedParameters {
     public static final String DEPLOY_TARGET = "deploy-target";
     public static final String PROTOCOL = "protocol";
     public static final String XS_TYPE = "xs-type";
+    @Deprecated
     public static final String XS_TARGET_API_URL = "xs-api-url";
+    @Deprecated
     public static final String XS_AUTHORIZATION_ENDPOINT = "xs-auth-url";
+    public static final String CONTROLLER_URL = "controller-url";
+    public static final String AUTHORIZATION_URL = "authorization-url";
     public static final String DEPLOY_SERVICE_URL = "deploy-url";
     public static final String GENERATED_USER = "generated-user";
     public static final String GENERATED_PASSWORD = "generated-password";

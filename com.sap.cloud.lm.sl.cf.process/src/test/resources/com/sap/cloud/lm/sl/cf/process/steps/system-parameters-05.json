@@ -86,6 +86,8 @@
     }
   },
   "generalParameters": {
+    "authorization-url": "https://localhost:30032/uaa-security",
+    "controller-url": "http://localhost:9999",
     "default-domain": "localhost",
     "default-idle-domain": "localhost",
     "deploy-target": "initial initial",

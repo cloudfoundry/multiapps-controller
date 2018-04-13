@@ -65,6 +65,8 @@
     }
   },
   "generalParameters": {
+    "authorization-url": "{xsa-placeholder-endpoint-authorization}",
+    "controller-url": "{xsa-placeholder-endpoint-controller}",
     "default-domain": "{xsa-placeholder-domain-default}",
     "deploy-target": "initial initial",
     "deploy-url": "{xsa-placeholder-service-url-deploy-service}",
