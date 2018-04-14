@@ -29,7 +29,6 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper context) {
-        getStepLogger().logActivitiTask();
         CloudApplication app = StepsUtil.getApp(context.getContext());
         try {
             return attemptToExecuteStep(context);

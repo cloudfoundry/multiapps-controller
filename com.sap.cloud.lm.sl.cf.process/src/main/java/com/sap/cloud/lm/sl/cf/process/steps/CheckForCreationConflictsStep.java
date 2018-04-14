@@ -37,8 +37,6 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        getStepLogger().logActivitiTask();
-
         DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
         List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(execution.getContext());
         try {

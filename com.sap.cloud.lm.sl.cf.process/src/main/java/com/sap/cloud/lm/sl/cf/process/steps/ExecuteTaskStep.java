@@ -37,8 +37,6 @@ public class ExecuteTaskStep extends TimeoutAsyncActivitiStep {
 
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
-        getStepLogger().logActivitiTask();
-
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
         CloudTask taskToExecute = StepsUtil.getTask(execution.getContext());
         try {

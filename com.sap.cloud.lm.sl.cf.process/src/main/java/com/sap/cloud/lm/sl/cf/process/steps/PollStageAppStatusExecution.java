@@ -35,9 +35,6 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
-        execution.getStepLogger()
-            .logActivitiTask();
-
         CloudApplication app = StepsUtil.getApp(execution.getContext());
         CloudFoundryOperations client = execution.getCloudFoundryClient();
 

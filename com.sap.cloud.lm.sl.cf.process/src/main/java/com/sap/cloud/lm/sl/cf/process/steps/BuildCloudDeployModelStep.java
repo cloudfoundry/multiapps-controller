@@ -33,7 +33,6 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.BUILDING_CLOUD_MODEL);
             DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());

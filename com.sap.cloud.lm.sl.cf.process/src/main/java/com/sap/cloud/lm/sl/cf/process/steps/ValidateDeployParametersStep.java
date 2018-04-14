@@ -38,8 +38,6 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-
-        getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.VALIDATING_PARAMETERS);
 

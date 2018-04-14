@@ -22,8 +22,6 @@ public class PrepareToRestartServiceBrokersStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        getStepLogger().logActivitiTask();
-
         List<CloudApplicationExtended> serviceBrokersToRestart = StepsUtil.getServiceBrokerSubscribersToRestart(execution.getContext());
         prepareServiceBrokersToRestart(execution.getContext(), serviceBrokersToRestart);
 

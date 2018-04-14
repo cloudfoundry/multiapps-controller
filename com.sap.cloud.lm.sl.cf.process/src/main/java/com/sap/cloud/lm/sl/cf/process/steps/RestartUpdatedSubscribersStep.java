@@ -18,8 +18,6 @@ public class RestartUpdatedSubscribersStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        getStepLogger().logActivitiTask();
-
         List<CloudApplication> updatedSubscribers = StepsUtil.getUpdatedSubscribers(execution.getContext());
         for (CloudApplication subscriber : updatedSubscribers) {
             getStepLogger().debug(Messages.UPDATED_SUBSCRIBERS, subscriber.getName());

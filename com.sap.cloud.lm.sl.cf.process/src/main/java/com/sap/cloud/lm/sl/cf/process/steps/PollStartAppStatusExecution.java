@@ -42,9 +42,6 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {
-        execution.getStepLogger()
-            .logActivitiTask();
-
         CloudApplication app = getAppToPoll(execution.getContext());
         CloudFoundryOperations client = execution.getCloudFoundryClient();
 

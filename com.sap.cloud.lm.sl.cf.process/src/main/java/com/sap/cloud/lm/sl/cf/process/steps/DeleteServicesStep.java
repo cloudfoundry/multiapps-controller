@@ -23,7 +23,6 @@ public class DeleteServicesStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.DELETING_SERVICES);
 

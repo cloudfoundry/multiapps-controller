@@ -22,8 +22,6 @@ public class DeleteIdleRoutesStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
-
         try {
             getStepLogger().info(Messages.DELETING_IDLE_URIS);
             CloudFoundryOperations client = execution.getCloudFoundryClient();

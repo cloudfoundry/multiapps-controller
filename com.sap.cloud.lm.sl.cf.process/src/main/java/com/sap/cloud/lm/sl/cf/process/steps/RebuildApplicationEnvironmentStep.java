@@ -25,8 +25,6 @@ public class RebuildApplicationEnvironmentStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        getStepLogger().logActivitiTask();
-
         try {
             DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
             List<DeployedMtaModule> deployedModules = (deployedMta != null) ? deployedMta.getModules() : Collections.emptyList();

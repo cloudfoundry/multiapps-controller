@@ -26,8 +26,6 @@ public class PrepareToExecuteTasksStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().logActivitiTask();
-
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
         List<CloudTask> tasksToExecute = app.getTasks();
         try {

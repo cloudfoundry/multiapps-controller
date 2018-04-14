@@ -56,8 +56,6 @@ public class DetectTargetStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
-
         getStepLogger().info(Messages.DETECTING_TARGET);
         try {
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());

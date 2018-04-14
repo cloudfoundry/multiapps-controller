@@ -16,9 +16,6 @@ public class ScaleAppStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-
-        getStepLogger().logActivitiTask();
-
         CloudApplication app = StepsUtil.getApp(execution.getContext());
 
         CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());

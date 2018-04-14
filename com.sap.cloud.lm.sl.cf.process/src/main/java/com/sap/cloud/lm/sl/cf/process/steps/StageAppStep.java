@@ -36,7 +36,6 @@ public class StageAppStep extends TimeoutAsyncActivitiStep {
 
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        getStepLogger().logActivitiTask();
         CloudApplication app = StepsUtil.getApp(execution.getContext());
         try {
             ClientExtensions clientExtensions = execution.getClientExtensions();

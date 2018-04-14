@@ -71,8 +71,6 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws SLException, FileStorageException {
-
-        getStepLogger().logActivitiTask();
         try {
             execution.getStepLogger()
                 .info(Messages.CREATING_OR_UPDATING_SERVICES);

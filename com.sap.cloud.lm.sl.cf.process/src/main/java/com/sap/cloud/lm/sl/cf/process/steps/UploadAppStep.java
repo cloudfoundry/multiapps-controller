@@ -56,8 +56,6 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
     @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException, SLException {
-        getStepLogger().logActivitiTask();
-
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {

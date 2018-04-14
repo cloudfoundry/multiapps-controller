@@ -19,7 +19,6 @@ public class AddDomainsStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
         try {
             CloudFoundryOperations client = execution.getCloudFoundryClient();
 

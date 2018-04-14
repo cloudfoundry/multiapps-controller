@@ -22,8 +22,6 @@ public class DetectMtaSchemaVersionStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
-
         getStepLogger().info(Messages.DETECTING_MTA_MAJOR_SCHEMA_VERSION);
         try {
             List<String> extensionDescriptorStrings = StepsUtil.getExtensionDescriptorStrings(execution.getContext());

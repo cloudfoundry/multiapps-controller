@@ -17,9 +17,6 @@ public class StopAppStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-
-        getStepLogger().logActivitiTask();
-
         // Get the next cloud application from the context
         CloudApplication app = StepsUtil.getApp(execution.getContext());
 

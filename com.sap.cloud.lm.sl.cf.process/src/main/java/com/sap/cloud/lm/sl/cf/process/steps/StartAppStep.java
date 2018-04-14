@@ -40,8 +40,6 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
 
     @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        getStepLogger().logActivitiTask();
-
         CloudApplication app = getAppToStart(execution.getContext());
         try {
             attemptToStartApp(execution, app);

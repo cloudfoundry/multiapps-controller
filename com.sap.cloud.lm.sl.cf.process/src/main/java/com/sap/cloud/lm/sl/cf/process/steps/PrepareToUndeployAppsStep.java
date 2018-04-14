@@ -18,8 +18,6 @@ public class PrepareToUndeployAppsStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().logActivitiTask();
-
         List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(execution.getContext());
         getStepLogger().debug(Messages.APPS_TO_UNDEPLOY, JsonUtil.toJson(appsToUndeploy, true));
         prepareAppsToUndeploy(execution.getContext(), appsToUndeploy);

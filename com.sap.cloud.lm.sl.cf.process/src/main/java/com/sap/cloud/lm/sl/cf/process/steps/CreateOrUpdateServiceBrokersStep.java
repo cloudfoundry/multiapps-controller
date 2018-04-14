@@ -43,7 +43,6 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.CREATING_SERVICE_BROKERS);
 

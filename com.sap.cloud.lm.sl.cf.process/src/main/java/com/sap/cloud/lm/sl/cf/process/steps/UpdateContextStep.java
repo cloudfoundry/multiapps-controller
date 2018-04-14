@@ -22,7 +22,6 @@ public class UpdateContextStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
         try {
             List<ContextExtension> contextExtensionEntries = contextExtensionDao.findAll(execution.getContext()
                 .getProcessInstanceId());

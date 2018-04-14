@@ -37,7 +37,6 @@ public class UndeployAppStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
         try {
             CloudApplication appToUndeploy = StepsUtil.getAppToUndeploy(execution.getContext());
             CloudFoundryOperations client = execution.getCloudFoundryClient();

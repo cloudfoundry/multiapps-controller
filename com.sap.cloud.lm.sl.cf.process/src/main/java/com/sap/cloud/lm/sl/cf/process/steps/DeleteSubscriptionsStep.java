@@ -24,8 +24,6 @@ public class DeleteSubscriptionsStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().logActivitiTask();
-
         getStepLogger().info(Messages.DELETING_SUBSCRIPTIONS);
 
         List<ConfigurationSubscription> subscriptionsToDelete = StepsUtil.getSubscriptionsToDelete(execution.getContext());

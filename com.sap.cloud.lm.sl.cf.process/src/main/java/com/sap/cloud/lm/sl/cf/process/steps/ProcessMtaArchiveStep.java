@@ -39,8 +39,6 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-
-        getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.PROCESSING_MTA_ARCHIVE);
 
