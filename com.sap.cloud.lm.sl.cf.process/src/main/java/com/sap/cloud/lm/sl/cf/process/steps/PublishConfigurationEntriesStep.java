@@ -30,8 +30,6 @@ public class PublishConfigurationEntriesStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
-
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {

@@ -57,8 +57,6 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
     }
 
     protected StepPhase executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoute) throws SLException {
-        getStepLogger().logActivitiTask();
-
         getStepLogger().info(Messages.COLLECTING_SYSTEM_PARAMETERS);
         PortAllocator portAllocator = null;
         try {

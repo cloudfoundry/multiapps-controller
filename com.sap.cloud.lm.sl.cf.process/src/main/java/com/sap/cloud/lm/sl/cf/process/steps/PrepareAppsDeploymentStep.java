@@ -22,8 +22,6 @@ public class PrepareAppsDeploymentStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().logActivitiTask();
-
         getStepLogger().info(Messages.PREPARING_APPS_DEPLOYMENT);
 
         // Get the list of cloud applications from the context:

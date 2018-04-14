@@ -32,8 +32,6 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().logActivitiTask();
-
         getStepLogger().info(Messages.DELETING_PUBLISHED_DEPENDENCIES);
         String mtaId = (String) execution.getContext()
             .getVariable(Constants.PARAM_MTA_ID);

@@ -28,7 +28,6 @@ public class PrepareToUndeployStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
         getStepLogger().info(Messages.DETECTING_COMPONENTS_TO_UNDEPLOY);
         try {
             String mtaId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_MTA_ID);

@@ -24,8 +24,6 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-
-        getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.UNREGISTERING_SERVICE_URLS);
 

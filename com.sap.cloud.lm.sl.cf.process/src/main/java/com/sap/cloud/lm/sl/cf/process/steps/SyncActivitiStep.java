@@ -44,6 +44,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
     public void execute(DelegateExecution context) throws Exception {
         StepPhase stepPhase = null;
         createStepLogger(context);
+        stepLogger.logActivitiTask();
         ExecutionWrapper executionWrapper = createExecutionWrapper(context);
         try {
             MDC.put(Constants.ATTR_CORRELATION_ID, StepsUtil.getCorrelationId(context));

@@ -23,8 +23,6 @@ public class CreateSubscriptionsStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
-
         try {
             getStepLogger().info(Messages.CREATING_SUBSCRIPTIONS);
 

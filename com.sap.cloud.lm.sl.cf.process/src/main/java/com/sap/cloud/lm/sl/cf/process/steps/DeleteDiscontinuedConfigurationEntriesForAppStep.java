@@ -31,8 +31,6 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivi
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().logActivitiTask();
-
         CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
         if (existingApp == null) {
             return StepPhase.DONE;

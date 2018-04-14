@@ -25,8 +25,6 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-
-        getStepLogger().logActivitiTask();
         try {
             getStepLogger().info(Messages.REGISTERING_SERVICE_URLS);
 

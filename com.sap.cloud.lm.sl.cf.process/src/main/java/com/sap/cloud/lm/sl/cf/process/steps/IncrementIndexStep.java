@@ -12,8 +12,6 @@ public class IncrementIndexStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().logActivitiTask();
-
         // Continue the iteration over the collection:
         String indexVariableName = (String) execution.getContext()
             .getVariable(Constants.VAR_INDEX_VARIABLE_NAME);

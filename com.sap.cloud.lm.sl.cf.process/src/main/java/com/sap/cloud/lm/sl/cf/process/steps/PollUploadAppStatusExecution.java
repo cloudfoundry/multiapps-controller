@@ -15,9 +15,6 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {
-        execution.getStepLogger()
-            .logActivitiTask();
-
         // Get the next cloud application from the context
         final CloudApplication app = StepsUtil.getApp(execution.getContext());
 

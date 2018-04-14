@@ -20,8 +20,6 @@ public class BlueGreenRenameStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        getStepLogger().logActivitiTask();
-
         try {
             getStepLogger().info(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
 

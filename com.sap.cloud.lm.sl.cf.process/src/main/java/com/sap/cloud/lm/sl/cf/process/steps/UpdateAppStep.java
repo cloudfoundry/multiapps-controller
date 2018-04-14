@@ -33,8 +33,6 @@ public class UpdateAppStep extends CreateAppStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
-        getStepLogger().logActivitiTask();
-
         // Get the next cloud application from the context
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
