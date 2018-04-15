@@ -59,7 +59,7 @@ public abstract class AsyncActivitiStep extends SyncActivitiStep {
     }
 
     @Override
-    protected StepPhase getResultStepPhase() {
+    protected StepPhase getStepPhaseForMonitoringErrors() {
         return StepPhase.POLL;
     }
 

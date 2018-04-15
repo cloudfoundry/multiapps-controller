@@ -108,7 +108,7 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
     public void testPollStatus() throws Exception {
         Thread.sleep(1); // Simulate the time it takes to upload a file. Without this, some tests
                          // may fail on faster machines...
-        step.createStepLogger(context);
+        step.initializeStepLogger(context);
         testExecuteOperations();
     }
 

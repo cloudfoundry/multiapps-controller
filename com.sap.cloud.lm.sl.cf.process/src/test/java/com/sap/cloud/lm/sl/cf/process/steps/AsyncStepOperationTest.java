@@ -10,7 +10,7 @@ public abstract class AsyncStepOperationTest<AsyncStep extends SyncActivitiStep>
 
     @Test
     public void testExecuteOperations() throws Exception {
-        step.createStepLogger(context);
+        step.initializeStepLogger(context);
         ExecutionWrapper wrapper = step.createExecutionWrapper(context);
 
         for (AsyncExecution operation : getAsyncOperations()) {
