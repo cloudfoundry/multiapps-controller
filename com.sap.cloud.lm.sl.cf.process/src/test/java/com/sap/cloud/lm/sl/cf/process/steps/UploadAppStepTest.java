@@ -71,7 +71,7 @@ public class UploadAppStepTest {
 
         @Test
         public void testPollStatus1() throws Exception {
-            step.createStepLogger(context);
+            step.initializeStepLogger(context);
             StepPhase status = step.executeAsyncStep(step.createExecutionWrapper(context));
 
             assertEquals(StepPhase.WAIT.toString(), status.toString());

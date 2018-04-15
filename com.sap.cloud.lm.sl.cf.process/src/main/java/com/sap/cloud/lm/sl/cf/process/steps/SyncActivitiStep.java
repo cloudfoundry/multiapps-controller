@@ -43,7 +43,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
     @Override
     public void execute(DelegateExecution context) throws Exception {
         StepPhase stepPhase = null;
-        createStepLogger(context);
+        initializeStepLogger(context);
         stepLogger.logActivitiTask();
         ExecutionWrapper executionWrapper = createExecutionWrapper(context);
         try {
@@ -51,10 +51,9 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
             getStepHelper().preExecuteStep(context, getInitialStepPhase(executionWrapper));
             stepPhase = executeStep(executionWrapper);
             getStepHelper().failStepIfProcessIsAborted(context);
-            LOGGER.debug("Execution finished");
         } catch (MonitoringException | CloudFoundryException e) {
             getStepLogger().errorWithoutProgressMessage(e.getMessage());
-            stepPhase = getResultStepPhase();
+            stepPhase = getStepPhaseForMonitoringErrors();
             handleException(context, e);
         } catch (Throwable t) {
             stepPhase = StepPhase.RETRY;
@@ -65,7 +64,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
         }
     }
 
-    protected StepPhase getResultStepPhase() {
+    protected StepPhase getStepPhaseForMonitoringErrors() {
         return StepPhase.RETRY;
     }
 
@@ -102,7 +101,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
         return stepLogger;
     }
 
-    protected void createStepLogger(DelegateExecution context) {
+    protected void initializeStepLogger(DelegateExecution context) {
         stepLogger = stepLoggerFactory.create(context, progressMessageService, processLoggerProviderFactory, LOGGER);
     }
 
