@@ -894,7 +894,7 @@ public class StepsUtil {
         if (stepTypeObject == null) {
             return StepPhase.EXECUTE;
         }
-        return StepPhase.fromValue(stepTypeObject.getValue());
+        return StepPhase.valueOf(stepTypeObject.getValue());
     }
 
     static void setStepPhase(ExecutionWrapper execution, StepPhase type) {
