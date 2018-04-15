@@ -5,7 +5,6 @@ import javax.inject.Named;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
-import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
@@ -42,30 +41,24 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
 
     @Override
     public void execute(DelegateExecution context) throws Exception {
-        StepPhase stepPhase = null;
         initializeStepLogger(context);
         stepLogger.logActivitiTask();
         ExecutionWrapper executionWrapper = createExecutionWrapper(context);
+        StepPhase stepPhase = getInitialStepPhase(executionWrapper);
         try {
             MDC.put(Constants.ATTR_CORRELATION_ID, StepsUtil.getCorrelationId(context));
-            getStepHelper().preExecuteStep(context, getInitialStepPhase(executionWrapper));
+            getStepHelper().preExecuteStep(context, stepPhase);
             stepPhase = executeStep(executionWrapper);
+            if (stepPhase == StepPhase.RETRY) {
+                throw new SLException("A step of the process has failed. Retrying it may solve the issue.");
+            }
             getStepHelper().failStepIfProcessIsAborted(context);
-        } catch (MonitoringException | CloudFoundryException e) {
-            getStepLogger().errorWithoutProgressMessage(e.getMessage());
-            stepPhase = getStepPhaseForMonitoringErrors();
-            handleException(context, e);
         } catch (Throwable t) {
-            stepPhase = StepPhase.RETRY;
             handleException(context, t);
         } finally {
             StepsUtil.setStepPhase(executionWrapper, stepPhase);
             postExecuteStep(context, stepPhase);
         }
-    }
-
-    protected StepPhase getStepPhaseForMonitoringErrors() {
-        return StepPhase.RETRY;
     }
 
     protected StepPhase getInitialStepPhase(ExecutionWrapper executionWrapper) {
