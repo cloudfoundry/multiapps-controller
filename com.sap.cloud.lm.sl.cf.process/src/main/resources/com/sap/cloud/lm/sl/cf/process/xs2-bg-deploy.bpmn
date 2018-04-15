@@ -101,7 +101,7 @@
     <serviceTask id="updateSubscribedServiceBrokerTask" name="Update Subscriber Service Broker" activiti:async="true" activiti:delegateExpression="${updateSubscribedServiceBrokerStep}"></serviceTask>
     <sequenceFlow id="flow83" sourceRef="updateSubscribedServiceBrokerTask" targetRef="incrementServiceBrokerSubscribersToRestartIndexTask"></sequenceFlow>
     <sequenceFlow id="continueAppsDeploymentFlow" sourceRef="exclusivegateway6" targetRef="incrementDeployAppsIndexTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow85" sourceRef="incrementDeployAppsIndexTask" targetRef="exclusivegateway7"></sequenceFlow>
     <serviceTask id="prepareToRestartServiceBrokersTask" name="Prepare To Restart Service Brokers" activiti:async="true" activiti:delegateExpression="${prepareToRestartServiceBrokersStep}"></serviceTask>
@@ -140,7 +140,7 @@
     <sequenceFlow id="waitRestartAppSubProcessFlow" sourceRef="exclusivegateway10" targetRef="timerintermediatecatchevent3"></sequenceFlow>
     <sequenceFlow id="flow114" sourceRef="incrementRestartAppsIndexTask" targetRef="exclusivegateway9"></sequenceFlow>
     <sequenceFlow id="continueRestartAppSubprocessFlow" sourceRef="exclusivegateway10" targetRef="incrementRestartAppsIndexTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="continueBlueGreenProcessFlow" sourceRef="exclusivegateway9" targetRef="deleteIdleRoutesTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(appsCount == appsIndex)}]]></conditionExpression>
@@ -171,7 +171,7 @@
     <exclusiveGateway id="areServiceOperationsDoneGateway" name="Are Service Operations Done Gateway" default="waitForServiceOperationsToBeDoneFlow"></exclusiveGateway>
     <sequenceFlow id="flow140" sourceRef="createOrUpdateServicesTask" targetRef="areServiceOperationsDoneGateway"></sequenceFlow>
     <sequenceFlow id="serviceOperationsDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="prepareAppsDeploymentTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <intermediateCatchEvent id="pollServicesStatusTimer" name="TimerCatchEvent">
       <timerEventDefinition>
@@ -187,7 +187,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(noRestartSubscribedApps == true)}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow145" sourceRef="exclusivegateway12" targetRef="updateSubscribedServiceBrokerTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="deleteIdleRoutesTask" name="Delete Idle Routes" activiti:async="true" activiti:delegateExpression="${deleteIdleRoutesStep}"></serviceTask>
     <sequenceFlow id="flow146" sourceRef="deleteIdleRoutesTask" targetRef="deleteSubscriptionsTask"></sequenceFlow>

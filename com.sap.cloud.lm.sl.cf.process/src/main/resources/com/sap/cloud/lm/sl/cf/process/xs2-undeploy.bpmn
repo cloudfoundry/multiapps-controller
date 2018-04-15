@@ -86,7 +86,7 @@
     <sequenceFlow id="waitBrokerRestartSubProcessFlow" sourceRef="exclusivegateway1" targetRef="timerintermediatecatchevent1"></sequenceFlow>
     <sequenceFlow id="flow35" sourceRef="timerintermediatecatchevent1" targetRef="startServiceBrokerRestartSubProcessTask"></sequenceFlow>
     <sequenceFlow id="flow36" sourceRef="exclusivegateway1" targetRef="updateSubscribedServiceBrokerTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="incrementServiceBrokerSubscribersToRestartIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="flow37" sourceRef="updateSubscribedServiceBrokerTask" targetRef="incrementServiceBrokerSubscribersToRestartIndexTask"></sequenceFlow>

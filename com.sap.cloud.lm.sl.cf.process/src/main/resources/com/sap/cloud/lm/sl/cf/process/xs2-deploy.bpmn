@@ -117,7 +117,7 @@
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="serviceOperationsDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="prepareAppsDeploymentTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="waitForServiceOperationsToBeDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="pollServiceOperationsTimer"></sequenceFlow>
     <sequenceFlow id="flow104" sourceRef="pollServiceOperationsTimer" targetRef="createOrUpdateServicesTask"></sequenceFlow>
@@ -134,7 +134,7 @@
     </intermediateCatchEvent>
     <sequenceFlow id="flow108" sourceRef="timerintermediatecatchevent2" targetRef="startAppDeploySubProcessTask"></sequenceFlow>
     <sequenceFlow id="deployNextFlow" sourceRef="exclusivegateway3" targetRef="incrementDeployAppsIndexTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="incrementDeployAppsIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="flow110" sourceRef="incrementDeployAppsIndexTask" targetRef="exclusivegateway4"></sequenceFlow>
@@ -151,7 +151,7 @@
     <sequenceFlow id="flow114" sourceRef="timerintermediatecatchevent3" targetRef="startServiceBrokerRestartSubProcessTask"></sequenceFlow>
     <serviceTask id="updateSubscribedServiceBrokerTask" name="Update Subscriber Service Broker" activiti:async="true" activiti:delegateExpression="${updateSubscribedServiceBrokerStep}"></serviceTask>
     <sequenceFlow id="flow115" sourceRef="exclusivegateway5" targetRef="updateSubscribedServiceBrokerTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "done")}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="incrementServiceBrokerSubscribersToRestartIndexTask" name="Increment Index" activiti:async="true" activiti:delegateExpression="${incrementIndexStep}"></serviceTask>
     <sequenceFlow id="flow116" sourceRef="updateSubscribedServiceBrokerTask" targetRef="incrementServiceBrokerSubscribersToRestartIndexTask"></sequenceFlow>
