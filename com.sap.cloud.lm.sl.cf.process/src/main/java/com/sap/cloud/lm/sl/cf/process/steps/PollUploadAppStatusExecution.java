@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
@@ -72,7 +73,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
                 .error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
             throw e;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             execution.getStepLogger()
                 .error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
             throw cfe;

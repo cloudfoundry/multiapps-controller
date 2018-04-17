@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -49,7 +50,7 @@ public class UndeployAppStep extends SyncActivitiStep {
             getStepLogger().debug(Messages.APPS_UNDEPLOYED);
             return StepPhase.DONE;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_UNDEPLOYING_APPS);
             throw e;
         } catch (SLException e) {

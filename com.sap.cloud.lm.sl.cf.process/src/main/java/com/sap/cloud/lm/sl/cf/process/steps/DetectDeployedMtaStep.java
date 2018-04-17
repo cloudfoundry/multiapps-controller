@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 import java.util.function.Function;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -52,7 +53,7 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
             getStepLogger().debug(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps));
             return StepPhase.DONE;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_DETECTING_DEPLOYED_MTA);
             throw e;
         } catch (SLException e) {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         try {
             return new PollExecuteTaskStatusDelegate(execution).execute();
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             execution.getStepLogger()
                 .error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, task.getName(), app.getName());
             throw cfe;

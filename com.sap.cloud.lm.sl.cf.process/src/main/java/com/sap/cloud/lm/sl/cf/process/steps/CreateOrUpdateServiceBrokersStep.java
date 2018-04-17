@@ -8,8 +8,10 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.ServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -27,6 +29,7 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("createOrUpdateServiceBrokersStep")
@@ -69,7 +72,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
             throw e;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
             throw e;
         }
@@ -124,16 +127,16 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
         String serviceBrokerSpaceGuid = getServiceBrokerSpaceGuid(context, serviceBrokerName, attributesGetter);
 
         if (serviceBrokerName == null) {
-            throw new SLException(Messages.MISSING_SERVICE_BROKER_NAME, app.getName());
+            throw new ContentException(Messages.MISSING_SERVICE_BROKER_NAME, app.getName());
         }
         if (serviceBrokerUsername == null) {
-            throw new SLException(Messages.MISSING_SERVICE_BROKER_USERNAME, app.getName());
+            throw new ContentException(Messages.MISSING_SERVICE_BROKER_USERNAME, app.getName());
         }
         if (serviceBrokerPassword == null) {
-            throw new SLException(Messages.MISSING_SERVICE_BROKER_PASSWORD, app.getName());
+            throw new ContentException(Messages.MISSING_SERVICE_BROKER_PASSWORD, app.getName());
         }
         if (serviceBrokerUrl == null) {
-            throw new SLException(Messages.MISSING_SERVICE_BROKER_URL, app.getName());
+            throw new ContentException(Messages.MISSING_SERVICE_BROKER_URL, app.getName());
         }
 
         return new CloudServiceBrokerExtended(serviceBrokerName, serviceBrokerUrl, serviceBrokerUsername, serviceBrokerPassword,
@@ -173,6 +176,8 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
                         getStepLogger().warn(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
                         return;
                     }
+                case BAD_GATEWAY:
+                    throw new ServiceBrokerException(e);
                 default:
                     throw e;
             }
@@ -191,6 +196,8 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
                         getStepLogger().warn(Messages.CREATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
                         return;
                     }
+                case BAD_GATEWAY:
+                    throw new ServiceBrokerException(e);
                 default:
                     throw e;
             }

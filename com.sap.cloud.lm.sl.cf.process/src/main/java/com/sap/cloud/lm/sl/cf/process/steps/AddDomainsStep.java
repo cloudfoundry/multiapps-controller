@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
@@ -39,7 +40,7 @@ public class AddDomainsStep extends SyncActivitiStep {
             getStepLogger().debug(Messages.DOMAINS_ADDED);
             return StepPhase.DONE;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_ADDING_DOMAINS);
             throw e;
         } catch (SLException e) {

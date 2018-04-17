@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 
@@ -85,7 +86,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
             }
             return AsyncExecutionState.RUNNING;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             execution.getStepLogger()
                 .error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
             throw cfe;

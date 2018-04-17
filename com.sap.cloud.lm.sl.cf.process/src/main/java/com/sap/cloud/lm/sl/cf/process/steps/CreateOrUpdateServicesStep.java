@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -95,7 +96,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             getStepLogger().debug(Messages.SERVICES_CREATED_OR_UPDATED);
             return StepPhase.POLL;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICES);
             throw e;
         } catch (SLException e) {

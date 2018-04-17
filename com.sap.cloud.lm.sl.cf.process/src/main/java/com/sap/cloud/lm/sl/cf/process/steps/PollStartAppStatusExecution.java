@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -54,7 +55,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                 execution.getProcessLoggerProviderFactory());
             return checkStartupStatus(execution, app, status);
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
             throw cfe;
         } catch (SLException e) {

@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -110,7 +111,7 @@ public class CreateAppStep extends SyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_CREATING_APP, app.getName());
             throw e;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_CREATING_APP, app.getName());
             throw e;
         }

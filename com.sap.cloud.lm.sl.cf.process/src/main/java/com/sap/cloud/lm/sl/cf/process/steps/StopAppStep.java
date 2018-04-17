@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -44,7 +45,7 @@ public class StopAppStep extends SyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_STOPPING_APP, app.getName());
             throw e;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_STOPPING_APP, app.getName());
             throw e;
         }

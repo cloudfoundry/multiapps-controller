@@ -2,13 +2,14 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.ServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -37,7 +38,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_DELETING_SERVICES);
             throw e;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_DELETING_SERVICES);
             throw e;
         }
@@ -53,12 +54,14 @@ public class DeleteServicesStep extends SyncActivitiStep {
         try {
             attemptToDeleteService(client, serviceName);
         } catch (CloudFoundryException e) {
-            if (e.getStatusCode()
-                .equals(HttpStatus.NOT_FOUND)) {
-                getStepLogger().warn(e, Messages.COULD_NOT_DELETE_SERVICE, serviceName);
-                return;
+            switch (e.getStatusCode()) {
+                case NOT_FOUND:
+                    getStepLogger().warn(e, Messages.COULD_NOT_DELETE_SERVICE, serviceName);
+                case BAD_GATEWAY:
+                    throw new ServiceBrokerException(e);
+                default:
+                    throw e;
             }
-            throw e;
         }
     }
 

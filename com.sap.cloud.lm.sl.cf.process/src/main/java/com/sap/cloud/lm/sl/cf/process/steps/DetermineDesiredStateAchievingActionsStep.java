@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -33,7 +34,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
         try {
             return attemptToExecuteStep(context);
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, app.getName());
             throw e;
         } catch (SLException e) {

@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 import java.util.Set;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -48,7 +49,7 @@ public class ReserveRoutesStep extends SyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_RESERVING_ROUTES, app.getName());
             throw e;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_RESERVING_ROUTES, app.getName());
             throw e;
         }

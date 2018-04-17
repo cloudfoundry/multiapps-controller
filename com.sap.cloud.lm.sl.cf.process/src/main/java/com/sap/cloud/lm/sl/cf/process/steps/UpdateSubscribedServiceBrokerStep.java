@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -34,7 +35,7 @@ public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrok
             }
             return StepPhase.DONE;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_UPDATE, broker.getName());
             return StepPhase.DONE;
         }
