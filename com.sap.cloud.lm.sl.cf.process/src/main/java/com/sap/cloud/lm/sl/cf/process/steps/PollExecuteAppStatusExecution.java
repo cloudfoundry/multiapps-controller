@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
@@ -57,7 +58,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
                 execution.getProcessLoggerProviderFactory());
             return checkAppExecutionStatus(execution, client, attributesGetter, app, status);
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             execution.getStepLogger()
                 .error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw cfe;

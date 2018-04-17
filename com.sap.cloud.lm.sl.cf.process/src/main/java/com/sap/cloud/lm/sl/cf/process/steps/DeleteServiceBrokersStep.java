@@ -6,8 +6,10 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.ServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -43,7 +45,7 @@ public class DeleteServiceBrokersStep extends SyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_DELETING_SERVICE_BROKERS);
             throw e;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_DELETING_SERVICE_BROKERS);
             throw e;
         }
@@ -70,6 +72,8 @@ public class DeleteServiceBrokersStep extends SyncActivitiStep {
                             getStepLogger().warn(Messages.DELETE_OF_SERVICE_BROKERS_FAILED_403, name);
                             return;
                         }
+                    case BAD_GATEWAY:
+                        throw new ServiceBrokerException(e);
                     default:
                         throw e;
                 }

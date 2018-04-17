@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -48,7 +49,7 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_REGISTERING_SERVICE_URLS);
             throw e;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_REGISTERING_SERVICE_URLS);
             throw e;
         }

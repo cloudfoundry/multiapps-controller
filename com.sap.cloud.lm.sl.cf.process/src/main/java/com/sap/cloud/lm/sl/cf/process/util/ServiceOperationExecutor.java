@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.ServiceBrokerException;
+import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -21,6 +23,9 @@ public class ServiceOperationExecutor {
             return serviceOperation.get();
         } catch (CloudFoundryException e) {
             if (!service.isOptional()) {
+                if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
+                    throw new ServiceBrokerException(e);
+                }
                 throw e;
             }
             stepLogger.warn(e, Messages.COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE, service.getName());

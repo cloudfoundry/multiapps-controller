@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -44,7 +45,7 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
             getStepLogger().error(e, Messages.ERROR_UNREGISTERING_SERVICE_URLS);
             throw e;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_UNREGISTERING_SERVICE_URLS);
             throw e;
         }

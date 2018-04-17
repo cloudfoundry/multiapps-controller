@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
@@ -19,7 +20,6 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -92,7 +92,7 @@ public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesS
             .map((service) -> service.name)
             .collect(Collectors.toList());
         if (expectedExceptionMessage != null) {
-            expectedException.expect(SLException.class);
+            expectedException.expect(CloudControllerException.class);
             expectedException.expectMessage(expectedExceptionMessage);
         }
     }

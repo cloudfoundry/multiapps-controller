@@ -6,6 +6,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -18,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingStateGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("stageAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -42,7 +42,7 @@ public class StageAppStep extends TimeoutAsyncActivitiStep {
 
             return stageApp(execution.getContext(), clientExtensions, app);
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
             throw e;
         }

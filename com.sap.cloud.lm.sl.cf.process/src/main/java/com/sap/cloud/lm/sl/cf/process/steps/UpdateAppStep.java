@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -102,7 +103,7 @@ public class UpdateAppStep extends CreateAppStep {
             getStepLogger().error(e, Messages.ERROR_UPDATING_APP, app.getName());
             throw e;
         } catch (CloudFoundryException cfe) {
-            SLException e = StepsUtil.createException(cfe);
+            CloudControllerException e = new CloudControllerException(cfe);
             getStepLogger().error(e, Messages.ERROR_UPDATING_APP, app.getName());
             throw e;
         }
