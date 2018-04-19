@@ -57,7 +57,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         } catch (CloudFoundryException cfe) {
             CloudControllerException e = new CloudControllerException(cfe);
             onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
-            throw cfe;
+            throw e;
         } catch (SLException e) {
             onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
             throw e;
