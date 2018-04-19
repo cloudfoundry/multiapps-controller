@@ -89,7 +89,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
             CloudControllerException e = new CloudControllerException(cfe);
             execution.getStepLogger()
                 .error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
-            throw cfe;
+            throw e;
         } catch (SLException e) {
             execution.getStepLogger()
                 .error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);

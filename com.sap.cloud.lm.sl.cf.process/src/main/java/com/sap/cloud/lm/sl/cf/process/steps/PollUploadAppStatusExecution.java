@@ -76,7 +76,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
             CloudControllerException e = new CloudControllerException(cfe);
             execution.getStepLogger()
                 .error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
-            throw cfe;
+            throw e;
         }
     }
 
