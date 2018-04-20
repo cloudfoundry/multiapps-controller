@@ -57,6 +57,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
             switch (e.getStatusCode()) {
                 case NOT_FOUND:
                     getStepLogger().warn(e, Messages.COULD_NOT_DELETE_SERVICE, serviceName);
+                    break;
                 case BAD_GATEWAY:
                     throw new ServiceBrokerException(e);
                 default:

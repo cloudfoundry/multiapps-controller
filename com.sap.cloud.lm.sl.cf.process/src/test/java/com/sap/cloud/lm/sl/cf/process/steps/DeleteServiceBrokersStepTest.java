@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
@@ -25,7 +26,6 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.CreateOrUpdateServiceBrokersStepTest.SimpleApplication;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -113,7 +113,7 @@ public class DeleteServiceBrokersStepTest extends SyncActivitiStepTest<DeleteSer
         boolean shouldSucceed = true;
         if (expectedExceptionMessage != null) {
             expectedException.expectMessage(expectedExceptionMessage);
-            expectedException.expect(SLException.class);
+            expectedException.expect(CloudControllerException.class);
             shouldSucceed = false;
         }
         context.setVariable(Constants.PARAM_NO_FAIL_ON_MISSING_PERMISSIONS, shouldSucceed);

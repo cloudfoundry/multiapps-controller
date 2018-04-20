@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -115,7 +116,7 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
     private void prepareExpectedException() {
         if (expectedCfExceptionMessage != null) {
             expectedException.expectMessage(expectedCfExceptionMessage);
-            expectedException.expect(CloudFoundryException.class);
+            expectedException.expect(CloudControllerException.class);
         }
     }
 
