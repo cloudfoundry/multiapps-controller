@@ -19,6 +19,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.junit.Before;
@@ -192,7 +193,7 @@ public class UploadAppStepTest {
             }
             if (expectedCFExceptionMessage != null) {
                 expectedException.expectMessage(expectedCFExceptionMessage);
-                expectedException.expect(SLException.class);
+                expectedException.expect(CloudControllerException.class);
             }
         }
 
