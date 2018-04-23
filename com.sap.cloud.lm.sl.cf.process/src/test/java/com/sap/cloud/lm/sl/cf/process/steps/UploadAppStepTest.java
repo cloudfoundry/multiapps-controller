@@ -127,11 +127,11 @@ public class UploadAppStepTest {
                 },
                 // (04)
                 {
-                    Boolean.TRUE , null, StepsUtil.createException(CF_EXCEPTION).getMessage(),
+                    Boolean.TRUE , null, createException(CF_EXCEPTION).getMessage(),
                 },
                 // (05)
                 {
-                    Boolean.FALSE, null, StepsUtil.createException(CF_EXCEPTION).getMessage(),
+                    Boolean.FALSE, null, createException(CF_EXCEPTION).getMessage(),
                 },
 // @formatter:on
             });
@@ -269,6 +269,10 @@ public class UploadAppStepTest {
         @Override
         protected UploadAppStep createStep() {
             return new UploadAppStepMock();
+        }
+
+        private static SLException createException(CloudFoundryException e) {
+            return new SLException(e, Messages.CF_ERROR, e.getMessage());
         }
 
     }
