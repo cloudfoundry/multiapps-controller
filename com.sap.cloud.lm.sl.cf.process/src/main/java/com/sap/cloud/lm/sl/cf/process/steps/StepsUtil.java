@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.impl.identity.Authentication;
-import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
@@ -909,10 +908,6 @@ public class StepsUtil {
             return defaultValue;
         }
         return (T) context.getVariable(name);
-    }
-
-    public static SLException createException(CloudFoundryException e) {
-        return new SLException(e, Messages.CF_ERROR, e.getMessage());
     }
 
     private static String getPrefix(Logger logger) {
