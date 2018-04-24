@@ -18,7 +18,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokerCreator;
@@ -52,7 +51,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
             CloudFoundryOperations client = execution.getCloudFoundryClient();
             List<CloudServiceBrokerExtended> existingServiceBrokers = serviceBrokersGetter.getServiceBrokers(client);
             List<CloudServiceBrokerExtended> serviceBrokersToCreate = getServiceBrokersToCreate(
-                StepsUtil.getAppsToDeploy(execution.getContext()), execution.getContext());
+                mapApplicationsFromContextToCloudApplications(execution, client), execution.getContext());
             getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKERS, secureSerializer.toJson(serviceBrokersToCreate)));
             List<String> existingServiceBrokerNames = getServiceBrokerNames(existingServiceBrokers);
 
@@ -78,6 +77,14 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
         }
     }
 
+    private List<CloudApplication> mapApplicationsFromContextToCloudApplications(ExecutionWrapper execution,
+        CloudFoundryOperations client) {
+        return StepsUtil.getAppsToDeploy(execution.getContext())
+            .stream()
+            .map(app -> client.getApplication(app.getName()))
+            .collect(Collectors.toList());
+    }
+
     private void updateServiceBroker(DelegateExecution context, CloudServiceBrokerExtended serviceBroker,
         CloudServiceBrokerExtended existingBroker, CloudFoundryOperations client) {
         serviceBroker.setMeta(existingBroker.getMeta());
@@ -99,10 +106,10 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
             .get();
     }
 
-    private List<CloudServiceBrokerExtended> getServiceBrokersToCreate(List<CloudApplicationExtended> appsToDeploy,
-        DelegateExecution context) throws SLException {
+    private List<CloudServiceBrokerExtended> getServiceBrokersToCreate(List<CloudApplication> appsToDeploy, DelegateExecution context)
+        throws SLException {
         List<CloudServiceBrokerExtended> serviceBrokersToCreate = new ArrayList<>();
-        for (CloudApplicationExtended app : appsToDeploy) {
+        for (CloudApplication app : appsToDeploy) {
             CloudServiceBrokerExtended serviceBroker = getServiceBrokerFromApp(app, context);
             if (serviceBroker == null) {
                 continue;

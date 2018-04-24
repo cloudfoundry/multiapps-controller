@@ -223,6 +223,10 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncActivitiStepTest<C
                 .when(serviceBrokerCreator)
                 .createServiceBroker(Mockito.any(), Mockito.any());
         }
+        for (SimpleApplication application : input.applications) {
+            Mockito.when(client.getApplication(application.name))
+                .thenReturn(application.toCloudApplication());
+        }
     }
 
     private StepOutput captureStepOutput() {
