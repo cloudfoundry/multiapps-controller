@@ -31,7 +31,7 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
 
             ClientExtensions clientExtensions = execution.getClientExtensions();
             if (clientExtensions == null) {
-                getStepLogger().warn(Messages.CLIENT_DOES_NOT_SUPPORT_EXTENSIONS);
+                getStepLogger().debug(Messages.CLIENT_EXTENSIONS_ARE_NOT_SUPPORTED);
                 return StepPhase.DONE;
             }
 

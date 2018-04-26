@@ -134,7 +134,7 @@ public class Messages {
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service {0}";
     public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve instance of service {0}";
-    public static final String CLIENT_DOES_NOT_SUPPORT_EXTENSIONS = "Client extensions are not supported";
+
     public static final String COULD_NOT_DELETE_PROVIDED_DEPENDENCY = "Could not delete published provided dependency \"{0}\" from configuration registry";
     public static final String COULD_NOT_DELETE_ROUTE_FOR_PORT = "Could not delete route for allocated port \"{0}\"";
     public static final String COULD_NOT_DELETE_SERVICE = "Could not delete service \"{0}\", as it does not exist";
@@ -337,6 +337,7 @@ public class Messages {
     public static final String EXCEPTION_OCCURED_ERROR_MSG = "Exception occured during execution: \"{0}\"";
 
     // DEBUG log messages
+    public static final String CLIENT_EXTENSIONS_ARE_NOT_SUPPORTED = "Client extensions are not supported";
     public static final String PROCESS_ENVIRONMENT = "Process environment: {0}";
     public static final String PROCESS_VARIABLES = "Process variables: {0}";
     public static final String AUTHENTICATED_USER_ID = "Authenticated user id: {0}";
