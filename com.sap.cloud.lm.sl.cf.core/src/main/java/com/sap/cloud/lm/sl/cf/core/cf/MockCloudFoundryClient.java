@@ -194,6 +194,11 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
     public List<CloudApplication> getApplications() {
         return new ArrayList<CloudApplication>(apps.values());
     }
+    
+    @Override
+    public List<CloudApplication> getApplications(String inlineDepth){
+        return new ArrayList<CloudApplication>(apps.values());
+    }
 
     @Override
     public CloudApplication getApplication(String appName) {
