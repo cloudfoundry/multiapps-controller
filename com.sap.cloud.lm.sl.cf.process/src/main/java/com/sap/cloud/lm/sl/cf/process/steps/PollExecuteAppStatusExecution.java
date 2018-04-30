@@ -56,7 +56,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, attributesGetter, app);
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
-            return checkAppExecutionStatus(execution, client, attributesGetter, app, status);
+            return checkAppExecutionStatus(execution, client, app, attributesGetter, status);
         } catch (CloudFoundryException cfe) {
             CloudControllerException e = new CloudControllerException(cfe);
             execution.getStepLogger()
@@ -114,32 +114,38 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             return null;
     }
 
-    private AsyncExecutionState checkAppExecutionStatus(ExecutionWrapper execution, CloudFoundryOperations client,
-        ApplicationAttributesGetter attributesGetter, CloudApplication app, Pair<AppExecutionStatus, String> status) throws SLException {
+    private AsyncExecutionState checkAppExecutionStatus(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
+        ApplicationAttributesGetter attributesGetter, Pair<AppExecutionStatus, String> status) {
         if (status._1.equals(AppExecutionStatus.FAILED)) {
             // Application execution failed
             String message = format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status._2);
             execution.getStepLogger()
                 .error(message);
+            stopApplicationIfSpecified(execution, client, app, attributesGetter);
             return AsyncExecutionState.ERROR;
         } else if (status._1.equals(AppExecutionStatus.SUCCEEDED)) {
             // Application executed successfully
             execution.getStepLogger()
                 .info(Messages.APP_EXECUTED, app.getName());
-            // Stop the application if specified
-            boolean stopApp = attributesGetter.getAttribute(SupportedParameters.STOP_APP, Boolean.class, false);
-            if (stopApp) {
-                execution.getStepLogger()
-                    .info(Messages.STOPPING_APP, app.getName());
-                client.stopApplication(app.getName());
-                execution.getStepLogger()
-                    .debug(Messages.APP_STOPPED, app.getName());
-            }
+            stopApplicationIfSpecified(execution, client, app, attributesGetter);
             return AsyncExecutionState.FINISHED;
         } else {
             // Application not executed yet, wait and try again unless it's a timeout.
             return AsyncExecutionState.RUNNING;
         }
+    }
+
+    private void stopApplicationIfSpecified(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
+        ApplicationAttributesGetter attributesGetter) {
+        boolean stopApp = attributesGetter.getAttribute(SupportedParameters.STOP_APP, Boolean.class, false);
+        if (!stopApp) {
+            return;
+        }
+        execution.getStepLogger()
+            .info(Messages.STOPPING_APP, app.getName());
+        client.stopApplication(app.getName());
+        execution.getStepLogger()
+            .debug(Messages.APP_STOPPED, app.getName());
     }
 
     private static Pair<MessageType, String> getMarker(ApplicationAttributesGetter attributesGetter, String attribute, String defaultValue)
