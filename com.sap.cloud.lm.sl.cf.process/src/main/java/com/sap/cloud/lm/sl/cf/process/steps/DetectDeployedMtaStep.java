@@ -36,7 +36,7 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
 
             CloudFoundryOperations client = execution.getCloudFoundryClient();
 
-            List<CloudApplication> deployedApps = client.getApplications();
+            List<CloudApplication> deployedApps = client.getApplications("0");
             StepsUtil.setDeployedApps(execution.getContext(), deployedApps);
             String mtaId = (String) execution.getContext()
                 .getVariable(Constants.PARAM_MTA_ID);

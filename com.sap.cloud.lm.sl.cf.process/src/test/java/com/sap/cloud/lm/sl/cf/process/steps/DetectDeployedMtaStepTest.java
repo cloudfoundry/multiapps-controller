@@ -40,7 +40,7 @@ public class DetectDeployedMtaStepTest extends SyncActivitiStepTest<DetectDeploy
 
     @Test(expected = CloudControllerException.class)
     public void testExecute2() throws Exception {
-        when(client.getApplications()).thenThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR));
+        when(client.getApplications("0")).thenThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         step.execute(context);
     }
