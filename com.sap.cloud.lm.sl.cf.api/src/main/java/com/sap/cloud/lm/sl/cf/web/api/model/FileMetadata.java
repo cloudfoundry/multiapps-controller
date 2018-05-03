@@ -183,7 +183,7 @@ public class FileMetadata implements AuditableConfiguration {
         configurationIdentifiers.add(new ConfigurationIdentifier("digest", digest));
         configurationIdentifiers.add(new ConfigurationIdentifier("digestAlgorithm", digestAlgorithm));
         configurationIdentifiers.add(new ConfigurationIdentifier("space", space));
-        configurationIdentifiers.add(new ConfigurationIdentifier("size", size.toString()));
+        configurationIdentifiers.add(new ConfigurationIdentifier("size", Objects.toString(size)));
         return configurationIdentifiers;
     }
 }
