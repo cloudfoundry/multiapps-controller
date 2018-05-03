@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
@@ -106,7 +107,7 @@ public class ConfigurationEntry implements AuditableConfiguration {
         List<ConfigurationIdentifier> configurationIdentifiers = new ArrayList<>();
         configurationIdentifiers.add(new ConfigurationIdentifier("provider namespace", providerNid));
         configurationIdentifiers.add(new ConfigurationIdentifier("provider id", providerId));
-        configurationIdentifiers.add(new ConfigurationIdentifier("provider version", providerVersion.toString()));
+        configurationIdentifiers.add(new ConfigurationIdentifier("provider version", Objects.toString(providerVersion)));
         configurationIdentifiers.add(new ConfigurationIdentifier("provider target", targetSpace.getOrg() + "/" + targetSpace.getSpace()));
         configurationIdentifiers.add(new ConfigurationIdentifier("configuration content", content));
         return configurationIdentifiers;

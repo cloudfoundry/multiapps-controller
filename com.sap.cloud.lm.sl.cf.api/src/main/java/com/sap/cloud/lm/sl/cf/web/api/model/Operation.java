@@ -306,13 +306,13 @@ public class Operation implements AuditableConfiguration {
     @Override
     public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
         List<ConfigurationIdentifier> identifiersList = new ArrayList<>();
-        identifiersList.add(new ConfigurationIdentifier("process type", processType.getName()));
-        identifiersList.add(new ConfigurationIdentifier("started at", startedAt.toString()));
-        identifiersList.add(new ConfigurationIdentifier("ended at", endedAt.toString()));
+        identifiersList.add(new ConfigurationIdentifier("process type", Objects.toString(processType)));
+        identifiersList.add(new ConfigurationIdentifier("started at", Objects.toString(startedAt)));
+        identifiersList.add(new ConfigurationIdentifier("ended at", Objects.toString(endedAt)));
         identifiersList.add(new ConfigurationIdentifier("space id", spaceId));
         identifiersList.add(new ConfigurationIdentifier("mta id", mtaId));
         identifiersList.add(new ConfigurationIdentifier("user", user));
-        identifiersList.add(new ConfigurationIdentifier("state", state.name()));
+        identifiersList.add(new ConfigurationIdentifier("state", Objects.toString(state)));
         return identifiersList;
     }
 }
