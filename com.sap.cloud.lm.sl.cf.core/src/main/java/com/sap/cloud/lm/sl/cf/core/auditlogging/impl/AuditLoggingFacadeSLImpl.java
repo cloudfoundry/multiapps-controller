@@ -48,26 +48,26 @@ public class AuditLoggingFacadeSLImpl implements AuditLoggingFacade {
     @Override
     public void logConfig(AuditableConfiguration configuration) {
         String message = MessageFormat.format(Messages.AUDIT_LOG_CONFIG, configuration.getConfigurationType(),
-            configuration.getConfiguratioName());
+            configuration.getConfigurationName());
         writeMessage(auditLogManager.getConfigLogger(), message, Level.INFO);
     }
 
     @Override
     public void logConfigUpdate(AuditableConfiguration configuration) {
-        String message = MessageFormat.format(Messages.AUDIT_LOG_UPDATE_CONFIG, configuration.getConfiguratioName());
+        String message = MessageFormat.format(Messages.AUDIT_LOG_UPDATE_CONFIG, configuration.getConfigurationName());
         writeMessage(auditLogManager.getConfigLogger(), message, Level.INFO);
     }
 
     @Override
     public void logConfigDelete(AuditableConfiguration configuration) {
-        String message = MessageFormat.format(Messages.AUDIT_LOG_DELETE_CONFIG, configuration.getConfiguratioName());
+        String message = MessageFormat.format(Messages.AUDIT_LOG_DELETE_CONFIG, configuration.getConfigurationName());
         writeMessage(auditLogManager.getConfigLogger(), message, Level.INFO);
     }
 
     @Override
     public void logConfigCreate(AuditableConfiguration configuration) {
         String message = MessageFormat.format(Messages.AUDIT_LOG_CREATE_CONFIG, configuration.getConfigurationType(),
-            configuration.getConfiguratioName());
+            configuration.getConfigurationName());
         writeMessage(auditLogManager.getConfigLogger(), message, Level.INFO);
     }
 

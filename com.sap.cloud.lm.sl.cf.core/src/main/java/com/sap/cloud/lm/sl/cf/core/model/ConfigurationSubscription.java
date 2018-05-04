@@ -302,7 +302,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     }
 
     @Override
-    public String getConfiguratioName() {
+    public String getConfigurationName() {
         return String.valueOf(id);
     }
 
