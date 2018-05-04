@@ -172,7 +172,7 @@ public class FileMetadata implements AuditableConfiguration {
     }
 
     @Override
-    public String getConfiguratioName() {
+    public String getConfigurationName() {
         return name;
     }
 

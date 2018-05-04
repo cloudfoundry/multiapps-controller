@@ -265,7 +265,7 @@ public class Configuration {
             }
 
             @Override
-            public String getConfiguratioName() {
+            public String getConfigurationName() {
                 return key;
             }
 
