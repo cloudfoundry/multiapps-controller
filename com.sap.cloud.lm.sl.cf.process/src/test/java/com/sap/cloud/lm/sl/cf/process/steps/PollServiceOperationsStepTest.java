@@ -106,7 +106,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
             exception.expectMessage(expectedExceptionMessage);
         }
         context.setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getCloudFoundryClient(anyString(), anyString())).thenReturn(client);
     }
 
     @SuppressWarnings("unchecked")
