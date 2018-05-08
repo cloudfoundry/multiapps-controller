@@ -73,6 +73,7 @@ public final class Messages {
     public static final String CANNOT_SUBMIT_TASK = "Couldn't submit auditlogging task for execution in the executor service";
     public static final String CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN = "Service \"{0}\" could not be created because none of the service offering(s) \"{1}\" match with existing service offerings or provide service plan \"{2}\"";
     public static final String CANT_CREATE_SERVICE = "Service \"{0}\" could not be created because all attempt(s) to use service offerings \"{1}\" failed";
+    public static final String COULD_NOT_PARSE_MTA_METADATA_FOR_APP_0 = "Could not parse MTA metadata for application \"{0}\"";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET = "Environment variable \"{0}\" is not set";
@@ -95,6 +96,7 @@ public final class Messages {
     public static final String UNKNOWN_DB_TYPE_WILL_NOT_DROP_CONFIGURATION_REGISTRY_UNIQUE_CONSTRAINT = "Unknown database type: {0}. DropConfigurationRegistryUniqueConstraint will not be executed.";
     public static final String UNKNOWN_DB_TYPE_WILL_NOT_ALTER_OPERATION_TABLE_COLUMN_TYPES = "Unknown database type: {0}. AlterOperationTableTimestampStoringColumns will not be executed.";
     public static final String NOT_DESCRIBED_MODULE = "MTA module \"{0}\" is found deployed, but it is not part of MTA manifest file";
+    public static final String COULD_NOT_PARSE_PROVIDED_DEPENDENCY_NAMES_1_OF_APP_0 = "Could not parse provided dependency names of application \"{0}\". Assuming that they're written in the \"old\" format. This is what they look like: {1}";
 
     // Info messages
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type not specified in environment, using default \"{0}\"";
@@ -170,7 +172,7 @@ public final class Messages {
     public static final String PURGING_ENTRIES = "Purging entries for target: {0}";
     public static final String PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES = "All delete request spaces after date: {0} will be deleted from configuration tables.";
     public static final String UPDATED_USER_TOKEN = "Token updated for user: {0} with new expiration time: {1}";
-    
+
     // Debug messages
     public static final String EXTENSION_DESCRIPTOR = "Extension descriptor \"{0}\": {1}";
     public static final String DEPLOYMENT_DESCRIPTOR_AFTER_PARAMETER_CORRECTION = "Deployment descriptor after parameter correction: {0}";
