@@ -122,7 +122,7 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
 
     private void prepareClient() {
         if (!supportsExtensions) {
-            when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(null);
+            when(clientProvider.getCloudFoundryClient(anyString(), anyString())).thenReturn(null);
             return;
         }
         if (expectedCfExceptionMessage != null) {
