@@ -74,10 +74,12 @@ public class StepsUtil {
         return processLoggerProviderFactory.getLoggerProvider(appName)
             .getLogger(getCorrelationId(context), PARENT_LOGGER, appName);
     }
-
+    
     static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,
         StepLogger stepLogger) throws SLException {
-        return getCloudFoundryClient(context, clientProvider, stepLogger, getOrg(context), getSpace(context));
+        String userName = determineCurrentUser(context, stepLogger);
+        String spaceId = getSpaceId(context);
+        return clientProvider.getCloudFoundryClient(userName, spaceId);
     }
 
     static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,

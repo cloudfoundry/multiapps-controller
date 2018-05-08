@@ -84,7 +84,7 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
 
         CloudFoundryOperations client = getClientThatSupportsTasks();
         mockControllerTasksSupport(client);
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getCloudFoundryClient(anyString(), anyString())).thenReturn(client);
 
         // When:
         step.execute(context);
