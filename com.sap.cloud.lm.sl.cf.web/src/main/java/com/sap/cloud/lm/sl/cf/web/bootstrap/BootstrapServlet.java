@@ -16,6 +16,7 @@ import javax.sql.DataSource;
 import org.activiti.engine.ProcessEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -61,7 +62,7 @@ public class BootstrapServlet extends HttpServlet {
     @Inject
     protected Configuration configuration;
 
-    @Inject
+    @Autowired(required = false)
     private List<AsyncChange> asyncChanges;
 
     @Inject
