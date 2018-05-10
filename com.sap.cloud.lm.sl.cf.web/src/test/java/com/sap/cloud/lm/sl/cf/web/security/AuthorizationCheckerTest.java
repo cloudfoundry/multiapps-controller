@@ -17,14 +17,16 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryOperationsExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 
 @RunWith(Parameterized.class)
@@ -43,10 +45,13 @@ public class AuthorizationCheckerTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
-    CloudFoundryClientProvider clientProvider = Mockito.mock(CloudFoundryClientProvider.class);
-
+    private CloudFoundryClientProvider clientProvider;
     @Mock
-    CloudFoundryOperationsExtended client = Mockito.mock(CloudFoundryOperationsExtended.class);
+    private CloudFoundryOperationsExtended client;
+    @Mock
+    private ApplicationConfiguration applicationConfiguration;
+    @InjectMocks
+    private AuthorizationChecker authorizationChecker;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -84,11 +89,12 @@ public class AuthorizationCheckerTest {
 
     @Before
     public void setUp() {
-        setUpException();
         setUpMocks();
+        setUpException();
     }
 
     private void setUpMocks() {
+        MockitoAnnotations.initMocks(this);
         DefaultOAuth2AccessToken accessToken = new DefaultOAuth2AccessToken("testTokenValue");
         accessToken.setScope(new HashSet<>());
         CloudSpace space = new CloudSpace(null, SPACE, new CloudOrganization(null, ORG));
@@ -116,7 +122,7 @@ public class AuthorizationCheckerTest {
 
     @Test
     public void checkPermissionsTest() {
-        boolean isAuthorized = AuthorizationChecker.checkPermissions(clientProvider, userInfo, ORG, SPACE, false, "1");
+        boolean isAuthorized = authorizationChecker.checkPermissions(userInfo, ORG, SPACE, false, "1");
         boolean shouldBeAuthorized = hasAccess && hasPermissions;
         assertTrue(shouldBeAuthorized == isAuthorized);
     }
