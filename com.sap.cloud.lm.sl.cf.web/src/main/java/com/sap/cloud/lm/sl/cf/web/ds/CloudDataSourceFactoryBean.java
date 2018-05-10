@@ -17,21 +17,18 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
     private String serviceName;
     private DataSource defaultDataSource;
     private DataSource dataSource;
-
-    public String getServiceName() {
-        return serviceName;
-    }
+    private ApplicationConfiguration configuration;
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
 
-    public DataSource getDefaultDataSource() {
-        return defaultDataSource;
-    }
-
     public void setDefaultDataSource(DataSource dataSource) {
         this.defaultDataSource = dataSource;
+    }
+
+    public void setConfiguration(ApplicationConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     @Override
@@ -59,7 +56,7 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
         DataSource dataSource = null;
         try {
             if (serviceName != null && !serviceName.isEmpty()) {
-                int maxPoolSize = getConfiguration().getDbConnectionThreads();
+                int maxPoolSize = configuration.getDbConnectionThreads();
                 DataSourceConfig config = new DataSourceConfig(new PoolConfig(maxPoolSize, 30000), null);
                 dataSource = getSpringCloud().getServiceConnector(serviceName, DataSource.class, config);
             }
@@ -67,10 +64,6 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
             // Do nothing
         }
         return dataSource;
-    }
-
-    protected ApplicationConfiguration getConfiguration() {
-        return ApplicationConfiguration.getInstance();
     }
 
     protected Cloud getSpringCloud() {
