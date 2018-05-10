@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.util;
+package com.sap.cloud.lm.sl.cf.web.security;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -25,9 +25,10 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryOperationsExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 
 @RunWith(Parameterized.class)
-public class AuthorizationUtilTest {
+public class AuthorizationCheckerTest {
 
     private UserInfo userInfo;
     private static final String ORG = "org";
@@ -75,7 +76,7 @@ public class AuthorizationUtilTest {
         });
     }
 
-    public AuthorizationUtilTest(boolean hasAccess, boolean hasPermissions, Exception exception) {
+    public AuthorizationCheckerTest(boolean hasAccess, boolean hasPermissions, Exception exception) {
         this.hasAccess = hasAccess;
         this.hasPermissions = hasPermissions;
         this.exception = exception;
@@ -115,7 +116,7 @@ public class AuthorizationUtilTest {
 
     @Test
     public void checkPermissionsTest() {
-        boolean isAuthorized = AuthorizationUtil.checkPermissions(clientProvider, userInfo, ORG, SPACE, false, "1");
+        boolean isAuthorized = AuthorizationChecker.checkPermissions(clientProvider, userInfo, ORG, SPACE, false, "1");
         boolean shouldBeAuthorized = hasAccess && hasPermissions;
         assertTrue(shouldBeAuthorized == isAuthorized);
     }

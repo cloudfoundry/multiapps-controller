@@ -17,7 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
-import com.sap.cloud.lm.sl.cf.web.resources.AuthorizationChecker;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 
 public class AuthorizationFilter extends OncePerRequestFilter {

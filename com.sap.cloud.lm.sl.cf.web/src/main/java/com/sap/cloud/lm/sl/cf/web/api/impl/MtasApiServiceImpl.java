@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Metadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.Module;
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
-import com.sap.cloud.lm.sl.cf.web.resources.AuthorizationChecker;
+import com.sap.cloud.lm.sl.cf.web.security.AuthorizationChecker;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
