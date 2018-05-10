@@ -14,7 +14,6 @@ import javax.ws.rs.WebApplicationException;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
@@ -24,7 +23,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     private static final String SPACE_ID_REGEX = "/api/v1/spaces/(.*?)/.*";
 
     @Inject
-    private CloudFoundryClientProvider clientProvider;
+    private AuthorizationChecker authorizationChecker;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -39,7 +38,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
             // In such cases the filter will be skipped.
             if (spaceId != null) {
                 UserInfo userInfo = SecurityContextUtil.getUserInfo();
-                AuthorizationChecker.ensureUserIsAuthorized(request, clientProvider, userInfo, spaceId, null);
+                authorizationChecker.ensureUserIsAuthorized(request, userInfo, spaceId, null);
             }
         } catch (WebApplicationException e) {
             response.sendError(401, MessageFormat.format(Messages.NOT_AUTHORIZED_TO_PERFORM_OPERATIONS_IN_SPACE, spaceId));

@@ -84,6 +84,9 @@ public class ConfigurationEntriesResource {
     @Inject
     private CloudFoundryClientProvider clientProvider;
 
+    @Inject
+    private AuthorizationChecker authorizationChecker;
+
     @Context
     private HttpServletRequest request;
 
@@ -265,7 +268,7 @@ public class ConfigurationEntriesResource {
         }
 
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        AuthorizationChecker.ensureUserIsAuthorized(request, clientProvider, userInfo, org, space, PURGE_COMMAND);
+        authorizationChecker.ensureUserIsAuthorized(request, userInfo, org, space, PURGE_COMMAND);
         CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName(), org, space, null);
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
         purger.purge(org, space);

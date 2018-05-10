@@ -38,9 +38,11 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     @Inject
     private CloudFoundryClientProvider clientProvider;
+    @Inject
+    private AuthorizationChecker authorizationChecker;
 
     public Response getMta(String mtaId, SecurityContext securityContext, String spaceGuid, HttpServletRequest request) {
-        AuthorizationChecker.ensureUserIsAuthorized(request, clientProvider, SecurityContextUtil.getUserInfo(), spaceGuid, ACTION);
+        authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, ACTION);
         DeployedMta mta = detectDeployedComponents(spaceGuid).findDeployedMta(mtaId);
         if (mta == null) {
             throw new NotFoundException(Messages.MTA_NOT_FOUND, mtaId);
@@ -51,7 +53,7 @@ public class MtasApiServiceImpl implements MtasApiService {
     }
 
     public Response getMtas(SecurityContext securityContext, String spaceGuid, HttpServletRequest request) {
-        AuthorizationChecker.ensureUserIsAuthorized(request, clientProvider, SecurityContextUtil.getUserInfo(), spaceGuid, ACTION);
+        authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, ACTION);
         DeployedComponents deployedComponents = detectDeployedComponents(spaceGuid);
         return Response.ok()
             .entity(getMtas(deployedComponents))
