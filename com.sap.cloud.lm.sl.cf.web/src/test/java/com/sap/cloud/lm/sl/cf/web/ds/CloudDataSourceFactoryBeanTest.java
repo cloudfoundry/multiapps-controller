@@ -25,10 +25,8 @@ import com.sap.cloud.lm.sl.cf.core.util.LambdaArgumentMatcher;
 public class CloudDataSourceFactoryBeanTest {
 
     private final class TestedCloudDataSourceFactoryBean extends CloudDataSourceFactoryBean {
-        protected ApplicationConfiguration getConfiguration() {
-            return configurationMock;
-        }
 
+        @Override
         protected Cloud getSpringCloud() {
             return springCloudMock;
         }
@@ -55,6 +53,7 @@ public class CloudDataSourceFactoryBeanTest {
     public void testDefaultProvisioning() {
         testedFactory.setDefaultDataSource(defaultDataSource);
         testedFactory.setServiceName("");
+        testedFactory.setConfiguration(configurationMock);
         testedFactory.afterPropertiesSet();
         assertEquals(testedFactory.getObject(), defaultDataSource);
     }
@@ -74,6 +73,7 @@ public class CloudDataSourceFactoryBeanTest {
 
         testedFactory.setDefaultDataSource(defaultDataSource);
         testedFactory.setServiceName(SERVICE_NAME);
+        testedFactory.setConfiguration(configurationMock);
 
         testedFactory.afterPropertiesSet();
 
@@ -88,6 +88,7 @@ public class CloudDataSourceFactoryBeanTest {
 
         testedFactory.setDefaultDataSource(defaultDataSource);
         testedFactory.setServiceName("any");
+        testedFactory.setConfiguration(configurationMock);
         testedFactory.afterPropertiesSet();
 
         verify(springCloudMock, atLeastOnce()).getServiceConnector(any(), any(), any());
