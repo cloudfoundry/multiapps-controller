@@ -4,10 +4,11 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
@@ -36,21 +37,25 @@ public class CustomTokenServices implements ResourceServerTokenServices {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomTokenServices.class);
 
-    @Autowired
-    @Qualifier("tokenStore")
-    TokenStore tokenStore;
-
-    @Autowired
-    TokenFactory tokenFactory;
-
-    private ApplicationConfiguration configuration = ApplicationConfiguration.getInstance();
-
+    private TokenStore tokenStore;
+    private TokenFactory tokenFactory;
+    private ApplicationConfiguration configuration;
     private RestOperations restTemplate;
 
     private volatile Pair<String, String> tokenKey;
 
-    public CustomTokenServices() {
-        restTemplate = new RestTemplate();
+    @Inject
+    public CustomTokenServices(@Named("tokenStore") TokenStore tokenStore, TokenFactory tokenFactory,
+        ApplicationConfiguration configuration) {
+        this(tokenStore, tokenFactory, configuration, new RestTemplate());
+    }
+
+    public CustomTokenServices(TokenStore tokenStore, TokenFactory tokenFactory, ApplicationConfiguration configuration,
+        RestOperations restTemplate) {
+        this.tokenStore = tokenStore;
+        this.tokenFactory = tokenFactory;
+        this.configuration = configuration;
+        this.restTemplate = restTemplate;
         if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
@@ -87,7 +92,8 @@ public class CustomTokenServices implements ResourceServerTokenServices {
             TokenProperties tokenProperties = TokenProperties.fromToken(token);
             auth = SecurityUtil.createAuthentication(tokenProperties.getClientId(), token.getScope(), SecurityUtil.getTokenUserInfo(token));
             try {
-                LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.web.message.Messages.TOKEN_LOADED_INTO_TOKEN_STORE, token.getExpiresIn(), tokenProperties.getUserName()));
+                LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.web.message.Messages.TOKEN_LOADED_INTO_TOKEN_STORE,
+                    token.getExpiresIn(), tokenProperties.getUserName()));
                 tokenStore.storeAccessToken(token, auth);
             } catch (DataIntegrityViolationException e) {
                 LOGGER.debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ERROR_STORING_TOKEN_DUE_TO_INTEGRITY_VIOLATION, e);
