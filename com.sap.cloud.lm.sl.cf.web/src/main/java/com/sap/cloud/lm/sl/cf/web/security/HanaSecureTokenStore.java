@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
+import org.springframework.security.oauth2.common.util.SerializationUtils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
@@ -109,20 +110,19 @@ public class HanaSecureTokenStore extends JdbcTokenStore {
 
         List<SqlParameter> paramList = Arrays.asList(storeNameParam, forXsApplicationUserParam, keyParam, valueParam);
 
-        byte[] serializeAccessToken = token.getValue()
-            .getBytes(StandardCharsets.UTF_8);
+        byte[] serializeAccessToken = SerializationUtils.serialize(token);
         byte[] compressedBytes = CompressUtil.compress(serializeAccessToken);
 
         try {
             callInsert(tokenKey, paramList, compressedBytes, PROCEDURE_SECURESTORE_INSERT);
         } catch (ConcurrencyFailureException e) {
-            LOGGER.debug(MessageFormat.format(Messages.ERROR_STORING_OAUTH_TOKEN_IN_SECURE_STORE, tokenKey));
+            LOGGER.debug(MessageFormat.format(Messages.ERROR_STORING_OAUTH_TOKEN_IN_SECURE_STORE, tokenKey), e);
         } catch (BadSqlGrammarException e) {
             throwIfShouldNotIgnore(e, INSERT_PROCEDURE_NAME);
             try {
                 callInsert(tokenKey, paramList, compressedBytes, PROCEDURE_SECURESTORE_INSERT_LEGACY);
             } catch (ConcurrencyFailureException f) {
-                LOGGER.debug(MessageFormat.format(Messages.ERROR_STORING_OAUTH_TOKEN_IN_SECURE_STORE, tokenKey));
+                LOGGER.debug(MessageFormat.format(Messages.ERROR_STORING_OAUTH_TOKEN_IN_SECURE_STORE, tokenKey), e);
             }
         }
     }
@@ -164,8 +164,17 @@ public class HanaSecureTokenStore extends JdbcTokenStore {
             throw new IllegalArgumentException(Messages.TOKEN_NOT_FOUND_IN_SECURE_STORE);
         }
         byte[] decompressedBytes = CompressUtil.decompress(tokenBytes);
-        OAuth2AccessToken accessToken = new TokenFactory().createToken(new String(decompressedBytes, StandardCharsets.UTF_8));
-        return accessToken;
+        return deserializeToken(decompressedBytes);
+    }
+
+    private OAuth2AccessToken deserializeToken(byte[] decompressedBytes) {
+        try {
+            return SerializationUtils.deserialize(decompressedBytes);
+        } catch (Exception e) {
+            // If the Java serialization fails, try to deserialize the token using the old way.
+            // This ensures the compatibility between the new token serialization(Java serialization) and the old one.
+            return new TokenFactory().createToken(new String(decompressedBytes, StandardCharsets.UTF_8));
+        }
     }
 
     private Map<String, Object> callRetrieve(String tokenKey, List<SqlParameter> paramList, final String procedureSecurestoreRetrieve) {
