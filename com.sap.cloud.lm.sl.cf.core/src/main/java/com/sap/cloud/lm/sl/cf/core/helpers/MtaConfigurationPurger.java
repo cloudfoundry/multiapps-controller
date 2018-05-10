@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
@@ -30,19 +31,21 @@ public class MtaConfigurationPurger {
     private static final Logger LOGGER = LoggerFactory.getLogger(MtaConfigurationPurger.class);
 
     private CloudFoundryOperations client;
+    private SpaceGetter spaceGetter;
     private ConfigurationEntryDao entryDao;
     private ConfigurationSubscriptionDao subscriptionDao;
 
-    public MtaConfigurationPurger(CloudFoundryOperations client, ConfigurationEntryDao entryDao,
+    public MtaConfigurationPurger(CloudFoundryOperations client, SpaceGetter spaceGetter, ConfigurationEntryDao entryDao,
         ConfigurationSubscriptionDao subscriptionDao) {
         this.client = client;
+        this.spaceGetter = spaceGetter;
         this.entryDao = entryDao;
         this.subscriptionDao = subscriptionDao;
     }
 
     public void purge(String org, String space) {
         CloudTarget targetSpace = new CloudTarget(org, space);
-        String targetId = new ClientHelper(client).computeSpaceId(org, space);
+        String targetId = new ClientHelper(client, spaceGetter).computeSpaceId(org, space);
         List<CloudApplication> existingApps = getExistingApps();
         purgeConfigurationSubscriptions(targetId, existingApps);
         purgeConfigurationEntries(targetSpace, existingApps);

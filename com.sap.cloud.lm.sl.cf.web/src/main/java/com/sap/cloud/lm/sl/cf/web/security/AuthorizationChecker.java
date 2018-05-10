@@ -19,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetterFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -36,11 +35,14 @@ public class AuthorizationChecker {
 
     private final ExecutionRetrier retrier = new ExecutionRetrier();
     private final CloudFoundryClientProvider clientProvider;
+    private final SpaceGetter spaceGetter;
     private final ApplicationConfiguration applicationConfiguration;
 
     @Inject
-    public AuthorizationChecker(CloudFoundryClientProvider clientProvider, ApplicationConfiguration applicationConfiguration) {
+    public AuthorizationChecker(CloudFoundryClientProvider clientProvider, SpaceGetter spaceGetter,
+        ApplicationConfiguration applicationConfiguration) {
         this.clientProvider = clientProvider;
+        this.spaceGetter = spaceGetter;
         this.applicationConfiguration = applicationConfiguration;
     }
 
@@ -89,7 +91,7 @@ public class AuthorizationChecker {
             return true;
         }
         CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
-        Pair<String, String> location = new ClientHelper(client).computeOrgAndSpace(spaceGuid);
+        Pair<String, String> location = new ClientHelper(client, spaceGetter).computeOrgAndSpace(spaceGuid);
         if (location == null) {
             throw new NotFoundException(Messages.ORG_AND_SPACE_NOT_FOUND, spaceGuid);
         }
@@ -121,7 +123,6 @@ public class AuthorizationChecker {
     }
 
     private boolean hasAccess(CloudFoundryOperationsExtended client, String orgName, String spaceName) {
-        SpaceGetter spaceGetter = new SpaceGetterFactory().createSpaceGetter();
         return retrier.executeWithRetry(() -> spaceGetter.findSpace(client, orgName, spaceName)) != null;
     }
 

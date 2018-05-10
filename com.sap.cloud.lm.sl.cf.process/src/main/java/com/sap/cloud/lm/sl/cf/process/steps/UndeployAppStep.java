@@ -19,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -35,6 +36,8 @@ public class UndeployAppStep extends SyncActivitiStep {
     private OneOffTasksSupportChecker oneOffTasksSupportChecker;
     @Inject
     private ApplicationRoutesGetter applicationRoutesGetter;
+    @Inject
+    private SpaceGetter spaceGetter;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
@@ -119,7 +122,7 @@ public class UndeployAppStep extends SyncActivitiStep {
             getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ROUTE_NOT_FOUND, uri);
             return;
         }
-        new ClientHelper(client).deleteRoute(uri, isPortBasedRouting);
+        new ClientHelper(client, spaceGetter).deleteRoute(uri, isPortBasedRouting);
         getStepLogger().debug(Messages.ROUTE_DELETED, uri);
     }
 

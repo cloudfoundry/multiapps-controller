@@ -8,18 +8,17 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.BiFunction;
 
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
-import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -66,6 +65,8 @@ public class ProcessDescriptorStepTest extends SyncActivitiStepTest<ProcessDescr
 
     @Mock
     private MtaDescriptorPropertiesResolver resolver;
+    @Mock
+    private SpaceGetter spaceGetter;
     @Mock
     private MtaSchemaVersionDetector versionDetector;
 
@@ -116,10 +117,9 @@ public class ProcessDescriptorStepTest extends SyncActivitiStepTest<ProcessDescr
 
     @Test
     public void testGetSpaceIdSupplier1() {
-        CloudOrganization org = new CloudOrganization(new Meta(null, null, null), ORG_NAME);
-        CloudSpace space = new CloudSpace(new Meta(NameUtil.getUUID(SPACE_NAME), null, null), SPACE_NAME, org);
+        CloudSpace space = new CloudSpace(new Meta(NameUtil.getUUID(SPACE_NAME), null, null), SPACE_NAME, null);
 
-        when(client.getSpaces()).thenReturn(Arrays.asList(space));
+        when(spaceGetter.findSpace(client, ORG_NAME, SPACE_NAME)).thenReturn(space);
 
         assertEquals("cc51b819-7428-3ab7-9cef-9e94fe778cc9", step.getSpaceIdSupplier(client)
             .apply(ORG_NAME, SPACE_NAME));
@@ -127,11 +127,6 @@ public class ProcessDescriptorStepTest extends SyncActivitiStepTest<ProcessDescr
 
     @Test
     public void testGetSpaceIdSupplier2() {
-        CloudOrganization org = new CloudOrganization(new Meta(null, null, null), ORG_NAME);
-        CloudSpace space = new CloudSpace(new Meta(NameUtil.getUUID(SPACE_NAME), null, null), SPACE_NAME, org);
-
-        when(client.getSpace(SPACE_NAME)).thenReturn(space);
-
         assertNull(step.getSpaceIdSupplier(client)
             .apply("not-initial", SPACE_NAME));
     }

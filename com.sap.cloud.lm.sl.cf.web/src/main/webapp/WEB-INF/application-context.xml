@@ -35,7 +35,8 @@
 
         <bean id="serviceBrokersGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokersGetter" />
 
-        <bean id="applicationStagingStateGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingStateGetter" />
+        <bean id="applicationStagingStateGetter"
+            class="com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingStateGetter" />
 
         <bean id="serviceUpdater" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater" />
 
@@ -45,17 +46,22 @@
 
         <bean id="operationsApi" class="com.sap.cloud.lm.sl.cf.web.api.OperationsApi" />
 
-        <bean id="blueGreenRenameStep" class="com.sap.cloud.lm.sl.cf.process.steps.BlueGreenRenameStep" scope="prototype" />
+        <bean id="blueGreenRenameStep" class="com.sap.cloud.lm.sl.cf.process.steps.BlueGreenRenameStep"
+            scope="prototype" />
 
         <bean id="buildCloudDeployModelStep" class="com.sap.cloud.lm.sl.cf.process.steps.BuildCloudDeployModelStep"
             scope="prototype" />
 
-        <bean id="processDescriptorStep" class="com.sap.cloud.lm.sl.cf.process.steps.ProcessDescriptorStep" scope="prototype" />
+        <bean id="processDescriptorStep" class="com.sap.cloud.lm.sl.cf.process.steps.ProcessDescriptorStep"
+            scope="prototype" />
 
         <bean id="startProcessListener" class="com.sap.cloud.lm.sl.cf.process.listeners.StartProcessListener" />
 
-        <bean id ="operationMetadataMapper" class="com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper" />
-        
-        <bean id="operationsApiServiceImpl" class = "com.sap.cloud.lm.sl.cf.web.api.impl.OperationsApiServiceImpl" />
+        <bean id="operationMetadataMapper"
+            class="com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper" />
+
+        <bean id="operationsApiServiceImpl" class="com.sap.cloud.lm.sl.cf.web.api.impl.OperationsApiServiceImpl" />
+
+        <bean id="spaceGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter" />
     </beans>
 </beans>

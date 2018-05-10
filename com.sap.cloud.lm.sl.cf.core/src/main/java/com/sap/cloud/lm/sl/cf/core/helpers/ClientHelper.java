@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetterFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
@@ -19,9 +19,11 @@ public class ClientHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientHelper.class);
 
     private CloudFoundryOperations client;
+    private SpaceGetter spaceGetter;
 
-    public ClientHelper(CloudFoundryOperations client) {
+    public ClientHelper(CloudFoundryOperations client, SpaceGetter spaceGetter) {
         this.client = client;
+        this.spaceGetter = spaceGetter;
     }
 
     public void deleteRoute(String uri, boolean portBasedRouting) {
@@ -38,8 +40,7 @@ public class ClientHelper {
     }
 
     public String computeSpaceId(String orgName, String spaceName) {
-        CloudSpace space = new SpaceGetterFactory().createSpaceGetter()
-            .findSpace(client, orgName, spaceName);
+        CloudSpace space = spaceGetter.findSpace(client, orgName, spaceName);
         if (space != null) {
             return space.getMeta()
                 .getGuid()
@@ -59,8 +60,7 @@ public class ClientHelper {
 
     private CloudSpace attemptToFindSpace(String spaceId) {
         try {
-            return new SpaceGetterFactory().createSpaceGetter()
-                .getSpace(client, spaceId);
+            return spaceGetter.getSpace(client, spaceId);
         } catch (CloudFoundryException e) {
             // From our point of view 403 means the same as 404 - the user does not have access to a space, so it is like it does not exist
             // for him.

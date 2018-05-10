@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetterFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -42,6 +41,9 @@ public class ConfigurationSubscriptionsResource {
     @Inject
     private CloudFoundryClientProvider clientProvider;
 
+    @Inject
+    private SpaceGetter spaceGetter;
+
     @Context
     private HttpServletRequest request;
 
@@ -58,11 +60,9 @@ public class ConfigurationSubscriptionsResource {
     }
 
     private List<CloudSpace> getClientSpaces(String org, String space, CloudFoundryOperations client) {
-        SpaceGetter spaceGetter = new SpaceGetterFactory().createSpaceGetter();
         if (space == null) {
             return spaceGetter.findSpaces(client, org);
         }
-
         return Arrays.asList(spaceGetter.findSpace(client, org, space));
     }
 
@@ -84,7 +84,7 @@ public class ConfigurationSubscriptionsResource {
     }
 
     private String computeSpaceId(CloudFoundryOperations client, String orgName, String spaceName) {
-        return new ClientHelper(client).computeSpaceId(orgName, spaceName);
+        return new ClientHelper(client, spaceGetter).computeSpaceId(orgName, spaceName);
     }
 
 }

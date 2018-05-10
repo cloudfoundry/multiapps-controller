@@ -26,6 +26,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryOperationsExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 
@@ -48,6 +49,8 @@ public class AuthorizationCheckerTest {
     private CloudFoundryClientProvider clientProvider;
     @Mock
     private CloudFoundryOperationsExtended client;
+    @Mock
+    private SpaceGetter spaceGetter;
     @Mock
     private ApplicationConfiguration applicationConfiguration;
     @InjectMocks
@@ -98,9 +101,8 @@ public class AuthorizationCheckerTest {
         DefaultOAuth2AccessToken accessToken = new DefaultOAuth2AccessToken("testTokenValue");
         accessToken.setScope(new HashSet<>());
         CloudSpace space = new CloudSpace(null, SPACE, new CloudOrganization(null, ORG));
-        List<CloudSpace> spaces = new ArrayList<>();
         if (hasAccess) {
-            spaces.add(space);
+            when(spaceGetter.findSpace(client, ORG, SPACE)).thenReturn(space);
         }
 
         userInfo = new UserInfo(USER_ID, USERNAME, accessToken);
@@ -108,7 +110,6 @@ public class AuthorizationCheckerTest {
         if (hasPermissions) {
             spaceDevelopersList.add(USER_ID);
         }
-        when(client.getSpaces()).thenReturn(spaces);
         when(client.getSpaceDevelopers2(ORG, SPACE)).thenReturn(spaceDevelopersList);
         when(clientProvider.getCloudFoundryClient(userInfo.getName())).thenReturn(client);
     }
