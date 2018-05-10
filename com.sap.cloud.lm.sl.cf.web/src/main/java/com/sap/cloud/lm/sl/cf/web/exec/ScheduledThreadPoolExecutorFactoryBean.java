@@ -9,12 +9,12 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 public class ScheduledThreadPoolExecutorFactoryBean implements FactoryBean<ScheduledExecutorService>, InitializingBean, DisposableBean {
 
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
     private int coreThreads;

@@ -59,7 +59,7 @@ public class AuthorizationUtil {
 
     public static boolean checkPermissions(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String orgName, String spaceName,
         boolean readOnly, String processId) throws SLException {
-        if (Configuration.getInstance()
+        if (ApplicationConfiguration.getInstance()
             .areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }
@@ -72,7 +72,7 @@ public class AuthorizationUtil {
 
     public static boolean checkPermissions(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String spaceGuid, boolean readOnly)
         throws SLException {
-        if (Configuration.getInstance()
+        if (ApplicationConfiguration.getInstance()
             .areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }

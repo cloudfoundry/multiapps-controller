@@ -35,21 +35,23 @@ import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.persistence.util.Configuration;
+import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
 @Component
-public class Configuration {
+public class ApplicationConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
 
-    private static final Configuration INSTANCE = new Configuration(new Environment());
+    private static final ApplicationConfiguration INSTANCE = new ApplicationConfiguration(new Environment());
 
-    public static Configuration getInstance() {
+    public static ApplicationConfiguration getInstance() {
         return INSTANCE;
     }
 
-    private Environment environment;
+    private final Environment environment;
 
-    Configuration(Environment environment) {
+    ApplicationConfiguration(Environment environment) {
         this.environment = environment;
     }
 
@@ -297,8 +299,8 @@ public class Configuration {
             CFG_MAIL_API_URL));
     }
 
-    public com.sap.cloud.lm.sl.persistence.util.Configuration getFileConfiguration() {
-        return new com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration(getMaxUploadSize(), shouldScanUploads());
+    public Configuration getFileConfiguration() {
+        return new DefaultConfiguration(getMaxUploadSize(), shouldScanUploads());
     }
 
     public PlatformType getPlatformType() {

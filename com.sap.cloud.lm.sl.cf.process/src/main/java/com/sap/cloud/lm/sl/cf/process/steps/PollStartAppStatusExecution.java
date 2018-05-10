@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -34,9 +34,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     protected RecentLogsRetriever recentLogsRetriever;
-    protected Configuration configuration;
+    protected ApplicationConfiguration configuration;
 
-    public PollStartAppStatusExecution(RecentLogsRetriever recentLogsRetriever, Configuration configuration) {
+    public PollStartAppStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationConfiguration configuration) {
         this.recentLogsRetriever = recentLogsRetriever;
         this.configuration = configuration;
     }

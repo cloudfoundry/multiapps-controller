@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
@@ -38,7 +38,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     @Autowired(required = false)
     private ProcessTypeToOperationMetadataMapper operationMetadataMapper;
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     Supplier<ZonedDateTime> currentTimeSupplier = () -> ZonedDateTime.now();
 

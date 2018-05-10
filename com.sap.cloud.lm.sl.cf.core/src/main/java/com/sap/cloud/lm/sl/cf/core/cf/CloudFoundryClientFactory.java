@@ -18,13 +18,13 @@ import com.sap.cloud.lm.sl.cf.client.CloudFoundryClientExtended;
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryTokenProvider;
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class CloudFoundryClientFactory extends ClientFactory {
 
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     @Override
     protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials) {

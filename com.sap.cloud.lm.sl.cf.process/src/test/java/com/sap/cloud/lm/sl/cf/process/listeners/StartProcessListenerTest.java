@@ -22,7 +22,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
@@ -62,7 +62,7 @@ public class StartProcessListenerTest {
     @Spy
     private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper = new ProcessTypeToOperationMetadataMapper();
     @Mock
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     private Supplier<ZonedDateTime> currentTimeSupplier = () -> START_TIME;
 

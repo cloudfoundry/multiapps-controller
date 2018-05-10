@@ -10,7 +10,7 @@ import org.springframework.cloud.CloudFactory;
 import org.springframework.cloud.service.PooledServiceConnectorConfig.PoolConfig;
 import org.springframework.cloud.service.relational.DataSourceConfig;
 
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, InitializingBean {
 
@@ -69,8 +69,8 @@ public class CloudDataSourceFactoryBean implements FactoryBean<DataSource>, Init
         return dataSource;
     }
 
-    protected Configuration getConfiguration() {
-        return Configuration.getInstance();
+    protected ApplicationConfiguration getConfiguration() {
+        return ApplicationConfiguration.getInstance();
     }
 
     protected Cloud getSpringCloud() {

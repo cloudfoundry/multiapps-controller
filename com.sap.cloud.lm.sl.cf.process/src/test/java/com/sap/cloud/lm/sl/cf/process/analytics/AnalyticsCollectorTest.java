@@ -28,7 +28,7 @@ import org.mockito.Spy;
 
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.collectors.AnalyticsCollector;
 import com.sap.cloud.lm.sl.cf.process.analytics.collectors.DeployProcessAttributesCollector;
@@ -63,7 +63,7 @@ public class AnalyticsCollectorTest {
 
     protected AbstractFileService fileService = Mockito.mock(AbstractFileService.class);
     @Mock
-    protected Configuration configuration;
+    protected ApplicationConfiguration configuration;
 
     @Spy
     public DeployProcessAttributesCollector deployProcessAttributesCollector = new DeployProcessAttributesCollector(fileService);

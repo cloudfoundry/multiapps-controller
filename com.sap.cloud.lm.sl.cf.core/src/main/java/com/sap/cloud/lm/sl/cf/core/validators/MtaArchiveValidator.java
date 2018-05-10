@@ -35,7 +35,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -147,7 +147,7 @@ public class MtaArchiveValidator {
         byte[] mtar = IOUtils.toByteArray(mtarStream);
 
         // Read the MTAR manifest
-        Manifest manifest = ArchiveHandler.getManifest(new ByteArrayInputStream(mtar), Configuration.getInstance()
+        Manifest manifest = ArchiveHandler.getManifest(new ByteArrayInputStream(mtar), ApplicationConfiguration.getInstance()
             .getMaxManifestSize());
 
         // Create and initialize MTA archive helper

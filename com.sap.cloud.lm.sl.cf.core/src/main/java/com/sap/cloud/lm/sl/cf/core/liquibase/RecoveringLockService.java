@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 import liquibase.exception.LockException;
 import liquibase.lockservice.DatabaseChangeLogLock;
@@ -23,7 +23,7 @@ public class RecoveringLockService extends StandardLockService {
     private long changeLogLockDuration;
 
     public RecoveringLockService() {
-        Configuration configuration = Configuration.getInstance();
+        ApplicationConfiguration configuration = ApplicationConfiguration.getInstance();
         this.changeLogLockAttempts = configuration.getChangeLogLockAttempts();
         this.changeLogLockDuration = configuration.getChangeLogLockDuration();
         setChangeLogLockWaitTime(configuration.getChangeLogLockWaitTime());

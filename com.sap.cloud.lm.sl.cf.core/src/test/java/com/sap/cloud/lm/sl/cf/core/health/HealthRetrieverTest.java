@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.health.model.Health;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckOperation;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
@@ -46,7 +46,7 @@ public class HealthRetrieverTest {
     @Mock
     private OperationDao operationDao;
     @Mock
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     private Supplier<ZonedDateTime> currentTimeSupplier = () -> CURRENT_TIME;
 

@@ -23,7 +23,7 @@ public class QuartzAppContext {
 
     @Bean(name = "cleanUpCronTriggerFactoryBean")
     public CronTriggerFactoryBean cronTriggerFactoryBean() {
-        com.sap.cloud.lm.sl.cf.core.util.Configuration configuration = com.sap.cloud.lm.sl.cf.core.util.Configuration.getInstance();
+        com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration configuration = com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration.getInstance();
         CronTriggerFactoryBean factory = new CronTriggerFactoryBean();
         factory.setJobDetail(jobDetailFactoryBean().getObject());
         factory.setCronExpression(configuration.getCronExpressionForOldData());

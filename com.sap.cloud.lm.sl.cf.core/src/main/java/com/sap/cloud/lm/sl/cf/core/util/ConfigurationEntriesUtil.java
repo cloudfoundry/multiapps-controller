@@ -66,9 +66,9 @@ public class ConfigurationEntriesUtil {
 
     public static List<ConfigurationEntry> findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryDao dao, String providerNid,
         String providerVersion, String providerId, Map<String, Object> requiredContent, List<CloudTarget> cloudTargets) {
-        String globalConfigSpace = Configuration.getInstance()
+        String globalConfigSpace = ApplicationConfiguration.getInstance()
             .getGlobalConfigSpace();
-        String deployServiceOrgName = Configuration.getInstance()
+        String deployServiceOrgName = ApplicationConfiguration.getInstance()
             .getOrgName();
         if (deployServiceOrgName == null || globalConfigSpace == null) {
             return Collections.emptyList();

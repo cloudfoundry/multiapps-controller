@@ -13,22 +13,22 @@ import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.health.model.Health;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 @Component
 public class HealthRetriever {
 
     private OperationDao operationDao;
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
     private Supplier<ZonedDateTime> currentTimeSupplier;
 
     @Inject
-    public HealthRetriever(OperationDao operationDao, Configuration configuration) {
+    public HealthRetriever(OperationDao operationDao, ApplicationConfiguration configuration) {
         this(operationDao, configuration, () -> ZonedDateTime.now());
     }
 
-    protected HealthRetriever(OperationDao operationDao, Configuration configuration, Supplier<ZonedDateTime> currentTimeSupplier) {
+    protected HealthRetriever(OperationDao operationDao, ApplicationConfiguration configuration, Supplier<ZonedDateTime> currentTimeSupplier) {
         this.operationDao = operationDao;
         this.configuration = configuration;
         this.currentTimeSupplier = currentTimeSupplier;

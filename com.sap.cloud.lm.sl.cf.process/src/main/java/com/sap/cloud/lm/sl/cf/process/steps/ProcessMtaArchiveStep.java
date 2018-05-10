@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
@@ -32,7 +32,7 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
     @Inject
     private OperationDao operationDao;
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = (dao) -> new ProcessConflictPreventer(
         operationDao);
@@ -69,7 +69,7 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
         FileDownloadProcessor manifestProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId,
             appArchiveStream -> {
                 // Create and initialize helper
-                Manifest manifest = ArchiveHandler.getManifest(appArchiveStream, Configuration.getInstance()
+                Manifest manifest = ArchiveHandler.getManifest(appArchiveStream, ApplicationConfiguration.getInstance()
                     .getMaxManifestSize());
                 MtaArchiveHelper helper = getHelper(manifest);
                 helper.init();

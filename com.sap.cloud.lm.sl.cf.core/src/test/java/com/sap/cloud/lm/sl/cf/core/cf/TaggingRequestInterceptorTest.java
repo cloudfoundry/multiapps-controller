@@ -19,7 +19,7 @@ import org.springframework.http.client.AbstractClientHttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpResponse;
 
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 import static org.mockito.Mockito.when;
 
@@ -33,7 +33,7 @@ public class TaggingRequestInterceptorTest {
     private ClientHttpRequestExecution execution;
 
     @Mock
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     @Before
     public void setUp() {
@@ -104,7 +104,7 @@ public class TaggingRequestInterceptorTest {
     public void testGetHeaderValue() throws IOException {
         TaggingRequestInterceptor testedInterceptor = new TaggingRequestInterceptor(null, null) {
             @Override
-            protected Configuration getConfiguration() {
+            protected ApplicationConfiguration getConfiguration() {
                 return configuration;
             }
         };

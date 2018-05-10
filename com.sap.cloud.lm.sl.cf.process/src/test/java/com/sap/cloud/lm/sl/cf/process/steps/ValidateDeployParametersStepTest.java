@@ -20,7 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
@@ -86,9 +86,9 @@ public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<Valid
 
     private void prepareConfiguration() {
         Mockito.when(configuration.getMaxMtaDescriptorSize())
-            .thenReturn(Configuration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+            .thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
         Mockito.when(configuration.getFileConfiguration())
-            .thenReturn(new DefaultConfiguration(Configuration.DEFAULT_MAX_UPLOAD_SIZE, Configuration.DEFAULT_SCAN_UPLOADS));
+            .thenReturn(new DefaultConfiguration(ApplicationConfiguration.DEFAULT_MAX_UPLOAD_SIZE, ApplicationConfiguration.DEFAULT_SCAN_UPLOADS));
 
     }
 

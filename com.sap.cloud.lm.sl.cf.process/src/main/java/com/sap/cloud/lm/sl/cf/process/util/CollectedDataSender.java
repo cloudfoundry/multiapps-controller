@@ -11,7 +11,7 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.collectors.AnalyticsCollector;
 import com.sap.cloud.lm.sl.cf.process.analytics.collectors.GeneralScenarioDetailsCollector;
@@ -58,7 +58,7 @@ public class CollectedDataSender {
         params.put(Constants.TOOL_TYPE, XS2);
         params.put(Constants.FEEDBACK_MAIL, collectedXmlData);
 
-        restTemplate.postForLocation(Configuration.getInstance()
+        restTemplate.postForLocation(ApplicationConfiguration.getInstance()
             .getMailApiUrl(), params);
     }
 }

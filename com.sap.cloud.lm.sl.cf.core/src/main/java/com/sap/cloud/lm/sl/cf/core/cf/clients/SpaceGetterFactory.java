@@ -3,12 +3,12 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import java.text.MessageFormat;
 
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 public class SpaceGetterFactory {
 
     public SpaceGetter createSpaceGetter() {
-        PlatformType platformType = Configuration.getInstance()
+        PlatformType platformType = ApplicationConfiguration.getInstance()
             .getPlatformType();
         switch (platformType) {
             case XS2:

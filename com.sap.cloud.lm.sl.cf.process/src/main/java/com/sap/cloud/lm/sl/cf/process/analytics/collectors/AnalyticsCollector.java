@@ -12,7 +12,7 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AbstractCommonProcessAttributes;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class AnalyticsCollector {
 
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     @Inject
     public DeployProcessAttributesCollector deployProcessAttributesCollector;

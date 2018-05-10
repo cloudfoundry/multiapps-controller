@@ -32,7 +32,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -58,7 +58,7 @@ public class CreateAppStep extends SyncActivitiStep {
     ServiceBindingCreator serviceBindingCreator;
 
     @Autowired
-    protected Configuration configuration;
+    protected ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
@@ -195,7 +195,7 @@ public class CreateAppStep extends SyncActivitiStep {
         FileContentProcessor fileProcessor = new FileContentProcessor() {
             @Override
             public void processFileContent(InputStream archive) throws SLException {
-                try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, Configuration.getInstance()
+                try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, ApplicationConfiguration.getInstance()
                     .getMaxManifestSize())) {
                     MapUtil.addNonNull(result, serviceName, JsonUtil.convertJsonToMap(file));
                 } catch (IOException e) {

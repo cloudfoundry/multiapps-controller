@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -26,6 +26,7 @@ import com.sap.cloud.lm.sl.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.persistence.util.Configuration;
 
 @Component("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -34,7 +35,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
     private static final String PART_POSTFIX = ".part.";
 
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
@@ -166,7 +167,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
     }
 
     private void persistMergedArchive(Path archivePath, DelegateExecution context) throws FileStorageException, IOException {
-        com.sap.cloud.lm.sl.persistence.util.Configuration fileConfiguration = configuration.getFileConfiguration();
+        Configuration fileConfiguration = configuration.getFileConfiguration();
         String name = archivePath.getFileName()
             .toString();
         FileEntry uploadedArchive = fileService.addFile(StepsUtil.getSpaceId(context), StepsUtil.getServiceId(context), name,

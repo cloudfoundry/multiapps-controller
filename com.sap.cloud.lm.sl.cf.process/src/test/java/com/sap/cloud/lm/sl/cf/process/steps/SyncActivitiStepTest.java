@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -62,7 +62,7 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     @Mock
     protected ActivitiFacade activitiFacade;
     @Mock
-    protected Configuration configuration;
+    protected ApplicationConfiguration configuration;
 
     protected ExecutionWrapper execution;
     @InjectMocks

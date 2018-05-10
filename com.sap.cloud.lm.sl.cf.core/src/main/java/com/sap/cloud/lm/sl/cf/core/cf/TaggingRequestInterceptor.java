@@ -8,7 +8,7 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 class TaggingRequestInterceptor implements ClientHttpRequestInterceptor {
     public static final String TAG_HEADER_SPACE_NAME = "source-space";
@@ -52,7 +52,7 @@ class TaggingRequestInterceptor implements ClientHttpRequestInterceptor {
         return headerValueBuilder.toString();
     }
 
-    protected Configuration getConfiguration() {
-        return Configuration.getInstance();
+    protected ApplicationConfiguration getConfiguration() {
+        return ApplicationConfiguration.getInstance();
     }
 }

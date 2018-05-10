@@ -32,7 +32,7 @@ import com.sap.cloud.lm.sl.cf.client.util.StreamUtil;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -53,7 +53,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     @Inject
     protected ActivitiFacade activitiFacade;
     @Inject
-    protected Configuration configuration;
+    protected ApplicationConfiguration configuration;
 
     @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException, SLException {
@@ -95,7 +95,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
                 File file = null;
-                long maxStreamSize = Configuration.getInstance()
+                long maxStreamSize = ApplicationConfiguration.getInstance()
                     .getMaxResourceFileSize();
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Start uploading application content
@@ -121,7 +121,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
                 File file = null;
-                long maxStreamSize = Configuration.getInstance()
+                long maxStreamSize = ApplicationConfiguration.getInstance()
                     .getMaxResourceFileSize();
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Upload application content
@@ -191,7 +191,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         }
 
         if (entryName.equals(fileName)) {
-            return streamUtil.saveZipStreamToDirectory(fileName, Configuration.getInstance()
+            return streamUtil.saveZipStreamToDirectory(fileName, ApplicationConfiguration.getInstance()
                 .getMaxResourceFileSize());
         }
         Path destinationDirectory = StreamUtil.getTempDirectory(fileName);

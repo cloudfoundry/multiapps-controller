@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
@@ -31,7 +31,7 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
     @Autowired
     protected RecentLogsRetriever recentLogsRetriever;
     @Autowired
-    protected Configuration configuration;
+    protected ApplicationConfiguration configuration;
 
     @Override
     protected String getIndexVariable() {
