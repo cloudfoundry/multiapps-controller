@@ -4,6 +4,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("collectBlueGreenSystemParametersStep")
@@ -12,7 +13,11 @@ public class CollectBlueGreenSystemParametersStep extends CollectSystemParameter
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
-        return executeStepInternal(execution, true);
+        // Temporary routes should only be used for testing. If the user does not want to be asked for a confirmation,
+        // then he does not want to test the new apps. If that is the case - temporary routes are not needed:
+        boolean reserveTemporaryRoute = !(boolean) execution.getContext()
+            .getVariable(Constants.PARAM_NO_CONFIRM);
+        return executeStepInternal(execution, reserveTemporaryRoute);
     }
 
 }
