@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.activiti.engine.EngineServices;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.delegate.DelegateExecution;

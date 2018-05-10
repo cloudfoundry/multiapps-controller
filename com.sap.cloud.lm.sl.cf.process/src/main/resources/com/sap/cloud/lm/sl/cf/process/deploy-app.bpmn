@@ -26,9 +26,6 @@
     <serviceTask id="prepareToExecuteTasksTask" name="Prepare To Execute Tasks" activiti:async="true" activiti:delegateExpression="${prepareToExecuteTasksStep}"></serviceTask>
     <exclusiveGateway id="areThereMoreTasksToExecuteGateway" name="Are There More Tasks To Execute" default="thereAreMoreTasksToExecuteFlow"></exclusiveGateway>
     <sequenceFlow id="flow37" sourceRef="prepareToExecuteTasksTask" targetRef="doesPlatformSupportTasksGateway"></sequenceFlow>
-    <sequenceFlow id="thereAreNoMoreTasksToExecuteFlow" sourceRef="areThereMoreTasksToExecuteGateway" targetRef="publishProvidedDependenciesTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(tasksCount == tasksIndex)}]]></conditionExpression>
-    </sequenceFlow>
     <serviceTask id="executeTaskTask" name="Execute Task" activiti:async="true" activiti:delegateExpression="${executeTaskStep}"></serviceTask>
     <sequenceFlow id="thereAreMoreTasksToExecuteFlow" sourceRef="areThereMoreTasksToExecuteGateway" targetRef="executeTaskTask"></sequenceFlow>
     <sequenceFlow id="flow40" sourceRef="executeTaskTask" targetRef="isTaskExecutedGateway"></sequenceFlow>
@@ -49,7 +46,7 @@
     <sequenceFlow id="platformSupportsTasksFlow" name="Platform Supports Tasks" sourceRef="doesPlatformSupportTasksGateway" targetRef="areThereMoreTasksToExecuteGateway">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${platformSupportsTasks}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="platformDoesNotSupportTasks" name="Platform Does Not Support Tasks" sourceRef="doesPlatformSupportTasksGateway" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
+    <sequenceFlow id="platformDoesNotSupportTasks" name="Platform Does Not Support Tasks" sourceRef="doesPlatformSupportTasksGateway" targetRef="shouldUpdateConfigurations"></sequenceFlow>
     <serviceTask id="reprocessDescriptorTask" name="Re-Process Descriptor Step" activiti:async="true" activiti:delegateExpression="${processDescriptorStep}"></serviceTask>
     <sequenceFlow id="flow48" sourceRef="rebuildApplicationEnvironmentTask" targetRef="checkAppTask"></sequenceFlow>
     <serviceTask id="rebuildApplicationEnvironmentTask" name="Re-Build Application Environment" activiti:async="true" activiti:delegateExpression="${rebuildApplicationEnvironmentStep}"></serviceTask>
@@ -92,7 +89,7 @@
     </sequenceFlow>
     <exclusiveGateway id="shouldExecuteTasks" name="Should Execute Tasks" default="executeOneOffTasksFlow"></exclusiveGateway>
     <sequenceFlow id="executeOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="prepareToExecuteTasksTask"></sequenceFlow>
-    <sequenceFlow id="doNotExecuteOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="publishProvidedDependenciesTask">
+    <sequenceFlow id="doNotExecuteOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="shouldUpdateConfigurations">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(not executeOneOffTasks)}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="startAppTask" name="Start App" activiti:async="true" activiti:delegateExpression="${startAppStep}"></serviceTask>
@@ -129,6 +126,11 @@
     <serviceTask id="reserveRoutesTask" name="Reserve Routes" activiti:async="true" activiti:delegateExpression="${reserveRoutesStep}"></serviceTask>
     <sequenceFlow id="flow93" sourceRef="checkAppTask" targetRef="reserveRoutesTask"></sequenceFlow>
     <sequenceFlow id="flow94" sourceRef="reserveRoutesTask" targetRef="doesAppExistGateway"></sequenceFlow>
+    <exclusiveGateway id="shouldUpdateConfigurations" name="Should Update Configurations" default="updateConfigurationsFlow"></exclusiveGateway>
+    <sequenceFlow id="updateConfigurationsFlow" sourceRef="shouldUpdateConfigurations" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
+    <sequenceFlow id="skipUpdateConfigurationsFlow" sourceRef="shouldUpdateConfigurations" targetRef="endevent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${skipUpdateConfigurationEntries}]]></conditionExpression>
+    </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deployAppSubProcess">
     <bpmndi:BPMNPlane bpmnElement="deployAppSubProcess" id="BPMNPlane_deployAppSubProcess">
@@ -243,11 +245,14 @@
       <bpmndi:BPMNShape bpmnElement="reserveRoutesTask" id="BPMNShape_reserveRoutesTask">
         <omgdc:Bounds height="68.0" width="105.0" x="517.0" y="84.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="shouldUpdateConfigurations" id="BPMNShape_shouldUpdateConfigurations">
+        <omgdc:Bounds height="40.0" width="40.0" x="1098.0" y="1283.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="appDoesNotExistFlow" id="BPMNEdge_appDoesNotExistFlow">
         <omgdi:waypoint x="701.0" y="117.0"></omgdi:waypoint>
         <omgdi:waypoint x="750.0" y="118.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="13.0" width="83.0" x="685.0" y="79.0"></omgdc:Bounds>
+          <omgdc:Bounds height="42.0" width="83.0" x="685.0" y="79.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="appExistsFlow" id="BPMNEdge_appExistsFlow">
@@ -255,7 +260,7 @@
         <omgdi:waypoint x="680.0" y="227.0"></omgdi:waypoint>
         <omgdi:waypoint x="750.0" y="227.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="13.0" width="51.0" x="687.0" y="208.0"></omgdc:Bounds>
+          <omgdc:Bounds height="42.0" width="51.0" x="687.0" y="208.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
@@ -289,13 +294,6 @@
         <omgdi:waypoint x="199.0" y="1157.0"></omgdi:waypoint>
         <omgdi:waypoint x="263.0" y="1158.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="thereAreNoMoreTasksToExecuteFlow" id="BPMNEdge_thereAreNoMoreTasksToExecuteFlow">
-        <omgdi:waypoint x="416.0" y="1178.0"></omgdi:waypoint>
-        <omgdi:waypoint x="415.0" y="1298.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1002.0" y="1298.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1002.0" y="1158.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1066.0" y="1159.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="thereAreMoreTasksToExecuteFlow" id="BPMNEdge_thereAreMoreTasksToExecuteFlow">
         <omgdi:waypoint x="436.0" y="1158.0"></omgdi:waypoint>
         <omgdi:waypoint x="469.0" y="1158.0"></omgdi:waypoint>
@@ -327,16 +325,16 @@
         <omgdi:waypoint x="303.0" y="1158.0"></omgdi:waypoint>
         <omgdi:waypoint x="396.0" y="1158.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="39.0" width="100.0" x="302.0" y="1163.0"></omgdc:Bounds>
+          <omgdc:Bounds height="42.0" width="100.0" x="302.0" y="1163.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="platformDoesNotSupportTasks" id="BPMNEdge_platformDoesNotSupportTasks">
         <omgdi:waypoint x="283.0" y="1178.0"></omgdi:waypoint>
         <omgdi:waypoint x="282.0" y="1313.0"></omgdi:waypoint>
         <omgdi:waypoint x="1118.0" y="1313.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1118.0" y="1188.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1138.0" y="1303.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="39.0" width="100.0" x="304.0" y="1282.0"></omgdc:Bounds>
+          <omgdc:Bounds height="42.0" width="100.0" x="304.0" y="1282.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
@@ -411,7 +409,7 @@
         <omgdi:waypoint x="1339.0" y="328.0"></omgdi:waypoint>
         <omgdi:waypoint x="1317.0" y="329.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="39.0" width="100.0" x="824.0" y="16.0"></omgdc:Bounds>
+          <omgdc:Bounds height="42.0" width="100.0" x="824.0" y="16.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="rebuildAppEnvFlow" id="BPMNEdge_rebuildAppEnvFlow">
@@ -433,7 +431,7 @@
         <omgdi:waypoint x="56.0" y="1071.0"></omgdi:waypoint>
         <omgdi:waypoint x="56.0" y="1339.0"></omgdi:waypoint>
         <omgdi:waypoint x="1118.0" y="1339.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1118.0" y="1188.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1118.0" y="1323.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="waitStartAppFlow" id="BPMNEdge_waitStartAppFlow">
         <omgdi:waypoint x="401.0" y="877.0"></omgdi:waypoint>
@@ -485,6 +483,15 @@
       <bpmndi:BPMNEdge bpmnElement="flow94" id="BPMNEdge_flow94">
         <omgdi:waypoint x="622.0" y="118.0"></omgdi:waypoint>
         <omgdi:waypoint x="661.0" y="117.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="updateConfigurationsFlow" id="BPMNEdge_updateConfigurationsFlow">
+        <omgdi:waypoint x="1118.0" y="1283.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1118.0" y="1188.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="skipUpdateConfigurationsFlow" id="BPMNEdge_skipUpdateConfigurationsFlow">
+        <omgdi:waypoint x="1138.0" y="1303.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1347.0" y="1302.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1347.0" y="1176.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -1,0 +1,18 @@
+ID: com.sap.xs2.samples.helloworld
+version: 0.1.0
+
+modules:
+  - name: module-1
+    type: javascript.nodejs
+    provides:
+      - name: module-1-provides
+        properties:
+          url: "https://example.com"
+          test-key: "test-value"
+          
+  - name: module-2
+    type: javascript.nodejs
+    provides:
+      - name: module-2-provides
+        properties:
+          test-key: "test-value"

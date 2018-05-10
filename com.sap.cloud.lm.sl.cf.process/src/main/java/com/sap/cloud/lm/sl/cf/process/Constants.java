@@ -125,6 +125,7 @@ public class Constants {
     public static final String VAR_ERROR_TYPE = "errorType";
     public static final String VAR_GIT_REPOSITORY_CONFIG_MAP = "gitRepositoryConfigMap";
     public static final String VAR_USE_IDLE_URIS = "useIdleUris";
+    public static final String VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES = "skipUpdateConfigurationEntries";
     public static final String PROCESS_ABORTED = "__PROCESS_ABORTED";
     public static final String TASK_ID = "__TASK_ID";
     public static final String TASK_INDEX = "__TASK_INDEX";
