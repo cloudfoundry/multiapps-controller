@@ -21,10 +21,9 @@ import org.springframework.http.client.ClientHttpResponse;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
-import static org.mockito.Mockito.when;
-
 public class TaggingRequestInterceptorTest {
 
+    private static final String TEST_VERSION_VALUE = "1.58.0";
     private static final String TEST_ORG_VALUE = "faceorg";
     private static final String TEST_SPACE_VALUE = "myspace";
     private org.springframework.http.HttpRequest requestStub;
@@ -59,12 +58,12 @@ public class TaggingRequestInterceptorTest {
 
     @Test
     public void testInjectGenericValue() throws IOException {
-        TaggingRequestInterceptor testedInterceptor = new TaggingRequestInterceptor();
+        TaggingRequestInterceptor testedInterceptor = new TaggingRequestInterceptor("1.58.0");
         testedInterceptor.intercept(requestStub, body, execution);
         assertNotNull(requestStub.getHeaders());
         assertTrue(requestStub.getHeaders()
             .containsKey(TaggingRequestInterceptor.TAG_HEADER_NAME));
-        String expectedValue = testedInterceptor.getHeaderValue();
+        String expectedValue = "MTA deploy-service v1.58.0";
         Optional<String> foundValue = requestStub.getHeaders()
             .get(TaggingRequestInterceptor.TAG_HEADER_NAME)
             .stream()
@@ -75,13 +74,13 @@ public class TaggingRequestInterceptorTest {
 
     @Test
     public void testInjectOrgAndSpaceValues() throws IOException {
-        TaggingRequestInterceptor testedInterceptor = new TaggingRequestInterceptor(TEST_ORG_VALUE, TEST_SPACE_VALUE);
+        TaggingRequestInterceptor testedInterceptor = new TaggingRequestInterceptor(TEST_VERSION_VALUE, TEST_ORG_VALUE, TEST_SPACE_VALUE);
         testedInterceptor.intercept(requestStub, body, execution);
         HttpHeaders headers = requestStub.getHeaders();
         assertNotNull(headers);
         assertTrue(headers.containsKey(TaggingRequestInterceptor.TAG_HEADER_ORG_NAME));
         assertTrue(headers.containsKey(TaggingRequestInterceptor.TAG_HEADER_SPACE_NAME));
-        String expectedValue = testedInterceptor.getHeaderValue();
+        String expectedValue = "MTA deploy-service v1.58.0";
         Optional<String> foundValue = headers.get(TaggingRequestInterceptor.TAG_HEADER_NAME)
             .stream()
             .filter(value -> value.equals(expectedValue))
@@ -102,27 +101,21 @@ public class TaggingRequestInterceptorTest {
 
     @Test
     public void testGetHeaderValue() throws IOException {
-        TaggingRequestInterceptor testedInterceptor = new TaggingRequestInterceptor(null, null) {
-            @Override
-            protected ApplicationConfiguration getConfiguration() {
-                return configuration;
-            }
-        };
+        TaggingRequestInterceptor testedInterceptor = new TaggingRequestInterceptor(null, null, null);
         final String dsversion = "9.9.9-SNAPSHOT";
-        when(configuration.getVersion()).thenReturn(dsversion);
-        String headerValue = testedInterceptor.getHeaderValue();
+        String headerValue = testedInterceptor.getHeaderValue(dsversion);
         assertTrue(headerValue.contains(dsversion));
         assertTrue(headerValue.contains("deploy-service"));
     }
 
     @Test
     public void addHeadersOnlyOnceTest() throws IOException {
-        TaggingRequestInterceptor testedInterceptor = new TaggingRequestInterceptor(TEST_ORG_VALUE, TEST_SPACE_VALUE);
+        TaggingRequestInterceptor testedInterceptor = new TaggingRequestInterceptor(TEST_VERSION_VALUE, TEST_ORG_VALUE, TEST_SPACE_VALUE);
         testedInterceptor.intercept(requestStub, body, execution);
         testedInterceptor.intercept(requestStub, body, execution);
         testedInterceptor.intercept(requestStub, body, execution);
         HttpHeaders headers = requestStub.getHeaders();
-        String expectedValue = testedInterceptor.getHeaderValue();
+        String expectedValue = testedInterceptor.getHeaderValue(TEST_VERSION_VALUE);
         long tagCount = headers.get(TaggingRequestInterceptor.TAG_HEADER_NAME)
             .stream()
             .filter(value -> value.equals(expectedValue))

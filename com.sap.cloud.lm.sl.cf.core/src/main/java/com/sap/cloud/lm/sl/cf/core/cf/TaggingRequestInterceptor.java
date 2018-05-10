@@ -8,9 +8,8 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-
 class TaggingRequestInterceptor implements ClientHttpRequestInterceptor {
+
     public static final String TAG_HEADER_SPACE_NAME = "source-space";
     public static final String TAG_HEADER_ORG_NAME = "source-org";
     public static final String TAG_HEADER_NAME = "source";
@@ -18,14 +17,18 @@ class TaggingRequestInterceptor implements ClientHttpRequestInterceptor {
     private String orgHeaderValue;
     private String spaceHeaderValue;
 
-    TaggingRequestInterceptor(String org, String space) {
-        this();
+    TaggingRequestInterceptor(String deployServiceVersion) {
+        this(deployServiceVersion, null, null);
+    }
+
+    TaggingRequestInterceptor(String deployServiceVersion, String org, String space) {
+        this.headerValue = getHeaderValue(deployServiceVersion);
         this.orgHeaderValue = org;
         this.spaceHeaderValue = space;
     }
 
-    TaggingRequestInterceptor() {
-        this.headerValue = getHeaderValue();
+    String getHeaderValue(String deployServiceVersion) {
+        return "MTA deploy-service v" + deployServiceVersion;
     }
 
     @Override
@@ -46,13 +49,4 @@ class TaggingRequestInterceptor implements ClientHttpRequestInterceptor {
         headers.add(tagHeaderName, headerValue);
     }
 
-    String getHeaderValue() {
-        StringBuilder headerValueBuilder = new StringBuilder("MTA deploy-service v.");
-        headerValueBuilder.append(getConfiguration().getVersion());
-        return headerValueBuilder.toString();
-    }
-
-    protected ApplicationConfiguration getConfiguration() {
-        return ApplicationConfiguration.getInstance();
-    }
 }

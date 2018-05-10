@@ -68,7 +68,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         if (template.getInterceptors() == null) {
             template.setInterceptors(new ArrayList<>());
         }
-        ClientHttpRequestInterceptor requestInterceptor = new TaggingRequestInterceptor(org, space);
+        ClientHttpRequestInterceptor requestInterceptor = new TaggingRequestInterceptor(configuration.getVersion(), org, space);
         template.getInterceptors()
             .add(requestInterceptor);
     }
