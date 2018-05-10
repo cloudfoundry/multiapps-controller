@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -12,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -21,6 +24,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteIdleRoutesStep extends SyncActivitiStep {
 
+    @Inject
+    private SpaceGetter spaceGetter;
+    
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         try {
@@ -53,7 +59,7 @@ public class DeleteIdleRoutesStep extends SyncActivitiStep {
 
     private void deleteRoute(String uri, boolean portBasedRouting, CloudFoundryOperations client) {
         try {
-            new ClientHelper(client).deleteRoute(uri, portBasedRouting);
+            new ClientHelper(client, spaceGetter).deleteRoute(uri, portBasedRouting);
         } catch (CloudFoundryException ex) {
             if (!ex.getStatusCode()
                 .equals(HttpStatus.CONFLICT)) {

@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
@@ -34,6 +35,9 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;
+
+    @Inject
+    private SpaceGetter spaceGetter;
 
     protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platform, Target target,
         SystemParameters systemParameters, ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
@@ -106,7 +110,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
     }
 
     protected BiFunction<String, String, String> getSpaceIdSupplier(CloudFoundryOperations client) {
-        return (orgName, spaceName) -> new ClientHelper(client).computeSpaceId(orgName, spaceName);
+        return (orgName, spaceName) -> new ClientHelper(client, spaceGetter).computeSpaceId(orgName, spaceName);
     }
 
 }

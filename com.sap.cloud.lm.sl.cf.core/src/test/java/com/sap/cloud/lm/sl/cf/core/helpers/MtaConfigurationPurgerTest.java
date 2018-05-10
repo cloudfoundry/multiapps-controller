@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -45,6 +46,9 @@ public class MtaConfigurationPurgerTest {
 
     @Mock
     CloudFoundryOperations client;
+    
+    @Mock
+    SpaceGetter spaceGetter;
 
     @Mock
     ConfigurationEntryDao entryDao;
@@ -70,7 +74,7 @@ public class MtaConfigurationPurgerTest {
 
     @Test
     public void testPurge() {
-        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
+        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, spaceGetter, entryDao, subscriptionDao);
         purger.purge("org", "space");
         Mockito.verify(entryDao)
             .remove(ENTRY_ID_TO_REMOVE);

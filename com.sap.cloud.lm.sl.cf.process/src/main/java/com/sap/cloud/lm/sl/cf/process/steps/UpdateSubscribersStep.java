@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
@@ -87,8 +88,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
-    protected BiFunction<CloudFoundryOperations, String, Pair<String, String>> orgAndSpaceCalculator = (client,
-        spaceId) -> new ClientHelper(client).computeOrgAndSpace(spaceId);
+    protected BiFunction<ClientHelper, String, Pair<String, String>> orgAndSpaceCalculator = (client, spaceId) -> client
+        .computeOrgAndSpace(spaceId);
 
     @Inject
     private ConfigurationSubscriptionDao subscriptionsDao;
@@ -96,6 +97,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     private ConfigurationEntryDao entriesDao;
     @Inject
     private ActivitiFacade activitiFacade;
+    @Inject
+    private SpaceGetter spaceGetter;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
@@ -111,7 +114,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
             List<CloudApplication> updatedSubscribers = new ArrayList<>();
             List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
             for (ConfigurationSubscription subscription : subscriptionsDao.findAll(updatedEntries)) {
-                Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientForCurrentSpace, subscription.getSpaceId());
+                ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace, spaceGetter);
+                Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientHelper, subscription.getSpaceId());
                 if (orgAndSpace == null) {
                     LOGGER.warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                     continue;
