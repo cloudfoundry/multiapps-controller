@@ -67,6 +67,9 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     private ServiceInstanceGetter serviceInstanceGetter;
 
     @Inject
+    private ApplicationConfiguration configuration;
+
+    @Inject
     @Named("serviceUpdater")
     protected ServiceUpdater serviceUpdater;
 
@@ -432,8 +435,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         FileContentProcessor parametersFileProcessor = new FileContentProcessor() {
             @Override
             public void processFileContent(InputStream appArchiveStream) throws SLException {
-                try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, ApplicationConfiguration.getInstance()
-                    .getMaxManifestSize())) {
+                try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
                     mergeCredentials(service, is);
                 } catch (IOException e) {
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);

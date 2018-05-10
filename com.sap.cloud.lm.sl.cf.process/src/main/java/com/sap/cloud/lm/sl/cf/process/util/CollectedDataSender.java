@@ -29,6 +29,8 @@ public class CollectedDataSender {
 
     @Inject
     private AnalyticsCollector analytics;
+    @Inject
+    private ApplicationConfiguration configuration;
 
     @Inject
     private GeneralScenarioDetailsCollector details;
@@ -58,7 +60,6 @@ public class CollectedDataSender {
         params.put(Constants.TOOL_TYPE, XS2);
         params.put(Constants.FEEDBACK_MAIL, collectedXmlData);
 
-        restTemplate.postForLocation(ApplicationConfiguration.getInstance()
-            .getMailApiUrl(), params);
+        restTemplate.postForLocation(configuration.getMailApiUrl(), params);
     }
 }

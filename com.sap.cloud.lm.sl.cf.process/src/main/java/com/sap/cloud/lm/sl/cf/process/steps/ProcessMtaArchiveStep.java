@@ -69,8 +69,7 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
         FileDownloadProcessor manifestProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId,
             appArchiveStream -> {
                 // Create and initialize helper
-                Manifest manifest = ArchiveHandler.getManifest(appArchiveStream, ApplicationConfiguration.getInstance()
-                    .getMaxManifestSize());
+                Manifest manifest = ArchiveHandler.getManifest(appArchiveStream, configuration.getMaxManifestSize());
                 MtaArchiveHelper helper = getHelper(manifest);
                 helper.init();
 

@@ -58,6 +58,7 @@ public class ProcessMtaArchiveStepTest extends SyncActivitiStepTest<ProcessMtaAr
         prepareContext();
         prepareFileService();
         when(configuration.getMaxMtaDescriptorSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+        when(configuration.getMaxManifestSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE);
     }
 
     private void prepareContext() {

@@ -147,8 +147,7 @@ public class MtaArchiveValidator {
         byte[] mtar = IOUtils.toByteArray(mtarStream);
 
         // Read the MTAR manifest
-        Manifest manifest = ArchiveHandler.getManifest(new ByteArrayInputStream(mtar), ApplicationConfiguration.getInstance()
-            .getMaxManifestSize());
+        Manifest manifest = ArchiveHandler.getManifest(new ByteArrayInputStream(mtar), ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE);
 
         // Create and initialize MTA archive helper
         MtaArchiveHelper mtaArchiveHelper = new MtaArchiveHelper(manifest);

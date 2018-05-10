@@ -45,6 +45,9 @@ public class DataTerminationService {
     @Inject
     private OperationDao operationDao;
 
+    @Inject
+    private ApplicationConfiguration configuration;
+
     public void deleteOrphanUserData() {
         List<String> deleteSpaceEventsToBeDeleted = getDeleteSpaceEvents();
         for (String spaceId : deleteSpaceEventsToBeDeleted) {
@@ -93,16 +96,11 @@ public class DataTerminationService {
 
     protected CloudFoundryClient getCFClient() {
 
-        CloudCredentials cloudCredentials = new CloudCredentials(ApplicationConfiguration.getInstance()
-            .getGlobalAuditorUser(),
-            ApplicationConfiguration.getInstance()
-                .getGlobalAuditorPassword(),
-            SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
+        CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
+            configuration.getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
 
-        CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, ApplicationConfiguration.getInstance()
-            .getTargetURL(),
-            ApplicationConfiguration.getInstance()
-                .shouldSkipSslValidation());
+        CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, configuration.getTargetURL(),
+            configuration.shouldSkipSslValidation());
         cfClient.login();
         return cfClient;
     }

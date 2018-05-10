@@ -255,8 +255,8 @@ public class UploadAppStepTest {
                 if (!fileName.equals(APP_FILE)) {
                     return super.getInputStreamProducer(appArchiveStream, fileName, maxStreamSize);
                 }
-                return new InputStreamProducer(getClass().getResourceAsStream(APP_FILE), fileName, ApplicationConfiguration.getInstance()
-                    .getMaxResourceFileSize()) {
+                return new InputStreamProducer(getClass().getResourceAsStream(APP_FILE), fileName,
+                    ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE) {
                     @Override
                     public InputStream getNextInputStream() {
                         return getClass().getResourceAsStream(APP_FILE);
