@@ -1,9 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryOperationsExtended;
@@ -20,42 +16,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class AuthorizationUtil {
 
-    private static final String SPACE_CACHE_SEPARATOR = "|";
     private static final ExecutionRetrier RETRIER = new ExecutionRetrier();
-
-    public static String getSpaceId(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String orgName, String spaceName,
-        String processId) throws SLException {
-        CloudFoundryOperations client = getCloudFoundryClient(clientProvider, userInfo, orgName, spaceName, processId);
-        String spaceId = new ClientHelper(client).computeSpaceId(orgName, spaceName);
-        if (spaceId == null) {
-            throw new SLException(MessageFormat.format(Messages.COULD_NOT_COMPUTE_SPACE_ID, orgName, spaceName));
-        }
-        return spaceId;
-    }
-
-    private static Map<String, String> processSpaceCache = new HashMap<>();
-
-    public static String getProcessSpaceId(String processId, CloudFoundryClientProvider clientProvider, UserInfo userInfo, String orgName,
-        String spaceName) throws SLException {
-        String spaceCacheKey = getSpaceCacheKey(orgName, spaceName, processId);
-        String spaceId = processSpaceCache.get(spaceCacheKey);
-        if (spaceId == null) {
-            spaceId = getSpaceId(clientProvider, userInfo, orgName, spaceName, processId);
-            if (processId != null) {
-                processSpaceCache.put(spaceCacheKey, spaceId);
-            }
-        }
-        return spaceId;
-    }
-
-    private static String getSpaceCacheKey(String orgName, String spaceName, String processId) {
-        return new StringBuilder().append(orgName)
-            .append(SPACE_CACHE_SEPARATOR)
-            .append(spaceName)
-            .append(SPACE_CACHE_SEPARATOR)
-            .append(processId)
-            .toString();
-    }
 
     public static boolean checkPermissions(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String orgName, String spaceName,
         boolean readOnly, String processId) throws SLException {
@@ -119,11 +80,6 @@ public class AuthorizationUtil {
 
     private static CloudFoundryOperations getCloudFoundryClient(CloudFoundryClientProvider clientProvider, UserInfo userInfo)
         throws SLException {
-        return clientProvider.getCloudFoundryClient(userInfo.getName());
-    }
-
-    private static CloudFoundryOperations getCloudFoundryClient(CloudFoundryClientProvider clientProvider, UserInfo userInfo,
-        String orgName, String spaceName, String processId) throws SLException {
         return clientProvider.getCloudFoundryClient(userInfo.getName());
     }
 
