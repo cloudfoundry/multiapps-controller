@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,12 @@ public class PublishConfigurationEntriesStep extends SyncActivitiStep {
             getStepLogger().info(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES, app.getName()));
 
             Map<String, List<ConfigurationEntry>> entriesToPublish = StepsUtil.getConfigurationEntriesToPublish(execution.getContext());
+
+            if (MapUtils.isEmpty(entriesToPublish)) {
+                StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
+                getStepLogger().debug(Messages.NO_PUBLIC_PROVIDED_DEPENDENCIES);
+                return StepPhase.DONE;
+            }
 
             List<ConfigurationEntry> entriesToPublishPerApp = entriesToPublish.get(app.getName());
             List<ConfigurationEntry> publishedEntries = publish(entriesToPublishPerApp);

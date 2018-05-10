@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -59,6 +60,9 @@ public class PublishConfigurationEntriesStepTest extends SyncActivitiStepTest<Pu
             {
                 "publish-configuration-entries-step-input-3.json"
             },
+            {
+                "publish-configuration-entries-step-input-4.json"
+            },
 // @formatter:on
         });
     }
@@ -105,6 +109,12 @@ public class PublishConfigurationEntriesStepTest extends SyncActivitiStepTest<Pu
     }
 
     private void validateConfigurationEntryDao() throws Exception {
+        if (CollectionUtils.isEmpty(input.entriesToPublish)) {
+            Mockito.verify(configurationEntryDaoMock, Mockito.never())
+                .add(Mockito.any());
+            Mockito.verify(configurationEntryDaoMock, Mockito.never())
+                .update(Mockito.anyLong(), Mockito.any());
+        }
         List<ConfigurationEntry> createdEntries = getCreatedEntries();
         List<ConfigurationEntry> updatedEntries = getUpdatedEntries();
         assertContainsEntries(input.expectedCreatedEntries, createdEntries);

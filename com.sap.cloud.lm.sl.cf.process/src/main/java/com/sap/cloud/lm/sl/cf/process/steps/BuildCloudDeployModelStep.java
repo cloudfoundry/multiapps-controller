@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 
@@ -24,12 +26,17 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 
 public class BuildCloudDeployModelStep extends SyncActivitiStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+
+    @Inject
+    protected ProcessTypeParser processTypeParser;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
@@ -70,11 +77,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
             StepsUtil.setUseIdleUris(execution.getContext(), false);
 
             // Build public provided dependencies list and save them in the context:
-            ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(
-                execution.getContext());
-            Map<String, List<ConfigurationEntry>> configurationEntries = configurationEntriesCloudModelBuilder.build(deploymentDescriptor);
-            Map<String, List<ConfigurationEntry>> updatedModuleNames = updateModuleNames(configurationEntries, apps);
-            StepsUtil.setConfigurationEntriesToPublish(execution.getContext(), updatedModuleNames);
+            buildConfigurationEntriesToPublish(execution.getContext(), deploymentDescriptor, apps);
 
             List<CloudServiceExtended> allServices = getServicesCloudModelBuilder(execution.getContext()).build(mtaArchiveModules);
 
@@ -100,6 +103,23 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
         }
     }
 
+    private void buildConfigurationEntriesToPublish(DelegateExecution context, DeploymentDescriptor deploymentDescriptor,
+        List<CloudApplicationExtended> apps) {
+        ProcessType processType = processTypeParser.getProcessType(context);
+
+        if (processType.equals(ProcessType.BLUE_GREEN_DEPLOY)) {
+            StepsUtil.setConfigurationEntriesToPublish(context, Collections.emptyMap());
+            StepsUtil.setSkipUpdateConfigurationEntries(context, true);
+            return;
+        }
+
+        ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(context);
+        Map<String, List<ConfigurationEntry>> configurationEntries = configurationEntriesCloudModelBuilder.build(deploymentDescriptor);
+        Map<String, List<ConfigurationEntry>> updatedModuleNames = updateModuleNames(configurationEntries, apps);
+        StepsUtil.setConfigurationEntriesToPublish(context, updatedModuleNames);
+        StepsUtil.setSkipUpdateConfigurationEntries(context, false);
+    }
+
     protected DomainsCloudModelBuilder getDomainsCloudModelBuilder(DelegateExecution context) {
         return StepsUtil.getDomainsCloudModelBuilder(context);
     }
@@ -118,7 +138,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
         return StepsUtil.getServicesCloudModelBuilder(context, getStepLogger());
     }
 
-    private Map<String, List<ConfigurationEntry>> updateModuleNames(Map<String, List<ConfigurationEntry>> configurationEntries,
+    protected Map<String, List<ConfigurationEntry>> updateModuleNames(Map<String, List<ConfigurationEntry>> configurationEntries,
         List<CloudApplicationExtended> apps) {
         Map<String, List<ConfigurationEntry>> result = new HashMap<>();
         for (CloudApplicationExtended app : apps) {

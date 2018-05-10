@@ -1039,4 +1039,12 @@ public class StepsUtil {
     static boolean getUseIdleUris(DelegateExecution context) {
         return (boolean) context.getVariable(Constants.VAR_USE_IDLE_URIS);
     }
+    
+    static void setSkipUpdateConfigurationEntries(DelegateExecution context, boolean update) {
+        context.setVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES, update);
+    }
+
+    static boolean getSkipUpdateConfigurationEntries(DelegateExecution context) {
+        return (boolean) context.getVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES);
+    }
 }
