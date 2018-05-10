@@ -156,6 +156,9 @@ public class BootstrapServlet extends HttpServlet {
     }
 
     private void executeAsyncDatabaseChanges() {
+        if (asyncChanges == null || asyncChanges.isEmpty()) {
+            return;
+        }
         String appInstanceIndex = getAppInstanceIndex();
         // Problems may arise if the changes are executed in parallel on multiple instances. Since there will always be *at least* one
         // instance, we always execute the changes on the first.
