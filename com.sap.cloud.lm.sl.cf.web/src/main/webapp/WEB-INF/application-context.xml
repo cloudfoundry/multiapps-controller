@@ -19,8 +19,6 @@
     <beans profile="cf">
         <bean id="cloudFoundryClientFactory" class="com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientFactory" />
 
-        <bean id="customTokenServices" class="com.sap.cloud.lm.sl.cf.web.security.CustomTokenServices" />
-
         <bean id="recentLogsRetriever" class="com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever" />
 
         <bean id="serviceCreator" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator" />

@@ -12,7 +12,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.uaa.UAAClient;
 import com.sap.cloud.lm.sl.cf.client.uaa.UAAClientFactory;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Configuration
@@ -21,7 +20,7 @@ public class UAAClientConfiguration {
     @Bean
     @Profile("cf")
     public UAAClient uaaClient() {
-        return new UAAClientFactory().createClient(readTokenEndpoint(ApplicationConfiguration.getInstance()
+        return new UAAClientFactory().createClient(readTokenEndpoint(com.sap.cloud.lm.sl.cf.core.util.Configuration.getInstance()
             .getTargetURL()));
     }
 

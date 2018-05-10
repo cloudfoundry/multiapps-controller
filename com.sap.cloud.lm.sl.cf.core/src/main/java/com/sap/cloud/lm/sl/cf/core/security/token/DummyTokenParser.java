@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.Configuration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 
 @Component
@@ -39,7 +39,7 @@ public class DummyTokenParser implements TokenParser {
 
         @Override
         public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-            ApplicationConfiguration configuration = ApplicationConfiguration.getInstance();
+            Configuration configuration = Configuration.getInstance();
             return configuration.areDummyTokensEnabled();
         }
 
