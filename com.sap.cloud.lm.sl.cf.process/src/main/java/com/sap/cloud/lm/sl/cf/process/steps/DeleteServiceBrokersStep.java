@@ -72,6 +72,7 @@ public class DeleteServiceBrokersStep extends SyncActivitiStep {
                             getStepLogger().warn(Messages.DELETE_OF_SERVICE_BROKERS_FAILED_403, name);
                             return;
                         }
+                        throw new ServiceBrokerException(e);
                     case BAD_GATEWAY:
                         throw new ServiceBrokerException(e);
                     default:

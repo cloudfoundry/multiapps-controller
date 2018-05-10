@@ -96,6 +96,7 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
                         getStepLogger().warn(Messages.REGISTER_OF_SERVICE_URL_FAILED_403, serviceUrl.getUrl(), serviceUrl.getServiceName());
                         return;
                     }
+                    throw e;
                 default:
                     throw e;
             }

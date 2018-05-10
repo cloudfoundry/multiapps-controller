@@ -211,6 +211,8 @@ public class StepsUtil {
                         return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v3_0.Target.class);
                     case 1:
                         return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v3_1.Target.class);
+                    default:
+                        return null;
                 }
             default:
                 return null;
@@ -237,6 +239,8 @@ public class StepsUtil {
                         return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v3_0.Platform.class);
                     case 1:
                         return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v3_1.Platform.class);
+                    default:
+                        return null;
                 }
             default:
                 return null;
@@ -675,6 +679,8 @@ public class StepsUtil {
                     case 1:
                         return getBinaryJsonForMtaModel().unmarshal(binaryJson,
                             com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor.class);
+                    default:
+                        return null;
                 }
             default:
                 return null;

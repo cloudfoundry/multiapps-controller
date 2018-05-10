@@ -30,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
 import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
 import com.sap.cloud.lm.sl.cf.client.util.StreamUtil;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -89,9 +90,10 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         };
     }
 
-    private String asyncUploadFiles(DelegateExecution context, ClientExtensions clientExtensions, CloudFoundryOperations client,
+    private String asyncUploadFiles(ExecutionWrapper execution, ClientExtensions clientExtensions, CloudFoundryOperations client,
         CloudApplication app, String appArchiveId, String fileName) throws FileStorageException, SLException {
         final StringBuilder uploadTokenBuilder = new StringBuilder();
+        final DelegateExecution context = execution.getContext();
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
                 File file = null;
@@ -100,7 +102,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Start uploading application content
                     file = saveToFile(fileName, streamProducer);
-                    detectApplicationFileDigestChanges(context, app, file, client);
+                    detectApplicationFileDigestChanges(execution, app, file, client);
                     String uploadToken = clientExtensions.asynchUploadApplication(app.getName(), file,
                         getMonitorUploadStatusCallback(context, app, file));
                     uploadTokenBuilder.append(uploadToken);
@@ -116,17 +118,19 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         return uploadTokenBuilder.toString();
     }
 
-    private void uploadFiles(DelegateExecution context, final CloudFoundryOperations client, final CloudApplication app,
+    private void uploadFiles(final ExecutionWrapper execution, final CloudFoundryOperations client, final CloudApplication app,
         final String appArchiveId, final String fileName) throws FileStorageException, SLException {
+        final DelegateExecution context = execution.getContext();
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
                 File file = null;
                 long maxStreamSize = ApplicationConfiguration.getInstance()
                     .getMaxResourceFileSize();
+
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Upload application content
                     file = saveToFile(fileName, streamProducer);
-                    detectApplicationFileDigestChanges(context, app, file, client);
+                    detectApplicationFileDigestChanges(execution, app, file, client);
                     client.uploadApplication(app.getName(), file, getMonitorUploadStatusCallback(context, app, file));
                 } catch (IOException e) {
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
@@ -140,14 +144,14 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
     }
 
-    private void detectApplicationFileDigestChanges(DelegateExecution context, CloudApplication app, File applicationFile,
+    private void detectApplicationFileDigestChanges(ExecutionWrapper execution, CloudApplication app, File applicationFile,
         CloudFoundryOperations client) {
         CloudApplication existingApp = client.getApplication(app.getName());
         ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(existingApp);
         String appNewFileDigest = applicationFileDigestDetector.detectNewAppFileDigest(applicationFile);
         String currentFileDigest = applicationFileDigestDetector.detectCurrentAppFileDigest();
         attemptToUpdateApplicationDigest(client, app, appNewFileDigest, currentFileDigest);
-        updateContextExtension(context, hasAppFileDigestChanged(appNewFileDigest, currentFileDigest));
+        updateContextExtension(execution, hasAppFileDigestChanged(appNewFileDigest, currentFileDigest));
     }
 
     private void attemptToUpdateApplicationDigest(CloudFoundryOperations client, CloudApplication app, String newFileDigest,
@@ -164,9 +168,11 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         return !newFileDigest.equals(currentFileDigest);
     }
 
-    private void updateContextExtension(DelegateExecution context, boolean appContentChanged) throws SLException {
-        contextExtensionDao.addOrUpdate(context.getProcessInstanceId(), Constants.VAR_APP_CONTENT_CHANGED,
-            Boolean.toString(appContentChanged));
+    private void updateContextExtension(ExecutionWrapper execution, boolean appContentChanged) throws SLException {
+        ContextExtensionDao contextExtensionDao = execution.getContextExtensionDao();
+        String processId = execution.getContext()
+            .getProcessInstanceId();
+        contextExtensionDao.addOrUpdate(processId, Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(appContentChanged));
     }
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(DelegateExecution context, CloudApplication app, File file) {
@@ -309,26 +315,26 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     private void uploadApp(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client,
         ClientExtensions clientExtensions) throws FileStorageException {
         AsyncExecutionState status = AsyncExecutionState.ERROR;
+        String processId = execution.getContext()
+            .getProcessInstanceId();
         try {
             String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
             String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
             getStepLogger().debug("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName());
             if (clientExtensions != null) {
-                String uploadToken = asyncUploadFiles(execution.getContext(), clientExtensions, client, app, appArchiveId, fileName);
+                String uploadToken = asyncUploadFiles(execution, clientExtensions, client, app, appArchiveId, fileName);
                 execution.getContextExtensionDao()
-                    .addOrUpdate(execution.getContext()
-                        .getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN, uploadToken);
+                    .addOrUpdate(processId, Constants.VAR_UPLOAD_TOKEN, uploadToken);
                 getStepLogger().debug("Started async upload of application \"{0}\"", fileName, app.getName());
                 status = AsyncExecutionState.RUNNING;
             } else {
-                uploadFiles(execution.getContext(), client, app, appArchiveId, fileName);
+                uploadFiles(execution, client, app, appArchiveId, fileName);
                 getStepLogger().debug(Messages.APP_UPLOADED, app.getName());
                 status = AsyncExecutionState.FINISHED;
             }
         } finally {
             execution.getContextExtensionDao()
-                .addOrUpdate(execution.getContext()
-                    .getProcessInstanceId(), Constants.VAR_UPLOAD_STATE, status.name());
+                .addOrUpdate(processId, Constants.VAR_UPLOAD_STATE, status.name());
             StepsUtil.setStepPhase(execution, StepPhase.POLL);
         }
     }
