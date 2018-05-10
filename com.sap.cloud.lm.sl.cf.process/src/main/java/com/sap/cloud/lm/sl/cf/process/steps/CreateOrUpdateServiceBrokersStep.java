@@ -183,6 +183,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
                         getStepLogger().warn(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
                         return;
                     }
+                    throw new ServiceBrokerException(e);
                 case BAD_GATEWAY:
                     throw new ServiceBrokerException(e);
                 default:
@@ -203,6 +204,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
                         getStepLogger().warn(Messages.CREATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
                         return;
                     }
+                    throw new ServiceBrokerException(e);
                 case BAD_GATEWAY:
                     throw new ServiceBrokerException(e);
                 default:

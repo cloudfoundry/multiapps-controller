@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.OperationFactory;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-public class AbstractOperationDaoParameterizedTest {
+public abstract class AbstractOperationDaoParameterizedTest {
 
     private final String databaseContentJsonLocation;
 

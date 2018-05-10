@@ -11,7 +11,6 @@ import org.slf4j.MDC;
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
-import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -26,13 +25,13 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
     @Inject
     protected CloudFoundryClientProvider clientProvider;
     @Inject
-    protected ContextExtensionDao contextExtensionDao;
+    private ContextExtensionDao contextExtensionDao;
     @Inject
     private StepLogger.Factory stepLoggerFactory;
     @Inject
-    protected ProcessLoggerProviderFactory processLoggerProviderFactory;
+    private ProcessLoggerProviderFactory processLoggerProviderFactory;
     @Inject
-    protected ProgressMessageService progressMessageService;
+    private ProgressMessageService progressMessageService;
     @Inject
     @Named("fileService")
     protected AbstractFileService fileService;
