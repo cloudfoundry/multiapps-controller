@@ -97,8 +97,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
                 File file = null;
-                long maxStreamSize = ApplicationConfiguration.getInstance()
-                    .getMaxResourceFileSize();
+                long maxStreamSize = configuration.getMaxResourceFileSize();
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Start uploading application content
                     file = saveToFile(fileName, streamProducer);
@@ -124,9 +123,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, (appArchiveStream) -> {
                 File file = null;
-                long maxStreamSize = ApplicationConfiguration.getInstance()
-                    .getMaxResourceFileSize();
-
+                long maxStreamSize = configuration.getMaxResourceFileSize();
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Upload application content
                     file = saveToFile(fileName, streamProducer);
@@ -197,8 +194,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         }
 
         if (entryName.equals(fileName)) {
-            return streamUtil.saveZipStreamToDirectory(fileName, ApplicationConfiguration.getInstance()
-                .getMaxResourceFileSize());
+            return streamUtil.saveZipStreamToDirectory(fileName, configuration.getMaxResourceFileSize());
         }
         Path destinationDirectory = StreamUtil.getTempDirectory(fileName);
         while (stream != null) {

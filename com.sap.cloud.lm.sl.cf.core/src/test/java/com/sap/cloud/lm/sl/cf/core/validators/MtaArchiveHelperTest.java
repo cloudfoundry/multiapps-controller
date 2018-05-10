@@ -39,8 +39,7 @@ public class MtaArchiveHelperTest {
 
     public MtaArchiveHelperTest(String mtarLocation, String deploymentDescriptorLocation) throws SLException {
         InputStream stream = getClass().getResourceAsStream(mtarLocation);
-        helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, ApplicationConfiguration.getInstance()
-            .getMaxManifestSize()));
+        helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE));
 
         DescriptorParser parser = new DescriptorParser();
         descriptor = parser.parseDeploymentDescriptorYaml(getClass().getResourceAsStream(deploymentDescriptorLocation));
