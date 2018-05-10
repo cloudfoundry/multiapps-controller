@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
@@ -253,9 +254,13 @@ public class ApplicationConfiguration {
     public void logFullConfig() {
         for (Map.Entry<String, String> envVariable : getFilteredEnv().entrySet()) {
             AuditableConfiguration auditConfiguration = getAuditableConfiguration(envVariable.getKey(), envVariable.getValue());
-            AuditLoggingProvider.getFacade()
+            getAuditLoggingFascade()
                 .logConfig(auditConfiguration);
         }
+    }
+
+    protected AuditLoggingFacade getAuditLoggingFascade() {
+        return AuditLoggingProvider.getFacade();
     }
 
     private AuditableConfiguration getAuditableConfiguration(String key, String value) {
