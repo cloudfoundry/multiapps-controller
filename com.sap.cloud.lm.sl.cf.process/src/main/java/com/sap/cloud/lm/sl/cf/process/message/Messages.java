@@ -80,7 +80,6 @@ public class Messages {
     public static final String ERROR_RESOLVING_DESCRIPTOR_PROPERTIES = "Error resolving merged descriptor properties and parameters";
     public static final String ERROR_CREATING_SUBSCRIPTIONS = "Error creating subscriptions";
     public static final String ERROR_BUILDING_CLOUD_MODEL = "Error building cloud model";
-    public static final String ERROR_RESOLVING_CONFIGURATION_ENTRIES = "Error building cloud model";
     public static final String ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL = "Error building cloud undeployment model";
     public static final String ERROR_DELETING_UNUSED_RESERVED_ROUTES = "Error deleting unused reserved routes";
     public static final String ERROR_ADDING_DOMAINS = "Error adding domains";
@@ -218,6 +217,8 @@ public class Messages {
     public static final String CLOUD_MODEL_BUILT = "Cloud deployment model built";
     public static final String BUILDING_CLOUD_UNDEPLOY_MODEL = "Building cloud undeployment model...";
     public static final String CLOUD_UNDEPLOY_MODEL_BUILT = "Cloud undeployment model built";
+    public static final String BUILDING_CLOUD_APP_MODEL = "Building cloud deployment model for application \"{0}\"...";
+    public static final String CLOUD_APP_MODEL_BUILT = "Cloud deployment model for application built";
     public static final String RESOLVING_CONFIGURATION_ENTRIES = "Resolving configuration entries...";
     public static final String DELETING_UNUSED_RESERVED_ROUTES = "Deleting unused reserved routes...";
     public static final String UNUSED_RESERVED_ROUTES_DELETED = "Unused reserved routes deleted";
@@ -266,7 +267,7 @@ public class Messages {
     public static final String SCALING_APP = "Scaling application \"{0}\"...";;
     public static final String APP_SCALED = "Application \"{0}\" scaled";
     public static final String PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Publishing public provided dependencies for application \"{0}\"...";
-    public static final String NO_PUBLIC_PROVIDED_DEPENDENCIES = "No public provided dependencies";
+    public static final String NO_PUBLIC_PROVIDED_DEPENDENCIES_FOR_PUBLISHING = "No public provided dependencies for publishing";
     public static final String PUBLIC_PROVIDED_DEPENDENCIES_PUBLISHED = "Public provided dependencies published";
     public static final String UPDATING_SUBSCRIBERS = "Updating subscribers...";
     public static final String UPDATING_SUBSCRIBER = "Updating application \"{0}\" from MTA \"{1}\" for subscription \"{2}\"";

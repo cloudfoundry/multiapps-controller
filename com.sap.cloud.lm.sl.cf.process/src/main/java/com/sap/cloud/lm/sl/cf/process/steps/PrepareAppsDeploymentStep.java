@@ -12,6 +12,8 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @Component("prepareAppsDeploymentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -19,6 +21,9 @@ public class PrepareAppsDeploymentStep extends SyncActivitiStep {
 
     @Inject
     private ApplicationConfiguration configuration;
+
+    @Inject
+    protected ProcessTypeParser processTypeParser;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -49,6 +54,10 @@ public class PrepareAppsDeploymentStep extends SyncActivitiStep {
             .setVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT, true);
         execution.getContext()
             .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, true);
+
+        ProcessType processType = processTypeParser.getProcessType(execution.getContext());
+
+        StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
 
         return StepPhase.DONE;
     }

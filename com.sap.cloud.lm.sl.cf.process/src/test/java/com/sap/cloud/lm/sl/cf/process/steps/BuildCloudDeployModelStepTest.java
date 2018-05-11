@@ -4,8 +4,6 @@ import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentD
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatforms;
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadTargets;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -35,8 +33,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
-import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
@@ -70,22 +66,17 @@ public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildClo
         public String servicesToCreateLocation;
         public String deployedMtaLocation;
         public String serviceKeysLocation;
-        public String configurationsToPublishLocation;
         public String appsToDeployLocation;
         public List<String> customDomains;
-        public ProcessType processType;
 
         public StepInput(String appsToDeployLocation, String servicesToBindLocation, String servicesToCreateLocation,
-            String serviceKeysLocation, String configurationsToPublishLocation, List<String> customDomains, String deployedMtaLocation,
-            ProcessType processType) {
+            String serviceKeysLocation, List<String> customDomains, String deployedMtaLocation) {
             this.servicesToBindLocation = servicesToBindLocation;
             this.servicesToCreateLocation = servicesToCreateLocation;
             this.deployedMtaLocation = deployedMtaLocation;
             this.serviceKeysLocation = serviceKeysLocation;
-            this.configurationsToPublishLocation = configurationsToPublishLocation;
             this.appsToDeployLocation = appsToDeployLocation;
             this.customDomains = customDomains;
-            this.processType = processType;
         }
 
     }
@@ -128,13 +119,13 @@ public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildClo
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", "configurations-to-publish-01.json", Arrays.asList("custom-domain-1", "custom-domain-2"), "deployed-mta-12.json", ProcessType.DEPLOY), new StepOutput("0.1.0"),
+                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("custom-domain-1", "custom-domain-2"), "deployed-mta-12.json"), new StepOutput("0.1.0"),
             },
             {
-                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", "configurations-to-publish-01.json", Arrays.asList("custom-domain-1", "custom-domain-2"), null, ProcessType.DEPLOY), new StepOutput("0.1.0"),
+                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("custom-domain-1", "custom-domain-2"), null), new StepOutput("0.1.0"),
             },
             {
-                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", "configurations-to-publish-01.json", Arrays.asList("custom-domain-1", "custom-domain-2"), null, ProcessType.BLUE_GREEN_DEPLOY), new StepOutput("0.1.0"),
+                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("custom-domain-1", "custom-domain-2"), null), new StepOutput("0.1.0"),
             },
 // @formatter:on
         });
@@ -158,8 +149,6 @@ public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildClo
     protected ServicesCloudModelBuilder servicesCloudModelBuilder;
     @Mock
     protected ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder;
-    @Mock
-    protected ProcessTypeParser processTypeParser;
 
     public BuildCloudDeployModelStepTest(StepInput input, StepOutput output) {
         this.output = output;
@@ -175,7 +164,6 @@ public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildClo
     protected void prepareContext() throws Exception {
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
         context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, MTA_MINOR_SCHEMA_VERSION);
-        when(processTypeParser.getProcessType(context)).thenReturn(input.processType);
 
         StepsUtil.setSystemParameters(context, EMPTY_SYSTEM_PARAMETERS);
         StepsUtil.setMtaModules(context, Collections.emptySet());
@@ -206,17 +194,6 @@ public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildClo
         assertEquals(input.customDomains, StepsUtil.getCustomDomains(context));
 
         assertEquals(output.newMtaVersion, StepsUtil.getNewMtaVersion(context));
-        assertConfigurationEntriesToPublish();
-    }
-
-    private void assertConfigurationEntriesToPublish() {
-        if (input.processType.equals(ProcessType.BLUE_GREEN_DEPLOY)) {
-            assertTrue(StepsUtil.getSkipUpdateConfigurationEntries(context));
-        } else {
-            assertFalse(StepsUtil.getSkipUpdateConfigurationEntries(context));
-            TestUtil.test(() -> StepsUtil.getConfigurationEntriesToPublish(context), "R:" + input.configurationsToPublishLocation,
-                getClass());
-        }
     }
 
     protected void loadParameters() throws Exception {

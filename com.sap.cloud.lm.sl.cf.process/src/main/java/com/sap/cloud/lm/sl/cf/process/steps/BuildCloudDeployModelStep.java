@@ -7,36 +7,27 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServicesCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
-import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 
 public class BuildCloudDeployModelStep extends SyncActivitiStep {
 
     protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    @Inject
-    protected ProcessTypeParser processTypeParser;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
@@ -76,9 +67,6 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
             StepsUtil.setServiceKeysCredentialsToInject(execution.getContext(), new HashMap<>());
             StepsUtil.setUseIdleUris(execution.getContext(), false);
 
-            // Build public provided dependencies list and save them in the context:
-            buildConfigurationEntriesToPublish(execution.getContext(), deploymentDescriptor, apps);
-
             List<CloudServiceExtended> allServices = getServicesCloudModelBuilder(execution.getContext()).build(mtaArchiveModules);
 
             // Build a list of services for binding and save them in the context:
@@ -103,23 +91,6 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
         }
     }
 
-    private void buildConfigurationEntriesToPublish(DelegateExecution context, DeploymentDescriptor deploymentDescriptor,
-        List<CloudApplicationExtended> apps) {
-        ProcessType processType = processTypeParser.getProcessType(context);
-
-        if (processType.equals(ProcessType.BLUE_GREEN_DEPLOY)) {
-            StepsUtil.setConfigurationEntriesToPublish(context, Collections.emptyMap());
-            StepsUtil.setSkipUpdateConfigurationEntries(context, true);
-            return;
-        }
-
-        ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(context);
-        Map<String, List<ConfigurationEntry>> configurationEntries = configurationEntriesCloudModelBuilder.build(deploymentDescriptor);
-        Map<String, List<ConfigurationEntry>> updatedModuleNames = updateModuleNames(configurationEntries, apps);
-        StepsUtil.setConfigurationEntriesToPublish(context, updatedModuleNames);
-        StepsUtil.setSkipUpdateConfigurationEntries(context, false);
-    }
-
     protected DomainsCloudModelBuilder getDomainsCloudModelBuilder(DelegateExecution context) {
         return StepsUtil.getDomainsCloudModelBuilder(context);
     }
@@ -136,24 +107,6 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {
         return StepsUtil.getServicesCloudModelBuilder(context, getStepLogger());
-    }
-
-    protected Map<String, List<ConfigurationEntry>> updateModuleNames(Map<String, List<ConfigurationEntry>> configurationEntries,
-        List<CloudApplicationExtended> apps) {
-        Map<String, List<ConfigurationEntry>> result = new HashMap<>();
-        for (CloudApplicationExtended app : apps) {
-            List<ConfigurationEntry> configurationEntriesForModule = configurationEntries.getOrDefault(app.getModuleName(),
-                Collections.emptyList());
-            result.put(app.getName(), configurationEntriesForModule);
-        }
-        return result;
-    }
-
-    protected ConfigurationEntriesCloudModelBuilder getConfigurationEntriesCloudModelBuilder(DelegateExecution context) {
-        String orgName = StepsUtil.getOrg(context);
-        String spaceName = StepsUtil.getSpace(context);
-        String spaceId = StepsUtil.getSpaceId(context);
-        return new ConfigurationEntriesCloudModelBuilder(orgName, spaceName, spaceId);
     }
 
 }

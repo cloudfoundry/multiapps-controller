@@ -21,6 +21,7 @@ public class PrepareAppsRestartStep extends PrepareAppsDeploymentStep {
         execution.getContext()
             .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
         StepsUtil.setUseIdleUris(execution.getContext(), false);
+        StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), false);
 
         return StepPhase.DONE;
     }

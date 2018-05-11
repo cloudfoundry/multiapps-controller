@@ -4,11 +4,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -36,16 +35,16 @@ public class PublishConfigurationEntriesStep extends SyncActivitiStep {
         try {
             getStepLogger().info(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES, app.getName()));
 
-            Map<String, List<ConfigurationEntry>> entriesToPublish = StepsUtil.getConfigurationEntriesToPublish(execution.getContext());
+            List<ConfigurationEntry> entriesToPublish = StepsUtil.getConfigurationEntriesToPublish(execution.getContext());
 
-            if (MapUtils.isEmpty(entriesToPublish)) {
+            if (CollectionUtils.isEmpty(entriesToPublish)) {
                 StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
-                getStepLogger().debug(Messages.NO_PUBLIC_PROVIDED_DEPENDENCIES);
+                getStepLogger().debug(Messages.NO_PUBLIC_PROVIDED_DEPENDENCIES_FOR_PUBLISHING);
                 return StepPhase.DONE;
             }
 
-            List<ConfigurationEntry> entriesToPublishPerApp = entriesToPublish.get(app.getName());
-            List<ConfigurationEntry> publishedEntries = publish(entriesToPublishPerApp);
+            // List<ConfigurationEntry> entriesToPublishPerApp = entriesToPublish.get(app.getName());
+            List<ConfigurationEntry> publishedEntries = publish(entriesToPublish);
 
             getStepLogger().debug(Messages.PUBLISHED_ENTRIES, secureSerializer.toJson(publishedEntries));
             StepsUtil.setPublishedEntries(execution.getContext(), publishedEntries);

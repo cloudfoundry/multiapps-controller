@@ -31,7 +31,6 @@ public class PrepareToUndeployStepTest extends SyncActivitiStepTest<PrepareToUnd
 
         assertStepFinishedSuccessfully();
 
-        assertEquals(Collections.emptyMap(), StepsUtil.getConfigurationEntriesToPublish(context));
         assertEquals(Collections.emptyList(), StepsUtil.getServiceUrlsToRegister(context));
         assertEquals(Collections.emptyList(), StepsUtil.getAppsToDeploy(context));
         assertEquals(Collections.emptyList(), StepsUtil.getServiceBrokersToCreate(context));

@@ -36,7 +36,6 @@ public class PrepareToUndeployStep extends SyncActivitiStep {
             StepsUtil.setMtaModules(execution.getContext(), Collections.emptySet());
             StepsUtil.setServiceBrokersToCreate(execution.getContext(), Collections.emptyList());
             StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
-            StepsUtil.setConfigurationEntriesToPublish(execution.getContext(), Collections.emptyMap());
             StepsUtil.setAppsToDeploy(execution.getContext(), Collections.emptyList());
             StepsUtil.setServiceUrlsToRegister(execution.getContext(), Collections.emptyList());
             StepsUtil.setSubscriptionsToCreate(execution.getContext(), Collections.emptyList());
