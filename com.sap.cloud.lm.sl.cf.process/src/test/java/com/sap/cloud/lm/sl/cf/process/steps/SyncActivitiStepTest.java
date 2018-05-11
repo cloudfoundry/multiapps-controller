@@ -36,7 +36,6 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     protected static final String USER_NAME = "dummy";
     protected static final String ORG_NAME = "org";
     protected static final String SPACE_NAME = "space";
-    protected static final String SPACE_GUID = "spaceGuid";
     protected String TEST_CORRELATION_ID = "test";
 
     protected DelegateExecution context = MockDelegateExecution.createSpyInstance();
@@ -77,10 +76,8 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
         this.stepLogger = Mockito.spy(new StepLogger(context, progressMessageService, processLoggerProviderFactory, LOGGER));
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
         context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
         context.setVariable(Constants.VAR_USER, USER_NAME);
         context.setVariable(Constants.VAR_ORG, ORG_NAME);
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString())).thenReturn(client);
         when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
         context.setVariable("correlationId", getCorrelationId());
         prepareExecution();
