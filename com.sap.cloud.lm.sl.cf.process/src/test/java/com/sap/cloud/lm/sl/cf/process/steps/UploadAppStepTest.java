@@ -80,7 +80,7 @@ public class UploadAppStepTest {
 
         @Test(expected = SLException.class)
         public void testPollStatus2() throws Exception {
-            when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq(SPACE_GUID)))
+            when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq(ORG_NAME), eq(SPACE_NAME), anyString()))
                 .thenThrow(new SLException(new CloudFoundryException(HttpStatus.BAD_REQUEST)));
             step.execute(context);
         }
