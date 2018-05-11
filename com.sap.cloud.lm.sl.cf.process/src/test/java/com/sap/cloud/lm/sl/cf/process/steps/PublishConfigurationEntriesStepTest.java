@@ -24,7 +24,6 @@ import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -94,7 +93,7 @@ public class PublishConfigurationEntriesStepTest extends SyncActivitiStepTest<Pu
     }
 
     private void prepareContext() {
-        StepsUtil.setConfigurationEntriesToPublish(context, MapUtil.asMap("test-app-name", input.entriesToPublish));
+        StepsUtil.setConfigurationEntriesToPublish(context, input.entriesToPublish);
         Mockito.when(context.getVariable(Constants.VAR_APP_TO_DEPLOY))
             .thenReturn(JsonUtil.toJson(new CloudApplicationExtended(Meta.defaultMeta(), "test-app-name")));
     }

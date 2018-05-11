@@ -48,9 +48,9 @@
     </sequenceFlow>
     <sequenceFlow id="platformDoesNotSupportTasks" name="Platform Does Not Support Tasks" sourceRef="doesPlatformSupportTasksGateway" targetRef="shouldUpdateConfigurations"></sequenceFlow>
     <serviceTask id="reprocessDescriptorTask" name="Re-Process Descriptor Step" activiti:async="true" activiti:delegateExpression="${processDescriptorStep}"></serviceTask>
-    <sequenceFlow id="flow48" sourceRef="rebuildApplicationEnvironmentTask" targetRef="checkAppTask"></sequenceFlow>
-    <serviceTask id="rebuildApplicationEnvironmentTask" name="Re-Build Application Environment" activiti:async="true" activiti:delegateExpression="${rebuildApplicationEnvironmentStep}"></serviceTask>
-    <sequenceFlow id="flow49" sourceRef="reprocessDescriptorTask" targetRef="rebuildApplicationEnvironmentTask"></sequenceFlow>
+    <sequenceFlow id="flow48" sourceRef="rebuildApplicationDeployModelTask" targetRef="checkAppTask"></sequenceFlow>
+    <serviceTask id="rebuildApplicationDeployModelTask" name="Re-Build Application Deploy Model" activiti:async="true" activiti:delegateExpression="${rebuildApplicationDeployModelStep}"></serviceTask>
+    <sequenceFlow id="flow49" sourceRef="reprocessDescriptorTask" targetRef="rebuildApplicationDeployModelTask"></sequenceFlow>
     <serviceTask id="publishProvidedDependenciesTask" name="Publish Provided Dependencies" activiti:async="true" activiti:delegateExpression="${publishProvidedDependenciesStep}"></serviceTask>
     <sequenceFlow id="flow50" sourceRef="publishProvidedDependenciesTask" targetRef="deleteDiscontinuedConfigurationEntriesForAppTask"></sequenceFlow>
     <serviceTask id="deleteDiscontinuedConfigurationEntriesForAppTask" name="Delete Discontinued Configuration Entries" activiti:async="true" activiti:delegateExpression="${deleteDiscontinuedConfigurationEntriesForAppStep}"></serviceTask>
@@ -188,7 +188,7 @@
       <bpmndi:BPMNShape bpmnElement="reprocessDescriptorTask" id="BPMNShape_reprocessDescriptorTask">
         <omgdc:Bounds height="68.0" width="105.0" x="123.0" y="83.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="rebuildApplicationEnvironmentTask" id="BPMNShape_rebuildApplicationEnvironmentTask">
+      <bpmndi:BPMNShape bpmnElement="rebuildApplicationDeployModelTask" id="BPMNShape_rebuildApplicationDeployModelTask">
         <omgdc:Bounds height="68.0" width="105.0" x="250.0" y="83.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="publishProvidedDependenciesTask" id="BPMNShape_publishProvidedDependenciesTask">

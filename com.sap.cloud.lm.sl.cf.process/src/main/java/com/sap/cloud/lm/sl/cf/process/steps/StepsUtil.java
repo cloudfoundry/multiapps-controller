@@ -514,15 +514,15 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE, subscriptionsByteArray);
     }
 
-    static void setConfigurationEntriesToPublish(DelegateExecution context, Map<String, List<ConfigurationEntry>> configurationEntries) {
-        byte[] configurationEntriesByteArray = JsonUtil.getAsBinaryJson(configurationEntries);
+    static void setConfigurationEntriesToPublish(DelegateExecution context, List<ConfigurationEntry> configurationEntries) {
+        byte[] configurationEntriesByteArray = JsonUtil.getAsBinaryJson(configurationEntries.toArray(new ConfigurationEntry[] {}));
         context.setVariable(Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH, configurationEntriesByteArray);
     }
 
-    static Map<String, List<ConfigurationEntry>> getConfigurationEntriesToPublish(DelegateExecution context) {
-        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH);
-        return JsonUtil.fromJson(new String(binaryJson, StandardCharsets.UTF_8), new TypeToken<Map<String, List<ConfigurationEntry>>>() {
-        }.getType());
+    static List<ConfigurationEntry> getConfigurationEntriesToPublish(DelegateExecution context) {
+        ConfigurationEntry[] configurationEntriesArray = JsonUtil
+            .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH), ConfigurationEntry[].class);
+        return Arrays.asList(configurationEntriesArray);
     }
 
     static void setServiceBrokersToCreate(DelegateExecution context, List<CloudServiceBrokerExtended> serviceBrokers) {
@@ -1047,7 +1047,7 @@ public class StepsUtil {
     static boolean getUseIdleUris(DelegateExecution context) {
         return (boolean) context.getVariable(Constants.VAR_USE_IDLE_URIS);
     }
-    
+
     static void setSkipUpdateConfigurationEntries(DelegateExecution context, boolean update) {
         context.setVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES, update);
     }
