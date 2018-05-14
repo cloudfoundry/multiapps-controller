@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -119,15 +120,24 @@ public class CreateAppStep extends SyncActivitiStep {
 
     protected void injectServiceKeysCredentialsInAppEnv(DelegateExecution context, CloudFoundryOperations client,
         CloudApplicationExtended app, Map<String, String> appEnv) {
+        Map<String, String> appServiceKeysCredentials = buildServiceKeysCredentials(client, app, appEnv);
+        app.setEnv(MapUtil.upcast(appEnv));
+        updateContextWithServiceKeysCredentials(context, client, app, appServiceKeysCredentials);
+    }
+
+    private Map<String, String> buildServiceKeysCredentials(CloudFoundryOperations client, CloudApplicationExtended app,
+        Map<String, String> appEnv) {
+        if (CollectionUtils.isEmpty(app.getServiceKeysToInject())) {
+            return Collections.emptyMap();
+        }
+
         Map<String, String> appServiceKeysCredentials = new HashMap<String, String>();
         for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
             String serviceKeyCredentials = JsonUtil.toJson(getServiceKeyCredentials(client, serviceKeyToInject), true);
             appEnv.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
             appServiceKeysCredentials.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
         }
-        app.setEnv(MapUtil.upcast(appEnv));
-
-        updateContextWithServiceKeysCredentials(context, client, app, appServiceKeysCredentials);
+        return appServiceKeysCredentials;
     }
 
     private void updateContextWithServiceKeysCredentials(DelegateExecution context, CloudFoundryOperations client,
