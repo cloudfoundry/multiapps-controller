@@ -1,0 +1,29 @@
+{
+  "applications": [
+    {
+      "name": "application-1",
+      "staging": {
+        "command": "command-1",
+        "buildpackUrl": "buildpackUrl-1",
+        "healthCheckType": "none"
+      },
+      "instances": 1,
+      "memory": 0,
+      "diskQuota": 512,
+      "uris": [
+        "http://localhost:9999",
+        "http://localhost:8888",
+        "http://localhost:7777"
+      ],
+      "env": [
+        "foo=foo",
+        "bar=bar",
+        "baz=baz"
+      ],
+      "services": [],
+      "serviceKeysToInject": null
+    }
+  ],
+  "applicationIndex": 0,
+  "existingServiceKeys" : {}
+}
