@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.web.configuration;
 import java.net.URL;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -18,11 +20,11 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 @Configuration
 public class UAAClientConfiguration {
 
+    @Inject
     @Bean
     @Profile("cf")
-    public UAAClient uaaClient() {
-        return new UAAClientFactory().createClient(readTokenEndpoint(ApplicationConfiguration.getInstance()
-            .getTargetURL()));
+    public UAAClient uaaClient(ApplicationConfiguration configuration) {
+        return new UAAClientFactory().createClient(readTokenEndpoint(configuration.getTargetURL()));
     }
 
     private URL readTokenEndpoint(URL targetURL) {
