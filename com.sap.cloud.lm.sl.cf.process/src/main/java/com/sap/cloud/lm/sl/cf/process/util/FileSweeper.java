@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import static java.text.MessageFormat.format;
-
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +27,7 @@ public class FileSweeper {
     }
 
     private void sweepSingle(String fileId) throws FileStorageException {
-        LOGGER.info(format(Messages.DELETING_FILE_FROM_SPACE, fileId, this.spaceId));
+        LOGGER.info(Messages.DELETING_FILE_FROM_SPACE, fileId, this.spaceId);
         fileService.deleteFile(this.spaceId, fileId);
     }
 

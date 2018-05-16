@@ -47,7 +47,7 @@ public final class Messages {
     // WARN log messages
 
     // INFO log messages
-    public static final String OAUTH_TOKEN_STORE = "Using OAuth token store \"{0}\"";
+    public static final String OAUTH_TOKEN_STORE = "Using OAuth token store \"{}\"";
 
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
 
@@ -56,7 +56,7 @@ public final class Messages {
     public static final String AUDIT_LOG_SERVICE_ACTION_FAILURE = "Failed to perform action \"{0}\" on service \"{1}\"";
     public static final String CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER = "Cannot authenticate with cloud controller";
     public static final String ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE = "Async database changes will not be executed on instance {0}.";
-    public static final String TOKEN_LOADED_INTO_TOKEN_STORE = "Token with expiration time: {0} for user {1} has been loaded into token store";
+    public static final String TOKEN_LOADED_INTO_TOKEN_STORE = "Token with expiration time: {} for user {} has been loaded into token store";
     
     
     // WARN log messages

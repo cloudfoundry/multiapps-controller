@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
-import java.text.MessageFormat;
-
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -16,11 +14,11 @@ public class TokenStoreFactory {
 
     public static JdbcTokenStore getTokenStore(DataSource dbDataSource, DataSource secureStoreDataSource) {
         if (secureStoreDataSource.equals(dbDataSource)) {
-            LOGGER.info(MessageFormat.format(Messages.OAUTH_TOKEN_STORE, "JdbcTokenStore"));
+            LOGGER.info(Messages.OAUTH_TOKEN_STORE, "JdbcTokenStore");
             return new JdbcTokenStore(dbDataSource);
         }
 
-        LOGGER.info(MessageFormat.format(Messages.OAUTH_TOKEN_STORE, "HanaSecureTokenStore"));
+        LOGGER.info(Messages.OAUTH_TOKEN_STORE, "HanaSecureTokenStore");
         return new HanaSecureTokenStore(dbDataSource, secureStoreDataSource);
     }
 }

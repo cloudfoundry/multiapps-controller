@@ -151,9 +151,9 @@ public class Messages {
     public static final String CREATE_OF_SERVICE_BROKERS_FAILED_403 = "Could not create service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String DELETE_OF_SERVICE_BROKERS_FAILED_403 = "Could not delete service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String UNREGISTER_OF_SERVICE_URL_FAILED_403 = "Could not unregister service URL \"{0}\". Operation forbidden. Only admin users can manage service URLs!";
-    public static final String CANCELING_UPLOAD_ASYNC_THREAD = "Canceling upload app async thread started for process \"{0}\"...";
-    public static final String ASYNC_THREAD_CANCELLED = "Async thread for process \"{0}\" cancelled";
-    public static final String ASYNC_THREAD_COMPLETED = "Async thread for process \"{0}\" has already finished";
+    public static final String CANCELING_UPLOAD_ASYNC_THREAD = "Canceling upload app async thread started for process \"{}\"...";
+    public static final String ASYNC_THREAD_CANCELLED = "Async thread for process \"{}\" cancelled";
+    public static final String ASYNC_THREAD_COMPLETED = "Async thread for process \"{}\" has already finished";
     public static final String SERVICE_DOESNT_HAVE_BOUND_COMPONENTS = "Service \"{0}\" exists but doesn't have any bound applications";
     public static final String WILL_NOT_DELETE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be deleted, as the option for deleting discontinued service keys is not specified!";
     public static final String WILL_NOT_UPDATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be updated, as the option for deleting discontinued service keys is not specified!";
@@ -168,11 +168,11 @@ public class Messages {
 
     // INFO log messages
     public static final String MTA_NOT_FOUND = "An MTA with id \"{0}\" does not exist";
-    public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
-    public static final String ACQUIRED_LOCK = "Process \"{0}\" acquired lock for operation on MTA \"{1}\"";
-    public static final String RELEASING_LOCK = "Process \"{0}\" attempting to release lock for operation on MTA \"{1}\"";
-    public static final String RELEASED_LOCK = "Process \"{0}\" released lock for operation on MTA \"{1}\"";
-    public static final String DELETING_FILE_FROM_SPACE = "Deleting file with ID \"{0}\" from space with ID \"{1}\"";
+    public static final String ACQUIRING_LOCK = "Process \"{}\" attempting to acquire lock for operation on MTA \"{}\"";
+    public static final String ACQUIRED_LOCK = "Process \"{}\" acquired lock for operation on MTA \"{}\"";
+    public static final String RELEASING_LOCK = "Process \"{}\" attempting to release lock for operation on MTA \"{}\"";
+    public static final String RELEASED_LOCK = "Process \"{}\" released lock for operation on MTA \"{}\"";
+    public static final String DELETING_FILE_FROM_SPACE = "Deleting file with ID \"{}\" from space with ID \"{}\"";
     public static final String BINDING_APP_TO_SERVICE_WITH_PARAMETERS = "Binding application \"{0}\" to service \"{1}\" with parameters \"{2}\"";
     public static final String BINDING_APP_TO_SERVICE = "Binding application \"{0}\" to service \"{1}\"";
     public static final String UNBINDING_APP_FROM_SERVICE = "Unbinding application \"{0}\" from service \"{1}\"";
@@ -422,7 +422,7 @@ public class Messages {
     public static final String UNEXPECTED_ERROR = "Unexpected error: {0}";
     public static final String SAVING_ERROR_MESSAGE_FAILED = "Saving error message failed";
     public static final String STEP_FINISHED = "Step \"{0}\" finished";
-    public static final String COMPUTING_STATE_OF_OPERATION = "Computing state of operation {0} with ID: {1}";
+    public static final String COMPUTING_STATE_OF_OPERATION = "Computing state of operation {} with ID: {}";
     public static final String ROUTES_FOR_APPLICATION = "Routes for application {0}: {1}";
 
 }

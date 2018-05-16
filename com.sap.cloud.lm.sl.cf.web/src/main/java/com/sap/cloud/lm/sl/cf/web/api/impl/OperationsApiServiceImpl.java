@@ -298,7 +298,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         } else {
             throw new WebApplicationException(Status.UNAUTHORIZED);
         }
-        LOGGER.debug("Authenticated user is: " + user);
+        LOGGER.debug("Authenticated user is: {}", user);
         return user;
     }
 
