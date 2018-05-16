@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
-import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
+import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration.DatabaseType;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
@@ -52,14 +52,14 @@ public class ApplicationConfigurationTest {
     @Test
     public void testReadDBType() {
         DatabaseType expectedDBType = DatabaseType.POSTGRESQL;
-        when(environment.getVariable(ApplicationConfiguration.CFG_DB_TYPE)).thenReturn(expectedDBType.toString());
+        when(environment.getString(ApplicationConfiguration.CFG_DB_TYPE)).thenReturn(expectedDBType.toString());
         ApplicationConfiguration testedConfiguration = new ApplicationConfiguration(environment);
         assertEquals(expectedDBType, testedConfiguration.getDatabaseType());
     }
 
     @Test
     public void testLogFullConfig() {
-        when(environment.getVariables()).thenReturn(ImmutableMap.of(ApplicationConfiguration.CFG_DB_TYPE, "POSTGRES"));
+        when(environment.getAllVariables()).thenReturn(ImmutableMap.of(ApplicationConfiguration.CFG_DB_TYPE, "POSTGRES"));
         ApplicationConfiguration testedConfig = new ApplicationConfiguration(environment) {
             protected AuditLoggingFacade getAuditLoggingFascade() {
                 return auditLoggingFascade;
@@ -75,35 +75,35 @@ public class ApplicationConfigurationTest {
 
     @Test
     public void testGetSpaceGuidWithEmptyString() throws Exception {
-        Mockito.when(environment.getVariable(ApplicationConfiguration.CFG_VCAP_APPLICATION))
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
             .thenReturn("");
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceGuid());
     }
 
     @Test
     public void testGetSpaceGuidWithInvalidJson() throws Exception {
-        Mockito.when(environment.getVariable(ApplicationConfiguration.CFG_VCAP_APPLICATION))
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
             .thenReturn("invalid");
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceGuid());
     }
 
     @Test
     public void testGetSpaceGuidWithEmptyMap() throws Exception {
-        Mockito.when(environment.getVariable(ApplicationConfiguration.CFG_VCAP_APPLICATION))
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
             .thenReturn("{}");
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceGuid());
     }
 
     @Test
     public void testGetSpaceGuidWithMissingSpaceId() throws Exception {
-        Mockito.when(environment.getVariable(ApplicationConfiguration.CFG_VCAP_APPLICATION))
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
             .thenReturn(VCAP_APPLICATION_JSON_WITHOUT_SPACE_GUID);
         assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceGuid());
     }
 
     @Test
     public void testGetSpaceGuid() throws Exception {
-        Mockito.when(environment.getVariable(ApplicationConfiguration.CFG_VCAP_APPLICATION))
+        Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
             .thenReturn(VCAP_APPLICATION_JSON);
         String spaceGuid = configuration.getSpaceGuid();
         assertEquals("954229f5-4945-43eb-8acb-a8f07cc5a7f8", spaceGuid);
