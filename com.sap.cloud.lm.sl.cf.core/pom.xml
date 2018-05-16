@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
@@ -73,7 +74,8 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <tasks>
-                                <copy file="${project.build.outputDirectory}/enhance.xml" toFile="./enhance.xml" overwrite="true" />
+                                <copy file="${project.build.outputDirectory}/enhance.xml" toFile="./enhance.xml"
+                                    overwrite="true" />
                             </tasks>
                         </configuration>
                         <goals>
@@ -142,16 +144,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <scope>test</scope>
@@ -201,11 +193,6 @@
         <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>
             <artifactId>com.sap.cloud.lm.sl.common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.common</artifactId>
-            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>
