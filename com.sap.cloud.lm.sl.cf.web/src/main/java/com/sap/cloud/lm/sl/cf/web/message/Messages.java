@@ -48,15 +48,14 @@ public final class Messages {
 
     // INFO log messages
     public static final String OAUTH_TOKEN_STORE = "Using OAuth token store \"{0}\"";
-
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
-
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_SERVICE_ACTION = "About to perform action \"{0}\" on service \"{1}\"";
     public static final String AUDIT_LOG_SERVICE_ACTION_SUCCESS = "Succesfuly performed action \"{0}\" on service \"{1}\"";
     public static final String AUDIT_LOG_SERVICE_ACTION_FAILURE = "Failed to perform action \"{0}\" on service \"{1}\"";
     public static final String CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER = "Cannot authenticate with cloud controller";
     public static final String ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE = "Async database changes will not be executed on instance {0}.";
     public static final String TOKEN_LOADED_INTO_TOKEN_STORE = "Token with expiration time: {0} for user {1} has been loaded into token store";
+    public static final String REGISTERED_0_AS_LIQUIBASE_LOCK_SERVICE = "Registered {0} as a Liquibase lock service.";
     
     
     // WARN log messages
