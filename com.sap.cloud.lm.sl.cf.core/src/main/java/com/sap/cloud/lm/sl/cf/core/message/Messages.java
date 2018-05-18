@@ -146,7 +146,7 @@ public final class Messages {
     public static final String SKIP_SSL_VALIDATION = "Skip SSL validation: {0}";
     public static final String XS_PLACEHOLDERS_SUPPORTED = "XS placeholders supported: {0}";
     public static final String DS_VERSION = "Deploy service version: {0}";
-    public static final String CHANGE_LOG_LOCK_WAIT_TIME = "Change log lock wait time: {0}";
+    public static final String CHANGE_LOG_LOCK_POLL_RATE = "Change log lock poll rate: {0}";
     public static final String CHANGE_LOG_LOCK_DURATION = "Change log lock duration: {0}";
     public static final String CHANGE_LOG_LOCK_ATTEMPTS = "Change log lock attempts: {0}";
     public static final String GLOBAL_CONFIG_SPACE = "Global config space: {0}";

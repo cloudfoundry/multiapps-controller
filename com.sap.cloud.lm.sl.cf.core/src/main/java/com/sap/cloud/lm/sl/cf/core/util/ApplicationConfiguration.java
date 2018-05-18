@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
@@ -39,7 +38,6 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
-@Component
 public class ApplicationConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
@@ -94,7 +92,7 @@ public class ApplicationConfiguration {
     static final String CFG_SKIP_SSL_VALIDATION = "SKIP_SSL_VALIDATION";
     static final String CFG_XS_PLACEHOLDERS_SUPPORTED = "XS_PLACEHOLDER_SUPPORT_TEST";
     static final String CFG_VERSION = "VERSION";
-    static final String CFG_CHANGE_LOG_LOCK_WAIT_TIME = "CHANGE_LOG_LOCK_WAIT_TIME";
+    static final String CFG_CHANGE_LOG_LOCK_POLL_RATE = "CHANGE_LOG_LOCK_POLL_RATE";
     static final String CFG_CHANGE_LOG_LOCK_DURATION = "CHANGE_LOG_LOCK_DURATION";
     static final String CFG_CHANGE_LOG_LOCK_ATTEMPTS = "CHANGE_LOG_LOCK_ATTEMPTS";
     static final String CFG_GLOBAL_CONFIG_SPACE = "GLOBAL_CONFIG_SPACE";
@@ -158,7 +156,7 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_UPLOAD_APP_TIMEOUT = 60 * 60; // 60 minute(s)
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
     public static final String DEFAULT_VERSION = "N/A";
-    public static final Integer DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME = 1; // 1 minute(s)
+    public static final Integer DEFAULT_CHANGE_LOG_LOCK_POLL_RATE = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
     public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
@@ -204,7 +202,7 @@ public class ApplicationConfiguration {
     private Boolean xsPlaceholdersSupported;
     private String version;
     private String deployServiceUrl;
-    private Integer changeLogLockWaitTime;
+    private Integer changeLogLockPollRate;
     private Integer changeLogLockDuration;
     private Integer changeLogLockAttempts;
     private String globalConfigSpace;
@@ -242,7 +240,7 @@ public class ApplicationConfiguration {
         shouldSkipSslValidation();
         areXsPlaceholdersSupported();
         getVersion();
-        getChangeLogLockWaitTime();
+        getChangeLogLockPollRate();
         getChangeLogLockDuration();
         getChangeLogLockAttempts();
         getGlobalConfigSpace();
@@ -298,7 +296,7 @@ public class ApplicationConfiguration {
             CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
             CFG_GLOBAL_AUDITOR_USER, CFG_XS_CLIENT_CORE_THREADS, CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY,
             CFG_XS_CLIENT_KEEP_ALIVE, CFG_ASYNC_EXECUTOR_CORE_THREADS, CFG_CONTROLLER_POLLING_INTERVAL, CFG_UPLOAD_APP_TIMEOUT,
-            CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_WAIT_TIME,
+            CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE,
             CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS,
             CFG_MAIL_API_URL));
     }
@@ -552,11 +550,11 @@ public class ApplicationConfiguration {
         return version;
     }
 
-    public Integer getChangeLogLockWaitTime() {
-        if (changeLogLockWaitTime == null) {
-            changeLogLockWaitTime = getChangeLogLockWaitTimeFromEnvironment();
+    public Integer getChangeLogLockPollRate() {
+        if (changeLogLockPollRate == null) {
+            changeLogLockPollRate = getChangeLogLockPollRateFromEnvironment();
         }
-        return changeLogLockWaitTime;
+        return changeLogLockPollRate;
     }
 
     public Integer getChangeLogLockDuration() {
@@ -914,9 +912,9 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private Integer getChangeLogLockWaitTimeFromEnvironment() {
-        Integer value = environment.getPositiveInteger(CFG_CHANGE_LOG_LOCK_WAIT_TIME, DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME);
-        LOGGER.info(format(Messages.CHANGE_LOG_LOCK_WAIT_TIME, value));
+    private Integer getChangeLogLockPollRateFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_CHANGE_LOG_LOCK_POLL_RATE, DEFAULT_CHANGE_LOG_LOCK_POLL_RATE);
+        LOGGER.info(format(Messages.CHANGE_LOG_LOCK_POLL_RATE, value));
         return value;
     }
 
