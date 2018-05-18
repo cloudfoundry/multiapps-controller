@@ -18,8 +18,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.google.gson.reflect.TypeToken;
-import com.sap.cloud.lm.sl.cf.core.liquibase.AlterOperationTableTimestampStoringColumns.OriginalOperation;
-import com.sap.cloud.lm.sl.cf.core.liquibase.AlterOperationTableTimestampStoringColumns.TransformedOperation;
+import com.sap.cloud.lm.sl.cf.core.liquibase.AlterOperationTableTimestampStoringColumnsPostgresqlChange.OriginalOperation;
+import com.sap.cloud.lm.sl.cf.core.liquibase.AlterOperationTableTimestampStoringColumnsPostgresqlChange.TransformedOperation;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -57,7 +57,7 @@ public class AlterOperationTableTimestampStoringColumnsTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private AlterOperationTableTimestampStoringColumns change = new AlterOperationTableTimestampStoringColumns();
+    private AlterOperationTableTimestampStoringColumnsPostgresqlChange change = new AlterOperationTableTimestampStoringColumnsPostgresqlChange();
     private List<OriginalOperation> originalOperations;
     private List<ExpectedOperation> expectedOperations;
 
