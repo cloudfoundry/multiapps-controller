@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
-    <changeSet author="sap.com" failOnError="true" id="db-changelog-drop_configuration_registry_unique_constraint">
-        <customChange class="com.sap.cloud.lm.sl.cf.core.liquibase.DropConfigurationRegistryUniqueConstraint">
-        </customChange>
+    <changeSet author="sap.com" failOnError="true"
+        id="drop_configuration_registry_unique_constraint_postgresql">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql" />
+            <not>
+                <changeSetExecuted author="sap.com"
+                    id="db-changelog-drop_configuration_registry_unique_constraint"
+                    changeLogFile="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_configuration_registry_unique_constraint.xml" />
+            </not>
+        </preConditions>
+        <customChange
+            class="com.sap.cloud.lm.sl.cf.core.liquibase.DropConfigurationRegistryUniqueConstraintPostgresqlChange" />
     </changeSet>
 </databaseChangeLog>
