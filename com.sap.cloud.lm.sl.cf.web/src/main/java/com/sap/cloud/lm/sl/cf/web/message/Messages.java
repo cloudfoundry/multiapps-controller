@@ -44,19 +44,16 @@ public final class Messages {
     public static final String COULD_NOT_GET_FILES = "Could not get MTA files";
     public static final String COULD_NOT_UPLOAD_FILE = "Could not upload MTA file";
 
-    // WARN log messages
-
     // INFO log messages
-    public static final String OAUTH_TOKEN_STORE = "Using OAuth token store \"{0}\"";
+    public static final String OAUTH_TOKEN_STORE = "Using OAuth token store \"{}\"";
     public static final String ALM_SERVICE_ENV_INITIALIZED = "Deploy service environment initialized";
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_SERVICE_ACTION = "About to perform action \"{0}\" on service \"{1}\"";
     public static final String AUDIT_LOG_SERVICE_ACTION_SUCCESS = "Succesfuly performed action \"{0}\" on service \"{1}\"";
     public static final String AUDIT_LOG_SERVICE_ACTION_FAILURE = "Failed to perform action \"{0}\" on service \"{1}\"";
     public static final String CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER = "Cannot authenticate with cloud controller";
     public static final String ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE = "Async database changes will not be executed on instance {0}.";
-    public static final String TOKEN_LOADED_INTO_TOKEN_STORE = "Token with expiration time: {0} for user {1} has been loaded into token store";
-    public static final String REGISTERED_0_AS_LIQUIBASE_LOCK_SERVICE = "Registered {0} as a Liquibase lock service.";
-    
+    public static final String TOKEN_LOADED_INTO_TOKEN_STORE = "Token with expiration time: {} for user {} has been loaded into token store";
+    public static final String REGISTERED_0_AS_LIQUIBASE_LOCK_SERVICE = "Registered {0} as a Liquibase lock service.";    
     
     // WARN log messages
     public static final String FILE_SYSTEM_SERVICE_NAME_IS_NOT_SPECIFIED = "Failed to detect file service storage path, because the service name is not specified in the configuration files!";

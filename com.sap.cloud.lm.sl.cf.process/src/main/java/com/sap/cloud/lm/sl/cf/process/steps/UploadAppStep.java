@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,11 +79,11 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
     private Runnable getUploadAppStepRunnableKiller(DelegateExecution context, Future<?> future) {
         return () -> {
-            LOGGER.warn(format(Messages.CANCELING_UPLOAD_ASYNC_THREAD, context.getProcessInstanceId()));
+            LOGGER.warn(Messages.CANCELING_UPLOAD_ASYNC_THREAD, context.getProcessInstanceId());
             if (future.cancel(true)) {
-                LOGGER.warn(format(Messages.ASYNC_THREAD_CANCELLED, context.getProcessInstanceId()));
+                LOGGER.warn(Messages.ASYNC_THREAD_CANCELLED, context.getProcessInstanceId());
             } else {
-                LOGGER.warn(format(Messages.ASYNC_THREAD_COMPLETED, context.getProcessInstanceId()));
+                LOGGER.warn(Messages.ASYNC_THREAD_COMPLETED, context.getProcessInstanceId());
             }
         };
     }

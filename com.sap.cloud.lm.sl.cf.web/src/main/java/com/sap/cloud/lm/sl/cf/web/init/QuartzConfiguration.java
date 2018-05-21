@@ -13,8 +13,8 @@ import com.sap.cloud.lm.sl.cf.process.jobs.CleanUpJob;
 @Configuration
 public class QuartzConfiguration {
 
-    public final static String CLEAN_UP_TRIGGER_NAME = "cleanUpTrigger";
-    public final static String TRIGGER_GROUP = "DEFAULT";
+    public static final String CLEAN_UP_TRIGGER_NAME = "cleanUpTrigger";
+    public static final String TRIGGER_GROUP = "DEFAULT";
 
     @Bean(name = "cleanUpJobDetail")
     public JobDetailFactoryBean jobDetailFactoryBean() {

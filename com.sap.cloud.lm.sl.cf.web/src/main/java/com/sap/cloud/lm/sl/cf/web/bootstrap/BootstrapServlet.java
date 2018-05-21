@@ -163,7 +163,7 @@ public class BootstrapServlet extends HttpServlet {
         // Problems may arise if the changes are executed in parallel on multiple instances. Since there will always be *at least* one
         // instance, we always execute the changes on the first.
         if (!"0".equals(appInstanceIndex)) {
-            LOGGER.info(MessageFormat.format(Messages.ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE, appInstanceIndex));
+            LOGGER.info(Messages.ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE, appInstanceIndex);
             return;
         }
         for (AsyncChange asyncChange : asyncChanges) {

@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import static java.text.MessageFormat.format;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +23,7 @@ public class ProcessConflictPreventer {
     }
 
     public synchronized void attemptToAcquireLock(String mtaId, String spaceId, String processId) throws SLException {
-        LOGGER.info(format(Messages.ACQUIRING_LOCK, processId, mtaId));
+        LOGGER.info(Messages.ACQUIRING_LOCK, processId, mtaId);
 
         validateNoConflictingOperationsExist(mtaId, spaceId);
         Operation currentOperation = dao.findRequired(processId);
@@ -33,7 +31,7 @@ public class ProcessConflictPreventer {
         currentOperation.acquiredLock(true);
         dao.merge(currentOperation);
 
-        LOGGER.info(format(Messages.ACQUIRED_LOCK, processId, mtaId));
+        LOGGER.info(Messages.ACQUIRED_LOCK, processId, mtaId);
     }
 
     private void validateNoConflictingOperationsExist(String mtaId, String spaceId) {
@@ -66,10 +64,10 @@ public class ProcessConflictPreventer {
         Operation currentOperation = dao.findRequired(processId);
         String mtaId = currentOperation.getMtaId();
 
-        LOGGER.info(format(Messages.RELEASING_LOCK, processId, mtaId));
+        LOGGER.info(Messages.RELEASING_LOCK, processId, mtaId);
         currentOperation.acquiredLock(false);
         dao.merge(currentOperation);
-        LOGGER.info(format(Messages.RELEASED_LOCK, processId, mtaId));
+        LOGGER.info(Messages.RELEASED_LOCK, processId, mtaId);
     }
 
 }

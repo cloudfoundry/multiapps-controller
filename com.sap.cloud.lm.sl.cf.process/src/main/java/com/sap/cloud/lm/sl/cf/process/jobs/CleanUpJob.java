@@ -78,8 +78,7 @@ public class CleanUpJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
-        LOGGER.info("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now()
-            .toString());
+        LOGGER.info("Cleanup Job started by application instance: {} at: {}", getInstanceIndex(), Instant.now());
 
         Date expirationTime = getExpirationTime();
         executeSafely(() -> {
@@ -106,8 +105,7 @@ public class CleanUpJob implements Job {
             executeDataTerminationJob();
         });
 
-        LOGGER.info("Cleanup Job finished at: " + Instant.now()
-            .toString());
+        LOGGER.info("Cleanup Job finished at: {}", Instant.now());
     }
 
     private String getInstanceIndex() {
@@ -130,23 +128,23 @@ public class CleanUpJob implements Job {
         long maxTtlForOldData = configuration.getMaxTtlForOldData();
         Date cleanUpTimestamp = Date.from(Instant.now()
             .minusSeconds(maxTtlForOldData));
-        LOGGER.info("Will perform clean up for data stored before: " + cleanUpTimestamp.toString());
+        LOGGER.info("Will perform clean up for data stored before: {}", cleanUpTimestamp);
         return cleanUpTimestamp;
     }
 
     private void abortOldOperationsInStateError(Date expirationTime) {
-        LOGGER.info("Aborting operations started before: " + expirationTime.toString());
+        LOGGER.info("Aborting operations started before: {}", expirationTime);
         List<Operation> activeOperationsInStateError = getActiveOperationsInStateError(expirationTime);
         List<String> operationsInErrorIds = getProcessIds(activeOperationsInStateError);
         executeAbortOperationAction(operationsInErrorIds);
-        LOGGER.info("Aborted operations count : " + operationsInErrorIds.size());
+        LOGGER.info("Aborted operations count: {}", operationsInErrorIds.size());
     }
 
     private void cleanUpFinishedOperationsData(Date expirationTime) {
-        LOGGER.info("Cleaning up data for finished operations started before: " + expirationTime.toString());
+        LOGGER.info("Cleaning up data for finished operations started before: {}" , expirationTime);
         List<Operation> finishedOperations = getNotCleanedFinishedOperations(expirationTime);
         List<String> finishedProcessIds = getProcessIds(finishedOperations);
-        LOGGER.debug("Data will be cleaned up for operations with process ids: " + finishedProcessIds);
+        LOGGER.debug("Data will be cleaned up for operations with process ids: {}", finishedProcessIds);
 
         removeProgressMessages(finishedProcessIds);
         removeProcessLogs(finishedProcessIds);
@@ -155,7 +153,7 @@ public class CleanUpJob implements Job {
     }
 
     private void removeOldOrphanedFiles(Date expirationTime) {
-        LOGGER.info("Deleting old orphaned MTA files modified before: " + expirationTime.toString());
+        LOGGER.info("Deleting old orphaned MTA files modified before: {}", expirationTime);
         try {
             List<String> appArchiveIds = activitiFacade.getHistoricVariableInstancesByVariableName(Constants.PARAM_APP_ARCHIVE_ID)
                 .stream()
@@ -171,7 +169,7 @@ public class CleanUpJob implements Job {
                 .collect(Collectors.groupingBy(FileEntry::getSpace, Collectors.mapping(FileEntry::getId, Collectors.toList())));
 
             int removedOldOrhpanedFiles = fileService.deleteAllByFileIds(spaceToFileIds);
-            LOGGER.info("Deleted old orphaned MTA files: " + removedOldOrhpanedFiles);
+            LOGGER.info("Deleted old orphaned MTA files: {}", removedOldOrhpanedFiles);
         } catch (FileStorageException e) {
             throw new SLException(e, "Deletion of old orphaned MTA files failed");
         }
@@ -196,7 +194,7 @@ public class CleanUpJob implements Job {
                 removedTokens++;
             }
         }
-        LOGGER.info("Removed expired tokens count: " + removedTokens);
+        LOGGER.info("Removed expired tokens count: {}", removedTokens);
     }
 
     private List<Operation> getNotCleanedFinishedOperations(Date expirationTime) {
@@ -231,12 +229,12 @@ public class CleanUpJob implements Job {
 
     private void removeProgressMessages(List<String> oldFinishedOperationsIds) {
         int removedProgressMessages = progressMessageService.removeAllByProcessIds(oldFinishedOperationsIds);
-        LOGGER.info("Deleted progress messages rows count: " + removedProgressMessages);
+        LOGGER.info("Deleted progress messages rows count: {}", removedProgressMessages);
     }
 
     private void removeProcessLogs(List<String> oldFinishedOperationsIds) {
         int removedProcessLogs = processLogsPersistenceService.deleteAllByNamespaces(oldFinishedOperationsIds);
-        LOGGER.info("Deleted process logs rows count: " + removedProcessLogs);
+        LOGGER.info("Deleted process logs rows count: {}", removedProcessLogs);
     }
 
     private Map<String, String> mapProcessIdToArchive() {
@@ -259,7 +257,7 @@ public class CleanUpJob implements Job {
         if (spaceToProcessIds.isEmpty()) {
             return Collections.emptyMap();
         }
-        Map<String, List<String>> spaceToFileIds = new HashMap<String, List<String>>();
+        Map<String, List<String>> spaceToFileIds = new HashMap<>();
         for (String space : spaceToProcessIds.keySet()) {
             if (spaceToProcessIds.get(space) == null) {
                 continue;
@@ -283,14 +281,14 @@ public class CleanUpJob implements Job {
         try {
             Map<String, List<String>> spaceToFileChunkIds = splitAllFilesInChunks(spaceToFileIds);
             int removedOldFiles = fileService.deleteAllByFileIds(spaceToFileChunkIds);
-            LOGGER.info("Deleted MTA files: " + removedOldFiles);
+            LOGGER.info("Deleted MTA files: {}", removedOldFiles);
         } catch (FileStorageException e) {
             throw new SLException(e);
         }
     }
 
     public Map<String, List<String>> splitAllFilesInChunks(Map<String, List<String>> spaceToFileIds) {
-        Map<String, List<String>> spaceToFileChunks = new HashMap<String, List<String>>();
+        Map<String, List<String>> spaceToFileChunks = new HashMap<>();
         for (String space : spaceToFileIds.keySet()) {
             List<String> fileChunksInSpace = NameUtil.splitFilesIds(spaceToFileIds.get(space));
             spaceToFileChunks.put(space, fileChunksInSpace);

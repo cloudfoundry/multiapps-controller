@@ -60,8 +60,7 @@ public class GitRepoCloner {
 
     public void cloneRepo(final String gitUri, final Path repoDir) throws InvalidRemoteException, GitAPIException, IOException {
         if (Files.exists(repoDir)) {
-            LOGGER.debug("Deleting left-over repo dir" + repoDir.toAbsolutePath()
-                .toString());
+            LOGGER.debug("Deleting left-over repo dir {}", repoDir.toAbsolutePath());
             com.sap.cloud.lm.sl.cf.core.util.FileUtils.deleteDirectory(repoDir);
         }
 
@@ -78,8 +77,7 @@ public class GitRepoCloner {
         cloneCommand.setDirectory(repoDir.toAbsolutePath()
             .toFile());
         cloneCommand.setURI(gitUri);
-        LOGGER.debug(MessageFormat.format("cloning repo with url {0} in repo dir {1} ref '{2}'", gitUri, repoDir.toAbsolutePath()
-            .toString()));
+        LOGGER.debug("cloning repo with url {} in repo dir {} ref '{}'", gitUri, repoDir.toAbsolutePath(), refName);
         try (Git callInstance = cloneCommand.call()) {
             Repository repo = callInstance.getRepository();
             repo.close();

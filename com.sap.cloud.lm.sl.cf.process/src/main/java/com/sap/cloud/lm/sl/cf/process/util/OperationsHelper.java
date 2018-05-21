@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,8 +79,7 @@ public class OperationsHelper {
     }
 
     public State computeState(Operation ongoingOperation) throws SLException {
-        LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
-            ongoingOperation.getProcessId()));
+        LOGGER.debug(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(), ongoingOperation.getProcessId());
         return activitiFacade.getOngoingOperationState(ongoingOperation);
     }
 
