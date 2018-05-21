@@ -51,6 +51,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.ModuleDto;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription.RequiredDependencyDto;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -99,6 +100,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     private ActivitiFacade activitiFacade;
     @Inject
     private SpaceGetter spaceGetter;
+    @Inject
+    private ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
@@ -200,7 +203,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(entriesDao,
             new DummyConfigurationFilterParser(subscription.getFilter()),
-            new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)));
+            new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)), configuration);
         resolver.resolve(dummyDescriptor);
         getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
             secureSerializer.toJson(dummyDescriptor));

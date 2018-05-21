@@ -31,9 +31,9 @@ import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiAction;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
-import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
 import com.sap.cloud.lm.sl.cf.core.security.data.termination.DataTerminationService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
@@ -110,7 +110,7 @@ public class CleanUpJob implements Job {
 
     private String getInstanceIndex() {
         Environment env = new Environment();
-        return env.getVariable("CF_INSTANCE_INDEX");
+        return env.getString("CF_INSTANCE_INDEX");
     }
 
     private void executeDataTerminationJob() {

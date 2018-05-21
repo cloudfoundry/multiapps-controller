@@ -23,6 +23,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2_0.DescriptorParametersValidator;
@@ -81,17 +82,18 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1_0.H
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
-        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget) {
+        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
+        ApplicationConfiguration configuration) {
         ParametersChainBuilder chainBuilder = new ParametersChainBuilder(cast(deploymentDescriptor), cast(target), cast(platform));
         com.sap.cloud.lm.sl.cf.core.helpers.v2_0.ConfigurationFilterParser filterParser = new com.sap.cloud.lm.sl.cf.core.helpers.v2_0.ConfigurationFilterParser(
             cast(platform), cast(target), chainBuilder);
-        return new ConfigurationReferencesResolver(dao, filterParser, spaceIdSupplier, cloudTarget);
+        return new ConfigurationReferencesResolver(dao, filterParser, spaceIdSupplier, cloudTarget, configuration);
     }
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao,
-        ConfigurationFilterParser filterParser, CloudTarget cloudTarget) {
-        return new ConfigurationReferencesResolver(dao, cast(filterParser), null, cloudTarget);
+        ConfigurationFilterParser filterParser, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+        return new ConfigurationReferencesResolver(dao, cast(filterParser), null, cloudTarget, configuration);
     }
 
     @Override

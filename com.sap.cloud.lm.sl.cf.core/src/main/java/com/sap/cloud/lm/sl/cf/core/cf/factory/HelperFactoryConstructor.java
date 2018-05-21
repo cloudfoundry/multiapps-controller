@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v1_0.DescriptorParametersValidator;
@@ -57,10 +58,10 @@ public interface HelperFactoryConstructor {
         com.sap.cloud.lm.sl.cf.core.dao.v2.DeployTargetDao dao2, com.sap.cloud.lm.sl.cf.core.dao.v3.DeployTargetDao dao3);
 
     ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
-        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget);
+        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration);
 
     ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        CloudTarget cloudTarget);
+        CloudTarget cloudTarget, ApplicationConfiguration configuration);
 
     DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
         List<ParameterValidator> parameterValidators);

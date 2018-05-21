@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -21,8 +23,8 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
-import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -43,18 +45,6 @@ import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 public class ApplicationConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
-
-    private static final ApplicationConfiguration INSTANCE = new ApplicationConfiguration(new Environment());
-
-    public static ApplicationConfiguration getInstance() {
-        return INSTANCE;
-    }
-
-    private final Environment environment;
-
-    ApplicationConfiguration(Environment environment) {
-        this.environment = environment;
-    }
 
     public enum DatabaseType {
         DEFAULTDB, HANA, POSTGRESQL
@@ -94,7 +84,7 @@ public class ApplicationConfiguration {
     static final String CFG_SKIP_SSL_VALIDATION = "SKIP_SSL_VALIDATION";
     static final String CFG_XS_PLACEHOLDERS_SUPPORTED = "XS_PLACEHOLDER_SUPPORT_TEST";
     static final String CFG_VERSION = "VERSION";
-    static final String CFG_CHANGE_LOG_LOCK_WAIT_TIME = "CHANGE_LOG_LOCK_WAIT_TIME";
+    static final String CFG_CHANGE_LOG_LOCK_POLL_RATE = "CHANGE_LOG_LOCK_POLL_RATE";
     static final String CFG_CHANGE_LOG_LOCK_DURATION = "CHANGE_LOG_LOCK_DURATION";
     static final String CFG_CHANGE_LOG_LOCK_ATTEMPTS = "CHANGE_LOG_LOCK_ATTEMPTS";
     static final String CFG_GLOBAL_CONFIG_SPACE = "GLOBAL_CONFIG_SPACE";
@@ -116,7 +106,7 @@ public class ApplicationConfiguration {
     public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
     public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
-    public static long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; // 1MB
+    public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; // 1MB
     public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024l; // 1GB
     public static final Boolean DEFAULT_SCAN_UPLOADS = false;
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
@@ -158,7 +148,7 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_UPLOAD_APP_TIMEOUT = 60 * 60; // 60 minute(s)
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
     public static final String DEFAULT_VERSION = "N/A";
-    public static final Integer DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME = 1; // 1 minute(s)
+    public static final Integer DEFAULT_CHANGE_LOG_LOCK_POLL_RATE = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_DURATION = 1; // 1 minute(s)
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
     public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
@@ -172,6 +162,8 @@ public class ApplicationConfiguration {
         result.put("XSA", PlatformType.XS2);
         return Collections.unmodifiableMap(result);
     }
+
+    private final Environment environment;
 
     // Cached configuration settings
     private PlatformType platformType;
@@ -204,7 +196,7 @@ public class ApplicationConfiguration {
     private Boolean xsPlaceholdersSupported;
     private String version;
     private String deployServiceUrl;
-    private Integer changeLogLockWaitTime;
+    private Integer changeLogLockPollRate;
     private Integer changeLogLockDuration;
     private Integer changeLogLockAttempts;
     private String globalConfigSpace;
@@ -212,6 +204,15 @@ public class ApplicationConfiguration {
     private HealthCheckConfiguration healthCheckConfiguration;
     private String mailApiUrl;
     private Integer timeout;
+
+    public ApplicationConfiguration() {
+        this(new Environment());
+    }
+
+    @Inject
+    public ApplicationConfiguration(Environment environment) {
+        this.environment = environment;
+    }
 
     public void load() {
         getPlatformType();
@@ -242,7 +243,7 @@ public class ApplicationConfiguration {
         shouldSkipSslValidation();
         areXsPlaceholdersSupported();
         getVersion();
-        getChangeLogLockWaitTime();
+        getChangeLogLockPollRate();
         getChangeLogLockDuration();
         getChangeLogLockAttempts();
         getGlobalConfigSpace();
@@ -254,8 +255,7 @@ public class ApplicationConfiguration {
     public void logFullConfig() {
         for (Map.Entry<String, String> envVariable : getFilteredEnv().entrySet()) {
             AuditableConfiguration auditConfiguration = getAuditableConfiguration(envVariable.getKey(), envVariable.getValue());
-            getAuditLoggingFascade()
-                .logConfig(auditConfiguration);
+            getAuditLoggingFascade().logConfig(auditConfiguration);
         }
     }
 
@@ -286,7 +286,7 @@ public class ApplicationConfiguration {
 
     public Map<String, String> getFilteredEnv() {
         Set<String> notSensitiveConfigVariables = getNotSensitiveConfigVariables();
-        Map<String, String> env = environment.getVariables();
+        Map<String, String> env = environment.getAllVariables();
         return env.entrySet()
             .stream()
             .filter(envVariable -> notSensitiveConfigVariables.contains(envVariable.getKey()))
@@ -299,7 +299,7 @@ public class ApplicationConfiguration {
             CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
             CFG_GLOBAL_AUDITOR_USER, CFG_XS_CLIENT_CORE_THREADS, CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY,
             CFG_XS_CLIENT_KEEP_ALIVE, CFG_ASYNC_EXECUTOR_CORE_THREADS, CFG_CONTROLLER_POLLING_INTERVAL, CFG_UPLOAD_APP_TIMEOUT,
-            CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_WAIT_TIME,
+            CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE,
             CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS,
             CFG_MAIL_API_URL));
     }
@@ -336,11 +336,11 @@ public class ApplicationConfiguration {
     public List<Platform> getPlatforms(ConfigurationParser parser, int majorVersion) {
         switch (majorVersion) {
             case 1:
-                return parsePlatforms(environment.getVariable(CFG_PLATFORMS));
+                return parsePlatforms(environment.getString(CFG_PLATFORMS));
             case 2:
-                return parsePlatforms(environment.getVariable(CFG_PLATFORMS_V2), parser);
+                return parsePlatforms(environment.getString(CFG_PLATFORMS_V2), parser);
             case 3:
-                return parsePlatforms(environment.getVariable(CFG_PLATFORMS_V3), parser);
+                return parsePlatforms(environment.getString(CFG_PLATFORMS_V3), parser);
             default:
                 throw new UnsupportedOperationException();
         }
@@ -353,11 +353,11 @@ public class ApplicationConfiguration {
     public List<? extends Target> getTargets(ConfigurationParser parser, int majorVersion) {
         switch (majorVersion) {
             case 1:
-                return parseTargets(environment.getVariable(CFG_TARGETS));
+                return parseTargets(environment.getString(CFG_TARGETS));
             case 2:
-                return parseTargets(environment.getVariable(CFG_TARGETS_V2), parser);
+                return parseTargets(environment.getString(CFG_TARGETS_V2), parser);
             case 3:
-                return parseTargets(environment.getVariable(CFG_TARGETS_V3), parser);
+                return parseTargets(environment.getString(CFG_TARGETS_V3), parser);
             default:
                 throw new UnsupportedOperationException();
         }
@@ -553,11 +553,11 @@ public class ApplicationConfiguration {
         return version;
     }
 
-    public Integer getChangeLogLockWaitTime() {
-        if (changeLogLockWaitTime == null) {
-            changeLogLockWaitTime = getChangeLogLockWaitTimeFromEnvironment();
+    public Integer getChangeLogLockPollRate() {
+        if (changeLogLockPollRate == null) {
+            changeLogLockPollRate = getChangeLogLockPollRateFromEnvironment();
         }
-        return changeLogLockWaitTime;
+        return changeLogLockPollRate;
     }
 
     public Integer getChangeLogLockDuration() {
@@ -610,13 +610,13 @@ public class ApplicationConfiguration {
     }
 
     private Integer getControllerOperationsTimeoutFromEnvironment() {
-        Integer timeout = getPositiveInt(CFG_CONTROLLER_OPERATIONS_TIMEOUT, DEFAULT_CONTROLLER_OPERATIONS_TIMEOUT);
+        Integer timeout = environment.getPositiveInteger(CFG_CONTROLLER_OPERATIONS_TIMEOUT, DEFAULT_CONTROLLER_OPERATIONS_TIMEOUT);
         LOGGER.info(format(Messages.CONTROLLER_OPERATIONS_TIMEOUT, timeout));
         return timeout;
     }
 
     private PlatformType getPlatformTypeFromEnvironment() {
-        String type = environment.getVariable(CFG_TYPE);
+        String type = environment.getString(CFG_TYPE);
         try {
             if (type != null) {
                 PlatformType result = TYPE_NAMES.containsKey(type) ? TYPE_NAMES.get(type) : PlatformType.valueOf(type);
@@ -631,7 +631,7 @@ public class ApplicationConfiguration {
     }
 
     private URL getTargetURLFromEnvironment() {
-        String targetURL = environment.getVariable(CFG_TARGET_URL);
+        String targetURL = environment.getString(CFG_TARGET_URL);
         try {
             if (targetURL != null) {
                 URL result = MiscUtil.getURL(targetURL);
@@ -646,7 +646,7 @@ public class ApplicationConfiguration {
     }
 
     private DatabaseType getDatabaseTypeFromEnvironment() {
-        String type = environment.getVariable(CFG_DB_TYPE);
+        String type = environment.getString(CFG_DB_TYPE);
         try {
             if (type != null) {
                 DatabaseType result = DatabaseType.valueOf(type);
@@ -697,25 +697,25 @@ public class ApplicationConfiguration {
     }
 
     private Long getMaxUploadSizeFromEnvironment() {
-        Long value = getLong(CFG_MAX_UPLOAD_SIZE, DEFAULT_MAX_UPLOAD_SIZE);
+        Long value = environment.getLong(CFG_MAX_UPLOAD_SIZE, DEFAULT_MAX_UPLOAD_SIZE);
         LOGGER.info(format(Messages.MAX_UPLOAD_SIZE, value));
         return value;
     }
 
     private Long getMaxMtaDescriptorSizeFromEnvironment() {
-        Long value = getLong(CFG_MAX_MTA_DESCRIPTOR_SIZE, DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
+        Long value = environment.getLong(CFG_MAX_MTA_DESCRIPTOR_SIZE, DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
         LOGGER.info(format(Messages.MAX_MTA_DESCRIPTOR_SIZE, value));
         return value;
     }
 
     private Long getMaxManifestSizeFromEnviroment() {
-        Long value = getLong(CFG_MAX_MANIFEST_SIZE, DEFAULT_MAX_MANIFEST_SIZE);
+        Long value = environment.getLong(CFG_MAX_MANIFEST_SIZE, DEFAULT_MAX_MANIFEST_SIZE);
         LOGGER.info(format(Messages.MAX_MANIFEST_SIZE, value));
         return value;
     }
 
     private Long getMaxResourceFileSizeFromEnviroment() {
-        Long value = getLong(CFG_MAX_RESOURCE_FILE_SIZE, DEFAULT_MAX_RESOURCE_FILE_SIZE);
+        Long value = environment.getLong(CFG_MAX_RESOURCE_FILE_SIZE, DEFAULT_MAX_RESOURCE_FILE_SIZE);
         LOGGER.info(format(Messages.MAX_RESOURCE_FILE_SIZE, value));
         return value;
     }
@@ -727,25 +727,25 @@ public class ApplicationConfiguration {
     }
 
     private Long getMaxTtlForOldDataFromEnvironment() {
-        Long value = getLong(CFG_MAX_TTL_FOR_OLD_DATA, DEFAULT_MAX_TTL_FOR_OLD_DATA);
+        Long value = environment.getLong(CFG_MAX_TTL_FOR_OLD_DATA, DEFAULT_MAX_TTL_FOR_OLD_DATA);
         LOGGER.info(format(Messages.MAX_TTL_FOR_OLD_DATA, value));
         return value;
     }
 
     private Boolean shouldScanUploadsFromEnvironment() {
-        Boolean value = getBoolean(CFG_SCAN_UPLOADS, DEFAULT_SCAN_UPLOADS);
+        Boolean value = environment.getBoolean(CFG_SCAN_UPLOADS, DEFAULT_SCAN_UPLOADS);
         LOGGER.info(format(Messages.SCAN_UPLOADS, value));
         return value;
     }
 
     private Boolean shouldUseXSAuditLoggingFromEnvironment() {
-        Boolean value = getBoolean(CFG_USE_XS_AUDIT_LOGGING, DEFAULT_USE_XS_AUDIT_LOGGING);
+        Boolean value = environment.getBoolean(CFG_USE_XS_AUDIT_LOGGING, DEFAULT_USE_XS_AUDIT_LOGGING);
         LOGGER.info(format(Messages.USE_XS_AUDIT_LOGGING, value));
         return value;
     }
 
     private String getSpaceGuidFromEnvironment() {
-        String vcapApplication = environment.getVariable(CFG_VCAP_APPLICATION);
+        String vcapApplication = environment.getString(CFG_VCAP_APPLICATION);
         try {
             Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
             Object spaceId = parsedVcapApplication.get("space_id");
@@ -761,7 +761,7 @@ public class ApplicationConfiguration {
     }
 
     private String getOrgNameFromEnvironment() {
-        String vcapApplication = environment.getVariable(CFG_VCAP_APPLICATION);
+        String vcapApplication = environment.getString(CFG_VCAP_APPLICATION);
         try {
             Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
             Object orgName = parsedVcapApplication.get("organization_name");
@@ -778,7 +778,7 @@ public class ApplicationConfiguration {
 
     private Integer getRouterPortFromEnvironment() {
         int defaultRouterPort = computeDefaultRouterPort();
-        String vcapApplication = environment.getVariable(CFG_VCAP_APPLICATION);
+        String vcapApplication = environment.getString(CFG_VCAP_APPLICATION);
         try {
             Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
             List<String> uris = getApplicationUris(parsedVcapApplication);
@@ -802,7 +802,7 @@ public class ApplicationConfiguration {
     }
 
     private String getDeployServiceUrlFromEnvironment() {
-        String vcapApplication = environment.getVariable(CFG_VCAP_APPLICATION);
+        String vcapApplication = environment.getString(CFG_VCAP_APPLICATION);
         try {
             Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
             List<String> uris = getApplicationUris(parsedVcapApplication);
@@ -826,121 +826,121 @@ public class ApplicationConfiguration {
     }
 
     private Boolean areDummyTokensEnabledThroughEnvironment() {
-        Boolean value = getBoolean(CFG_DUMMY_TOKENS_ENABLED, DEFAULT_DUMMY_TOKENS_ENABLED);
+        Boolean value = environment.getBoolean(CFG_DUMMY_TOKENS_ENABLED, DEFAULT_DUMMY_TOKENS_ENABLED);
         LOGGER.info(format(Messages.DUMMY_TOKENS_ENABLED, value));
         return value;
     }
 
     private Boolean isBasicAuthEnabledThroughEnvironment() {
-        Boolean value = getBoolean(CFG_BASIC_AUTH_ENABLED, DEFAULT_BASIC_AUTH_ENABLED);
+        Boolean value = environment.getBoolean(CFG_BASIC_AUTH_ENABLED, DEFAULT_BASIC_AUTH_ENABLED);
         LOGGER.info(format(Messages.BASIC_AUTH_ENABLED, value));
         return value;
     }
 
     private String getGlobalAuditorUserFromEnvironment() {
-        String value = getString(CFG_GLOBAL_AUDITOR_USER, DEFAULT_GLOBAL_AUDITOR_USER);
+        String value = environment.getString(CFG_GLOBAL_AUDITOR_USER, DEFAULT_GLOBAL_AUDITOR_USER);
         LOGGER.info(format(Messages.ADMIN_USERNAME, value));
         return value;
     }
 
     private String getGlobalAuditorPasswordFromEnvironment() {
-        String value = getString(CFG_GLOBAL_AUDITOR_PASSWORD, DEFAULT_GLOBAL_AUDITOR_PASSWORD);
+        String value = environment.getString(CFG_GLOBAL_AUDITOR_PASSWORD, DEFAULT_GLOBAL_AUDITOR_PASSWORD);
         return value;
     }
 
     private Integer getDbConnectionThreadsFromEnvironment() {
-        Integer value = getPositiveInt(CFG_DB_CONNECTION_THREADS, DEFAULT_DB_CONNECTION_THREADS);
+        Integer value = environment.getPositiveInteger(CFG_DB_CONNECTION_THREADS, DEFAULT_DB_CONNECTION_THREADS);
         LOGGER.info(format(Messages.DB_CONNECTION_THREADS, value));
         return value;
     }
 
     private Integer getXsClientCoreThreadsFromEnvironment() {
-        Integer value = getPositiveInt(CFG_XS_CLIENT_CORE_THREADS, DEFAULT_XS_CLIENT_CORE_THREADS);
+        Integer value = environment.getPositiveInteger(CFG_XS_CLIENT_CORE_THREADS, DEFAULT_XS_CLIENT_CORE_THREADS);
         LOGGER.info(format(Messages.XS_CLIENT_CORE_THREADS, value));
         return value;
     }
 
     private Integer getXsClientMaxThreadsFromEnvironment() {
-        Integer value = getPositiveInt(CFG_XS_CLIENT_MAX_THREADS, DEFAULT_XS_CLIENT_MAX_THREADS);
+        Integer value = environment.getPositiveInteger(CFG_XS_CLIENT_MAX_THREADS, DEFAULT_XS_CLIENT_MAX_THREADS);
         LOGGER.info(format(Messages.XS_CLIENT_MAX_THREADS, value));
         return value;
     }
 
     private Integer getXsClientQueueCapacityFromEnvironment() {
-        Integer value = getPositiveInt(CFG_XS_CLIENT_QUEUE_CAPACITY, DEFAULT_XS_CLIENT_QUEUE_CAPACITY);
+        Integer value = environment.getPositiveInteger(CFG_XS_CLIENT_QUEUE_CAPACITY, DEFAULT_XS_CLIENT_QUEUE_CAPACITY);
         LOGGER.info(format(Messages.XS_CLIENT_QUEUE_CAPACITY, value));
         return value;
     }
 
     private int getXsClientKeepAliveFromEnvironment() {
-        int value = getPositiveInt(CFG_XS_CLIENT_KEEP_ALIVE, DEFAULT_XS_CLIENT_KEEP_ALIVE);
+        int value = environment.getPositiveInteger(CFG_XS_CLIENT_KEEP_ALIVE, DEFAULT_XS_CLIENT_KEEP_ALIVE);
         LOGGER.info(format(Messages.XS_CLIENT_KEEP_ALIVE, value));
         return value;
     }
 
     private Integer getAsyncExecutorCoreThreadsFromEnvironment() {
-        Integer value = getPositiveInt(CFG_ASYNC_EXECUTOR_CORE_THREADS, DEFAULT_ASYNC_EXECUTOR_CORE_THREADS);
+        Integer value = environment.getPositiveInteger(CFG_ASYNC_EXECUTOR_CORE_THREADS, DEFAULT_ASYNC_EXECUTOR_CORE_THREADS);
         LOGGER.info(format(Messages.ASYNC_EXECUTOR_CORE_THREADS, value));
         return value;
     }
 
     private int getControllerPollingIntervalFromEnvironment() {
-        int value = getPositiveInt(CFG_CONTROLLER_POLLING_INTERVAL, DEFAULT_CONTROLLER_POLLING_INTERVAL);
+        int value = environment.getPositiveInteger(CFG_CONTROLLER_POLLING_INTERVAL, DEFAULT_CONTROLLER_POLLING_INTERVAL);
         LOGGER.info(format(Messages.CONTROLLER_POLLING_INTERVAL, value));
         return value;
     }
 
     private int getUploadAppTimeoutFromEnvironment() {
-        int value = getPositiveInt(CFG_UPLOAD_APP_TIMEOUT, DEFAULT_UPLOAD_APP_TIMEOUT);
+        int value = environment.getPositiveInteger(CFG_UPLOAD_APP_TIMEOUT, DEFAULT_UPLOAD_APP_TIMEOUT);
         LOGGER.info(format(Messages.UPLOAD_APP_TIMEOUT, value));
         return value;
     }
 
     private Boolean shouldSkipSslValidationBasedOnEnvironment() {
-        Boolean value = getBoolean(CFG_SKIP_SSL_VALIDATION, DEFAULT_SKIP_SSL_VALIDATION);
+        Boolean value = environment.getBoolean(CFG_SKIP_SSL_VALIDATION, DEFAULT_SKIP_SSL_VALIDATION);
         LOGGER.info(format(Messages.SKIP_SSL_VALIDATION, value));
         return value;
     }
 
     private Boolean areXsPlaceholdersSupportedBasedOnEnvironment() {
-        String value = environment.getVariable(CFG_XS_PLACEHOLDERS_SUPPORTED);
+        String value = environment.getString(CFG_XS_PLACEHOLDERS_SUPPORTED);
         boolean result = (value != null) && (!value.equals(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER));
         LOGGER.info(format(Messages.XS_PLACEHOLDERS_SUPPORTED, result));
         return result;
     }
 
     private String getVersionFromEnvironment() {
-        String value = getString(CFG_VERSION, DEFAULT_VERSION);
+        String value = environment.getString(CFG_VERSION, DEFAULT_VERSION);
         LOGGER.info(format(Messages.DS_VERSION, value));
         return value;
     }
 
-    private Integer getChangeLogLockWaitTimeFromEnvironment() {
-        Integer value = getPositiveInt(CFG_CHANGE_LOG_LOCK_WAIT_TIME, DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME);
-        LOGGER.info(format(Messages.CHANGE_LOG_LOCK_WAIT_TIME, value));
+    private Integer getChangeLogLockPollRateFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_CHANGE_LOG_LOCK_POLL_RATE, DEFAULT_CHANGE_LOG_LOCK_POLL_RATE);
+        LOGGER.info(format(Messages.CHANGE_LOG_LOCK_POLL_RATE, value));
         return value;
     }
 
     private Integer getChangeLogLockDurationFromEnvironment() {
-        Integer value = getPositiveInt(CFG_CHANGE_LOG_LOCK_DURATION, DEFAULT_CHANGE_LOG_LOCK_DURATION);
+        Integer value = environment.getPositiveInteger(CFG_CHANGE_LOG_LOCK_DURATION, DEFAULT_CHANGE_LOG_LOCK_DURATION);
         LOGGER.info(format(Messages.CHANGE_LOG_LOCK_DURATION, value));
         return value;
     }
 
     private Integer getChangeLogLockAttemptsFromEnvironment() {
-        Integer value = getPositiveInt(CFG_CHANGE_LOG_LOCK_ATTEMPTS, DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS);
+        Integer value = environment.getPositiveInteger(CFG_CHANGE_LOG_LOCK_ATTEMPTS, DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS);
         LOGGER.info(format(Messages.CHANGE_LOG_LOCK_ATTEMPTS, value));
         return value;
     }
 
     private String getGlobalConfigSpaceFromEnvironment() {
-        String value = getString(CFG_GLOBAL_CONFIG_SPACE, null);
+        String value = environment.getString(CFG_GLOBAL_CONFIG_SPACE);
         LOGGER.info(format(Messages.GLOBAL_CONFIG_SPACE, value));
         return value;
     }
 
     private Boolean shouldGatherUsageStatisticsBasedOnEnvironment() {
-        Boolean value = getBoolean(CFG_GATHER_USAGE_STATISTICS, DEFAULT_GATHER_USAGE_STATISTICS);
+        Boolean value = environment.getBoolean(CFG_GATHER_USAGE_STATISTICS, DEFAULT_GATHER_USAGE_STATISTICS);
         LOGGER.info(format(Messages.GATHER_STATISTICS, value));
         return value;
     }
@@ -957,81 +957,35 @@ public class ApplicationConfiguration {
     }
 
     private String getHealthCheckSpaceIdFromEnvironment() {
-        return getString(CFG_HEALTH_CHECK_SPACE_ID, null);
+        return environment.getString(CFG_HEALTH_CHECK_SPACE_ID);
     }
 
     private String getHealthCheckMtaIdFromEnvironment() {
-        return getString(CFG_HEALTH_CHECK_MTA_ID, null);
+        return environment.getString(CFG_HEALTH_CHECK_MTA_ID);
     }
 
     private String getHealthCheckUserFromEnvironment() {
-        return getString(CFG_HEALTH_CHECK_USER, null);
+        return environment.getString(CFG_HEALTH_CHECK_USER);
     }
 
     private Integer getHealthCheckTimeRangeFromEnvironment() {
-        return getPositiveInt(CFG_HEALTH_CHECK_TIME_RANGE, DEFAULT_HEALTH_CHECK_TIME_RANGE);
+        return environment.getPositiveInteger(CFG_HEALTH_CHECK_TIME_RANGE, DEFAULT_HEALTH_CHECK_TIME_RANGE);
     }
 
     private String getMailApiUrlFromEnvironment() {
-        String value = getString(CFG_MAIL_API_URL, null);
+        String value = environment.getString(CFG_MAIL_API_URL);
         LOGGER.info(format(Messages.MAIL_API_URL, value));
         return value;
     }
 
-    private String getString(String name, String defaultValue) {
-        String value = environment.getVariable(name);
-        if (value != null) {
-            return value;
-        }
-        LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
-        return defaultValue;
-    }
-
     private String getCronExpression(String name, String defaultValue) {
-        String value = environment.getVariable(name);
+        String value = environment.getString(name);
         if (value != null) {
             if (org.quartz.CronExpression.isValidExpression(value)) {
                 return value;
             }
         }
         LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
-        return defaultValue;
-    }
-
-    private Integer getPositiveInt(String name, Integer defaultValue) {
-        String value = environment.getVariable(name);
-        Integer result = null;
-        if (value != null) {
-            result = Integer.parseInt(value);
-        } else {
-            LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
-            result = defaultValue;
-        }
-        if (result <= 0) {
-            result = Integer.MAX_VALUE;
-        }
-        return result;
-    }
-
-    private Boolean getBoolean(String name, Boolean defaultValue) {
-        String value = environment.getVariable(name);
-        if (value != null) {
-            return Boolean.valueOf(value);
-        }
-        LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
-        return defaultValue;
-    }
-
-    private Long getLong(String name, Long defaultValue) {
-        String value = environment.getVariable(name);
-        try {
-            if (value != null) {
-                return Long.valueOf(value);
-            }
-            LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
-        } catch (NumberFormatException e) {
-            LOGGER.warn(format(Messages.ENVIRONMENT_VARIABLE_VALUE_IS_NOT_A_VALID_LONG_USING_DEFAULT, name, value, defaultValue), e);
-        }
         return defaultValue;
     }
 

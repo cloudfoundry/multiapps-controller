@@ -25,9 +25,9 @@ import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
+import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
-import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
@@ -183,6 +183,6 @@ public class BootstrapServlet extends HttpServlet {
     }
 
     private String getAppInstanceIndex() {
-        return environment.getVariable("CF_INSTANCE_INDEX");
+        return environment.getString("CF_INSTANCE_INDEX");
     }
 }

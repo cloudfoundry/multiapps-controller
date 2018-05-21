@@ -19,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.DomainValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ModuleSystemParameterCopier;
@@ -49,10 +50,11 @@ public class MtaDescriptorPropertiesResolver {
     private final ConfigurationEntryDao dao;
     private final CloudTarget cloudTarget;
     private List<ConfigurationSubscription> subscriptions;
+    private final ApplicationConfiguration configuration;
 
     public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, Platform platform, Target target,
         SystemParameters systemParameters, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao,
-        CloudTarget cloudTarget) {
+        CloudTarget cloudTarget, ApplicationConfiguration configuration) {
         this.handlerFactory = handlerFactory;
         this.platform = platform;
         this.target = target;
@@ -60,6 +62,7 @@ public class MtaDescriptorPropertiesResolver {
         this.spaceIdSupplier = spaceIdSupplier;
         this.dao = dao;
         this.cloudTarget = cloudTarget;
+        this.configuration = configuration;
     }
 
     public List<ParameterValidator> getValidatorsList() {
@@ -88,7 +91,7 @@ public class MtaDescriptorPropertiesResolver {
         DeploymentDescriptor descriptorWithUnresolvedReferences = descriptor.copyOf();
 
         ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor, platform, target,
-            spaceIdSupplier, dao, cloudTarget);
+            spaceIdSupplier, dao, cloudTarget, configuration);
         resolver.resolve(descriptor);
         LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_AFTER_CROSS_MTA_DEPENDENCY_RESOLUTION, secureSerializer.toJson(descriptor)));
 

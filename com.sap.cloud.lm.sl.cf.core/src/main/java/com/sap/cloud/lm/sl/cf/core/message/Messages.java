@@ -93,8 +93,6 @@ public final class Messages {
     public static final String UNSUPPORTED_PARAMETER = "Parameter \"{0}\" is not supported, it will be ignored";
     public static final String IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE = "Ignoring label \"{0}\" for service \"{1}\", as user-provided services do not support labels!";
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
-    public static final String UNKNOWN_DB_TYPE_WILL_NOT_DROP_CONFIGURATION_REGISTRY_UNIQUE_CONSTRAINT = "Unknown database type: {0}. DropConfigurationRegistryUniqueConstraint will not be executed.";
-    public static final String UNKNOWN_DB_TYPE_WILL_NOT_ALTER_OPERATION_TABLE_COLUMN_TYPES = "Unknown database type: {0}. AlterOperationTableTimestampStoringColumns will not be executed.";
     public static final String NOT_DESCRIBED_MODULE = "MTA module \"{0}\" is found deployed, but it is not part of MTA manifest file";
     public static final String COULD_NOT_PARSE_PROVIDED_DEPENDENCY_NAMES_1_OF_APP_0 = "Could not parse provided dependency names of application \"{0}\". Assuming that they're written in the \"old\" format. This is what they look like: {1}";
 
@@ -146,7 +144,7 @@ public final class Messages {
     public static final String SKIP_SSL_VALIDATION = "Skip SSL validation: {0}";
     public static final String XS_PLACEHOLDERS_SUPPORTED = "XS placeholders supported: {0}";
     public static final String DS_VERSION = "Deploy service version: {0}";
-    public static final String CHANGE_LOG_LOCK_WAIT_TIME = "Change log lock wait time: {0}";
+    public static final String CHANGE_LOG_LOCK_POLL_RATE = "Change log lock poll rate: {0}";
     public static final String CHANGE_LOG_LOCK_DURATION = "Change log lock duration: {0}";
     public static final String CHANGE_LOG_LOCK_ATTEMPTS = "Change log lock attempts: {0}";
     public static final String GLOBAL_CONFIG_SPACE = "Global config space: {0}";
