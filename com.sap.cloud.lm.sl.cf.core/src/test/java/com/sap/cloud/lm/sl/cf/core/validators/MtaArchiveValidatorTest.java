@@ -20,6 +20,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -123,7 +124,7 @@ public class MtaArchiveValidatorTest {
         validator = new MtaArchiveValidator(clazz.getResourceAsStream(mtar), extDescriptorStream, clazz.getResourceAsStream(PLATFORM_TYPES),
             clazz.getResourceAsStream(PLATFORMS), platformName, DEPLOY_ID, userName, defaultDomain, platformType,
             MiscUtil.getURL(targetUrl), authorizationEndpoint, deployServiceUrl, routerPort, MIN_PORT, MAX_PORT, deployedMta,
-            maxMtaDescriptorSize, dao, xsPlaceholdersSupported);
+            maxMtaDescriptorSize, dao, xsPlaceholdersSupported, new ApplicationConfiguration());
     }
 
     private void prepareConfigurationDao() {

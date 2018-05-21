@@ -31,6 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationFilterDto;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestCase;
@@ -246,6 +247,8 @@ public class ConfigurationEntriesResourceTest {
         private ConfigurationEntryDao dao;
         @Mock
         private AuditLoggingFacadeSLImpl auditLoggingFacade;
+        @Mock
+        private ApplicationConfiguration configuration;
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
@@ -285,6 +288,8 @@ public class ConfigurationEntriesResourceTest {
 
         @Mock
         private ConfigurationEntryDao dao;
+        @Mock
+        private ApplicationConfiguration configuration;
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
@@ -334,6 +339,8 @@ public class ConfigurationEntriesResourceTest {
         private ConfigurationEntryDao dao;
         @Mock
         private UserInfo userInfo;
+        @Mock
+        private ApplicationConfiguration configuration;
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
@@ -369,6 +376,8 @@ public class ConfigurationEntriesResourceTest {
         private ConfigurationEntryDao dao;
         @Mock
         private AuditLoggingFacadeSLImpl auditLoggingFacade;
+        @Mock
+        private ApplicationConfiguration configuration;
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 

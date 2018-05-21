@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v1_0;
 
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.findConfigurationEntries;
+import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.getGlobalConfigTarget;
 import static com.sap.cloud.lm.sl.cf.core.util.NameUtil.getIndexedName;
 import static com.sap.cloud.lm.sl.common.util.MapUtil.merge;
 
@@ -18,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
@@ -28,13 +30,16 @@ public class ConfigurationReferenceResolver {
     protected static final String RESOURCE_INDEX_DELIMITER = ".";
 
     protected ConfigurationEntryDao dao;
+    protected ApplicationConfiguration configuration;
 
-    public ConfigurationReferenceResolver(ConfigurationEntryDao dao) {
+    public ConfigurationReferenceResolver(ConfigurationEntryDao dao, ApplicationConfiguration configuration) {
         this.dao = dao;
+        this.configuration = configuration;
     }
 
     public List<Resource> resolve(Resource resource, ConfigurationFilter filter, CloudTarget cloudTarget) throws ParsingException {
-        return asResources(findConfigurationEntries(dao, filter, getCloudTargetsList(cloudTarget)), resource);
+        CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
+        return asResources(findConfigurationEntries(dao, filter, getCloudTargetsList(cloudTarget), globalConfigTarget), resource);
     }
 
     private List<CloudTarget> getCloudTargetsList(CloudTarget target) {

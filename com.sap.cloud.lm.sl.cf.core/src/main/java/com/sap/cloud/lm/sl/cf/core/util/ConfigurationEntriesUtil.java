@@ -35,7 +35,7 @@ public class ConfigurationEntriesUtil {
     }
 
     public static List<ConfigurationEntry> findConfigurationEntries(ConfigurationEntryDao dao, ConfigurationFilter filter,
-        List<CloudTarget> cloudTargets) {
+        List<CloudTarget> cloudTargets, CloudTarget globalConfigTarget) {
         String providerNid = filter.getProviderNid();
         String org = null;
         String space = null;
@@ -57,30 +57,31 @@ public class ConfigurationEntriesUtil {
             LOGGER.debug("result found {}", result);
             return result;
         }
-        if (filter.isStrictTargetSpace()) {
+        if (filter.isStrictTargetSpace() || globalConfigTarget == null) {
             return Collections.emptyList();
         }
         return findConfigurationEntriesInGlobalConfigurationSpace(dao, providerNid, providerVersion, providerId, requiredContent,
-            cloudTargets);
+            cloudTargets, globalConfigTarget);
     }
 
     public static List<ConfigurationEntry> findConfigurationEntriesInGlobalConfigurationSpace(ConfigurationEntryDao dao, String providerNid,
-        String providerVersion, String providerId, Map<String, Object> requiredContent, List<CloudTarget> cloudTargets) {
-        String globalConfigSpace = ApplicationConfiguration.getInstance()
-            .getGlobalConfigSpace();
-        String deployServiceOrgName = ApplicationConfiguration.getInstance()
-            .getOrgName();
-        if (deployServiceOrgName == null || globalConfigSpace == null) {
-            return Collections.emptyList();
-        }
-
-        CloudTarget target = new CloudTarget(deployServiceOrgName, globalConfigSpace);
+        String providerVersion, String providerId, Map<String, Object> requiredContent, List<CloudTarget> cloudTargets, CloudTarget globalConfigTarget) {
         LOGGER.debug(
             "searching for configuration entries with provider nid {}, id {}, version {}, global config space space {}, content {}, visibleTargets {}",
-            providerNid, providerId, providerVersion, target, requiredContent, cloudTargets);
-        return dao.find(providerNid, providerId, providerVersion, target, requiredContent, null, cloudTargets);
+            providerNid, providerId, providerVersion, globalConfigTarget, requiredContent, cloudTargets);
+        return dao.find(providerNid, providerId, providerVersion, globalConfigTarget, requiredContent, null, cloudTargets);
     }
 
+    public static CloudTarget getGlobalConfigTarget(ApplicationConfiguration configuration) {
+        String globalConfigSpace = configuration.getGlobalConfigSpace();
+        String deployServiceOrgName = configuration.getOrgName();
+        if (deployServiceOrgName == null || globalConfigSpace == null) {
+            return null;
+        }
+
+        return new CloudTarget(deployServiceOrgName, globalConfigSpace);
+    }
+    
     public static String computeTargetSpace(CloudTarget target) {
         return target.getOrg() + TARGET_DELIMITER + target.getSpace();
     }

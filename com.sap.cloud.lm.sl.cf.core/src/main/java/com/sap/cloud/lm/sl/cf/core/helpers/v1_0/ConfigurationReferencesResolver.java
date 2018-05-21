@@ -18,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.ElementContext;
 import com.sap.cloud.lm.sl.mta.model.Visitor;
@@ -34,18 +35,20 @@ public class ConfigurationReferencesResolver extends Visitor {
     protected ConfigurationFilterParser filterParser;
     protected BiFunction<String, String, String> spaceIdSupplier;
     protected CloudTarget cloudTarget;
+    protected ApplicationConfiguration configuration;
 
     public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
+        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
         this.dao = dao;
-        this.configurationResolver = createReferenceResolver(dao);
         this.filterParser = filterParser;
         this.spaceIdSupplier = spaceIdSupplier;
         this.cloudTarget = cloudTarget;
+        this.configuration = configuration;
+        this.configurationResolver = createReferenceResolver(dao);
     }
 
     protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryDao dao) {
-        return new ConfigurationReferenceResolver(dao);
+        return new ConfigurationReferenceResolver(dao, configuration);
     }
 
     public void resolve(DeploymentDescriptor descriptor) throws ContentException {

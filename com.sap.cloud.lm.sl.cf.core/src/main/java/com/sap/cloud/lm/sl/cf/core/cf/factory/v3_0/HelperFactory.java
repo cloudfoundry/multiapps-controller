@@ -12,6 +12,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v3_0.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v3_0.DeployTargetFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.v3_0.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.mta.builders.v2_0.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
@@ -35,11 +36,12 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2_0.H
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
-        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget) {
+        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
+        ApplicationConfiguration configuration) {
         ParametersChainBuilder v2ParameterChainBuilder = new ParametersChainBuilder(cast(deploymentDescriptor), cast(target),
             cast(platform));
         ConfigurationFilterParser v2FilterParser = new ConfigurationFilterParser(cast(platform), cast(target), v2ParameterChainBuilder);
-        return new ConfigurationReferencesResolver(dao, v2FilterParser, spaceIdSupplier, cloudTarget);
+        return new ConfigurationReferencesResolver(dao, v2FilterParser, spaceIdSupplier, cloudTarget, configuration);
     }
 
     @Override

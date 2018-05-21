@@ -14,6 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.expander.PropertiesExpander;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.PropertiesContainer;
 import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
@@ -27,8 +28,8 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     private List<String> expandedProperties = new ArrayList<>();
 
     public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
-        super(dao, filterParser, spaceIdSupplier, cloudTarget);
+        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+        super(dao, filterParser, spaceIdSupplier, cloudTarget, configuration);
     }
 
     @Override
@@ -126,7 +127,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     @Override
     protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryDao dao) {
-        return new ConfigurationReferenceResolver(dao);
+        return new ConfigurationReferenceResolver(dao, configuration);
     }
 
 }
