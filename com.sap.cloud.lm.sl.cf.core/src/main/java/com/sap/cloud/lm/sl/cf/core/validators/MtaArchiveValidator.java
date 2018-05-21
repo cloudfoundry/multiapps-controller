@@ -77,6 +77,7 @@ public class MtaArchiveValidator {
     private final DeployedMta deployedMta;
     private final long maxMtaDescriptorSize;
     private final boolean xsPlaceholdersSupported;
+    private final ApplicationConfiguration applicationConfiguration;
 
     private String organization;
     private String space;
@@ -94,13 +95,13 @@ public class MtaArchiveValidator {
         DeployedMta deployedMta, ConfigurationEntryDao dao, boolean xsPlaceholdersSupported) {
         this(mtarStream, extensionDescriptorStream, platformTypesStream, platformsStream, platformName, deployId, userName, defaultDomain,
             xsType, targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, minPort, maxPort, deployedMta,
-            DEFAULT_MAX_MTA_DESCRIPTOR_SIZE, dao, xsPlaceholdersSupported);
+            DEFAULT_MAX_MTA_DESCRIPTOR_SIZE, dao, xsPlaceholdersSupported, new ApplicationConfiguration());
     }
 
     public MtaArchiveValidator(InputStream mtarStream, InputStream extensionDescriptorStream, InputStream platformTypesStream,
         InputStream platformsStream, String platformName, String deployId, String userName, String defaultDomain, PlatformType xsType,
         URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, int minPort, int maxPort,
-        DeployedMta deployedMta, long maxMtaDescriptorSize, ConfigurationEntryDao dao, boolean xsPlaceholdersSupported) {
+        DeployedMta deployedMta, long maxMtaDescriptorSize, ConfigurationEntryDao dao, boolean xsPlaceholdersSupported, ApplicationConfiguration applicationConfiguration) {
         this.mtarStream = mtarStream;
         this.extensionDescriptorStream = extensionDescriptorStream;
         this.platformsStream = platformTypesStream;
@@ -120,6 +121,7 @@ public class MtaArchiveValidator {
         this.maxMtaDescriptorSize = maxMtaDescriptorSize;
         this.dao = dao;
         this.xsPlaceholdersSupported = xsPlaceholdersSupported;
+        this.applicationConfiguration = applicationConfiguration;
     }
 
     public String getOrganization() {
@@ -147,7 +149,7 @@ public class MtaArchiveValidator {
         byte[] mtar = IOUtils.toByteArray(mtarStream);
 
         // Read the MTAR manifest
-        Manifest manifest = ArchiveHandler.getManifest(new ByteArrayInputStream(mtar), ApplicationConfiguration.DEFAULT_MAX_MANIFEST_SIZE);
+        Manifest manifest = ArchiveHandler.getManifest(new ByteArrayInputStream(mtar), applicationConfiguration.getMaxManifestSize());
 
         // Create and initialize MTA archive helper
         MtaArchiveHelper mtaArchiveHelper = new MtaArchiveHelper(manifest);
@@ -207,7 +209,7 @@ public class MtaArchiveValidator {
         SystemParameters systemParameters = parametersBuilder.build(deploymentDescriptor);
 
         MtaDescriptorPropertiesResolver descriptorProcessor = new MtaDescriptorPropertiesResolver(handlerFactory, platform, target,
-            systemParameters, spaceIdSupplier, dao, null);
+            systemParameters, spaceIdSupplier, dao, null, applicationConfiguration);
         deploymentDescriptor = descriptorProcessor.resolve(deploymentDescriptor);
 
         // Merge DeploymentDescriptor and Target

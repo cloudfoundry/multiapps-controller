@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
@@ -38,21 +39,10 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 import com.sap.cloud.lm.sl.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
+@Component
 public class ApplicationConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
-
-    private static final ApplicationConfiguration INSTANCE = new ApplicationConfiguration(new Environment());
-
-    public static ApplicationConfiguration getInstance() {
-        return INSTANCE;
-    }
-
-    private final Environment environment;
-
-    ApplicationConfiguration(Environment environment) {
-        this.environment = environment;
-    }
 
     public enum DatabaseType {
         DEFAULTDB, HANA, POSTGRESQL
@@ -114,7 +104,7 @@ public class ApplicationConfiguration {
     public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
     public static final long DEFAULT_MAX_UPLOAD_SIZE = 4 * 1024 * 1024 * 1024l; // 4 GB(s)
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB(s)
-    public static long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; // 1MB
+    public static final long DEFAULT_MAX_MANIFEST_SIZE = 1024 * 1024l; // 1MB
     public static final long DEFAULT_MAX_RESOURCE_FILE_SIZE = 1024 * 1024 * 1024l; // 1GB
     public static final Boolean DEFAULT_SCAN_UPLOADS = false;
     public static final Boolean DEFAULT_USE_XS_AUDIT_LOGGING = true;
@@ -171,6 +161,8 @@ public class ApplicationConfiguration {
         return Collections.unmodifiableMap(result);
     }
 
+    private final Environment environment;
+
     // Cached configuration settings
     private PlatformType platformType;
     private URL targetURL;
@@ -210,6 +202,14 @@ public class ApplicationConfiguration {
     private HealthCheckConfiguration healthCheckConfiguration;
     private String mailApiUrl;
     private Integer timeout;
+
+    public ApplicationConfiguration() {
+        this(new Environment());
+    }
+
+    public ApplicationConfiguration(Environment environment) {
+        this.environment = environment;
+    }
 
     public void load() {
         getPlatformType();
