@@ -77,7 +77,7 @@
 
         <bean id="dataSource" class="com.sap.cloud.lm.sl.cf.web.ds.CloudDataSourceFactoryBean">
             <property name="serviceName" value="deploy-service-database" />
-            <property name="configuration" ref="configuration" />
+            <property name="configuration" ref="applicationConfiguration" />
         </bean>
 
         <bean id="dataSourceWithDialect" class="com.sap.cloud.lm.sl.persistence.DataSourceWithDialect">
@@ -88,7 +88,7 @@
         <bean id="secureStoreDataSource" class="com.sap.cloud.lm.sl.cf.web.ds.CloudDataSourceFactoryBean">
             <property name="serviceName" value="deploy-service-ss" />
             <property name="defaultDataSource" ref="dataSource" />
-            <property name="configuration" ref="configuration" />
+            <property name="configuration" ref="applicationConfiguration" />
         </bean>
         <bean id="configurationEntryEntityManagerFactory" parent="baseEntityManagerFactory">
             <property name="persistenceUnitName" value="ConfigurationEntryManagement" />

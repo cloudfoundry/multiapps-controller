@@ -89,7 +89,8 @@ public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.
     protected ConfigurationReferencesResolver getConfigurationResolver(
         com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor deploymentDescriptor) {
         return new ConfigurationReferencesResolver(dao,
-            new ConfigurationFilterParser(platform, target, getPropertiesChainBuilder(descriptor)), (org, space) -> SPACE_ID, null);
+            new ConfigurationFilterParser(platform, target, getPropertiesChainBuilder(descriptor)), (org, space) -> SPACE_ID, null,
+            configuration);
     }
 
 }

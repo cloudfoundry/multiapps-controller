@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -35,6 +36,9 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;
+    
+    @Inject
+    private ApplicationConfiguration configuration;
 
     @Inject
     private SpaceGetter spaceGetter;
@@ -42,7 +46,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
     protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platform, Target target,
         SystemParameters systemParameters, ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
         CloudTarget cloudTarget) {
-        return new MtaDescriptorPropertiesResolver(factory, platform, target, systemParameters, spaceIdSupplier, dao, cloudTarget);
+        return new MtaDescriptorPropertiesResolver(factory, platform, target, systemParameters, spaceIdSupplier, dao, cloudTarget, configuration);
     }
 
     protected UserProvidedResourceResolver getUserProvidedResourceResolver(DeploymentDescriptor descriptor, HandlerFactory handlerFactory,

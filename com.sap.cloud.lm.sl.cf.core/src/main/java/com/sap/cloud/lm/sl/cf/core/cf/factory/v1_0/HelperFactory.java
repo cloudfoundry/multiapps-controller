@@ -25,6 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v1_0.DescriptorParametersValidator;
@@ -96,16 +97,16 @@ public class HelperFactory implements HelperFactoryConstructor {
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
-        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget) {
+        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
         return new ConfigurationReferencesResolver(dao,
             new ConfigurationFilterParser(platform, target, new PropertiesChainBuilder(deploymentDescriptor, target, platform)),
-            spaceIdSupplier, cloudTarget);
+            spaceIdSupplier, cloudTarget, configuration);
     }
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao,
-        ConfigurationFilterParser filterParser, CloudTarget cloudTarget) {
-        return new ConfigurationReferencesResolver(dao, filterParser, null, cloudTarget);
+        ConfigurationFilterParser filterParser, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+        return new ConfigurationReferencesResolver(dao, filterParser, null, cloudTarget, configuration);
     }
 
     @Override

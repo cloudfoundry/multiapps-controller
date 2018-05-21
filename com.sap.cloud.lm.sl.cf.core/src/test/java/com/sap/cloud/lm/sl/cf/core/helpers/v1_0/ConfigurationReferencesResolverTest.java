@@ -18,6 +18,7 @@ import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.builders.v1_0.PropertiesChainBuilder;
@@ -48,6 +49,7 @@ public class ConfigurationReferencesResolverTest {
     protected ConfigurationEntryDao dao = Mockito.mock(ConfigurationEntryDao.class);
     protected List<DaoMockConfiguration> daoConfigurations;
     protected DeploymentDescriptor descriptor;
+    protected ApplicationConfiguration configuration = Mockito.mock(ApplicationConfiguration.class);
 
     public ConfigurationReferencesResolverTest(String descriptorLocation, String daoConfigurationsLocation, String expectedDescriptor)
         throws Exception {
@@ -116,7 +118,8 @@ public class ConfigurationReferencesResolverTest {
 
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor descriptor) {
         return new ConfigurationReferencesResolver(dao,
-            new ConfigurationFilterParser(platform, target, getPropertiesChainBuilder(descriptor)), (org, space) -> SPACE_ID, null);
+            new ConfigurationFilterParser(platform, target, getPropertiesChainBuilder(descriptor)), (org, space) -> SPACE_ID, null,
+            configuration);
     }
 
     protected DescriptorParser getDescriptorParser() {

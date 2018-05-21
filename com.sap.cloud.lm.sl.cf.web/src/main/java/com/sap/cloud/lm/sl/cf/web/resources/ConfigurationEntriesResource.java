@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.web.resources;
 
 import static com.sap.cloud.lm.sl.cf.core.model.ResourceMetadata.RequestParameters.ID;
 import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.findConfigurationEntries;
+import static com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil.getGlobalConfigTarget;
 import static java.text.MessageFormat.format;
 
 import java.net.URL;
@@ -47,6 +48,7 @@ import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationFilterDto;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaConfigurationPurger;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
@@ -91,12 +93,16 @@ public class ConfigurationEntriesResource {
     @Inject
     private AuthorizationChecker authorizationChecker;
 
+    @Inject
+    private ApplicationConfiguration configuration;
+
     @Context
     private HttpServletRequest request;
 
     protected Response filterConfigurationEntries(ConfigurationFilter filter) throws ParsingException {
         try {
-            List<ConfigurationEntry> entries = findConfigurationEntries(entryDao, filter, getUserTargets());
+            CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
+            List<ConfigurationEntry> entries = findConfigurationEntries(entryDao, filter, getUserTargets(), globalConfigTarget);
             return Response.status(Response.Status.OK)
                 .entity(wrap(entries))
                 .build();
