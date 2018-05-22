@@ -1,8 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -10,6 +8,8 @@ import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.domain.CloudJob.Status;
+import org.cloudfoundry.client.lib.domain.Upload;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,8 +19,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo.State;
 import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
@@ -32,12 +30,11 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
     private static final String UPLOAD_TOKEN = "tokenString";
     private static final String APP_NAME = "test-app-1";
 
-    private final boolean supportsExtensions;
-    private final State uploadState;
+    private final Status uploadState;
+    private final String uploadToken;
     private final AsyncExecutionState previousStatus;
     private final AsyncExecutionState expectedStatus;
     private final String expectedCfExceptionMessage;
-    private final String uploadToken;
 
     private SimpleApplication application = new SimpleApplication(APP_NAME, 2);
 
@@ -48,49 +45,32 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-            // (00) The previous step used synchronous upload and finished successfully:
+            // (00) The previous step used asynchronous upload but getting the upload progress fails with an exception:
             {
-                false, null, null, AsyncExecutionState.FINISHED, AsyncExecutionState.FINISHED, null,
+                Status.RUNNING , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, null, CFEXCEPTION.getMessage(),
             },
-            // (01) For some reason the previous step was skipped and should be retried: wow
+            // (01) The previous step used asynchronous upload and it finished successfully:
             {
-                false, null, null, AsyncExecutionState.ERROR, AsyncExecutionState.ERROR, null,
+                Status.FINISHED, UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.FINISHED, null,
             },
-            // (02)
+            // (02) The previous step used asynchronous upload but it is still not finished:
             {
-                false, null, null, AsyncExecutionState.ERROR , AsyncExecutionState.ERROR, null,
+                Status.RUNNING , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.RUNNING, null,
             },
-            // (03) The previous step used asynchronous upload but getting the upload progress fails with an exception:
+            // (03) The previous step used asynchronous upload but it is still not finished:
             {
-                true , State.RUNNING , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, null, CFEXCEPTION.getMessage(),
+                Status.QUEUED  , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.RUNNING, null,
             },
-            // (04) The previous step used asynchronous upload and it finished successfully:
+            // (04) The previous step used asynchronous upload but it failed:
             {
-                true , State.FINISHED, UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.FINISHED, null,
-            },
-            // (05) The previous step used asynchronous upload but it is still not finished:
-            {
-                true , State.RUNNING , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.RUNNING, null,
-            },
-            // (06) The previous step used asynchronous upload but it is still not finished:
-            {
-                true , State.UNKNOWN , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.RUNNING, null,
-            },
-            // (07) The previous step used asynchronous upload but it is still not finished:
-            {
-                true , State.QUEUED  , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.RUNNING, null,
-            },
-            // (08) The previous step used asynchronous upload but it failed:
-            {
-                true , State.FAILED  , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.ERROR, null,
+               Status.FAILED  , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.ERROR, null,
             },
 // @formatter:on
         });
     }
 
-    public PollUploadAppStatusStepTest(boolean supportsExtenstions, State uploadState, String uploadToken,
-        AsyncExecutionState previousStatus, AsyncExecutionState expectedStatus, String expectedCfExceptionMessage) {
-        this.supportsExtensions = supportsExtenstions;
+    public PollUploadAppStatusStepTest(Status uploadState, String uploadToken, AsyncExecutionState previousStatus,
+        AsyncExecutionState expectedStatus, String expectedCfExceptionMessage) {
         this.uploadState = uploadState;
         this.uploadToken = uploadToken;
         this.previousStatus = previousStatus;
@@ -121,16 +101,10 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
     }
 
     private void prepareClient() {
-        if (!supportsExtensions) {
-            when(clientProvider.getCloudFoundryClient(anyString(), anyString())).thenReturn(null);
-            return;
-        }
         if (expectedCfExceptionMessage != null) {
-            when(clientExtensions.getUploadProgress(UPLOAD_TOKEN)).thenThrow(CFEXCEPTION);
+            when(client.getUploadStatus(UPLOAD_TOKEN)).thenThrow(CFEXCEPTION);
         } else {
-            UploadInfo uploadInfo = mock(UploadInfo.class);
-            when(uploadInfo.getUploadJobState()).thenReturn(uploadState);
-            when(clientExtensions.getUploadProgress(UPLOAD_TOKEN)).thenReturn(uploadInfo);
+            when(client.getUploadStatus(UPLOAD_TOKEN)).thenReturn(new Upload(uploadState, null));
         }
     }
 

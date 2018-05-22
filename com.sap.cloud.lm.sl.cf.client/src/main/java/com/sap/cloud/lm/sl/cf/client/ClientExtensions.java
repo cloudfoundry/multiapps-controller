@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.client;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -13,8 +11,6 @@ import org.cloudfoundry.client.lib.domain.ServiceKey;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadInfo;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
 import com.sap.cloud.lm.sl.cf.client.util.TimeoutExecutor;
 
 public interface ClientExtensions {
@@ -46,26 +42,6 @@ public interface ClientExtensions {
      * @return the reserved port
      */
     int reservePort(String domain);
-
-    /**
-     * Asynchronously upload an application
-     *
-     * @param appName the application name
-     * @param file the application archive or folder
-     * @param callback a callback interface used to provide progress information or <tt>null</tt>
-     * @return a token used to track the progress of the asynchronous upload
-     * @throws java.io.IOException if there was an IO error accessing the archive or folder
-     */
-    String asynchUploadApplication(String appName, File file, UploadStatusCallbackExtended callback) throws IOException;
-
-    /**
-     * Get progress information about a file upload process triggered by
-     * {@link #asynchUploadApplication(String, File, UploadStatusCallbackExtended)}.
-     *
-     * @param uploadToken the token returned by {@link #asynchUploadApplication(String, File, UploadStatusCallbackExtended)}
-     * @return info object used to get the upload progress
-     */
-    UploadInfo getUploadProgress(String uploadToken);
 
     ServiceKey createServiceKey(String serviceName, String serviceKey, String parameters);
 

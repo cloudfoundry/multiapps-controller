@@ -60,6 +60,7 @@ public class Messages {
     public static final String HIGHER_VERSION_ALREADY_DEPLOYED = "A higher version of your MTA is already deployed. Include the command line option \"--version-rule ALL\" in your deploy command if you want to allow downgrades.";
     public static final String SAME_VERSION_ALREADY_DEPLOYED = "The same version of your MTA is already deployed. Include the command line option \"--version-rule SAME_HIGHER\" in your deploy command if you want to allow redeployments.";
     public static final String VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE = "Version rule \"{0}\" does not allow deployment type \"{1}\".";
+    public static final String UNKNOWN_UPLOAD_STATUS = "Unknown upload status: {0}";
 
     // Audit log messages
 
@@ -263,6 +264,7 @@ public class Messages {
     public static final String APP_UPDATED = "Application \"{0}\" updated";
     public static final String UPLOADING_APP = "Uploading application \"{0}\"...";
     public static final String CHECKING_UPLOAD_APP_STATUS = "Checking upload status of application \"{0}\"...";
+    public static final String UPLOAD_STATUS_0 = "Upload status: {0}";
     public static final String APP_UPLOADED = "Application \"{0}\" uploaded";
     public static final String SCALING_APP = "Scaling application \"{0}\"...";;
     public static final String APP_SCALED = "Application \"{0}\" scaled";
@@ -429,5 +431,7 @@ public class Messages {
     public static final String STEP_FINISHED = "Step \"{0}\" finished";
     public static final String COMPUTING_STATE_OF_OPERATION = "Computing state of operation {0} with ID: {1}";
     public static final String ROUTES_FOR_APPLICATION = "Routes for application {0}: {1}";
+    public static final String CREATED_TEMP_FILE = "Created temp file: {0}";
+    public static final String DELETING_TEMP_FILE = "Deleting temp file: {0}";
 
 }
