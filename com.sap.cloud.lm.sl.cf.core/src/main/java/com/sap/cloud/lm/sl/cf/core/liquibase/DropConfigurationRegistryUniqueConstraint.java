@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration.DatabaseType;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration.DatabaseType;
 import com.sap.cloud.lm.sl.persistence.util.JdbcUtil;
 
 import liquibase.database.Database;
@@ -32,7 +32,7 @@ public class DropConfigurationRegistryUniqueConstraint extends AbstractChange {
 
     @Override
     public void setUp() throws SetupException {
-        this.databaseType = Configuration.getInstance().getDatabaseType();
+        this.databaseType = ApplicationConfiguration.getInstance().getDatabaseType();
     }
 
     @Override

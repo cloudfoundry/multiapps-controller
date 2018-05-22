@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveBuilder;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -53,7 +53,7 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
     private static final String MTAD_PATH = "mtad.yaml";
 
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {

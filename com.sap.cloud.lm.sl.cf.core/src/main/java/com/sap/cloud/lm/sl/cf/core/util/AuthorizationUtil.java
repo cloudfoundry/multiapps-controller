@@ -55,7 +55,7 @@ public class AuthorizationUtil {
 
     public static boolean checkPermissions(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String orgName, String spaceName,
         boolean readOnly, String processId) throws SLException {
-        if (Configuration.getInstance().areDummyTokensEnabled() && isDummyToken(userInfo)) {
+        if (ApplicationConfiguration.getInstance().areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }
         if (isAdminUser(userInfo) || hasAdminScope(userInfo)) {
@@ -67,7 +67,7 @@ public class AuthorizationUtil {
 
     public static boolean checkPermissions(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String spaceGuid, boolean readOnly)
         throws SLException {
-        if (Configuration.getInstance().areDummyTokensEnabled() && isDummyToken(userInfo)) {
+        if (ApplicationConfiguration.getInstance().areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }
         if (isAdminUser(userInfo) || hasAdminScope(userInfo)) {
@@ -123,7 +123,7 @@ public class AuthorizationUtil {
     }
 
     private static boolean isAdminUser(UserInfo userInfo) {
-        return userInfo.getName().equals(Configuration.getInstance().getGlobalAuditorUser());
+        return userInfo.getName().equals(ApplicationConfiguration.getInstance().getGlobalAuditorUser());
     }
 
     private static boolean hasAdminScope(UserInfo userInfo) {

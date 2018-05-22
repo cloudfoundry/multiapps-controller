@@ -37,19 +37,19 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 @Component
-public class Configuration {
+public class ApplicationConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfiguration.class);
 
-    private static final Configuration INSTANCE = new Configuration(new Environment());
+    private static final ApplicationConfiguration INSTANCE = new ApplicationConfiguration(new Environment());
 
-    public static Configuration getInstance() {
+    public static ApplicationConfiguration getInstance() {
         return INSTANCE;
     }
 
     private Environment environment;
 
-    Configuration(Environment environment) {
+    ApplicationConfiguration(Environment environment) {
         this.environment = environment;
     }
 

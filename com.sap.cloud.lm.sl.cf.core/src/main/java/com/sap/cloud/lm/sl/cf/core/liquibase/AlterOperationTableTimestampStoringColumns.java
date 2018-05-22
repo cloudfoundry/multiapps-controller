@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration.DatabaseType;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration.DatabaseType;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 import liquibase.database.Database;
@@ -43,7 +43,7 @@ public class AlterOperationTableTimestampStoringColumns extends
 
     @Override
     public void setUp() throws SetupException {
-        DatabaseType databaseType = Configuration.getInstance().getDatabaseType();
+        DatabaseType databaseType = ApplicationConfiguration.getInstance().getDatabaseType();
         switch (databaseType) {
             case POSTGRESQL:
                 alterStatements = POSTGRESQL_ALTER_STATEMENTS;

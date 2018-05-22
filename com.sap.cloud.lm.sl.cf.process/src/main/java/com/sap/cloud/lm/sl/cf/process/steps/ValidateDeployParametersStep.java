@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -34,7 +34,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
     private static final String PART_POSTFIX = ".part.";
 
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {

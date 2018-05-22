@@ -16,7 +16,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
@@ -39,7 +39,7 @@ public class MtaArchiveHelperTest {
 
     public MtaArchiveHelperTest(String mtarLocation, String deploymentDescriptorLocation) throws SLException {
         InputStream stream = getClass().getResourceAsStream(mtarLocation);
-        helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, Configuration.getInstance().getMaxManifestSize()));
+        helper = new MtaArchiveHelper(ArchiveHandler.getManifest(stream, ApplicationConfiguration.getInstance().getMaxManifestSize()));
 
         DescriptorParser parser = new DescriptorParser();
         descriptor = parser.parseDeploymentDescriptorYaml(getClass().getResourceAsStream(deploymentDescriptorLocation));

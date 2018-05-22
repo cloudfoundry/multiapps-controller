@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.ClientFactory;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -40,7 +40,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     ClientFactory cloudFoundryClientFactory;
     
     @Autowired
-    Configuration configuration;
+    ApplicationConfiguration configuration;
     
     @Autowired
     TokenFactory tokenFactory;

@@ -15,7 +15,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @RunWith(Parameterized.class)
@@ -35,7 +35,7 @@ public class DeployAppsStepTest extends SyncActivitiStepTest<PrepareAppsDeployme
     @Before
     public void setUp() throws Exception {
         prepareContext();
-        Mockito.when(configuration.getPlatformType()).thenReturn(Configuration.DEFAULT_TYPE);
+        Mockito.when(configuration.getPlatformType()).thenReturn(ApplicationConfiguration.DEFAULT_TYPE);
     }
 
     @Test

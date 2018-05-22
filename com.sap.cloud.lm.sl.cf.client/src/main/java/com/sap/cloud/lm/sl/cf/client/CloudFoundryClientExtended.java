@@ -19,6 +19,7 @@ import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
+import org.cloudfoundry.client.lib.archive.ApplicationArchive;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
@@ -30,6 +31,7 @@ import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
+import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.rest.CloudControllerClient;
 import org.springframework.http.HttpStatus;
 
@@ -685,11 +687,11 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     }
 
     @Override
-    public void uploadApplication(String appName, String fileName, InputStream inputStream) throws IOException {
+    public void uploadApplication(String appName, InputStream inputStream, UploadStatusCallback callback) throws IOException {
         try {
             executeWithTimeout(callable(() -> executeWithRetry(() -> {
                 try {
-                    super.uploadApplication(appName, fileName, inputStream);
+                    super.uploadApplication(appName, inputStream, callback);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -701,16 +703,57 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     }
 
     @Override
-    public void uploadApplication(String appName, String fileName, InputStream inputStream, UploadStatusCallback callback)
-        throws IOException {
+    public void uploadApplication(String appName, ApplicationArchive archive, UploadStatusCallback callback) throws IOException {
         try {
             executeWithTimeout(callable(() -> executeWithRetry(() -> {
                 try {
-                    super.uploadApplication(appName, fileName, inputStream, callback);
+                    super.uploadApplication(appName, archive, callback);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             })));
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public String asyncUploadApplication(String appName, File file, UploadStatusCallback callback) throws IOException {
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> {
+                try {
+                    return super.asyncUploadApplication(appName, file, callback);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public String asyncUploadApplication(String appName, ApplicationArchive archive, UploadStatusCallback callback) throws IOException {
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> {
+                try {
+                    return super.asyncUploadApplication(appName, archive, callback);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public Upload getUploadStatus(String uploadToken) {
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getUploadStatus(uploadToken)));
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
             throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);

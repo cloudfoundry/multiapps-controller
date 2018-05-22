@@ -20,7 +20,7 @@ public class UAAClientConfiguration {
     @Bean
     @Profile("cf")
     public UAAClient uaaClient() {
-        return new UAAClientFactory().createClient(readTokenEndpoint(com.sap.cloud.lm.sl.cf.core.util.Configuration.getInstance()
+        return new UAAClientFactory().createClient(readTokenEndpoint(com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration.getInstance()
             .getTargetURL()));
     }
 

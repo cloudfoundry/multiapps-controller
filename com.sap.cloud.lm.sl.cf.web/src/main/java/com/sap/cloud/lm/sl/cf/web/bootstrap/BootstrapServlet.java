@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -60,7 +60,7 @@ public class BootstrapServlet extends HttpServlet {
     protected ProcessEngine processEngine;
 
     @Inject
-    protected Configuration configuration;
+    protected ApplicationConfiguration configuration;
 
     @Override
     public void init(ServletConfig config) throws ServletException {

@@ -16,7 +16,7 @@ import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudException;
 import org.springframework.cloud.service.relational.DataSourceConfig;
 
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.LambdaArgumentMatcher;
 
 import static org.mockito.Mockito.atLeastOnce;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 public class CloudDataSourceFactoryBeanTest {
 
     private final class TestedCloudDataSourceFactoryBean extends CloudDataSourceFactoryBean {
-        protected Configuration getConfiguration() {
+        protected ApplicationConfiguration getConfiguration() {
             return configurationMock;
         }
 
@@ -40,7 +40,7 @@ public class CloudDataSourceFactoryBeanTest {
     @Mock
     private DataSource createdDataSource;
     @Mock
-    private Configuration configurationMock;
+    private ApplicationConfiguration configurationMock;
     @Mock
     private Cloud springCloudMock;
 

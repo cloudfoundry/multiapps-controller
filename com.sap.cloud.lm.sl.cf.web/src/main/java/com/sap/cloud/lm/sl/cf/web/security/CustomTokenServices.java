@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.util.TokenProperties;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SSLUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 
@@ -34,7 +34,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     @Autowired
     private TokenParserChain tokenParserChain;
     
-    private Configuration configuration = Configuration.getInstance();
+    private ApplicationConfiguration configuration = ApplicationConfiguration.getInstance();
     
     public CustomTokenServices() {
         if (configuration.shouldSkipSslValidation()) {

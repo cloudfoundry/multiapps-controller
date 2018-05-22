@@ -48,6 +48,7 @@ import org.cloudfoundry.client.lib.domain.InstanceState;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.Staging;
+import org.cloudfoundry.client.lib.domain.Upload;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.client.ResponseErrorHandler;
 
@@ -196,6 +197,11 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
     }
 
     @Override
+    public List<CloudApplication> getApplications(String inlineDepth) {
+        return new ArrayList<CloudApplication>(apps.values());
+    }
+
+    @Override
     public CloudApplication getApplication(String appName) {
         return apps.get(appName);
     }
@@ -272,13 +278,11 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
     }
 
     @Override
-    public void uploadApplication(String appName, String fileName, InputStream inputStream) throws IOException {
+    public void uploadApplication(String appName, InputStream inputStream) throws IOException {
     }
 
     @Override
-    public void uploadApplication(String appName, String fileName, InputStream inputStream, UploadStatusCallback callback)
-        throws IOException {
-        // Do nothing
+    public void uploadApplication(String appName, InputStream inputStream, UploadStatusCallback callback) throws IOException {
     }
 
     @Override
@@ -287,6 +291,31 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
 
     @Override
     public void uploadApplication(String appName, ApplicationArchive archive, UploadStatusCallback callback) throws IOException {
+    }
+
+    @Override
+    public String asyncUploadApplication(String appName, File file) throws IOException {
+        return null;
+    }
+
+    @Override
+    public String asyncUploadApplication(String appName, File file, UploadStatusCallback callback) throws IOException {
+        return null;
+    }
+
+    @Override
+    public String asyncUploadApplication(String appName, ApplicationArchive archive) throws IOException {
+        return null;
+    }
+
+    @Override
+    public String asyncUploadApplication(String appName, ApplicationArchive archive, UploadStatusCallback callback) throws IOException {
+        return null;
+    }
+
+    @Override
+    public Upload getUploadStatus(String uploadToken) {
+        return null;
     }
 
     @Override

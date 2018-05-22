@@ -24,7 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.adapters.ActivitiEventToDelegateExecutionAdapter;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
@@ -61,7 +61,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
     @Inject
     private BeanProvider beanProvider;
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
     @Inject
     private CollectedDataSender dataSender;
 

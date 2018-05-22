@@ -1,14 +1,14 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static org.mockito.Matchers.anyString;
+
 import static java.text.MessageFormat.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,9 +36,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
@@ -99,10 +97,6 @@ public class UploadAppStepTest {
         public TemporaryFolder tempDir = new TemporaryFolder();
         @Rule
         public ExpectedException expectedException = ExpectedException.none();
-        @Mock
-        private ClientExtensions cfExtensions;
-        @Mock
-        private CloudFoundryOperations client;
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -110,40 +104,38 @@ public class UploadAppStepTest {
 // @formatter:off
                 // (00)
                 {
-                    Boolean.TRUE , null, null,
+                    null, null,
                 },
                 // (01)
                 {
-                    Boolean.FALSE, null, null,
+                    null, null,
                 },
                 // (02)
                 {
-                    Boolean.TRUE , format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null,
+                    format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null,
                 },
                 // (03)
                 {
-                    Boolean.FALSE, format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null,
+                    format(Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, APP_FILE), null,
                 },
                 // (04)
                 {
-                    Boolean.TRUE , null, StepsUtil.createException(CF_EXCEPTION).getMessage(),
+                    null, StepsUtil.createException(CF_EXCEPTION).getMessage(),
                 },
                 // (05)
                 {
-                    Boolean.FALSE, null, StepsUtil.createException(CF_EXCEPTION).getMessage(),
+                    null, StepsUtil.createException(CF_EXCEPTION).getMessage(),
                 },
 // @formatter:on
             });
         }
 
-        private boolean clientSupportsExtensions;
         private String expectedIOExceptionMessage;
         private String expectedCFExceptionMessage;
 
         private File appFile;
 
-        public AppUploaderTest(boolean clientSupportsExtensions, String expectedIOExceptionMessage, String expectedCFExceptionMessage) {
-            this.clientSupportsExtensions = clientSupportsExtensions;
+        public AppUploaderTest(String expectedIOExceptionMessage, String expectedCFExceptionMessage) {
             this.expectedIOExceptionMessage = expectedIOExceptionMessage;
             this.expectedCFExceptionMessage = expectedCFExceptionMessage;
         }
@@ -159,25 +151,18 @@ public class UploadAppStepTest {
 
         @Test
         public void test() {
-            if (!clientSupportsExtensions) {
-                cfExtensions = null;
-            }
             ExecutionWrapper wrapper = step.createExecutionWrapper(context);
-            Runnable uploader = step.getUploadAppStepRunnable(wrapper, new SimpleApplication(APP_NAME, 2).toCloudApplication(), client,
-                cfExtensions);
+            Runnable uploader = step.getUploadAppStepRunnable(wrapper, new SimpleApplication(APP_NAME, 2).toCloudApplication(), client);
             try {
                 uploader.run();
             } catch (Throwable e) {
+                e.printStackTrace();
                 assertFalse(appFile.exists());
                 throw e;
             }
 
-            if (clientSupportsExtensions) {
-                assertCall(Constants.VAR_UPLOAD_TOKEN, TOKEN);
-                assertCall("uploadState", AsyncExecutionState.RUNNING.toString());
-            } else {
-                assertCall("uploadState", AsyncExecutionState.FINISHED.toString());
-            }
+            assertCall(Constants.VAR_UPLOAD_TOKEN, TOKEN);
+            assertCall("uploadState", AsyncExecutionState.RUNNING.toString());
         }
 
         private void assertCall(String variableName, String variableValue) {
@@ -204,21 +189,12 @@ public class UploadAppStepTest {
         }
 
         public void prepareClients() throws Exception {
-            if (clientSupportsExtensions) {
-                if (expectedIOExceptionMessage == null && expectedCFExceptionMessage == null) {
-                    when(cfExtensions.asynchUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(TOKEN);
-                } else if (expectedIOExceptionMessage != null) {
-                    when(cfExtensions.asynchUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(IO_EXCEPTION);
-                } else if (expectedCFExceptionMessage != null) {
-                    when(cfExtensions.asynchUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CF_EXCEPTION);
-                }
-            } else {
-                if (expectedIOExceptionMessage != null) {
-                    doThrow(IO_EXCEPTION).when(client).uploadApplication(eq(APP_NAME), eq(appFile), any());
-                }
-                if (expectedCFExceptionMessage != null) {
-                    doThrow(CF_EXCEPTION).when(client).uploadApplication(eq(APP_NAME), eq(appFile), any());
-                }
+            if (expectedIOExceptionMessage == null && expectedCFExceptionMessage == null) {
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(TOKEN);
+            } else if (expectedIOExceptionMessage != null) {
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(IO_EXCEPTION);
+            } else if (expectedCFExceptionMessage != null) {
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CF_EXCEPTION);
             }
             when(client.getApplication(APP_NAME)).thenReturn(new SimpleApplication(APP_NAME, 2).toCloudApplication());
         }
@@ -249,7 +225,7 @@ public class UploadAppStepTest {
                 if (!fileName.equals(APP_FILE)) {
                     return super.getInputStreamProducer(appArchiveStream, fileName, maxStreamSize);
                 }
-                return new InputStreamProducer(getClass().getResourceAsStream(APP_FILE), fileName, Configuration.getInstance().getMaxResourceFileSize()) {
+                return new InputStreamProducer(getClass().getResourceAsStream(APP_FILE), fileName, ApplicationConfiguration.getInstance().getMaxResourceFileSize()) {
                     @Override
                     public InputStream getNextInputStream() {
                         return getClass().getResourceAsStream(APP_FILE);

@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RestTemplateFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
@@ -53,7 +53,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     protected CloudFoundryClientProvider clientProvider;
 
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     @Override
     protected void writeLogs(DelegateExecution context) throws IOException, FileStorageException {

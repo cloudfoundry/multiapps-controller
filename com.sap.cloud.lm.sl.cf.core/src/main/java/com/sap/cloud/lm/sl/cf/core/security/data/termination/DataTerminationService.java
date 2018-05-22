@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
@@ -90,11 +90,11 @@ public class DataTerminationService {
 
     protected CloudFoundryClient getCFClient() {
 
-        CloudCredentials cloudCredentials = new CloudCredentials(Configuration.getInstance().getGlobalAuditorUser(),
-            Configuration.getInstance().getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
+        CloudCredentials cloudCredentials = new CloudCredentials(ApplicationConfiguration.getInstance().getGlobalAuditorUser(),
+            ApplicationConfiguration.getInstance().getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
 
-        CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, Configuration.getInstance().getTargetURL(),
-            Configuration.getInstance().shouldSkipSslValidation());
+        CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, ApplicationConfiguration.getInstance().getTargetURL(),
+            ApplicationConfiguration.getInstance().shouldSkipSslValidation());
         cfClient.login();
         return cfClient;
     }

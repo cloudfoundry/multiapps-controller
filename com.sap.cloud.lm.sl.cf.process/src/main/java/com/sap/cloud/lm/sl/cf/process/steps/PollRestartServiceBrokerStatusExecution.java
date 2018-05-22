@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PollRestartServiceBrokerStatusExecution extends PollStartAppStatusExecution {
 
-    public PollRestartServiceBrokerStatusExecution(RecentLogsRetriever recentLogsRetriever, Configuration configuration) {
+    public PollRestartServiceBrokerStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationConfiguration configuration) {
         super(recentLogsRetriever, configuration);
     }
 

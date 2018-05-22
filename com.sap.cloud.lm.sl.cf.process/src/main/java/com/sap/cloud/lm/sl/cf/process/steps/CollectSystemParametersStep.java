@@ -28,7 +28,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -46,7 +46,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = () -> new CredentialsGenerator();
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());

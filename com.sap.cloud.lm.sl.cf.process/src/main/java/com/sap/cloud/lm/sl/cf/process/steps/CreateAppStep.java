@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -57,7 +57,7 @@ public class CreateAppStep extends SyncActivitiStep {
     ServiceBindingCreator serviceBindingCreator;
 
     @Autowired
-    protected Configuration configuration;
+    protected ApplicationConfiguration configuration;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
@@ -194,7 +194,7 @@ public class CreateAppStep extends SyncActivitiStep {
             @Override
             public void processFileContent(InputStream archive) throws SLException {
                 try (
-                    InputStream file = ArchiveHandler.getInputStream(archive, fileName, Configuration.getInstance().getMaxManifestSize())) {
+                    InputStream file = ArchiveHandler.getInputStream(archive, fileName, ApplicationConfiguration.getInstance().getMaxManifestSize())) {
                     MapUtil.addNonNull(result, serviceName, JsonUtil.convertJsonToMap(file));
                 } catch (IOException e) {
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);

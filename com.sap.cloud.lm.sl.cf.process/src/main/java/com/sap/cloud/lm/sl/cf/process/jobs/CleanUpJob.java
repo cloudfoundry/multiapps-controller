@@ -34,7 +34,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.helpers.Environment;
 import com.sap.cloud.lm.sl.cf.core.security.data.termination.DataTerminationService;
-import com.sap.cloud.lm.sl.cf.core.util.Configuration;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
@@ -50,7 +50,7 @@ import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 public class CleanUpJob implements Job {
 
     @Inject
-    private Configuration configuration;
+    private ApplicationConfiguration configuration;
 
     @Inject
     private OperationDao dao;
