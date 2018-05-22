@@ -26,6 +26,9 @@
     <serviceTask id="prepareToExecuteTasksTask" name="Prepare To Execute Tasks" activiti:async="true" activiti:delegateExpression="${prepareToExecuteTasksStep}"></serviceTask>
     <exclusiveGateway id="areThereMoreTasksToExecuteGateway" name="Are There More Tasks To Execute" default="thereAreMoreTasksToExecuteFlow"></exclusiveGateway>
     <sequenceFlow id="flow37" sourceRef="prepareToExecuteTasksTask" targetRef="doesPlatformSupportTasksGateway"></sequenceFlow>
+    <sequenceFlow id="thereAreNoMoreTasksToExecuteFlow" sourceRef="areThereMoreTasksToExecuteGateway" targetRef="shouldUpdateConfigurations">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(tasksCount == tasksIndex)}]]></conditionExpression>
+    </sequenceFlow>
     <serviceTask id="executeTaskTask" name="Execute Task" activiti:async="true" activiti:delegateExpression="${executeTaskStep}"></serviceTask>
     <sequenceFlow id="thereAreMoreTasksToExecuteFlow" sourceRef="areThereMoreTasksToExecuteGateway" targetRef="executeTaskTask"></sequenceFlow>
     <sequenceFlow id="flow40" sourceRef="executeTaskTask" targetRef="isTaskExecutedGateway"></sequenceFlow>
@@ -294,6 +297,11 @@
         <omgdi:waypoint x="199.0" y="1157.0"></omgdi:waypoint>
         <omgdi:waypoint x="263.0" y="1158.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="thereAreNoMoreTasksToExecuteFlow" id="BPMNEdge_thereAreNoMoreTasksToExecuteFlow">
+        <omgdi:waypoint x="416.0" y="1178.0"></omgdi:waypoint>
+        <omgdi:waypoint x="416.0" y="1302.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1098.0" y="1303.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="thereAreMoreTasksToExecuteFlow" id="BPMNEdge_thereAreMoreTasksToExecuteFlow">
         <omgdi:waypoint x="436.0" y="1158.0"></omgdi:waypoint>
         <omgdi:waypoint x="469.0" y="1158.0"></omgdi:waypoint>
@@ -330,9 +338,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="platformDoesNotSupportTasks" id="BPMNEdge_platformDoesNotSupportTasks">
         <omgdi:waypoint x="283.0" y="1178.0"></omgdi:waypoint>
-        <omgdi:waypoint x="282.0" y="1313.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1118.0" y="1313.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1138.0" y="1303.0"></omgdi:waypoint>
+        <omgdi:waypoint x="282.0" y="1303.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1098.0" y="1303.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
           <omgdc:Bounds height="42.0" width="100.0" x="304.0" y="1282.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
