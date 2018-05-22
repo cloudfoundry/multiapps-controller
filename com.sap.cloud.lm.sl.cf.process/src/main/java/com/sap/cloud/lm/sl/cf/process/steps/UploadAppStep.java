@@ -45,7 +45,6 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
-    private static final Integer DEFAULT_UPLOAD_TIMEOUT = 1800; // 30 minutes
     private static final String ARCHIVE_FILE_SEPARATOR = "/";
 
     @Inject
@@ -316,7 +315,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
     @Override
     public Integer getTimeout(DelegateExecution context) {
-        return DEFAULT_UPLOAD_TIMEOUT;
+        return configuration.getUploadAppTimeout();
     }
 
 }
