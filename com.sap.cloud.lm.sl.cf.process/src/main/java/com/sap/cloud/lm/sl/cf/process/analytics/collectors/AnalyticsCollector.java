@@ -36,8 +36,8 @@ public class AnalyticsCollector {
     @Inject
     private ProcessTypeParser processTypeParser;
 
-    public Supplier<Long> endTimeSupplier = () -> System.currentTimeMillis();
-    public Supplier<ZoneId> timeZoneSupplier = () -> ZoneId.systemDefault();
+    Supplier<Long> endTimeSupplier = () -> System.currentTimeMillis();
+    Supplier<ZoneId> timeZoneSupplier = () -> ZoneId.systemDefault();
 
     public AnalyticsData collectAnalyticsData(DelegateExecution context) throws SLException {
         String processId = context.getProcessInstanceId();

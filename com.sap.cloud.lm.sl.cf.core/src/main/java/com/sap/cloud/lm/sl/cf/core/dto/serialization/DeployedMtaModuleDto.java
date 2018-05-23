@@ -22,7 +22,7 @@ public class DeployedMtaModuleDto {
     private List<String> providedDependencyNames;
 
     protected DeployedMtaModuleDto() {
-        // Required by JAXB;
+        // Required by JAXB
     }
 
     public DeployedMtaModuleDto(DeployedMtaModule module) {

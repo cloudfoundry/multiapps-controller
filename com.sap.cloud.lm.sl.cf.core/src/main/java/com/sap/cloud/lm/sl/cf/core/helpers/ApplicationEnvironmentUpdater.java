@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import static com.sap.cloud.lm.sl.common.util.MapUtil.cast;
 
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -42,7 +41,7 @@ public class ApplicationEnvironmentUpdater {
             appEnvAsMap.put(envPropertyKey, JsonUtil.toJson(updatedEnv, prettyPrinting));
             updateEnvironment(cast(appEnvAsMap));
         } catch (Exception e) {
-            throw new SLException(MessageFormat.format("Error updating environment of application", e));
+            throw new SLException(e, "Error updating environment of application");
         }
     }
 

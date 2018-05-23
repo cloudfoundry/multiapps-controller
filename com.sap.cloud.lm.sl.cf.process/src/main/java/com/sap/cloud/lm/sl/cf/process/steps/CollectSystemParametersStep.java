@@ -78,7 +78,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
             SystemParameters systemParameters = systemParametersBuilder.build(descriptor);
             getStepLogger().debug(Messages.SYSTEM_PARAMETERS, secureSerializer.toJson(systemParameters));
 
-            determineIsVersionAccepted(execution.getContext(), descriptor, portAllocator);
+            determineIsVersionAccepted(execution.getContext(), descriptor);
 
             if (portBasedRouting) {
                 StepsUtil.setAllocatedPorts(execution.getContext(), portAllocator.getAllocatedPorts());
@@ -170,7 +170,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         return configuration.getDeployServiceUrl();
     }
 
-    private void determineIsVersionAccepted(DelegateExecution context, DeploymentDescriptor descriptor, PortAllocator portAllocator) {
+    private void determineIsVersionAccepted(DelegateExecution context, DeploymentDescriptor descriptor) {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
         VersionRule versionRule = VersionRule.valueOf((String) context.getVariable(Constants.PARAM_VERSION_RULE));
         getStepLogger().debug(Messages.VERSION_RULE, versionRule);

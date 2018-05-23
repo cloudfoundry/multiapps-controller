@@ -37,7 +37,7 @@ public class DeployedComponentsDetector {
             ApplicationMtaMetadata appMetadata = ApplicationMtaMetadataParser.parseAppMetadata(app);
 
             if (appMetadata != null) {
-                // This application is an MTA module;
+                // This application is an MTA module.
                 String moduleName = (appMetadata.getModuleName() != null) ? appMetadata.getModuleName() : appName;
                 List<String> providedDependencies = (appMetadata.getProvidedDependencyNames() != null)
                     ? appMetadata.getProvidedDependencyNames()
@@ -62,7 +62,7 @@ public class DeployedComponentsDetector {
                 services.addAll(appServices);
                 servicesMap.put(mtaMetadata, services);
             } else {
-                // This is a standalone application;
+                // This is a standalone application.
                 standaloneApps.add(appName);
             }
         }

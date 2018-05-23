@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.springframework.http.HttpStatus;
 
@@ -32,19 +33,17 @@ public class SpaceGetter extends CustomControllerClient {
     private Stream<CloudSpace> filterSpaces(CloudFoundryOperations client, String orgName, String spaceName) {
         return client.getSpaces()
             .stream()
-            .filter(s -> orgName == null || isSameOrganization(s, orgName))
-            .filter(s -> spaceName == null || isSameSpace(s, orgName, spaceName));
+            .filter(space -> isSameSpace(space, orgName, spaceName));
     }
 
     private boolean isSameSpace(CloudSpace space, String orgName, String spaceName) {
-        return space.getName()
+        CloudOrganization org = space.getOrganization();
+        if (orgName != null && !org.getName()
+            .equals(orgName)) {
+            return false;
+        }
+        return spaceName == null || space.getName()
             .equals(spaceName);
-    }
-
-    private boolean isSameOrganization(CloudSpace space, String orgName) {
-        return space.getOrganization()
-            .getName()
-            .equals(orgName);
     }
 
     public CloudSpace getSpace(CloudFoundryOperations client, String spaceId) {

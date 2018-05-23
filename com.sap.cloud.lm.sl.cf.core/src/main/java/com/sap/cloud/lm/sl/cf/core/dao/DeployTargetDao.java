@@ -121,7 +121,7 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
     }
 
     protected Dto findInternalByName(EntityManager manager, String name) throws NotFoundException {
-        TypedQuery<Dto> query = createFindByNameQuery(name);
+        TypedQuery<Dto> query = createFindByNameQuery(manager, name);
         try {
             return query.getSingleResult();
         } catch (NoResultException e) {
@@ -147,14 +147,13 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
         return targets;
     }
 
-    private TypedQuery<Dto> createFindByNameQuery(String name) {
-        EntityManager em = createEntityManager();
-        CriteriaBuilder builder = em.getCriteriaBuilder();
+    private TypedQuery<Dto> createFindByNameQuery(EntityManager manager, String name) {
+        CriteriaBuilder builder = manager.getCriteriaBuilder();
         CriteriaQuery<Dto> query = builder.createQuery(this.classVersion);
         Root<Dto> entity = query.from(this.classVersion);
 
         Predicate namePredicate = builder.equal(entity.get(DEPLOY_TARGET_NAME), name);
-        return em.createQuery(query.select(entity)
+        return manager.createQuery(query.select(entity)
             .where(namePredicate));
     }
 

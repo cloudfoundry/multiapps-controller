@@ -43,7 +43,6 @@ public class PublishConfigurationEntriesStep extends SyncActivitiStep {
                 return StepPhase.DONE;
             }
 
-            // List<ConfigurationEntry> entriesToPublishPerApp = entriesToPublish.get(app.getName());
             List<ConfigurationEntry> publishedEntries = publish(entriesToPublish);
 
             getStepLogger().debug(Messages.PUBLISHED_ENTRIES, secureSerializer.toJson(publishedEntries));

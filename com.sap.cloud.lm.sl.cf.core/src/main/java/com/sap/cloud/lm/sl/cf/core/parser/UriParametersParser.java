@@ -79,11 +79,11 @@ public class UriParametersParser implements ParametersParser<List<String>> {
             return Collections.emptyList();
         }
         String hostsParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(hostParameterName);
-        List<String> hostss = getAll(parametersList, hostParameterName, hostsParameterName);
-        if (hostss.isEmpty() && defaultHost != null && !noHostname) {
-            hostss.add(defaultHost);
+        List<String> hosts = getAll(parametersList, hostParameterName, hostsParameterName);
+        if (hosts.isEmpty() && defaultHost != null) {
+            hosts.add(defaultHost);
         }
-        return hostss;
+        return hosts;
     }
 
     private void addHostBasedUris(Set<String> uris, String domain, List<String> hosts) {
@@ -97,7 +97,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
             return new ArrayList<>();
         }
         if (domains.isEmpty() && !hosts.isEmpty()) {
-            return getUris(Collections.emptyList(), hosts, ports); // Use hosts as domains;
+            return getUris(Collections.emptyList(), hosts, ports); // Use hosts as domains.
         }
         Set<String> uris = new LinkedHashSet<>();
         for (String domain : domains) {

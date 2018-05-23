@@ -76,6 +76,7 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
                             getStepLogger().warn(Messages.UNREGISTER_OF_SERVICE_URL_FAILED_403, serviceName);
                             return;
                         }
+                        throw e;
                     default:
                         throw e;
                 }
