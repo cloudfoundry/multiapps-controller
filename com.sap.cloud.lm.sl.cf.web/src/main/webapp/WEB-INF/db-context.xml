@@ -92,10 +92,6 @@
             <property name="persistenceUnitName" value="DeployTargetManagement" />
         </bean>
 
-        <bean id="contextExtensionEntityManagerFactory" parent="baseEntityManagerFactory">
-            <property name="persistenceUnitName" value="ContextExtensionmManagement" />
-        </bean>
-
         <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
             <property name="dataSource" ref="dataSource" />
         </bean>

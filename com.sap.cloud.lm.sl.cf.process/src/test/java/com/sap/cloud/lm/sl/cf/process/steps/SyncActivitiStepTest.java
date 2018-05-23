@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
@@ -49,8 +48,6 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     protected ProcessLogsPersistenceService processLogsPersistenceService;
     @Mock
     protected ProgressMessageService progressMessageService;
-    @Mock
-    protected ContextExtensionDao contextExtensionDao;
     @Mock
     protected AbstractFileService fileService;
     @Mock(extraInterfaces = ClientExtensions.class)

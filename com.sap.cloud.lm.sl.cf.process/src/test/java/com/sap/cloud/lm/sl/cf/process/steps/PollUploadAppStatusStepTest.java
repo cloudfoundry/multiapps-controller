@@ -18,7 +18,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
 
@@ -113,12 +112,8 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
         context.setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
         context.setVariable("StepExecution", previousStatus.toString());
         when(context.getProcessInstanceId()).thenReturn("test");
-        ContextExtension extension = new ContextExtension(context.getProcessInstanceId(), "uploadState", previousStatus.toString(), null,
-            null);
-        when(contextExtensionDao.find("test", "uploadState")).thenReturn(extension);
-        ContextExtension uploadTokenExtension = new ContextExtension(context.getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN,
-            uploadToken, null, null);
-        when(contextExtensionDao.find("test", Constants.VAR_UPLOAD_TOKEN)).thenReturn(uploadTokenExtension);
+        context.setVariable(Constants.VAR_UPLOAD_STATE, previousStatus.toString());
+        context.setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
     }
 
     @Override

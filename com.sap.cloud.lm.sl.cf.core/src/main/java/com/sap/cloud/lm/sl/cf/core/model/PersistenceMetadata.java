@@ -10,8 +10,7 @@ public class PersistenceMetadata {
         public static final String FIND_ALL_ENTRIES_BY_SPACE_ID = "find_all_entries_guid";
         public static final String FIND_ALL_SUBSCRIPTIONS = "find_all_subscriptions";
         public static final String FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID = "find_all_subscriptions_guid";
-        public static final String FIND_ALL_CONTEXT_EXTENSION_ENTRIES = "find_all_context_extension_entries";
-        public static final String FIND_ALL_CONTEXT_EXTENSION_ENTRIES_BY_PROCESS_ID = "find_all_context_extension_entries_process_id";
+
     }
 
     public static class QueryParameters {
@@ -57,13 +56,6 @@ public class PersistenceMetadata {
         public static final String CONFIGURATION_SUBSCRIPTION_RESOURCE_NAME = "resource_name";
         public static final String CONFIGURATION_SUBSCRIPTION_MODULE = "module";
         public static final String CONFIGURATION_SUBSCRIPTION_FILTER = "filter";
-
-        public static final String CONTEXT_EXTENSION_ID = "id";
-        public static final String CONTEXT_EXTENSION_VARIABLE_VALUE = "value";
-        public static final String CONTEXT_EXTENSION_VARIABLE_NAME = "name";
-        public static final String CONTEXT_EXTENSION_PROCESS_ID = "process_id";
-        public static final String CONTEXT_EXTENSION_CREATE_TIME = "create_time";
-        public static final String CONTEXT_EXTENSION_UPDATE_TIME = "last_updated_time";
 
         public static final String ONGOING_OPERATION_SPACE_ID = "spaceId";
         public static final String ONGOING_OPERATION_STARTED_AT = "startedAt";

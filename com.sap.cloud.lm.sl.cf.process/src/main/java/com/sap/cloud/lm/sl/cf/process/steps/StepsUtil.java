@@ -45,11 +45,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServicesCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
-import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -832,35 +830,30 @@ public class StepsUtil {
         return (String) context.getVariable(com.sap.cloud.lm.sl.persistence.message.Constants.INDEXED_STEP_NAME);
     }
 
-    static ErrorType getErrorType(String processId, ContextExtensionDao contextExtensionDao) {
-        ContextExtension errorTypeExtension = contextExtensionDao.find(processId, Constants.VAR_ERROR_TYPE);
-        if (errorTypeExtension == null || errorTypeExtension.getValue() == null) {
-            return null;
-        }
-        return ErrorType.valueOf(errorTypeExtension.getValue());
+    static ErrorType getErrorType(DelegateExecution context) {
+        String errorType = (String) context.getVariable(Constants.VAR_ERROR_TYPE);
+        return errorType == null ? null : ErrorType.valueOf(errorType);
     }
 
-    static void setErrorType(String processId, ContextExtensionDao contextExtensionDao, ErrorType errorType) {
+    static void setErrorType(DelegateExecution context, ErrorType errorType) {
         if (errorType == null) {
             return;
         }
-        contextExtensionDao.addOrUpdate(processId, Constants.VAR_ERROR_TYPE, errorType.toString());
+        context.setVariable(Constants.VAR_ERROR_TYPE, errorType.toString());
     }
 
-    static StepPhase getStepPhase(ExecutionWrapper execution) {
-        ContextExtension stepTypeObject = execution.getContextExtensionDao().find(execution.getContext().getProcessInstanceId(),
-            Constants.VAR_STEP_PHASE);
-        if (stepTypeObject == null) {
-            return StepPhase.EXECUTE;
+    static StepPhase getStepPhase(DelegateExecution context) {
+        String stepPhase = (String) context.getVariable(Constants.VAR_STEP_PHASE);
+        return stepPhase == null ? StepPhase.EXECUTE : StepPhase.fromValue(stepPhase);
+    }
+
+    static void setStepPhase(DelegateExecution context, StepPhase stepPhase) {
+        if (stepPhase == null) {
+            return;
         }
-        return StepPhase.fromValue(stepTypeObject.getValue());
+        context.setVariable(Constants.VAR_STEP_PHASE, stepPhase.toString());
     }
-
-    static void setStepPhase(ExecutionWrapper execution, StepPhase type) {
-        execution.getContextExtensionDao().addOrUpdate(execution.getContext().getProcessInstanceId(), Constants.VAR_STEP_PHASE,
-            type.toString());
-    }
-
+    
     static void appLog(DelegateExecution context, String appName, String message, Logger logger,
         ProcessLoggerProviderFactory processLoggerProviderFactory) {
         getAppLogger(context, appName, processLoggerProviderFactory).debug(getPrefix(logger) + "[" + appName + "] " + message);

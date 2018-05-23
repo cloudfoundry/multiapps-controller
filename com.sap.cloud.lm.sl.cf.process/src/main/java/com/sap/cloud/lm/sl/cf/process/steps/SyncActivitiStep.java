@@ -11,7 +11,6 @@ import org.slf4j.MDC;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -26,8 +25,6 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
 
     @Inject
     protected CloudFoundryClientProvider clientProvider;
-    @Inject
-    protected ContextExtensionDao contextExtensionDao;
     @Inject
     private StepLogger.Factory stepLoggerFactory;
     @Inject
@@ -59,7 +56,7 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
             stepPhase = StepPhase.RETRY;
             handleException(context, t);
         } finally {
-            StepsUtil.setStepPhase(executionWrapper, stepPhase);
+            StepsUtil.setStepPhase(context, stepPhase);
             postExecuteStep(context, stepPhase);
         }
     }
@@ -73,7 +70,7 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
     }
 
     protected ExecutionWrapper createExecutionWrapper(DelegateExecution context) {
-        return new ExecutionWrapper(context, contextExtensionDao, stepLogger, clientProvider, processLoggerProviderFactory);
+        return new ExecutionWrapper(context, stepLogger, clientProvider, processLoggerProviderFactory);
     }
 
     private void handleException(DelegateExecution context, Throwable t) throws Exception {
@@ -118,7 +115,7 @@ public abstract class SyncActivitiStep implements StepIndexProvider, JavaDelegat
 
     protected ProcessStepHelper getStepHelper() {
         if (stepHelper == null) {
-            stepHelper = new ProcessStepHelper(getProgressMessageService(), getProcessLoggerProvider(), this, contextExtensionDao);
+            stepHelper = new ProcessStepHelper(getProgressMessageService(), getProcessLoggerProvider(), this);
         }
         return stepHelper;
     }

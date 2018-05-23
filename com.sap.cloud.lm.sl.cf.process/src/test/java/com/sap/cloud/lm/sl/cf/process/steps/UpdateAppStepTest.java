@@ -24,7 +24,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Matchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -32,7 +31,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
@@ -55,9 +53,6 @@ public class UpdateAppStepTest extends SyncActivitiStepTest<UpdateAppStep> {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
-    @Mock
-    private ContextExtensionDao dao;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
