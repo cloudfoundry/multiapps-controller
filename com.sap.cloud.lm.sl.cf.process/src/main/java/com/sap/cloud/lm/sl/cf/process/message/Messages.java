@@ -151,9 +151,6 @@ public class Messages {
     public static final String CREATE_OF_SERVICE_BROKERS_FAILED_403 = "Could not create service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String DELETE_OF_SERVICE_BROKERS_FAILED_403 = "Could not delete service broker \"{0}\". Operation forbidden. Only admin users can manage service brokers!";
     public static final String UNREGISTER_OF_SERVICE_URL_FAILED_403 = "Could not unregister service URL \"{0}\". Operation forbidden. Only admin users can manage service URLs!";
-    public static final String CANCELING_UPLOAD_ASYNC_THREAD = "Canceling upload app async thread started for process \"{0}\"...";
-    public static final String ASYNC_THREAD_CANCELLED = "Async thread for process \"{0}\" cancelled";
-    public static final String ASYNC_THREAD_COMPLETED = "Async thread for process \"{0}\" has already finished";
     public static final String SERVICE_DOESNT_HAVE_BOUND_COMPONENTS = "Service \"{0}\" exists but doesn't have any bound applications";
     public static final String WILL_NOT_DELETE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be deleted, as the option for deleting discontinued service keys is not specified!";
     public static final String WILL_NOT_UPDATE_SERVICE_KEY = "Service key \"{0}\" for service \"{1}\" will not be updated, as the option for deleting discontinued service keys is not specified!";

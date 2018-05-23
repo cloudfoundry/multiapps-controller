@@ -85,7 +85,6 @@ public class ApplicationConfiguration {
     static final String CFG_XS_CLIENT_MAX_THREADS = "XS_CLIENT_MAX_THREADS";
     static final String CFG_XS_CLIENT_QUEUE_CAPACITY = "XS_CLIENT_QUEUE_CAPACITY";
     static final String CFG_XS_CLIENT_KEEP_ALIVE = "XS_CLIENT_KEEP_ALIVE";
-    static final String CFG_ASYNC_EXECUTOR_CORE_THREADS = "ASYNC_EXECUTOR_CORE_THREADS";
     static final String CFG_CONTROLLER_POLLING_INTERVAL = "CONTROLLER_POLLING_INTERVAL";
     static final String CFG_UPLOAD_APP_TIMEOUT = "UPLOAD_APP_TIMEOUT";
     static final String CFG_SKIP_SSL_VALIDATION = "SKIP_SSL_VALIDATION";
@@ -132,15 +131,6 @@ public class ApplicationConfiguration {
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
     public static final int DEFAULT_CONTROLLER_OPERATIONS_TIMEOUT = 900;
-    /*
-     * In async local operations there are usually two threads. One does the actual work, while the other waits for a specific amount of
-     * time and then terminates the first if it is still alive (thus introducing a time-out period for the entire operation).
-     * 
-     * There should be at least 2 core threads in the thread pool, used by the executor that starts these threads, in order to make sure
-     * that the 'worker' thread and the 'killer' thread can be executed simultaneously. Otherwise, the time-out behaviour introduced by the
-     * 'killer' thread would not work, as it would not be executed until after the 'worker' thread has already been executed.
-     */
-    public static final Integer DEFAULT_ASYNC_EXECUTOR_CORE_THREADS = 10;
     /**
      * The minimum duration for an Activiti timer is 5 seconds, because when the job manager schedules a new timer, it checks whether that
      * timer should fire in the next 5 seconds. If so, it hints the job executor that it should execute that timer ASAP. However, there is
@@ -194,7 +184,6 @@ public class ApplicationConfiguration {
     private Integer xsClientMaxThreads;
     private Integer xsClientQueueCapacity;
     private Integer xsClientKeepAlive;
-    private Integer asyncExecutorCoreThreads;
     private Integer controllerPollingInterval;
     private Integer uploadAppTimeout;
     private Boolean skipSslValidation;
@@ -233,7 +222,6 @@ public class ApplicationConfiguration {
         getXsClientMaxThreads();
         getXsClientQueueCapacity();
         getXsClientKeepAlive();
-        getAsyncExecutorCoreThreads();
         getControllerPollingInterval();
         getUploadAppTimeout();
         shouldSkipSslValidation();
@@ -288,10 +276,9 @@ public class ApplicationConfiguration {
             CFG_TARGETS, CFG_TARGETS_V2, CFG_TARGETS_V3, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE,
             CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
             CFG_GLOBAL_AUDITOR_USER, CFG_XS_CLIENT_CORE_THREADS, CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY,
-            CFG_XS_CLIENT_KEEP_ALIVE, CFG_ASYNC_EXECUTOR_CORE_THREADS, CFG_CONTROLLER_POLLING_INTERVAL, CFG_UPLOAD_APP_TIMEOUT,
-            CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_WAIT_TIME,
-            CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS,
-            CFG_MAIL_API_URL));
+            CFG_XS_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_POLLING_INTERVAL, CFG_UPLOAD_APP_TIMEOUT, CFG_SKIP_SSL_VALIDATION,
+            CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_WAIT_TIME, CFG_CHANGE_LOG_LOCK_DURATION,
+            CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL));
     }
 
     public com.sap.cloud.lm.sl.persistence.util.Configuration getFileConfiguration() {
@@ -499,13 +486,6 @@ public class ApplicationConfiguration {
             xsClientKeepAlive = getXsClientKeepAliveFromEnvironment();
         }
         return xsClientKeepAlive;
-    }
-
-    public int getAsyncExecutorCoreThreads() {
-        if (asyncExecutorCoreThreads == null) {
-            asyncExecutorCoreThreads = getAsyncExecutorCoreThreadsFromEnvironment();
-        }
-        return asyncExecutorCoreThreads;
     }
 
     public int getControllerPollingInterval() {
@@ -864,12 +844,6 @@ public class ApplicationConfiguration {
     private int getXsClientKeepAliveFromEnvironment() {
         int value = getPositiveInt(CFG_XS_CLIENT_KEEP_ALIVE, DEFAULT_XS_CLIENT_KEEP_ALIVE);
         LOGGER.info(format(Messages.XS_CLIENT_KEEP_ALIVE, value));
-        return value;
-    }
-
-    private Integer getAsyncExecutorCoreThreadsFromEnvironment() {
-        Integer value = getPositiveInt(CFG_ASYNC_EXECUTOR_CORE_THREADS, DEFAULT_ASYNC_EXECUTOR_CORE_THREADS);
-        LOGGER.info(format(Messages.ASYNC_EXECUTOR_CORE_THREADS, value));
         return value;
     }
 
