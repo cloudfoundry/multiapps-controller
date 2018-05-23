@@ -854,19 +854,6 @@ public class StepsUtil {
         return getArrayVariableAsSet(context, Constants.VAR_MTA_MODULES);
     }
 
-    static void setUploadToken(ExecutionWrapper execution, String token) {
-        execution.getContextExtensionDao()
-            .addOrUpdate(execution.getContext()
-                .getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN, token);
-    }
-
-    static String getUploadToken(ExecutionWrapper execution) {
-        return execution.getContextExtensionDao()
-            .find(execution.getContext()
-                .getProcessInstanceId(), Constants.VAR_UPLOAD_TOKEN)
-            .getValue();
-    }
-
     public static String getCorrelationId(DelegateExecution context) {
         return (String) context.getVariable(Constants.VAR_CORRELATION_ID);
     }

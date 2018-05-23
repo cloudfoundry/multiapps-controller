@@ -22,10 +22,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
         try {
             execution.getStepLogger()
                 .debug(Messages.CHECKING_UPLOAD_APP_STATUS, app.getName());
-            String status = execution.getContextExtensionDao()
-                .find(execution.getContext()
-                    .getProcessInstanceId(), Constants.VAR_UPLOAD_STATE)
-                .getValue();
+            String status = (String) execution.getContext().getVariable(Constants.VAR_UPLOAD_STATE);
             if (AsyncExecutionState.ERROR.name()
                 .equalsIgnoreCase(status)) {
                 String message = format(Messages.ERROR_UPLOADING_APP, app.getName());
@@ -34,7 +31,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
                 return AsyncExecutionState.ERROR;
             }
 
-            String uploadToken = StepsUtil.getUploadToken(execution);
+            String uploadToken = (String) execution.getContext().getVariable(Constants.VAR_UPLOAD_TOKEN);
             if (uploadToken == null) {
                 String message = format(Messages.APP_UPLOAD_TIMED_OUT, app.getName());
                 execution.getStepLogger()

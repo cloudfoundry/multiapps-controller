@@ -138,7 +138,6 @@ public final class Messages {
     public static final String XS_CLIENT_MAX_THREADS = "Platform client max threads: {0}";
     public static final String XS_CLIENT_QUEUE_CAPACITY = "Platform client queue capacity: {0}";
     public static final String XS_CLIENT_KEEP_ALIVE = "Platform client thread keep alive time: {0}";
-    public static final String ASYNC_EXECUTOR_CORE_THREADS = "Async task executor core pool size: {0}";
     public static final String CONTROLLER_POLLING_INTERVAL = "Controller polling interval: {0}";
     public static final String UPLOAD_APP_TIMEOUT = "Upload app timeout: {0}";
     public static final String SKIP_SSL_VALIDATION = "Skip SSL validation: {0}";
