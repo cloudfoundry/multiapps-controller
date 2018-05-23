@@ -44,11 +44,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServicesCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
-import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -74,7 +72,7 @@ public class StepsUtil {
         return processLoggerProviderFactory.getLoggerProvider(appName)
             .getLogger(getCorrelationId(context), PARENT_LOGGER, appName);
     }
-    
+
     static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,
         StepLogger stepLogger) throws SLException {
         String userName = determineCurrentUser(context, stepLogger);
@@ -866,35 +864,28 @@ public class StepsUtil {
         return (String) context.getVariable(Constants.TASK_INDEX);
     }
 
-    static ErrorType getErrorType(String processId, ContextExtensionDao contextExtensionDao) {
-        ContextExtension errorTypeExtension = contextExtensionDao.find(processId, Constants.VAR_ERROR_TYPE);
-        if (errorTypeExtension == null || errorTypeExtension.getValue() == null) {
-            return null;
-        }
-        return ErrorType.valueOf(errorTypeExtension.getValue());
+    static ErrorType getErrorType(DelegateExecution context) {
+        String errorType = (String) context.getVariable(Constants.VAR_ERROR_TYPE);
+        return errorType == null ? null : ErrorType.valueOf(errorType);
     }
 
-    static void setErrorType(String processId, ContextExtensionDao contextExtensionDao, ErrorType errorType) {
+    static void setErrorType(DelegateExecution context, ErrorType errorType) {
         if (errorType == null) {
             return;
         }
-        contextExtensionDao.addOrUpdate(processId, Constants.VAR_ERROR_TYPE, errorType.toString());
+        context.setVariable(Constants.VAR_ERROR_TYPE, errorType.toString());
     }
 
-    static StepPhase getStepPhase(ExecutionWrapper execution) {
-        ContextExtension stepTypeObject = execution.getContextExtensionDao()
-            .find(execution.getContext()
-                .getProcessInstanceId(), Constants.VAR_STEP_PHASE);
-        if (stepTypeObject == null) {
-            return StepPhase.EXECUTE;
+    static StepPhase getStepPhase(DelegateExecution context) {
+        String stepPhase = (String) context.getVariable(Constants.VAR_STEP_PHASE);
+        return stepPhase == null ? StepPhase.EXECUTE : StepPhase.valueOf(stepPhase);
+    }
+
+    static void setStepPhase(DelegateExecution context, StepPhase stepPhase) {
+        if (stepPhase == null) {
+            return;
         }
-        return StepPhase.valueOf(stepTypeObject.getValue());
-    }
-
-    static void setStepPhase(ExecutionWrapper execution, StepPhase type) {
-        execution.getContextExtensionDao()
-            .addOrUpdate(execution.getContext()
-                .getProcessInstanceId(), Constants.VAR_STEP_PHASE, type.toString());
+        context.setVariable(Constants.VAR_STEP_PHASE, stepPhase.toString());
     }
 
     @SuppressWarnings("unchecked")

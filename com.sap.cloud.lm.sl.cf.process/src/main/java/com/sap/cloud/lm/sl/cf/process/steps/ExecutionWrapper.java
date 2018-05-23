@@ -7,7 +7,6 @@ import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryOperationsExtended;
 import com.sap.cloud.lm.sl.cf.client.util.TimeoutExecutor;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
@@ -17,15 +16,13 @@ public class ExecutionWrapper {
     private StepLogger stepLogger;
     private CloudFoundryClientProvider clientProvider;
     private ProcessLoggerProviderFactory processLoggerProviderFactory;
-    private ContextExtensionDao contextExtensionDao;
 
-    public ExecutionWrapper(DelegateExecution context, ContextExtensionDao contextExtensionDao, StepLogger stepLogger,
+    public ExecutionWrapper(DelegateExecution context, StepLogger stepLogger,
         CloudFoundryClientProvider clientProvider, ProcessLoggerProviderFactory processLoggerProviderFactory) {
         this.context = context;
         this.stepLogger = stepLogger;
         this.clientProvider = clientProvider;
         this.processLoggerProviderFactory = processLoggerProviderFactory;
-        this.contextExtensionDao = contextExtensionDao;
     }
 
     public DelegateExecution getContext() {
@@ -92,10 +89,6 @@ public class ExecutionWrapper {
 
     public ProcessLoggerProviderFactory getProcessLoggerProviderFactory() {
         return processLoggerProviderFactory;
-    }
-
-    public ContextExtensionDao getContextExtensionDao() {
-        return contextExtensionDao;
     }
 
 }

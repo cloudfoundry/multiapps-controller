@@ -12,7 +12,7 @@ public abstract class AsyncActivitiStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        StepPhase stepPhase = StepsUtil.getStepPhase(execution);
+        StepPhase stepPhase = StepsUtil.getStepPhase(execution.getContext());
         if (stepPhase == StepPhase.POLL) {
             return executeStepExecution(execution);
         }
@@ -63,8 +63,8 @@ public abstract class AsyncActivitiStep extends SyncActivitiStep {
     }
 
     @Override
-    protected StepPhase getInitialStepPhase(ExecutionWrapper executionWrapper) {
-        StepPhase currentStepPhase = StepsUtil.getStepPhase(executionWrapper);
+    protected StepPhase getInitialStepPhase(ExecutionWrapper execution) {
+        StepPhase currentStepPhase = StepsUtil.getStepPhase(execution.getContext());
         if (currentStepPhase == StepPhase.DONE || currentStepPhase == StepPhase.RETRY) {
             return StepPhase.EXECUTE;
         }

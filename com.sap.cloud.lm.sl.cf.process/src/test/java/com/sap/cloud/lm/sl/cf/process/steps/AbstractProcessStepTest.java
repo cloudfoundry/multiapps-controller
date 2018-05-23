@@ -55,8 +55,7 @@ public class AbstractProcessStepTest extends SyncActivitiStepTest<AbstractProces
             step.execute(context);
             fail();
         } catch (Exception e) {
-            Mockito.verify(contextExtensionDao)
-                .addOrUpdate(PROCESS_ID, Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
+            Mockito.verify(context).setVariable(Constants.VAR_ERROR_TYPE, expectedErrorType.toString());
         }
     }
 
