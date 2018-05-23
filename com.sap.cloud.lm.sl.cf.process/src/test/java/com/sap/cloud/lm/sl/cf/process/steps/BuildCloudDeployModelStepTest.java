@@ -210,7 +210,7 @@ public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildClo
 
         when(applicationsCloudModelBuilder.build(any(), any(), any())).thenReturn(appsToDeploy);
         when(domainsCloudModelBuilder.build()).thenReturn(input.customDomains);
-        when(servicesCloudModelBuilder.build(any())).thenReturn(servicesToBind);
+        when(servicesCloudModelBuilder.build()).thenReturn(servicesToBind);
         when(serviceKeysCloudModelBuilder.build()).thenReturn(serviceKeys);
         StepsUtil.setDeployedMta(context, deployedMta);
     }

@@ -239,8 +239,8 @@ public class MtaArchiveValidator {
         LOGGER.debug(format("Cloud applications: {0}", JsonUtil.toJson(applications, true)));
 
         // Build a list of cloud services and save them in the context
-        services = handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), config).build(
-            mtaArchiveModules);
+        services = handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), config)
+            .build();
         LOGGER.debug(format("Cloud services: {0}", JsonUtil.toJson(services, true)));
     }
     

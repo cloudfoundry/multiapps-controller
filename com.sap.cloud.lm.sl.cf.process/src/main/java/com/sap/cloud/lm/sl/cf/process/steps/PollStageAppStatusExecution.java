@@ -59,7 +59,7 @@ public class PollStageAppStatusExecution extends AsyncExecution {
     private Pair<ApplicationStagingState, String> getStagingState(ExecutionWrapper execution, CloudFoundryOperations client,
         CloudApplication app) {
         ApplicationStagingState applicationStagingState = applicationStagingStateGetter.getApplicationStagingState(client, app.getName());
-        Pair<ApplicationStagingState, String> applicationStagingStateGuess = reportStagingLogs(execution, client, app);
+        Pair<ApplicationStagingState, String> applicationStagingStateGuess = reportStagingLogs(execution, client);
         if (applicationStagingState == null) {
             return applicationStagingStateGuess;
         }
@@ -69,8 +69,7 @@ public class PollStageAppStatusExecution extends AsyncExecution {
         return new Pair<>(applicationStagingState, null);
     }
 
-    private Pair<ApplicationStagingState, String> reportStagingLogs(ExecutionWrapper execution, CloudFoundryOperations client,
-        CloudApplication app) {
+    private Pair<ApplicationStagingState, String> reportStagingLogs(ExecutionWrapper execution, CloudFoundryOperations client) {
         try {
             StartingInfo startingInfo = StepsUtil.getStartingInfo(execution.getContext());
             int offset = (Integer) execution.getContext().getVariable(Constants.VAR_OFFSET);

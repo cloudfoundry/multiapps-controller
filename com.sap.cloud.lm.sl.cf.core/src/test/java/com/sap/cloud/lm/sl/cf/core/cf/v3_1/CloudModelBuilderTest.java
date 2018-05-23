@@ -175,7 +175,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2_0.C
 
     @Test
     public void testWarnMessage() {
-        servicesBuilder.build(mtaArchiveModules);
+        servicesBuilder.build();
         Mockito.verify(userMessageLogger).warn(Mockito.anyString(), Mockito.any());
     }
 
@@ -204,7 +204,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2_0.C
         TestUtil.test(new Callable<List<CloudServiceExtended>>() {
             @Override
             public List<CloudServiceExtended> call() throws Exception {
-                return servicesBuilder.build(mtaArchiveModules);
+                return servicesBuilder.build();
             }
         }, expected[1], getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }

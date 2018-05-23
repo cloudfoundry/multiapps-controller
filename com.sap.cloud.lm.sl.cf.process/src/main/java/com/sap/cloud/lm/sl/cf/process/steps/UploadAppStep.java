@@ -132,13 +132,13 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
                     getStepLogger().debug(Messages.CREATED_TEMP_FILE, file);
                     detectApplicationFileDigestChanges(context, app, file, client);
                     String uploadToken = client.asyncUploadApplication(app.getName(), file,
-                        getMonitorUploadStatusCallback(context, app, file));
+                        getMonitorUploadStatusCallback(app, file));
                     uploadTokenBuilder.append(uploadToken);
                 } catch (IOException e) {
-                    cleanUpTempFile(context, file);
+                    cleanUpTempFile(file);
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
                 } catch (CloudFoundryException e) {
-                    cleanUpTempFile(context, file);
+                    cleanUpTempFile(file);
                     throw e;
                 }
             });
@@ -175,8 +175,8 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
             .setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(appContentChanged));
     }
 
-    MonitorUploadStatusCallback getMonitorUploadStatusCallback(DelegateExecution context, CloudApplication app, File file) {
-        return new MonitorUploadStatusCallback(context, app, file);
+    MonitorUploadStatusCallback getMonitorUploadStatusCallback(CloudApplication app, File file) {
+        return new MonitorUploadStatusCallback(app, file);
     }
 
     InputStreamProducer getInputStreamProducer(InputStream appArchiveStream, String fileName, long maxStreamSize) throws SLException {
@@ -213,7 +213,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         return destinationDirectory.toFile();
     }
 
-    void cleanUpTempFile(DelegateExecution context, File file) {
+    void cleanUpTempFile(File file) {
         if (file != null) {
             try {
                 getStepLogger().debug(Messages.DELETING_TEMP_FILE, file);
@@ -232,12 +232,10 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
         static final String FINISHED_STATUS = "finished";
 
-        private final DelegateExecution context;
         private final CloudApplication app;
         private final File file;
 
-        public MonitorUploadStatusCallback(DelegateExecution context, CloudApplication app, File file) {
-            this.context = context;
+        public MonitorUploadStatusCallback(CloudApplication app, File file) {
             this.app = app;
             this.file = file;
         }
@@ -261,7 +259,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         public boolean onProgress(String status) {
             getStepLogger().info(Messages.UPLOAD_STATUS_0, status);
             if (status.equals(FINISHED_STATUS)) {
-                cleanUpTempFile(context, file);
+                cleanUpTempFile(file);
             }
             return false;
         }
@@ -269,7 +267,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         @Override
         public void onError(Exception e) {
             getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-            cleanUpTempFile(context, file);
+            cleanUpTempFile(file);
         }
 
         @Override

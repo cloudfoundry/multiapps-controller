@@ -28,7 +28,7 @@ public class DeployedMtaDto {
     private Set<String> services;
 
     protected DeployedMtaDto() {
-        // Required by JAXB;
+        // Required by JAXB
     }
 
     public DeployedMtaDto(DeployedMta mta) {

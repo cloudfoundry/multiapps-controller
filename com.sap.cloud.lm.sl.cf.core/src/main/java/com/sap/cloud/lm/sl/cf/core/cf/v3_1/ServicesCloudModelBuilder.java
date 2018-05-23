@@ -4,14 +4,12 @@ import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.isService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
@@ -35,7 +33,7 @@ public class ServicesCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1
     }
 
     @Override
-    public List<CloudServiceExtended> build(Set<String> modules) throws SLException {
+    public List<CloudServiceExtended> build() {
         List<CloudServiceExtended> services = new ArrayList<>();
         for (Resource resource : deploymentDescriptor.getResources1_0()) {
             if (isService(resource, propertiesAccessor)) {

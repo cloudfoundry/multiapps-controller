@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -20,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
@@ -50,7 +48,7 @@ public class ServicesCloudModelBuilder {
         this.userMessageLogger = userMessageLogger;
     }
 
-    public List<CloudServiceExtended> build(Set<String> modules) throws SLException {
+    public List<CloudServiceExtended> build() {
         List<CloudServiceExtended> services = new ArrayList<>();
         for (Resource resource : deploymentDescriptor.getResources1_0()) {
             if (isService(resource, propertiesAccessor)) {
@@ -60,7 +58,7 @@ public class ServicesCloudModelBuilder {
         return services;
     }
 
-    protected CloudServiceExtended getService(Resource resource) throws SLException {
+    protected CloudServiceExtended getService(Resource resource) {
         Map<String, Object> parameters = propertiesAccessor.getParameters(resource);
         ResourceType serviceType = getResourceType(parameters);
         boolean isOptional = isOptional(resource);
@@ -78,20 +76,20 @@ public class ServicesCloudModelBuilder {
     }
 
     protected CloudServiceExtended createService(String serviceName, ResourceType serviceType, boolean isOptional,
-        boolean shouldIgnoreUpdateErrors, Map<String, Object> parameters) throws ContentException {
+        boolean shouldIgnoreUpdateErrors, Map<String, Object> parameters) {
         if (serviceType.equals(ResourceType.MANAGED_SERVICE)) {
             return createManagedService(serviceName, isOptional, shouldIgnoreUpdateErrors, parameters);
         } else if (serviceType.equals(ResourceType.USER_PROVIDED_SERVICE)) {
             return createUserProvidedService(serviceName, isOptional, shouldIgnoreUpdateErrors, parameters);
         } else if (serviceType.equals(ResourceType.EXISTING_SERVICE)) {
-            return createExistingService(serviceName, isOptional, shouldIgnoreUpdateErrors, parameters);
+            return createExistingService(serviceName, isOptional, shouldIgnoreUpdateErrors);
         }
         return null;
     }
 
     @SuppressWarnings("unchecked")
     protected CloudServiceExtended createManagedService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors,
-        Map<String, Object> parameters) throws ContentException {
+        Map<String, Object> parameters) {
         String label = (String) parameters.get(SupportedParameters.SERVICE);
         List<String> alternativeLabels = (List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
             Collections.emptyList());
@@ -106,7 +104,7 @@ public class ServicesCloudModelBuilder {
     }
 
     protected CloudServiceExtended createUserProvidedService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors,
-        Map<String, Object> parameters) throws ContentException {
+        Map<String, Object> parameters) {
         Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
         String label = (String) parameters.get(SupportedParameters.SERVICE);
         if (label != null) {
@@ -116,14 +114,13 @@ public class ServicesCloudModelBuilder {
             shouldIgnoreUpdateErrors);
     }
 
-    protected CloudServiceExtended createExistingService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors,
-        Map<String, Object> parameters) throws ContentException {
+    protected CloudServiceExtended createExistingService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors) {
         return createCloudService(serviceName, null, null, null, null, null, Collections.emptyMap(), Collections.emptyList(), isOptional,
             false, shouldIgnoreUpdateErrors);
     }
 
     @SuppressWarnings("unchecked")
-    protected Map<String, Object> getServiceParameters(String serviceName, Map<String, Object> parameters) throws ContentException {
+    protected Map<String, Object> getServiceParameters(String serviceName, Map<String, Object> parameters) {
         Object serviceParameters = parameters.get(SupportedParameters.SERVICE_CONFIG);
         if (serviceParameters == null) {
             return Collections.emptyMap();

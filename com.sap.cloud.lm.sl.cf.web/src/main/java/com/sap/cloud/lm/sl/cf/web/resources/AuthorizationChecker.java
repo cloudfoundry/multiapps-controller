@@ -26,7 +26,7 @@ public class AuthorizationChecker {
         String organization, String space, String action) {
         try {
             if (!AuthorizationUtil.checkPermissions(clientProvider, userInfo, organization, space,
-                request.getMethod().equals(HttpMethod.GET), null)) {
+                request.getMethod().equals(HttpMethod.GET))) {
                 String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_ORG_SPACE, action, organization, space);
                 failWithForbiddenStatus(message);
             }

@@ -280,7 +280,7 @@ public class ConfigurationSubscriptionDaoTest {
 
         private static ConfigurationSubscription findOne(FindOneTestInput input, ConfigurationSubscriptionDao dao) {
             List<ConfigurationSubscription> subscriptions = dao.findAll(input.mtaId, input.appName, input.spaceId, input.resourceName);
-            assertEquals(subscriptions.size(), 1);
+            assertEquals(1, subscriptions.size());
             return subscriptions.get(0);
         }
 

@@ -77,7 +77,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
             Map<String, List<ConfigurationEntry>> updatedModuleNames = updateModuleNames(configurationEntries, apps);
             StepsUtil.setConfigurationEntriesToPublish(execution.getContext(), updatedModuleNames);
 
-            List<CloudServiceExtended> allServices = getServicesCloudModelBuilder(execution.getContext()).build(mtaArchiveModules);
+            List<CloudServiceExtended> allServices = getServicesCloudModelBuilder(execution.getContext()).build();
 
             // Build a list of services for binding and save them in the context:
             StepsUtil.setServicesToBind(execution.getContext(), allServices);

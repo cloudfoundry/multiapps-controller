@@ -124,13 +124,13 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
                 defaultTagsForService);
             triggeredOperations.put(service.getName(), triggeredOperation);
             List<ServiceKey> serviceKeysForService = serviceKeys.getOrDefault(service.getName(), Collections.emptyList());
-            createOrUpdateServiceKeys(serviceKeysForService, service, existingService, client, execution);
+            createOrUpdateServiceKeys(serviceKeysForService, service, client, execution);
         }
         return triggeredOperations;
     }
 
-    private void createOrUpdateServiceKeys(List<ServiceKey> serviceKeys, CloudServiceExtended service, CloudService existingService,
-        CloudFoundryOperations client, ExecutionWrapper execution) throws SLException {
+    private void createOrUpdateServiceKeys(List<ServiceKey> serviceKeys, CloudServiceExtended service, CloudFoundryOperations client,
+        ExecutionWrapper execution) throws SLException {
         // TODO: Do not use client extensions when the CF Java Client we use supports managing of
         // service keys.
         ClientExtensions clientExtensions = execution.getClientExtensions();
@@ -257,18 +257,16 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         }
         ServiceOperationType type = null;
         if (actions.contains(ServiceAction.ACTION_UPDATE_SERVICE_PLAN)) {
-            serviceOperationExecutor.executeServiceOperation(service, () -> updateServicePlan(execution.getContext(), client, service),
-                getStepLogger());
+            serviceOperationExecutor.executeServiceOperation(service, () -> updateServicePlan(client, service), getStepLogger());
             type = ServiceOperationType.UPDATE;
         }
 
         if (actions.contains(ServiceAction.ACTION_UPDATE_CREDENTIALS)) {
-            serviceOperationExecutor.executeServiceOperation(service,
-                () -> updateServiceCredentials(execution.getContext(), client, service), getStepLogger());
+            serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceCredentials(client, service), getStepLogger());
             type = ServiceOperationType.UPDATE;
         }
         if (actions.contains(ServiceAction.ACTION_UPDATE_TAGS)) {
-            serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceTags(execution, client, service), getStepLogger());
+            serviceOperationExecutor.executeServiceOperation(service, () -> updateServiceTags(client, service), getStepLogger());
             type = ServiceOperationType.UPDATE;
         }
 
@@ -279,7 +277,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return type;
     }
 
-    private void updateServicePlan(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service) {
+    private void updateServicePlan(CloudFoundryOperations client, CloudServiceExtended service) {
         getStepLogger()
             .debug(MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(), service.getPlan()));
         if (service.shouldIgnoreUpdateErrors()) {
@@ -342,8 +340,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
     }
 
-    private void updateServiceTags(ExecutionWrapper execution, CloudFoundryOperations client, CloudServiceExtended service)
-        throws SLException {
+    private void updateServiceTags(CloudFoundryOperations client, CloudServiceExtended service) throws SLException {
         // TODO: Remove the service.isUserProvided() check when user provided services support tags.
         // See the following issue for more info:
         // https://www.pivotaltracker.com/n/projects/966314/stories/105674948
@@ -373,8 +370,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return defaultTags;
     }
 
-    private void updateServiceCredentials(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service)
-        throws SLException {
+    private void updateServiceCredentials(CloudFoundryOperations client, CloudServiceExtended service) throws SLException {
         getStepLogger().info(Messages.UPDATING_SERVICE, service.getName());
         if (service.shouldIgnoreUpdateErrors()) {
             serviceUpdater.updateServiceParametersQuietly(client, service.getName(), service.getCredentials());
@@ -475,13 +471,18 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
         List<CloudApplication> existingApps = client.getApplications();
         return bindings.stream()
-            .map(binding -> getApplication(client, binding, existingApps).getName())
+            .map(binding -> getApplication(existingApps, binding).getName())
             .filter(boundApp -> appNames.contains(boundApp))
             .collect(Collectors.toList());
     }
 
-    private CloudApplication getApplication(CloudFoundryOperations client, CloudServiceBinding binding, List<CloudApplication> apps) {
-        return apps.stream().filter(app -> app.getMeta().getGuid().equals(binding.getAppGuid())).findFirst().get();
+    private CloudApplication getApplication(List<CloudApplication> apps, CloudServiceBinding binding) {
+        return apps.stream()
+            .filter(app -> app.getMeta()
+                .getGuid()
+                .equals(binding.getAppGuid()))
+            .findFirst()
+            .get();
     }
 
     private enum ServiceAction {

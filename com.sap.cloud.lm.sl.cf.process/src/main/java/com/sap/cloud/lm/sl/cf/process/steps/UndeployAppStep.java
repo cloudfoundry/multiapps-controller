@@ -98,11 +98,13 @@ public class UndeployAppStep extends SyncActivitiStep {
         getStepLogger().info(Messages.DELETING_APP_ROUTES, app.getName());
         List<CloudRoute> appRoutes = applicationRoutesGetter.getRoutes(client, app.getName());
         client.updateApplicationUris(app.getName(), Collections.emptyList());
-        app.getUris().stream().forEach(uri -> deleteApplicationRoute(app, appRoutes, uri, client));
+        app.getUris()
+            .stream()
+            .forEach(uri -> deleteApplicationRoutes(appRoutes, uri, client));
         getStepLogger().debug(Messages.DELETED_APP_ROUTES, app.getName());
     }
 
-    private void deleteApplicationRoute(CloudApplication app, List<CloudRoute> routes, String uri, CloudFoundryOperations client) {
+    private void deleteApplicationRoutes(List<CloudRoute> routes, String uri, CloudFoundryOperations client) {
         getStepLogger().info(Messages.DELETING_ROUTE, uri);
         boolean isPortBasedRouting = isPortBasedRouting(client);
         try {

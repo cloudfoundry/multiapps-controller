@@ -115,7 +115,7 @@ public class AuthorizationUtilTest {
 
     @Test
     public void checkPermissionsTest() {
-        boolean isAuthorized = AuthorizationUtil.checkPermissions(clientProvider, userInfo, ORG, SPACE, false, "1");
+        boolean isAuthorized = AuthorizationUtil.checkPermissions(clientProvider, userInfo, ORG, SPACE, false);
         boolean shouldBeAuthorized = hasAccess && hasPermissions;
         assertTrue(shouldBeAuthorized == isAuthorized);
     }

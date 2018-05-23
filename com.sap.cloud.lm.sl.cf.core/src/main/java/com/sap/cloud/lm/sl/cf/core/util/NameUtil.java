@@ -35,7 +35,7 @@ public class NameUtil {
     }
 
     public static String getWithoutNamespacePrefix(String name) {
-        int i = name.lastIndexOf(".");
+        int i = name.lastIndexOf('.');
         return (i >= 0) ? name.substring(i + 1) : name;
     }
 

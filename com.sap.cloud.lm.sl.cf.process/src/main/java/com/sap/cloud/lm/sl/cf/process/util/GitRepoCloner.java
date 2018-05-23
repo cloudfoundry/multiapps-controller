@@ -76,8 +76,7 @@ public class GitRepoCloner {
         cloneCommand.setTimeout(290);
         cloneCommand.setDirectory(repoDir.toAbsolutePath().toFile());
         cloneCommand.setURI(gitUri);
-        LOGGER.debug(
-            MessageFormat.format("cloning repo with url {0} in repo dir {1} ref '{2}'", gitUri, repoDir.toAbsolutePath().toString()));
+        LOGGER.debug(MessageFormat.format("cloning repo with url {0} in repo dir {1} ref '{2}'", gitUri, repoDir.toAbsolutePath()));
         try (Git callInstance = cloneCommand.call()) {
             Repository repo = callInstance.getRepository();
             repo.close();

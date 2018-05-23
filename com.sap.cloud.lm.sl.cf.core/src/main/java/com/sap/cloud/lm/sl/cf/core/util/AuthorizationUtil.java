@@ -54,7 +54,7 @@ public class AuthorizationUtil {
     }
 
     public static boolean checkPermissions(CloudFoundryClientProvider clientProvider, UserInfo userInfo, String orgName, String spaceName,
-        boolean readOnly, String processId) throws SLException {
+        boolean readOnly) throws SLException {
         if (ApplicationConfiguration.getInstance().areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }

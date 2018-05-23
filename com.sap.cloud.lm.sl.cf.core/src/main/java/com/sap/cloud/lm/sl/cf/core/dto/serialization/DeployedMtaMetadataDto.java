@@ -13,7 +13,7 @@ public class DeployedMtaMetadataDto {
     private String version;
 
     protected DeployedMtaMetadataDto() {
-        // Required by JAXB;
+        // Required by JAXB
     }
 
     public DeployedMtaMetadataDto(DeployedMtaMetadata metadata) {

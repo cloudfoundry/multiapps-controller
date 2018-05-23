@@ -129,7 +129,7 @@ public class UpdateAppStep extends CreateAppStep {
 
     private boolean updateApplicationServices(CloudApplicationExtended app, CloudApplication existingApp, CloudFoundryOperations client,
         ExecutionWrapper execution) throws SLException, FileStorageException {
-        boolean hasUnboundServices = unbindNotRequiredServices(existingApp, app.getServices(), client, execution.getContext());
+        boolean hasUnboundServices = unbindNotRequiredServices(existingApp, app.getServices(), client);
         List<String> services = app.getServices();
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters(execution.getContext(), app);
         Set<String> updatedServices = getUpdatedServices(execution.getContext());
@@ -137,19 +137,18 @@ public class UpdateAppStep extends CreateAppStep {
         return hasUnboundServices || hasUpdatedServices;
     }
 
-    private boolean unbindNotRequiredServices(CloudApplication app, List<String> requiredServices, CloudFoundryOperations client,
-        DelegateExecution context) {
+    private boolean unbindNotRequiredServices(CloudApplication app, List<String> requiredServices, CloudFoundryOperations client) {
         boolean hasUnbindedService = false;
         for (String serviceName : app.getServices()) {
             if (!requiredServices.contains(serviceName)) {
-                unbindService(app.getName(), serviceName, client, context);
+                unbindService(app.getName(), serviceName, client);
                 hasUnbindedService = true;
             }
         }
         return hasUnbindedService;
     }
 
-    private void unbindService(String appName, String serviceName, CloudFoundryOperations client, DelegateExecution context) {
+    private void unbindService(String appName, String serviceName, CloudFoundryOperations client) {
         getStepLogger().debug(Messages.UNBINDING_APP_FROM_SERVICE, appName, serviceName);
         client.unbindService(appName, serviceName);
     }
@@ -190,7 +189,7 @@ public class UpdateAppStep extends CreateAppStep {
             }
             Map<String, Object> existingBindingParameters = getBindingParametersOrDefault(existingBindingForApplication);
             if (!Objects.equals(existingBindingParameters, bindingParametersForCurrentService)) {
-                unbindService(existingApp.getName(), serviceName, client, execution.getContext());
+                unbindService(existingApp.getName(), serviceName, client);
                 bindService(execution, client, app.getName(), serviceName, bindingParametersForCurrentService);
                 hasUpdatedService = true;
                 continue;

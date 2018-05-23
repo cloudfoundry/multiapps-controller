@@ -59,16 +59,18 @@ public class DropConfigurationRegistryUniqueConstraint extends AbstractChange {
 
     private String retrieveConstraintName(JdbcConnection jdbcConnection) throws Exception {
         PreparedStatement preparedStatement = null;
+        ResultSet result = null;
 
         try {
             String searchQuery = getSearchQuery(jdbcConnection);
             preparedStatement = jdbcConnection.prepareStatement(searchQuery);
-            ResultSet result = preparedStatement.executeQuery();
+            result = preparedStatement.executeQuery();
             result.next();
             String constraintName = result.getString(CONSTRAINT_NAME_COLUMN);
             logger.info(String.format("Executed statement '%s' returned constraint name: %s", searchQuery, constraintName));
             return constraintName;
         } finally {
+            JdbcUtil.closeQuietly(result);
             JdbcUtil.closeQuietly(preparedStatement);
         }
     }
