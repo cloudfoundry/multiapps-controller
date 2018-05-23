@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 public enum StepPhase {
-    EXECUTE("execute"), POLL("poll"), RETRY("retry"), WAIT("wait"), DONE("done");
+    EXECUTE("execute"), POLL("poll"), RETRY("retry"), DONE("done");
 
     private String type;
 

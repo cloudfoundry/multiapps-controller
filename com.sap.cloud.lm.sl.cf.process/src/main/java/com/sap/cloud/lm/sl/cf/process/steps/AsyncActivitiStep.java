@@ -14,10 +14,6 @@ public abstract class AsyncActivitiStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         StepPhase stepPhase = StepsUtil.getStepPhase(execution);
-        if (stepPhase == StepPhase.WAIT) {
-            return StepPhase.WAIT;
-        }
-
         if (stepPhase == StepPhase.POLL) {
             return executeStepExecution(execution);
         }
