@@ -45,8 +45,6 @@ public final class Messages {
     public static final String CONFLICTING_APP_COLORS = "There are both blue and green applications already deployed for MTA \"{0}\"";
     public static final String UNABLE_TO_PARSE_SUBSCRIPTION = "Unable to parse configuration subscription: {0}";
     public static final String COLUMN_VALUE_SHOULD_NOT_BE_NULL = "Configuration subscription''s \"{0}\" column value should not be null";
-    public static final String CONTEXT_EXTENSION_ENTRY_NOT_FOUND = "Context extension element with ID \"{0}\" does not exist";
-    public static final String CONTEXT_EXTENSION_ENTRY_ALREADY_EXISTS = "Context extension element with Process ID \"{0}\", Name \"{1}\" and Value \"{2}\" already exists";
     public static final String COULD_NOT_COMPUTE_SPACE_ID = "Could not compute space ID for org \"{0}\" and space \"{1}\"";
     public static final String THE_DEPLOYMENT_DESCRIPTOR_0_SPECIFIES_NOT_SUPPORTED_MTA_VERSION_1 = "The deployment descriptor \"{0}\" specifies a non-supported MTA version \"{1}\"";
     public static final String CANNOT_CLEAN_MULTI_TARGET_APP_ASSEMBLY_TARGET_DIR_0 = "Cannot clean multi-target app assembly target dir \"{0}\"";

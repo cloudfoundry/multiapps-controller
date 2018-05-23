@@ -19,7 +19,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
@@ -28,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -47,9 +45,6 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
-    @Mock
-    ContextExtensionDao dao;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

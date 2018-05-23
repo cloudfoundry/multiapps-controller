@@ -10,8 +10,6 @@ import org.activiti.engine.runtime.JobQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
-import com.sap.cloud.lm.sl.cf.core.model.ContextExtension;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -28,7 +26,6 @@ public class ProcessStepHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessStepHelper.class);
     private static final String CORRELATION_ID = "correlationId";
 
-    private ContextExtensionDao contextExtensionDao;
     private ProgressMessageService progressMessageService;
     private ProcessLoggerProviderFactory processLoggerProviderFactory;
     private TaskIndexProvider taskIndexProvider;
@@ -38,11 +35,10 @@ public class ProcessStepHelper {
     private boolean isInError;
 
     public ProcessStepHelper(ProgressMessageService progressMessageService, ProcessLoggerProviderFactory processLoggerProviderFactory,
-        TaskIndexProvider stepIndexProvider, ContextExtensionDao contextExtensionDao) {
+        TaskIndexProvider stepIndexProvider) {
         this.progressMessageService = progressMessageService;
         this.processLoggerProviderFactory = processLoggerProviderFactory;
         this.taskIndexProvider = stepIndexProvider;
-        this.contextExtensionDao = contextExtensionDao;
     }
 
     protected void postExecuteStep(DelegateExecution context, StepPhase state) {
@@ -132,13 +128,12 @@ public class ProcessStepHelper {
             context.removeVariable(Constants.RETRY_TASK_ID);
         }
         String processId = context.getProcessInstanceId();
-        ContextExtension contextExtension = contextExtensionDao.find(processId, Constants.VAR_ERROR_TYPE);
-        if (contextExtension == null) {
+        ErrorType errorType = StepsUtil.getErrorType(context);
+        if (errorType == null) {
             return;
         }
-        LOGGER.debug(MessageFormat.format(Messages.DELETING_CONTEXT_EXTENSION_WITH_ID_NAME_AND_VALUE_FOR_PROCESS, contextExtension.getId(),
-            contextExtension.getName(), contextExtension.getValue(), processId));
-        contextExtensionDao.remove(contextExtension.getId());
+        LOGGER.debug(MessageFormat.format(Messages.DELETING_ERROR_TYPE_O_FOR_PROCESS_1, errorType, processId));
+        context.removeVariable(Constants.VAR_ERROR_TYPE);
     }
 
     protected void logException(DelegateExecution context, Throwable t) {
@@ -148,9 +143,9 @@ public class ProcessStepHelper {
         storeExceptionInProgressMessageService(context, t);
 
         if (t instanceof ContentException) {
-            StepsUtil.setErrorType(context.getProcessInstanceId(), contextExtensionDao, ErrorType.CONTENT_ERROR);
+            StepsUtil.setErrorType(context, ErrorType.CONTENT_ERROR);
         } else {
-            StepsUtil.setErrorType(context.getProcessInstanceId(), contextExtensionDao, ErrorType.UNKNOWN_ERROR);
+            StepsUtil.setErrorType(context, ErrorType.UNKNOWN_ERROR);
         }
     }
 

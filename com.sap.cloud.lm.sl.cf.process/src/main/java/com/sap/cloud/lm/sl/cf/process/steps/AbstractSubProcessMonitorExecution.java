@@ -10,7 +10,6 @@ import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.Job;
 
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -30,7 +29,7 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
             .debug(Messages.STARTING_MONITORING_SUBPROCESS, subProcessId);
         try {
             HistoricProcessInstance subProcess = getSubProcess(execution.getContext(), subProcessId);
-            return getSubProcessStatus(subProcess, execution);
+            return getSubProcessStatus(execution, subProcess);
         } catch (Exception e) {
             throw new MonitoringException(e, Messages.ERROR_MONITORING_SUBPROCESS, subProcessId);
         }
@@ -44,9 +43,9 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
             .singleResult();
     }
 
-    private AsyncExecutionState getSubProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution)
+    private AsyncExecutionState getSubProcessStatus(ExecutionWrapper execution, HistoricProcessInstance subProcess)
         throws MonitoringException {
-        ErrorType errorType = getSubProcessErrorType(subProcess, execution.getContextExtensionDao());
+        ErrorType errorType = StepsUtil.getErrorType(execution.getContext());
 
         Execution subProcessInstanceExecution = activitiFacade.getProcessExecution(subProcess.getId());
         if (subProcessInstanceExecution != null) {
@@ -78,7 +77,7 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
         String processInstanceId = execution.getContext()
             .getProcessInstanceId();
         activitiFacade.suspendProcessInstance(processInstanceId);
-        StepsUtil.setStepPhase(execution, StepPhase.POLL);
+        StepsUtil.setStepPhase(execution.getContext(), StepPhase.POLL);
         return AsyncExecutionState.RUNNING;
     }
 
@@ -96,10 +95,6 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
             return onSuccess(execution.getContext());
         }
         return onAbort(execution.getContext(), errorType);
-    }
-
-    private ErrorType getSubProcessErrorType(HistoricProcessInstance subProcess, ContextExtensionDao contextExtensionDao) {
-        return StepsUtil.getErrorType(subProcess.getId(), contextExtensionDao);
     }
 
     protected abstract AsyncExecutionState onError(DelegateExecution context, ErrorType errorType) throws MonitoringException;

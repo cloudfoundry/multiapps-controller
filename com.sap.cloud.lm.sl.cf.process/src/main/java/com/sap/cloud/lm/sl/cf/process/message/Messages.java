@@ -115,8 +115,6 @@ public class Messages {
     public static final String ERROR_CREATING_SERVICE_BROKERS = "Error creating service brokers";
     public static final String ERROR_DELETING_SERVICE_BROKERS = "Error deleting service brokers";
     public static final String ERROR_UPDATING_SUBSCRIBERS = "Error updating subscribers";
-    public static final String ERROR_UPDATING_ACTIVITI_CONTEXT = "Error updating activiti context";
-    public static final String ERROR_UPDATING_CONTEXT_EXTENSION = "Error updating context extension";
     public static final String ERROR_NO_SERVICE_URL_SPECIFIED = "No service URL is specified for service \"{0}\" and application \"{1}\"";
     public static final String ERROR_RETRIEVING_OAUT_TOKEN = "Error retrieving OAuth token";
     public static final String ERROR_PROCESSING_GIT_URI = "Error processing Git URI";
@@ -405,7 +403,7 @@ public class Messages {
     public static final String TRIGGERED_SERVICE_OPERATIONS = "Triggered service operations: {0}";
     public static final String REMAINING_SERVICES_TO_POLL = "Remaining services to poll: {0}";
     public static final String LAST_OPERATION_FOR_SERVICE = "Last operation for service \"{0}\": {1}";
-    public static final String DELETING_CONTEXT_EXTENSION_WITH_ID_NAME_AND_VALUE_FOR_PROCESS = "Deleting context extension with ID \"{0}\", name \"{1}\" and value \"{2}\" for process \"{3}\"";
+    public static final String DELETING_ERROR_TYPE_O_FOR_PROCESS_1 = "Deleting error type \"{0}\" for process \"{1}\"";
     public static final String ERROR_TYPE_OF_SUBPROCESS = "Error type of subprocess \"{0}\": {1}";
     public static final String TARGET = "Target: {0}";
     public static final String UPDATED_SERVICES = "Updated services: {0}";
