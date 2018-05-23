@@ -49,7 +49,7 @@ public class AuthorizationChecker {
     public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, String organization, String space, String action) {
         try {
             if (!checkPermissions(userInfo, organization, space, request.getMethod()
-                .equals(HttpMethod.GET), null)) {
+                .equals(HttpMethod.GET))) {
                 String message = MessageFormat.format(Messages.UNAUTHORISED_OPERATION_ORG_SPACE, action, organization, space);
                 failWithForbiddenStatus(message);
             }
@@ -72,7 +72,7 @@ public class AuthorizationChecker {
         }
     }
 
-    boolean checkPermissions(UserInfo userInfo, String orgName, String spaceName, boolean readOnly, String processId) throws SLException {
+    boolean checkPermissions(UserInfo userInfo, String orgName, String spaceName, boolean readOnly) {
         if (applicationConfiguration.areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }
@@ -83,7 +83,7 @@ public class AuthorizationChecker {
         return checkPermissions(client, userInfo, orgName, spaceName, readOnly);
     }
 
-    boolean checkPermissions(UserInfo userInfo, String spaceGuid, boolean readOnly) throws SLException {
+    boolean checkPermissions(UserInfo userInfo, String spaceGuid, boolean readOnly) {
         if (applicationConfiguration.areDummyTokensEnabled() && isDummyToken(userInfo)) {
             return true;
         }

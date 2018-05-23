@@ -42,6 +42,7 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1_0.H
         super(descriptorHandler);
     }
 
+    @Override
     protected DescriptorHandler getHandler() {
         return cast(super.getHandler());
     }

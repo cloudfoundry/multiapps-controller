@@ -61,6 +61,7 @@ public class Messages {
     public static final String SAME_VERSION_ALREADY_DEPLOYED = "The same version of your MTA is already deployed. Include the command line option \"--version-rule SAME_HIGHER\" in your deploy command if you want to allow redeployments.";
     public static final String VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE = "Version rule \"{0}\" does not allow deployment type \"{1}\".";
     public static final String UNKNOWN_UPLOAD_STATUS = "Unknown upload status: {0}";
+    public static final String APPLICATION_NOT_FOUND_IN_REBUILT_CLOUD_MODEL = "Application \"{0}\" could not be found in the rebuilt cloud model";
 
     // Audit log messages
 

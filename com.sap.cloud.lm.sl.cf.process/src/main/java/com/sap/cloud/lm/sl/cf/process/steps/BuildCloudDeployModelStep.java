@@ -67,7 +67,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
             StepsUtil.setServiceKeysCredentialsToInject(execution.getContext(), new HashMap<>());
             StepsUtil.setUseIdleUris(execution.getContext(), false);
 
-            List<CloudServiceExtended> allServices = getServicesCloudModelBuilder(execution.getContext()).build(mtaArchiveModules);
+            List<CloudServiceExtended> allServices = getServicesCloudModelBuilder(execution.getContext()).build();
 
             // Build a list of services for binding and save them in the context:
             StepsUtil.setServicesToBind(execution.getContext(), allServices);

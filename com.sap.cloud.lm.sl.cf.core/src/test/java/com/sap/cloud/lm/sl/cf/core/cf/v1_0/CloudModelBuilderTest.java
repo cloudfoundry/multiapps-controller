@@ -506,7 +506,7 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudServiceExtended>>() {
             @Override
             public List<CloudServiceExtended> call() throws Exception {
-                return servicesBuilder.build(mtaArchiveModules);
+                return servicesBuilder.build();
             }
         }, expected[1], getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }

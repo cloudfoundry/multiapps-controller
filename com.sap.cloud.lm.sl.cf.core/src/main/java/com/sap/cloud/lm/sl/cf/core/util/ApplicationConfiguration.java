@@ -954,10 +954,8 @@ public class ApplicationConfiguration {
 
     private String getCronExpression(String name, String defaultValue) {
         String value = environment.getString(name);
-        if (value != null) {
-            if (org.quartz.CronExpression.isValidExpression(value)) {
-                return value;
-            }
+        if (value != null && org.quartz.CronExpression.isValidExpression(value)) {
+            return value;
         }
         LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
         return defaultValue;

@@ -71,7 +71,7 @@ public class JwtTokenParser implements TokenParser {
 
     private Pair<String, String> getCachedTokenKey() {
         if (tokenKey == null) {
-            synchronized (this.getClass()) {
+            synchronized (this) {
                 if (tokenKey == null) {
                     refreshTokenKey();
                 }

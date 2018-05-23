@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +102,8 @@ public class RebuildApplicationDeployModelStep extends SyncActivitiStep {
             .filter(app -> app.getName()
                 .equals(applicationName))
             .findFirst()
-            .get();
+            .orElseThrow(() -> new IllegalStateException(
+                MessageFormat.format(Messages.APPLICATION_NOT_FOUND_IN_REBUILT_CLOUD_MODEL, applicationName)));
     }
 
 }

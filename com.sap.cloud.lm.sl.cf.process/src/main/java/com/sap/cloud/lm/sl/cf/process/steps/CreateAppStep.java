@@ -122,7 +122,7 @@ public class CreateAppStep extends SyncActivitiStep {
         CloudApplicationExtended app, Map<String, String> appEnv) {
         Map<String, String> appServiceKeysCredentials = buildServiceKeysCredentials(client, app, appEnv);
         app.setEnv(MapUtil.upcast(appEnv));
-        updateContextWithServiceKeysCredentials(context, client, app, appServiceKeysCredentials);
+        updateContextWithServiceKeysCredentials(context, app, appServiceKeysCredentials);
     }
 
     private Map<String, String> buildServiceKeysCredentials(CloudFoundryOperations client, CloudApplicationExtended app,
@@ -140,8 +140,8 @@ public class CreateAppStep extends SyncActivitiStep {
         return appServiceKeysCredentials;
     }
 
-    private void updateContextWithServiceKeysCredentials(DelegateExecution context, CloudFoundryOperations client,
-        CloudApplicationExtended app, Map<String, String> appServiceKeysCredentials) {
+    private void updateContextWithServiceKeysCredentials(DelegateExecution context, CloudApplicationExtended app,
+        Map<String, String> appServiceKeysCredentials) {
         Map<String, Map<String, String>> serviceKeysCredentialsToInject = StepsUtil.getServiceKeysCredentialsToInject(context);
         serviceKeysCredentialsToInject.put(app.getName(), appServiceKeysCredentials);
 

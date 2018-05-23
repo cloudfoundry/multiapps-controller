@@ -109,6 +109,6 @@ public class MemoryParametersParserTest {
     public void testDefaultMemoryParsing() {
         assumeTrue(memoryString == null);
         Integer memory = parser.parse(new ArrayList<>());
-        assertEquals(memory, DEFAULT_MEMORY);
+        assertEquals(DEFAULT_MEMORY, memory);
     }
 }

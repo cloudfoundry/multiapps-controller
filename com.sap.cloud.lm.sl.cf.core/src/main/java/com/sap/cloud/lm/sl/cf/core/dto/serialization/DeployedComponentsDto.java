@@ -25,7 +25,7 @@ public class DeployedComponentsDto {
     private List<String> standaloneApps;
 
     protected DeployedComponentsDto() {
-        // Required by JAXB;
+        // Required by JAXB
     }
 
     public DeployedComponentsDto(DeployedComponents components) {
