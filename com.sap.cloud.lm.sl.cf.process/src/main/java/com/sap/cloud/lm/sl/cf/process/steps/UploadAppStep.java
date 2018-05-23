@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static java.text.MessageFormat.format;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,9 +7,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -29,7 +24,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
 import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
 import com.sap.cloud.lm.sl.cf.client.util.StreamUtil;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
-import com.sap.cloud.lm.sl.cf.core.dao.ContextExtensionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -48,8 +42,6 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     private static final String ARCHIVE_FILE_SEPARATOR = "/";
 
     @Inject
-    protected ScheduledExecutorService asyncTaskExecutor;
-    @Inject
     protected ActivitiFacade activitiFacade;
     @Inject
     protected ApplicationConfiguration configuration;
@@ -66,25 +58,60 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
             CloudFoundryOperations client = execution.getCloudFoundryClientWithoutTimeout();
 
-            Future<?> future = asyncTaskExecutor.submit(getUploadAppStepRunnable(execution, app, client));
-            asyncTaskExecutor.schedule(getUploadAppStepRunnableKiller(execution.getContext(), future), uploadAppTimeoutSeconds,
-                TimeUnit.SECONDS);
+            uploadApp(execution, app, client);
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
             throw e;
         }
-        return StepPhase.WAIT;
+        return StepPhase.POLL;
     }
 
-    private Runnable getUploadAppStepRunnableKiller(DelegateExecution context, Future<?> future) {
-        return () -> {
-            LOGGER.warn(format(Messages.CANCELING_UPLOAD_ASYNC_THREAD, context.getProcessInstanceId()));
-            if (future.cancel(true)) {
-                LOGGER.warn(format(Messages.ASYNC_THREAD_CANCELLED, context.getProcessInstanceId()));
+    private void uploadApp(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client) {
+        String processId = execution.getContext()
+            .getProcessInstanceId();
+        getStepLogger().trace("Started upload app step runnable for process \"{0}\"", processId);
+        try {
+            attemptToUploadApp(execution, app, client);
+        } catch (SLException | FileStorageException e) {
+            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
+            logException(execution.getContext(), e);
+            throw new SLException(e, e.getMessage());
+        } catch (CloudFoundryException cfe) {
+            CloudControllerException e = new CloudControllerException(cfe);
+            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
+            logException(execution.getContext(), e);
+            throw e;
+        } catch (Throwable e) {
+            Throwable eWithMessage = getWithProperMessage(e);
+            logException(execution.getContext(), eWithMessage);
+            if (e instanceof Exception) {
+                // only wrap Runtime & checked exceptions as Runtime ones
+                throw new RuntimeException(eWithMessage.getMessage(), eWithMessage);
             } else {
-                LOGGER.warn(format(Messages.ASYNC_THREAD_COMPLETED, context.getProcessInstanceId()));
+                // Errors and other should be handled elsewhere
+                throw e;
             }
-        };
+        }
+        getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", execution.getContext()
+            .getProcessInstanceId());
+    }
+
+    private void attemptToUploadApp(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client)
+        throws FileStorageException {
+        AsyncExecutionState status = AsyncExecutionState.ERROR;
+        try {
+            String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+            String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
+            getStepLogger().debug("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName());
+            String uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
+            execution.getContext()
+                .setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
+            getStepLogger().debug("Started async upload of application \"{0}\"", fileName, app.getName());
+            status = AsyncExecutionState.RUNNING;
+        } finally {
+            execution.getContext()
+                .setVariable(Constants.VAR_UPLOAD_STATE, status.name());
+        }
     }
 
     private String asyncUploadFiles(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app, String appArchiveId,
@@ -122,7 +149,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         String appNewFileDigest = applicationFileDigestDetector.detectNewAppFileDigest(applicationFile);
         String currentFileDigest = applicationFileDigestDetector.detectCurrentAppFileDigest();
         attemptToUpdateApplicationDigest(client, app, appNewFileDigest, currentFileDigest);
-        updateContextExtension(execution, hasAppFileDigestChanged(appNewFileDigest, currentFileDigest));
+        setAppContentChanged(execution, hasAppFileDigestChanged(appNewFileDigest, currentFileDigest));
     }
 
     private void attemptToUpdateApplicationDigest(CloudFoundryOperations client, CloudApplication app, String newFileDigest,
@@ -139,11 +166,9 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         return !newFileDigest.equals(currentFileDigest);
     }
 
-    private void updateContextExtension(ExecutionWrapper execution, boolean appContentChanged) throws SLException {
-        ContextExtensionDao contextExtensionDao = execution.getContextExtensionDao();
-        String processId = execution.getContext()
-            .getProcessInstanceId();
-        contextExtensionDao.addOrUpdate(processId, Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(appContentChanged));
+    private void setAppContentChanged(ExecutionWrapper execution, boolean appContentChanged) {
+        execution.getContext()
+            .setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(appContentChanged));
     }
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(DelegateExecution context, CloudApplication app, File file) {
@@ -248,59 +273,6 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
             cleanUpTempFile(context, file);
         }
 
-    }
-
-    protected Runnable getUploadAppStepRunnable(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client) {
-        return () -> {
-            String processId = execution.getContext()
-                .getProcessInstanceId();
-            getStepLogger().trace("Started upload app step runnable for process \"{0}\"", processId);
-            try {
-                uploadApp(execution, app, client);
-            } catch (SLException | FileStorageException e) {
-                getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-                logException(execution.getContext(), e);
-                throw new SLException(e, e.getMessage());
-            } catch (CloudFoundryException cfe) {
-                CloudControllerException e = new CloudControllerException(cfe);
-                getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-                logException(execution.getContext(), e);
-                throw e;
-            } catch (Throwable e) {
-                Throwable eWithMessage = getWithProperMessage(e);
-                logException(execution.getContext(), eWithMessage);
-                if (e instanceof Exception) {
-                    // only wrap Runtime & checked exceptions as Runtime ones
-                    throw new RuntimeException(eWithMessage.getMessage(), eWithMessage);
-                } else {
-                    // Errors and other should be handled elsewhere
-                    throw e;
-                }
-            }
-            getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", execution.getContext()
-                .getProcessInstanceId());
-        };
-    }
-
-    private void uploadApp(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client)
-        throws FileStorageException {
-        AsyncExecutionState status = AsyncExecutionState.ERROR;
-        String processId = execution.getContext()
-            .getProcessInstanceId();
-        try {
-            String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
-            String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
-            getStepLogger().debug("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName());
-            String uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
-            execution.getContextExtensionDao()
-                .addOrUpdate(processId, Constants.VAR_UPLOAD_TOKEN, uploadToken);
-            getStepLogger().debug("Started async upload of application \"{0}\"", fileName, app.getName());
-            status = AsyncExecutionState.RUNNING;
-        } finally {
-            execution.getContextExtensionDao()
-                .addOrUpdate(processId, Constants.VAR_UPLOAD_STATE, status.name());
-            StepsUtil.setStepPhase(execution, StepPhase.POLL);
-        }
     }
 
     @Override
