@@ -56,6 +56,7 @@ public class SupportedParameters {
     public static final String HEALTH_CHECK_TIMEOUT = "health-check-timeout";
     public static final String HEALTH_CHECK_TYPE = "health-check-type";
     public static final String HEALTH_CHECK_HTTP_ENDPOINT = "health-check-http-endpoint";
+    public static final String UPLOAD_TIMEOUT = "upload-timeout";
     public static final String DISK_QUOTA = "disk-quota";
     public static final String MEMORY = "memory";
     public static final String INSTANCES = "instances";
@@ -155,10 +156,10 @@ public class SupportedParameters {
         .unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE, SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER,
             SERVICE_VERSION, SERVICE_CONFIG, SERVICE_CONFIG_PATH, SERVICE_TAGS, SERVICE_KEY_NAME)));
 
-    public static final Set<String> APP_ATTRIBUTES = Collections.unmodifiableSet(
-        new HashSet<>(Arrays.asList(EXECUTE_APP, SUCCESS_MARKER, FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID, REGISTER_SERVICE_URL,
-            REGISTER_SERVICE_URL_SERVICE_NAME, REGISTER_SERVICE_URL_SERVICE_URL, CREATE_SERVICE_BROKER, SERVICE_BROKER_NAME,
-            SERVICE_BROKER_USERNAME, SERVICE_BROKER_PASSWORD, SERVICE_BROKER_URL, SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START)));
+    public static final Set<String> APP_ATTRIBUTES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(EXECUTE_APP, SUCCESS_MARKER,
+        FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID, REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
+        REGISTER_SERVICE_URL_SERVICE_URL, CREATE_SERVICE_BROKER, SERVICE_BROKER_NAME, SERVICE_BROKER_USERNAME, SERVICE_BROKER_PASSWORD,
+        SERVICE_BROKER_URL, SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START, UPLOAD_TIMEOUT)));
 
     public static final Set<String> SPECIAL_MT_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_RT)));
 

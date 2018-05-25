@@ -59,8 +59,6 @@ public class PrepareAppsDeploymentStepTest extends SyncActivitiStepTest<PrepareA
             .thenReturn(ApplicationConfiguration.DEFAULT_TYPE);
         Mockito.when(configuration.getControllerPollingInterval())
             .thenReturn(ApplicationConfiguration.DEFAULT_CONTROLLER_POLLING_INTERVAL);
-        Mockito.when(configuration.getUploadAppTimeout())
-            .thenReturn(ApplicationConfiguration.DEFAULT_UPLOAD_APP_TIMEOUT);
         when(processTypeParser.getProcessType(context)).thenReturn(processType);
     }
 
@@ -75,7 +73,6 @@ public class PrepareAppsDeploymentStepTest extends SyncActivitiStepTest<PrepareA
         assertEquals(Constants.VAR_APPS_INDEX, context.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
         assertEquals(ApplicationConfiguration.DEFAULT_CONTROLLER_POLLING_INTERVAL,
             context.getVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL));
-        assertEquals(ApplicationConfiguration.DEFAULT_UPLOAD_APP_TIMEOUT, context.getVariable(Constants.VAR_UPLOAD_APP_TIMEOUT));
         assertTrue((boolean) context.getVariable(Constants.REBUILD_APP_ENV));
         assertTrue((boolean) context.getVariable(Constants.SHOULD_UPLOAD_APPLICATION_CONTENT));
         assertTrue((boolean) context.getVariable(Constants.EXECUTE_ONE_OFF_TASKS));

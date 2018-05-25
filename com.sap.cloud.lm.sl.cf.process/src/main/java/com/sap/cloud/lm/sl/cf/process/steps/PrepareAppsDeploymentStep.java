@@ -43,8 +43,6 @@ public class PrepareAppsDeploymentStep extends SyncActivitiStep {
         execution.getContext()
             .setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
         execution.getContext()
-            .setVariable(Constants.VAR_UPLOAD_APP_TIMEOUT, configuration.getUploadAppTimeout());
-        execution.getContext()
             .setVariable(Constants.VAR_PLATFORM_TYPE, configuration.getPlatformType()
                 .toString());
 
