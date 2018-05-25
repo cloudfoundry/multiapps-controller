@@ -58,6 +58,7 @@ public final class Messages {
     public static final String ERROR_RETRIEVING_RECENT_LOGS = "Error retrieving recent logs";
     public static final String ERROR_READING_PROTOCOL_BUFFER_LOGS = "Error reading protocol buffer logs";
     public static final String ERROR_COMPUTING_CHECKSUM_OF_FILE = "Error computing checksum of file {0} for application {1}";
+    public static final String COULD_NOT_PARSE_ATTRIBUTES_OF_APP_0 = "Could not parse attributes of application \"{0}\"";
     public static final String ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3 = "Attribute \"{0}\" of application \"{1}\" is of type {2} instead of {3}!";
     public static final String ILLEGAL_DESIRED_STATE = "Illegal desired application state: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_STATE = "Illegal service operation state: {0}";
@@ -179,4 +180,5 @@ public final class Messages {
     public static final String REMOVING_SENSITIVE_ELEMENT = "Removing sensitive element: {0}";
     public static final String DELETING_SUBSCRIPTION = "Deleting configuration subscription: {0}";
     public static final String DELETING_ENTRY = "Deleting configuration entry: {0}";
+    
 }

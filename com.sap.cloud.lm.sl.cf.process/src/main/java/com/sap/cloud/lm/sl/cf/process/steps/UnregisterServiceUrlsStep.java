@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class UnregisterServiceUrlsStep extends SyncActivitiStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.UNREGISTERING_SERVICE_URLS);
 
@@ -58,12 +58,12 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
     }
 
     private void unregisterServiceUrlIfNecessary(DelegateExecution context, CloudApplication app, List<String> serviceUrlsToRegister,
-        ClientExtensions clientExtensions) throws SLException {
-        ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
-        if (!attributesGetter.getAttribute(SupportedParameters.REGISTER_SERVICE_URL, Boolean.class, false)) {
+        ClientExtensions clientExtensions) {
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+        if (!appAttributes.get(SupportedParameters.REGISTER_SERVICE_URL, Boolean.class, false)) {
             return;
         }
-        String serviceName = attributesGetter.getAttribute(SupportedParameters.REGISTER_SERVICE_URL_SERVICE_NAME, String.class);
+        String serviceName = appAttributes.get(SupportedParameters.REGISTER_SERVICE_URL_SERVICE_NAME, String.class);
         if (serviceName != null && !serviceUrlsToRegister.contains(serviceName)) {
             try {
                 getStepLogger().info(Messages.UNREGISTERING_SERVICE_URL, serviceName, app.getName());
