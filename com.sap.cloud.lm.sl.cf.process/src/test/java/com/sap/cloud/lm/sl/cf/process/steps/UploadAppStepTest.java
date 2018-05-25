@@ -122,7 +122,6 @@ public class UploadAppStepTest {
             }
 
             assertCall(Constants.VAR_UPLOAD_TOKEN, TOKEN);
-            assertCall("uploadState", AsyncExecutionState.RUNNING.toString());
         }
 
         private void assertCall(String variableName, String variableValue) {

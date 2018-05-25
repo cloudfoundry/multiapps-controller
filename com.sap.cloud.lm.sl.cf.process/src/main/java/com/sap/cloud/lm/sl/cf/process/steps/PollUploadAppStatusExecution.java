@@ -15,32 +15,17 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class PollUploadAppStatusExecution implements AsyncExecution {
 
     @Override
-    public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {
-        // Get the next cloud application from the context
-        final CloudApplication app = StepsUtil.getApp(execution.getContext());
+    public AsyncExecutionState execute(ExecutionWrapper execution) {
+        CloudApplication app = StepsUtil.getApp(execution.getContext());
 
         try {
             execution.getStepLogger()
                 .debug(Messages.CHECKING_UPLOAD_APP_STATUS, app.getName());
-            String status = (String) execution.getContext().getVariable(Constants.VAR_UPLOAD_STATE);
-            if (AsyncExecutionState.ERROR.name()
-                .equalsIgnoreCase(status)) {
-                String message = format(Messages.ERROR_UPLOADING_APP, app.getName());
-                execution.getStepLogger()
-                    .error(message);
-                return AsyncExecutionState.ERROR;
-            }
-
-            String uploadToken = (String) execution.getContext().getVariable(Constants.VAR_UPLOAD_TOKEN);
-            if (uploadToken == null) {
-                String message = format(Messages.APP_UPLOAD_TIMED_OUT, app.getName());
-                execution.getStepLogger()
-                    .error(message);
-                return AsyncExecutionState.ERROR;
-            }
 
             CloudFoundryOperations client = execution.getCloudFoundryClient();
 
+            String uploadToken = (String) execution.getContext()
+                .getVariable(Constants.VAR_UPLOAD_TOKEN);
             Upload upload = client.getUploadStatus(uploadToken);
             switch (upload.getStatus()) {
                 case FAILED:
