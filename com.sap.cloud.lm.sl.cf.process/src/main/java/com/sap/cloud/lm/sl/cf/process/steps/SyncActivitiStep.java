@@ -75,8 +75,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
         try {
             getStepHelper().postExecuteStep(context, stepState);
         } catch (SLException e) {
-            getStepHelper().storeExceptionInProgressMessageService(context, e);
-            logException(context, e);
+            getStepHelper().logException(context, e);
             throw e;
         }
     }
@@ -100,10 +99,6 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
             return new Exception("An unknown error occurred", t);
         }
         return t;
-    }
-
-    public void logException(DelegateExecution context, Throwable t) {
-        getStepHelper().logException(context, t);
     }
 
     protected ProcessStepHelper getStepHelper() {

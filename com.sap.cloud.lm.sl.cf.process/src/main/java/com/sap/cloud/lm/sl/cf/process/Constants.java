@@ -135,7 +135,6 @@ public class Constants {
     public static final String ASYNC_STEP_EXECUTION_INDEX = "asyncStepExecutionIndex";
     public static final String VAR_STEP_EXECUTION = "StepExecution";
     public static final String VAR_STEP_PHASE = "stepPhase";
-    public static final String VAR_UPLOAD_STATE = "uploadState";
     public static final String VAR_APP_CONTENT_CHANGED = "appContentChanged";
     public static final String VAR_STEP_START_TIME = "stepStartTime_";
 

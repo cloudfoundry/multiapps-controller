@@ -429,5 +429,7 @@ public class Messages {
     public static final String ROUTES_FOR_APPLICATION = "Routes for application {0}: {1}";
     public static final String CREATED_TEMP_FILE = "Created temp file: {0}";
     public static final String DELETING_TEMP_FILE = "Deleting temp file: {0}";
+    public static final String UPLOADING_FILE_0_FOR_APP_1 = "Uploading file \"{0}\" for application \"{1}\"";
+    public static final String STARTED_ASYNC_UPLOAD_OF_APP_0 = "Started async upload of application \"{0}\"";
 
 }
