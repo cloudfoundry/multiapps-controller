@@ -22,15 +22,13 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
 
 @RunWith(Parameterized.class)
-public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAppStep> {
+public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
 
     private static final CloudFoundryException CFEXCEPTION = new CloudFoundryException(HttpStatus.BAD_REQUEST);
     private static final String UPLOAD_TOKEN = "tokenString";
     private static final String APP_NAME = "test-app-1";
 
     private final Status uploadState;
-    private final String uploadToken;
-    private final AsyncExecutionState previousStatus;
     private final AsyncExecutionState expectedStatus;
     private final String expectedCfExceptionMessage;
 
@@ -45,33 +43,30 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
 // @formatter:off
             // (00) The previous step used asynchronous upload but getting the upload progress fails with an exception:
             {
-                Status.RUNNING , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, null, CFEXCEPTION.getMessage(),
+                null, null, CFEXCEPTION.getMessage(),
             },
             // (01) The previous step used asynchronous upload and it finished successfully:
             {
-                Status.FINISHED, UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.FINISHED, null,
+                Status.FINISHED, AsyncExecutionState.FINISHED, null,
             },
             // (02) The previous step used asynchronous upload but it is still not finished:
             {
-                Status.RUNNING , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.RUNNING, null,
+                Status.RUNNING, AsyncExecutionState.RUNNING, null,
             },
             // (03) The previous step used asynchronous upload but it is still not finished:
             {
-                Status.QUEUED  , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.RUNNING, null,
+                Status.QUEUED, AsyncExecutionState.RUNNING, null,
             },
             // (04) The previous step used asynchronous upload but it failed:
             {
-               Status.FAILED  , UPLOAD_TOKEN, AsyncExecutionState.RUNNING, AsyncExecutionState.ERROR, null,
+               Status.FAILED, AsyncExecutionState.ERROR, null,
             },
 // @formatter:on
         });
     }
 
-    public PollUploadAppStatusStepTest(Status uploadState, String uploadToken, AsyncExecutionState previousStatus,
-        AsyncExecutionState expectedStatus, String expectedCfExceptionMessage) {
+    public PollUploadAppStatusExecutionTest(Status uploadState, AsyncExecutionState expectedStatus, String expectedCfExceptionMessage) {
         this.uploadState = uploadState;
-        this.uploadToken = uploadToken;
-        this.previousStatus = previousStatus;
         this.expectedStatus = expectedStatus;
         this.expectedCfExceptionMessage = expectedCfExceptionMessage;
     }
@@ -85,8 +80,6 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
 
     @Test
     public void testPollStatus() throws Exception {
-        Thread.sleep(1); // Simulate the time it takes to upload a file. Without this, some tests
-                         // may fail on faster machines...
         step.createStepLogger(context);
         testExecuteOperations();
     }
@@ -109,11 +102,7 @@ public class PollUploadAppStatusStepTest extends AsyncStepOperationTest<UploadAp
     private void prepareContext() {
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(application.toCloudApplication()), context);
         context.setVariable(Constants.VAR_APPS_INDEX, 0);
-        context.setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
-        context.setVariable("StepExecution", previousStatus.toString());
-        when(context.getProcessInstanceId()).thenReturn("test");
-        context.setVariable(Constants.VAR_UPLOAD_STATE, previousStatus.toString());
-        context.setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
+        context.setVariable(Constants.VAR_UPLOAD_TOKEN, UPLOAD_TOKEN);
     }
 
     @Override

@@ -55,66 +55,29 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
         try {
             getStepLogger().info(Messages.UPLOADING_APP, app.getName());
-
+            
             int uploadAppTimeoutSeconds = configuration.getUploadAppTimeout();
             getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadAppTimeoutSeconds);
 
             CloudFoundryOperations client = execution.getCloudFoundryClientWithoutTimeout();
 
-            uploadApp(execution, app, client);
+            String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+            String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
+            
+            getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
+            String uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
+            getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
+            execution.getContext()
+                .setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
+        } catch (CloudFoundryException cfe) {
+            CloudControllerException e = new CloudControllerException(cfe);
+            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
+            throw e;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
             throw e;
         }
         return StepPhase.POLL;
-    }
-
-    private void uploadApp(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client) {
-        String processId = execution.getContext()
-            .getProcessInstanceId();
-        getStepLogger().trace("Started upload app step runnable for process \"{0}\"", processId);
-        try {
-            attemptToUploadApp(execution, app, client);
-        } catch (SLException | FileStorageException e) {
-            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-            logException(execution.getContext(), e);
-            throw new SLException(e, e.getMessage());
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
-            getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-            logException(execution.getContext(), e);
-            throw e;
-        } catch (Throwable e) {
-            Throwable eWithMessage = getWithProperMessage(e);
-            logException(execution.getContext(), eWithMessage);
-            if (e instanceof Exception) {
-                // only wrap Runtime & checked exceptions as Runtime ones
-                throw new RuntimeException(eWithMessage.getMessage(), eWithMessage);
-            } else {
-                // Errors and other should be handled elsewhere
-                throw e;
-            }
-        }
-        getStepLogger().trace("Upload app step runnable for process \"{0}\" finished", execution.getContext()
-            .getProcessInstanceId());
-    }
-
-    private void attemptToUploadApp(ExecutionWrapper execution, CloudApplicationExtended app, CloudFoundryOperations client)
-        throws FileStorageException {
-        AsyncExecutionState status = AsyncExecutionState.ERROR;
-        try {
-            String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
-            String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
-            getStepLogger().debug("Uploading file \"{0}\" for application \"{1}\"", fileName, app.getName());
-            String uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
-            execution.getContext()
-                .setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
-            getStepLogger().debug("Started async upload of application \"{0}\"", fileName, app.getName());
-            status = AsyncExecutionState.RUNNING;
-        } finally {
-            execution.getContext()
-                .setVariable(Constants.VAR_UPLOAD_STATE, status.name());
-        }
     }
 
     private String asyncUploadFiles(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app, String appArchiveId,
