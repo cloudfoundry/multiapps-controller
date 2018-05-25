@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -52,11 +52,11 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         }
         try {
             CloudFoundryOperations client = execution.getCloudFoundryClient();
-            ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
-            Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, attributesGetter, app);
+            ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+            Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
-            return checkAppExecutionStatus(execution, client, app, attributesGetter, status);
+            return checkAppExecutionStatus(execution, client, app, appAttributes, status);
         } catch (CloudFoundryException cfe) {
             CloudControllerException e = new CloudControllerException(cfe);
             execution.getStepLogger()
@@ -74,12 +74,12 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     }
 
     private Pair<AppExecutionStatus, String> getAppExecutionStatus(DelegateExecution context, CloudFoundryOperations client,
-        ApplicationAttributesGetter attributesGetter, CloudApplication app) throws SLException {
+        ApplicationAttributes appAttributes, CloudApplication app) {
         Pair<AppExecutionStatus, String> status = new Pair<>(AppExecutionStatus.EXECUTING, null);
         long startTime = (Long) context.getVariable(Constants.VAR_START_TIME);
-        Pair<MessageType, String> sm = getMarker(attributesGetter, SupportedParameters.SUCCESS_MARKER, DEFAULT_SUCCESS_MARKER);
-        Pair<MessageType, String> fm = getMarker(attributesGetter, SupportedParameters.FAILURE_MARKER, DEFAULT_FAILURE_MARKER);
-        boolean checkDeployId = attributesGetter.getAttribute(SupportedParameters.CHECK_DEPLOY_ID, Boolean.class, false);
+        Pair<MessageType, String> sm = getMarker(appAttributes, SupportedParameters.SUCCESS_MARKER, DEFAULT_SUCCESS_MARKER);
+        Pair<MessageType, String> fm = getMarker(appAttributes, SupportedParameters.FAILURE_MARKER, DEFAULT_FAILURE_MARKER);
+        boolean checkDeployId = appAttributes.get(SupportedParameters.CHECK_DEPLOY_ID, Boolean.class, false);
         String deployId = checkDeployId ? (StepsUtil.DEPLOY_ID_PREFIX + StepsUtil.getCorrelationId(context)) : null;
 
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName());
@@ -115,19 +115,19 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     }
 
     private AsyncExecutionState checkAppExecutionStatus(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
-        ApplicationAttributesGetter attributesGetter, Pair<AppExecutionStatus, String> status) {
+        ApplicationAttributes appAttributes, Pair<AppExecutionStatus, String> status) {
         if (status._1.equals(AppExecutionStatus.FAILED)) {
             // Application execution failed
             String message = format(Messages.ERROR_EXECUTING_APP_2, app.getName(), status._2);
             execution.getStepLogger()
                 .error(message);
-            stopApplicationIfSpecified(execution, client, app, attributesGetter);
+            stopApplicationIfSpecified(execution, client, app, appAttributes);
             return AsyncExecutionState.ERROR;
         } else if (status._1.equals(AppExecutionStatus.SUCCEEDED)) {
             // Application executed successfully
             execution.getStepLogger()
                 .info(Messages.APP_EXECUTED, app.getName());
-            stopApplicationIfSpecified(execution, client, app, attributesGetter);
+            stopApplicationIfSpecified(execution, client, app, appAttributes);
             return AsyncExecutionState.FINISHED;
         } else {
             // Application not executed yet, wait and try again unless it's a timeout.
@@ -136,8 +136,8 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     }
 
     private void stopApplicationIfSpecified(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
-        ApplicationAttributesGetter attributesGetter) {
-        boolean stopApp = attributesGetter.getAttribute(SupportedParameters.STOP_APP, Boolean.class, false);
+        ApplicationAttributes appAttributes) {
+        boolean stopApp = appAttributes.get(SupportedParameters.STOP_APP, Boolean.class, false);
         if (!stopApp) {
             return;
         }
@@ -148,11 +148,10 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             .debug(Messages.APP_STOPPED, app.getName());
     }
 
-    private static Pair<MessageType, String> getMarker(ApplicationAttributesGetter attributesGetter, String attribute, String defaultValue)
-        throws SLException {
+    private static Pair<MessageType, String> getMarker(ApplicationAttributes appAttributes, String attribute, String defaultValue) {
         MessageType messageType;
         String text;
-        String attr = attributesGetter.getAttribute(attribute, String.class, defaultValue);
+        String attr = appAttributes.get(attribute, String.class, defaultValue);
         if (attr.startsWith(MessageType.STDERR.toString() + ":")) {
             messageType = MessageType.STDERR;
             text = attr.substring(MessageType.STDERR.toString()

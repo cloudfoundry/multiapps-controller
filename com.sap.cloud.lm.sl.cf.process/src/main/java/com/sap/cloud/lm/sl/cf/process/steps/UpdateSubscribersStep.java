@@ -38,7 +38,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.DummyConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.ReferencingPropertiesVisitor;
@@ -141,9 +141,9 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
 
     private void addApplicationToProperList(List<CloudApplication> updatedSubscribers,
         List<CloudApplication> updatedServiceBrokerSubscribers, CloudApplication updatedApplication) {
-        ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(updatedApplication);
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(updatedApplication);
 
-        if (attributesGetter.getAttribute(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
+        if (appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             updatedServiceBrokerSubscribers.add(updatedApplication);
         } else {
             updatedSubscribers.add(updatedApplication);

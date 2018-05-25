@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class RegisterServiceUrlsStep extends SyncActivitiStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.REGISTERING_SERVICE_URLS);
 
@@ -55,7 +55,7 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
         }
     }
 
-    private List<ServiceUrl> getServiceUrlsToRegister(List<CloudApplicationExtended> appsToDeploy) throws SLException {
+    private List<ServiceUrl> getServiceUrlsToRegister(List<CloudApplicationExtended> appsToDeploy) {
         List<ServiceUrl> serviceUrlsToRegister = new ArrayList<>();
         for (CloudApplicationExtended app : appsToDeploy) {
             ServiceUrl serviceUrl = getServiceUrlToRegister(app);
@@ -67,15 +67,14 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
         return serviceUrlsToRegister;
     }
 
-    private ServiceUrl getServiceUrlToRegister(CloudApplicationExtended app) throws SLException {
-        ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
-        if (!attributesGetter.getAttribute(SupportedParameters.REGISTER_SERVICE_URL, Boolean.class, false)) {
+    private ServiceUrl getServiceUrlToRegister(CloudApplicationExtended app) {
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+        if (!appAttributes.get(SupportedParameters.REGISTER_SERVICE_URL, Boolean.class, false)) {
             return null;
         }
 
-        String serviceName = attributesGetter.getAttribute(SupportedParameters.REGISTER_SERVICE_URL_SERVICE_NAME, String.class,
-            app.getName());
-        String url = attributesGetter.getAttribute(SupportedParameters.REGISTER_SERVICE_URL_SERVICE_URL, String.class);
+        String serviceName = appAttributes.get(SupportedParameters.REGISTER_SERVICE_URL_SERVICE_NAME, String.class, app.getName());
+        String url = appAttributes.get(SupportedParameters.REGISTER_SERVICE_URL_SERVICE_URL, String.class);
 
         if (url == null) {
             throw new SLException(Messages.ERROR_NO_SERVICE_URL_SPECIFIED, serviceName, app.getName());

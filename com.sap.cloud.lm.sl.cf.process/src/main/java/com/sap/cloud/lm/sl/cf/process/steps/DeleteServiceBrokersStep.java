@@ -16,7 +16,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class DeleteServiceBrokersStep extends SyncActivitiStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.DELETING_SERVICE_BROKERS);
 
@@ -52,12 +52,12 @@ public class DeleteServiceBrokersStep extends SyncActivitiStep {
     }
 
     private void deleteServiceBrokerIfNecessary(DelegateExecution context, CloudApplication app, List<String> serviceBrokersToCreate,
-        CloudFoundryOperations client) throws SLException {
-        ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
-        if (!attributesGetter.getAttribute(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
+        CloudFoundryOperations client) {
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+        if (!appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return;
         }
-        String name = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_NAME, String.class, app.getName());
+        String name = appAttributes.get(SupportedParameters.SERVICE_BROKER_NAME, String.class, app.getName());
 
         CloudServiceBroker serviceBroker = client.getServiceBroker(name, false);
         if (serviceBroker != null && !serviceBrokersToCreate.contains(name)) {

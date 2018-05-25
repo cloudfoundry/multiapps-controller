@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokerCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokersGetter;
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributesGetter;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -44,7 +44,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
     private ApplicationConfiguration configuration;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.CREATING_SERVICE_BROKERS);
 
@@ -106,8 +106,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
             .get();
     }
 
-    private List<CloudServiceBrokerExtended> getServiceBrokersToCreate(List<CloudApplication> appsToDeploy, DelegateExecution context)
-        throws SLException {
+    private List<CloudServiceBrokerExtended> getServiceBrokersToCreate(List<CloudApplication> appsToDeploy, DelegateExecution context) {
         List<CloudServiceBrokerExtended> serviceBrokersToCreate = new ArrayList<>();
         for (CloudApplication app : appsToDeploy) {
             CloudServiceBrokerExtended serviceBroker = getServiceBrokerFromApp(app, context);
@@ -121,17 +120,17 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
         return serviceBrokersToCreate;
     }
 
-    protected CloudServiceBrokerExtended getServiceBrokerFromApp(CloudApplication app, DelegateExecution context) throws SLException {
-        ApplicationAttributesGetter attributesGetter = ApplicationAttributesGetter.forApplication(app);
-        if (!attributesGetter.getAttribute(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
+    protected CloudServiceBrokerExtended getServiceBrokerFromApp(CloudApplication app, DelegateExecution context) {
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+        if (!appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return null;
         }
 
-        String serviceBrokerName = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_NAME, String.class, app.getName());
-        String serviceBrokerUsername = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_USERNAME, String.class);
-        String serviceBrokerPassword = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_PASSWORD, String.class);
-        String serviceBrokerUrl = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_URL, String.class);
-        String serviceBrokerSpaceGuid = getServiceBrokerSpaceGuid(context, serviceBrokerName, attributesGetter);
+        String serviceBrokerName = appAttributes.get(SupportedParameters.SERVICE_BROKER_NAME, String.class, app.getName());
+        String serviceBrokerUsername = appAttributes.get(SupportedParameters.SERVICE_BROKER_USERNAME, String.class);
+        String serviceBrokerPassword = appAttributes.get(SupportedParameters.SERVICE_BROKER_PASSWORD, String.class);
+        String serviceBrokerUrl = appAttributes.get(SupportedParameters.SERVICE_BROKER_URL, String.class);
+        String serviceBrokerSpaceGuid = getServiceBrokerSpaceGuid(context, serviceBrokerName, appAttributes);
 
         if (serviceBrokerName == null) {
             throw new ContentException(Messages.MISSING_SERVICE_BROKER_NAME, app.getName());
@@ -150,10 +149,9 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
             serviceBrokerSpaceGuid);
     }
 
-    private String getServiceBrokerSpaceGuid(DelegateExecution context, String serviceBrokerName,
-        ApplicationAttributesGetter attributesGetter) {
+    private String getServiceBrokerSpaceGuid(DelegateExecution context, String serviceBrokerName, ApplicationAttributes appAttributes) {
         PlatformType platformType = configuration.getPlatformType();
-        boolean isSpaceScoped = attributesGetter.getAttribute(SupportedParameters.SERVICE_BROKER_SPACE_SCOPED, Boolean.class, false);
+        boolean isSpaceScoped = appAttributes.get(SupportedParameters.SERVICE_BROKER_SPACE_SCOPED, Boolean.class, false);
         if (platformType == PlatformType.XS2 && isSpaceScoped) {
             getStepLogger()
                 .warn(MessageFormat.format(Messages.CANNOT_CREATE_SPACE_SCOPED_SERVICE_BROKER_ON_THIS_PLATFORM, serviceBrokerName));
