@@ -80,7 +80,8 @@ public class AuthorizationChecker {
             return true;
         }
         CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
-        return checkPermissions(client, userInfo, orgName, spaceName, readOnly);
+        CloudFoundryOperationsExtended clientx = (CloudFoundryOperationsExtended) client;
+        return checkPermissions(client, userInfo, orgName, spaceName, readOnly) && hasAccess(clientx, orgName, spaceName);
     }
 
     boolean checkPermissions(UserInfo userInfo, String spaceGuid, boolean readOnly) {
@@ -91,7 +92,7 @@ public class AuthorizationChecker {
             return true;
         }
         CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
-        Pair<String, String> location = new ClientHelper(client, spaceGetter).computeOrgAndSpace(spaceGuid);
+        Pair<String, String> location = getClientHelper(client).computeOrgAndSpace(spaceGuid);
         if (location == null) {
             throw new NotFoundException(Messages.ORG_AND_SPACE_NOT_FOUND, spaceGuid);
         }
@@ -100,7 +101,7 @@ public class AuthorizationChecker {
 
     private boolean checkPermissions(CloudFoundryOperations client, UserInfo userInfo, String orgName, String spaceName, boolean readOnly) {
         CloudFoundryOperationsExtended clientx = (CloudFoundryOperationsExtended) client;
-        return hasPermissions(clientx, userInfo.getId(), orgName, spaceName, readOnly) && hasAccess(clientx, orgName, spaceName);
+        return hasPermissions(clientx, userInfo.getId(), orgName, spaceName, readOnly);
     }
 
     private boolean hasPermissions(CloudFoundryOperationsExtended client, String userId, String orgName, String spaceName,
@@ -152,5 +153,8 @@ public class AuthorizationChecker {
             .logSecurityIncident(message);
         throw new WebApplicationException(ResponseRenderer.renderResponseForStatus(status, message));
     }
-
+    
+    public ClientHelper getClientHelper(CloudFoundryOperations client) {
+        return new ClientHelper(client, spaceGetter);
+    }
 }
