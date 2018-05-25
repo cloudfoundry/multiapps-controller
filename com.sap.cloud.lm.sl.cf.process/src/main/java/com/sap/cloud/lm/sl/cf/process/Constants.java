@@ -108,7 +108,6 @@ public class Constants {
     public static final String VAR_OFFSET = "offset";
     public static final String VAR_UPLOAD_TOKEN = "uploadToken";
     public static final String VAR_CONTROLLER_POLLING_INTERVAL = "controllerPollingInterval";
-    public static final String VAR_UPLOAD_APP_TIMEOUT = "uploadAppTimeout";
     public static final String VAR_PUBLISHED_ENTRIES = "publishedEntries";
     public static final String VAR_DELETED_ENTRIES = "deletedEntries";
     public static final String VAR_HAS_APP_CHANGED = "hasAppChanged";

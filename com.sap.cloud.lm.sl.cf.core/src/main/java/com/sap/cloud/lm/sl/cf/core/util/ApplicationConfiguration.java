@@ -79,7 +79,6 @@ public class ApplicationConfiguration {
     static final String CFG_XS_CLIENT_QUEUE_CAPACITY = "XS_CLIENT_QUEUE_CAPACITY";
     static final String CFG_XS_CLIENT_KEEP_ALIVE = "XS_CLIENT_KEEP_ALIVE";
     static final String CFG_CONTROLLER_POLLING_INTERVAL = "CONTROLLER_POLLING_INTERVAL";
-    static final String CFG_UPLOAD_APP_TIMEOUT = "UPLOAD_APP_TIMEOUT";
     static final String CFG_SKIP_SSL_VALIDATION = "SKIP_SSL_VALIDATION";
     static final String CFG_XS_PLACEHOLDERS_SUPPORTED = "XS_PLACEHOLDER_SUPPORT_TEST";
     static final String CFG_VERSION = "VERSION";
@@ -135,7 +134,6 @@ public class ApplicationConfiguration {
      * @see org.activiti.engine.impl.persistence.entity.JobEntityManager#schedule()
      */
     public static final Integer DEFAULT_CONTROLLER_POLLING_INTERVAL = 6; // 6 second(s)
-    public static final Integer DEFAULT_UPLOAD_APP_TIMEOUT = 60 * 60; // 60 minute(s)
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
     public static final String DEFAULT_VERSION = "N/A";
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_POLL_RATE = 1; // 1 minute(s)
@@ -180,7 +178,6 @@ public class ApplicationConfiguration {
     private Integer xsClientQueueCapacity;
     private Integer xsClientKeepAlive;
     private Integer controllerPollingInterval;
-    private Integer uploadAppTimeout;
     private Boolean skipSslValidation;
     private Boolean xsPlaceholdersSupported;
     private String version;
@@ -227,7 +224,6 @@ public class ApplicationConfiguration {
         getXsClientQueueCapacity();
         getXsClientKeepAlive();
         getControllerPollingInterval();
-        getUploadAppTimeout();
         shouldSkipSslValidation();
         areXsPlaceholdersSupported();
         getVersion();
@@ -286,9 +282,9 @@ public class ApplicationConfiguration {
             CFG_TARGETS, CFG_TARGETS_V2, CFG_TARGETS_V3, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE,
             CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
             CFG_GLOBAL_AUDITOR_USER, CFG_XS_CLIENT_CORE_THREADS, CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY,
-            CFG_XS_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_POLLING_INTERVAL, CFG_UPLOAD_APP_TIMEOUT, CFG_SKIP_SSL_VALIDATION,
-            CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION,
-            CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL));
+            CFG_XS_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_POLLING_INTERVAL, CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION,
+            CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
+            CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL));
     }
 
     public Configuration getFileConfiguration() {
@@ -503,13 +499,6 @@ public class ApplicationConfiguration {
             controllerPollingInterval = getControllerPollingIntervalFromEnvironment();
         }
         return controllerPollingInterval;
-    }
-
-    public int getUploadAppTimeout() {
-        if (uploadAppTimeout == null) {
-            uploadAppTimeout = getUploadAppTimeoutFromEnvironment();
-        }
-        return uploadAppTimeout;
     }
 
     public Boolean shouldSkipSslValidation() {
@@ -861,12 +850,6 @@ public class ApplicationConfiguration {
     private int getControllerPollingIntervalFromEnvironment() {
         int value = environment.getPositiveInteger(CFG_CONTROLLER_POLLING_INTERVAL, DEFAULT_CONTROLLER_POLLING_INTERVAL);
         LOGGER.info(format(Messages.CONTROLLER_POLLING_INTERVAL, value));
-        return value;
-    }
-
-    private int getUploadAppTimeoutFromEnvironment() {
-        int value = environment.getPositiveInteger(CFG_UPLOAD_APP_TIMEOUT, DEFAULT_UPLOAD_APP_TIMEOUT);
-        LOGGER.info(format(Messages.UPLOAD_APP_TIMEOUT, value));
         return value;
     }
 

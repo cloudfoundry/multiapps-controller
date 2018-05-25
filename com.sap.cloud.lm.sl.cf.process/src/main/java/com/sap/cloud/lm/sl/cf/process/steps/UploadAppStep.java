@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -23,9 +24,10 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
 import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
 import com.sap.cloud.lm.sl.cf.client.util.StreamUtil;
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -39,10 +41,9 @@ import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
+    static final int DEFAULT_APP_UPLOAD_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(1);
     private static final String ARCHIVE_FILE_SEPARATOR = "/";
 
-    @Inject
-    protected ActivitiFacade activitiFacade;
     @Inject
     protected ApplicationConfiguration configuration;
 
@@ -52,9 +53,6 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
         try {
             getStepLogger().info(Messages.UPLOADING_APP, app.getName());
-
-            int uploadAppTimeoutSeconds = configuration.getUploadAppTimeout();
-            getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadAppTimeoutSeconds);
 
             CloudFoundryOperations client = execution.getCloudFoundryClientWithoutTimeout();
 
@@ -127,8 +125,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
                     file = saveToFile(fileName, streamProducer);
                     getStepLogger().debug(Messages.CREATED_TEMP_FILE, file);
                     detectApplicationFileDigestChanges(execution, app, file, client);
-                    String uploadToken = client.asyncUploadApplication(app.getName(), file,
-                        getMonitorUploadStatusCallback(app, file));
+                    String uploadToken = client.asyncUploadApplication(app.getName(), file, getMonitorUploadStatusCallback(app, file));
                     uploadTokenBuilder.append(uploadToken);
                 } catch (IOException e) {
                     cleanUpTempFile(file);
@@ -285,7 +282,16 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
     @Override
     public Integer getTimeout(DelegateExecution context) {
-        return configuration.getUploadAppTimeout();
+        CloudApplication app = StepsUtil.getApp(context);
+        int uploadTimeout = extractUploadTimeoutFromAppAttributes(app, DEFAULT_APP_UPLOAD_TIMEOUT);
+        getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadTimeout);
+        return uploadTimeout;
+    }
+
+    private int extractUploadTimeoutFromAppAttributes(CloudApplication app, int defaultAppUploadTimeout) {
+        ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
+        Number uploadTimeout = appAttributes.get(SupportedParameters.UPLOAD_TIMEOUT, Number.class, defaultAppUploadTimeout);
+        return uploadTimeout.intValue();
     }
 
 }
