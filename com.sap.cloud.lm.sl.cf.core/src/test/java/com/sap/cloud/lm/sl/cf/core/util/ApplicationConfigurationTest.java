@@ -21,7 +21,7 @@ public class ApplicationConfigurationTest {
     // TODO - tests about masking of sensitive entries while logging
     // TODO - tests about parsing values of different types
 
-    private static final String VCAP_APPLICATION_JSON_WITHOUT_SPACE_GUID = "{\"instance_id\":\"d827d1f2-d4c1-462a-ab9d-5bf828706d63\","
+    private static final String VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID = "{\"instance_id\":\"d827d1f2-d4c1-462a-ab9d-5bf828706d63\","
         + "\"application_name\":\"deploy-service\"," + "\"started_at_timestamp\":\"1437740774167\","
         + "\"state_timestamp\":\"1437651427557\"," + "\"application_uris\":[\"sofd60245639a:12993\"],"
         + "\"uris\":[\"sofd60245639a:12993\"]}";
@@ -69,44 +69,44 @@ public class ApplicationConfigurationTest {
     }
 
     @Test
-    public void testGetSpaceGuidWithNull() throws Exception {
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceGuid());
+    public void testGetSpaceIdWithNull() throws Exception {
+        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
-    public void testGetSpaceGuidWithEmptyString() throws Exception {
+    public void testGetSpaceIdWithEmptyString() throws Exception {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
             .thenReturn("");
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceGuid());
+        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
-    public void testGetSpaceGuidWithInvalidJson() throws Exception {
+    public void testGetSpaceIdWithInvalidJson() throws Exception {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
             .thenReturn("invalid");
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceGuid());
+        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
-    public void testGetSpaceGuidWithEmptyMap() throws Exception {
+    public void testGetSpaceIdWithEmptyMap() throws Exception {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
             .thenReturn("{}");
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceGuid());
+        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
-    public void testGetSpaceGuidWithMissingSpaceId() throws Exception {
+    public void testGetSpaceIdWithMissingSpaceId() throws Exception {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
-            .thenReturn(VCAP_APPLICATION_JSON_WITHOUT_SPACE_GUID);
-        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceGuid());
+            .thenReturn(VCAP_APPLICATION_JSON_WITHOUT_SPACE_ID);
+        assertEquals(ApplicationConfiguration.DEFAULT_SPACE_ID, configuration.getSpaceId());
     }
 
     @Test
-    public void testGetSpaceGuid() throws Exception {
+    public void testGetSpaceId() throws Exception {
         Mockito.when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION))
             .thenReturn(VCAP_APPLICATION_JSON);
-        String spaceGuid = configuration.getSpaceGuid();
-        assertEquals("954229f5-4945-43eb-8acb-a8f07cc5a7f8", spaceGuid);
+        String spaceId = configuration.getSpaceId();
+        assertEquals("954229f5-4945-43eb-8acb-a8f07cc5a7f8", spaceId);
     }
 
 }

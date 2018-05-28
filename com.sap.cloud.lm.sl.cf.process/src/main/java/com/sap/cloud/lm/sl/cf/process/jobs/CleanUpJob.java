@@ -31,7 +31,6 @@ import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiAction;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.security.data.termination.DataTerminationService;
@@ -78,7 +77,7 @@ public class CleanUpJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
-        LOGGER.info("Cleanup Job started by application instance: " + getInstanceIndex() + " at: " + Instant.now()
+        LOGGER.info("Cleanup Job started by application instance: " + configuration.getApplicationInstanceIndex() + " at: " + Instant.now()
             .toString());
 
         Date expirationTime = getExpirationTime();
@@ -108,11 +107,6 @@ public class CleanUpJob implements Job {
 
         LOGGER.info("Cleanup Job finished at: " + Instant.now()
             .toString());
-    }
-
-    private String getInstanceIndex() {
-        Environment env = new Environment();
-        return env.getString("CF_INSTANCE_INDEX");
     }
 
     private void executeDataTerminationJob() {

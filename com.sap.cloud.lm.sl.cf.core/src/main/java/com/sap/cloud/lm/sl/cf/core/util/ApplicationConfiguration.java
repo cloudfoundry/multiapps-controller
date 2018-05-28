@@ -166,7 +166,7 @@ public class ApplicationConfiguration {
     private Long maxTtlForOldData;
     private Boolean scanUploads;
     private Boolean useXSAuditLogging;
-    private String spaceGuid;
+    private String spaceId;
     private String orgName;
     private Integer routerPort;
     private Boolean dummyTokensEnabled;
@@ -191,6 +191,8 @@ public class ApplicationConfiguration {
     private HealthCheckConfiguration healthCheckConfiguration;
     private String mailApiUrl;
     private Integer timeout;
+    private String applicationId;
+    private Integer applicationInstanceIndex;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -211,7 +213,7 @@ public class ApplicationConfiguration {
         getMaxResourceFileSize();
         shouldScanUploads();
         shouldUseXSAuditLogging();
-        getSpaceGuid();
+        getSpaceId();
         getOrgName();
         getRouterPort();
         getDeployServiceUrl();
@@ -235,6 +237,8 @@ public class ApplicationConfiguration {
         shouldGatherUsageStatistics();
         getHealthCheckConfiguration();
         getMailApiUrl();
+        getApplicationId();
+        getApplicationInstanceIndex();
     }
 
     public void logFullConfig() {
@@ -404,11 +408,11 @@ public class ApplicationConfiguration {
         return useXSAuditLogging;
     }
 
-    public String getSpaceGuid() {
-        if (spaceGuid == null) {
-            spaceGuid = getSpaceGuidFromEnvironment();
+    public String getSpaceId() {
+        if (spaceId == null) {
+            spaceId = getSpaceIdFromEnvironment();
         }
-        return spaceGuid;
+        return spaceId;
     }
 
     public String getOrgName() {
@@ -579,10 +583,18 @@ public class ApplicationConfiguration {
         return timeout;
     }
 
-    private Integer getControllerOperationsTimeoutFromEnvironment() {
-        Integer timeout = environment.getPositiveInteger(CFG_CONTROLLER_OPERATIONS_TIMEOUT, DEFAULT_CONTROLLER_OPERATIONS_TIMEOUT);
-        LOGGER.info(format(Messages.CONTROLLER_OPERATIONS_TIMEOUT, timeout));
-        return timeout;
+    public String getApplicationId() {
+        if (applicationId == null) {
+            applicationId = getApplicationIdFromEnvironment();
+        }
+        return applicationId;
+    }
+
+    public Integer getApplicationInstanceIndex() {
+        if (applicationInstanceIndex == null) {
+            applicationInstanceIndex = getApplicationInstanceIndexFromEnvironment();
+        }
+        return applicationInstanceIndex;
     }
 
     private PlatformType getPlatformTypeFromEnvironment() {
@@ -714,7 +726,7 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private String getSpaceGuidFromEnvironment() {
+    private String getSpaceIdFromEnvironment() {
         Map<String, Object> vcapApplication = getVcapApplication();
         Object spaceId = vcapApplication.get("space_id");
         if (spaceId != null) {
@@ -943,6 +955,25 @@ public class ApplicationConfiguration {
         String value = environment.getString(CFG_MAIL_API_URL);
         LOGGER.info(format(Messages.MAIL_API_URL, value));
         return value;
+    }
+
+    private Integer getControllerOperationsTimeoutFromEnvironment() {
+        Integer timeout = environment.getPositiveInteger(CFG_CONTROLLER_OPERATIONS_TIMEOUT, DEFAULT_CONTROLLER_OPERATIONS_TIMEOUT);
+        LOGGER.info(format(Messages.CONTROLLER_OPERATIONS_TIMEOUT, timeout));
+        return timeout;
+    }
+
+    private String getApplicationIdFromEnvironment() {
+        Map<String, Object> vcapApplication = getVcapApplication();
+        String applicationId = (String) vcapApplication.get("application_id");
+        LOGGER.info(format(Messages.APPLICATION_ID, applicationId));
+        return applicationId;
+    }
+
+    private Integer getApplicationInstanceIndexFromEnvironment() {
+        Integer applicationInstanceIndex = environment.getInteger("CF_INSTANCE_INDEX");
+        LOGGER.info(format(Messages.APPLICATION_INSTANCE_INDEX, applicationInstanceIndex));
+        return applicationInstanceIndex;
     }
 
     private String getCronExpression(String name, String defaultValue) {

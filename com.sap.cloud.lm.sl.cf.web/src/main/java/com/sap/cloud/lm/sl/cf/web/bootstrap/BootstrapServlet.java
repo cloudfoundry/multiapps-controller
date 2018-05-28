@@ -159,10 +159,10 @@ public class BootstrapServlet extends HttpServlet {
         if (asyncChanges == null || asyncChanges.isEmpty()) {
             return;
         }
-        String appInstanceIndex = getAppInstanceIndex();
+        Integer appInstanceIndex = configuration.getApplicationInstanceIndex();
         // Problems may arise if the changes are executed in parallel on multiple instances. Since there will always be *at least* one
         // instance, we always execute the changes on the first.
-        if (!"0".equals(appInstanceIndex)) {
+        if (appInstanceIndex == null || appInstanceIndex != 0) {
             LOGGER.info(MessageFormat.format(Messages.ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE, appInstanceIndex));
             return;
         }
@@ -182,7 +182,4 @@ public class BootstrapServlet extends HttpServlet {
         };
     }
 
-    private String getAppInstanceIndex() {
-        return environment.getString("CF_INSTANCE_INDEX");
-    }
 }
