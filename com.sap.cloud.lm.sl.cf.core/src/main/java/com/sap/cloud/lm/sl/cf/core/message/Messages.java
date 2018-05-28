@@ -75,9 +75,7 @@ public final class Messages {
     public static final String COULD_NOT_PARSE_MTA_METADATA_FOR_APP_0 = "Could not parse MTA metadata for application \"{0}\"";
 
     // Warning messages
-    public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET = "Environment variable \"{0}\" is not set";
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
-    public static final String ENVIRONMENT_VARIABLE_VALUE_IS_NOT_A_VALID_LONG_USING_DEFAULT = "Environment variable \"{0}\" has a value of \"{1}\", which is not a valid long. Using default \"{2}\"...";
     public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\", using default \"{1}\"";
     public static final String INVALID_XS_TARGET_URL = "Invalid XS target URL \"{0}\", using default \"{1}\"";
     public static final String UNKNOWN_DB_TYPE = "Unknown database type \"{0}\", using default \"{1}\"";
@@ -85,15 +83,16 @@ public final class Messages {
     public static final String INVALID_TARGETS = "Invalid targets \"{0}\", using default \"{1}\"";
     public static final String OPTIONAL_RESOURCE_IS_NOT_SERVICE = "Optional resource \"{0}\" it will be not created because it's not a service";
 
-    public static final String INVALID_VCAP_APPLICATION_SPACE_ID = "Invalid VCAP_APPLICATION \"{0}\", using default space ID \"{1}\"";
     public static final String INVALID_VCAP_APPLICATION = "Invalid VCAP_APPLICATION \"{0}\"";
-    public static final String INVALID_VCAP_APPLICATION_DEPLOY_SERVICE_URI = "Could not determine deploy service URI from VCAP_APPLICATION \"{0}\"";
-    public static final String INVALID_VCAP_APPLICATION_ROUTER_PORT = "Invalid VCAP_APPLICATION \"{0}\", using default router port \"{1}\"";
+    public static final String COULD_NOT_PARSE_ROUTER_PORT_0_USING_DEFAULT_1 = "Could not parse router port \"{0}\", using default \"{1}\"";
     public static final String UNSUPPORTED_PARAMETER = "Parameter \"{0}\" is not supported, it will be ignored";
     public static final String IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE = "Ignoring label \"{0}\" for service \"{1}\", as user-provided services do not support labels!";
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
     public static final String NOT_DESCRIBED_MODULE = "MTA module \"{0}\" is found deployed, but it is not part of MTA manifest file";
     public static final String COULD_NOT_PARSE_PROVIDED_DEPENDENCY_NAMES_1_OF_APP_0 = "Could not parse provided dependency names of application \"{0}\". Assuming that they're written in the \"old\" format. This is what they look like: {1}";
+    public static final String SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0 = "Space ID not specified in environment, using default \"{0}\"";
+    public static final String ORG_NAME_NOT_SPECIFIED = "Org name not specified in environment";
+    public static final String DEPLOY_SERVICE_URL_NOT_SPECIFIED = "Deploy service URL not specified in environment";
 
     // Info messages
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type not specified in environment, using default \"{0}\"";
@@ -103,7 +102,6 @@ public final class Messages {
     public static final String TARGETS_NOT_SPECIFIED = "Targets not specified in environment, using default \"{0}\"";
     public static final String MAX_UPLOAD_SIZE_NOT_SPECIFIED = "Max upload size not specified in environment, using default \"{0}\"";
     public static final String MAX_MTA_DESCRIPTOR_SIZE_NOT_SPECIFIED = "Max MTA descriptor size not specified in environment, using default \"{0}\"";
-    public static final String SPACE_ID_NOT_SPECIFIED = "Space ID not specified in environment, using default \"{0}\"";
     public static final String NO_APPLICATION_URIS_SPECIFIED = "No application uris specified in environment";
     public static final String ATTEMPTING_TO_RELEASE_STUCK_LOCK = "Change log lock is presumed to be stuck. Attempting to release it...";
     public static final String CURRENT_LOCK = "Change log lock was acquired at {0} by {1}";
@@ -127,7 +125,8 @@ public final class Messages {
     public static final String MAX_TTL_FOR_OLD_DATA = "Max TTL for old data: {0}";
     public static final String SCAN_UPLOADS = "Scan uploads: {0}";
     public static final String SPACE_ID = "Space ID: {0}";
-    public static final String ORG_NAME = "Org Name: {0}";
+    public static final String ORG_NAME = "Org name: {0}";
+    public static final String ROUTER_PORT = "Router port: {0}";
     public static final String DUMMY_TOKENS_ENABLED = "Dummy tokens enabled: {0}";
     public static final String BASIC_AUTH_ENABLED = "Basic authentication enabled: {0}";
     public static final String ADMIN_USERNAME = "Admin username: {0}";
@@ -179,5 +178,5 @@ public final class Messages {
     public static final String REMOVING_SENSITIVE_ELEMENT = "Removing sensitive element: {0}";
     public static final String DELETING_SUBSCRIPTION = "Deleting configuration subscription: {0}";
     public static final String DELETING_ENTRY = "Deleting configuration entry: {0}";
-    
+
 }
