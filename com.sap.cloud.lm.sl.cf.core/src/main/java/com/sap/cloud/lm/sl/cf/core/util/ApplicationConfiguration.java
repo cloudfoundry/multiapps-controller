@@ -153,7 +153,8 @@ public class ApplicationConfiguration {
 
     private final Environment environment;
 
-    // Cached configuration settings
+    // Cached configuration settings:
+    private Map<String, Object> vcapApplication;
     private PlatformType platformType;
     private URL targetURL;
     private DatabaseType databaseType;
@@ -714,53 +715,49 @@ public class ApplicationConfiguration {
     }
 
     private String getSpaceGuidFromEnvironment() {
-        String vcapApplication = environment.getString(CFG_VCAP_APPLICATION);
-        try {
-            Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
-            Object spaceId = parsedVcapApplication.get("space_id");
-            if (spaceId != null) {
-                LOGGER.info(format(Messages.SPACE_ID, spaceId));
-                return spaceId.toString();
-            }
-            LOGGER.warn(format(Messages.SPACE_ID_NOT_SPECIFIED, DEFAULT_SPACE_ID));
-        } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION_SPACE_ID, vcapApplication, DEFAULT_SPACE_ID), e);
+        Map<String, Object> vcapApplication = getVcapApplication();
+        Object spaceId = vcapApplication.get("space_id");
+        if (spaceId != null) {
+            LOGGER.info(format(Messages.SPACE_ID, spaceId));
+            return spaceId.toString();
         }
+        LOGGER.warn(format(Messages.SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0, DEFAULT_SPACE_ID));
         return DEFAULT_SPACE_ID;
     }
 
     private String getOrgNameFromEnvironment() {
-        String vcapApplication = environment.getString(CFG_VCAP_APPLICATION);
-        try {
-            Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
-            Object orgName = parsedVcapApplication.get("organization_name");
-            if (orgName != null) {
-                LOGGER.info(format(Messages.ORG_NAME, orgName));
-                return orgName.toString();
-            }
-            LOGGER.warn(format(Messages.SPACE_ID_NOT_SPECIFIED, DEFAULT_SPACE_ID));
-        } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION, vcapApplication), e);
+        Map<String, Object> vcapApplication = getVcapApplication();
+        Object orgName = vcapApplication.get("organization_name");
+        if (orgName != null) {
+            LOGGER.info(format(Messages.ORG_NAME, orgName));
+            return orgName.toString();
         }
+        LOGGER.warn(Messages.ORG_NAME_NOT_SPECIFIED);
         return null;
     }
 
     private Integer getRouterPortFromEnvironment() {
         int defaultRouterPort = computeDefaultRouterPort();
-        String vcapApplication = environment.getString(CFG_VCAP_APPLICATION);
-        try {
-            Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
-            List<String> uris = getApplicationUris(parsedVcapApplication);
-            if (!CommonUtil.isNullOrEmpty(uris)) {
-                Pair<String, String> portAndDomain = UriUtil.getHostAndDomain(uris.get(0));
-                int port = Integer.parseInt(portAndDomain._1);
-                if (UriUtil.isValidPort(port)) {
-                    return port;
-                }
-            }
+        Map<String, Object> vcapApplication = getVcapApplication();
+        List<String> uris = getApplicationUris(vcapApplication);
+        if (CommonUtil.isNullOrEmpty(uris)) {
             LOGGER.info(format(Messages.NO_APPLICATION_URIS_SPECIFIED, defaultRouterPort));
-        } catch (ParsingException | NumberFormatException e) {
-            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION_ROUTER_PORT, vcapApplication, defaultRouterPort), e);
+            return defaultRouterPort;
+        }
+        int routerPort = extractRouterPort(uris, defaultRouterPort);
+        LOGGER.info(format(Messages.ROUTER_PORT, routerPort));
+        return routerPort;
+    }
+
+    private Integer extractRouterPort(List<String> uris, int defaultRouterPort) {
+        Pair<String, String> portAndDomain = UriUtil.getHostAndDomain(uris.get(0));
+        try {
+            int port = Integer.parseInt(portAndDomain._1);
+            if (UriUtil.isValidPort(port)) {
+                return port;
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.warn(format(Messages.COULD_NOT_PARSE_ROUTER_PORT_0_USING_DEFAULT_1, portAndDomain._1, defaultRouterPort), e);
         }
         return defaultRouterPort;
     }
@@ -771,17 +768,30 @@ public class ApplicationConfiguration {
     }
 
     private String getDeployServiceUrlFromEnvironment() {
+        Map<String, Object> vcapApplication = getVcapApplication();
+        List<String> uris = getApplicationUris(vcapApplication);
+        if (!CommonUtil.isNullOrEmpty(uris)) {
+            return uris.get(0);
+        }
+        LOGGER.warn(Messages.DEPLOY_SERVICE_URL_NOT_SPECIFIED);
+        return null;
+    }
+
+    private Map<String, Object> getVcapApplication() {
+        if (vcapApplication == null) {
+            vcapApplication = getVcapApplicationFromEnvironment();
+        }
+        return vcapApplication;
+    }
+
+    private Map<String, Object> getVcapApplicationFromEnvironment() {
         String vcapApplication = environment.getString(CFG_VCAP_APPLICATION);
         try {
-            Map<String, Object> parsedVcapApplication = JsonUtil.convertJsonToMap(vcapApplication);
-            List<String> uris = getApplicationUris(parsedVcapApplication);
-            if (!CommonUtil.isNullOrEmpty(uris)) {
-                return uris.get(0);
-            }
+            return JsonUtil.convertJsonToMap(vcapApplication);
         } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION_DEPLOY_SERVICE_URI, vcapApplication), e);
+            LOGGER.warn(format(Messages.INVALID_VCAP_APPLICATION, vcapApplication), e);
+            return Collections.emptyMap();
         }
-        return null;
     }
 
     private List<String> getApplicationUris(Map<String, Object> vcapApplication) {
