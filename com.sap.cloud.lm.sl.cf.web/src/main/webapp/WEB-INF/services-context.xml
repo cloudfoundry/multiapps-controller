@@ -9,12 +9,12 @@
         <constructor-arg name="dataSourceWithDialect" ref="dataSourceWithDialect" />
     </bean>
 
-    <bean id="fileSystemFileService" class="com.sap.cloud.lm.sl.cf.web.ds.FileServiceFactoryBean">
+    <bean id="fileSystemFileService" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.FileSystemFileServiceFactoryBean">
         <property name="serviceName" value="deploy-service-fss" />
         <property name="dataSourceWithDialect" ref="dataSourceWithDialect" />
     </bean>
 
-    <bean id="fileService" class="com.sap.cloud.lm.sl.cf.web.ds.FileServicePicker">
+    <bean id="fileService" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.FileServiceFactoryBean">
         <property name="databaseFileService" ref="databaseFileService" />
         <property name="fileSystemFileService" ref="fileSystemFileService" />
     </bean>

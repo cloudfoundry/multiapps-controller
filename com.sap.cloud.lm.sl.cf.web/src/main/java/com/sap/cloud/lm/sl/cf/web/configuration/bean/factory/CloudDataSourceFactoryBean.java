@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.ds;
+package com.sap.cloud.lm.sl.cf.web.configuration.bean.factory;
 
 import javax.sql.DataSource;
 

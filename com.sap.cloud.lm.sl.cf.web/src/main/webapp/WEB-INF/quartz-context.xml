@@ -23,7 +23,7 @@
 		    <ref bean="cleanUpCronTriggerFactoryBean"/>
 		</util:list>
 
-		<bean id="quartzJobFactory" class="com.sap.cloud.lm.sl.cf.web.exec.AutowiringSpringBeanJobFactory">
+		<bean id="quartzJobFactory" class="com.sap.cloud.lm.sl.cf.web.configuration.AutowiringSpringBeanJobFactory">
 		    <property name="ignoredUnknownProperties" value="applicationContext"/>
 		</bean>    
 		<beans profile="postgresql">

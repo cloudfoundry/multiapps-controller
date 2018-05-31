@@ -94,7 +94,7 @@
     </context-param>
     <context-param>
         <param-name>contextInitializerClasses</param-name>
-        <param-value>com.sap.cloud.lm.sl.cf.web.init.CustomApplicationContextInitializer</param-value>
+        <param-value>com.sap.cloud.lm.sl.cf.web.configuration.CustomApplicationContextInitializer</param-value>
     </context-param>
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
