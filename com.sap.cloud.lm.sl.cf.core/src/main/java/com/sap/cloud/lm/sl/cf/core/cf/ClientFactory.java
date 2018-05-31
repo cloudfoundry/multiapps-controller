@@ -5,8 +5,10 @@ import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.oauth2.OauthClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
+import com.sap.cloud.lm.sl.cf.client.uaa.UAAClient;
 import com.sap.cloud.lm.sl.cf.core.cf.auth.OauthClientExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
@@ -16,6 +18,9 @@ public abstract class ClientFactory {
 
     @Autowired
     protected TokenService tokenService;
+
+    @Autowired
+    private UAAClient uaaClient;
 
     public Pair<CloudFoundryOperations, TokenProvider> createClient(String userName, String password) {
         return createClient(createCredentials(userName, password));
@@ -39,8 +44,8 @@ public abstract class ClientFactory {
 
     protected abstract Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String spaceId);
 
-    protected OauthClient createOauthClient() {
-        return new OauthClientExtended(null, null, tokenService);
+    protected OauthClient createOauthClient(RestTemplate restTemplate) {
+        return new OauthClientExtended(uaaClient.getUaaUrl(), restTemplate, tokenService);
     }
 
     private static CloudCredentials createCredentials(String userName, String password) {

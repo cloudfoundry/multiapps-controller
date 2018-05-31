@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.ClientFactory;
+import com.sap.cloud.lm.sl.cf.core.security.token.TokenParserChain;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
@@ -45,9 +46,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     TokenFactory tokenFactory;
 
+    @Autowired
+    TokenParserChain tokenParserChain;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-
         if (!configuration.isBasicAuthEnabled())
             throw new InsufficientAuthenticationException("Basic authentication is not enabled, use OAuth2");
 
@@ -62,6 +65,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             // Get a valid token from the client
             // If this works, consider the request authenticated
             OAuth2AccessToken token = (tokenProvider != null) ? tokenProvider.getToken() : null;
+
             if (token == null) {
                 if (configuration.areDummyTokensEnabled()) {
                     token = tokenFactory.createDummyToken(userName, SecurityUtil.CLIENT_ID);
@@ -76,6 +80,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             // Check if an authentication for this token already exists in the token store
             OAuth2Authentication auth2 = tokenStore.readAuthentication(token);
             if (auth2 == null) {
+                token = tokenParserChain.parse(token.getValue());
+
                 // Create an authentication for the token and store it in the token store
                 auth2 = SecurityUtil.createAuthentication(SecurityUtil.CLIENT_ID, token.getScope(), SecurityUtil.getTokenUserInfo(token));
                 try {

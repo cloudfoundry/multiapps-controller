@@ -30,7 +30,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
     protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials) {
         CloudControllerClientFactory factory = new CloudControllerClientFactory(null, configuration.shouldSkipSslValidation());
         addTaggingInterceptor(factory.getRestTemplate());
-        OauthClient oauthClient = createOauthClient();
+        OauthClient oauthClient = createOauthClient(factory.getRestTemplate());
         CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, null, oauthClient);
         return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
             new CloudFoundryTokenProvider(oauthClient));
@@ -41,7 +41,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         CloudControllerClientFactory factory = new CloudControllerClientFactory(null, configuration.shouldSkipSslValidation());
         CloudSpace sessionSpace = getSessionSpace(credentials, org, space);
         addTaggingInterceptor(factory.getRestTemplate(), org, space);
-        OauthClient oauthClient = createOauthClient();
+        OauthClient oauthClient = createOauthClient(factory.getRestTemplate());
         CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace,
             oauthClient);
         return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
@@ -53,7 +53,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         CloudSpace sessionSpace = getSessionSpace(credentials, spaceId);
         addTaggingInterceptor(factory.getRestTemplate(), sessionSpace.getOrganization()
             .getName(), sessionSpace.getName());
-        OauthClient oauthClient = createOauthClient();
+        OauthClient oauthClient = createOauthClient(factory.getRestTemplate());
         CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace,
             oauthClient);
         return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
