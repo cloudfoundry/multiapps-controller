@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.ds;
+package com.sap.cloud.lm.sl.cf.web.configuration.bean.factory;
 
 import java.text.MessageFormat;
 
@@ -10,15 +10,15 @@ import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudException;
 import org.springframework.cloud.CloudFactory;
 
+import com.sap.cloud.lm.sl.cf.web.configuration.service.FileSystemServiceInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
-import com.sap.cloud.lm.sl.cf.web.service.FileSystemServiceInfo;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.persistence.services.FileSystemFileService;
 
-public class FileServiceFactoryBean implements FactoryBean<FileSystemFileService>, InitializingBean {
+public class FileSystemFileServiceFactoryBean implements FactoryBean<FileSystemFileService>, InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceFactoryBean.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemFileServiceFactoryBean.class);
 
     private String serviceName;
     private DataSourceWithDialect dataSourceWithDialect;

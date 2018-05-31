@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.ds;
+package com.sap.cloud.lm.sl.cf.web.configuration.bean.factory;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -7,7 +7,7 @@ import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.DatabaseFileService;
 import com.sap.cloud.lm.sl.persistence.services.FileSystemFileService;
 
-public class FileServicePicker implements FactoryBean<AbstractFileService>, InitializingBean {
+public class FileServiceFactoryBean implements FactoryBean<AbstractFileService>, InitializingBean {
 
     private DatabaseFileService databaseFileService;
     private FileSystemFileService fileSystemFileService;

@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.init;
+package com.sap.cloud.lm.sl.cf.web.configuration;
 
 import javax.inject.Inject;
 

@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.init;
+package com.sap.cloud.lm.sl.cf.web.configuration.bean;
 
 import java.util.UUID;
 
@@ -12,4 +12,5 @@ public class RandomInstanceIdGenerator implements InstanceIdGenerator {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
     }
+
 }

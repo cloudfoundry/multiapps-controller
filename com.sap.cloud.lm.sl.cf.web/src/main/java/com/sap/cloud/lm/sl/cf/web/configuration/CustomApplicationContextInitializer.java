@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.web.init;
+package com.sap.cloud.lm.sl.cf.web.configuration;
 
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -19,4 +19,5 @@ public class CustomApplicationContextInitializer implements ApplicationContextIn
                 .toString()
                 .toLowerCase());
     }
+
 }
