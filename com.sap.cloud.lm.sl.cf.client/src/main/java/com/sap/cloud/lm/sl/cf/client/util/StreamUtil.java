@@ -89,6 +89,7 @@ public class StreamUtil {
     }
 
     private void createFile(Path fileToCreate) throws IOException {
+        Files.createDirectories(fileToCreate.getParent());
         Files.createFile(fileToCreate);
         try (OutputStream outputStream = Files.newOutputStream(fileToCreate)) {
             IOUtils.copy(inputStream, outputStream);
