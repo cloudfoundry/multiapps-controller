@@ -19,7 +19,8 @@
       "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-db\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world-db\"\n]",
-      "MTA_SERVICES\u003d[\n  \"xsjs-hdi-container\"\n]"
+      "MTA_SERVICES\u003d[\n  \"xsjs-hdi-container\"\n]",
+      "MTA_SHARED_SERVICES\u003d[]"
     ],
     "instances": 0,
     "memory": 256,
@@ -52,7 +53,8 @@
       "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-backend\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs\",\n  \"xsjs-hello-world-backend\"\n]",
-      "MTA_SERVICES\u003d[\n  \"xsjs-hdi-container\"\n]"
+      "MTA_SERVICES\u003d[\n  \"xsjs-hdi-container\"\n]",
+      "MTA_SHARED_SERVICES\u003d[]"
     ],
     "instances": 0,
     "memory": 128,
@@ -89,6 +91,7 @@
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world\"\n]",
       "MTA_SERVICES\u003d[]",
+      "MTA_SHARED_SERVICES\u003d[]",
       "destinations\u003d[\n  {\n    \"name\": \"xsjs\",\n    \"url\": \"http://{xsa-placeholder-domain-default}:55001\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"proxyHost\": \"proxy.example.com\",\n    \"proxyPort\": \"8080\",\n    \"url\": \"https://sapui5.netweaver.ondemand.com\"\n  }\n]"
     ],
     "instances": 0,

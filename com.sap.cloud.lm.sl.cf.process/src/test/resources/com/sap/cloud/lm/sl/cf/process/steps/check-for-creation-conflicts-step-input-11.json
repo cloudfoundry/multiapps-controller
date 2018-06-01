@@ -1,0 +1,31 @@
+{
+  "servicesToDeploy": [
+    {
+      "name": "service-1",
+	  "isShared": "true"
+    }
+  ],
+  "existingServices": [
+    {
+      "name": "service-1"
+    }
+  ],
+  "existingApps": [
+    {
+      "name": "application-1",
+      "boundServices": [
+        "service-1"
+      ],
+      "env": {
+        "MTA_METADATA": {
+          "id": "com.sap.example.mta-1",
+          "version": "1.0.0"
+        },
+        "MTA_SERVICES": [
+          "service-1"
+        ],
+		"MTA_SHARED_SERVICES": []
+      }
+    }
+  ]
+}

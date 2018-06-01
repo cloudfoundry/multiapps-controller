@@ -24,6 +24,7 @@
       "MTA_MODULE_METADATA={\"name\":\"di-core\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"di-core-url\",\"di-core\"]",
       "MTA_SERVICES=[\"di-core-hdi\"]",
+      "MTA_SHARED_SERVICES=[]",
       "SERVICE_TO_JNDI_NAME_MAPPING={\"di-core-hdi\":\"jdbc/DefaultDB\"}\n",
       "TARGET_RUNTIME=tomcat",
       "XS_PATH=/usr/sap/xs2runtime/bin/xs"
@@ -65,6 +66,7 @@
       "MTA_MODULE_METADATA={\"name\":\"di-builder\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"di-builder\"]",
       "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]",
       "TARGET_RUNTIME=tomcat",
       "XS_PATH=/usr/sap/xs2runtime/bin/xs"
     ],
@@ -106,6 +108,7 @@
       "MTA_MODULE_METADATA={\"name\":\"di-runner\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"di-runner\"]",
       "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]",
       "TARGET_RUNTIME=tomcat",
       "UI5_CONTENT_URL=http://sofd60245639a:53055",
       "XS_PATH=/usr/sap/xs2runtime/bin/xs"

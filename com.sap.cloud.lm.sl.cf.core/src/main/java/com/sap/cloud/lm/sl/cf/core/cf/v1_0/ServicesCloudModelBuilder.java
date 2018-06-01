@@ -93,6 +93,7 @@ public class ServicesCloudModelBuilder {
         String label = (String) parameters.get(SupportedParameters.SERVICE);
         List<String> alternativeLabels = (List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
             Collections.emptyList());
+        boolean isShared = (boolean) parameters.getOrDefault(SupportedParameters.SHARED, false);
         String plan = (String) parameters.get(SupportedParameters.SERVICE_PLAN);
         String provider = (String) parameters.get(SupportedParameters.SERVICE_PROVIDER);
         String version = (String) parameters.get(SupportedParameters.SERVICE_VERSION);
@@ -100,23 +101,24 @@ public class ServicesCloudModelBuilder {
         Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
 
         return createCloudService(serviceName, label, plan, provider, version, alternativeLabels, credentials, serviceTags, isOptional,
-            true, shouldIgnoreUpdateErrors);
+            true, shouldIgnoreUpdateErrors, isShared);
     }
 
     protected CloudServiceExtended createUserProvidedService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors,
         Map<String, Object> parameters) {
         Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
+        boolean isShared = (boolean) parameters.getOrDefault(SupportedParameters.SHARED, false);
         String label = (String) parameters.get(SupportedParameters.SERVICE);
         if (label != null) {
             LOGGER.warn(MessageFormat.format(Messages.IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE, label, serviceName));
         }
         return createCloudService(serviceName, null, null, null, null, null, credentials, Collections.emptyList(), isOptional, true,
-            shouldIgnoreUpdateErrors);
+            shouldIgnoreUpdateErrors, isShared);
     }
 
     protected CloudServiceExtended createExistingService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors) {
         return createCloudService(serviceName, null, null, null, null, null, Collections.emptyMap(), Collections.emptyList(), isOptional,
-            false, shouldIgnoreUpdateErrors);
+            false, shouldIgnoreUpdateErrors, false);
     }
 
     @SuppressWarnings("unchecked")
@@ -140,7 +142,7 @@ public class ServicesCloudModelBuilder {
 
     protected CloudServiceExtended createCloudService(String name, String label, String plan, String provider, String version,
         List<String> alternativeLabels, Map<String, Object> credentials, List<String> tags, boolean isOptional, boolean isManaged,
-        boolean shouldIgnoreUpdateErrors) {
+        boolean shouldIgnoreUpdateErrors, boolean isShared) {
         CloudServiceExtended service = new CloudServiceExtended(null, name);
         service.setLabel(label);
         service.setPlan(plan);
@@ -152,6 +154,7 @@ public class ServicesCloudModelBuilder {
         service.setOptional(isOptional);
         service.setManaged(isManaged);
         service.setIgnoreUpdateErrors(shouldIgnoreUpdateErrors);
+        service.setShared(isShared);
         return service;
     }
 

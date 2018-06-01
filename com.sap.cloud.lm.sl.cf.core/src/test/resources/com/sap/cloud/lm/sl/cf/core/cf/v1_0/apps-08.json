@@ -17,6 +17,7 @@
       "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
       "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]",
       "TARGET_RUNTIME=tomee",
       "service-key-name=servicekey1",
       "type=existing-service-key"

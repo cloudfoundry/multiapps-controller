@@ -4,6 +4,7 @@
     "credentials": {},
     "tags": [],
     "isOptional": false,
+    "isShared": false,
     "isManaged": false,
     "shouldIgnoreUpdateErrors": false,
     "meta": {},

@@ -11,6 +11,7 @@
       "MTA_MODULE_METADATA={\"name\":\"java-hello-world\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
       "MTA_SERVICES=[\"uaa\"]",
+      "MTA_SHARED_SERVICES=[]",
       "destinations=[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     ],
     "instances": 0,

@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -86,24 +87,32 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
         List<CloudApplication> deployedApps, Set<String> servicesInDeployedMta) {
 
         getStepLogger().debug(Messages.VALIDATING_EXISTING_SERVICE_ASSOCIATION, serviceToCreate.getName());
-        if (servicesInDeployedMta.contains(serviceToCreate.getName())) {
+        if (servicesInDeployedMta.contains(serviceToCreate.getName()) && serviceToCreate.isShared()) {
             return;
         }
 
         List<CloudServiceBinding> bindings = getServiceBindings(client, serviceToCreate);
-        if (bindings.size() == 0) {
+        if (bindings.isEmpty()) {
             getStepLogger().warn(Messages.SERVICE_DOESNT_HAVE_BOUND_COMPONENTS, serviceToCreate.getName());
             return;
         }
         Set<String> namesOfBoundStandaloneApplications = new LinkedHashSet<>();
-        Set<String> idsOfMtasThatOwnTheService = new LinkedHashSet<>();
+        Set<String> idsOfMtasThatIncludeTheService = new LinkedHashSet<>();
+        Set<String> idsOfMtasThatShareTheService = new LinkedHashSet<>();
         for (CloudServiceBinding binding : bindings) {
             CloudApplication boundApplication = getBoundApplication(binding, deployedApps);
             ApplicationMtaMetadata boundMtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(boundApplication);
             if (boundMtaMetadata == null) {
                 namesOfBoundStandaloneApplications.add(boundApplication.getName());
-            } else if (mtaIsOwnerOfService(boundMtaMetadata, serviceToCreate)) {
-                idsOfMtasThatOwnTheService.add(boundMtaMetadata.getMtaMetadata()
+                continue;
+            }
+            if (!isServicePartOfMta(boundMtaMetadata, serviceToCreate)) {
+                continue;
+            }
+            idsOfMtasThatIncludeTheService.add(boundMtaMetadata.getMtaMetadata()
+                .getId());
+            if (isServiceShared(boundMtaMetadata, serviceToCreate)) {
+                idsOfMtasThatShareTheService.add(boundMtaMetadata.getMtaMetadata()
                     .getId());
             }
         }
@@ -111,14 +120,47 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
             getStepLogger().warn(Messages.SERVICE_ASSOCIATED_WITH_OTHER_APPS, serviceToCreate.getName(),
                 String.join(", ", namesOfBoundStandaloneApplications));
         }
-        if (!idsOfMtasThatOwnTheService.isEmpty()) {
-            throw new SLException(Messages.SERVICE_ASSOCIATED_WITH_OTHER_MTAS, serviceToCreate.getName(),
-                String.join(", ", idsOfMtasThatOwnTheService));
+
+        boolean isServiceInDeployedMta = servicesInDeployedMta.contains(serviceToCreate.getName());
+
+        boolean isServiceSharedInAllMta = idsOfMtasThatIncludeTheService.equals(idsOfMtasThatShareTheService);
+        if (!isServiceSharedInAllMta) {
+            @SuppressWarnings("unchecked")
+            Collection<String> mtasOwningService = CollectionUtils.disjunction(idsOfMtasThatIncludeTheService,
+                idsOfMtasThatShareTheService);
+            if (mtasOwningService.size() != 1 || !isServiceInDeployedMta) {
+                throw new SLException(Messages.SERVICE_ASSOCIATED_WITH_OTHER_MTAS, serviceToCreate.getName(),
+                    String.join(", ", mtasOwningService));
+            }
         }
+
+        boolean canSetServiceToOwned = canMtaOwnService(idsOfMtasThatIncludeTheService, isServiceInDeployedMta, serviceToCreate.getName());
+        if (serviceToCreate.isShared() || canSetServiceToOwned) {
+            return;
+        }
+
+        throw new SLException(Messages.SERVICE_SHOULD_BE_SHARED, serviceToCreate.getName(),
+            String.join(", ", idsOfMtasThatIncludeTheService));
+
     }
 
-    private boolean mtaIsOwnerOfService(ApplicationMtaMetadata mtaMetadata, CloudServiceExtended service) {
+    private boolean canMtaOwnService(Set<String> idsOfMtasThatBindToTheService, boolean isServiceInDeployedMta, String serviceName) {
+        if (idsOfMtasThatBindToTheService.isEmpty()) {
+            return true;
+        }
+        if (idsOfMtasThatBindToTheService.size() > 1) {
+            return false;
+        }
+        return isServiceInDeployedMta;
+    }
+
+    private boolean isServicePartOfMta(ApplicationMtaMetadata mtaMetadata, CloudServiceExtended service) {
         return mtaMetadata.getServices()
+            .contains(service.getName());
+    }
+
+    private boolean isServiceShared(ApplicationMtaMetadata mtaMetadata, CloudServiceExtended service) {
+        return (mtaMetadata.getSharedServices() != null) && mtaMetadata.getSharedServices()
             .contains(service.getName());
     }
 

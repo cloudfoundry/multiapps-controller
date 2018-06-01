@@ -28,19 +28,20 @@ public class ApplicationMtaMetadataParser {
             throw new ParsingException(e, Messages.COULD_NOT_PARSE_MTA_METADATA_FOR_APP_0, app.getName());
         }
     }
-    
+
     private static ApplicationMtaMetadata attemptToParseAppMetadata(CloudApplication app) {
         Map<String, String> appEnv = app.getEnvAsMap();
         DeployedMtaMetadata mtaMetadata = parseMtaMetadata(appEnv);
         List<String> services = parseServices(appEnv);
+        List<String> sharedServices = parseSharedServices(appEnv);
         String moduleName = parseModuleName(appEnv);
         List<String> providedDependencyNames = parseProvidedDependencyNames(app.getName(), appEnv);
         Map<String, Object> deployAttributes = parseDeployAttributes(appEnv);
-        
+
         if (mtaMetadata == null && services == null && moduleName == null && providedDependencyNames == null && deployAttributes == null) {
             return null;
         }
-        return new ApplicationMtaMetadata(mtaMetadata, services, moduleName, providedDependencyNames, deployAttributes);
+        return new ApplicationMtaMetadata(mtaMetadata, services, sharedServices, moduleName, providedDependencyNames, deployAttributes);
     }
 
     private static DeployedMtaMetadata parseMtaMetadata(Map<String, String> appEnv) {
@@ -57,6 +58,15 @@ public class ApplicationMtaMetadataParser {
 
     private static List<String> parseServices(Map<String, String> appEnv) {
         String envValue = appEnv.get(Constants.ENV_MTA_SERVICES);
+        if (envValue == null) {
+            return null;
+        }
+        return JsonUtil.convertJsonToList(envValue, new TypeToken<List<String>>() {
+        }.getType());
+    }
+
+    private static List<String> parseSharedServices(Map<String, String> appEnv) {
+        String envValue = appEnv.get(Constants.ENV_MTA_SHARED_SERVICES);
         if (envValue == null) {
             return null;
         }

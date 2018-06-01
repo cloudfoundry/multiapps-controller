@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceAndResourceType;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.UrisClassifier;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
@@ -35,7 +37,6 @@ import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.builders.v1_0.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.builders.v2_0.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2_0.DescriptorHandler;
@@ -91,10 +92,10 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);
         List<String> customUris = new UrisClassifier(xsPlaceholderResolver).getCustomUris(deployedModule);
         List<String> fullResolvedUris = ListUtil.merge(resolvedUris, customUris);
-        List<String> services = getApplicationServices(module, true);
+        List<String> services = getAllApplicationServices(module);
         List<ServiceKeyToInject> serviceKeys = getServicesKeysToInject(module);
-        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, uris, getApplicationServices(module, false),
-            module.getProperties(), ((Module) module).getParameters());
+        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, uris, getApplicationServices(module),
+            getSharedApplicationServices(module), module.getProperties(), ((Module) module).getParameters());
         List<CloudTask> tasks = getTasks(parametersList);
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters((Module) module);
         List<ApplicationPort> applicationPorts = getApplicationPorts((Module) module, parametersList);
@@ -168,28 +169,28 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     }
 
     @Override
-    protected List<String> getApplicationServices(com.sap.cloud.lm.sl.mta.model.v1_0.Module module, boolean addExisting)
-        throws SLException {
-        return getApplicationServices((Module) module, addExisting);
+    protected List<String> getApplicationServices(com.sap.cloud.lm.sl.mta.model.v1_0.Module module,
+        Predicate<ResourceAndResourceType> filterRule) throws SLException {
+        return getApplicationServices((Module) module, filterRule);
     }
 
-    protected List<String> getApplicationServices(Module module, boolean addExisting) throws SLException {
+    protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) throws SLException {
         List<String> services = new ArrayList<>();
         for (RequiredDependency dependency : module.getRequiredDependencies2_0()) {
-            Pair<com.sap.cloud.lm.sl.mta.model.v1_0.Resource, ResourceType> pair = getApplicationService(dependency.getName());
-            if (pair != null && shouldAddServiceToList(pair._2, addExisting)) {
-                ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(pair._1, pair._2));
+            ResourceAndResourceType pair = getApplicationService(dependency.getName());
+            if (pair != null && filterRule.test(pair)) {
+                ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(pair.getResource(), pair.getResourceType()));
             }
         }
         return ListUtil.removeDuplicates(services);
     }
 
     @Override
-    protected Pair<com.sap.cloud.lm.sl.mta.model.v1_0.Resource, ResourceType> getApplicationService(String dependencyName) {
+    protected ResourceAndResourceType getApplicationService(String dependencyName) {
         Resource resource = (Resource) getResource(dependencyName);
         if (resource != null && CloudModelBuilderUtil.isService(resource, propertiesAccessor)) {
             ResourceType serviceType = CloudModelBuilderUtil.getResourceType(resource.getParameters());
-            return new Pair<>(resource, serviceType);
+            return new ResourceAndResourceType(resource, serviceType);
         }
         return null;
     }

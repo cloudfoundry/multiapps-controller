@@ -19,7 +19,8 @@
       "MTA_METADATA\u003d{\n  \"id\": \"myapp\",\n  \"version\": \"0.0.1\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"m1\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"m1\"\n]",
-      "MTA_SERVICES\u003d[]"
+      "MTA_SERVICES\u003d[]",
+      "MTA_SHARED_SERVICES\u003d[]"
     ],
     "instances": 0,
     "memory": 0,

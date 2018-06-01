@@ -20,6 +20,7 @@
       "MTA_MODULE_METADATA={\"name\":\"framework\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"framework\"]",
       "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]",
       "plugins=[{\"plugin_name\":\"plugin-0\",\"url\":\"https://localhost:52001\"},{\"plugin_name\":\"plugin-1\",\"url\":\"https://localhost:52002\"}]"
     ],
     "instances": 0,

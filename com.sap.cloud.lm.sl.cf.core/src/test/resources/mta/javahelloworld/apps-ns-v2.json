@@ -15,7 +15,8 @@
       "MTA_METADATA={\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"java-hello-world-db\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java-hello-world-db\"]",
-      "MTA_SERVICES=[\"com.sap.xs2.samples.javahelloworld.java-hd7ef77536\"]"
+      "MTA_SERVICES=[\"com.sap.xs2.samples.javahelloworld.java-hd7ef77536\"]",
+      "MTA_SHARED_SERVICES=[]"
     ],
     "instances": 0,
     "memory": 256,
@@ -46,6 +47,7 @@
       "MTA_MODULE_METADATA={\"name\":\"java-hello-world-backend\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java\",\"java-hello-world-backend\"]",
       "MTA_SERVICES=[\"com.sap.xs2.samples.javahelloworld.uaa\",\"com.sap.xs2.samples.javahelloworld.java-hd7ef77536\"]",
+      "MTA_SHARED_SERVICES=[]",
       "TARGET_RUNTIME=tomee"
     ],
     "instances": 1,
@@ -80,6 +82,7 @@
       "MTA_MODULE_METADATA={\"name\":\"java-hello-world\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java-hello-world\"]",
       "MTA_SERVICES=[\"com.sap.xs2.samples.javahelloworld.uaa\"]",
+      "MTA_SHARED_SERVICES=[]",
       "destinations=[{\"name\":\"java\",\"url\":\"http://i027947-java-hello-world-backend.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     ],
     "instances": 0,
