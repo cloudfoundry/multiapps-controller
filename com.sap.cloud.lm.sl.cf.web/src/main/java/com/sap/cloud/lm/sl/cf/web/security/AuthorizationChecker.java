@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
 import java.text.MessageFormat;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -81,7 +83,7 @@ public class AuthorizationChecker {
         }
         CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
         CloudFoundryOperationsExtended clientx = (CloudFoundryOperationsExtended) client;
-        return checkPermissions(client, userInfo, orgName, spaceName, readOnly) && hasAccess(clientx, orgName, spaceName);
+        return hasPermissions(clientx, userInfo.getId(), orgName, spaceName, readOnly) && hasAccess(clientx, orgName, spaceName);
     }
 
     boolean checkPermissions(UserInfo userInfo, String spaceGuid, boolean readOnly) {
@@ -91,17 +93,39 @@ public class AuthorizationChecker {
         if (hasAdminScope(userInfo)) {
             return true;
         }
+        
+        UUID spaceUUID = UUID.fromString(spaceGuid);
         CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
+        CloudFoundryOperationsExtended clientx = (CloudFoundryOperationsExtended) client;
+        if(PlatformType.CF.equals(applicationConfiguration.getPlatformType())) {
+            return hasPermissions(clientx, userInfo.getId(), spaceUUID, readOnly);
+        }
+        
         Pair<String, String> location = getClientHelper(client).computeOrgAndSpace(spaceGuid);
         if (location == null) {
             throw new NotFoundException(Messages.ORG_AND_SPACE_NOT_FOUND, spaceGuid);
         }
-        return checkPermissions(client, userInfo, location._1, location._2, readOnly);
+        return hasPermissions(clientx, userInfo.getId(), location._1, location._2, readOnly);
     }
-
-    private boolean checkPermissions(CloudFoundryOperations client, UserInfo userInfo, String orgName, String spaceName, boolean readOnly) {
-        CloudFoundryOperationsExtended clientx = (CloudFoundryOperationsExtended) client;
-        return hasPermissions(clientx, userInfo.getId(), orgName, spaceName, readOnly);
+    
+    private boolean hasPermissions(CloudFoundryOperationsExtended client, String userId, UUID spaceGuid,
+        boolean readOnly) {
+        
+        if (client.getSpaceDevelopers2(spaceGuid)
+            .contains(userId)) {
+            return true;
+        }
+        if (readOnly) {
+            if (client.getSpaceAuditors2(spaceGuid)
+                .contains(userId)) {
+                return true;
+            }
+            if (client.getSpaceManagers2(spaceGuid)
+                .contains(userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean hasPermissions(CloudFoundryOperationsExtended client, String userId, String orgName, String spaceName,

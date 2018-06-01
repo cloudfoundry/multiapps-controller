@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.client;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 
@@ -15,6 +16,8 @@ public interface CloudFoundryOperationsExtended extends CloudFoundryOperations {
      * @return List of space manager user id
      */
     List<String> getSpaceManagers2(String spaceName);
+    
+    List<String> getSpaceManagers2(UUID spaceGuid);
 
     /**
      * Get list of space developer user id for the space.
@@ -23,6 +26,8 @@ public interface CloudFoundryOperationsExtended extends CloudFoundryOperations {
      * @return List of space developer user id
      */
     List<String> getSpaceDevelopers2(String spaceName);
+    
+    List<String> getSpaceDevelopers2(UUID spaceGuid);
 
     /**
      * Get list of space auditor user id for the space.
@@ -31,6 +36,8 @@ public interface CloudFoundryOperationsExtended extends CloudFoundryOperations {
      * @return List of space auditor user id
      */
     List<String> getSpaceAuditors2(String spaceName);
+    
+    List<String> getSpaceAuditors2(UUID spaceGuid);
 
     /**
      * Get list of space manager user id for the space.

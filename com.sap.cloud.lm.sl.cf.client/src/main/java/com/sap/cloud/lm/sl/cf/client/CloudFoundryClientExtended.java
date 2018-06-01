@@ -63,11 +63,35 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
             throw fromException(cause.getMessage(), cause, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
+    @Override
+    public List<String> getSpaceManagers2(UUID spaceGuid) {
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceManagers(spaceGuid).stream()
+                .map(uuid -> uuid.toString())
+                .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            throw fromException(cause.getMessage(), cause, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     @Override
     public List<String> getSpaceDevelopers2(String spaceName) {
         try {
             return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceDevelopers(spaceName).stream()
+                .map(uuid -> uuid.toString())
+                .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @Override
+    public List<String> getSpaceDevelopers2(UUID spaceGuid) {
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceDevelopers(spaceGuid).stream()
                 .map(uuid -> uuid.toString())
                 .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
         } catch (ExecutionException e) {
@@ -80,6 +104,18 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     public List<String> getSpaceAuditors2(String spaceName) {
         try {
             return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceAuditors(spaceName).stream()
+                .map(uuid -> uuid.toString())
+                .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @Override
+    public List<String> getSpaceAuditors2(UUID spaceGuid) {
+        try {
+            return executeWithTimeout(() -> executeWithRetry(() -> super.getSpaceAuditors(spaceGuid).stream()
                 .map(uuid -> uuid.toString())
                 .collect(Collectors.toList()), HttpStatus.NOT_FOUND));
         } catch (ExecutionException e) {
@@ -123,7 +159,7 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
             throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @Override
     public void createService(CloudService service) {
         try {

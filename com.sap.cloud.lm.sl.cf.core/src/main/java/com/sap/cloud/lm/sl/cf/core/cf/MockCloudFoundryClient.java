@@ -751,4 +751,19 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
         return null;
     }
 
+    @Override
+    public List<UUID> getSpaceAuditors(UUID spaceGuid) {
+        return null;
+    }
+
+    @Override
+    public List<UUID> getSpaceDevelopers(UUID spaceGuid) {
+        return null;
+    }
+
+    @Override
+    public List<UUID> getSpaceManagers(UUID spaceGuid) {
+        return null;
+    }
+
 }

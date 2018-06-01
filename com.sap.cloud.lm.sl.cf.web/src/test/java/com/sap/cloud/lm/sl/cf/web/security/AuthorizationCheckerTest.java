@@ -40,7 +40,7 @@ public class AuthorizationCheckerTest {
     private static final String SPACE = "space";
     private static final String USER_ID = "userId";
     private static final String USERNAME = "userName";
-    private static final String SPACE_ID = "spaceID";
+    private static final String SPACE_ID = "a72df2e8-b06c-44b2-a8fa-5cadb0239573";
 
     @Mock
     private CloudFoundryClientProvider clientProvider;
