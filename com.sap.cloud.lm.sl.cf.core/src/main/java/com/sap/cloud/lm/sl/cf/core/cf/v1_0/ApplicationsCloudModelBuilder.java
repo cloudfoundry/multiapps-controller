@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 
 import org.cloudfoundry.client.lib.domain.Staging;
 
@@ -32,7 +33,6 @@ import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.builders.v1_0.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
@@ -162,16 +162,16 @@ public class ApplicationsCloudModelBuilder {
         List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);
         List<String> customUris = new UrisClassifier(xsPlaceholderResolver).getCustomUris(deployedModule);
         List<String> fullResolvedUris = ListUtil.merge(resolvedUris, customUris);
-        List<String> services = getApplicationServices(module, true);
+        List<String> allServices = getAllApplicationServices(module);
         List<ServiceKeyToInject> serviceKeysToInject = getServicesKeysToInject(module);
         Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
         Map<String, Object> moduleProperties = propertiesAccessor.getProperties(module, specialModuleProperties);
         Map<String, Object> moduleParameters = propertiesAccessor.getParameters(module, specialModuleProperties);
-        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, uris, getApplicationServices(module, false),
-            moduleProperties, moduleParameters);
+        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, uris, getApplicationServices(module),
+            getSharedApplicationServices(module), moduleProperties, moduleParameters);
         List<CloudTask> tasks = getTasks(propertiesList);
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, fullResolvedUris,
-            resolvedIdleUris, services, serviceKeysToInject, env, tasks);
+            resolvedIdleUris, allServices, serviceKeysToInject, env, tasks);
     }
 
     protected DeployedMtaModule findDeployedModule(DeployedMta deployedMta, Module module) {
@@ -195,26 +195,55 @@ public class ApplicationsCloudModelBuilder {
         return parser.parse(parametersList);
     }
 
-    protected List<String> getApplicationServices(Module module, boolean addExisting) throws SLException {
+    protected List<String> getAllApplicationServices(Module module) {
+        return getApplicationServices(module, this::allServicesRule);
+    }
+
+    protected List<String> getApplicationServices(Module module) {
+        return getApplicationServices(module, this::filterExistingServicesRule);
+    }
+
+    protected List<String> getSharedApplicationServices(Module module) {
+        return getApplicationServices(module, this::onlySharedServicesRule);
+    }
+
+    protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) throws SLException {
         List<String> services = new ArrayList<>();
         for (String dependencyName : module.getRequiredDependencies1_0()) {
-            Pair<Resource, ResourceType> pair = getApplicationService(dependencyName);
-            if (pair != null && shouldAddServiceToList(pair._2, addExisting)) {
-                ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(pair._1, pair._2));
+            ResourceAndResourceType resourceAndResourceType = getApplicationService(dependencyName);
+            if (resourceAndResourceType != null && filterRule.test(resourceAndResourceType)) {
+                ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(resourceAndResourceType.getResource(), resourceAndResourceType.getResourceType()));
             }
         }
         return ListUtil.removeDuplicates(services);
     }
 
-    protected boolean shouldAddServiceToList(ResourceType serviceType, boolean addExisting) {
-        return !serviceType.equals(ResourceType.EXISTING_SERVICE) || addExisting;
+    private boolean allServicesRule(ResourceAndResourceType resourceAndResourceType) {
+        return true;
     }
 
-    protected Pair<Resource, ResourceType> getApplicationService(String dependencyName) {
+    private boolean filterExistingServicesRule(ResourceAndResourceType resourceAndResourceType) {
+        return !isExistingService(resourceAndResourceType.getResourceType());
+    }
+
+    private boolean onlySharedServicesRule(ResourceAndResourceType resourceAndResourceType) {
+        return !isExistingService(resourceAndResourceType.getResourceType()) && isSharedService(resourceAndResourceType.getResource());
+    }
+
+    private boolean isExistingService(ResourceType resourceType) {
+        return resourceType.equals(ResourceType.EXISTING_SERVICE);
+    }
+
+    private boolean isSharedService(Resource resource) {
+        return (boolean) propertiesAccessor.getParameters(resource)
+            .getOrDefault(SupportedParameters.SHARED, false);
+    }
+
+    protected ResourceAndResourceType getApplicationService(String dependencyName) {
         Resource resource = getResource(dependencyName);
         if (resource != null && CloudModelBuilderUtil.isService(resource, propertiesAccessor)) {
             ResourceType serviceType = CloudModelBuilderUtil.getResourceType(resource.getProperties());
-            return new Pair<>(resource, serviceType);
+            return new ResourceAndResourceType(resource, serviceType);
         }
         return null;
     }

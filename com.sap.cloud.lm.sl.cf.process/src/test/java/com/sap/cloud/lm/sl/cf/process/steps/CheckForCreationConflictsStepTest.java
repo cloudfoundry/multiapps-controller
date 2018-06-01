@@ -79,11 +79,39 @@ public class CheckForCreationConflictsStepTest extends SyncActivitiStepTest<Chec
             },
             // (7) Services to deploy exist, not part of the deployed MTA, have bound applications from another MTA -> expect exception:
             {
-                "check-for-creation-conflicts-step-input-8.json", MessageFormat.format(Messages.SERVICE_ASSOCIATED_WITH_OTHER_MTAS, "service-1", "com.sap.example.mta-1, com.sap.example.mta-2"), false,
+                "check-for-creation-conflicts-step-input-8.json", MessageFormat.format(Messages.SERVICE_ASSOCIATED_WITH_OTHER_MTAS, "service-1", "com.sap.example.mta-2, com.sap.example.mta-1"), false,
             },
             // (8) Services to deploy exist, not part of the deployed MTA, have bound applications from another MTA, but they do not claim to 'own' the service -> should be OK:
             {
                 "check-for-creation-conflicts-step-input-9.json", null, false,
+            },
+            // (9) Services to deploy exist, not part of the deployed MTA, have bound applications from another MTA, but they have the service as shared and the deployment has it as shared -> should be OK:
+            {
+                "check-for-creation-conflicts-step-input-10.json", null, false,
+            },
+            // (10) Services to deploy exist, not part of the deployed MTA, have bound applications from another MTA, they claim to 'own' the service and the deployment has it as shared -> should be an error:
+            {
+                "check-for-creation-conflicts-step-input-11.json", MessageFormat.format(Messages.SERVICE_ASSOCIATED_WITH_OTHER_MTAS, "service-1", "com.sap.example.mta-1"), false,
+            },
+            // (11) Services to deploy exist, not part of the deployed MTA, have bound applications from another MTA, but they have the service as shared and the deployment has it as "owner" -> should be an error:
+            {
+                "check-for-creation-conflicts-step-input-12.json", MessageFormat.format(Messages.SERVICE_SHOULD_BE_SHARED, "service-1", "com.sap.example.mta-1"), false,
+            },
+            // (12) Services to deploy exist, part of the deployed MTA, have bound application only from same MTA, but changing from shared to owner -> should be OK:
+            {
+                "check-for-creation-conflicts-step-input-13.json", null, false,
+            },
+            // (13) Services to deploy exist, part of the deployed MTA, have bound applications from same MTA and another MTA, but changing from shared to owner -> should be error:
+            {
+                "check-for-creation-conflicts-step-input-14.json", MessageFormat.format(Messages.SERVICE_SHOULD_BE_SHARED, "service-1", "com.sap.example.mta-1"), false,
+            },
+            // (14) Services to deploy exist, part of the deployed MTA, have bound application only from same MTA, but changing from owner to shared -> should be OK:
+            {
+                "check-for-creation-conflicts-step-input-15.json", null, false,
+            },            
+            // (15) Services to deploy exist, part of the deployed MTA, have bound application only from same MTA, but remain owner -> should be OK:
+            {
+                "check-for-creation-conflicts-step-input-16.json", null, false,
             },
 // @formatter:on
         });

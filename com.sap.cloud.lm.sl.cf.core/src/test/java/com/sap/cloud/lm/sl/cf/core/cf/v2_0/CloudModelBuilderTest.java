@@ -340,7 +340,17 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1_0.C
                 new String[] { "module-1", "module-2", "module-3" }, // mtaModules
                 new String[] {}, // deployedApps
                 new String[] { "[\"test-domain\",\"test-domain-2\"]", "[]", "R:apps-with-tcp-routes.json", }
-            }
+            },
+            // (32) Shared Managed Service
+            { "/mta/sample/mtad-v2-shared.yaml", "/mta/sample/config1-v2.mtaext", "/mta/sample/platform-types-v2.json", "/mta/sample/targets-v2.json",
+                false, false,
+                new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
+                new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] {
+                    "[\"bestprice.sap.com\"]", // domains
+                    "R:/mta/sample/services-shared.json",
+                    "R:/mta/sample/apps-v2-shared.json", } },
 // @formatter:on
         });
     }

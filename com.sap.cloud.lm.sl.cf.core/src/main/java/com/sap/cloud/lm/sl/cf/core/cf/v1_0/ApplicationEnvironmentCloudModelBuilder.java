@@ -44,11 +44,12 @@ public class ApplicationEnvironmentCloudModelBuilder {
         this.deployId = deployId;
     }
 
-    public Map<Object, Object> build(Module module, List<String> descriptorDefinedUris, List<String> applicationServices,
-        Map<String, Object> properties, Map<String, Object> parameters) throws ContentException {
+    public Map<Object, Object> build(Module module, List<String> descriptorDefinedUris, List<String> services,
+        List<String> sharedServices, Map<String, Object> properties, Map<String, Object> parameters) throws ContentException {
         Map<String, Object> env = new TreeMap<>();
         addMetadata(env, module);
-        addServices(env, applicationServices);
+        addServices(env, services);
+        addSharedServices(env, sharedServices);
         addAttributes(env, descriptorDefinedUris, parameters);
         addProperties(env, properties);
         addDependencies(env, module);
@@ -89,6 +90,10 @@ public class ApplicationEnvironmentCloudModelBuilder {
 
     protected void addServices(Map<String, Object> env, List<String> services) {
         env.put(Constants.ENV_MTA_SERVICES, services);
+    }
+
+    protected void addSharedServices(Map<String, Object> env, List<String> sharedServices) {
+        env.put(Constants.ENV_MTA_SHARED_SERVICES, sharedServices);
     }
 
     protected void addAttributes(Map<String, Object> env, List<String> descriptorDefinedUris, Map<String, Object> properties) {

@@ -11,6 +11,7 @@
       "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
       "MTA_SERVICES=[\"com.sap.sample.mta.user-provided-renamed\",\"com.sap.sample.mta.user-provided-service\",\"com.sap.sample.mta.user-provider-resource-7ef941fc\",\"com.sap.sample.mta.random-service-renamed\",\"com.sap.sample.mta.random-service\",\"com.sap.sample.mta.random-resource-named-service\"]",
+      "MTA_SHARED_SERVICES=[]",
       "TARGET_RUNTIME=tomee",
       "route-path=/bar"
     ],

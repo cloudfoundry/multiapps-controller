@@ -21,6 +21,7 @@
       "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-1\"]",
       "MTA_SERVICES=[\"techical-user-provider\"]",
+      "MTA_SHARED_SERVICES=[]",
       "TARGET_RUNTIME=tomee"
     ],
     "meta": {},
@@ -46,6 +47,7 @@
       "MTA_MODULE_METADATA={\"name\":\"module-2\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-2\"]",
       "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]",
       "TARGET_RUNTIME=tomee"
     ],
     "meta": {},

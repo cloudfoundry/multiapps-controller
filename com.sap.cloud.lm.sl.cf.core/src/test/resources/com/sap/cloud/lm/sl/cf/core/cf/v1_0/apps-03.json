@@ -22,6 +22,7 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
       "MTA_PROPERTIES={\"create-user-provided-service\":true,\"user-provided-service-config\":{\"user\":\"test-user\",\"password\":\"test-pass\",\"url\":\"test-url\"},\"user-provided-service-name\":\"test\"}",
       "MTA_SERVICES=[\"test\"]",
+      "MTA_SHARED_SERVICES=[]",
       "TARGET_RUNTIME=tomee"
     ],
     "meta": {},
@@ -48,6 +49,7 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
       "MTA_PROPERTIES={\"create-user-provided-service\":false,\"user-provided-service-config\":{\"user\":\"test-user\",\"password\":\"test-pass\",\"url\":\"test-url\"},\"user-provided-service-name\":\"test\"}",
       "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]",
       "TARGET_RUNTIME=tomee"
     ],
     "meta": {},

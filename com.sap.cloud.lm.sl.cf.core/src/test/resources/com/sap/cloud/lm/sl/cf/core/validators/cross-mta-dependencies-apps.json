@@ -22,6 +22,7 @@
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"module\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"module\"\n]",
       "MTA_SERVICES\u003d[]",
+      "MTA_SHARED_SERVICES\u003d[]",
       "bar\u003dbar",
       "baz\u003dbaz",
       "foo\u003dfoo",

@@ -36,7 +36,8 @@ public class Messages {
     public static final String APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA = "Application \"{0}\" exists and is associated with MTA \"{1}\"";
     public static final String APPLICATION_EXISTS_AS_STANDALONE = "Application \"{0}\" exists, but is not associated with any MTA";
     public static final String SERVICE_ASSOCIATED_WITH_OTHER_APPS = "Service \"{0}\" already exists, but is bound to application(s), not detected as part of the mta - standalone apps : {1}";
-    public static final String SERVICE_ASSOCIATED_WITH_OTHER_MTAS = "Service \"{0}\" already exists, but is associated with MTA(s): {1}";
+    public static final String SERVICE_ASSOCIATED_WITH_OTHER_MTAS = "Service \"{0}\"  can not be used, because the following MTA(s) do not declare it as shared: {1}";
+    public static final String SERVICE_SHOULD_BE_SHARED = "Service \"{0}\" has to be declared as shared, because it is already shared with MTA(s): {1}";
     public static final String ERROR_VALIDATING_SERVICES = "Could not validate services";
     public static final String ERROR_VALIDATING_APPLICATIONS = "Could not validate applications";
     public static final String COULD_NOT_CONFIGURE_GIT_TO_SKIP_SSL = "Could not configure Git to skip SSL";

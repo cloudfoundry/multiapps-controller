@@ -15,6 +15,7 @@
       "MTA_MODULE_METADATA={\"name\":\"webide\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"webide\"]",
       "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]",
       "destinations=[{\"name\":\"sapui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://i027947-di-core.cfapps.neo.ondemand.com\"}]"
     ],
     "instances": 0,
