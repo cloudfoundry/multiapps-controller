@@ -58,8 +58,8 @@
         <spring.context.support.version>4.1.1.RELEASE</spring.context.support.version>
         <quartz.version>2.2.1</quartz.version>
         <jackson-asl.version>1.9.13</jackson-asl.version>
-        <liquibase.version>3.4.1</liquibase.version>
-        <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
+        <liquibase.version>3.6.1</liquibase.version>
+        <liquibase-slf4j.version>2.0.0</liquibase-slf4j.version>
         <cloudfoundry.client.version>1.1.4.RELEASE-sap-15</cloudfoundry.client.version>
         <protobuf-java.version>3.1.0</protobuf-java.version>
         <jackson.version>2.9.5</jackson.version>
