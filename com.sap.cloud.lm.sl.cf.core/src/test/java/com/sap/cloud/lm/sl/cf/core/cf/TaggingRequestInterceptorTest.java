@@ -37,6 +37,7 @@ public class TaggingRequestInterceptorTest {
     @Before
     public void setUp() {
         requestStub = new AbstractClientHttpRequest() {
+
             public URI getURI() {
                 return null;
             }
@@ -52,6 +53,12 @@ public class TaggingRequestInterceptorTest {
             protected ClientHttpResponse executeInternal(HttpHeaders headers) throws IOException {
                 return null;
             }
+
+            @Override
+            public String getMethodValue() {
+                return null;
+            }
+
         };
         MockitoAnnotations.initMocks(this);
     }
