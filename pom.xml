@@ -45,13 +45,12 @@
         <flowable.version>6.3.1</flowable.version>
         <mybatis.version>3.3.0</mybatis.version>
         <joda-time.version>2.8</joda-time.version>
-        <spring.version>4.3.19.RELEASE</spring.version>
-        <spring.security.version>4.2.8.RELEASE</spring.security.version>
-        <spring.security.oauth2.version>2.3.3.RELEASE</spring.security.oauth2.version>
-        <spring.security.jwt.version>1.0.5.RELEASE</spring.security.jwt.version>
+        <spring.version>5.1.2.RELEASE</spring.version>
+        <spring.security.version>5.1.1.RELEASE</spring.security.version>
+        <spring.security.oauth2.version>2.3.4.RELEASE</spring.security.oauth2.version>
+        <spring.security.jwt.version>1.0.9.RELEASE</spring.security.jwt.version>
         <spring.cloud.version>1.2.3.RELEASE</spring.cloud.version>
         <hana.cloud.version>1.0.4.RELEASE</hana.cloud.version>
-        <spring.context.support.version>4.1.1.RELEASE</spring.context.support.version>
         <quartz.version>2.2.1</quartz.version>
         <jackson-asl.version>1.9.13</jackson-asl.version>
         <liquibase.version>3.4.1</liquibase.version>
@@ -638,12 +637,6 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${spring.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -704,12 +697,6 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>${spring.security.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-codec</groupId>
-                        <artifactId>commons-codec</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -755,7 +742,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
-                <version>${spring.context.support.version}</version>
+                <version>${spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.quartz-scheduler</groupId>
