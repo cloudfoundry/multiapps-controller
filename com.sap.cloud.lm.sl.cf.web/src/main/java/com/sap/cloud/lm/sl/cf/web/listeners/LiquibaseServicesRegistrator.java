@@ -7,8 +7,6 @@ import javax.servlet.ServletContextListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.sap.cloud.lm.sl.cf.core.liquibase.RecoveringLockService;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -23,15 +21,15 @@ public class LiquibaseServicesRegistrator implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent event) {
-        LockService lockService = createLockService(WebApplicationContextUtils.getRequiredWebApplicationContext(event.getServletContext()));
-        LockServiceFactory lockServiceFactory = LockServiceFactory.getInstance();
-        lockServiceFactory.register(lockService);
+        ApplicationConfiguration configuration = new ApplicationConfiguration();
+        LockService lockService = createLockService(configuration);
+        LockServiceFactory.getInstance()
+            .register(lockService);
         LOGGER.info(MessageFormat.format(Messages.REGISTERED_0_AS_LIQUIBASE_LOCK_SERVICE, lockService.getClass()
             .getName()));
     }
 
-    private LockService createLockService(ApplicationContext context) {
-        ApplicationConfiguration configuration = context.getBean(ApplicationConfiguration.class);
+    private LockService createLockService(ApplicationConfiguration configuration) {
         long changeLogLockAttempts = configuration.getChangeLogLockAttempts();
         long changeLogLockDuration = configuration.getChangeLogLockDuration();
         long changeLogLockPollRate = configuration.getChangeLogLockPollRate();
