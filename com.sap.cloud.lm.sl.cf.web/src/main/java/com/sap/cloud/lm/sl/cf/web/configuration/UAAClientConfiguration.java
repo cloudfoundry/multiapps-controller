@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import com.sap.cloud.lm.sl.cf.client.uaa.UAAClient;
 import com.sap.cloud.lm.sl.cf.client.uaa.UAAClientFactory;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.SSLUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Configuration
@@ -23,6 +24,9 @@ public class UAAClientConfiguration {
     @Bean
     @Profile("cf")
     public UAAClient uaaClient(ApplicationConfiguration configuration) {
+        if (configuration.shouldSkipSslValidation()) {
+            SSLUtil.disableSSLValidation();
+        }
         return new UAAClientFactory().createClient(readTokenEndpoint(configuration.getTargetURL()));
     }
 
