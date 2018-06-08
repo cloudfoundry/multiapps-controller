@@ -1,9 +1,11 @@
+.idea/*
 bin/
 target/
 .project
 .classpath
 .settings
 .bpmn
+*.iml
 *.zip
 *.war
 *.log
