@@ -13,11 +13,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -124,6 +126,14 @@ public class UploadAppStepTest {
             assertCall(Constants.VAR_UPLOAD_TOKEN, TOKEN);
         }
 
+        @After
+        public void cleanUp() {
+            if (appFile != null && appFile.exists()) {
+                appFile.delete();
+                tempDir.delete();
+            }
+        }
+
         private void assertCall(String variableName, String variableValue) {
             Mockito.verify(context)
                 .setVariable(variableName, variableValue);
@@ -177,7 +187,7 @@ public class UploadAppStepTest {
         private class UploadAppStepMock extends UploadAppStep {
 
             @Override
-            public File saveToFile(String fileName, InputStreamProducer streamProducer) throws IOException {
+            public File saveToFile(String fileName, Path tempDirectory, InputStreamProducer streamProducer) throws IOException {
                 InputStream stream = streamProducer.getNextInputStream();
                 assertNotNull(stream);
                 Files.copy(stream, appFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -199,6 +209,11 @@ public class UploadAppStepTest {
                 };
             }
 
+            @Override
+            public Path getTempDirectoryFromFilename(String fileName) throws IOException {
+                return tempDir.getRoot()
+                    .toPath();
+            }
         }
 
         @Override
