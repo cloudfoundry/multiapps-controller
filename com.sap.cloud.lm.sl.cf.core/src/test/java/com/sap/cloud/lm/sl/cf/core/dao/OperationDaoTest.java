@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.junit.jupiter.api.AfterEach;
@@ -310,10 +311,9 @@ public class OperationDaoTest {
     }
 
     private static OperationDao createDao() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("TestDefault");
         OperationDao dao = new OperationDao();
-        OperationDtoDao dtoDao = new OperationDtoDao();
-        dtoDao.emf = Persistence.createEntityManagerFactory("OperationManagement");
-        dao.dao = dtoDao;
+        dao.dao = new OperationDtoDao(entityManagerFactory);
         dao.operationFactory = new OperationFactory();
         return dao;
     }

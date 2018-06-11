@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TemporalType;
@@ -14,8 +15,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
@@ -29,9 +28,12 @@ import com.sap.cloud.lm.sl.common.NotFoundException;
 @Component
 public class OperationDtoDao {
 
-    @Autowired
-    @Qualifier("operationEntityManagerFactory")
-    EntityManagerFactory emf;
+    private EntityManagerFactory entityManagerFactory;
+
+    @Inject
+    public OperationDtoDao(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+    }
 
     public void add(OperationDto operation) {
         new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
@@ -44,7 +46,7 @@ public class OperationDtoDao {
     }
 
     private EntityManager createEntityManager() {
-        return emf.createEntityManager();
+        return entityManagerFactory.createEntityManager();
     }
 
     private boolean existsInternal(EntityManager manager, String processId) {

@@ -3,7 +3,8 @@ package com.sap.cloud.lm.sl.cf.core.dao;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationSubscriptionDto;
@@ -13,7 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 @Component
 public class ConfigurationSubscriptionDao {
 
-    @Autowired
+    @Inject
     protected ConfigurationSubscriptionDtoDao dao;
 
     public List<ConfigurationSubscription> findAll() {

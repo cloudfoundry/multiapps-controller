@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto;
@@ -17,8 +18,8 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 @Component
 public class ConfigurationEntryDao {
 
-    @Autowired
-    ConfigurationEntryDtoDao dao;
+    @Inject
+    protected ConfigurationEntryDtoDao dao;
 
     private static final BiFunction<ConfigurationEntry, String, Boolean> VERSION_FILTER = new VersionFilter();
     private static final BiFunction<ConfigurationEntry, List<CloudTarget>, Boolean> VISIBILITY_FILTER = new VisibilityFilter();

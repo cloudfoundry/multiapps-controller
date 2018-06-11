@@ -9,6 +9,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.RollbackException;
@@ -20,8 +21,6 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationEntryDto;
@@ -39,9 +38,8 @@ public class ConfigurationEntryDtoDao {
 
     public static final BiFunction<CloudTarget, CloudTarget, Boolean> TARGET_WILDCARD_FILTER = new TargetWildcardFilter();
 
-    @Autowired
-    @Qualifier("configurationEntryEntityManagerFactory")
-    EntityManagerFactory emf;
+    @Inject
+    protected EntityManagerFactory entityManagerFactory;
 
     public ConfigurationEntryDto add(ConfigurationEntryDto entry) {
         try {
@@ -170,7 +168,7 @@ public class ConfigurationEntryDtoDao {
     }
 
     private EntityManager createEntityManager() {
-        return emf.createEntityManager();
+        return entityManagerFactory.createEntityManager();
     }
 
     private List<ConfigurationEntryDto> filter(List<ConfigurationEntryDto> entries, Map<String, Object> requiredProperties,

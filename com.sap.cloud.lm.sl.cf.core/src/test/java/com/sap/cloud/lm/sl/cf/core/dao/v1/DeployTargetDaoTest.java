@@ -73,12 +73,13 @@ public class DeployTargetDaoTest {
 
     }
 
+    protected static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("TestDefault");
+
     protected String resource = "/platform/platform-v1.json";
     private String exceptionMessage;
 
     private Input input;
-    protected static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("DeployTargetManagement");
-    private com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao<Target, DeployTargetDto> dao = getDeployTargetDao();
+    private com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao<Target, DeployTargetDto> dao;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -91,6 +92,7 @@ public class DeployTargetDaoTest {
     @Before
     public void setUp() throws Exception {
         Target tp = loadDeployTarget(resource);
+        dao = getDeployTargetDao();
         dao.add(tp);
     }
 
@@ -189,9 +191,7 @@ public class DeployTargetDaoTest {
     }
 
     protected com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao getDeployTargetDao() {
-        DeployTargetDao dao = new DeployTargetDao();
-        dao.emf = EMF;
-        return dao;
+        return new DeployTargetDao(EMF);
     }
 
     private void loadExceptionForInput(Input input) {

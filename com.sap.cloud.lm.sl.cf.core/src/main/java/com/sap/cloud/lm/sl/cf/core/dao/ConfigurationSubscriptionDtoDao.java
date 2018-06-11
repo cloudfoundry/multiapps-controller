@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.RollbackException;
@@ -13,8 +14,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationSubscriptionDto;
@@ -27,9 +26,12 @@ import com.sap.cloud.lm.sl.common.NotFoundException;
 @Component
 public class ConfigurationSubscriptionDtoDao {
 
-    @Autowired
-    @Qualifier("configurationSubscriptionEntityManagerFactory")
-    protected EntityManagerFactory emf;
+    private EntityManagerFactory entityManagerFactory;
+
+    @Inject
+    public ConfigurationSubscriptionDtoDao(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+    }
 
     @SuppressWarnings("unchecked")
     public List<ConfigurationSubscriptionDto> findAll() {
@@ -170,6 +172,6 @@ public class ConfigurationSubscriptionDtoDao {
     }
 
     private EntityManager createEntityManager() {
-        return emf.createEntityManager();
+        return entityManagerFactory.createEntityManager();
     }
 }
