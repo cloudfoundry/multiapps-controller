@@ -38,7 +38,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil.JsonSerializationOptions;
 @RunWith(Enclosed.class)
 public class ConfigurationSubscriptionDaoTest {
 
-    private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("ConfigurationSubscriptionManagement");
+    private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("TestDefault");
 
     @RunWith(Parameterized.class)
     public static class ConfigurationSubscriptionDaoTest1 {
@@ -324,10 +324,8 @@ public class ConfigurationSubscriptionDaoTest {
     }
 
     private static ConfigurationSubscriptionDao getDao() {
-        ConfigurationSubscriptionDtoDao dtoDao = new ConfigurationSubscriptionDtoDao();
-        dtoDao.emf = EMF;
         ConfigurationSubscriptionDao dao = new ConfigurationSubscriptionDao();
-        dao.dao = dtoDao;
+        dao.dao = new ConfigurationSubscriptionDtoDao(EMF);
         return dao;
     }
 

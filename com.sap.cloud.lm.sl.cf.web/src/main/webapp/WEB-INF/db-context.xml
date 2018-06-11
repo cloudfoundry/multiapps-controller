@@ -15,31 +15,31 @@
     <beans profile="defaultdb">
         <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.cf.persistence.dialects.DefaultDataSourceDialect" />
 
-        <bean id="openJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+        <bean id="eclipseLinkJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
             <property name="showSql" value="false" />
         </bean>
 
         <bean id="baseEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
             abstract="true">
             <property name="dataSource" ref="dataSource" />
-            <property name="jpaVendorAdapter" ref="openJpaVendorAdapter" />
+            <property name="jpaVendorAdapter" ref="eclipseLinkJpaVendorAdapter" />
         </bean>
     </beans>
 
     <beans profile="hana">
         <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.cf.persistence.dialects.DefaultDataSourceDialect" />
 
-        <bean id="openJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+        <bean id="eclipseLinkJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
             <property name="showSql" value="false" />
         </bean>
 
         <bean id="baseEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
             abstract="true">
             <property name="dataSource" ref="dataSource" />
-            <property name="jpaVendorAdapter" ref="openJpaVendorAdapter" />
+            <property name="jpaVendorAdapter" ref="eclipseLinkJpaVendorAdapter" />
             <property name="jpaProperties">
                 <props>
-                    <prop key="openjpa.jdbc.DBDictionary">NextSequenceQuery=SELECT {0}.NEXTVAL FROM DUMMY</prop>
+                    <prop key="eclipselink.target-database">HANA</prop>
                 </props>
             </property>
         </bean>
@@ -48,21 +48,15 @@
     <beans profile="postgresql">
         <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.cf.persistence.dialects.PostgreSQLDataSourceDialect" />
 
-        <bean id="openJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+        <bean id="eclipseLinkJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
             <property name="showSql" value="false" />
             <property name="database" value="POSTGRESQL" />
-            <property name="databasePlatform" value="org.apache.openjpa.jdbc.sql.PostgresDictionary" />
         </bean>
 
         <bean id="baseEntityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
             abstract="true">
             <property name="dataSource" ref="dataSource" />
-            <property name="jpaVendorAdapter" ref="openJpaVendorAdapter" />
-            <property name="jpaProperties">
-                <props>
-                    <prop key="openjpa.jdbc.DBDictionary">postgres</prop>
-                </props>
-            </property>
+            <property name="jpaVendorAdapter" ref="eclipseLinkJpaVendorAdapter" />
         </bean>
 
         <bean id="indexProcessIdsOfProgressMessagesChange" class="com.sap.cloud.lm.sl.cf.persistence.changes.IndexProcessIdsOfProgressMessagesPostgreSQLChange" />
@@ -90,20 +84,9 @@
             <property name="defaultDataSource" ref="dataSource" />
             <property name="configuration" ref="applicationConfiguration" />
         </bean>
-        <bean id="configurationEntryEntityManagerFactory" parent="baseEntityManagerFactory">
-            <property name="persistenceUnitName" value="ConfigurationEntryManagement" />
-        </bean>
 
-        <bean id="configurationSubscriptionEntityManagerFactory" parent="baseEntityManagerFactory">
-            <property name="persistenceUnitName" value="ConfigurationSubscriptionManagement" />
-        </bean>
-
-        <bean id="operationEntityManagerFactory" parent="baseEntityManagerFactory">
-            <property name="persistenceUnitName" value="OperationManagement" />
-        </bean>
-
-        <bean id="deployTargetEntityManagerFactory" parent="baseEntityManagerFactory">
-            <property name="persistenceUnitName" value="DeployTargetManagement" />
+        <bean id="defaultEntityManagerFactory" parent="baseEntityManagerFactory">
+            <property name="persistenceUnitName" value="Default" />
         </bean>
 
         <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

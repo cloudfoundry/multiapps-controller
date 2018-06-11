@@ -23,15 +23,16 @@ import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTargetDto<Tgt>> {
 
+    private EntityManagerFactory entityManagerFactory;
+
     protected final Class<Dto> classVersion;
     protected final String findAllQueryName;
 
-    protected DeployTargetDao(Class<Dto> classVersion, String findAllQueryName) {
+    protected DeployTargetDao(EntityManagerFactory entityManagerFactory, Class<Dto> classVersion, String findAllQueryName) {
+        this.entityManagerFactory = entityManagerFactory;
         this.findAllQueryName = findAllQueryName;
         this.classVersion = classVersion;
     }
-
-    protected abstract EntityManagerFactory getEmf();
 
     public PersistentObject<Tgt> add(Tgt target) {
         TransactionalExecutor<Dto> executor = new TransactionalExecutor<>(createEntityManager());
@@ -47,7 +48,7 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
     }
 
     private EntityManager createEntityManager() {
-        return getEmf().createEntityManager();
+        return entityManagerFactory.createEntityManager();
     }
 
     protected abstract Dto wrap(Tgt target);

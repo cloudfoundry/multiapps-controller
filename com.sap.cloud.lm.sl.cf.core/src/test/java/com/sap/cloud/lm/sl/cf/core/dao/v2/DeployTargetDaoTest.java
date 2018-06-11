@@ -18,9 +18,7 @@ public class DeployTargetDaoTest extends com.sap.cloud.lm.sl.cf.core.dao.v1.Depl
 
     @Override
     protected com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao getDeployTargetDao() {
-        DeployTargetDao dao = new DeployTargetDao();
-        dao.emf = EMF;
-        return dao;
+        return new DeployTargetDao(EMF);
     }
 
     @Override

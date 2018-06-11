@@ -39,7 +39,7 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 @RunWith(Enclosed.class)
 public class ConfigurationEntryDaoTest {
 
-    private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("ConfigurationEntryManagement");
+    private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("TestDefault");
 
     @RunWith(Parameterized.class)
     public static class ConfigurationEntryDaoParameterizedTest {
@@ -417,7 +417,7 @@ public class ConfigurationEntryDaoTest {
 
     private static ConfigurationEntryDao createDao() {
         ConfigurationEntryDtoDao dtoDao = new ConfigurationEntryDtoDao();
-        dtoDao.emf = EMF;
+        dtoDao.entityManagerFactory = EMF;
         ConfigurationEntryDao dao = new ConfigurationEntryDao();
         dao.dao = dtoDao;
         return dao;
