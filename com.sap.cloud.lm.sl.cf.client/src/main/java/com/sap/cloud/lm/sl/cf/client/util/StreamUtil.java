@@ -86,6 +86,7 @@ public class StreamUtil {
                 .endsWith(ARCHIVE_ENTRY_SEPARATOR)) {
                 Files.createDirectories(filePath);
             } else {
+                Files.createDirectories(filePath.getParent());
                 Files.createFile(filePath);
                 try (OutputStream outputStream = Files.newOutputStream(filePath)) {
                     filesSize = limitCopy(inputStream, outputStream, filesSize, maxZipEntrySize);
