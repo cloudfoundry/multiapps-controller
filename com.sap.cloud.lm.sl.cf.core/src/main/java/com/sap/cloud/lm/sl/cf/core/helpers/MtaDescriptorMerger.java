@@ -34,7 +34,6 @@ public class MtaDescriptorMerger {
         // LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR, JsonUtil.toJson(deploymentDescriptor, true)));
 
         List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(extensionDescriptorStrings, parser);
-        deploymentDescriptor = parser.parseDeploymentDescriptorYaml(deploymentDescriptorString);
         for (int i = 0; i < extensionDescriptors.size(); i++) {
             // TODO log without plain text sensitive content
             // LOGGER.debug(format(Messages.EXTENSION_DESCRIPTOR, i, JsonUtil.toJson(extensionDescriptors.get(i), true)));
