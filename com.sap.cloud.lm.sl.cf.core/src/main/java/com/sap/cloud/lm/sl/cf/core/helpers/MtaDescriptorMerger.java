@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
@@ -19,27 +21,27 @@ public class MtaDescriptorMerger {
     private HandlerFactory handlerFactory;
     private Platform platform;
     private Target target;
+    private UserMessageLogger userMessageLogger;
+    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform, Target target) {
+        this(handlerFactory, platform, target, null);
+    }
+
+    public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform, Target target, UserMessageLogger userMessageLogger) {
         this.handlerFactory = handlerFactory;
         this.platform = platform;
         this.target = target;
+        this.userMessageLogger = userMessageLogger;
     }
 
-    public DeploymentDescriptor merge(String deploymentDescriptorString, List<String> extensionDescriptorStrings) throws ContentException {
+    public DeploymentDescriptor merge(String deploymentDescriptorString, List<String> extensionDescriptorStrings) {
         DescriptorParser parser = handlerFactory.getDescriptorParser();
 
-        DeploymentDescriptor deploymentDescriptor = parseDeploymentDescriptor(deploymentDescriptorString, parser);
-        // TODO log without plain text sensitive content
-        // LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR, JsonUtil.toJson(deploymentDescriptor, true)));
-
+        DeploymentDescriptor deploymentDescriptor = parser.parseDeploymentDescriptorYaml(deploymentDescriptorString);
+        logDebug(Messages.DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(deploymentDescriptor));
         List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(extensionDescriptorStrings, parser);
-        for (int i = 0; i < extensionDescriptors.size(); i++) {
-            // TODO log without plain text sensitive content
-            // LOGGER.debug(format(Messages.EXTENSION_DESCRIPTOR, i, JsonUtil.toJson(extensionDescriptors.get(i), true)));
-        }
 
-        // Build an extension descriptor chain:
         extensionDescriptors = handlerFactory.getDescriptorHandler()
             .getExtensionDescriptorChain(deploymentDescriptor, extensionDescriptors, false);
 
@@ -55,25 +57,25 @@ public class MtaDescriptorMerger {
         validator.validateMergedDescriptor(mergedDescriptor, target);
 
         deploymentDescriptor = mergedDescriptor._1;
-        // TODO log without plain text sensitive content
-        // LOGGER.debug(format(Messages.MERGED_DESCRIPTOR, JsonUtil.toJson(deploymentDescriptor, true)));
+        logDebug(Messages.MERGED_DESCRIPTOR, secureSerializer.toJson(deploymentDescriptor));
 
         return deploymentDescriptor;
     }
 
-    private List<ExtensionDescriptor> parseExtensionDescriptors(List<String> extensionDescriptorStrings, DescriptorParser parser)
-        throws ContentException {
+    private List<ExtensionDescriptor> parseExtensionDescriptors(List<String> extensionDescriptorStrings, DescriptorParser parser) {
         List<ExtensionDescriptor> extensionDescriptors = new ArrayList<>();
         for (int i = 0; i < extensionDescriptorStrings.size(); i++) {
             ExtensionDescriptor extensionDescriptor = parser.parseExtensionDescriptorYaml(extensionDescriptorStrings.get(i));
+            logDebug(Messages.EXTENSION_DESCRIPTOR, i, secureSerializer.toJson(extensionDescriptor));
             extensionDescriptors.add(extensionDescriptor);
         }
         return extensionDescriptors;
     }
 
-    private DeploymentDescriptor parseDeploymentDescriptor(String deploymentDescriptorString, DescriptorParser parser)
-        throws ContentException {
-        return parser.parseDeploymentDescriptorYaml(deploymentDescriptorString);
+    private void logDebug(String pattern, Object... arguments) {
+        if (userMessageLogger != null) {
+            userMessageLogger.debug(pattern, arguments);
+        }
     }
 
 }
