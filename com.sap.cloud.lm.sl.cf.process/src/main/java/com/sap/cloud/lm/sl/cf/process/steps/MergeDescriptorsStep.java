@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 public class MergeDescriptorsStep extends SyncActivitiStep {
 
     protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform, Target target) {
-        return new MtaDescriptorMerger(factory, platform, target);
+        return new MtaDescriptorMerger(factory, platform, target, getStepLogger());
     }
 
     @Override
