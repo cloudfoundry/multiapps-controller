@@ -19,6 +19,7 @@ public final class Messages {
     public static final String ROUTE_NOT_FOUND = "Could not find route \"{0}\"";
     public static final String ARCHIVE_MODULE_NOT_INTENDED_FOR_DEPLOYMENT = "MTA module \"{0}\" is part of MTA archive, but is not intended for deployment";
     public static final String OPERATION_NOT_FOUND = "MTA operation with ID \"{0}\" does not exist";
+    public static final String OPERATION_SPACE_MISMATCH = "MTA operation with ID \"{0}\" exists in space \"{1}\" but was queried from space \"{2}\"";
     public static final String OPERATION_ALREADY_EXISTS = "MTA operation with ID \"{0}\" already exists";
     public static final String MULTIPLE_OPERATIONS_WITH_LOCK_FOUND = "Multiple operations found with lock for MTA \"{0}\" in space \"{1}\"";
     public static final String PATH_SHOULD_NOT_BE_ABSOLUTE = "Path \"{0}\" should not be absolute";
