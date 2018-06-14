@@ -134,7 +134,7 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
             }
         }
 
-        boolean canSetServiceToOwned = canMtaOwnService(idsOfMtasThatIncludeTheService, isServiceInDeployedMta, serviceToCreate.getName());
+        boolean canSetServiceToOwned = canMtaOwnService(idsOfMtasThatIncludeTheService, isServiceInDeployedMta);
         if (serviceToCreate.isShared() || canSetServiceToOwned) {
             return;
         }
@@ -144,7 +144,7 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
 
     }
 
-    private boolean canMtaOwnService(Set<String> idsOfMtasThatBindToTheService, boolean isServiceInDeployedMta, String serviceName) {
+    private boolean canMtaOwnService(Set<String> idsOfMtasThatBindToTheService, boolean isServiceInDeployedMta) {
         if (idsOfMtasThatBindToTheService.isEmpty()) {
             return true;
         }

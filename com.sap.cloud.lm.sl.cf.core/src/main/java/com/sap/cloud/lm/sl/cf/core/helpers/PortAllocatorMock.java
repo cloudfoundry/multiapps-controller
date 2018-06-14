@@ -10,7 +10,7 @@ public class PortAllocatorMock implements PortAllocator {
     private Set<Integer> allocatedPorts = new TreeSet<>();
     private int minPort;
 
-    public PortAllocatorMock(int minPort, int maxPort) {
+    public PortAllocatorMock(int minPort) {
         this.minPort = minPort;
     }
 

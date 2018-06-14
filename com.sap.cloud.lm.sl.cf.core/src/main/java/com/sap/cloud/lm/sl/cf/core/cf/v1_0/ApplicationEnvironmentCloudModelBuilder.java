@@ -134,12 +134,12 @@ public class ApplicationEnvironmentCloudModelBuilder {
     protected void addDependencies(Map<String, Object> env, Module module) {
         Map<String, List<Object>> groupsMap = new TreeMap<>();
         for (String dependency : module.getRequiredDependencies1_0()) {
-            addDependency(dependency, module, env, groupsMap);
+            addDependency(dependency, env, groupsMap);
         }
         env.putAll(groupsMap);
     }
 
-    protected void addDependency(String dependency, Module module, Map<String, Object> env, Map<String, List<Object>> groupsMap) {
+    protected void addDependency(String dependency, Map<String, Object> env, Map<String, List<Object>> groupsMap) {
         Pair<Resource, ProvidedDependency> pair = handler.findDependency(deploymentDescriptor, dependency);
         addProvidedDependency(env, groupsMap, pair._2);
         addResource(env, groupsMap, pair._1);

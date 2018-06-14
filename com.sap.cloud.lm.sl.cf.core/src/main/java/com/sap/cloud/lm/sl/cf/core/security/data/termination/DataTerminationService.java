@@ -33,7 +33,6 @@ public class DataTerminationService {
 
     private static final String SPACE_DELETE_EVENT_TYPE = "audit.space.delete-request";
     private static final int GET_EVENTS_DAYS_BEFORE = 1;
-    private CFOptimizedEventGetter cfOptimizedEventGetter;
     private static final Logger LOGGER = LoggerFactory.getLogger(DataTerminationService.class);
 
     @Inject
@@ -107,7 +106,7 @@ public class DataTerminationService {
 
     private List<String> getDeleteSpaceEvents() {
         CloudFoundryClient cfClient = getCFClient();
-        cfOptimizedEventGetter = new CFOptimizedEventGetter(cfClient);
+        CFOptimizedEventGetter cfOptimizedEventGetter = new CFOptimizedEventGetter(cfClient);
         List<String> events = cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeTwoDays());
         return events;
     }

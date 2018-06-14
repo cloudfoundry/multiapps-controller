@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata.ParameterType;
 
 public class UndeployMetadata {
 
-    private final static Set<ParameterMetadata> PARAMS = new HashSet<>();
+    private static final Set<ParameterMetadata> PARAMS = new HashSet<>();
 
     static {
         PARAMS.add(ParameterMetadata.builder()

@@ -73,7 +73,6 @@ public class MtaArchiveValidator {
     private final String deployServiceUrl;
     private final int routerPort;
     private final int minPort;
-    private final int maxPort;
     private final DeployedMta deployedMta;
     private final long maxMtaDescriptorSize;
     private final boolean xsPlaceholdersSupported;
@@ -89,16 +88,16 @@ public class MtaArchiveValidator {
 
     public MtaArchiveValidator(InputStream mtarStream, InputStream extensionDescriptorStream, InputStream platformTypesStream,
         InputStream platformsStream, String platformName, String deployId, String userName, String defaultDomain, PlatformType xsType,
-        URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, int minPort, int maxPort,
+        URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, int minPort,
         DeployedMta deployedMta, ConfigurationEntryDao dao, boolean xsPlaceholdersSupported) {
         this(mtarStream, extensionDescriptorStream, platformTypesStream, platformsStream, platformName, deployId, userName, defaultDomain,
-            xsType, targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, minPort, maxPort, deployedMta,
+            xsType, targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, minPort, deployedMta,
             DEFAULT_MAX_MTA_DESCRIPTOR_SIZE, dao, xsPlaceholdersSupported, new ApplicationConfiguration());
     }
 
     public MtaArchiveValidator(InputStream mtarStream, InputStream extensionDescriptorStream, InputStream platformTypesStream,
         InputStream platformsStream, String platformName, String deployId, String userName, String defaultDomain, PlatformType xsType,
-        URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, int minPort, int maxPort,
+        URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, int minPort,
         DeployedMta deployedMta, long maxMtaDescriptorSize, ConfigurationEntryDao dao, boolean xsPlaceholdersSupported, ApplicationConfiguration applicationConfiguration) {
         this.mtarStream = mtarStream;
         this.extensionDescriptorStream = extensionDescriptorStream;
@@ -114,7 +113,6 @@ public class MtaArchiveValidator {
         this.deployServiceUrl = deployServiceUrl;
         this.routerPort = routerPort;
         this.minPort = minPort;
-        this.maxPort = maxPort;
         this.deployedMta = deployedMta;
         this.maxMtaDescriptorSize = maxMtaDescriptorSize;
         this.dao = dao;
@@ -194,7 +192,7 @@ public class MtaArchiveValidator {
         boolean portBasedRouting = xsType.equals(PlatformType.XS2);
 
         // Create port allocator
-        PortAllocator portAllocator = new PortAllocatorMock(minPort, maxPort);
+        PortAllocator portAllocator = new PortAllocatorMock(minPort);
 
         // Create system parameters builder
         SystemParametersBuilder parametersBuilder = new SystemParametersBuilder(target.getName(), organization, space, userName,

@@ -5,6 +5,7 @@ import javax.inject.Named;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
@@ -19,7 +20,7 @@ import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegate {
 
-    protected final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(getClass());
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Inject
     protected CloudFoundryClientProvider clientProvider;
@@ -90,7 +91,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
     }
 
     protected void initializeStepLogger(DelegateExecution context) {
-        stepLogger = stepLoggerFactory.create(context, progressMessageService, processLoggerProviderFactory, LOGGER);
+        stepLogger = stepLoggerFactory.create(context, progressMessageService, processLoggerProviderFactory, logger);
     }
 
     protected Throwable getWithProperMessage(Throwable t) {

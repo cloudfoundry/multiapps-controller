@@ -11,7 +11,7 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 public class DeployMetadata {
 
-    private final static Set<ParameterMetadata> PARAMS = new HashSet<>();
+    private static final Set<ParameterMetadata> PARAMS = new HashSet<>();
 
     static {
         PARAMS.add(ParameterMetadata.builder()

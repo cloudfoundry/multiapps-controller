@@ -120,7 +120,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
                 ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace, spaceGetter);
                 Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientHelper, subscription.getSpaceId());
                 if (orgAndSpace == null) {
-                    LOGGER.warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
+                    logger.warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                     continue;
                 }
                 CloudApplication updatedApplication = updateSubscriber(execution, orgAndSpace, subscription);

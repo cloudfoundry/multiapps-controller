@@ -33,7 +33,6 @@ public class MtaArchiveValidatorTest {
     private static final String PLATFORMS = "/mta/targets-v2.json";
 
     private static final int MIN_PORT = 55000;
-    private static final int MAX_PORT = 55999;
 
     private static final long MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l; // 1 MB
 
@@ -123,7 +122,7 @@ public class MtaArchiveValidatorTest {
         prepareConfigurationDao();
         validator = new MtaArchiveValidator(clazz.getResourceAsStream(mtar), extDescriptorStream, clazz.getResourceAsStream(PLATFORM_TYPES),
             clazz.getResourceAsStream(PLATFORMS), platformName, DEPLOY_ID, userName, defaultDomain, platformType,
-            MiscUtil.getURL(targetUrl), authorizationEndpoint, deployServiceUrl, routerPort, MIN_PORT, MAX_PORT, deployedMta,
+            MiscUtil.getURL(targetUrl), authorizationEndpoint, deployServiceUrl, routerPort, MIN_PORT, deployedMta,
             maxMtaDescriptorSize, dao, xsPlaceholdersSupported, new ApplicationConfiguration());
     }
 

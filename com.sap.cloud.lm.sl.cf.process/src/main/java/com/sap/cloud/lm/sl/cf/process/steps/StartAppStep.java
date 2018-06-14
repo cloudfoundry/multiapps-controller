@@ -91,7 +91,7 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
         } catch (CloudFoundryException e) {
             if (e.getStatusCode()
                 .equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                LOGGER.warn(e.getMessage(), e);
+                logger.warn(e.getMessage(), e);
                 return false;
             }
             throw e;

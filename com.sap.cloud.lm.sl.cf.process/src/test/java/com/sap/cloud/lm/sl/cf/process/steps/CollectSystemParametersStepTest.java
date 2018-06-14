@@ -157,7 +157,7 @@ public class CollectSystemParametersStepTest extends SyncActivitiStepTest<Collec
     private StepOutput output;
     private StepInput input;
 
-    private PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE, PortValidator.MAX_PORT_VALUE);
+    private PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE);
     @Mock
     private CredentialsGenerator credentialsGenerator;
 

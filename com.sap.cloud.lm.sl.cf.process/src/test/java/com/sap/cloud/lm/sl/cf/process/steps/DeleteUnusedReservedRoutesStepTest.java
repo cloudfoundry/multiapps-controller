@@ -83,7 +83,7 @@ public class DeleteUnusedReservedRoutesStepTest extends SyncActivitiStepTest<Del
     private StepOutput output;
     private StepInput input;
 
-    private PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE, PortValidator.MAX_PORT_VALUE);
+    private PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE);
 
     public DeleteUnusedReservedRoutesStepTest(StepInput input, StepOutput output) {
         this.output = output;

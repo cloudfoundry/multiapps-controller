@@ -7,7 +7,8 @@ import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 
 public class BeanProvider {
-    private static BeanProvider INSTANCE = new BeanProvider();
+
+    private static final BeanProvider INSTANCE = new BeanProvider();
 
     @Inject
     private OperationDao operationDao;
@@ -36,4 +37,5 @@ public class BeanProvider {
     public AbstractFileService getFileService() {
         return fileService;
     }
+
 }

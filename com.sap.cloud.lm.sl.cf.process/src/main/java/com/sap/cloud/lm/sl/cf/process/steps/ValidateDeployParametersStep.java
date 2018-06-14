@@ -151,7 +151,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         try {
             fileService.deleteFile(fileEntry.getSpace(), fileEntry.getId());
         } catch (FileStorageException e) {
-            LOGGER.warn(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
+            logger.warn(Messages.ERROR_DELETING_ARCHIVE_PARTS_CONTENT, e);
         }
     }
 
