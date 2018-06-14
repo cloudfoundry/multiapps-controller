@@ -268,7 +268,7 @@ public class ApplicationConfiguration {
             @Override
             public List<ConfigurationIdentifier> getConfigurationIdentifiers() {
                 return Arrays.asList(new ConfigurationIdentifier(key, value));
-            };
+            }
 
         };
     }

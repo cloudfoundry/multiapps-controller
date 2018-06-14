@@ -17,4 +17,4 @@ class AuditLoggingExceptionHandler implements DBAppender.ExceptionHandler {
         this.exception = exception;
     }
 
-};
+}

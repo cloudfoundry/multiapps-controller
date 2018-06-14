@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.common.model.xml.Wrapper;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Target.TargetBuilder;;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target.TargetBuilder;
 
 @XmlRootElement(name = "target-platform")
 @XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)

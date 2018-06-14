@@ -249,7 +249,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
             execution.getStepLogger()
                 .info("{0} of {0} done", triggeredServiceOperations.size());
         }
-    };
+    }
 
     private List<TypedServiceOperationState> getNonFinalStates(Collection<ServiceOperation> operations) {
         return operations.stream()

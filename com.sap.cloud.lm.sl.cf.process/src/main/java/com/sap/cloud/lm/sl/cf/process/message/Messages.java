@@ -263,7 +263,7 @@ public class Messages {
     public static final String CHECKING_UPLOAD_APP_STATUS = "Checking upload status of application \"{0}\"...";
     public static final String UPLOAD_STATUS_0 = "Upload status: {0}";
     public static final String APP_UPLOADED = "Application \"{0}\" uploaded";
-    public static final String SCALING_APP = "Scaling application \"{0}\"...";;
+    public static final String SCALING_APP = "Scaling application \"{0}\"...";
     public static final String APP_SCALED = "Application \"{0}\" scaled";
     public static final String PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Publishing public provided dependencies for application \"{0}\"...";
     public static final String NO_PUBLIC_PROVIDED_DEPENDENCIES_FOR_PUBLISHING = "No public provided dependencies for publishing";

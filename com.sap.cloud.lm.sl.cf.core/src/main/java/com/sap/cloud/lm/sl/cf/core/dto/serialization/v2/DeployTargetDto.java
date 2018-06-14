@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.common.model.xml.Wrapper;
 import com.sap.cloud.lm.sl.mta.model.v2_0.PlatformModuleType;
 import com.sap.cloud.lm.sl.mta.model.v2_0.PlatformResourceType;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Target;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Target.TargetBuilder;;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Target.TargetBuilder;
 
 @XmlRootElement(name = "deployTarget")
 @XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)
