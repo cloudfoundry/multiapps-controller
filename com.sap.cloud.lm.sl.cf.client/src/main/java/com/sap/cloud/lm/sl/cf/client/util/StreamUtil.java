@@ -36,7 +36,7 @@ public class StreamUtil {
         this.inputStream = inputStream;
     }
 
-    public File saveStreamToFile(String entryName, Path tempDirectory, long maxZipEntrySize) throws IOException {
+    public File saveStreamToFile(String entryName, Path tempDirectory, long maxSize) throws IOException {
         int i = entryName.lastIndexOf('.');
         String fileName = (i > 0) ? entryName.substring(0, i) : entryName;
         String suffix = (i > 0) ? entryName.substring(i) : null;
@@ -46,32 +46,32 @@ public class StreamUtil {
         File file = File.createTempFile(fileName, suffix, tempDirectory.toFile());
         LOGGER.debug(MessageFormat.format("Saving input stream to temporary file \"{0}\"...", file.getPath()));
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
-            limitCopy(inputStream, outputStream, maxZipEntrySize);
+            limitCopy(inputStream, outputStream, maxSize);
         }
         LOGGER.debug(MessageFormat.format("Input stream saved to temporary file \"{0}\"", file.getPath()));
         return file;
     }
 
-    public long saveStreamToDirectory(String entryName, String directoryName, Path tempDirectory, long startSize, long maxZipEntrySize)
+    public long saveStreamToDirectory(String entryName, String directoryName, Path tempDirectory, long startSize, long maxSize)
         throws IOException {
         validateEntry(entryName);
         Path filePath = resolveTempEntryPath(entryName, directoryName, tempDirectory);
         createParentDirectories(filePath);
         Files.createFile(filePath);
         try (OutputStream outputStream = Files.newOutputStream(filePath)) {
-            return limitCopy(inputStream, outputStream, startSize, maxZipEntrySize);
+            return limitCopy(inputStream, outputStream, startSize, maxSize);
         }
     }
 
-    public File saveZipStreamToDirectory(String entryName, Path tempDirectory, long maxZipEntrySize) throws IOException {
+    public File saveZipStreamToDirectory(String entryName, Path tempDirectory, long maxSize) throws IOException {
         File dir = tempDirectory.toFile();
         LOGGER.debug(MessageFormat.format("Saving input stream to temporary directory \"{0}\"...", dir.getPath()));
-        saveEntries(tempDirectory, entryName, maxZipEntrySize);
+        saveEntries(tempDirectory, entryName, maxSize);
         LOGGER.debug(MessageFormat.format("Input stream saved to temporary directory \"{0}\"", dir.getPath()));
         return dir;
     }
 
-    private void saveEntries(Path tempDirectory, String rootEntryName, long maxZipEntrySize) throws IOException, FileNotFoundException {
+    private void saveEntries(Path tempDirectory, String rootEntryName, long maxSize) throws IOException, FileNotFoundException {
         ZipInputStream zis = (ZipInputStream) inputStream;
         long filesSize = 0;
         for (ZipEntry e; (e = zis.getNextEntry()) != null;) {
@@ -89,7 +89,7 @@ public class StreamUtil {
                 Files.createDirectories(filePath.getParent());
                 Files.createFile(filePath);
                 try (OutputStream outputStream = Files.newOutputStream(filePath)) {
-                    filesSize = limitCopy(inputStream, outputStream, filesSize, maxZipEntrySize);
+                    filesSize = limitCopy(inputStream, outputStream, filesSize, maxSize);
                 }
             }
         }
