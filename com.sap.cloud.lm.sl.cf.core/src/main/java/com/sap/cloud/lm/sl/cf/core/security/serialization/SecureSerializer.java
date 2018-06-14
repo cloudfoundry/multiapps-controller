@@ -79,7 +79,6 @@ public abstract class SecureSerializer<E extends Element> {
         }
         if (element.isListingElement()) {
             modifySensitiveElements(element.asListingElement());
-            return;
         }
     }
 

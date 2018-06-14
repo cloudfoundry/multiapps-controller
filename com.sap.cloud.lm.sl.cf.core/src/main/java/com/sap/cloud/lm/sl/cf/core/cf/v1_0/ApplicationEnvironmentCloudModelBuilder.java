@@ -106,7 +106,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
             env.put(Constants.ENV_DEPLOY_ATTRIBUTES, attributes);
         }
         Boolean checkDeployId = (Boolean) attributes.get(SupportedParameters.CHECK_DEPLOY_ID);
-        if (checkDeployId != null && checkDeployId == true) {
+        if (checkDeployId != null && checkDeployId) {
             env.put(Constants.ENV_DEPLOY_ID, deployId);
         }
     }

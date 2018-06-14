@@ -27,17 +27,11 @@ public class VisibilityValidator implements ParameterValidator {
 
     private boolean isValidTarget(Map<String, String> target) {
         for (Entry<String, String> entry : target.entrySet()) {
-            if (!(entry.getKey() instanceof String) && !(entry.getValue() instanceof String)) {
+            if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof String)) {
                 return false;
             }
         }
-        if (!target.containsKey(SupportedParameters.ORG) || !(target.get(SupportedParameters.ORG) instanceof String)) {
-            return false;
-        }
-        if (target.containsKey(SupportedParameters.SPACE) && !(target.get(SupportedParameters.SPACE) instanceof String)) {
-            return false;
-        }
-        return true;
+        return target.containsKey(SupportedParameters.ORG);
     }
 
     @Override

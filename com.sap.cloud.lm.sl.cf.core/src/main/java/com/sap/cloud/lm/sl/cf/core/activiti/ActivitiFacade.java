@@ -331,7 +331,7 @@ public class ActivitiFacade {
             .createProcessInstanceQuery()
             .processInstanceId(processInstanceId)
             .singleResult();
-        return processInstance != null ? processInstance.isSuspended() : false;
+        return processInstance != null && processInstance.isSuspended();
     }
 
     public void activateProcessInstance(String processInstanceId) {

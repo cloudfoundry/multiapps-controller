@@ -43,7 +43,7 @@ public class CreateSubscriptionsStep extends SyncActivitiStep {
 
     private ConfigurationSubscription detectSubscription(String mtaId, String applicationName, String spaceId, String resourceName) {
         List<ConfigurationSubscription> subscriptions = dao.findAll(mtaId, applicationName, spaceId, resourceName);
-        if ((subscriptions.size() != 0)) {
+        if (!subscriptions.isEmpty()) {
             return subscriptions.get(0); // There's a unique constraint on these parameters, so
                                          // there should be only one such configuration
                                          // subscription.

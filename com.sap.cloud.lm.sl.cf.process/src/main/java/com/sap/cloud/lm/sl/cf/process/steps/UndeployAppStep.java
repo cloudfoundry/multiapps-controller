@@ -128,7 +128,7 @@ public class UndeployAppStep extends SyncActivitiStep {
 
     private boolean isPortBasedRouting(CloudFoundryOperations client) {
         CloudInfo info = client.getCloudInfo();
-        return (info instanceof CloudInfoExtended) ? ((CloudInfoExtended) info).isPortBasedRouting() : false;
+        return info instanceof CloudInfoExtended && ((CloudInfoExtended) info).isPortBasedRouting();
     }
 
 }

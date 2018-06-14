@@ -33,9 +33,9 @@ public class TokenProperties {
     }
 
     public static TokenProperties fromToken(OAuth2AccessToken token) {
-        String clientId = (String) getTokenProperty(token, CLIENT_ID_KEY);
-        String userName = (String) getTokenProperty(token, USER_NAME_KEY);
-        String userId = (String) getTokenProperty(token, USER_ID_KEY);
+        String clientId = getTokenProperty(token, CLIENT_ID_KEY);
+        String userName = getTokenProperty(token, USER_NAME_KEY);
+        String userId = getTokenProperty(token, USER_ID_KEY);
         return new TokenProperties(clientId, userId, userName);
     }
 

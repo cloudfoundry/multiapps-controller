@@ -81,7 +81,7 @@ public class UpdateAppStep extends CreateAppStep {
                 client.updateApplicationUris(appName, uris);
                 appPropertiesChanged = true;
             }
-            appPropertiesChanged = updateApplicationServices(app, existingApp, client, execution) ? true : appPropertiesChanged;
+            appPropertiesChanged = updateApplicationServices(app, existingApp, client, execution) || appPropertiesChanged;
             injectServiceKeysCredentialsInAppEnv(execution.getContext(), client, app, env);
             updateAppDigest(env, existingApp.getEnvAsMap());
             if (!env.equals(existingApp.getEnvAsMap())) {

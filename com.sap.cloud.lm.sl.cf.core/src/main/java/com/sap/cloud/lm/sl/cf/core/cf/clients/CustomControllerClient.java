@@ -46,7 +46,7 @@ public abstract class CustomControllerClient {
         Map<String, Object> responseMap = JsonUtil.convertJsonToMap(response);
         validateResponse(responseMap);
         List<Map<String, Object>> newResources = (List<Map<String, Object>>) responseMap.get("resources");
-        if (newResources != null && newResources.size() > 0) {
+        if (!CommonUtil.isNullOrEmpty(newResources)) {
             allResources.addAll(newResources);
         }
         String nextUrl = (String) responseMap.get("next_url");

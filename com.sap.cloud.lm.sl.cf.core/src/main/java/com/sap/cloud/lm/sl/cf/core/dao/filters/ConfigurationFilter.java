@@ -100,10 +100,7 @@ public class ConfigurationFilter {
             .satisfies(providerVersion))) {
             return false;
         }
-        if (requiredContent != null && !CONTENT_FILTER.apply(entry.getContent(), requiredContent)) {
-            return false;
-        }
-        return true;
+        return requiredContent == null || CONTENT_FILTER.apply(entry.getContent(), requiredContent);
     }
 
     public static final BiFunction<String, Map<String, Object>, Boolean> CONTENT_FILTER = new BiFunction<String, Map<String, Object>, Boolean>() {

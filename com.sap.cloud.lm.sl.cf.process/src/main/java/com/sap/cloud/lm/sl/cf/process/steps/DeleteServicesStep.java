@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component("deleteServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -69,7 +70,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
     private void attemptToDeleteService(CloudFoundryOperations client, String serviceName) {
         CloudServiceInstance serviceInstance = client.getServiceInstance(serviceName);
         List<CloudServiceBinding> bindings = serviceInstance.getBindings();
-        if (bindings != null && bindings.size() > 0) {
+        if (!CommonUtil.isNullOrEmpty(bindings)) {
             logBindings(bindings);
             getStepLogger().info(Messages.SERVICE_HAS_BINDINGS_AND_CANNOT_BE_DELETED, serviceName);
             return;
