@@ -218,15 +218,15 @@ public class ApplicationsCloudModelBuilder {
         return ListUtil.removeDuplicates(services);
     }
 
-    private boolean allServicesRule(ResourceAndResourceType resourceAndResourceType) {
+    protected boolean allServicesRule(ResourceAndResourceType resourceAndResourceType) {
         return true;
     }
 
-    private boolean filterExistingServicesRule(ResourceAndResourceType resourceAndResourceType) {
+    protected boolean filterExistingServicesRule(ResourceAndResourceType resourceAndResourceType) {
         return !isExistingService(resourceAndResourceType.getResourceType());
     }
 
-    private boolean onlySharedServicesRule(ResourceAndResourceType resourceAndResourceType) {
+    protected boolean onlySharedServicesRule(ResourceAndResourceType resourceAndResourceType) {
         return !isExistingService(resourceAndResourceType.getResourceType()) && isSharedService(resourceAndResourceType.getResource());
     }
 

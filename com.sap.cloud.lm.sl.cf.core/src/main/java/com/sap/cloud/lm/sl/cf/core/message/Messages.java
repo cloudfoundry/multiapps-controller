@@ -82,6 +82,7 @@ public final class Messages {
     public static final String INVALID_PLATFORMS = "Invalid platforms \"{0}\", using default \"{1}\"";
     public static final String INVALID_TARGETS = "Invalid targets \"{0}\", using default \"{1}\"";
     public static final String OPTIONAL_RESOURCE_IS_NOT_SERVICE = "Optional resource \"{0}\" it will be not created because it's not a service";
+    public static final String SERVICE_IS_NOT_ACTIVE = "Service \"{0}\" is inactive and will not be processed";
 
     public static final String INVALID_VCAP_APPLICATION = "Invalid VCAP_APPLICATION \"{0}\"";
     public static final String COULD_NOT_PARSE_ROUTER_PORT_0_USING_DEFAULT_1 = "Could not parse router port \"{0}\", using default \"{1}\"";

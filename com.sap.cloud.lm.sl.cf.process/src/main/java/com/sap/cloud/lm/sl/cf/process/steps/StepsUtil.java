@@ -43,6 +43,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.DomainsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -984,6 +985,12 @@ public class StepsUtil {
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
         return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), configuration,
             stepLogger);
+    }
+    
+    static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context, StepLogger stepLogger) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+        return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor());
     }
 
     static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {

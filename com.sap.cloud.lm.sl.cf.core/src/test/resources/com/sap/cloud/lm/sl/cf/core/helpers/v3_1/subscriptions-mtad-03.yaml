@@ -28,6 +28,7 @@ modules:
 
 resources:
   - name: plugins
+    active: false
     type: configuration
   - name: baz
     requires:
