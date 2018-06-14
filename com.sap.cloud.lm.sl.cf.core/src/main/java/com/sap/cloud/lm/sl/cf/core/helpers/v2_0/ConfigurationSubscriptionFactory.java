@@ -10,6 +10,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.resolvers.v2_0.PartialDescriptorReferenceResolver;
+import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.resolvers.v2_0.DescriptorReferenceResolver;
@@ -32,7 +33,7 @@ public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.cor
         for (com.sap.cloud.lm.sl.mta.model.v2_0.Module module : descriptor.getModules2_0()) {
             for (RequiredDependency dependency : module.getRequiredDependencies2_0()) {
                 if (shouldCreateSubscription(dependency)) {
-                    result.add(createSubscription(spaceId, descriptor.getId(), module, dependency, resolvedResources));
+                    ListUtil.addNonNull(result, createSubscription(spaceId, descriptor.getId(), module, dependency, resolvedResources));
                 }
             }
         }
@@ -44,7 +45,7 @@ public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.cor
         return new PartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore);
     }
 
-    private ConfigurationSubscription createSubscription(String spaceId, String mtaId, Module module, RequiredDependency dependency,
+    protected ConfigurationSubscription createSubscription(String spaceId, String mtaId, Module module, RequiredDependency dependency,
         Map<String, ResolvedConfigurationReference> resolvedResources) {
         ResolvedConfigurationReference resolvedReference = resolvedResources.get(dependency.getName());
         ConfigurationFilter filter = resolvedReference.getReferenceFilter();

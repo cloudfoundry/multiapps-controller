@@ -53,7 +53,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationsCloudModelBuilder.class);
     private static final int MTA_MAJOR_VERSION = 2;
 
-    private ParametersChainBuilder parametersChainBuilder;
+    protected ParametersChainBuilder parametersChainBuilder;
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
@@ -222,13 +222,13 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         return null;
     }
 
-    private List<ApplicationPort> getApplicationPorts(Module module, List<Map<String, Object>> parametersList) {
+    protected List<ApplicationPort> getApplicationPorts(Module module, List<Map<String, Object>> parametersList) {
         List<Integer> ports = urisCloudModelBuilder.getApplicationPorts(module, parametersList);
         ApplicationPortType portType = getType(module.getParameters());
         return getApplicationPorts(ports, portType);
     }
 
-    private List<ApplicationPort> getApplicationPorts(List<Integer> ports, ApplicationPortType portType) {
+    protected List<ApplicationPort> getApplicationPorts(List<Integer> ports, ApplicationPortType portType) {
         List<ApplicationPort> applicationRoutes = new ArrayList<>();
         for (int portNumber : ports) {
             applicationRoutes.add(new ApplicationPort(portNumber, portType));
@@ -236,7 +236,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         return applicationRoutes;
     }
 
-    private List<String> getApplicationDomains(Module module, List<Map<String, Object>> parametersList) {
+    protected List<String> getApplicationDomains(Module module, List<Map<String, Object>> parametersList) {
         List<String> applicationDomains = urisCloudModelBuilder.getApplicationDomains(module, parametersList);
         return xsPlaceholderResolver.resolve(applicationDomains);
     }

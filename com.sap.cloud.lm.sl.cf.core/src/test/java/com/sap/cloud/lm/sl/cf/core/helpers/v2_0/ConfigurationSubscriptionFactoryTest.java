@@ -60,6 +60,10 @@ public class ConfigurationSubscriptionFactoryTest {
         String mtadString = TestUtil.getResourceAsString(mtadFilePath, getClass());
         DeploymentDescriptor mtad = getDescriptorParser().parseDeploymentDescriptorYaml(mtadString);
         Map<String, ResolvedConfigurationReference> resolvedResources = getResolvedConfigurationReferences(mtad);
+        testCreate(mtad, resolvedResources, spaceId, expected);
+    }
+
+    protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId, String expected) {
         TestUtil.test(() -> {
             return new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId);
         }, expected, getClass());
@@ -82,10 +86,6 @@ public class ConfigurationSubscriptionFactoryTest {
 
     private ConfigurationFilter createDummyFilter() {
         return new ConfigurationFilter("mta", "com.sap.other.mta", "1.0.0", new CloudTarget("ORG", "SPACE"), Collections.emptyMap());
-    }
-
-    protected ConfigurationSubscriptionFactory getConfigurationSubscriptionFactory() {
-        return new ConfigurationSubscriptionFactory();
     }
 
     protected DescriptorParser getDescriptorParser() {

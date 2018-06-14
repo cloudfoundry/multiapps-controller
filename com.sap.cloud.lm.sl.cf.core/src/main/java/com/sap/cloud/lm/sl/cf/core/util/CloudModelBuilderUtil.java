@@ -71,6 +71,11 @@ public class CloudModelBuilderUtil {
         ResourceType resourceType = getResourceType(resource, propertiesAccessor);
         return resourceTypes.contains(resourceType);
     }
+    
+    public static boolean isActive(Resource resource) {
+        com.sap.cloud.lm.sl.mta.model.v3_1.Resource resourceV3 = (com.sap.cloud.lm.sl.mta.model.v3_1.Resource) resource;
+        return resourceV3.getActive();
+    }
 
     public static boolean isServiceKey(Resource resource, PropertiesAccessor propertiesAccessor) {
         if (resource.getType() == null) {

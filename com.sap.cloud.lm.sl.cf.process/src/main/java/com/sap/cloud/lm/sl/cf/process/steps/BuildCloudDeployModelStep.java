@@ -53,7 +53,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
             StepsUtil.setCustomDomains(execution.getContext(), customDomains);
 
             // Build a map of service keys and save them in the context:
-            Map<String, List<ServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution.getContext(), deploymentDescriptor)
+            Map<String, List<ServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution.getContext())
                 .build();
             getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));
 
@@ -95,10 +95,8 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
         return StepsUtil.getDomainsCloudModelBuilder(context);
     }
 
-    protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context,
-        DeploymentDescriptor deploymentDescriptor) {
-        return new ServiceKeysCloudModelBuilder(deploymentDescriptor, StepsUtil.getHandlerFactory(context)
-            .getPropertiesAccessor());
+    protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
+        return StepsUtil.getServiceKeysCloudModelBuilder(context, getStepLogger());
     }
 
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {

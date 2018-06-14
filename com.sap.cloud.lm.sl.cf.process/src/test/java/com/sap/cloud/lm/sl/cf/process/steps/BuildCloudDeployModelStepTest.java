@@ -108,8 +108,7 @@ public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildClo
         }
 
         @Override
-        protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context,
-            DeploymentDescriptor deploymentDescriptor) {
+        protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
             return serviceKeysCloudModelBuilder;
         }
     }
