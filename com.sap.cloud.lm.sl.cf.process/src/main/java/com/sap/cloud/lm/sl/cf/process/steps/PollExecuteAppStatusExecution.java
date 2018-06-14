@@ -164,7 +164,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             messageType = MessageType.STDOUT;
             text = attr;
         }
-        return new Pair<MessageType, String>(messageType, text);
+        return new Pair<>(messageType, text);
     }
 
 }

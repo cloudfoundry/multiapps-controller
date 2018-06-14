@@ -97,14 +97,14 @@ public class DeployedComponentsDetector {
 
     private Set<String> getMtaIds(List<DeployedMta> mtas) {
         return mtas.stream()
-            .map((mta) -> mta.getMetadata()
+            .map(mta -> mta.getMetadata()
                 .getId())
             .collect(Collectors.toSet());
     }
 
     private List<DeployedMta> getMtasWithSameId(List<DeployedMta> mtas, String id) {
         return mtas.stream()
-            .filter((mta) -> mta.getMetadata()
+            .filter(mta -> mta.getMetadata()
                 .getId()
                 .equals(id))
             .collect(Collectors.toList());

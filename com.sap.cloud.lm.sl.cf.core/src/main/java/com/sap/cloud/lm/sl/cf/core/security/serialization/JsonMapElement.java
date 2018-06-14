@@ -33,7 +33,7 @@ public class JsonMapElement extends JsonElement<JsonObject> implements MapElemen
 
     @Override
     public Collection<Element> getMembers() {
-        ArrayList<Element> members = new ArrayList<Element>();
+        ArrayList<Element> members = new ArrayList<>();
         for (Map.Entry<String, com.google.gson.JsonElement> element : gsonElement.entrySet()) {
             members.add(toJsonElement(element));
         }

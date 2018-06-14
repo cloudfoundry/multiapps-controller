@@ -118,9 +118,9 @@ public class PollServiceOperationsExecution implements AsyncExecution {
 
     private ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudFoundryOperations client,
         CloudServiceExtended service) {
-        Map<String, Object> cloudServiceInstance = serviceOperationExecutor.executeServiceOperation(service, () -> {
-            return serviceInstanceGetter.getServiceInstance(client, service.getName(), StepsUtil.getSpaceId(execution.getContext()));
-        }, execution.getStepLogger());
+        Map<String, Object> cloudServiceInstance = serviceOperationExecutor.executeServiceOperation(service,
+            () -> serviceInstanceGetter.getServiceInstance(client, service.getName(), StepsUtil.getSpaceId(execution.getContext())),
+            execution.getStepLogger());
 
         validateCloudServiceInstance(execution, service, cloudServiceInstance);
         if (cloudServiceInstance == null) {

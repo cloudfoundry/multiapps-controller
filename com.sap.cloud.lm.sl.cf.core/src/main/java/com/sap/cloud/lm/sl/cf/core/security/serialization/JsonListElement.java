@@ -28,7 +28,7 @@ public class JsonListElement extends JsonElement<JsonArray> implements ListEleme
 
     @Override
     public Collection<Element> getMembers() {
-        ArrayList<Element> members = new ArrayList<Element>();
+        ArrayList<Element> members = new ArrayList<>();
         for (int i = 0; i < gsonElement.size(); i++) {
             members.add(toJsonElement(i, gsonElement.get(i)));
         }

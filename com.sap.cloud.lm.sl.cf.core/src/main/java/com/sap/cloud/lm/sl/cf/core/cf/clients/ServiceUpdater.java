@@ -100,7 +100,7 @@ public class ServiceUpdater extends CloudServiceOperator {
     }
 
     private Map<String, Object> createUpdateServiceRequest(String requestParameter, Object parameter) {
-        Map<String, Object> updateServiceParametersRequest = new HashMap<String, Object>();
+        Map<String, Object> updateServiceParametersRequest = new HashMap<>();
         updateServiceParametersRequest.put(requestParameter, parameter);
         return updateServiceParametersRequest;
     }

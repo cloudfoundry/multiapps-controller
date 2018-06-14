@@ -55,7 +55,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     protected List<String> getNames(List<RequiredDependency> dependencies) {
         return dependencies.stream()
-            .map((dependency) -> dependency.getName())
+            .map(dependency -> dependency.getName())
             .collect(Collectors.toList());
     }
 
@@ -100,7 +100,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
         List<RequiredDependency> expandedDependencies = resolvedReference.getResolvedResources()
             .stream()
-            .map(((resource) -> createRequiredDependency(resource, dependency)))
+            .map(resource -> createRequiredDependency(resource, dependency))
             .collect(Collectors.toList());
         expandedDependenciesMap.put(dependency, expandedDependencies);
         return expandedDependencies;

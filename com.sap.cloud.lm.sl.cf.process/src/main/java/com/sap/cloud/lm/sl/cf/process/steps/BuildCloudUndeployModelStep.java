@@ -50,7 +50,7 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
             getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
             List<String> appNames = appsToDeploy.stream()
-                .map((app) -> app.getName())
+                .map(app -> app.getName())
                 .collect(Collectors.toList());
 
             List<DeployedMtaModule> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames);
@@ -82,8 +82,8 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
     private List<DeployedMtaModule> computeModulesToKeep(List<DeployedMtaModule> modulesToUndeploy, DeployedMta deployedMta) {
         return deployedMta.getModules()
             .stream()
-            .filter((existingModule) -> modulesToUndeploy.stream()
-                .noneMatch((module) -> module.getModuleName()
+            .filter(existingModule -> modulesToUndeploy.stream()
+                .noneMatch(module -> module.getModuleName()
                     .equals(existingModule.getModuleName())))
             .collect(Collectors.toList());
     }
@@ -97,8 +97,8 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
 
     private List<String> computeServicesToDelete(Set<String> createdService, List<DeployedMtaModule> modulesToKeep) {
         return createdService.stream()
-            .filter((service) -> modulesToKeep.stream()
-                .noneMatch((module) -> module.getServices()
+            .filter(service -> modulesToKeep.stream()
+                .noneMatch(module -> module.getServices()
                     .contains(service)))
             .collect(Collectors.toList());
     }
@@ -106,7 +106,7 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
     private List<DeployedMtaModule> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules, List<String> appsToDeploy) {
         return deployedMta.getModules()
             .stream()
-            .filter((deployedModule) -> {
+            .filter(deployedModule -> {
 
                 if (!mtaModules.contains(deployedModule.getModuleName())) {
                     return true; // Obsolete module
@@ -124,8 +124,8 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
 
     private List<CloudApplication> computeAppsToUndeploy(List<DeployedMtaModule> modulesToUndeploy, List<CloudApplication> deployedApps) {
         return deployedApps.stream()
-            .filter((app) -> modulesToUndeploy.stream()
-                .anyMatch((module) -> module.getAppName()
+            .filter(app -> modulesToUndeploy.stream()
+                .anyMatch(module -> module.getAppName()
                     .equals(app.getName())))
             .collect(Collectors.toList());
     }
@@ -136,14 +136,14 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
             .getId();
         List<ConfigurationSubscription> existingSubscriptions = dao.findAll(mtaId, null, spaceId, null);
         return existingSubscriptions.stream()
-            .filter((subscription) -> !willBeCreatedOrUpdated(subscription, subscriptionsToCreate))
+            .filter(subscription -> !willBeCreatedOrUpdated(subscription, subscriptionsToCreate))
             .collect(Collectors.toList());
     }
 
     private boolean willBeCreatedOrUpdated(ConfigurationSubscription existingSubscription,
         List<ConfigurationSubscription> createdOrUpdatedSubscriptions) {
         return createdOrUpdatedSubscriptions.stream()
-            .anyMatch((subscription) -> areEqual(subscription, existingSubscription));
+            .anyMatch(subscription -> areEqual(subscription, existingSubscription));
     }
 
     protected boolean areEqual(ConfigurationSubscription subscription1, ConfigurationSubscription subscription2) {

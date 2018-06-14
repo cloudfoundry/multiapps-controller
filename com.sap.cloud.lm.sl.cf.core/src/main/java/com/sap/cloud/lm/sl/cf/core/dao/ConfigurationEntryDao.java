@@ -37,14 +37,14 @@ public class ConfigurationEntryDao {
 
     private List<ConfigurationEntry> filter(List<ConfigurationEntry> entries, String version, List<CloudTarget> cloudTargets) {
         return entries.stream()
-            .filter((entry) -> VERSION_FILTER.apply(entry, version))
-            .filter((entry) -> VISIBILITY_FILTER.apply(entry, cloudTargets))
+            .filter(entry -> VERSION_FILTER.apply(entry, version))
+            .filter(entry -> VISIBILITY_FILTER.apply(entry, cloudTargets))
             .collect(Collectors.toList());
     }
 
     private List<ConfigurationEntry> toConfigurationEntries(List<ConfigurationEntryDto> dtos) {
         return dtos.stream()
-            .map((dto) -> dto.toConfigurationEntry())
+            .map(dto -> dto.toConfigurationEntry())
             .collect(Collectors.toList());
     }
 

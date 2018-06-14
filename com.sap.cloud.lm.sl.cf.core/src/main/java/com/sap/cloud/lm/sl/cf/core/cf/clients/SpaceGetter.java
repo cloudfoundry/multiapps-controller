@@ -49,7 +49,7 @@ public class SpaceGetter extends CustomControllerClient {
     public CloudSpace getSpace(CloudFoundryOperations client, String spaceId) {
         return client.getSpaces()
             .stream()
-            .filter((s) -> isSameSpace(s, spaceId))
+            .filter(space -> isSameSpace(space, spaceId))
             .findAny()
             .orElseThrow(
                 () -> new CloudFoundryException(HttpStatus.NOT_FOUND, MessageFormat.format("Space with ID {0} does not exist", spaceId)));

@@ -93,7 +93,7 @@ public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.serializati
         target.setProperties(properties);
         target.setModuleTypes1_0(MT_ADAPTER.unmarshal(platformModuleTypes));
         target.setResourceTypes1_0(RT_ADAPTER.unmarshal(platformResourceTypes));
-        return new PersistentObject<Target>(id, target.build());
+        return new PersistentObject<>(id, target.build());
     }
 }
 
@@ -105,7 +105,7 @@ class PlatformResourceTypesAdapter extends XmlAdapter<List<PlatformResourceTypeD
             return null;
         }
 
-        List<PlatformResourceTypeDto> resourceTypeDtos = new ArrayList<PlatformResourceTypeDto>();
+        List<PlatformResourceTypeDto> resourceTypeDtos = new ArrayList<>();
         for (PlatformResourceType resourceType : resourceTypes) {
             resourceTypeDtos.add(new PlatformResourceTypeDto(resourceType));
         }
@@ -119,7 +119,7 @@ class PlatformResourceTypesAdapter extends XmlAdapter<List<PlatformResourceTypeD
             return null;
         }
 
-        List<PlatformResourceType> resourceTypes = new ArrayList<PlatformResourceType>();
+        List<PlatformResourceType> resourceTypes = new ArrayList<>();
         for (PlatformResourceTypeDto resourceTypeDto : resourceTypeDtos) {
             resourceTypes.add(resourceTypeDto.toPlatformResourceType());
         }
@@ -137,7 +137,7 @@ class PlatformModuleTypesAdapter extends XmlAdapter<List<PlatformModuleTypeDto>,
             return null;
         }
 
-        List<PlatformModuleTypeDto> moduleTypeDtos = new ArrayList<PlatformModuleTypeDto>();
+        List<PlatformModuleTypeDto> moduleTypeDtos = new ArrayList<>();
         for (PlatformModuleType moduleType : moduleTypes) {
             moduleTypeDtos.add(new PlatformModuleTypeDto(moduleType));
         }
@@ -151,7 +151,7 @@ class PlatformModuleTypesAdapter extends XmlAdapter<List<PlatformModuleTypeDto>,
             return null;
         }
 
-        List<PlatformModuleType> moduleTypes = new ArrayList<PlatformModuleType>();
+        List<PlatformModuleType> moduleTypes = new ArrayList<>();
         for (PlatformModuleTypeDto moduleTypeDto : moduleTypeDtos) {
             moduleTypes.add(moduleTypeDto.toPlatformModuleType());
         }

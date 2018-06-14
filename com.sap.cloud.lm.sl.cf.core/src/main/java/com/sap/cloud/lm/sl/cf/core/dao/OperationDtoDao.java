@@ -32,7 +32,7 @@ public class OperationDtoDao {
     EntityManagerFactory emf;
 
     public void add(OperationDto operation) throws ConflictException {
-        new TransactionalExecutor<Void>(createEntityManager()).execute((manager) -> {
+        new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             if (existsInternal(manager, operation.getProcessId())) {
                 throw new ConflictException(Messages.OPERATION_ALREADY_EXISTS, operation.getProcessId());
             }
@@ -50,7 +50,7 @@ public class OperationDtoDao {
     }
 
     public void remove(String processId) throws NotFoundException {
-        new TransactionalExecutor<Void>(createEntityManager()).execute((manager) -> {
+        new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             OperationDto dto = manager.find(OperationDto.class, processId);
             if (dto == null) {
                 throw new NotFoundException(Messages.OPERATION_NOT_FOUND, processId);
@@ -61,9 +61,7 @@ public class OperationDtoDao {
     }
 
     public OperationDto find(String processId) {
-        return new Executor<OperationDto>(createEntityManager()).execute((manager) -> {
-            return manager.find(OperationDto.class, processId);
-        });
+        return new Executor<OperationDto>(createEntityManager()).execute(manager -> manager.find(OperationDto.class, processId));
     }
 
     public OperationDto findRequired(String processId) throws NotFoundException {
@@ -75,21 +73,17 @@ public class OperationDtoDao {
     }
 
     public List<OperationDto> find(OperationFilter filter) {
-        return new Executor<List<OperationDto>>(createEntityManager()).execute((manager) -> {
-            return createQuery(manager, filter).getResultList();
-        });
+        return new Executor<List<OperationDto>>(createEntityManager()).execute(manager -> createQuery(manager, filter).getResultList());
     }
 
     @SuppressWarnings("unchecked")
     public List<OperationDto> findAll() {
-        return new Executor<List<OperationDto>>(createEntityManager()).execute((manager) -> {
-            return manager.createNamedQuery("find_all")
-                .getResultList();
-        });
+        return new Executor<List<OperationDto>>(createEntityManager()).execute(manager -> manager.createNamedQuery("find_all")
+            .getResultList());
     }
 
     public void merge(OperationDto operation) throws NotFoundException {
-        new TransactionalExecutor<Void>(createEntityManager()).execute((manager) -> {
+        new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             OperationDto dto = manager.find(OperationDto.class, operation.getProcessId());
             if (dto == null) {
                 throw new NotFoundException(Messages.OPERATION_NOT_FOUND, operation.getProcessId());

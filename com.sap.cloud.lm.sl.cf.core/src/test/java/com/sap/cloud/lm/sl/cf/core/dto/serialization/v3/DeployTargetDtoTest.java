@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.dto.serialization.v2_0;
+package com.sap.cloud.lm.sl.cf.core.dto.serialization.v3;
 
 import java.util.Arrays;
 
@@ -6,17 +6,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.dto.serialization.v2.DeployTargetDto;
-
 @RunWith(value = Parameterized.class)
-public class DeployTargetDtoTest extends com.sap.cloud.lm.sl.cf.core.dto.serialization.v1_0.DeployTargetDtoTest {
+public class DeployTargetDtoTest extends com.sap.cloud.lm.sl.cf.core.dto.serialization.v2.DeployTargetDtoTest {
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                "platform-properties-v2.json", "platform-properties-v2.xml",
+                "platform-properties-v3_1.json", "platform-properties-v3_1.xml",
             },
 // @formatter:on
         });

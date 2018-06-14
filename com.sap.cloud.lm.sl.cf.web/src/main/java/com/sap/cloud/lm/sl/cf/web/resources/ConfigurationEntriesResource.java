@@ -175,7 +175,7 @@ public class ConfigurationEntriesResource {
     }
 
     private Map<String, Object> parseContentQueryListParameter(List<String> content) throws ParsingException {
-        Map<String, Object> parsedContent = new HashMap<String, Object>();
+        Map<String, Object> parsedContent = new HashMap<>();
         for (String property : content) {
             String[] keyValuePair = property.split(KEYVALUE_SEPARATOR, 2);
             if (keyValuePair.length != 2) {

@@ -17,10 +17,10 @@ public class Module {
     private String appName = null;
     private Date createdOn = null;
     private Date updatedOn = null;
-    private List<String> providedDendencyNames = new ArrayList<String>();
-    private List<String> services = new ArrayList<String>();
-    private List<String> uris = new ArrayList<String>();
-    private Map<String, Object> deployAttributes = new HashMap<String, Object>();
+    private List<String> providedDendencyNames = new ArrayList<>();
+    private List<String> services = new ArrayList<>();
+    private List<String> uris = new ArrayList<>();
+    private Map<String, Object> deployAttributes = new HashMap<>();
 
     /**
      **/

@@ -278,7 +278,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
 
     private List<String> getFirstComponents(List<String> properties) {
         return properties.stream()
-            .map((propertyName) -> getFirstComponent(propertyName))
+            .map(propertyName -> getFirstComponent(propertyName))
             .collect(Collectors.toList());
     }
 
@@ -335,7 +335,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     private static class ReferenceDetector extends ReferencingPropertiesVisitor {
 
         public ReferenceDetector(String name) {
-            super(ReferencePattern.FULLY_QUALIFIED, (reference) -> name.equals(reference.getDependencyName()));
+            super(ReferencePattern.FULLY_QUALIFIED, reference -> name.equals(reference.getDependencyName()));
         }
 
         private List<String> relevantProperties = new ArrayList<>();

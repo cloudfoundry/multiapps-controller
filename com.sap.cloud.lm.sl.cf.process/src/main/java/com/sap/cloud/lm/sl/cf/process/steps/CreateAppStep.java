@@ -131,7 +131,7 @@ public class CreateAppStep extends SyncActivitiStep {
             return Collections.emptyMap();
         }
 
-        Map<String, String> appServiceKeysCredentials = new HashMap<String, String>();
+        Map<String, String> appServiceKeysCredentials = new HashMap<>();
         for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
             String serviceKeyCredentials = JsonUtil.toJson(getServiceKeyCredentials(client, serviceKeyToInject), true);
             appEnv.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
@@ -180,7 +180,7 @@ public class CreateAppStep extends SyncActivitiStep {
 
     protected static List<CloudServiceExtended> getServices(List<CloudServiceExtended> services, List<String> serviceNames) {
         return services.stream()
-            .filter((service) -> serviceNames.contains(service.getName()))
+            .filter(service -> serviceNames.contains(service.getName()))
             .collect(Collectors.toList());
     }
 

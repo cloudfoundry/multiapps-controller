@@ -76,9 +76,8 @@ public class AbortFailedProcessCommandFactory extends NoJobRetryCommandFactory {
 
             RuntimeService runtimeService = getRuntimeService(commandContext);
             TransactionContext transactionContext = commandContext.getTransactionContext();
-            transactionContext.addTransactionListener(TransactionState.COMMITTED, (context) -> {
-                runtimeService.deleteProcessInstance(processId, abortReason);
-            });
+            transactionContext.addTransactionListener(TransactionState.COMMITTED,
+                context -> runtimeService.deleteProcessInstance(processId, abortReason));
         }
 
         private HistoryService getHistoryService(CommandContext commandContext) {

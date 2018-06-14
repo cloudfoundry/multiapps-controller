@@ -161,13 +161,13 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
         private static List<ProvidedDependencyDto> fromProvidedDependencies2(List<ProvidedDependency> providedDependencies) {
             return providedDependencies.stream()
-                .map((dependency) -> ProvidedDependencyDto.from2(dependency))
+                .map(dependency -> ProvidedDependencyDto.from2(dependency))
                 .collect(Collectors.toList());
         }
 
         private static List<RequiredDependencyDto> fromRequiredDependencies2(List<RequiredDependency> requiredDependencies) {
             return requiredDependencies.stream()
-                .map((dependency) -> RequiredDependencyDto.from2(dependency))
+                .map(dependency -> RequiredDependencyDto.from2(dependency))
                 .collect(Collectors.toList());
         }
 
@@ -289,7 +289,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
     public boolean matches(List<ConfigurationEntry> entries) {
         return entries.stream()
-            .anyMatch((entry) -> filter.matches(entry));
+            .anyMatch(entry -> filter.matches(entry));
     }
 
     public boolean matches(ConfigurationEntry entry) {

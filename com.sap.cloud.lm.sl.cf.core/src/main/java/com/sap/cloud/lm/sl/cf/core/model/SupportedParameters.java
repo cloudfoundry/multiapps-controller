@@ -169,7 +169,7 @@ public class SupportedParameters {
     public static final Map<String, String> SINGULAR_PLURAL_MAPPING;
 
     static {
-        Map<String, String> prototype = new HashMap<String, String>();
+        Map<String, String> prototype = new HashMap<>();
         prototype.put(IDLE_HOST, IDLE_HOSTS);
         prototype.put(IDLE_DOMAIN, IDLE_DOMAINS);
         prototype.put(IDLE_PORT, IDLE_PORTS);

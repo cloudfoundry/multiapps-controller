@@ -20,7 +20,7 @@ public class MockClientFactory extends ClientFactory {
     }
 
     private static Pair<CloudFoundryOperations, TokenProvider> createClient() {
-        return new Pair<CloudFoundryOperations, TokenProvider>(new MockCloudFoundryClient(), createMockTokenProvider());
+        return new Pair<>(new MockCloudFoundryClient(), createMockTokenProvider());
     }
 
     private static TokenProvider createMockTokenProvider() {

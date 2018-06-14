@@ -80,7 +80,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         final StringBuilder uploadTokenBuilder = new StringBuilder();
         final DelegateExecution context = execution.getContext();
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
-            appArchiveId, (appArchiveStream) -> {
+            appArchiveId, appArchiveStream -> {
                 Path dir = null;
                 File file = null;
                 long maxStreamSize = configuration.getMaxResourceFileSize();

@@ -63,7 +63,7 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
             throw fromException(cause.getMessage(), cause, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @Override
     public List<String> getSpaceManagers2(UUID spaceGuid) {
         try {
@@ -75,7 +75,7 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
             throw fromException(cause.getMessage(), cause, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @Override
     public List<String> getSpaceDevelopers2(String spaceName) {
         try {
@@ -87,7 +87,7 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
             throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @Override
     public List<String> getSpaceDevelopers2(UUID spaceGuid) {
         try {
@@ -111,7 +111,7 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
             throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @Override
     public List<String> getSpaceAuditors2(UUID spaceGuid) {
         try {
@@ -159,7 +159,7 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
             throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @Override
     public void createService(CloudService service) {
         try {
@@ -235,9 +235,7 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
     @Override
     public void deleteApplication(String appName) {
         try {
-            executeWithTimeout(callable(() -> executeWithRetry(() -> {
-                super.deleteApplication(appName);
-            })));
+            executeWithTimeout(callable(() -> executeWithRetry(() -> super.deleteApplication(appName))));
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
             throw fromException(cause.getMessage(), e.getCause(), HttpStatus.INTERNAL_SERVER_ERROR);

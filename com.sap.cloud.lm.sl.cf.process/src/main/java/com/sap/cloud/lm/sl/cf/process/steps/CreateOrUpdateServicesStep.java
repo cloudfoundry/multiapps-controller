@@ -162,14 +162,10 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             deleteServiceKeys(clientExtensions, serviceKeysToUpdate);
             createServiceKeys(clientExtensions, serviceKeysToUpdate);
         } else {
-            serviceKeysToDelete.forEach((key) -> {
-                getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getService()
-                    .getName());
-            });
-            serviceKeysToUpdate.forEach((key) -> {
-                getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(), key.getService()
-                    .getName());
-            });
+            serviceKeysToDelete.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getService()
+                .getName()));
+            serviceKeysToUpdate.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(), key.getService()
+                .getName()));
         }
         createServiceKeys(clientExtensions, serviceKeysToCreate);
     }
@@ -492,7 +488,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             .map(app -> app.getName())
             .collect(Collectors.toSet());
         appNames.addAll(appsToUndeploy.stream()
-            .map((app) -> app.getName())
+            .map(app -> app.getName())
             .collect(Collectors.toSet()));
 
         List<CloudApplication> existingApps = client.getApplications();

@@ -217,15 +217,16 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         State operationState = operation.getState() != null ? operation.getState() : operationsHelper.computeState(operation);
         switch (operationState) {
             case FINISHED:
+                return Collections.emptyList();
             case ABORTED:
                 return Collections.emptyList();
             case ERROR:
-            case RUNNING:
                 return new ArrayList<>(Arrays.asList("abort", "retry"));
+            case RUNNING:
+                return new ArrayList<>(Arrays.asList("abort"));
             case ACTION_REQUIRED:
                 return new ArrayList<>(Arrays.asList("abort", "resume"));
         }
-
         throw new IllegalStateException("State " + operationState.value() + " not recognised!");
     }
 

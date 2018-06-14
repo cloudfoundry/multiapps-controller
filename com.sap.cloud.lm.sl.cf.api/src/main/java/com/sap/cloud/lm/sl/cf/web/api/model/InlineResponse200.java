@@ -10,7 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 public class InlineResponse200 {
 
-    private List<String> actionIds = new ArrayList<String>();
+    private List<String> actionIds = new ArrayList<>();
 
     /**
      **/

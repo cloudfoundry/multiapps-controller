@@ -36,7 +36,7 @@ public class DeployTargetsDto extends com.sap.cloud.lm.sl.cf.core.dto.serializat
     @Override
     public List<DeployTargetDto> getDeployTargetDtos() {
         return deployTargets.stream()
-            .map((target) -> new DeployTargetDto(target))
+            .map(target -> new DeployTargetDto(target))
             .collect(Collectors.toList());
     }
 

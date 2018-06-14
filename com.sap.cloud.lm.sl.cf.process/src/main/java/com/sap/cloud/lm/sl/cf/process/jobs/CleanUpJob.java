@@ -81,43 +81,29 @@ public class CleanUpJob implements Job {
             .toString());
 
         Date expirationTime = getExpirationTime();
-        executeSafely(() -> {
-            abortOldOperationsInStateError(expirationTime);
-        });
+        executeSafely(() -> abortOldOperationsInStateError(expirationTime));
 
-        executeSafely(() -> {
-            cleanUpFinishedOperationsData(expirationTime);
-        });
+        executeSafely(() -> cleanUpFinishedOperationsData(expirationTime));
 
-        executeSafely(() -> {
-            removeActivitiHistoricData(expirationTime);
-        });
+        executeSafely(() -> removeActivitiHistoricData(expirationTime));
 
-        executeSafely(() -> {
-            removeOldOrphanedFiles(expirationTime);
-        });
+        executeSafely(() -> removeOldOrphanedFiles(expirationTime));
 
-        executeSafely(() -> {
-            removeExpiredTokens();
-        });
+        executeSafely(() -> removeExpiredTokens());
 
-        executeSafely(() -> {
-            executeDataTerminationJob();
-        });
+        executeSafely(() -> executeDataTerminationJob());
 
         LOGGER.info("Cleanup Job finished at: " + Instant.now()
             .toString());
     }
 
     private void executeDataTerminationJob() {
-
         if (configuration.getPlatformType() != PlatformType.CF) {
             return;
         }
         LOGGER.warn("Termination of user data started.");
         dataTerminationService.deleteOrphanUserData();
         LOGGER.warn("Termination of user data finished.");
-
     }
 
     private Date getExpirationTime() {
@@ -253,12 +239,12 @@ public class CleanUpJob implements Job {
         if (spaceToProcessIds.isEmpty()) {
             return Collections.emptyMap();
         }
-        Map<String, List<String>> spaceToFileIds = new HashMap<String, List<String>>();
+        Map<String, List<String>> spaceToFileIds = new HashMap<>();
         for (String space : spaceToProcessIds.keySet()) {
             if (spaceToProcessIds.get(space) == null) {
                 continue;
             }
-            List<String> fileIds = new ArrayList<String>();
+            List<String> fileIds = new ArrayList<>();
             for (String processId : spaceToProcessIds.get(space)) {
                 if (processIdToAppArchiveId.containsKey(processId)) {
                     fileIds.add(processIdToAppArchiveId.get(processId));
@@ -284,7 +270,7 @@ public class CleanUpJob implements Job {
     }
 
     public Map<String, List<String>> splitAllFilesInChunks(Map<String, List<String>> spaceToFileIds) {
-        Map<String, List<String>> spaceToFileChunks = new HashMap<String, List<String>>();
+        Map<String, List<String>> spaceToFileChunks = new HashMap<>();
         for (String space : spaceToFileIds.keySet()) {
             List<String> fileChunksInSpace = NameUtil.splitFilesIds(spaceToFileIds.get(space));
             spaceToFileChunks.put(space, fileChunksInSpace);

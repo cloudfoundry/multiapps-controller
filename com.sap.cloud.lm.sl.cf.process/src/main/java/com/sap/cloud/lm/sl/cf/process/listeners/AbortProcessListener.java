@@ -79,27 +79,17 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         String processInstanceId = event.getProcessInstanceId();
         String correlationId = getCorrelationId(event);
 
-        new SafeExecutor().executeSafely(() -> {
-            new ProcessConflictPreventer(getOperationDao()).attemptToReleaseLock(correlationId);
-        });
+        new SafeExecutor().executeSafely(() -> new ProcessConflictPreventer(getOperationDao()).attemptToReleaseLock(correlationId));
 
-        new SafeExecutor().executeSafely(() -> {
-            setOperationInAbortedState(correlationId);
-        });
+        new SafeExecutor().executeSafely(() -> setOperationInAbortedState(correlationId));
 
         HistoryService historyService = event.getEngineServices()
             .getHistoryService();
 
-        new SafeExecutor().executeSafely(() -> {
-            deleteAllocatedRoutes(historyService, processInstanceId);
-        });
-        new SafeExecutor().executeSafely(() -> {
-            deleteDeploymentFiles(historyService, processInstanceId);
-        });
+        new SafeExecutor().executeSafely(() -> deleteAllocatedRoutes(historyService, processInstanceId));
+        new SafeExecutor().executeSafely(() -> deleteDeploymentFiles(historyService, processInstanceId));
 
-        new SafeExecutor().executeSafely(() -> {
-            new ClientReleaser(event, getClientProvider()).releaseClient();
-        });
+        new SafeExecutor().executeSafely(() -> new ClientReleaser(event, getClientProvider()).releaseClient());
 
         new SafeExecutor().executeSafely(() -> {
             if (configuration.shouldGatherUsageStatistics()) {

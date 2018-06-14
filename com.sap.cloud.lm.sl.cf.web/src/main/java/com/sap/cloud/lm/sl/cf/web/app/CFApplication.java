@@ -14,7 +14,7 @@ public class CFApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        Set<Class<?>> classes = new HashSet<Class<?>>();
+        Set<Class<?>> classes = new HashSet<>();
         classes.add(ConfigurationEntriesResource.class);
         classes.add(ConfigurationSubscriptionsResource.class);
         classes.add(CFExceptionMapper.class);

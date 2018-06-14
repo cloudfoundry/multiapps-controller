@@ -89,7 +89,7 @@ public class FilesApiServiceImpl implements FilesApiService {
         long maxUploadSize = getConfiguration().getMaxUploadSize();
         upload.setSizeMax(maxUploadSize);
 
-        List<FileEntry> uploadedFiles = new ArrayList<FileEntry>();
+        List<FileEntry> uploadedFiles = new ArrayList<>();
         FileItemIterator fileItemIterator = null;
         try {
             fileItemIterator = upload.getItemIterator(request);

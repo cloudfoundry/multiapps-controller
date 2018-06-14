@@ -747,7 +747,7 @@ public class StepsUtil {
         final String appToRestartName = appsToRestart.get(index);
         List<CloudApplicationExtended> appsToDeploy = StepsUtil.getAppsToDeploy(context);
         return appsToDeploy.stream()
-            .filter((app) -> app.getName()
+            .filter(app -> app.getName()
                 .equals(appToRestartName))
             .findFirst()
             .get();
@@ -931,7 +931,7 @@ public class StepsUtil {
     }
 
     public static Set<String> getArrayVariableAsSet(DelegateExecution context, String name) {
-        return new HashSet<String>(Arrays.asList(getArrayVariable(context, name)));
+        return new HashSet<>(Arrays.asList(getArrayVariable(context, name)));
     }
 
     public static void setAsBinaryJson(DelegateExecution context, String name, Object object) {
