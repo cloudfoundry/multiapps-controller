@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudFoundryException;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
@@ -57,7 +58,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
             String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
             String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
-            
+
             getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
             String uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
             getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
@@ -80,20 +81,22 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         final DelegateExecution context = execution.getContext();
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, appArchiveStream -> {
+                Path dir = null;
                 File file = null;
                 long maxStreamSize = configuration.getMaxResourceFileSize();
                 try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName, maxStreamSize)) {
                     // Start uploading application content
-                    file = saveToFile(fileName, streamProducer);
+                    dir = getTempDirectoryFromFilename(fileName);
+                    file = saveToFile(fileName, dir, streamProducer);
                     getStepLogger().debug(Messages.CREATED_TEMP_FILE, file);
                     detectApplicationFileDigestChanges(execution, app, file, client);
-                    String uploadToken = client.asyncUploadApplication(app.getName(), file, getMonitorUploadStatusCallback(app, file));
+                    String uploadToken = client.asyncUploadApplication(app.getName(), file, getMonitorUploadStatusCallback(app, dir));
                     uploadTokenBuilder.append(uploadToken);
                 } catch (IOException e) {
-                    cleanUpTempFile(file);
+                    cleanUpTempDir(dir);
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
-                } catch (CloudFoundryException e) {
-                    cleanUpTempFile(file);
+                } catch (CloudFoundryException | ContentException e) {
+                    cleanUpTempDir(dir);
                     throw e;
                 }
             });
@@ -130,8 +133,8 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
             .setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(appContentChanged));
     }
 
-    MonitorUploadStatusCallback getMonitorUploadStatusCallback(CloudApplication app, File file) {
-        return new MonitorUploadStatusCallback(app, file);
+    MonitorUploadStatusCallback getMonitorUploadStatusCallback(CloudApplication app, Path dir) {
+        return new MonitorUploadStatusCallback(app, dir);
     }
 
     InputStreamProducer getInputStreamProducer(InputStream appArchiveStream, String fileName, long maxStreamSize) throws SLException {
@@ -139,7 +142,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     }
 
     @SuppressWarnings("resource")
-    protected File saveToFile(String fileName, InputStreamProducer streamProducer) throws IOException {
+    protected File saveToFile(String fileName, Path tempDirectory, InputStreamProducer streamProducer) throws IOException {
         InputStream stream = streamProducer.getNextInputStream();
         if (stream == null) {
             throw new ContentException(com.sap.cloud.lm.sl.mta.message.Messages.CANNOT_FIND_ARCHIVE_ENTRY, fileName);
@@ -148,32 +151,38 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         String entryName = streamProducer.getStreamEntryName();
         StreamUtil streamUtil = new StreamUtil(stream);
         if (isFile(fileName)) {
-            return streamUtil.saveStreamToFile(entryName);
+            return streamUtil.saveStreamToFile(entryName, tempDirectory, configuration.getMaxResourceFileSize());
         }
 
         if (entryName.equals(fileName)) {
-            return streamUtil.saveZipStreamToDirectory(fileName, configuration.getMaxResourceFileSize());
+            return streamUtil.saveZipStreamToDirectory(fileName, tempDirectory, configuration.getMaxResourceFileSize());
         }
-        Path destinationDirectory = StreamUtil.getTempDirectory(fileName);
+        long filesSize = 0;
         while (stream != null) {
             if (!entryName.endsWith(ARCHIVE_FILE_SEPARATOR)) {
-                streamUtil.saveStreamToDirectory(entryName, fileName, destinationDirectory);
+                filesSize = streamUtil.saveStreamToDirectory(entryName, fileName, tempDirectory, filesSize,
+                    configuration.getMaxResourceFileSize());
             }
             // no need to close this stream because no new stream object is created
             stream = streamProducer.getNextInputStream();
             streamUtil.setInputStream(stream);
             entryName = streamProducer.getStreamEntryName();
         }
-        return destinationDirectory.toFile();
+        return tempDirectory.toFile();
     }
 
-    void cleanUpTempFile(File file) {
-        if (file != null) {
+    public Path getTempDirectoryFromFilename(String fileName) throws IOException {
+        return StreamUtil.getTempDirectoryFromFilename(fileName);
+    }
+
+    void cleanUpTempDir(Path dirPath) {
+        if (dirPath != null) {
+            File dir = dirPath.toFile();
             try {
-                getStepLogger().debug(Messages.DELETING_TEMP_FILE, file);
-                StreamUtil.deleteFile(file);
+                getStepLogger().debug(Messages.DELETING_TEMP_FILE, dir);
+                FileUtils.deleteDirectory(dir);
             } catch (IOException e) {
-                getStepLogger().warn(Messages.ERROR_DELETING_APP_TEMP_FILE, file.getAbsolutePath());
+                getStepLogger().warn(Messages.ERROR_DELETING_APP_TEMP_FILE, dir.getAbsolutePath());
             }
         }
     }
@@ -187,11 +196,11 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         static final String FINISHED_STATUS = "finished";
 
         private final CloudApplication app;
-        private final File file;
+        private final Path dir;
 
-        public MonitorUploadStatusCallback(CloudApplication app, File file) {
+        public MonitorUploadStatusCallback(CloudApplication app, Path dir) {
             this.app = app;
-            this.file = file;
+            this.dir = dir;
         }
 
         @Override
@@ -213,7 +222,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         public boolean onProgress(String status) {
             getStepLogger().info(Messages.UPLOAD_STATUS_0, status);
             if (status.equals(FINISHED_STATUS)) {
-                cleanUpTempFile(file);
+                cleanUpTempDir(dir);
             }
             return false;
         }
@@ -221,13 +230,13 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         @Override
         public void onError(Exception e) {
             getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
-            cleanUpTempFile(file);
+            cleanUpTempDir(dir);
         }
 
         @Override
         public void onError(String description) {
             getStepLogger().error(Messages.ERROR_UPLOADING_APP_BECAUSE_OF, app.getName(), description);
-            cleanUpTempFile(file);
+            cleanUpTempDir(dir);
         }
 
     }

@@ -6,11 +6,14 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -26,7 +29,7 @@ public class StreamUtilTest {
     private static final String SAMPLE_FLAT_MTAR = "com.sap.mta.sample-1.2.1-beta-flat.mtar";
     private static final String SAMPLE_MTAR_WITH_JAR_ENTRY_ABSOLUTE_PATH = "archive-entry-with-absolute-path.mtar";
     private static final String SAMPLE_MTAR_WITH_JAR_ENTRY_NOT_NORMALIZED_PATH = "archive-entry-with-not-normalized-path.mtar";
-    private static final long MAX_UPLOAD_FILE_SIZE = 1024 * 1024 * 1024l;
+    private static final long MAX_UPLOAD_FILE_SIZE = 1024 * 1024 * 1024l; // 1gb
 
     @Parameters
     public static Iterable<Object[]> data() {
@@ -37,8 +40,8 @@ public class StreamUtilTest {
             { SAMPLE_FLAT_MTAR, "web/", "xxx/web/", null, MAX_UPLOAD_FILE_SIZE},
             { SAMPLE_MTAR_WITH_JAR_ENTRY_ABSOLUTE_PATH, "/web/", "/web/", MessageFormat.format(StreamUtil.PATH_SHOULD_NOT_BE_ABSOLUTE, "/web/asd"), MAX_UPLOAD_FILE_SIZE},
             { SAMPLE_MTAR_WITH_JAR_ENTRY_NOT_NORMALIZED_PATH, "web/", "web/", MessageFormat.format(StreamUtil.PATH_SHOULD_BE_NORMALIZED, "web/../asd"), MAX_UPLOAD_FILE_SIZE},
-            { SAMPLE_MTAR, "db/", "db/", MessageFormat.format(Messages.ERROR_SIZE_OF_UNCOMPRESSED_FILE_EXCEEDS_MAX_SIZE_LIMIT, 201,
-                "db/pricing-db.zip", 200), 200l}
+            { SAMPLE_MTAR, "db/", "db/", MessageFormat.format(Messages.ERROR_SIZE_OF_APPLICATION_EXCEEDS_MAX_SIZE_LIMIT, 200), 200l},
+            { SAMPLE_MTAR, "web/web-server.zip", "web/web-server.zip", MessageFormat.format(Messages.ERROR_SIZE_OF_APPLICATION_EXCEEDS_MAX_SIZE_LIMIT, 200), 200}
             // @formatter:on
         });
     }
@@ -59,14 +62,15 @@ public class StreamUtilTest {
 
     @Test
     public void testSaveStream() throws Exception {
-        InputStream ras = StreamUtilTest.class.getResourceAsStream(mtar);
+        Path dirPath = null;
         File file = null;
-        try (InputStream is = getInputStream(ras, entryName)) {
+        try (InputStream ras = StreamUtilTest.class.getResourceAsStream(mtar); InputStream is = getInputStream(ras, entryName)) {
             StreamUtil streamUtil = new StreamUtil(is);
+            dirPath = StreamUtil.getTempDirectoryFromFilename(fileName);
             if (StreamUtil.isArchiveEntryDirectory(fileName)) {
-                file = streamUtil.saveZipStreamToDirectory(fileName, maxFileUploadSize);
+                file = streamUtil.saveZipStreamToDirectory(fileName, dirPath, maxFileUploadSize);
             } else {
-                file = streamUtil.saveStreamToFile(fileName);
+                file = streamUtil.saveStreamToFile(fileName, dirPath, maxFileUploadSize);
             }
             assertTrue(file.exists());
         } catch (Exception e) {
@@ -74,10 +78,9 @@ public class StreamUtilTest {
                 assertEquals(exceptionMessage, e.getMessage());
             }
         } finally {
-            ras.close();
-            if (file != null) {
-                StreamUtil.deleteFile(file);
-                assertTrue(!file.exists());
+            if (dirPath != null) {
+                FileUtils.deleteDirectory(dirPath.toFile());
+                assertTrue(!Files.exists(dirPath));
             }
         }
     }
