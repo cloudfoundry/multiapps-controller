@@ -43,7 +43,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
 
     private List<String> getExtensionDescriptors(String spaceId, List<String> fileIds) throws SLException {
         try {
-            final List<String> extensionDescriptorStrings = new ArrayList<String>();
+            final List<String> extensionDescriptorStrings = new ArrayList<>();
 
             FileContentProcessor extensionDescriptorProcessor = new FileContentProcessor() {
                 @Override

@@ -40,7 +40,7 @@ public class ServiceCreator extends CloudServiceOperator {
     }
 
     private Map<String, Object> createServiceRequest(CloudServiceExtended service, String spaceId, CloudServicePlan cloudServicePlan) {
-        Map<String, Object> serviceRequest = new HashMap<String, Object>();
+        Map<String, Object> serviceRequest = new HashMap<>();
         serviceRequest.put(SPACE_GUID, spaceId);
         serviceRequest.put(SERVICE_NAME, service.getName());
         serviceRequest.put(SERVICE_PLAN_GUID, cloudServicePlan.getMeta()

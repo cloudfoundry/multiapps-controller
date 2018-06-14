@@ -43,7 +43,7 @@ public class ServiceBindingCreator extends CustomControllerClient {
     }
 
     private Map<String, Object> createServiceBindingRequest(UUID appGuid, UUID serviceInstanceGuid, Map<String, Object> parameters) {
-        Map<String, Object> serviceBindingsRequest = new HashMap<String, Object>();
+        Map<String, Object> serviceBindingsRequest = new HashMap<>();
         serviceBindingsRequest.put(SERVICE_INSTANCE_GUID, serviceInstanceGuid);
         serviceBindingsRequest.put(APP_GUID, appGuid);
         serviceBindingsRequest.put(SERVICE_BINDINGS_PARAMETERS, parameters);

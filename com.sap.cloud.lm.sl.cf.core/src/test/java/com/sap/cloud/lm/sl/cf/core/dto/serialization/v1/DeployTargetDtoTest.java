@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.dto.serialization.v1_0;
+package com.sap.cloud.lm.sl.cf.core.dto.serialization.v1;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.dto.serialization.v1.DeployTargetDto;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.XmlUtil;

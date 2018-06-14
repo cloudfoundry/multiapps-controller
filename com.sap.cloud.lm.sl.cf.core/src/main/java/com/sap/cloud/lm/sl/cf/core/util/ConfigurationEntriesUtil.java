@@ -31,7 +31,7 @@ public class ConfigurationEntriesUtil {
 
     public static Pair<String, String> getMtaIdAndProvidedDependencyName(String providerId) {
         String[] providerIdSplitted = providerId.split(PROVIDER_ID_DELIMITER, 2);
-        return new Pair<String, String>(providerIdSplitted[0], providerIdSplitted[1]);
+        return new Pair<>(providerIdSplitted[0], providerIdSplitted[1]);
     }
 
     public static List<ConfigurationEntry> findConfigurationEntries(ConfigurationEntryDao dao, ConfigurationFilter filter,

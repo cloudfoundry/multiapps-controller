@@ -31,7 +31,7 @@ public abstract class CustomControllerClient {
 
     protected List<Map<String, Object>> getAllResources(RestTemplate restTemplate, String controllerUrl, String urlPath,
         Map<String, Object> urlVariables) {
-        List<Map<String, Object>> allResources = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> allResources = new ArrayList<>();
         String nextUrl = urlPath;
         while (!CommonUtil.isNullOrEmpty(nextUrl)) {
             nextUrl = addPageOfResources(restTemplate, controllerUrl, nextUrl, allResources, urlVariables);

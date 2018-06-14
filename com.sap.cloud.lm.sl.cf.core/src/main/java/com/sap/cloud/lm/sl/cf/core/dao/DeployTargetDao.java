@@ -34,7 +34,7 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
     protected abstract EntityManagerFactory getEmf();
 
     public PersistentObject<Tgt> add(Tgt target) throws ConflictException {
-        TransactionalExecutor<Dto> executor = new TransactionalExecutor<Dto>(createEntityManager());
+        TransactionalExecutor<Dto> executor = new TransactionalExecutor<>(createEntityManager());
         Dto persisted = executor.execute((manager) -> {
             if (existsInternal(manager, target.getName())) {
                 throw new ConflictException(Messages.DEPLOY_TARGET_ALREADY_EXISTS, target.getName());

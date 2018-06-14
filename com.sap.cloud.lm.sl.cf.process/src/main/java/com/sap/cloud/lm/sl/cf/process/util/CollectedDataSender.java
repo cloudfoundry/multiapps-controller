@@ -42,7 +42,7 @@ public class CollectedDataSender {
     }
 
     public Map<String, Object> getXmlProperties() {
-        Map<String, Object> properties = new TreeMap<String, Object>();
+        Map<String, Object> properties = new TreeMap<>();
         properties.put(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "SLAnalytics.xsd");
         properties.put(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         return properties;
@@ -56,7 +56,7 @@ public class CollectedDataSender {
     }
 
     public void sendCollectedData(RestTemplate restTemplate, String collectedXmlData) {
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put(Constants.TOOL_TYPE, XS2);
         params.put(Constants.FEEDBACK_MAIL, collectedXmlData);
 

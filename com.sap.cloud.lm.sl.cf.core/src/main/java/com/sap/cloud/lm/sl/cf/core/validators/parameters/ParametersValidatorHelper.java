@@ -25,7 +25,7 @@ public class ParametersValidatorHelper {
 
     public Map<String, Object> validate(String prefix, Object container, Class<?> containerClass, Map<String, Object> parameters)
         throws SLException {
-        Map<String, Object> validParameters = new TreeMap<String, Object>();
+        Map<String, Object> validParameters = new TreeMap<>();
         for (ParameterValidator validator : parameterValidators) {
             if (!validator.getContainerType()
                 .isAssignableFrom(containerClass)) {

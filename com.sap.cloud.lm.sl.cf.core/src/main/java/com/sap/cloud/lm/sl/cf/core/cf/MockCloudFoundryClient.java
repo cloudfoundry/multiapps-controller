@@ -56,8 +56,8 @@ import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 
 public class MockCloudFoundryClient implements CloudFoundryOperations {
 
-    private Map<String, CloudApplication> apps = new HashMap<String, CloudApplication>();
-    private Map<String, Map<String, String>> appsEnv = new HashMap<String, Map<String, String>>();
+    private Map<String, CloudApplication> apps = new HashMap<>();
+    private Map<String, Map<String, String>> appsEnv = new HashMap<>();
     private CloudOrganization org = new CloudOrganization(createMeta(), "dummyOrg");
 
     @Override
@@ -193,12 +193,12 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
 
     @Override
     public List<CloudApplication> getApplications() {
-        return new ArrayList<CloudApplication>(apps.values());
+        return new ArrayList<>(apps.values());
     }
 
     @Override
     public List<CloudApplication> getApplications(String inlineDepth) {
-        return new ArrayList<CloudApplication>(apps.values());
+        return new ArrayList<>(apps.values());
     }
 
     @Override
@@ -542,10 +542,10 @@ public class MockCloudFoundryClient implements CloudFoundryOperations {
         if (app == null) {
             return null;
         }
-        List<Map<String, Object>> attributes = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> attributes = new ArrayList<>();
         for (int i = 0; i < apps.get(app.getName())
             .getInstances(); i++) {
-            Map<String, Object> data = new HashMap<String, Object>();
+            Map<String, Object> data = new HashMap<>();
             data.put("state", InstanceState.RUNNING.toString());
             attributes.add(data);
         }

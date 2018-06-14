@@ -32,8 +32,8 @@ public class Operation implements AuditableConfiguration {
     private Boolean acquiredLock = null;
     private Boolean cleanedUp = null;
     private State state = null;
-    private List<Message> messages = new ArrayList<Message>();
-    private Map<String, Object> parameters = new HashMap<String, Object>();
+    private List<Message> messages = new ArrayList<>();
+    private Map<String, Object> parameters = new HashMap<>();
 
     /**
      **/

@@ -253,12 +253,12 @@ public class CleanUpJob implements Job {
         if (spaceToProcessIds.isEmpty()) {
             return Collections.emptyMap();
         }
-        Map<String, List<String>> spaceToFileIds = new HashMap<String, List<String>>();
+        Map<String, List<String>> spaceToFileIds = new HashMap<>();
         for (String space : spaceToProcessIds.keySet()) {
             if (spaceToProcessIds.get(space) == null) {
                 continue;
             }
-            List<String> fileIds = new ArrayList<String>();
+            List<String> fileIds = new ArrayList<>();
             for (String processId : spaceToProcessIds.get(space)) {
                 if (processIdToAppArchiveId.containsKey(processId)) {
                     fileIds.add(processIdToAppArchiveId.get(processId));
@@ -284,7 +284,7 @@ public class CleanUpJob implements Job {
     }
 
     public Map<String, List<String>> splitAllFilesInChunks(Map<String, List<String>> spaceToFileIds) {
-        Map<String, List<String>> spaceToFileChunks = new HashMap<String, List<String>>();
+        Map<String, List<String>> spaceToFileChunks = new HashMap<>();
         for (String space : spaceToFileIds.keySet()) {
             List<String> fileChunksInSpace = NameUtil.splitFilesIds(spaceToFileIds.get(space));
             spaceToFileChunks.put(space, fileChunksInSpace);

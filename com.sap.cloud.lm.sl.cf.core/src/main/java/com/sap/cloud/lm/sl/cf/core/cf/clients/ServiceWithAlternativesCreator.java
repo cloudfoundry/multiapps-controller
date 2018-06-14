@@ -54,14 +54,14 @@ public class ServiceWithAlternativesCreator {
     }
 
     private List<String> computePossibleServiceOfferings(CloudServiceExtended service) {
-        List<String> possibleServiceOfferings = new ArrayList<String>(service.getAlternativeLabels());
+        List<String> possibleServiceOfferings = new ArrayList<>(service.getAlternativeLabels());
         possibleServiceOfferings.add(0, service.getLabel());
         return possibleServiceOfferings;
     }
 
     private List<String> computeValidServiceOfferings(List<String> possibleServiceOfferings, String desiredServicePlan,
         Map<String, List<CloudServicePlan>> existingServiceOfferings) {
-        List<String> validServiceOfferings = new ArrayList<String>();
+        List<String> validServiceOfferings = new ArrayList<>();
         for (String possibleServiceOffering : possibleServiceOfferings) {
             if (!existingServiceOfferings.containsKey(possibleServiceOffering)) {
                 userMessageLogger.warnWithoutProgressMessage("Service offering \"{0}\" does not exist", possibleServiceOffering);

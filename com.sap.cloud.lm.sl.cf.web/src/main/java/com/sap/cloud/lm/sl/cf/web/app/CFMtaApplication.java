@@ -20,7 +20,7 @@ public class CFMtaApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        Set<Class<?>> classes = new HashSet<Class<?>>();
+        Set<Class<?>> classes = new HashSet<>();
         classes.add(BaseResource.class);
         classes.add(FilesApi.class);
         classes.add(MtasApi.class);

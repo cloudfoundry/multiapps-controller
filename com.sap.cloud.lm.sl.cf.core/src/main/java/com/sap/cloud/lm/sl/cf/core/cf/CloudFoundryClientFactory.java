@@ -32,8 +32,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         addTaggingInterceptor(factory.getRestTemplate());
         OauthClient oauthClient = createOauthClient();
         CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, null, oauthClient);
-        return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
-            new CloudFoundryTokenProvider(oauthClient));
+        return new Pair<>(new CloudFoundryClientExtended(controllerClient), new CloudFoundryTokenProvider(oauthClient));
     }
 
     @Override
@@ -44,8 +43,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         OauthClient oauthClient = createOauthClient();
         CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace,
             oauthClient);
-        return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
-            new CloudFoundryTokenProvider(oauthClient));
+        return new Pair<>(new CloudFoundryClientExtended(controllerClient), new CloudFoundryTokenProvider(oauthClient));
     }
 
     protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String spaceId) {
@@ -56,8 +54,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         OauthClient oauthClient = createOauthClient();
         CloudControllerClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace,
             oauthClient);
-        return new Pair<CloudFoundryOperations, TokenProvider>(new CloudFoundryClientExtended(controllerClient),
-            new CloudFoundryTokenProvider(oauthClient));
+        return new Pair<>(new CloudFoundryClientExtended(controllerClient), new CloudFoundryTokenProvider(oauthClient));
     }
 
     private void addTaggingInterceptor(RestTemplate template) {
