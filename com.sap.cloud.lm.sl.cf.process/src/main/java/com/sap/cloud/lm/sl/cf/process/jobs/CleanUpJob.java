@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.jobs;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -81,7 +80,7 @@ public class CleanUpJob implements Job {
             .toString());
 
         Date expirationTime = getExpirationTime();
-        executeSafely(() -> abortOldOperationsInStateError(expirationTime));
+        executeSafely(() -> abortOldOperationsInActiveState(expirationTime));
 
         executeSafely(() -> cleanUpFinishedOperationsData(expirationTime));
 
@@ -114,12 +113,12 @@ public class CleanUpJob implements Job {
         return cleanUpTimestamp;
     }
 
-    private void abortOldOperationsInStateError(Date expirationTime) {
+    private void abortOldOperationsInActiveState(Date expirationTime) {
         LOGGER.info("Aborting operations started before: " + expirationTime.toString());
-        List<Operation> activeOperationsInStateError = getActiveOperationsInStateError(expirationTime);
-        List<String> operationsInErrorIds = getProcessIds(activeOperationsInStateError);
-        executeAbortOperationAction(operationsInErrorIds);
-        LOGGER.info("Aborted operations count : " + operationsInErrorIds.size());
+        List<Operation> activeOperations = getOperationsInActiveState(expirationTime);
+        List<String> activeOperationsIds = getProcessIds(activeOperations);
+        executeAbortOperationAction(activeOperationsIds);
+        LOGGER.info("Aborted operations count : " + activeOperationsIds.size());
     }
 
     private void cleanUpFinishedOperationsData(Date expirationTime) {
@@ -188,17 +187,17 @@ public class CleanUpJob implements Job {
         return dao.find(filter);
     }
 
-    private List<Operation> getActiveOperationsInStateError(Date expirationTime) throws SLException {
+    private List<Operation> getOperationsInActiveState(Date expirationTime) throws SLException {
         OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime)
             .inNonFinalState()
             .descending()
             .build();
-        return operationsHelper.findOperations(filter, Arrays.asList(State.ERROR));
+        return operationsHelper.findOperations(filter, State.getActiveStates());
     }
 
     private List<String> getProcessIds(List<Operation> operations) {
         return operations.stream()
-            .map(operationInError -> operationInError.getProcessId())
+            .map(operation -> operation.getProcessId())
             .collect(Collectors.toList());
     }
 
