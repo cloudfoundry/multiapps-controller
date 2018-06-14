@@ -7,8 +7,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -157,9 +159,23 @@ public class CleanUpJob implements Job {
     }
 
     private void removeActivitiHistoricData(Date expirationTime) {
+        Set<String> historicProcessIds = new HashSet<String>();
         activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime)
             .stream()
-            .forEach(historicProcessInstance -> activitiFacade.deleteHistoricProcessInstance(historicProcessInstance.getId()));
+            .forEach(historicProcessInstance -> addProcessAndSubProcesses(historicProcessIds, historicProcessInstance.getId()));
+
+        removeHistoricProcesses(historicProcessIds);
+    }
+
+    private void addProcessAndSubProcesses(Set<String> historicProcessIds, String historicProcessId) {
+        historicProcessIds.add(historicProcessId);
+        List<String> subProcessIds = activitiFacade.getHistoricSubProcessIds(historicProcessId);
+        historicProcessIds.addAll(subProcessIds);
+    }
+
+    private void removeHistoricProcesses(Set<String> historicProcessIds) {
+        historicProcessIds.stream()
+            .forEach(historicProcessId -> activitiFacade.deleteHistoricProcessInstance(historicProcessId));
     }
 
     private void removeExpiredTokens() {
