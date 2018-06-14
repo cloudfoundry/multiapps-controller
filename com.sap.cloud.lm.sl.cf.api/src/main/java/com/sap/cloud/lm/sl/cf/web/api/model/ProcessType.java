@@ -8,15 +8,17 @@ public class ProcessType {
     private static final String DEPLOY_NAME = "DEPLOY";
     private static final String BLUE_GREEN_DEPLOY_NAME = "BLUE_GREEN_DEPLOY";
     private static final String UNDEPLOY_NAME = "UNDEPLOY";
+    private static final String KUBERNETES_DEPLOY_NAME = "KUBERNETES_DEPLOY";
 
     public static final ProcessType DEPLOY = new ProcessType(DEPLOY_NAME);
     public static final ProcessType BLUE_GREEN_DEPLOY = new ProcessType(BLUE_GREEN_DEPLOY_NAME);
     public static final ProcessType UNDEPLOY = new ProcessType(UNDEPLOY_NAME);
+    public static final ProcessType KUBERNETES_DEPLOY = new ProcessType(KUBERNETES_DEPLOY_NAME);
 
     private String name;
 
     public ProcessType() {
-        // Default constructur required by jersey
+        // Default constructor required by jersey
     }
 
     protected ProcessType(String name) {
@@ -71,6 +73,8 @@ public class ProcessType {
                 return BLUE_GREEN_DEPLOY;
             case UNDEPLOY_NAME:
                 return UNDEPLOY;
+            case KUBERNETES_DEPLOY_NAME:
+                return KUBERNETES_DEPLOY;
             default:
                 throw new IllegalStateException("Illegal process type: " + name);
         }

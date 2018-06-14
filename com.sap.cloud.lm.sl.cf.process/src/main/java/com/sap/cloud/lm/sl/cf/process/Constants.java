@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 public class Constants {
 
     public static final String DEPLOY_SERVICE_ID = "xs2-deploy";
+    public static final String KUBERNETES_DEPLOY_SERVICE_ID = "k8s-deploy";
     public static final String BLUE_GREEN_DEPLOY_SERVICE_ID = "xs2-bg-deploy";
     public static final String UNDEPLOY_SERVICE_ID = "xs2-undeploy";
     public static final String DEPLOY_APP_SUB_PROCESS_ID = "deployAppSubProcess";

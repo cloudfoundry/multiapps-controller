@@ -20,6 +20,8 @@ public class ProcessTypeParser {
                 return ProcessType.DEPLOY;
             case Constants.BLUE_GREEN_DEPLOY_SERVICE_ID:
                 return ProcessType.BLUE_GREEN_DEPLOY;
+            case Constants.KUBERNETES_DEPLOY_SERVICE_ID:
+                return ProcessType.KUBERNETES_DEPLOY;
             default:
                 throw new SLException(Messages.UNKNOWN_SERVICE_ID, serviceId);
         }
