@@ -26,7 +26,7 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
-    protected Function<List<CloudApplication>, DeployedComponents> componentsDetector = (deployedApps) -> new DeployedComponentsDetector()
+    protected Function<List<CloudApplication>, DeployedComponents> componentsDetector = deployedApps -> new DeployedComponentsDetector()
         .detectAllDeployedComponents(deployedApps);
 
     @Override

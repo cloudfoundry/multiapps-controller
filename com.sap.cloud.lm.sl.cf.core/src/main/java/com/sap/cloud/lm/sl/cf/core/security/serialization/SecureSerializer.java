@@ -41,7 +41,7 @@ public abstract class SecureSerializer<E extends Element> {
     private void modifySensitiveElements(CompositeElement element) {
         List<Element> elementsToModify = new ArrayList<>();
         element.getMembers()
-            .forEach((nestedElement) -> {
+            .forEach(nestedElement -> {
                 if (isSensitive(nestedElement)) {
                     elementsToModify.add(0, nestedElement);
                 } else {

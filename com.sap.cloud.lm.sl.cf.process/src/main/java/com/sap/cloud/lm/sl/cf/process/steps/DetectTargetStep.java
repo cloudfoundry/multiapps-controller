@@ -46,11 +46,11 @@ public class DetectTargetStep extends SyncActivitiStep {
     @Inject
     private ApplicationConfiguration configuration;
 
-    protected Function<HandlerFactory, List<Target>> targetsSupplier = (handlerFactory) -> {
+    protected Function<HandlerFactory, List<Target>> targetsSupplier = handlerFactory -> {
         DeployTargetDao<?, ?> targetDao = handlerFactory.getDeployTargetDao(deployTargetDaoV1, deployTargetDaoV2, deployTargetDaoV3);
         List<PersistentObject<Target>> persistentTargets = cast(targetDao.findAll());
         return persistentTargets.stream()
-            .map((target) -> target.getObject())
+            .map(target -> target.getObject())
             .collect(Collectors.toList());
     };
 

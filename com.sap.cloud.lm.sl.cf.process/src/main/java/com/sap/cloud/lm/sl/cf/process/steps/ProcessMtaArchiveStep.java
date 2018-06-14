@@ -34,7 +34,7 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
     @Inject
     private ApplicationConfiguration configuration;
 
-    protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = (dao) -> new ProcessConflictPreventer(
+    protected Function<OperationDao, ProcessConflictPreventer> conflictPreventerSupplier = dao -> new ProcessConflictPreventer(
         operationDao);
 
     @Override

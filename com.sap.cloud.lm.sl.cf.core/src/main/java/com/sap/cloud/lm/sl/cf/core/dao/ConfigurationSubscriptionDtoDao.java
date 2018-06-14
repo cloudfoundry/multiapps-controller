@@ -33,7 +33,7 @@ public class ConfigurationSubscriptionDtoDao {
 
     @SuppressWarnings("unchecked")
     public List<ConfigurationSubscriptionDto> findAll() {
-        return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute((manager) -> {
+        return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute(manager -> {
 
             return manager.createNamedQuery(NamedQueries.FIND_ALL_SUBSCRIPTIONS)
                 .getResultList();
@@ -42,7 +42,7 @@ public class ConfigurationSubscriptionDtoDao {
     }
 
     public List<ConfigurationSubscriptionDto> findAll(String mtaId, String appName, String spaceId, String resourceName) {
-        return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute((manager) -> {
+        return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute(manager -> {
 
             return findAllInternal(mtaId, appName, spaceId, resourceName, manager);
 
@@ -51,7 +51,7 @@ public class ConfigurationSubscriptionDtoDao {
 
     @SuppressWarnings("unchecked")
     public List<ConfigurationSubscriptionDto> findAll(String guid) {
-        return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute((manager) -> {
+        return new Executor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute(manager -> {
 
             return manager.createNamedQuery(NamedQueries.FIND_ALL_SUBSCRIPTIONS_BY_SPACE_ID)
                 .setParameter(ConfigurationSubscriptionDto.FieldNames.SPACE_ID, guid)
@@ -60,7 +60,7 @@ public class ConfigurationSubscriptionDtoDao {
     }
 
     public ConfigurationSubscriptionDto find(long id) throws NotFoundException {
-        return new Executor<ConfigurationSubscriptionDto>(createEntityManager()).execute((manager) -> {
+        return new Executor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
 
             ConfigurationSubscriptionDto subscription = findInternal(id, manager);
             if (subscription == null) {
@@ -85,7 +85,7 @@ public class ConfigurationSubscriptionDtoDao {
 
     public ConfigurationSubscriptionDto add(ConfigurationSubscriptionDto subscription) throws ConflictException {
         try {
-            return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute((manager) -> {
+            return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
 
                 manager.persist(subscription);
                 return subscription;
@@ -99,7 +99,7 @@ public class ConfigurationSubscriptionDtoDao {
 
     public ConfigurationSubscriptionDto update(long id, ConfigurationSubscriptionDto delta) throws ConflictException, NotFoundException {
         try {
-            return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute((manager) -> {
+            return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
 
                 ConfigurationSubscriptionDto existingSubscription = findInternal(id, manager);
                 if (existingSubscription == null) {
@@ -118,7 +118,7 @@ public class ConfigurationSubscriptionDtoDao {
     }
 
     public ConfigurationSubscriptionDto remove(long id) throws NotFoundException {
-        return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute((manager) -> {
+        return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
 
             ConfigurationSubscriptionDto subscription = findInternal(id, manager);
             if (subscription == null) {
@@ -131,7 +131,7 @@ public class ConfigurationSubscriptionDtoDao {
     }
 
     public List<ConfigurationSubscriptionDto> removeAll(List<ConfigurationSubscriptionDto> configurationSubscriptionEntities) {
-        return new TransactionalExecutor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute((manager) -> {
+        return new TransactionalExecutor<List<ConfigurationSubscriptionDto>>(createEntityManager()).execute(manager -> {
             for (ConfigurationSubscriptionDto configurationSubscriptionDto : configurationSubscriptionEntities) {
                 manager.remove(configurationSubscriptionDto);
             }

@@ -76,7 +76,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
         List<ConfigurationEntry> allEntriesForCurrentMta = getEntries(mtaId, target);
         List<Long> publishedEntryIds = getEntryIds(publishedEntries);
         return allEntriesForCurrentMta.stream()
-            .filter((entry) -> !publishedEntryIds.contains(entry.getId()))
+            .filter(entry -> !publishedEntryIds.contains(entry.getId()))
             .collect(Collectors.toList());
     }
 
@@ -86,7 +86,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
 
     private List<Long> getEntryIds(List<ConfigurationEntry> configurationEntries) {
         return configurationEntries.stream()
-            .map((entry) -> entry.getId())
+            .map(entry -> entry.getId())
             .collect(Collectors.toList());
     }
 

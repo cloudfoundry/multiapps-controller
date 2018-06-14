@@ -45,7 +45,7 @@ public class ConfigurationEntryDtoDao {
 
     public ConfigurationEntryDto add(ConfigurationEntryDto entry) throws ConflictException {
         try {
-            return new TransactionalExecutor<ConfigurationEntryDto>(createEntityManager()).execute((manager) -> {
+            return new TransactionalExecutor<ConfigurationEntryDto>(createEntityManager()).execute(manager -> {
 
                 manager.persist(entry);
                 return entry;
@@ -59,7 +59,7 @@ public class ConfigurationEntryDtoDao {
 
     public ConfigurationEntryDto update(long id, ConfigurationEntryDto entryDelta) throws NotFoundException, ConflictException {
         try {
-            return new TransactionalExecutor<ConfigurationEntryDto>(createEntityManager()).execute((manager) -> {
+            return new TransactionalExecutor<ConfigurationEntryDto>(createEntityManager()).execute(manager -> {
 
                 ConfigurationEntryDto existingEntry = findInternal(id, manager);
                 if (existingEntry == null) {
@@ -78,7 +78,7 @@ public class ConfigurationEntryDtoDao {
     }
 
     public void remove(long id) throws NotFoundException {
-        new TransactionalExecutor<Void>(createEntityManager()).execute((manager) -> {
+        new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
 
             ConfigurationEntryDto entry = findInternal(id, manager);
             if (entry == null) {
@@ -91,7 +91,7 @@ public class ConfigurationEntryDtoDao {
     }
 
     public List<ConfigurationEntryDto> removeAll(List<ConfigurationEntryDto> configurationEntries) {
-        return new TransactionalExecutor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
+        return new TransactionalExecutor<List<ConfigurationEntryDto>>(createEntityManager()).execute(manager -> {
             for (ConfigurationEntryDto configurationEntryDto : configurationEntries) {
                 manager.remove(configurationEntryDto);
             }
@@ -101,7 +101,7 @@ public class ConfigurationEntryDtoDao {
 
     @SuppressWarnings("unchecked")
     public List<ConfigurationEntryDto> findAll() {
-        return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
+        return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute(manager -> {
 
             return manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES)
                 .getResultList();
@@ -111,7 +111,7 @@ public class ConfigurationEntryDtoDao {
 
     public List<ConfigurationEntryDto> find(String providerNid, String providerId, CloudTarget targetSpace,
         Map<String, Object> requiredProperties, String mtaId) {
-        return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
+        return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute(manager -> {
 
             return findInternal(providerNid, providerId, targetSpace, requiredProperties, mtaId, manager);
 
@@ -120,7 +120,7 @@ public class ConfigurationEntryDtoDao {
 
     @SuppressWarnings("unchecked")
     public List<ConfigurationEntryDto> find(String spaceGuid) {
-        return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute((manager) -> {
+        return new Executor<List<ConfigurationEntryDto>>(createEntityManager()).execute(manager -> {
 
             return manager.createNamedQuery(NamedQueries.FIND_ALL_ENTRIES_BY_SPACE_ID)
                 .setParameter(ConfigurationEntryDto.FieldNames.SPACE_ID, spaceGuid)
@@ -139,7 +139,7 @@ public class ConfigurationEntryDtoDao {
     }
 
     public ConfigurationEntryDto find(long id) throws NotFoundException {
-        return new Executor<ConfigurationEntryDto>(createEntityManager()).execute((manager) -> {
+        return new Executor<ConfigurationEntryDto>(createEntityManager()).execute(manager -> {
 
             ConfigurationEntryDto entry = findInternal(id, manager);
             if (entry == null) {
@@ -151,7 +151,7 @@ public class ConfigurationEntryDtoDao {
     }
 
     public boolean exists(long id) {
-        return new Executor<Boolean>(createEntityManager()).execute((manager) -> {
+        return new Executor<Boolean>(createEntityManager()).execute(manager -> {
 
             return findInternal(id, manager) != null;
 
@@ -199,10 +199,10 @@ public class ConfigurationEntryDtoDao {
         CloudTarget requestedSpace) {
 
         Stream<ConfigurationEntryDto> stream = entries.stream();
-        stream = stream.filter((entry) -> CONTENT_FILTER.apply(entry.getContent(), requiredProperties));
+        stream = stream.filter(entry -> CONTENT_FILTER.apply(entry.getContent(), requiredProperties));
 
         stream = stream
-            .filter((entry) -> TARGET_WILDCARD_FILTER.apply(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()), requestedSpace));
+            .filter(entry -> TARGET_WILDCARD_FILTER.apply(new CloudTarget(entry.getTargetOrg(), entry.getTargetSpace()), requestedSpace));
         return stream.collect(Collectors.toList());
     }
 

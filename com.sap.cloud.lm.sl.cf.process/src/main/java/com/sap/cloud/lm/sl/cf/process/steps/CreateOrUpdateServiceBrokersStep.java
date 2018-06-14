@@ -100,7 +100,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
 
     private CloudServiceBrokerExtended findServiceBroker(List<CloudServiceBrokerExtended> serviceBrokers, String name) {
         return serviceBrokers.stream()
-            .filter((broker) -> broker.getName()
+            .filter(broker -> broker.getName()
                 .equals(name))
             .findFirst()
             .get();
@@ -162,7 +162,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
 
     public static List<String> getServiceBrokerNames(List<? extends CloudServiceBroker> serviceBrokers) {
         return serviceBrokers.stream()
-            .map((broker) -> broker.getName())
+            .map(broker -> broker.getName())
             .collect(Collectors.toList());
     }
 

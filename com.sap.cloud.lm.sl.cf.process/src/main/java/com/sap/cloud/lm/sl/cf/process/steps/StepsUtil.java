@@ -747,7 +747,7 @@ public class StepsUtil {
         final String appToRestartName = appsToRestart.get(index);
         List<CloudApplicationExtended> appsToDeploy = StepsUtil.getAppsToDeploy(context);
         return appsToDeploy.stream()
-            .filter((app) -> app.getName()
+            .filter(app -> app.getName()
                 .equals(appToRestartName))
             .findFirst()
             .get();

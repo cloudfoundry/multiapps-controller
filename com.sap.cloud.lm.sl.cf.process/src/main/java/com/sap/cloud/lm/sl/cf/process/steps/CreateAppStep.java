@@ -180,7 +180,7 @@ public class CreateAppStep extends SyncActivitiStep {
 
     protected static List<CloudServiceExtended> getServices(List<CloudServiceExtended> services, List<String> serviceNames) {
         return services.stream()
-            .filter((service) -> serviceNames.contains(service.getName()))
+            .filter(service -> serviceNames.contains(service.getName()))
             .collect(Collectors.toList());
     }
 

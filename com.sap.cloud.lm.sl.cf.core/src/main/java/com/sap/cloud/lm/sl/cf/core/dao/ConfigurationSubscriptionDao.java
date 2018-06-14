@@ -33,7 +33,6 @@ public class ConfigurationSubscriptionDao {
     }
 
     public List<ConfigurationSubscription> removeAll(List<ConfigurationSubscription> configurationSubscriptions) {
-
         for (ConfigurationSubscription configurationSubscription : configurationSubscriptions) {
             dao.remove(configurationSubscription.getId());
         }
@@ -51,7 +50,7 @@ public class ConfigurationSubscriptionDao {
 
     public List<ConfigurationSubscription> findAll(List<ConfigurationEntry> entries) {
         return findAll().stream()
-            .filter((subscription) -> subscription.matches(entries))
+            .filter(subscription -> subscription.matches(entries))
             .collect(Collectors.toList());
     }
 
@@ -61,7 +60,7 @@ public class ConfigurationSubscriptionDao {
 
     private static List<ConfigurationSubscription> toConfigurationSubscriptions(List<ConfigurationSubscriptionDto> dtos) {
         return dtos.stream()
-            .map((dto) -> dto.toConfigurationSubscription())
+            .map(dto -> dto.toConfigurationSubscription())
             .collect(Collectors.toList());
     }
 

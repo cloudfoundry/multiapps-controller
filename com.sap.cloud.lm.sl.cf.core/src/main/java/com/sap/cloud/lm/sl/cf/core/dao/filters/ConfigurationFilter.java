@@ -119,7 +119,7 @@ public class ConfigurationFilter {
             }
             return requiredProperties.entrySet()
                 .stream()
-                .allMatch((requiredEntry) -> exists(parsedContent, requiredEntry));
+                .allMatch(requiredEntry -> exists(parsedContent, requiredEntry));
         }
 
         private boolean exists(Map<String, Object> content, Map.Entry<String, Object> requiredEntry) {
