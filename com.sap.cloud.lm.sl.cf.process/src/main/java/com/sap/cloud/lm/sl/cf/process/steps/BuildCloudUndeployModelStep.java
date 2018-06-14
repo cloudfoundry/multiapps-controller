@@ -107,17 +107,12 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
         return deployedMta.getModules()
             .stream()
             .filter(deployedModule -> {
-
                 if (!mtaModules.contains(deployedModule.getModuleName())) {
-                    return true; // Obsolete module
-                } else if (!appsToDeploy.contains(deployedModule.getAppName())) {
-                    return true; // Module resulting in an app with a different name; This could occur
-                                 // if for example namespaces for applications were used previously, but
-                                 // are not used now.
-                } else {
-                    return false;
+                    return true;
                 }
-
+                // The deployed module may be in the list of MTA modules, but the actual application that was created from it may have a
+                // different name:
+                return !appsToDeploy.contains(deployedModule.getAppName());
             })
             .collect(Collectors.toList());
     }

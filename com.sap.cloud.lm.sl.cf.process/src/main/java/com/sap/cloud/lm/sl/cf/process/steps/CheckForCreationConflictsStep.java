@@ -223,7 +223,7 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
 
     private boolean deployedMtaContainsApplication(DeployedMta deployedMta, CloudApplication existingApp) {
         String appName = existingApp.getName();
-        return deployedMta == null ? false : deployedMta.getModules()
+        return deployedMta != null && deployedMta.getModules()
             .stream()
             .anyMatch(module -> module.getAppName()
                 .equals(appName));

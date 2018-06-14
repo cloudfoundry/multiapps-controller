@@ -81,7 +81,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
                 .debug(Messages.REMAINING_SERVICES_TO_POLL, JsonUtil.toJson(remainingServicesToPoll, true));
             StepsUtil.setServicesToPoll(execution.getContext(), remainingServicesToPoll);
 
-            if (remainingServicesToPoll.size() == 0) {
+            if (remainingServicesToPoll.isEmpty()) {
                 return AsyncExecutionState.FINISHED;
             }
             return AsyncExecutionState.RUNNING;
@@ -241,7 +241,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
         List<String> nonFinalStateStrings = getStateStrings(nonFinalStates);
 
         int doneOperations = triggeredServiceOperations.size() - nonFinalStates.size();
-        if (nonFinalStateStrings.size() != 0) {
+        if (!nonFinalStateStrings.isEmpty()) {
             execution.getStepLogger()
                 .info("{0} of {1} done, ({2})", doneOperations, triggeredServiceOperations.size(),
                     CommonUtil.toCommaDelimitedString(nonFinalStateStrings, ""));

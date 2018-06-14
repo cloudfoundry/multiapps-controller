@@ -71,7 +71,7 @@ public class GitRepoCloner {
         }
         if (refName != null && !refName.isEmpty()) {
             String fullRefName = refName.startsWith("refs/") ? refName : "refs/heads/" + refName;
-            cloneCommand.setBranchesToClone(Arrays.asList(new String[] { fullRefName }));
+            cloneCommand.setBranchesToClone(Arrays.asList(fullRefName));
             cloneCommand.setBranch(fullRefName);
         }
         cloneCommand.setTimeout(290);

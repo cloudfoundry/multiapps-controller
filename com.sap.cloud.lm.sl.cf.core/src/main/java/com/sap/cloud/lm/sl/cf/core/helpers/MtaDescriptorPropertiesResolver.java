@@ -73,7 +73,7 @@ public class MtaDescriptorPropertiesResolver {
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) throws SLException {
         // Resolve placeholders in parameters:
-        descriptor = (DeploymentDescriptor) handlerFactory
+        descriptor = handlerFactory
             .getDescriptorPlaceholderResolver(descriptor, platform, target, systemParameters, new NullPropertiesResolverBuilder(),
                 new ResolverBuilder())
             .resolve();
@@ -83,7 +83,7 @@ public class MtaDescriptorPropertiesResolver {
         LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_AFTER_PARAMETER_CORRECTION, secureSerializer.toJson(descriptor)));
 
         // Resolve placeholders in properties:
-        descriptor = (DeploymentDescriptor) handlerFactory
+        descriptor = handlerFactory
             .getDescriptorPlaceholderResolver(descriptor, platform, target, systemParameters, new ResolverBuilder(),
                 new NullPropertiesResolverBuilder())
             .resolve();
@@ -98,7 +98,7 @@ public class MtaDescriptorPropertiesResolver {
         subscriptions = createSubscriptions(descriptorWithUnresolvedReferences, resolver.getResolvedReferences());
         LOGGER.debug(format(Messages.SUBSCRIPTIONS, secureSerializer.toJson(subscriptions)));
 
-        descriptor = (DeploymentDescriptor) handlerFactory
+        descriptor = handlerFactory
             .getDescriptorReferenceResolver(descriptor, new ResolverBuilder(), new ResolverBuilder(), new ResolverBuilder())
             .resolve();
         LOGGER.debug(format(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor)));
