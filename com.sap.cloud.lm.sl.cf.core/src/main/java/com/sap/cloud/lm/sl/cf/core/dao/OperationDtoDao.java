@@ -61,9 +61,7 @@ public class OperationDtoDao {
     }
 
     public OperationDto find(String processId) {
-        return new Executor<OperationDto>(createEntityManager()).execute(manager -> {
-            return manager.find(OperationDto.class, processId);
-        });
+        return new Executor<OperationDto>(createEntityManager()).execute(manager -> manager.find(OperationDto.class, processId));
     }
 
     public OperationDto findRequired(String processId) throws NotFoundException {
@@ -75,17 +73,13 @@ public class OperationDtoDao {
     }
 
     public List<OperationDto> find(OperationFilter filter) {
-        return new Executor<List<OperationDto>>(createEntityManager()).execute(manager -> {
-            return createQuery(manager, filter).getResultList();
-        });
+        return new Executor<List<OperationDto>>(createEntityManager()).execute(manager -> createQuery(manager, filter).getResultList());
     }
 
     @SuppressWarnings("unchecked")
     public List<OperationDto> findAll() {
-        return new Executor<List<OperationDto>>(createEntityManager()).execute(manager -> {
-            return manager.createNamedQuery("find_all")
-                .getResultList();
-        });
+        return new Executor<List<OperationDto>>(createEntityManager()).execute(manager -> manager.createNamedQuery("find_all")
+            .getResultList());
     }
 
     public void merge(OperationDto operation) throws NotFoundException {

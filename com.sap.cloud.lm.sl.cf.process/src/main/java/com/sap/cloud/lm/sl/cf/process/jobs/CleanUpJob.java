@@ -81,43 +81,29 @@ public class CleanUpJob implements Job {
             .toString());
 
         Date expirationTime = getExpirationTime();
-        executeSafely(() -> {
-            abortOldOperationsInStateError(expirationTime);
-        });
+        executeSafely(() -> abortOldOperationsInStateError(expirationTime));
 
-        executeSafely(() -> {
-            cleanUpFinishedOperationsData(expirationTime);
-        });
+        executeSafely(() -> cleanUpFinishedOperationsData(expirationTime));
 
-        executeSafely(() -> {
-            removeActivitiHistoricData(expirationTime);
-        });
+        executeSafely(() -> removeActivitiHistoricData(expirationTime));
 
-        executeSafely(() -> {
-            removeOldOrphanedFiles(expirationTime);
-        });
+        executeSafely(() -> removeOldOrphanedFiles(expirationTime));
 
-        executeSafely(() -> {
-            removeExpiredTokens();
-        });
+        executeSafely(() -> removeExpiredTokens());
 
-        executeSafely(() -> {
-            executeDataTerminationJob();
-        });
+        executeSafely(() -> executeDataTerminationJob());
 
         LOGGER.info("Cleanup Job finished at: " + Instant.now()
             .toString());
     }
 
     private void executeDataTerminationJob() {
-
         if (configuration.getPlatformType() != PlatformType.CF) {
             return;
         }
         LOGGER.warn("Termination of user data started.");
         dataTerminationService.deleteOrphanUserData();
         LOGGER.warn("Termination of user data finished.");
-
     }
 
     private Date getExpirationTime() {

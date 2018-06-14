@@ -99,16 +99,12 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
     }
 
     public PersistentObject<Tgt> find(long id) throws NotFoundException {
-        Dto entity = new Executor<Dto>(createEntityManager()).execute(manager -> {
-            return findInternal(manager, id);
-        });
+        Dto entity = new Executor<Dto>(createEntityManager()).execute(manager -> findInternal(manager, id));
         return entity.toDeployTarget();
     }
 
     public PersistentObject<Tgt> findByName(String name) throws NotFoundException {
-        Dto entity = new Executor<Dto>(createEntityManager()).execute(manager -> {
-            return findInternalByName(manager, name);
-        });
+        Dto entity = new Executor<Dto>(createEntityManager()).execute(manager -> findInternalByName(manager, name));
         return entity.toDeployTarget();
     }
 
@@ -132,10 +128,8 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
     @SuppressWarnings("unchecked")
     public List<PersistentObject<Tgt>> findAll() {
         List<Dto> dtos;
-        dtos = new Executor<List<Dto>>(createEntityManager()).execute(manager -> {
-            return (List<Dto>) manager.createNamedQuery(findAllQueryName)
-                .getResultList();
-        });
+        dtos = new Executor<List<Dto>>(createEntityManager()).execute(manager -> (List<Dto>) manager.createNamedQuery(findAllQueryName)
+            .getResultList());
         return unwrap(dtos);
     }
 

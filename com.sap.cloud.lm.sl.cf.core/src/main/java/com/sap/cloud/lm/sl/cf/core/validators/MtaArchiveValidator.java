@@ -85,9 +85,7 @@ public class MtaArchiveValidator {
     private List<CloudServiceExtended> services;
     private List<CloudApplicationExtended> applications;
 
-    protected BiFunction<String, String, String> spaceIdSupplier = (org, space) -> {
-        return space;
-    };
+    protected BiFunction<String, String, String> spaceIdSupplier = (org, space) -> space;
 
     public MtaArchiveValidator(InputStream mtarStream, InputStream extensionDescriptorStream, InputStream platformTypesStream,
         InputStream platformsStream, String platformName, String deployId, String userName, String defaultDomain, PlatformType xsType,
