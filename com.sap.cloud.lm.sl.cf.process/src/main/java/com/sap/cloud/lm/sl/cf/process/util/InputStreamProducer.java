@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.client.util;
+package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -9,38 +9,35 @@ import java.util.zip.ZipInputStream;
 public class InputStreamProducer implements Closeable {
 
     ZipInputStream stream;
-    String entryName;
+    String fileName;
     String streamEntryName = null;
-    private long maxEntrySize;
 
-    public InputStreamProducer(InputStream stream, String entryName, long maxEntrySize) {
+    public InputStreamProducer(InputStream stream, String fileName) {
         this.stream = new ZipInputStream(stream);
-        this.entryName = entryName;
-        this.maxEntrySize = maxEntrySize;
+        this.fileName = fileName;
     }
 
     public InputStream getNextInputStream() throws IOException {
         for (ZipEntry zipEntry; (zipEntry = stream.getNextEntry()) != null;) {
             if (zipEntry.getName()
-                .startsWith(entryName)) {
-                StreamUtil.validateZipEntrySize(zipEntry, maxEntrySize);
+                .startsWith(fileName)) {
                 streamEntryName = zipEntry.getName();
                 return stream;
             }
         }
         return null;
     }
+    
+    public InputStream getInputStream() {
+        return stream;
+    }
+    
+    public String getFileName() {
+        return fileName;
+    }
 
     public String getStreamEntryName() {
         return streamEntryName;
-    }
-
-    public long getMaxEntrySize() {
-        return maxEntrySize;
-    }
-
-    public void setMaxEntrySize(long maxEntrySize) {
-        this.maxEntrySize = maxEntrySize;
     }
 
     @Override

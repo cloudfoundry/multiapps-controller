@@ -95,6 +95,7 @@ public class Messages {
     public static final String ERROR_UPDATING_APP = "Error updating application \"{0}\"";
     public static final String ERROR_UPLOADING_APP = "Error uploading application \"{0}\"";
     public static final String ERROR_UPLOADING_APP_BECAUSE_OF = "Error uploading application \"{0}\": \"{1}\"";
+    public static final String ERROR_SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
     public static final String ERROR_RESERVING_ROUTES = "Error reserving routes for application \"{0}\"";
     public static final String ERROR_CHECKING_UPLOAD_APP_STATUS = "Error checking upload status of application \"{0}\"";
     public static final String ERROR_SCALING_APP = "Error scaling application \"{0}\"";

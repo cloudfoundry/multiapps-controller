@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 
@@ -33,11 +34,11 @@ import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.util.InputStreamProducer;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
+import com.sap.cloud.lm.sl.cf.process.util.ExtractStatusCallback;
+import com.sap.cloud.lm.sl.cf.process.util.InputStreamProducer;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
@@ -177,21 +178,25 @@ public class UploadAppStepTest {
         private class UploadAppStepMock extends UploadAppStep {
 
             @Override
-            public File saveToFile(String fileName, InputStreamProducer streamProducer) throws IOException {
-                InputStream stream = streamProducer.getNextInputStream();
-                assertNotNull(stream);
-                Files.copy(stream, appFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                return appFile;
+            protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) {
+                ExtractStatusCallback callback = getMonitorExtractStatusCallback(maxSize);
+                try (InputStreamProducer streamProducer = getInputStreamProducer(appArchiveStream, fileName)) {
+                    InputStream stream = streamProducer.getNextInputStream();
+                    assertNotNull(stream);
+                    callback.onFileCreated(appFile.toPath());
+                    Files.copy(stream, appFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    return appFile.toPath();
+                } catch (IOException e) {
+                    callback.onError(e);
+                    return null;
+                }
             }
 
-            @Override
-            InputStreamProducer getInputStreamProducer(InputStream appArchiveStream, String fileName, long maxStreamSize)
-                throws SLException {
+            private InputStreamProducer getInputStreamProducer(InputStream appArchiveStream, String fileName) throws SLException {
                 if (!fileName.equals(APP_FILE)) {
-                    return super.getInputStreamProducer(appArchiveStream, fileName, maxStreamSize);
+                    return new InputStreamProducer(appArchiveStream, fileName);
                 }
-                return new InputStreamProducer(getClass().getResourceAsStream(APP_FILE), fileName,
-                    ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE) {
+                return new InputStreamProducer(getClass().getResourceAsStream(APP_FILE), fileName) {
                     @Override
                     public InputStream getNextInputStream() {
                         return getClass().getResourceAsStream(APP_FILE);
