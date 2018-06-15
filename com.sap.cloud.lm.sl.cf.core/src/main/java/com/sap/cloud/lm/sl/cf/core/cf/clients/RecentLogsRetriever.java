@@ -5,16 +5,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.inject.Inject;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.MultipartStream.MalformedStreamException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.springframework.core.io.Resource;
@@ -26,7 +29,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.sap.cloud.lm.sl.cf.client.events.EventFactory;
 import com.sap.cloud.lm.sl.cf.client.events.LogFactory.LogMessage;
 import com.sap.cloud.lm.sl.cf.client.events.LogFactory.LogMessage.MessageType;
-import com.sap.cloud.lm.sl.cf.client.util.StreamUtil;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -99,10 +101,24 @@ public class RecentLogsRetriever extends CustomControllerClient {
     }
 
     private void parseProtoBufPart(List<LogMessageConverter> parsedLogs, ByteArrayOutputStream part) throws InvalidProtocolBufferException {
-        EventFactory.Envelope logEnvelope = EventFactory.Envelope.parseFrom(StreamUtil.removeLeadingLine(part.toByteArray()));
+        EventFactory.Envelope logEnvelope = EventFactory.Envelope.parseFrom(removeLeadingNewLine(part.toByteArray()));
         if (logEnvelope.hasLogMessage()) {
             parsedLogs.add(new LogMessageConverter(logEnvelope.getLogMessage()));
         }
+    }
+    
+    private byte[] removeLeadingNewLine(byte[] data) {
+        if (data == null || data.length == 0) {
+            return data;
+        }
+        int from = 0;
+        if (data[0] == '\n') {
+            from = 1;
+        }
+        if (data[0] == '\r' && data[1] == '\n') {
+            from = 2;
+        }
+        return Arrays.copyOfRange(data, from, data.length);
     }
 
     private String getDopplerEndpoint(String loggregatorEndpoint) {
