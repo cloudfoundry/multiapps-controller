@@ -119,8 +119,9 @@ public class CleanUpJob implements Job {
         LOGGER.info("Aborting operations started before: " + expirationTime.toString());
         List<Operation> activeOperations = getOperationsInActiveState(expirationTime);
         List<String> activeOperationsIds = getProcessIds(activeOperations);
-        executeAbortOperationAction(activeOperationsIds);
-        LOGGER.info("Aborted operations count : " + activeOperationsIds.size());
+        LOGGER.info("Operations to be aborted count: " + activeOperationsIds.size());
+        int abortedOperationsCount = tryToAbortOperations(activeOperationsIds);
+        LOGGER.info("Aborted operations count: " + abortedOperationsCount);
     }
 
     private void cleanUpFinishedOperationsData(Date expirationTime) {
@@ -163,8 +164,9 @@ public class CleanUpJob implements Job {
         activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime)
             .stream()
             .forEach(historicProcessInstance -> addProcessAndSubProcesses(historicProcessIds, historicProcessInstance.getId()));
-
-        removeHistoricProcesses(historicProcessIds);
+        LOGGER.info("Historic Processes marked for deletion count: " + historicProcessIds.size());
+        historicProcessIds.stream()
+            .forEach(historicProcessId -> tryToDeleteHistoricProcessInstance(historicProcessId));
     }
 
     private void addProcessAndSubProcesses(Set<String> historicProcessIds, String historicProcessId) {
@@ -173,9 +175,17 @@ public class CleanUpJob implements Job {
         historicProcessIds.addAll(subProcessIds);
     }
 
-    private void removeHistoricProcesses(Set<String> historicProcessIds) {
-        historicProcessIds.stream()
-            .forEach(historicProcessId -> activitiFacade.deleteHistoricProcessInstance(historicProcessId));
+    private boolean tryToDeleteHistoricProcessInstance(String processId) {
+        try {
+            LOGGER.info("Deleting Historic Process with id: " + processId);
+            activitiFacade.deleteHistoricProcessInstance(processId);
+            LOGGER.info("Successfully deleted Historic Process with id: " + processId);
+            return true;
+        } catch (Exception e) {
+            LOGGER.error(MessageFormat.format("Error when trying to delete historic process with id [{0}]: {1}", processId, e.getMessage()),
+                e);
+            return false;
+        }
     }
 
     private void removeExpiredTokens() {
@@ -217,10 +227,27 @@ public class CleanUpJob implements Job {
             .collect(Collectors.toList());
     }
 
-    private void executeAbortOperationAction(List<String> processIds) {
-        ActivitiAction abortAction = ActivitiActionFactory.getAction("abort", activitiFacade, null);
+    private int tryToAbortOperations(List<String> processIds) {
+        int count = 0;
+        LOGGER.debug("Aborting operations: " + processIds);
         for (String processId : processIds) {
+            if (tryToAbortOperation(processId)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private boolean tryToAbortOperation(String processId) {
+        try {
+            ActivitiAction abortAction = ActivitiActionFactory.getAction("abort", activitiFacade, null);
+            LOGGER.info("Aborting operation with id: " + processId);
             abortAction.executeAction(processId);
+            LOGGER.info("Successfully aborted operation with id: " + processId);
+            return true;
+        } catch (Exception e) {
+            LOGGER.error(MessageFormat.format("Error when trying to abort operation with id [{0}]: {1}", processId, e.getMessage()), e);
+            return false;
         }
     }
 
