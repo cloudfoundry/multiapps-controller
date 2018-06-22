@@ -28,7 +28,6 @@ public final class Messages {
     public static final String UNRESOLVED_MTA_MODULES = "Unresolved MTA modules {0}, these modules are neither part of MTA archive, nor already deployed";
     public static final String UNKNOWN_TARGET = "Unknown target \"{0}\"";
     public static final String UNKNOWN_PLATFORM = "Unknown platform \"{0}\" for target \"{1}\"";
-    public static final String UNKNOWN_MODULE = "Unknown module \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_DOMAIN = "Could not create a valid domain from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_HOST = "Could not create a valid host from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_VISIBILITY_PARAMETER = "Could not create a valid visibility parameter from \"{0}\"";

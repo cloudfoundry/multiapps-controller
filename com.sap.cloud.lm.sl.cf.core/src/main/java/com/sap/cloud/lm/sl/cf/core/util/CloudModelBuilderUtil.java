@@ -46,15 +46,6 @@ public class CloudModelBuilderUtil {
         return platform;
     }
 
-    public static Module findModule(DescriptorHandler handler, DeploymentDescriptor deploymentDescriptor, String moduleName)
-        throws ContentException {
-        Module module = handler.findModule(deploymentDescriptor, moduleName);
-        if (module == null) {
-            throw new ContentException(Messages.UNKNOWN_MODULE, moduleName);
-        }
-        return module;
-    }
-
     public static Set<String> getDeployedModuleNames(List<DeployedMtaModule> deployedModules) {
         Set<String> deployedModuleNames = new TreeSet<>();
         for (DeployedMtaModule deployedModule : deployedModules) {
