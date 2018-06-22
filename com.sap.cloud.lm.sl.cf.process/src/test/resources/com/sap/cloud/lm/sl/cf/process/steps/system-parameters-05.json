@@ -93,7 +93,6 @@
     "deploy-target": "initial initial",
     "deploy-url": "https://deploy-service-url:51002",
     "org": "initial",
-    "platform": "initial initial",
     "space": "initial",
     "user": "XSMASTER",
     "xs-api-url": "http://localhost:9999",

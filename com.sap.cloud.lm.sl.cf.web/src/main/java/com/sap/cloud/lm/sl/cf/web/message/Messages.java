@@ -9,11 +9,6 @@ public final class Messages {
     public static final String UPDATE_DEPLOY_TARGET = "Update deploy target";
     public static final String DELETE_DEPLOY_TARGET = "Delete deploy target";
 
-    // Deprecated, used in TargetPlatformsResource_V* for backwards compatibility
-    public static final String CREATE_TARGET_PLATFORM = "Create target platform";
-    public static final String UPDATE_TARGET_PLATFORM = "Update target platform";
-    public static final String DELETE_TARGET_PLATFORM = "Delete target platform";
-
     // Exception messages
     public static final String ORG_SPACE_NOT_SPECIFIED_1 = "Target does not contain 'org' and 'space' properties";
     public static final String ORG_SPACE_NOT_SPECIFIED_2 = "Target does not contain 'org' and 'space' parameters";
@@ -63,7 +58,7 @@ public final class Messages {
     public static final String FAILED_TO_DETECT_FILE_SERVICE_STORAGE_PATH = "Failed to detect file service storage path for service \"{0}\"!";
 
     // DEBUG log messages
-    public static final String PARSED__CONTENT = "Parsed content: {0}";
+    public static final String PARSED_CONTENT = "Parsed content: {0}";
     public static final String COMPUTED_TARGET = "Computed target: {0}";
     public static final String COMPUTING_STATE_OF_OPERATION = "Computing state of operation {0} with ID: {1}";
 

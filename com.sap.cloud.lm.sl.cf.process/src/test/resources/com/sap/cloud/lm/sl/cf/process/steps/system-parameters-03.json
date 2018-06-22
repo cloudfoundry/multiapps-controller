@@ -64,7 +64,6 @@
     "default-domain": "localhost",
     "deploy-target": "initial initial",
     "org": "initial",
-    "platform": "initial initial",
     "space": "initial",
     "user": "XSMASTER",
     "xs-api-url": "http://localhost:9999",

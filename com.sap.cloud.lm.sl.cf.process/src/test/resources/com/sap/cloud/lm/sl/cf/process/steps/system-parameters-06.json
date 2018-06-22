@@ -71,7 +71,6 @@
     "deploy-target": "initial initial",
     "deploy-url": "{xsa-placeholder-service-url-deploy-service}",
     "org": "initial",
-    "platform": "initial initial",
     "space": "initial",
     "user": "XSMASTER",
     "xs-api-url": "{xsa-placeholder-endpoint-controller}",

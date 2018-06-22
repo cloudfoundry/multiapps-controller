@@ -118,7 +118,6 @@ public class SystemParametersBuilder {
     private Map<String, Object> getGeneralParameters() {
         Map<String, Object> systemParameters = new HashMap<>();
 
-        systemParameters.put(SupportedParameters.PLATFORM, targetName);
         systemParameters.put(SupportedParameters.DEPLOY_TARGET, targetName);
         systemParameters.put(SupportedParameters.ORG, organization);
         systemParameters.put(SupportedParameters.USER, user);
