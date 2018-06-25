@@ -5,13 +5,13 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Target.TargetBuilder;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Target.Builder;
 
 public class DeployTargetFactory {
 
     public Target create(String org, String space, String targetType) {
 
-        TargetBuilder builder = new TargetBuilder();
+        Builder builder = new Builder();
         builder.setType(targetType);
         builder.setProperties(createImplicitTargetProperties(org, space));
         return builder.build();

@@ -9,10 +9,11 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
-import com.sap.cloud.lm.sl.mta.model.v3_1.PlatformModuleType;
-import com.sap.cloud.lm.sl.mta.model.v3_1.PlatformModuleType.PlatformModuleTypeBuilder;
+import com.sap.cloud.lm.sl.mta.model.v3_1.TargetModuleType;
+import com.sap.cloud.lm.sl.mta.model.v3_1.TargetModuleType.Builder;
 
-public class PlatformModuleTypeDto {
+public class DeployTargetModuleTypeDto {
+
     @Expose
     @XmlElement
     private String name;
@@ -25,21 +26,22 @@ public class PlatformModuleTypeDto {
     @XmlJavaTypeAdapter(PropertiesAdapter.class)
     private Map<String, Object> parameters;
 
-    protected PlatformModuleTypeDto() {
+    protected DeployTargetModuleTypeDto() {
         // Required by JAXB
     }
 
-    public PlatformModuleTypeDto(PlatformModuleType moduleType) {
+    public DeployTargetModuleTypeDto(TargetModuleType moduleType) {
         this.name = moduleType.getName();
         this.properties = moduleType.getProperties();
         this.parameters = moduleType.getParameters();
     }
 
-    public PlatformModuleType toPlatformModuleType() {
-        PlatformModuleTypeBuilder result = new PlatformModuleTypeBuilder();
+    public TargetModuleType toTargetModuleType() {
+        Builder result = new Builder();
         result.setName(name);
         result.setProperties(properties);
         result.setParameters(parameters);
         return result.build();
     }
+
 }

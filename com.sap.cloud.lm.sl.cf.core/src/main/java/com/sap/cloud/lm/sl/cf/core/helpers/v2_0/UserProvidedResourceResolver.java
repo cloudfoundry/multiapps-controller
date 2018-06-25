@@ -10,7 +10,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Resource;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Resource.ResourceBuilder;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Resource.Builder;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Target;
 
 public class UserProvidedResourceResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver {
@@ -33,7 +33,7 @@ public class UserProvidedResourceResolver extends com.sap.cloud.lm.sl.cf.core.he
         com.sap.cloud.lm.sl.mta.model.v2_0.Module moduleV2 = (com.sap.cloud.lm.sl.mta.model.v2_0.Module) module;
         Resource resourceV2 = (Resource) userProvidedResource;
         List<RequiredDependency> moduleRequiredDependencies = new ArrayList<>(moduleV2.getRequiredDependencies2_0());
-        RequiredDependency.RequiredDependencyBuilder requiredDependencyBuilder = new RequiredDependency.RequiredDependencyBuilder();
+        RequiredDependency.Builder requiredDependencyBuilder = new RequiredDependency.Builder();
         requiredDependencyBuilder.setName(resourceV2.getName());
         moduleRequiredDependencies.add(requiredDependencyBuilder.build());
         moduleV2.setRequiredDependencies2_0(moduleRequiredDependencies);
@@ -41,7 +41,7 @@ public class UserProvidedResourceResolver extends com.sap.cloud.lm.sl.cf.core.he
 
     @Override
     protected Resource createResource(String userProvidedServiceName, Map<String, Object> parameters) {
-        ResourceBuilder builder = getResourceBuilder();
+        Builder builder = getResourceBuilder();
         builder.setName(userProvidedServiceName);
         builder.setType(resourceHelper.getResourceTypeName());
         builder.setParameters(parameters);
@@ -49,8 +49,8 @@ public class UserProvidedResourceResolver extends com.sap.cloud.lm.sl.cf.core.he
     }
 
     @Override
-    protected ResourceBuilder getResourceBuilder() {
-        return new ResourceBuilder();
+    protected Builder getResourceBuilder() {
+        return new Builder();
     }
 
 }

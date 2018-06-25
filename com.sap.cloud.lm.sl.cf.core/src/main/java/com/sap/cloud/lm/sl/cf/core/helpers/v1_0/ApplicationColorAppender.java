@@ -9,7 +9,6 @@ import com.sap.cloud.lm.sl.mta.model.ElementContext;
 import com.sap.cloud.lm.sl.mta.model.Visitor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Resource.ResourceBuilder;
 
 public class ApplicationColorAppender extends Visitor {
 
@@ -41,14 +40,14 @@ public class ApplicationColorAppender extends Visitor {
     }
 
     protected Resource buildResource(String resourceName, String resourceType) {
-        ResourceBuilder builder = getResourceBuilder();
+        Resource.Builder builder = getResourceBuilder();
         builder.setName(resourceName);
         builder.setType(resourceType);
         return builder.build();
     }
 
-    protected ResourceBuilder getResourceBuilder() {
-        return new ResourceBuilder();
+    protected Resource.Builder getResourceBuilder() {
+        return new Resource.Builder();
     }
 
     protected int getMajorSchemaVersion() {

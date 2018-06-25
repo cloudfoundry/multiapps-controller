@@ -9,29 +9,30 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
-import com.sap.cloud.lm.sl.mta.model.v1_0.PlatformResourceType;
-import com.sap.cloud.lm.sl.mta.model.v1_0.PlatformResourceType.PlatformResourceTypeBuilder;
+import com.sap.cloud.lm.sl.mta.model.v1_0.TargetModuleType;
+import com.sap.cloud.lm.sl.mta.model.v1_0.TargetModuleType.Builder;
 
-public class PlatformResourceTypeDto {
+public class DeployTargetModuleTypeDto {
+
     @Expose
     @XmlElement
-    protected String name;
+    private String name;
     @Expose
     @JsonAdapter(PropertiesAdapterFactory.class)
     @XmlJavaTypeAdapter(PropertiesAdapter.class)
-    protected Map<String, Object> properties;
+    private Map<String, Object> properties;
 
-    protected PlatformResourceTypeDto() {
+    protected DeployTargetModuleTypeDto() {
         // Required by JAXB
     }
 
-    public PlatformResourceTypeDto(PlatformResourceType resourceType) {
-        name = resourceType.getName();
-        properties = resourceType.getProperties();
+    public DeployTargetModuleTypeDto(TargetModuleType moduleType) {
+        this.name = moduleType.getName();
+        this.properties = moduleType.getProperties();
     }
 
-    public PlatformResourceType toPlatformResourceType() {
-        PlatformResourceTypeBuilder result = new PlatformResourceTypeBuilder();
+    public TargetModuleType toTargetModuleType() {
+        Builder result = new Builder();
         result.setName(name);
         result.setProperties(properties);
         return result.build();

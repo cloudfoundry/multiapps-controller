@@ -8,8 +8,7 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.mta.model.ElementContext;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency.RequiredDependencyBuilder;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Resource.ResourceBuilder;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Resource;
 
 public class ApplicationColorAppender extends com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ApplicationColorAppender {
 
@@ -39,17 +38,18 @@ public class ApplicationColorAppender extends com.sap.cloud.lm.sl.cf.core.helper
         return this.getAppName(moduleParameters, moduleName);
     }
 
-    protected RequiredDependencyBuilder getRequiredDependencyBuilder() {
-        return new RequiredDependency.RequiredDependencyBuilder();
+    protected RequiredDependency.Builder getRequiredDependencyBuilder() {
+        return new RequiredDependency.Builder();
     }
 
     @Override
-    protected ResourceBuilder getResourceBuilder() {
-        return new ResourceBuilder();
+    protected Resource.Builder getResourceBuilder() {
+        return new Resource.Builder();
     }
 
     @Override
     protected int getMajorSchemaVersion() {
         return 2;
     }
+
 }

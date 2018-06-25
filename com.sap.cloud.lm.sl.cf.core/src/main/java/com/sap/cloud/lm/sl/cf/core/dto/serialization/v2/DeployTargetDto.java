@@ -19,18 +19,18 @@ import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.common.model.xml.Wrapper;
-import com.sap.cloud.lm.sl.mta.model.v2_0.PlatformModuleType;
-import com.sap.cloud.lm.sl.mta.model.v2_0.PlatformResourceType;
+import com.sap.cloud.lm.sl.mta.model.v2_0.TargetModuleType;
+import com.sap.cloud.lm.sl.mta.model.v2_0.TargetResourceType;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Target;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Target.TargetBuilder;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Target.Builder;
 
 @XmlRootElement(name = "deployTarget")
 @XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)
 @XmlSeeAlso(Wrapper.class)
 public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.serialization.DeployTargetDto<Target> {
 
-    private static final PlatformModuleTypesAdapter MT_ADAPTER = new PlatformModuleTypesAdapter();
-    private static final PlatformResourceTypesAdapter RT_ADAPTER = new PlatformResourceTypesAdapter();
+    private static final DeployTargetModuleTypesAdapter MT_ADAPTER = new DeployTargetModuleTypesAdapter();
+    private static final DeployTargetResourceTypesAdapter RT_ADAPTER = new DeployTargetResourceTypesAdapter();
 
     @XmlElement
     private long id;
@@ -56,13 +56,13 @@ public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.serializati
     @SerializedName("module-types")
     @XmlElementWrapper(name = "moduleTypes")
     @XmlElement(name = "moduleType")
-    private List<PlatformModuleTypeDto> platformModuleTypes;
+    private List<DeployTargetModuleTypeDto> moduleTypes;
 
     @Expose
     @SerializedName("resource-types")
     @XmlElementWrapper(name = "resourceTypes")
     @XmlElement(name = "resourceType")
-    private List<PlatformResourceTypeDto> platformResourceTypes;
+    private List<DeployTargetResourceTypeDto> resourceTypes;
 
     protected DeployTargetDto() {
         // Required by JAXB
@@ -78,51 +78,51 @@ public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.serializati
             .getDescription();
         this.parameters = target.getObject()
             .getParameters();
-        this.platformModuleTypes = MT_ADAPTER.marshal(target.getObject()
+        this.moduleTypes = MT_ADAPTER.marshal(target.getObject()
             .getModuleTypes2_0());
-        this.platformResourceTypes = RT_ADAPTER.marshal(target.getObject()
+        this.resourceTypes = RT_ADAPTER.marshal(target.getObject()
             .getResourceTypes2_0());
     }
 
     @Override
     public PersistentObject<Target> toDeployTarget() {
-        TargetBuilder result = new TargetBuilder();
+        Builder result = new Builder();
         result.setName(name);
         result.setType(type);
         result.setDescription(description);
         result.setParameters(parameters);
-        result.setModuleTypes2_0(MT_ADAPTER.unmarshal(platformModuleTypes));
-        result.setResourceTypes2_0(RT_ADAPTER.unmarshal(platformResourceTypes));
+        result.setModuleTypes2_0(MT_ADAPTER.unmarshal(moduleTypes));
+        result.setResourceTypes2_0(RT_ADAPTER.unmarshal(resourceTypes));
         return new PersistentObject<>(id, result.build());
     }
 
 }
 
-class PlatformResourceTypesAdapter extends XmlAdapter<List<PlatformResourceTypeDto>, List<PlatformResourceType>> {
+class DeployTargetResourceTypesAdapter extends XmlAdapter<List<DeployTargetResourceTypeDto>, List<TargetResourceType>> {
 
     @Override
-    public List<PlatformResourceTypeDto> marshal(List<PlatformResourceType> resourceTypes) {
+    public List<DeployTargetResourceTypeDto> marshal(List<TargetResourceType> resourceTypes) {
         if (resourceTypes == null) {
             return null;
         }
 
-        List<PlatformResourceTypeDto> resourceTypeDtos = new ArrayList<>();
-        for (PlatformResourceType resourceType : resourceTypes) {
-            resourceTypeDtos.add(new PlatformResourceTypeDto(resourceType));
+        List<DeployTargetResourceTypeDto> resourceTypeDtos = new ArrayList<>();
+        for (TargetResourceType resourceType : resourceTypes) {
+            resourceTypeDtos.add(new DeployTargetResourceTypeDto(resourceType));
         }
 
         return resourceTypeDtos;
     }
 
     @Override
-    public List<PlatformResourceType> unmarshal(List<PlatformResourceTypeDto> resourceTypeDtos) {
+    public List<TargetResourceType> unmarshal(List<DeployTargetResourceTypeDto> resourceTypeDtos) {
         if (resourceTypeDtos == null) {
             return null;
         }
 
-        List<PlatformResourceType> resourceTypes = new ArrayList<>();
-        for (PlatformResourceTypeDto resourceTypeDto : resourceTypeDtos) {
-            resourceTypes.add(resourceTypeDto.toPlatformResourceType());
+        List<TargetResourceType> resourceTypes = new ArrayList<>();
+        for (DeployTargetResourceTypeDto resourceTypeDto : resourceTypeDtos) {
+            resourceTypes.add(resourceTypeDto.toTargetResourceType());
         }
 
         return resourceTypes;
@@ -130,31 +130,31 @@ class PlatformResourceTypesAdapter extends XmlAdapter<List<PlatformResourceTypeD
 
 }
 
-class PlatformModuleTypesAdapter extends XmlAdapter<List<PlatformModuleTypeDto>, List<PlatformModuleType>> {
+class DeployTargetModuleTypesAdapter extends XmlAdapter<List<DeployTargetModuleTypeDto>, List<TargetModuleType>> {
 
     @Override
-    public List<PlatformModuleTypeDto> marshal(List<PlatformModuleType> moduleTypes) {
+    public List<DeployTargetModuleTypeDto> marshal(List<TargetModuleType> moduleTypes) {
         if (moduleTypes == null) {
             return null;
         }
 
-        List<PlatformModuleTypeDto> moduleTypeDtos = new ArrayList<>();
-        for (PlatformModuleType moduleType : moduleTypes) {
-            moduleTypeDtos.add(new PlatformModuleTypeDto(moduleType));
+        List<DeployTargetModuleTypeDto> moduleTypeDtos = new ArrayList<>();
+        for (TargetModuleType moduleType : moduleTypes) {
+            moduleTypeDtos.add(new DeployTargetModuleTypeDto(moduleType));
         }
 
         return moduleTypeDtos;
     }
 
     @Override
-    public List<PlatformModuleType> unmarshal(List<PlatformModuleTypeDto> moduleTypeDtos) {
+    public List<TargetModuleType> unmarshal(List<DeployTargetModuleTypeDto> moduleTypeDtos) {
         if (moduleTypeDtos == null) {
             return null;
         }
 
-        List<PlatformModuleType> moduleTypes = new ArrayList<>();
-        for (PlatformModuleTypeDto moduleTypeDto : moduleTypeDtos) {
-            moduleTypes.add(moduleTypeDto.toPlatformModuleType());
+        List<TargetModuleType> moduleTypes = new ArrayList<>();
+        for (DeployTargetModuleTypeDto moduleTypeDto : moduleTypeDtos) {
+            moduleTypes.add(moduleTypeDto.toTargetModuleType());
         }
 
         return moduleTypes;

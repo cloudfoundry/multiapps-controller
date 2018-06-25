@@ -9,10 +9,11 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
-import com.sap.cloud.lm.sl.mta.model.v2_0.PlatformResourceType;
-import com.sap.cloud.lm.sl.mta.model.v2_0.PlatformResourceType.PlatformResourceTypeBuilder;
+import com.sap.cloud.lm.sl.mta.model.v2_0.TargetResourceType;
+import com.sap.cloud.lm.sl.mta.model.v2_0.TargetResourceType.Builder;
 
-public class PlatformResourceTypeDto {
+public class DeployTargetResourceTypeDto {
+
     @Expose
     @XmlElement
     protected String name;
@@ -21,17 +22,17 @@ public class PlatformResourceTypeDto {
     @XmlJavaTypeAdapter(PropertiesAdapter.class)
     protected Map<String, Object> parameters;
 
-    protected PlatformResourceTypeDto() {
+    protected DeployTargetResourceTypeDto() {
         // Required by JAXB
     }
 
-    public PlatformResourceTypeDto(PlatformResourceType resourceType) {
+    public DeployTargetResourceTypeDto(TargetResourceType resourceType) {
         name = resourceType.getName();
         parameters = resourceType.getParameters();
     }
 
-    public PlatformResourceType toPlatformResourceType() {
-        PlatformResourceTypeBuilder result = new PlatformResourceTypeBuilder();
+    public TargetResourceType toTargetResourceType() {
+        Builder result = new Builder();
         result.setName(name);
         result.setParameters(parameters);
         return result.build();

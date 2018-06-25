@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Resource.ResourceBuilder;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Resource.Builder;
 
 public class ConfigurationReferenceResolver {
 
@@ -57,7 +57,7 @@ public class ConfigurationReferenceResolver {
     protected Resource asResource(ConfigurationEntry entry, Resource resource, int index, int entriesCount) throws ParsingException {
         String indexedResourceName = getIndexedName(resource.getName(), index, entriesCount, RESOURCE_INDEX_DELIMITER);
         Map<String, Object> properties = mergeProperties(resource, entry);
-        ResourceBuilder builder = getResourceBuilder();
+        Builder builder = getResourceBuilder();
         builder.setName(indexedResourceName);
         builder.setDescription(resource.getDescription());
         builder.setGroups(resource.getGroups());
@@ -65,8 +65,8 @@ public class ConfigurationReferenceResolver {
         return builder.build();
     }
 
-    protected ResourceBuilder getResourceBuilder() {
-        return new ResourceBuilder();
+    protected Builder getResourceBuilder() {
+        return new Builder();
     }
 
     protected Map<String, Object> removeConfigurationParameters(Map<String, Object> resourcePropertiesMap) {

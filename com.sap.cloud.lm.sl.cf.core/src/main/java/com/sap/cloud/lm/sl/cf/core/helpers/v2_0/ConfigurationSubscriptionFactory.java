@@ -11,7 +11,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.resolvers.v2_0.PartialDescriptorReferenceResolver;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Module.ModuleBuilder;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Module.Builder;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.resolvers.v2_0.DescriptorReferenceResolver;
 
@@ -58,7 +58,7 @@ public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.cor
     }
 
     protected Module getContainingOneRequiresDependency(Module module, RequiredDependency dependency) {
-        ModuleBuilder builder = new ModuleBuilder();
+        Builder builder = new Builder();
         builder.setName(module.getName());
         builder.setType(module.getType());
         builder.setPath(module.getPath());

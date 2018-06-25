@@ -48,7 +48,7 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Target.TargetBuilder;
+import com.sap.cloud.lm.sl.mta.model.v2_0.Target.Builder;
 
 //used by DevX
 public class MtaArchiveValidator {
@@ -250,7 +250,7 @@ public class MtaArchiveValidator {
 
     public Target createTarget(String targetName, String targetType) {
 
-        TargetBuilder targetBuilder = new TargetBuilder();
+        Builder targetBuilder = new Builder();
         if (targetName == null || !targetName.matches(IMPLICIT_PLATFORM_NAME_PATTERN)) {
             return null;
         }

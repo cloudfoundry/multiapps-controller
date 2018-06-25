@@ -14,7 +14,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Resource.ResourceBuilder;
+import com.sap.cloud.lm.sl.mta.model.v1_0.Resource.Builder;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 public class UserProvidedResourceResolver {
@@ -73,15 +73,15 @@ public class UserProvidedResourceResolver {
     }
 
     protected Resource createResource(String userProvidedServiceName, Map<String, Object> parameters) {
-        ResourceBuilder builder = getResourceBuilder();
+        Builder builder = getResourceBuilder();
         builder.setName(userProvidedServiceName);
         builder.setType(resourceHelper.getResourceTypeName());
         builder.setProperties(parameters);
         return builder.build();
     }
 
-    protected ResourceBuilder getResourceBuilder() {
-        return new ResourceBuilder();
+    protected Builder getResourceBuilder() {
+        return new Builder();
     }
 
 }
