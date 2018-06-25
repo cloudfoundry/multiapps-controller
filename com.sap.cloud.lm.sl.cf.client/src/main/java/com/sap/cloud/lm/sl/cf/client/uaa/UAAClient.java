@@ -31,4 +31,8 @@ public class UAAClient {
         return JsonUtil.convertJsonToMap(tokenKeyResponse.getBody());
     }
 
+    public URL getUaaUrl() {
+        return this.uaaUrl;
+    }
+
 }
