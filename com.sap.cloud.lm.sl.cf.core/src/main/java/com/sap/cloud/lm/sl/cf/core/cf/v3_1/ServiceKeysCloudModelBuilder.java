@@ -15,14 +15,9 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
 public class ServiceKeysCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceKeysCloudModelBuilder {
-    
-    private DeploymentDescriptor deploymentDescriptor;
-    private PropertiesAccessor propertiesAccessor;
 
     public ServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor) {
         super(deploymentDescriptor, propertiesAccessor);
-        this.deploymentDescriptor = deploymentDescriptor;
-        this.propertiesAccessor = propertiesAccessor;
     }
     
     @Override
