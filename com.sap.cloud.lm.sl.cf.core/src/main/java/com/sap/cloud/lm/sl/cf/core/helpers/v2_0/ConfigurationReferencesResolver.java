@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
 public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ConfigurationReferencesResolver {
 
     protected Map<RequiredDependency, List<RequiredDependency>> expandedDependenciesMap = new HashMap<>();
-    protected List<String> expandedProperties = new ArrayList<>();
+    private List<String> expandedProperties = new ArrayList<>();
 
     public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
         BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
