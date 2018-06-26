@@ -6,8 +6,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v3_0.RequiredDependency.Builder;
+import com.sap.cloud.lm.sl.mta.model.v3_0.RequiredDependency;
 
 public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v2_0.ConfigurationReferencesResolver {
 
@@ -21,9 +20,10 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
         return new ConfigurationReferenceResolver(dao, configuration);
     }
 
+    @Override
     protected RequiredDependency createRequiredDependency(com.sap.cloud.lm.sl.mta.model.v1_0.Resource resource,
-        RequiredDependency dependency) {
-        Builder builder = new Builder();
+        com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency dependency) {
+        RequiredDependency.Builder builder = new RequiredDependency.Builder();
         builder.setName(resource.getName());
         builder.setGroup(dependency.getGroup());
         builder.setList(dependency.getList());

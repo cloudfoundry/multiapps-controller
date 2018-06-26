@@ -20,7 +20,6 @@ import com.sap.cloud.lm.sl.mta.model.PropertiesContainer;
 import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency.Builder;
 
 public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ConfigurationReferencesResolver {
 
@@ -70,7 +69,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     protected RequiredDependency createRequiredDependency(com.sap.cloud.lm.sl.mta.model.v1_0.Resource resource,
         RequiredDependency dependency) {
-        Builder builder = new Builder();
+        RequiredDependency.Builder builder = new RequiredDependency.Builder();
         builder.setName(resource.getName());
         builder.setGroup(dependency.getGroup());
         builder.setList(dependency.getList());

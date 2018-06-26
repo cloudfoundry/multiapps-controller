@@ -11,7 +11,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Resource;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Resource.Builder;
 
 public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ConfigurationReferenceResolver {
 
@@ -29,7 +28,7 @@ public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.
         String indexedResourceName = getIndexedName(resource.getName(), index, entriesCount, RESOURCE_INDEX_DELIMITER);
         Map<String, Object> properties = mergeProperties(resource, entry);
         Map<String, Object> parameters = removeConfigurationParameters(resource.getParameters());
-        Builder builder = getResourceBuilder();
+        Resource.Builder builder = getResourceBuilder();
         builder.setName(indexedResourceName);
         builder.setDescription(resource.getDescription());
         builder.setProperties(properties);
@@ -38,8 +37,8 @@ public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.
     }
 
     @Override
-    protected Builder getResourceBuilder() {
-        return new Builder();
+    protected Resource.Builder getResourceBuilder() {
+        return new Resource.Builder();
     }
 
     @Override

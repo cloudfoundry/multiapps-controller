@@ -10,7 +10,6 @@ import com.google.gson.annotations.JsonAdapter;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.mta.model.v1_0.TargetModuleType;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetModuleType.Builder;
 
 public class DeployTargetModuleTypeDto {
 
@@ -32,7 +31,7 @@ public class DeployTargetModuleTypeDto {
     }
 
     public TargetModuleType toTargetModuleType() {
-        Builder result = new Builder();
+        TargetModuleType.Builder result = new TargetModuleType.Builder();
         result.setName(name);
         result.setProperties(properties);
         return result.build();

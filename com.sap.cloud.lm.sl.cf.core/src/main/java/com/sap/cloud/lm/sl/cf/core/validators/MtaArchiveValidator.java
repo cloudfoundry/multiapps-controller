@@ -48,7 +48,6 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Target.Builder;
 
 //used by DevX
 public class MtaArchiveValidator {
@@ -88,17 +87,18 @@ public class MtaArchiveValidator {
 
     public MtaArchiveValidator(InputStream mtarStream, InputStream extensionDescriptorStream, InputStream platformTypesStream,
         InputStream platformsStream, String platformName, String deployId, String userName, String defaultDomain, PlatformType xsType,
-        URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, int minPort,
-        DeployedMta deployedMta, ConfigurationEntryDao dao, boolean xsPlaceholdersSupported) {
+        URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, int minPort, DeployedMta deployedMta,
+        ConfigurationEntryDao dao, boolean xsPlaceholdersSupported) {
         this(mtarStream, extensionDescriptorStream, platformTypesStream, platformsStream, platformName, deployId, userName, defaultDomain,
-            xsType, targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, minPort, deployedMta,
-            DEFAULT_MAX_MTA_DESCRIPTOR_SIZE, dao, xsPlaceholdersSupported, new ApplicationConfiguration());
+            xsType, targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, minPort, deployedMta, DEFAULT_MAX_MTA_DESCRIPTOR_SIZE,
+            dao, xsPlaceholdersSupported, new ApplicationConfiguration());
     }
 
     public MtaArchiveValidator(InputStream mtarStream, InputStream extensionDescriptorStream, InputStream platformTypesStream,
         InputStream platformsStream, String platformName, String deployId, String userName, String defaultDomain, PlatformType xsType,
-        URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, int minPort,
-        DeployedMta deployedMta, long maxMtaDescriptorSize, ConfigurationEntryDao dao, boolean xsPlaceholdersSupported, ApplicationConfiguration applicationConfiguration) {
+        URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, int minPort, DeployedMta deployedMta,
+        long maxMtaDescriptorSize, ConfigurationEntryDao dao, boolean xsPlaceholdersSupported,
+        ApplicationConfiguration applicationConfiguration) {
         this.mtarStream = mtarStream;
         this.extensionDescriptorStream = extensionDescriptorStream;
         this.platformsStream = platformTypesStream;
@@ -249,8 +249,7 @@ public class MtaArchiveValidator {
     }
 
     public Target createTarget(String targetName, String targetType) {
-
-        Builder targetBuilder = new Builder();
+        com.sap.cloud.lm.sl.mta.model.v2_0.Target.Builder targetBuilder = new com.sap.cloud.lm.sl.mta.model.v2_0.Target.Builder();
         if (targetName == null || !targetName.matches(IMPLICIT_PLATFORM_NAME_PATTERN)) {
             return null;
         }

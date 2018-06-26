@@ -22,7 +22,6 @@ import com.sap.cloud.lm.sl.common.model.xml.Wrapper;
 import com.sap.cloud.lm.sl.mta.model.v2_0.TargetModuleType;
 import com.sap.cloud.lm.sl.mta.model.v2_0.TargetResourceType;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Target;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Target.Builder;
 
 @XmlRootElement(name = "deployTarget")
 @XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)
@@ -86,7 +85,7 @@ public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.serializati
 
     @Override
     public PersistentObject<Target> toDeployTarget() {
-        Builder result = new Builder();
+        Target.Builder result = new Target.Builder();
         result.setName(name);
         result.setType(type);
         result.setDescription(description);

@@ -16,7 +16,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3_1.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v3_1.RequiredDependency.Builder;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Resource;
 
 public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v3_0.ConfigurationReferencesResolver {
@@ -70,7 +69,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     @Override
     protected RequiredDependency createRequiredDependency(com.sap.cloud.lm.sl.mta.model.v1_0.Resource resource,
         com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency dependency) {
-        Builder builder = new Builder();
+        RequiredDependency.Builder builder = new RequiredDependency.Builder();
         builder.setName(resource.getName());
         RequiredDependency dependency3_1 = cast(dependency);
         builder.setGroup(dependency3_1.getGroup());

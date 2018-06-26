@@ -10,7 +10,6 @@ import com.google.gson.annotations.JsonAdapter;
 import com.sap.cloud.lm.sl.common.model.json.PropertiesAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.mta.model.v1_0.TargetResourceType;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetResourceType.Builder;
 
 public class DeployTargetResourceTypeDto {
 
@@ -32,7 +31,7 @@ public class DeployTargetResourceTypeDto {
     }
 
     public TargetResourceType toTargetResourceType() {
-        Builder result = new Builder();
+        TargetResourceType.Builder result = new TargetResourceType.Builder();
         result.setName(name);
         result.setProperties(properties);
         return result.build();

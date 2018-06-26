@@ -10,7 +10,6 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Resource;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Resource.Builder;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Target;
 
 public class UserProvidedResourceResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver {
@@ -41,7 +40,7 @@ public class UserProvidedResourceResolver extends com.sap.cloud.lm.sl.cf.core.he
 
     @Override
     protected Resource createResource(String userProvidedServiceName, Map<String, Object> parameters) {
-        Builder builder = getResourceBuilder();
+        Resource.Builder builder = getResourceBuilder();
         builder.setName(userProvidedServiceName);
         builder.setType(resourceHelper.getResourceTypeName());
         builder.setParameters(parameters);
@@ -49,8 +48,8 @@ public class UserProvidedResourceResolver extends com.sap.cloud.lm.sl.cf.core.he
     }
 
     @Override
-    protected Builder getResourceBuilder() {
-        return new Builder();
+    protected Resource.Builder getResourceBuilder() {
+        return new Resource.Builder();
     }
 
 }
