@@ -82,8 +82,10 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         String user = StepsUtil.determineCurrentUser(context, getStepLogger());
         String space = StepsUtil.getSpace(context);
         String org = StepsUtil.getOrg(context);
+        String spaceID = StepsUtil.getSpaceId(context);
 
         clientProvider.releaseClient(user, org, space);
+        clientProvider.releaseClient(user, spaceID);
     }
 
     protected void deleteDeploymentFiles(DelegateExecution context) throws SLException, FileStorageException {
