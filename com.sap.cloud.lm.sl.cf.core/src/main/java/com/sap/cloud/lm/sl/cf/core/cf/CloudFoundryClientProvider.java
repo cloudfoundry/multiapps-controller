@@ -65,6 +65,10 @@ public class CloudFoundryClientProvider {
     public void releaseClient(String userName, String org, String space) throws SLException {
         releaseClientFromCache(userName, org, space);
     }
+    
+    public void releaseClient(String userName, String spaceGuid) throws SLException {
+        releaseClientFromCache(userName, spaceGuid);
+    }
 
     public OAuth2AccessToken getValidToken(String userName) throws SLException {
         return getValidToken(userName, null, null);
@@ -186,6 +190,10 @@ public class CloudFoundryClientProvider {
      */
     public void releaseClientFromCache(String userName, String org, String space) {
         clients.remove(getKey(userName, org, space));
+    }
+    
+    public void releaseClientFromCache(String userName, String spaceGuid) {
+        clients.remove(getKey(userName, spaceGuid));
     }
 
     private String getKey(String userName, String org, String space) {

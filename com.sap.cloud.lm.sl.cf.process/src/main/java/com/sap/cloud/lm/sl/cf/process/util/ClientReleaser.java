@@ -12,17 +12,17 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 public class ClientReleaser {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientReleaser.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClientReleaser.class);
 
-    private final ActivitiEvent event;
-    private final CloudFoundryClientProvider clientProvider;
+	private final ActivitiEvent event;
+	private final CloudFoundryClientProvider clientProvider;
 
-    public ClientReleaser(ActivitiEvent event, CloudFoundryClientProvider clientProvider) {
-        this.event = event;
-        this.clientProvider = clientProvider;
-    }
+	public ClientReleaser(ActivitiEvent event, CloudFoundryClientProvider clientProvider) {
+		this.event = event;
+		this.clientProvider = clientProvider;
+	}
 
-    public void releaseClient() {
+	public void releaseClient() {
         HistoryService historyService = event.getEngineServices()
             .getHistoryService();
         String processInstanceId = event.getProcessInstanceId();
@@ -30,26 +30,30 @@ public class ClientReleaser {
         String user = getCurrentUser(historyService, processInstanceId);
         String spaceName = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_SPACE).getValue();
         String orgName = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_ORG).getValue();
+        String spaceId = (String) getHistoricVarInstanceValue(historyService, processInstanceId, 
+        		com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
         try {
             clientProvider.releaseClient(user, orgName, spaceName);
+            clientProvider.releaseClient(user, spaceId);
         } catch (SLException e) {
             LOGGER.warn(e.getMessage());
         }
     }
 
-    protected String getCurrentUser(HistoryService historyService, String processInstanceId) {
-        String user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER).getValue();
-        if (user == null) {
-            user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.PARAM_INITIATOR).getValue();
-        }
-        return user;
-    }
+	protected String getCurrentUser(HistoryService historyService, String processInstanceId) {
+		String user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER)
+				.getValue();
+		if (user == null) {
+			user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.PARAM_INITIATOR)
+					.getValue();
+		}
+		return user;
+	}
 
-    public HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId, String parameter) {
-        return historyService.createHistoricVariableInstanceQuery()
-            .processInstanceId(processInstanceId)
-            .variableName(parameter)
-            .singleResult();
-    }
+	public HistoricVariableInstance getHistoricVarInstanceValue(HistoryService historyService, String processInstanceId,
+			String parameter) {
+		return historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstanceId)
+				.variableName(parameter).singleResult();
+	}
 }
