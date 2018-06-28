@@ -57,19 +57,17 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
-        super(new DescriptorHandler(), new PropertiesChainBuilder(deploymentDescriptor), deploymentDescriptor, configuration,
-            new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor, xsPlaceholderResolver, new DescriptorHandler(),
-                deployId),
-            deployedMta, systemParameters, xsPlaceholderResolver);
-        this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
+        this(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, null);
     }
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
         UserMessageLogger userMessageLogger) {
-
-        this(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId);
-        this.userMessageLogger = userMessageLogger;
+        super(new DescriptorHandler(), new PropertiesChainBuilder(deploymentDescriptor), deploymentDescriptor, configuration,
+            new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor, xsPlaceholderResolver, new DescriptorHandler(),
+                deployId),
+            deployedMta, systemParameters, xsPlaceholderResolver, userMessageLogger);
+        this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
     }
 
     @Override

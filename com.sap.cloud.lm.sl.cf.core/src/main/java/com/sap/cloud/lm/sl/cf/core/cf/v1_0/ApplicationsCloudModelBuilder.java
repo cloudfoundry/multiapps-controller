@@ -62,28 +62,22 @@ public class ApplicationsCloudModelBuilder {
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
-        this(new DescriptorHandler(), new PropertiesChainBuilder(deploymentDescriptor), deploymentDescriptor, configuration,
-            new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor, xsPlaceholderResolver, new DescriptorHandler(),
-                deployId),
-            deployedMta, systemParameters, xsPlaceholderResolver);
+        this(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, null);
     }
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
         UserMessageLogger userMessageLogger) {
-
         this(new DescriptorHandler(), new PropertiesChainBuilder(deploymentDescriptor), deploymentDescriptor, configuration,
             new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor, xsPlaceholderResolver, new DescriptorHandler(),
                 deployId),
-            deployedMta, systemParameters, xsPlaceholderResolver);
-
-        this.userMessageLogger = userMessageLogger;
+            deployedMta, systemParameters, xsPlaceholderResolver, userMessageLogger);
     }
 
     public ApplicationsCloudModelBuilder(DescriptorHandler handler, PropertiesChainBuilder propertiesChainBuilder,
         DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         ApplicationEnvironmentCloudModelBuilder applicationEnvCloudModelBuilder, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver) {
+        XsPlaceholderResolver xsPlaceholderResolver, UserMessageLogger userMessageLogger) {
         this.handler = handler;
         this.propertiesChainBuilder = propertiesChainBuilder;
         this.propertiesAccessor = getHandlerFactory().getPropertiesAccessor();
@@ -95,6 +89,7 @@ public class ApplicationsCloudModelBuilder {
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployedMta = deployedMta;
+        this.userMessageLogger = userMessageLogger;
     }
 
     protected HandlerFactory getHandlerFactory() {
@@ -212,7 +207,8 @@ public class ApplicationsCloudModelBuilder {
         for (String dependencyName : module.getRequiredDependencies1_0()) {
             ResourceAndResourceType resourceAndResourceType = getApplicationService(dependencyName);
             if (resourceAndResourceType != null && filterRule.test(resourceAndResourceType)) {
-                ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(resourceAndResourceType.getResource(), resourceAndResourceType.getResourceType()));
+                ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(resourceAndResourceType.getResource(),
+                    resourceAndResourceType.getResourceType()));
             }
         }
         return ListUtil.removeDuplicates(services);
