@@ -2,16 +2,174 @@ package com.sap.cloud.lm.sl.cf.process.jobs;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.activiti.engine.ActivitiOptimisticLockingException;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
+import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.State;
+import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
+import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 public class CleanUpJobTest {
-    private CleanUpJob cleanUpJob = new CleanUpJob();
+
+    private static final String SPACE_ID = "space";
+
+    @InjectMocks
+    private CleanUpJob cleanUpJob;
+
+    @Mock
+    private OperationsHelper operationsHelper;
+
+    @Mock
+    private OperationDao dao;
+
+    @Mock
+    private ActivitiFacade activitiFacade;
+
+    private List<Operation> operationsList;
+
+    @Mock
+    private AbstractFileService fileService;
+    @Mock
+    private ProgressMessageService progressMessageService;
+    @Mock
+    private ProcessLogsPersistenceService processLogsPersistenceService;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        mockOperationsHelper();
+        mockOperationDao();
+    }
+
+    @Test
+    public void testAbortOldOperationsInActiveStateOK() {
+        Operation olderOperationThatIsRunning = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis() - 2000)))
+            .state(State.RUNNING)
+            .processId("1")
+            .cleanedUp(false);
+        Operation newOperationThatIsRunning = new Operation().startedAt(dateToZonedDate(new Date()))
+            .state(State.RUNNING)
+            .processId("2");
+        Operation olderOperationThatIsAborted = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis() - 2000)))
+            .state(State.ABORTED)
+            .processId("3");
+        Operation olderOperationThatIsError = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis() - 2000)))
+            .state(State.ERROR)
+            .processId("4");
+
+        operationsList = Arrays.asList(olderOperationThatIsRunning, newOperationThatIsRunning, olderOperationThatIsAborted,
+            olderOperationThatIsError);
+        cleanUpJob.abortOldOperationsInActiveState(new Date(System.currentTimeMillis() - 1000));
+        verify(activitiFacade, times(2)).deleteProcessInstance(any(), any(), any());
+    }
+
+    @Test
+    public void testAbortOldOperationsInActiveStateErrorResilience() {
+        Operation olderOperationThatIsRunning = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis() - 2000)))
+            .state(State.RUNNING)
+            .processId("1");
+        Operation olderOperationThatIsError = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis() - 2000)))
+            .state(State.ERROR)
+            .processId("2");
+
+        operationsList = Arrays.asList(olderOperationThatIsRunning, olderOperationThatIsError);
+
+        doThrow(new ActivitiOptimisticLockingException("I'm an exception")).when(activitiFacade)
+            .deleteProcessInstance(any(), eq(olderOperationThatIsRunning.getProcessId()), any());
+        cleanUpJob.abortOldOperationsInActiveState(new Date(System.currentTimeMillis() - 1000));
+        verify(activitiFacade, times(2)).deleteProcessInstance(any(), any(), any());
+
+    }
+
+    @Test
+    public void testCleanUpFinishedOperationsDataOK() {
+        Operation newerOperationThatIsAborted = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis())))
+            .state(State.ABORTED)
+            .processId("1")
+            .spaceId(SPACE_ID);
+        Operation olderOperationThatIsFinished = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis() - 2000)))
+            .state(State.FINISHED)
+            .processId("2")
+            .spaceId(SPACE_ID);
+        operationsList = Arrays.asList(newerOperationThatIsAborted, olderOperationThatIsFinished);
+
+        cleanUpJob.cleanUpFinishedOperationsData(new Date(System.currentTimeMillis() - 1000));
+        verify(dao, times(1)).merge(any());
+    }
+
+    @Test
+    public void testCleanUpFinishedOperationsDataNoMergeError() {
+        Operation newerOperationThatIsAborted = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis())))
+            .state(State.ABORTED)
+            .processId("1")
+            .spaceId(SPACE_ID);
+        Operation olderOperationThatIsFinished = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis() - 2000)))
+            .state(State.FINISHED)
+            .processId("2")
+            .spaceId(SPACE_ID);
+        operationsList = Arrays.asList(newerOperationThatIsAborted, olderOperationThatIsFinished);
+
+        when(progressMessageService.removeAllByProcessIds(any())).thenThrow(new SLException("I'm also an exception"));
+
+        try {
+            cleanUpJob.cleanUpFinishedOperationsData(new Date(System.currentTimeMillis() - 1000));
+            fail("cleanUpFinishedOperationsData should throw an exception!");
+        } catch (Exception e) {
+            verify(dao, never()).merge(any());
+        }
+    }
+
+    @Test
+    public void testRemoveActivitiHistoricDataWithSubProcesses() {
+        HistoricProcessInstance mockedProcess1 = mock(HistoricProcessInstance.class);
+        when(mockedProcess1.getId()).thenReturn("1");
+        HistoricProcessInstance mockedProcess2 = mock(HistoricProcessInstance.class);
+        when(mockedProcess2.getId()).thenReturn("2");
+        when(activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(any())).thenReturn(Arrays.asList(mockedProcess1));
+        when(activitiFacade.getHistoricSubProcessIds(eq(mockedProcess1.getId()))).thenReturn(Arrays.asList("2", "3", "4"));
+
+        cleanUpJob.removeActivitiHistoricData(new Date(System.currentTimeMillis() - 1000));
+        verify(activitiFacade, times(1)).deleteHistoricProcessInstance(eq("2"));
+        verify(activitiFacade, times(4)).deleteHistoricProcessInstance(anyString());
+    }
 
     @Test
     public void testSplitAllFilesInChunks() {
@@ -20,9 +178,9 @@ public class CleanUpJobTest {
         fileIds.add(null);
         fileIds.add("9f87be64-6519-4576-b426-42548840f2ec");
         fileIds.add("9f87be64-6519-4516-b426-42543845f2az,9f87ne64-6519-1234-b426-42548840f2gh,9f87be64-1239-4567-b426-34548840f2oq");
-        spaceToFileIds.put("space", fileIds);
+        spaceToFileIds.put(SPACE_ID, fileIds);
         Map<String, List<String>> splitAllFilesInChunks = cleanUpJob.splitAllFilesInChunks(spaceToFileIds);
-        assertEquals("All file chunks must be five.", 5, splitAllFilesInChunks.get("space")
+        assertEquals("All file chunks must be five.", 5, splitAllFilesInChunks.get(SPACE_ID)
             .size());
 
         List<String> expectedFileIds = new ArrayList<String>();
@@ -31,7 +189,77 @@ public class CleanUpJobTest {
         expectedFileIds.add("9f87be64-1239-4567-b426-34548840f2oq");
         expectedFileIds.add("9f87be64-6519-4576-b426-42548840f2ec");
 
-        assertTrue("Splited file Ids must match with given ones.", splitAllFilesInChunks.get("space")
+        assertTrue("Splited file Ids must match with given ones.", splitAllFilesInChunks.get(SPACE_ID)
             .containsAll(expectedFileIds));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void mockOperationsHelper() {
+        when(operationsHelper.findOperations((OperationFilter) any(), anyList())).thenAnswer(new Answer<List<Operation>>() {
+            @Override
+            public List<Operation> answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                OperationFilter filter = (OperationFilter) args[0];
+                List<State> states = (List<State>) args[1];
+
+                List<Operation> result = getOperationsList().stream()
+                    .filter(operation -> filterOperations(operation, filter, states))
+                    .collect(Collectors.toList());
+
+                return result;
+            }
+        });
+    }
+
+    private void mockOperationDao() {
+        when(dao.find((OperationFilter) any())).thenAnswer(new Answer<List<Operation>>() {
+            @Override
+            public List<Operation> answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                OperationFilter filter = (OperationFilter) args[0];
+
+                List<Operation> result = getOperationsList().stream()
+                    .filter(operation -> filterOperations(operation, filter, null))
+                    .collect(Collectors.toList());
+
+                return result;
+            }
+        });
+
+        doAnswer(new Answer<Void>() {
+
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                Operation operation = (Operation) args[0];
+                assertTrue("OperationDao should only merge cleaned up operations!", operation.isCleanedUp());
+                return null;
+            }
+        }).when(dao)
+            .merge(any());
+    }
+
+    private List<Operation> getOperationsList() {
+        return operationsList;
+    }
+
+    private boolean filterOperations(Operation operation, OperationFilter filter, List<State> states) {
+        if (operation.isCleanedUp() != null && filter.isCleanedUp() != operation.isCleanedUp()) {
+            return false;
+        }
+
+        if (states != null && !states.contains(operation.getState())) {
+            return false;
+        }
+        Instant beforeDateInstant = filter.getStartTimeUpperBound()
+            .toInstant();
+        Instant startedAtInstant = operation.getStartedAt()
+            .toInstant();
+
+        return beforeDateInstant.isAfter(startedAtInstant);
+    }
+
+    private ZonedDateTime dateToZonedDate(Date date) {
+        return ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     }
 }
