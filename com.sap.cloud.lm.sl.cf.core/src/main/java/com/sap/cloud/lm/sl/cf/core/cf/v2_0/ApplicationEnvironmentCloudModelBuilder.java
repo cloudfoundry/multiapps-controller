@@ -10,7 +10,8 @@ import java.util.TreeMap;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
+import com.sap.cloud.lm.sl.mta.handlers.v2_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
@@ -20,8 +21,8 @@ public class ApplicationEnvironmentCloudModelBuilder extends com.sap.cloud.lm.sl
     private static final int MTA_MAJOR_VERSION = 2;
 
     public ApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration, DeploymentDescriptor deploymentDescriptor,
-        XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler, String deployId) {
-        super(configuration, deploymentDescriptor, xsPlaceholderResolver, handler, deployId);
+        XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler, PropertiesAccessor propertiesAccessor, String deployId) {
+        super(configuration, deploymentDescriptor, xsPlaceholderResolver, handler, propertiesAccessor, deployId);
     }
 
     @Override

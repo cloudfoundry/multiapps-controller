@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.cf.v1_0;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +41,7 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class ApplicationsCloudModelBuilder {
+
     public static final String DEPENDECY_TYPE_SOFT = "soft";
     public static final String DEPENDECY_TYPE_HARD = "hard";
 
@@ -68,32 +68,35 @@ public class ApplicationsCloudModelBuilder {
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
         UserMessageLogger userMessageLogger) {
-        this(new DescriptorHandler(), new PropertiesChainBuilder(deploymentDescriptor), deploymentDescriptor, configuration,
-            new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor, xsPlaceholderResolver, new DescriptorHandler(),
-                deployId),
-            deployedMta, systemParameters, xsPlaceholderResolver, userMessageLogger);
-    }
-
-    public ApplicationsCloudModelBuilder(DescriptorHandler handler, PropertiesChainBuilder propertiesChainBuilder,
-        DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        ApplicationEnvironmentCloudModelBuilder applicationEnvCloudModelBuilder, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver, UserMessageLogger userMessageLogger) {
-        this.handler = handler;
-        this.propertiesChainBuilder = propertiesChainBuilder;
-        this.propertiesAccessor = getHandlerFactory().getPropertiesAccessor();
+        HandlerFactory handlerFactory = createHandlerFactory();
+        this.handler = handlerFactory.getDescriptorHandler();
+        this.propertiesChainBuilder = createPropertiesChainBuilder(deploymentDescriptor);
+        this.propertiesAccessor = handlerFactory.getPropertiesAccessor();
         this.deploymentDescriptor = deploymentDescriptor;
         this.configuration = configuration;
         this.urisCloudModelBuilder = new ApplicationUrisCloudModelBuilder(configuration.isPortBasedRouting(), systemParameters,
-            getHandlerFactory().getPropertiesAccessor());
-        this.applicationEnvCloudModelBuilder = applicationEnvCloudModelBuilder;
+            propertiesAccessor);
+        this.applicationEnvCloudModelBuilder = createApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor,
+            xsPlaceholderResolver, handler, propertiesAccessor, deployId);
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployedMta = deployedMta;
         this.userMessageLogger = userMessageLogger;
     }
 
-    protected HandlerFactory getHandlerFactory() {
+    protected HandlerFactory createHandlerFactory() {
         return new HandlerFactory(MTA_MAJOR_VERSION);
+    }
+
+    protected PropertiesChainBuilder createPropertiesChainBuilder(DeploymentDescriptor deploymentDescriptor) {
+        return new PropertiesChainBuilder(deploymentDescriptor);
+    }
+
+    protected ApplicationEnvironmentCloudModelBuilder createApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration,
+        DeploymentDescriptor deploymentDescriptor, XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler,
+        PropertiesAccessor propertiesAccessor, String deployId) {
+        return new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor, xsPlaceholderResolver, handler,
+            propertiesAccessor, deployId);
     }
 
     public List<CloudApplicationExtended> build(Set<String> mtaModulesInArchive, Set<String> allMtaModules, Set<String> deployedModules)
@@ -159,11 +162,8 @@ public class ApplicationsCloudModelBuilder {
         List<String> fullResolvedUris = ListUtil.merge(resolvedUris, customUris);
         List<String> allServices = getAllApplicationServices(module);
         List<ServiceKeyToInject> serviceKeysToInject = getServicesKeysToInject(module);
-        Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
-        Map<String, Object> moduleProperties = propertiesAccessor.getProperties(module, specialModuleProperties);
-        Map<String, Object> moduleParameters = propertiesAccessor.getParameters(module, specialModuleProperties);
         Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, uris, getApplicationServices(module),
-            getSharedApplicationServices(module), moduleProperties, moduleParameters);
+            getSharedApplicationServices(module));
         List<CloudTask> tasks = getTasks(propertiesList);
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, fullResolvedUris,
             resolvedIdleUris, allServices, serviceKeysToInject, env, tasks);
@@ -171,14 +171,6 @@ public class ApplicationsCloudModelBuilder {
 
     protected DeployedMtaModule findDeployedModule(DeployedMta deployedMta, Module module) {
         return deployedMta == null ? null : deployedMta.findDeployedModule(module.getName());
-    }
-
-    private Set<String> buildSpecialModulePropertiesSet() {
-        Set<String> result = new HashSet<>();
-        result.addAll(SupportedParameters.APP_PROPS);
-        result.addAll(SupportedParameters.APP_ATTRIBUTES);
-        result.addAll(SupportedParameters.SPECIAL_MT_PROPS);
-        return result;
     }
 
     protected String getApplicationName(Module module) {

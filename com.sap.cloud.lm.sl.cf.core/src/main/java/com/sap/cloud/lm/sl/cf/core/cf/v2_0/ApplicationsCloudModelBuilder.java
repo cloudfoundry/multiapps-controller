@@ -25,6 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceAndResourceType;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.UrisClassifier;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -37,7 +38,7 @@ import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.builders.v1_0.PropertiesChainBuilder;
+import com.sap.cloud.lm.sl.mta.builders.v2_0.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.builders.v2_0.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
@@ -63,16 +64,32 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
         UserMessageLogger userMessageLogger) {
-        super(new DescriptorHandler(), new PropertiesChainBuilder(deploymentDescriptor), deploymentDescriptor, configuration,
-            new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor, xsPlaceholderResolver, new DescriptorHandler(),
-                deployId),
-            deployedMta, systemParameters, xsPlaceholderResolver, userMessageLogger);
+        super(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, userMessageLogger);
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
     }
 
     @Override
-    protected HandlerFactory getHandlerFactory() {
+    protected HandlerFactory createHandlerFactory() {
         return new HandlerFactory(MTA_MAJOR_VERSION);
+    }
+
+    @Override
+    protected PropertiesChainBuilder createPropertiesChainBuilder(
+        com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor deploymentDescriptor) {
+        DeploymentDescriptor v2DeploymentDescriptor = (DeploymentDescriptor) deploymentDescriptor;
+        return new PropertiesChainBuilder(v2DeploymentDescriptor);
+    }
+
+    @Override
+    protected ApplicationEnvironmentCloudModelBuilder createApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration,
+        com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor deploymentDescriptor, XsPlaceholderResolver xsPlaceholderResolver,
+        com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler handler,
+        com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor propertiesAccessor, String deployId) {
+        DeploymentDescriptor v2DeploymentDescriptor = (DeploymentDescriptor) deploymentDescriptor;
+        DescriptorHandler v2Handler = (DescriptorHandler) handler;
+        PropertiesAccessor v2PropertiesAccessor = (PropertiesAccessor) propertiesAccessor;
+        return new ApplicationEnvironmentCloudModelBuilder(configuration, v2DeploymentDescriptor, xsPlaceholderResolver, v2Handler,
+            v2PropertiesAccessor, deployId);
     }
 
     @Override
@@ -93,7 +110,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         List<String> services = getAllApplicationServices(module);
         List<ServiceKeyToInject> serviceKeys = getServicesKeysToInject(module);
         Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, uris, getApplicationServices(module),
-            getSharedApplicationServices(module), module.getProperties(), ((Module) module).getParameters());
+            getSharedApplicationServices(module));
         List<CloudTask> tasks = getTasks(parametersList);
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters((Module) module);
         List<ApplicationPort> applicationPorts = getApplicationPorts((Module) module, parametersList);

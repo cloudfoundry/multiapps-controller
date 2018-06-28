@@ -40,7 +40,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     }
     
     @Override
-    protected HandlerFactory getHandlerFactory() {
+    protected HandlerFactory createHandlerFactory() {
         return new HandlerFactory(MTA_MAJOR_VERSION, MTA_MINOR_VERSION);
     }
     

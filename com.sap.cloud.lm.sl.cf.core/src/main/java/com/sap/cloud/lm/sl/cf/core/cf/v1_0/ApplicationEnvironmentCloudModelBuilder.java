@@ -4,6 +4,7 @@ import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertiesList;
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.mergeProperties;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +16,7 @@ import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -27,25 +29,32 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.ProvidedDependency;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
 public class ApplicationEnvironmentCloudModelBuilder {
+
+    private static final int MTA_MAJOR_VERSION = 1;
+
     protected CloudModelConfiguration configuration;
     protected DeploymentDescriptor deploymentDescriptor;
     protected XsPlaceholderResolver xsPlaceholderResolver;
     protected DescriptorHandler handler;
+    protected PropertiesAccessor propertiesAccessor;
     protected String deployId;
 
-    private static final int MTA_MAJOR_VERSION = 1;
-
     public ApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration, DeploymentDescriptor deploymentDescriptor,
-        XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler, String deployId) {
+        XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler, PropertiesAccessor propertiesAccessor, String deployId) {
         this.configuration = configuration;
         this.deploymentDescriptor = deploymentDescriptor;
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.handler = handler;
+        this.propertiesAccessor = propertiesAccessor;
         this.deployId = deployId;
     }
 
-    public Map<Object, Object> build(Module module, List<String> descriptorDefinedUris, List<String> services,
-        List<String> sharedServices, Map<String, Object> properties, Map<String, Object> parameters) throws ContentException {
+    public Map<Object, Object> build(Module module, List<String> descriptorDefinedUris, List<String> services, List<String> sharedServices)
+        throws ContentException {
+        Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
+        Map<String, Object> properties = propertiesAccessor.getProperties(module, specialModuleProperties);
+        Map<String, Object> parameters = propertiesAccessor.getParameters(module, specialModuleProperties);
+
         Map<String, Object> env = new TreeMap<>();
         addMetadata(env, module);
         addServices(env, services);
@@ -54,6 +63,14 @@ public class ApplicationEnvironmentCloudModelBuilder {
         addProperties(env, properties);
         addDependencies(env, module);
         return MapUtil.unmodifiable(new MapToEnvironmentConverter(configuration.isPrettyPrinting()).asEnv(env));
+    }
+
+    private Set<String> buildSpecialModulePropertiesSet() {
+        Set<String> result = new HashSet<>();
+        result.addAll(SupportedParameters.APP_PROPS);
+        result.addAll(SupportedParameters.APP_ATTRIBUTES);
+        result.addAll(SupportedParameters.SPECIAL_MT_PROPS);
+        return result;
     }
 
     protected void addMetadata(Map<String, Object> env, Module module) {
