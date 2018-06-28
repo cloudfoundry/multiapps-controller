@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>com.sap.cloud.lm.sl.cf.core</artifactId>
@@ -73,7 +74,8 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <tasks>
-                                <copy file="${project.build.outputDirectory}/enhance.xml" toFile="./enhance.xml" overwrite="true" />
+                                <copy file="${project.build.outputDirectory}/enhance.xml" toFile="./enhance.xml"
+                                    overwrite="true" />
                             </tasks>
                         </configuration>
                         <goals>
@@ -219,6 +221,10 @@
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.microbean</groupId>
+            <artifactId>microbean-helm</artifactId>
         </dependency>
     </dependencies>
 </project>

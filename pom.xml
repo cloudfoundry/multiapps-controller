@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.lm.sl.cf</groupId>
     <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
@@ -67,6 +68,7 @@
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <swagger.version>1.5.16</swagger.version>
         <com.sap.cloud.lm.sl.open.version>1.61.0-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
+        <microbean.helm.version>2.8.2.1.1.0</microbean.helm.version>
     </properties>
     <modules>
         <module>com.sap.cloud.lm.sl.cf.client</module>
@@ -883,6 +885,17 @@
                     <exclusion>
                         <groupId>com.googlecode.javaewah</groupId>
                         <artifactId>JavaEWAH</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.microbean</groupId>
+                <artifactId>microbean-helm</artifactId>
+                <version>${microbean.helm.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty-tcnative-boringssl-static</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

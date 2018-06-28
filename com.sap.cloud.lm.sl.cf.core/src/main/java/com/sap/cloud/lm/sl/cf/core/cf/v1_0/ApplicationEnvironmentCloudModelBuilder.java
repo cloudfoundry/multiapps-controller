@@ -49,6 +49,16 @@ public class ApplicationEnvironmentCloudModelBuilder {
         this.deployId = deployId;
     }
 
+    public Map<Object, Object> buildWithoutMetadata(Module module) {
+        Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
+        Map<String, Object> properties = propertiesAccessor.getProperties(module, specialModuleProperties);
+
+        Map<String, Object> env = new TreeMap<>();
+        addProperties(env, properties);
+        addDependencies(env, module);
+        return MapUtil.unmodifiable(new MapToEnvironmentConverter(configuration.isPrettyPrinting()).asEnv(env));
+    }
+
     public Map<Object, Object> build(Module module, List<String> descriptorDefinedUris, List<String> services, List<String> sharedServices)
         throws ContentException {
         Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
