@@ -115,7 +115,7 @@ public class CleanUpJob implements Job {
         return cleanUpTimestamp;
     }
 
-    private void abortOldOperationsInActiveState(Date expirationTime) {
+    void abortOldOperationsInActiveState(Date expirationTime) {
         LOGGER.info("Aborting operations started before: " + expirationTime.toString());
         List<Operation> activeOperations = getOperationsInActiveState(expirationTime);
         List<String> activeOperationsIds = getProcessIds(activeOperations);
@@ -124,7 +124,7 @@ public class CleanUpJob implements Job {
         LOGGER.info("Aborted operations count: " + abortedOperationsCount);
     }
 
-    private void cleanUpFinishedOperationsData(Date expirationTime) {
+    void cleanUpFinishedOperationsData(Date expirationTime) {
         LOGGER.info("Cleaning up data for finished operations started before: " + expirationTime.toString());
         List<Operation> finishedOperations = getNotCleanedFinishedOperations(expirationTime);
         List<String> finishedProcessIds = getProcessIds(finishedOperations);
@@ -159,7 +159,7 @@ public class CleanUpJob implements Job {
         }
     }
 
-    private void removeActivitiHistoricData(Date expirationTime) {
+    void removeActivitiHistoricData(Date expirationTime) {
         Set<String> historicProcessIds = new HashSet<String>();
         activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime)
             .stream()
@@ -311,7 +311,7 @@ public class CleanUpJob implements Job {
         }
     }
 
-    public Map<String, List<String>> splitAllFilesInChunks(Map<String, List<String>> spaceToFileIds) {
+    Map<String, List<String>> splitAllFilesInChunks(Map<String, List<String>> spaceToFileIds) {
         Map<String, List<String>> spaceToFileChunks = new HashMap<>();
         for (String space : spaceToFileIds.keySet()) {
             List<String> fileChunksInSpace = NameUtil.splitFilesIds(spaceToFileIds.get(space));
