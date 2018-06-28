@@ -115,7 +115,6 @@ public class UploadAppStepTest extends SyncActivitiStepTest<UploadAppStep> {
         }
 
         assertCall(Constants.VAR_UPLOAD_TOKEN, TOKEN);
-        assertCall("uploadState", AsyncExecutionState.RUNNING.toString());
     }
 
     private void assertCall(String variableName, String variableValue) {

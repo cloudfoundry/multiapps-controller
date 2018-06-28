@@ -32,11 +32,4 @@
             <property name="openjpa.Log" value="slf4j" />
         </properties>
     </persistence-unit>
-    <persistence-unit name="ContextExtensionmManagement" transaction-type="RESOURCE_LOCAL">
-        <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-        <class>com.sap.cloud.lm.sl.cf.core.model.ContextExtension</class>
-        <properties>
-            <property name="openjpa.Log" value="slf4j" />
-        </properties>
-    </persistence-unit>
 </persistence>

@@ -32,7 +32,7 @@
     <bean id="processLoggerProviderFactory" class="com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory"
         factory-method="getInstance" />
 
-    <bean id="configuration" class="com.sap.cloud.lm.sl.cf.core.util.Configuration" factory-method="getInstance" />
+    <bean id="configuration" class="com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration" factory-method="getInstance" />
 
     <bean id="progressMessageService" class="com.sap.cloud.lm.sl.persistence.services.ProgressMessageService"
         factory-method="getInstance">
