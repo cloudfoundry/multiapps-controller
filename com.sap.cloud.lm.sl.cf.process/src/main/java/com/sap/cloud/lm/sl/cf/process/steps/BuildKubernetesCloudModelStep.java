@@ -5,29 +5,41 @@ import java.util.List;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.Yaml;
 
+import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.k8s.KubernetesModelRepresenter;
 import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.ConfigMapsCloudModelBuilder;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.util.YamlUtil;
+import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.DeploymentsCloudModelBuilder;
+import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.extensions.Deployment;
 
 @Component("buildKubernetesCloudModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BuildKubernetesCloudModelStep extends SyncActivitiStep {
 
+    private final Yaml yaml = new Yaml(new KubernetesModelRepresenter());
+
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
-        ConfigMapsCloudModelBuilder configMapsBuilder = new ConfigMapsCloudModelBuilder();
-        List<ConfigMap> configMaps = configMapsBuilder
-            .build((com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor) deploymentDescriptor);
-        for (ConfigMap configMap : configMaps) {
-            getStepLogger().info("----------------- " + configMap.getMetadata()
-                .getName() + ".yaml -----------------");
-            getStepLogger().info(YamlUtil.convertToYaml(configMap));
-        }
+        DeploymentDescriptor deploymentDescriptor = (DeploymentDescriptor) StepsUtil.getDeploymentDescriptor(execution.getContext());
+        List<Deployment> deployments = new DeploymentsCloudModelBuilder(new PropertiesAccessor()).build(deploymentDescriptor);
+        showKubernetesResourcesAsYaml(deployments);
+        List<ConfigMap> configMaps = new ConfigMapsCloudModelBuilder().build(deploymentDescriptor);
+        showKubernetesResourcesAsYaml(configMaps);
         return StepPhase.DONE;
+    }
+
+    private void showKubernetesResourcesAsYaml(List<? extends HasMetadata> resources) {
+        for (HasMetadata resource : resources) {
+            ObjectMeta resourceMetadata = resource.getMetadata();
+            getStepLogger().info("----------------- " + resourceMetadata.getName() + ".yaml -----------------");
+            getStepLogger().info(yaml.dumpAsMap(resource));
+        }
     }
 
 }
