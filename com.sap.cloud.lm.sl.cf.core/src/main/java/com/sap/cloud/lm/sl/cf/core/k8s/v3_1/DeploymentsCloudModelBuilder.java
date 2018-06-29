@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.k8s.Labels;
+import com.sap.cloud.lm.sl.cf.core.k8s.ResourceTypes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
@@ -37,26 +39,22 @@ public class DeploymentsCloudModelBuilder {
 
     private static final String CONTAINER_IMAGE_FOR_MODULE_0_IS_NOT_SPECIFIED = "Container image for module \"{0}\" is not specified. Use the \"container-image\" parameter to do so.";
 
-    private static final String LABEL_RELEASE = "release";
-    private static final String LABEL_RELEASE_VALUE = "{{ .Release.Name }}";
-    private static final String LABEL_APP = "app";
-    private static final String LABEL_RUN = "run";
-    private static final String LABEL_RUN_SUFFIX = "-pod";
-    private static final String TYPE_DEPLOYMENT = "deployment";
     private static final String STRATEGY = "RollingUpdate";
     private static final IntOrString ROLLING_UPDATE_MAX_SURGE = new IntOrString(1);
     private static final IntOrString ROLLING_UPDATE_MAX_UNAVAILABLE = new IntOrString(1);
     private static final Integer REVISION_HISTORY_LIMIT = 10;
     private static final Integer PROGRESS_DEADLINE_IN_SECONDS = 600;
-    private static final Integer DEFAULT_CONTAINER_PORT = 8080;
-    private static final String DEFAULT_PROTOCOL = "TCP";
-    private static final String TERMINATION_MESSAGE_PATH = "/dev/termination-log";
-    private static final String TERMINATION_MESSAGE_POLICY = "File";
-    private static final String IMAGE_PULL_POLICY = "Always";
+
     private static final String RESTART_POLICY = "Always";
     private static final Long TERMINATION_GRACE_PERIOD_IN_SECONDS = 30L;
     private static final String DNS_POLICY = "ClusterFirst";
     private static final String SCHEDULER_NAME = "default-scheduler";
+
+    private static final String TERMINATION_MESSAGE_PATH = "/dev/termination-log";
+    private static final String TERMINATION_MESSAGE_POLICY = "File";
+    private static final String IMAGE_PULL_POLICY = "Always";
+    private static final Integer DEFAULT_CONTAINER_PORT = 8080;
+    private static final String DEFAULT_PROTOCOL = "TCP";
 
     private final PropertiesAccessor propertiesAccessor;
 
@@ -81,8 +79,8 @@ public class DeploymentsCloudModelBuilder {
 
     private boolean isDeployment(Module module) {
         Map<String, Object> moduleParameters = propertiesAccessor.getParameters((ParametersContainer) module);
-        String type = (String) moduleParameters.getOrDefault(SupportedParameters.TYPE, TYPE_DEPLOYMENT);
-        return TYPE_DEPLOYMENT.equals(type);
+        String type = (String) moduleParameters.getOrDefault(SupportedParameters.TYPE, ResourceTypes.DEPLOYMENT);
+        return ResourceTypes.DEPLOYMENT.equals(type);
     }
 
     private Deployment build(Module module) {
@@ -94,7 +92,7 @@ public class DeploymentsCloudModelBuilder {
 
     private ObjectMeta buildDeploymentMeta(Module module) {
         return new ObjectMetaBuilder().withName(module.getName())
-            .addToLabels(LABEL_RUN, getRunLabelValue(module))
+            .addToLabels(Labels.RUN, getRunLabelValue(module))
             .build();
     }
 
@@ -114,7 +112,7 @@ public class DeploymentsCloudModelBuilder {
     }
 
     private LabelSelector buildSelector(Module module) {
-        return new LabelSelectorBuilder().addToMatchLabels(LABEL_RUN, getRunLabelValue(module))
+        return new LabelSelectorBuilder().addToMatchLabels(Labels.RUN, getRunLabelValue(module))
             .build();
     }
 
@@ -134,9 +132,9 @@ public class DeploymentsCloudModelBuilder {
     }
 
     private ObjectMeta buildPodMeta(Module module) {
-        return new ObjectMetaBuilder().addToLabels(LABEL_RELEASE, LABEL_RELEASE_VALUE)
-            .addToLabels(LABEL_APP, getAppLabelValue(module))
-            .addToLabels(LABEL_RUN, getRunLabelValue(module))
+        return new ObjectMetaBuilder().addToLabels(Labels.RELEASE, Labels.RELEASE_VALUE)
+            .addToLabels(Labels.APP, getAppLabelValue(module))
+            .addToLabels(Labels.RUN, getRunLabelValue(module))
             .build();
     }
 
@@ -145,7 +143,7 @@ public class DeploymentsCloudModelBuilder {
     }
 
     private String getRunLabelValue(Module module) {
-        return module.getName() + LABEL_RUN_SUFFIX;
+        return module.getName() + Labels.RUN_SUFFIX;
     }
 
     private PodSpec buildPodSpec(Module module) {
