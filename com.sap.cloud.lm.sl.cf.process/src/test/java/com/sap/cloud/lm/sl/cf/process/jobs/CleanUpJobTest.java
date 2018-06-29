@@ -2,9 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.jobs;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -22,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,11 +34,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.quartz.JobExecutionException;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
-import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -55,9 +57,6 @@ public class CleanUpJobTest {
     private CleanUpJob cleanUpJob;
 
     @Mock
-    private OperationsHelper operationsHelper;
-
-    @Mock
     private OperationDao dao;
 
     @Mock
@@ -66,21 +65,26 @@ public class CleanUpJobTest {
     private List<Operation> operationsList;
 
     @Mock
+    private TokenStore tokenStore;
+
+    @Mock
     private AbstractFileService fileService;
+
     @Mock
     private ProgressMessageService progressMessageService;
+
     @Mock
     private ProcessLogsPersistenceService processLogsPersistenceService;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        mockOperationsHelper();
         mockOperationDao();
+        when(configuration.getMaxTtlForOldData()).thenReturn(1L);
     }
 
     @Test
-    public void testAbortOldOperationsInActiveStateOK() {
+    public void testAbortOldOperationsInActiveStateOK() throws JobExecutionException {
         Operation olderOperationThatIsRunning = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis() - 2000)))
             .state(State.RUNNING)
             .processId("1")
@@ -97,12 +101,20 @@ public class CleanUpJobTest {
 
         operationsList = Arrays.asList(olderOperationThatIsRunning, newOperationThatIsRunning, olderOperationThatIsAborted,
             olderOperationThatIsError);
-        cleanUpJob.abortOldOperationsInActiveState(new Date(System.currentTimeMillis() - 1000));
+        cleanUpJob.execute(null);
         verify(activitiFacade, times(2)).deleteProcessInstance(any(), any(), any());
     }
 
+    @Mock
+    private ApplicationConfiguration configuration;
+
     @Test
-    public void testAbortOldOperationsInActiveStateErrorResilience() {
+    public void testAll() throws JobExecutionException {
+        cleanUpJob.execute(null);
+    }
+
+    @Test
+    public void testAbortOldOperationsInActiveStateErrorResilience() throws JobExecutionException {
         Operation olderOperationThatIsRunning = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis() - 2000)))
             .state(State.RUNNING)
             .processId("1");
@@ -114,13 +126,13 @@ public class CleanUpJobTest {
 
         doThrow(new ActivitiOptimisticLockingException("I'm an exception")).when(activitiFacade)
             .deleteProcessInstance(any(), eq(olderOperationThatIsRunning.getProcessId()), any());
-        cleanUpJob.abortOldOperationsInActiveState(new Date(System.currentTimeMillis() - 1000));
+        cleanUpJob.execute(null);
         verify(activitiFacade, times(2)).deleteProcessInstance(any(), any(), any());
 
     }
 
     @Test
-    public void testCleanUpFinishedOperationsDataOK() {
+    public void testCleanUpFinishedOperationsDataOK() throws JobExecutionException {
         Operation newerOperationThatIsAborted = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis())))
             .state(State.ABORTED)
             .processId("1")
@@ -131,12 +143,12 @@ public class CleanUpJobTest {
             .spaceId(SPACE_ID);
         operationsList = Arrays.asList(newerOperationThatIsAborted, olderOperationThatIsFinished);
 
-        cleanUpJob.cleanUpFinishedOperationsData(new Date(System.currentTimeMillis() - 1000));
+        cleanUpJob.execute(null);
         verify(dao, times(1)).merge(any());
     }
 
     @Test
-    public void testCleanUpFinishedOperationsDataNoMergeError() {
+    public void testCleanUpFinishedOperationsDataNoMergeError() throws JobExecutionException {
         Operation newerOperationThatIsAborted = new Operation().startedAt(dateToZonedDate(new Date(System.currentTimeMillis())))
             .state(State.ABORTED)
             .processId("1")
@@ -149,24 +161,21 @@ public class CleanUpJobTest {
 
         when(progressMessageService.removeAllByProcessIds(any())).thenThrow(new SLException("I'm also an exception"));
 
-        try {
-            cleanUpJob.cleanUpFinishedOperationsData(new Date(System.currentTimeMillis() - 1000));
-            fail("cleanUpFinishedOperationsData should throw an exception!");
-        } catch (Exception e) {
-            verify(dao, never()).merge(any());
-        }
+        cleanUpJob.execute(null);
+        verify(dao, never()).merge(any());
     }
 
     @Test
-    public void testRemoveActivitiHistoricDataWithSubProcesses() {
+    public void testRemoveActivitiHistoricDataWithSubProcesses() throws JobExecutionException {
         HistoricProcessInstance mockedProcess1 = mock(HistoricProcessInstance.class);
         when(mockedProcess1.getId()).thenReturn("1");
         HistoricProcessInstance mockedProcess2 = mock(HistoricProcessInstance.class);
         when(mockedProcess2.getId()).thenReturn("2");
         when(activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(any())).thenReturn(Arrays.asList(mockedProcess1));
-        when(activitiFacade.getHistoricSubProcessIds(eq(mockedProcess1.getId()))).thenReturn(Arrays.asList("2", "3", "4"));
+        when(activitiFacade.getHistoricSubProcessIds(eq(mockedProcess1.getId())))
+            .thenReturn(new LinkedList<>(Arrays.asList("2", "3", "4")));
 
-        cleanUpJob.removeActivitiHistoricData(new Date(System.currentTimeMillis() - 1000));
+        cleanUpJob.execute(null);
         verify(activitiFacade, times(1)).deleteHistoricProcessInstance(eq("2"));
         verify(activitiFacade, times(4)).deleteHistoricProcessInstance(anyString());
     }
@@ -193,22 +202,18 @@ public class CleanUpJobTest {
             .containsAll(expectedFileIds));
     }
 
-    @SuppressWarnings("unchecked")
-    private void mockOperationsHelper() {
-        when(operationsHelper.findOperations((OperationFilter) any(), anyList())).thenAnswer(new Answer<List<Operation>>() {
-            @Override
-            public List<Operation> answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                OperationFilter filter = (OperationFilter) args[0];
-                List<State> states = (List<State>) args[1];
+    @Test
+    public void testRemoveExpiredTokens() throws JobExecutionException {
+        OAuth2AccessToken expiredToken = mock(OAuth2AccessToken.class);
+        when(expiredToken.isExpired()).thenReturn(true);
+        OAuth2AccessToken activeToken = mock(OAuth2AccessToken.class);
+        when(activeToken.isExpired()).thenReturn(false);
 
-                List<Operation> result = getOperationsList().stream()
-                    .filter(operation -> filterOperations(operation, filter, states))
-                    .collect(Collectors.toList());
+        when(tokenStore.findTokensByClientId(anyString())).thenReturn(Arrays.asList(expiredToken, activeToken));
 
-                return result;
-            }
-        });
+        cleanUpJob.execute(null);
+        verify(tokenStore, times(1)).removeAccessToken(eq(expiredToken));
+        verify(tokenStore, never()).removeAccessToken(eq(activeToken));
     }
 
     private void mockOperationDao() {
@@ -219,7 +224,7 @@ public class CleanUpJobTest {
                 OperationFilter filter = (OperationFilter) args[0];
 
                 List<Operation> result = getOperationsList().stream()
-                    .filter(operation -> filterOperations(operation, filter, null))
+                    .filter(operation -> filterOperations(operation, filter))
                     .collect(Collectors.toList());
 
                 return result;
@@ -243,14 +248,16 @@ public class CleanUpJobTest {
         return operationsList;
     }
 
-    private boolean filterOperations(Operation operation, OperationFilter filter, List<State> states) {
+    private boolean filterOperations(Operation operation, OperationFilter filter) {
         if (operation.isCleanedUp() != null && filter.isCleanedUp() != operation.isCleanedUp()) {
             return false;
         }
 
-        if (states != null && !states.contains(operation.getState())) {
+        if (filter.isInNonFinalState() && !State.getActiveStates()
+            .contains(operation.getState())) {
             return false;
         }
+
         Instant beforeDateInstant = filter.getStartTimeUpperBound()
             .toInstant();
         Instant startedAtInstant = operation.getStartedAt()
