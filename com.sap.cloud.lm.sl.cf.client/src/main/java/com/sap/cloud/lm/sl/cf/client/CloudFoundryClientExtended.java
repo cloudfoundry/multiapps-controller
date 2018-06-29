@@ -838,13 +838,12 @@ public class CloudFoundryClientExtended extends CloudFoundryClient implements Cl
         }
     }
 
-    private static CloudFoundryException fromException(String message, Throwable e, HttpStatus status) {
+    protected static CloudFoundryException fromException(String message, Throwable e, HttpStatus status) {
         if (e instanceof CloudFoundryException) {
-            throw (CloudFoundryException) e;
+            return (CloudFoundryException) e;
         }
-        CloudFoundryException ex = new CloudFoundryException(status, message + ": " + e.getMessage());
-        ex.initCause(e);
-        return ex;
+        // do not use initCause to set cause -> IllegalStateException
+        return new CloudFoundryException(status, message + ": " + e.getMessage(), null, -1, null, e);
     }
 
     private <T> T executeWithRetry(Supplier<T> supplier, HttpStatus... httpStatusesToIgnore) {
