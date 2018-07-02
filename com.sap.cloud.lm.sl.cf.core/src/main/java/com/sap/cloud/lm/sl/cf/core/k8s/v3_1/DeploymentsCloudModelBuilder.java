@@ -53,7 +53,7 @@ public class DeploymentsCloudModelBuilder {
     private static final String TERMINATION_MESSAGE_PATH = "/dev/termination-log";
     private static final String TERMINATION_MESSAGE_POLICY = "File";
     private static final String IMAGE_PULL_POLICY = "Always";
-    private static final Integer DEFAULT_CONTAINER_PORT = 8080;
+    static final Integer DEFAULT_CONTAINER_PORT = 8080;
     private static final String DEFAULT_PROTOCOL = "TCP";
 
     private final PropertiesAccessor propertiesAccessor;
