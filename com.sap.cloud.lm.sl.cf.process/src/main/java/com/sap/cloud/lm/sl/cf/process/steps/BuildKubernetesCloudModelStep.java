@@ -12,12 +12,14 @@ import com.sap.cloud.lm.sl.cf.core.k8s.KubernetesModelRepresenter;
 import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.ConfigMapsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.DeploymentsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.JobsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.DockerSecretsCloudModelBuilder;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Job;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 
 @Component("buildKubernetesCloudModelStep")
@@ -29,12 +31,15 @@ public class BuildKubernetesCloudModelStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         DeploymentDescriptor deploymentDescriptor = (DeploymentDescriptor) StepsUtil.getDeploymentDescriptor(execution.getContext());
-        List<Job> jobs = new JobsCloudModelBuilder(new PropertiesAccessor()).build(deploymentDescriptor);
+        PropertiesAccessor propertiesAccessor = new PropertiesAccessor();
+        List<Job> jobs = new JobsCloudModelBuilder(propertiesAccessor).build(deploymentDescriptor);
         showKubernetesResourcesAsYaml(jobs);
-        List<Deployment> deployments = new DeploymentsCloudModelBuilder(new PropertiesAccessor()).build(deploymentDescriptor);
+        List<Deployment> deployments = new DeploymentsCloudModelBuilder(propertiesAccessor).build(deploymentDescriptor);
         showKubernetesResourcesAsYaml(deployments);
         List<ConfigMap> configMaps = new ConfigMapsCloudModelBuilder().build(deploymentDescriptor);
         showKubernetesResourcesAsYaml(configMaps);
+        List<Secret> secrets = new DockerSecretsCloudModelBuilder(propertiesAccessor).build(deploymentDescriptor);
+        showKubernetesResourcesAsYaml(secrets);
         return StepPhase.DONE;
     }
 
