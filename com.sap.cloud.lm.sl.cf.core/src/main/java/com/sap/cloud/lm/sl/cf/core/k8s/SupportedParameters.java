@@ -4,6 +4,7 @@ public class SupportedParameters {
 
     public static final String CONTAINER_IMAGE = "container-image";
     public static final String CONTAINER_IMAGE_CREDENTIALS = "container-image-credentials";
+    public static final String ROUTE = "route";
 
     public static class ContainerImageCredentialsSchema {
 

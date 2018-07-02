@@ -23,7 +23,7 @@ import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
 
 public class ServicesCloudModelBuilder {
 
-    private static final String SERVICE_NAME_SUFFIX = "-service";
+    static final String SERVICE_NAME_SUFFIX = "-service";
     private static final String DEFAULT_SERVICE_TYPE = "NodePort";
 
     private final PropertiesAccessor propertiesAccessor;
@@ -32,6 +32,7 @@ public class ServicesCloudModelBuilder {
         this.propertiesAccessor = propertiesAccessor;
     }
 
+    // FIXME: Reduce code duplication with DeploymentsCloudModelBuilder.
     public List<Service> build(DeploymentDescriptor descriptor) {
         List<Service> result = new ArrayList<>();
         for (Module module : descriptor.getModules3_1()) {
