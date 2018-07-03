@@ -29,9 +29,8 @@ public class ResourceFactoriesFacade {
 
     private List<ResourceFactory> createResourceFactories(DescriptorHandler handler, PropertiesAccessor propertiesAccessor) {
         List<ResourceFactory> resourceFactories = new ArrayList<>();
-        resourceFactories.add(new ConfigMapFactory(handler, propertiesAccessor));
-        resourceFactories.add(new DeploymentFactory(propertiesAccessor));
-        resourceFactories.add(new JobFactory(propertiesAccessor));
+        resourceFactories.add(new DeploymentFactory(handler, propertiesAccessor));
+        resourceFactories.add(new JobFactory(handler, propertiesAccessor));
         resourceFactories.add(new DockerSecretFactory(propertiesAccessor));
         resourceFactories.add(new IngressFactory(propertiesAccessor));
         resourceFactories.add(new ServiceFactory());

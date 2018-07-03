@@ -1,26 +1,23 @@
 package com.sap.cloud.lm.sl.cf.core.k8s.v3_1;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v2_0.ApplicationEnvironmentCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
-import com.sap.cloud.lm.sl.cf.core.k8s.ResourceTypes;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.handlers.v3_1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Module;
 
+import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
-import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 
-public class ConfigMapFactory implements ResourceFactory {
+public class ConfigMapFactory {
 
     private static final String CONFIG_MAPS_NAME_SUFFIX = "-config";
 
@@ -32,20 +29,14 @@ public class ConfigMapFactory implements ResourceFactory {
         this.propertiesAccessor = propertiesAccessor;
     }
 
-    @Override
-    public List<String> getSupportedResourceTypes() {
-        return Arrays.asList(ResourceTypes.DEPLOYMENT, ResourceTypes.JOB);
-    }
-
-    @Override
-    public List<HasMetadata> createFrom(DeploymentDescriptor descriptor, Module module, Map<String, String> labels) {
+    public ConfigMap createFrom(DeploymentDescriptor descriptor, Module module, Map<String, String> labels) {
         Map<Object, Object> data = buildData(descriptor, module);
         if (data.isEmpty()) {
-            return Collections.emptyList();
+            return null;
         }
-        return Arrays.asList(new ConfigMapBuilder().withMetadata(buildMeta(module, labels))
+        return new ConfigMapBuilder().withMetadata(buildMeta(module, labels))
             .withData(MapUtil.cast(data))
-            .build());
+            .build();
     }
 
     private ObjectMeta buildMeta(Module module, Map<String, String> labels) {

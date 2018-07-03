@@ -9,14 +9,20 @@ import com.sap.cloud.lm.sl.cf.core.k8s.Labels;
 import com.sap.cloud.lm.sl.cf.core.k8s.ResourceTypes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.mta.handlers.v3_1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.ParametersContainer;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Module;
 
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.ConfigMapEnvSource;
+import io.fabric8.kubernetes.api.model.ConfigMapEnvSourceBuilder;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
+import io.fabric8.kubernetes.api.model.EnvFromSource;
+import io.fabric8.kubernetes.api.model.EnvFromSourceBuilder;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.LabelSelector;
@@ -27,6 +33,7 @@ import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodSpecBuilder;
 import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
+import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentSpec;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentSpecBuilder;
@@ -55,9 +62,11 @@ public class DeploymentFactory implements ResourceFactory {
     static final Integer DEFAULT_CONTAINER_PORT = 8080;
     private static final String DEFAULT_PROTOCOL = "TCP";
 
+    private final DescriptorHandler handler;
     private final PropertiesAccessor propertiesAccessor;
 
-    public DeploymentFactory(PropertiesAccessor propertiesAccessor) {
+    public DeploymentFactory(DescriptorHandler handler, PropertiesAccessor propertiesAccessor) {
+        this.handler = handler;
         this.propertiesAccessor = propertiesAccessor;
     }
 
@@ -68,9 +77,19 @@ public class DeploymentFactory implements ResourceFactory {
 
     @Override
     public List<HasMetadata> createFrom(DeploymentDescriptor descriptor, Module module, Map<String, String> labels) {
-        return Arrays.asList(new DeploymentBuilder().withMetadata(buildDeploymentMeta(module, labels))
-            .withSpec(buildDeploymentSpec(module, labels))
-            .build());
+        ConfigMap configMap = buildConfigMap(descriptor, module, labels);
+        Deployment deployment = buildDeployment(descriptor, module, configMap, labels);
+        return Arrays.asList(configMap, deployment);
+    }
+
+    private ConfigMap buildConfigMap(DeploymentDescriptor descriptor, Module module, Map<String, String> labels) {
+        return new ConfigMapFactory(handler, propertiesAccessor).createFrom(descriptor, module, labels);
+    }
+
+    private Deployment buildDeployment(DeploymentDescriptor descriptor, Module module, ConfigMap configMap, Map<String, String> labels) {
+        return new DeploymentBuilder().withMetadata(buildDeploymentMeta(module, labels))
+            .withSpec(buildDeploymentSpec(module, configMap, labels))
+            .build();
     }
 
     private ObjectMeta buildDeploymentMeta(Module module, Map<String, String> labels) {
@@ -79,13 +98,13 @@ public class DeploymentFactory implements ResourceFactory {
             .build();
     }
 
-    private DeploymentSpec buildDeploymentSpec(Module module, Map<String, String> labels) {
+    private DeploymentSpec buildDeploymentSpec(Module module, ConfigMap configMap, Map<String, String> labels) {
         return new DeploymentSpecBuilder().withReplicas(getReplicas(module))
             .withSelector(buildSelector(module, labels))
             .withStrategy(buildStrategy(module))
             .withRevisionHistoryLimit(REVISION_HISTORY_LIMIT)
             .withProgressDeadlineSeconds(PROGRESS_DEADLINE_IN_SECONDS)
-            .withTemplate(buildPodTemplate(module, labels))
+            .withTemplate(buildPodTemplate(module, configMap, labels))
             .build();
     }
 
@@ -108,9 +127,9 @@ public class DeploymentFactory implements ResourceFactory {
             .build();
     }
 
-    private PodTemplateSpec buildPodTemplate(Module module, Map<String, String> labels) {
+    private PodTemplateSpec buildPodTemplate(Module module, ConfigMap configMap, Map<String, String> labels) {
         return new PodTemplateSpecBuilder().withMetadata(buildPodMeta(module, labels))
-            .withSpec(buildPodSpec(module))
+            .withSpec(buildPodSpec(module, configMap))
             .build();
     }
 
@@ -120,8 +139,8 @@ public class DeploymentFactory implements ResourceFactory {
             .build();
     }
 
-    private PodSpec buildPodSpec(Module module) {
-        return new PodSpecBuilder().addAllToContainers(buildContainer(module))
+    private PodSpec buildPodSpec(Module module, ConfigMap configMap) {
+        return new PodSpecBuilder().addAllToContainers(buildContainers(module, configMap))
             .withRestartPolicy(RESTART_POLICY)
             .withDnsPolicy(DNS_POLICY)
             .withTerminationGracePeriodSeconds(TERMINATION_GRACE_PERIOD_IN_SECONDS)
@@ -129,7 +148,7 @@ public class DeploymentFactory implements ResourceFactory {
             .build();
     }
 
-    private List<Container> buildContainer(Module module) {
+    private List<Container> buildContainers(Module module, ConfigMap configMap) {
         // TODO: Allow users to specify more than one container.
         return Arrays.asList(new ContainerBuilder().withName(module.getName())
             .withImage(getImage(module))
@@ -137,6 +156,7 @@ public class DeploymentFactory implements ResourceFactory {
             .withTerminationMessagePath(TERMINATION_MESSAGE_PATH)
             .withTerminationMessagePolicy(TERMINATION_MESSAGE_POLICY)
             .withImagePullPolicy(IMAGE_PULL_POLICY)
+            .withEnvFrom(buildEnvSource(configMap))
             .build());
     }
 
@@ -154,6 +174,18 @@ public class DeploymentFactory implements ResourceFactory {
             throw new ContentException(CONTAINER_IMAGE_FOR_MODULE_0_IS_NOT_SPECIFIED, module.getName());
         }
         return image;
+    }
+
+    private EnvFromSource buildEnvSource(ConfigMap configMap) {
+        return new EnvFromSourceBuilder().withConfigMapRef(buildConfigMapEnvSource(configMap))
+            .build();
+    }
+
+    private ConfigMapEnvSource buildConfigMapEnvSource(ConfigMap configMap) {
+        String configMapName = configMap.getMetadata()
+            .getName();
+        return new ConfigMapEnvSourceBuilder().withName(configMapName)
+            .build();
     }
 
 }
