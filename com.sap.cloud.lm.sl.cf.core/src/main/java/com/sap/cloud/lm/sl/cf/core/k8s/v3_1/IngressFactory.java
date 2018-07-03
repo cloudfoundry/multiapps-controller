@@ -1,18 +1,18 @@
 package com.sap.cloud.lm.sl.cf.core.k8s.v3_1;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.k8s.ResourceTypes;
-import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.ParametersContainer;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Module;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
@@ -20,7 +20,6 @@ import io.fabric8.kubernetes.api.model.extensions.HTTPIngressPath;
 import io.fabric8.kubernetes.api.model.extensions.HTTPIngressPathBuilder;
 import io.fabric8.kubernetes.api.model.extensions.HTTPIngressRuleValue;
 import io.fabric8.kubernetes.api.model.extensions.HTTPIngressRuleValueBuilder;
-import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.api.model.extensions.IngressBackend;
 import io.fabric8.kubernetes.api.model.extensions.IngressBackendBuilder;
 import io.fabric8.kubernetes.api.model.extensions.IngressBuilder;
@@ -29,7 +28,7 @@ import io.fabric8.kubernetes.api.model.extensions.IngressRuleBuilder;
 import io.fabric8.kubernetes.api.model.extensions.IngressSpec;
 import io.fabric8.kubernetes.api.model.extensions.IngressSpecBuilder;
 
-public class IngressesCloudModelBuilder {
+public class IngressFactory implements ResourceFactory {
 
     private static final String PARAMETER_0_FROM_MODULE_1_HAS_AN_INVALID_TYPE_EXPECTED_2_ACTUAL_3 = "Parameter \"{0}\" from module \"{1}\" has an invalid type. Expected: {2}, Actual: {3}";
 
@@ -37,40 +36,24 @@ public class IngressesCloudModelBuilder {
 
     private final PropertiesAccessor propertiesAccessor;
 
-    public IngressesCloudModelBuilder(PropertiesAccessor propertiesAccessor) {
+    public IngressFactory(PropertiesAccessor propertiesAccessor) {
         this.propertiesAccessor = propertiesAccessor;
     }
 
-    // FIXME: Reduce code duplication with DeploymentsCloudModelBuilder.
-    public List<Ingress> build(DeploymentDescriptor descriptor) {
-        List<Ingress> result = new ArrayList<>();
-        for (Module module : descriptor.getModules3_1()) {
-            ListUtil.addNonNull(result, buildIfDeployment(module));
-        }
-        return result;
+    @Override
+    public List<String> getSupportedResourceTypes() {
+        return Arrays.asList(ResourceTypes.DEPLOYMENT);
     }
 
-    private Ingress buildIfDeployment(Module module) {
-        if (!isDeployment(module)) {
-            return null;
-        }
-        return build(module);
-    }
-
-    private boolean isDeployment(Module module) {
-        Map<String, Object> moduleParameters = propertiesAccessor.getParameters((ParametersContainer) module);
-        String type = (String) moduleParameters.getOrDefault(SupportedParameters.TYPE, ResourceTypes.DEPLOYMENT);
-        return ResourceTypes.DEPLOYMENT.equals(type);
-    }
-
-    private Ingress build(Module module) {
+    @Override
+    public List<HasMetadata> createFrom(DeploymentDescriptor descriptor, Module module, Map<String, String> labels) {
         String route = getRoute(module);
         if (route == null) {
-            return null;
+            return Collections.emptyList();
         }
-        return new IngressBuilder().withMetadata(buildMeta(module))
+        return Arrays.asList(new IngressBuilder().withMetadata(buildMeta(module, labels))
             .withSpec(buildSpec(module, route))
-            .build();
+            .build());
     }
 
     private String getRoute(Module module) {
@@ -88,8 +71,9 @@ public class IngressesCloudModelBuilder {
         return (String) route;
     }
 
-    private ObjectMeta buildMeta(Module module) {
+    private ObjectMeta buildMeta(Module module, Map<String, String> labels) {
         return new ObjectMetaBuilder().withName(module.getName() + INGRESS_NAME_SUFFIX)
+            .withLabels(labels)
             .build();
     }
 
@@ -115,8 +99,8 @@ public class IngressesCloudModelBuilder {
     }
 
     private IngressBackend buildBackend(Module module) {
-        return new IngressBackendBuilder().withServiceName(module.getName() + ServicesCloudModelBuilder.SERVICE_NAME_SUFFIX)
-            .withServicePort(new IntOrString(DeploymentsCloudModelBuilder.DEFAULT_CONTAINER_PORT))
+        return new IngressBackendBuilder().withServiceName(module.getName() + ServiceFactory.SERVICE_NAME_SUFFIX)
+            .withServicePort(new IntOrString(DeploymentFactory.DEFAULT_CONTAINER_PORT))
             .build();
     }
 

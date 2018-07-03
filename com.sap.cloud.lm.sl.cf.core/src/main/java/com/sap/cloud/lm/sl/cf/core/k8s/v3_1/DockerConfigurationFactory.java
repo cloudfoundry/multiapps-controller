@@ -10,14 +10,14 @@ import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.ParametersContainer;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Resource;
 
-public class DockerConfigurationCloudModelBuilder {
+public class DockerConfigurationFactory {
 
     private static final String PARAMETER_0_IS_MISSING_FROM_RESOURCE_1 = "Parameter \"{0}\" is missing from resource \"{1}\".";
     private static final String PARAMETER_0_FROM_RESOURCE_1_HAS_AN_INVALID_TYPE_EXPECTED_2_ACTUAL_3 = "Parameter \"{0}\" from resource \"{1}\" has an invalid type. Expected: {2}, Actual: {3}";
 
     private final PropertiesAccessor propertiesAccessor;
 
-    public DockerConfigurationCloudModelBuilder(PropertiesAccessor propertiesAccessor) {
+    public DockerConfigurationFactory(PropertiesAccessor propertiesAccessor) {
         this.propertiesAccessor = propertiesAccessor;
     }
 

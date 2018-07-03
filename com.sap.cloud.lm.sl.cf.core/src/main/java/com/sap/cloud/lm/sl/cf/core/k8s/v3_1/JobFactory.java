@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.k8s.v3_1;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -8,16 +7,14 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.k8s.Labels;
 import com.sap.cloud.lm.sl.cf.core.k8s.ResourceTypes;
-import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.ParametersContainer;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Module;
 
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
-import io.fabric8.kubernetes.api.model.Job;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.JobBuilder;
 import io.fabric8.kubernetes.api.model.JobSpec;
 import io.fabric8.kubernetes.api.model.JobSpecBuilder;
@@ -28,7 +25,7 @@ import io.fabric8.kubernetes.api.model.PodSpecBuilder;
 import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
 
-public class JobsCloudModelBuilder {
+public class JobFactory implements ResourceFactory {
 
     private static final String CONTAINER_IMAGE_FOR_MODULE_0_IS_NOT_SPECIFIED = "Container image for module \"{0}\" is not specified. Use the \"container-image\" parameter to do so.";
 
@@ -36,68 +33,44 @@ public class JobsCloudModelBuilder {
 
     private final PropertiesAccessor propertiesAccessor;
 
-    public JobsCloudModelBuilder(PropertiesAccessor propertiesAccessor) {
+    public JobFactory(PropertiesAccessor propertiesAccessor) {
         this.propertiesAccessor = propertiesAccessor;
     }
 
-    public List<Job> build(DeploymentDescriptor descriptor) {
-        List<Job> result = new ArrayList<>();
-        for (Module module : descriptor.getModules3_1()) {
-            ListUtil.addNonNull(result, buildIfJob(module));
-        }
-        return result;
+    @Override
+    public List<String> getSupportedResourceTypes() {
+        return Arrays.asList(ResourceTypes.JOB);
+    }
+    
+    @Override
+    public List<HasMetadata> createFrom(DeploymentDescriptor descriptor, Module module, Map<String, String> labels) {
+        return Arrays.asList(new JobBuilder().withMetadata(buildMeta(module, labels))
+            .withSpec(buildSpec(module, labels))
+            .build());
     }
 
-    private Job buildIfJob(Module module) {
-        if (!isJob(module)) {
-            return null;
-        }
-        return build(module);
-    }
-
-    private boolean isJob(Module module) {
-        Map<String, Object> moduleParameters = propertiesAccessor.getParameters((ParametersContainer) module);
-        String type = (String) moduleParameters.get(SupportedParameters.TYPE);
-        return ResourceTypes.JOB.equals(type);
-    }
-
-    private Job build(Module module) {
-        return new JobBuilder().withMetadata(buildMeta(module))
-            .withSpec(buildSpec(module))
-            .build();
-    }
-
-    private ObjectMeta buildMeta(Module module) {
+    private ObjectMeta buildMeta(Module module, Map<String, String> labels) {
         return new ObjectMetaBuilder().withName(module.getName())
-            .addToLabels(Labels.APP, module.getName())
+            .withLabels(labels)
             .build();
     }
 
-    private JobSpec buildSpec(Module module) {
-        return new JobSpecBuilder().withTemplate(buildPodTemplate(module))
+    private JobSpec buildSpec(Module module, Map<String, String> labels) {
+        return new JobSpecBuilder().withTemplate(buildPodTemplate(module, labels))
             .build();
     }
 
     // FIXME: Reduce the code duplication between this class and DeploymentsCloudModelBuilder.
-    private PodTemplateSpec buildPodTemplate(Module module) {
-        return new PodTemplateSpecBuilder().withMetadata(buildPodMeta(module))
+    private PodTemplateSpec buildPodTemplate(Module module, Map<String, String> labels) {
+        return new PodTemplateSpecBuilder().withMetadata(buildPodMeta(module, labels))
             .withSpec(buildPodSpec(module))
             .build();
     }
 
-    private ObjectMeta buildPodMeta(Module module) {
+    private ObjectMeta buildPodMeta(Module module, Map<String, String> labels) {
         return new ObjectMetaBuilder().addToLabels(Labels.RELEASE, Labels.RELEASE_VALUE)
-            .addToLabels(Labels.APP, getAppLabelValue(module))
-            .addToLabels(Labels.RUN, getRunLabelValue(module))
+            .withLabels(labels)
             .build();
-    }
-
-    private String getAppLabelValue(Module module) {
-        return module.getName();
-    }
-
-    private String getRunLabelValue(Module module) {
-        return module.getName() + Labels.RUN_SUFFIX;
     }
 
     private PodSpec buildPodSpec(Module module) {

@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.k8s.v3_1;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -10,63 +10,52 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.k8s.ResourceTypes;
 import com.sap.cloud.lm.sl.cf.core.k8s.model.DockerConfiguration;
-import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
-import com.sap.cloud.lm.sl.mta.model.ParametersContainer;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Resource;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
 
-public class DockerSecretsCloudModelBuilder {
+public class DockerSecretFactory implements ResourceFactory {
 
     private static final String DOCKER_IMAGE_SECRET_TYPE = "kubernetes.io/dockerconfigjson";
     private static final String DOCKER_IMAGE_SECRET_KEY = ".dockerconfigjson";
 
     private final PropertiesAccessor propertiesAccessor;
 
-    public DockerSecretsCloudModelBuilder(PropertiesAccessor propertiesAccessor) {
+    public DockerSecretFactory(PropertiesAccessor propertiesAccessor) {
         this.propertiesAccessor = propertiesAccessor;
     }
 
-    public List<Secret> build(DeploymentDescriptor descriptor) {
-        List<Secret> result = new ArrayList<>();
-        for (Resource resource : descriptor.getResources3_1()) {
-            ListUtil.addNonNull(result, buildIfDockerSecret(resource));
-        }
-        return result;
+    @Override
+    public List<String> getSupportedResourceTypes() {
+        return Arrays.asList(ResourceTypes.DOCKER_SECRET);
     }
 
-    private Secret buildIfDockerSecret(Resource resource) {
-        if (!isDockerSecret(resource)) {
-            return null;
-        }
+    @Override
+    public List<HasMetadata> createFrom(DeploymentDescriptor descriptor, Resource resource, Map<String, String> labels) {
         DockerConfiguration dockerConfiguration = buildDockerConfiguration(resource);
-        return build(resource, dockerConfiguration);
-    }
-
-    private boolean isDockerSecret(Resource resource) {
-        Map<String, Object> resourceParameters = propertiesAccessor.getParameters((ParametersContainer) resource);
-        return ResourceTypes.DOCKER_SECRET.equals(resourceParameters.get(SupportedParameters.TYPE));
+        return Arrays.asList(build(resource, dockerConfiguration, labels));
     }
 
     private DockerConfiguration buildDockerConfiguration(Resource resource) {
-        return new DockerConfigurationCloudModelBuilder(propertiesAccessor).build(resource);
+        return new DockerConfigurationFactory(propertiesAccessor).build(resource);
     }
 
-    private Secret build(Resource resource, DockerConfiguration dockerConfiguration) {
-        return new SecretBuilder().withMetadata(buildSecretMeta(resource))
+    private Secret build(Resource resource, DockerConfiguration dockerConfiguration, Map<String, String> labels) {
+        return new SecretBuilder().withMetadata(buildSecretMeta(resource, labels))
             .withType(DOCKER_IMAGE_SECRET_TYPE)
             .withData(buildSecretData(dockerConfiguration))
             .build();
     }
 
-    private ObjectMeta buildSecretMeta(Resource resource) {
+    private ObjectMeta buildSecretMeta(Resource resource, Map<String, String> labels) {
         return new ObjectMetaBuilder().withName(resource.getName())
+            .withLabels(labels)
             .build();
     }
 

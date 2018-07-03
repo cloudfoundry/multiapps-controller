@@ -9,22 +9,12 @@ import org.yaml.snakeyaml.Yaml;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.k8s.KubernetesModelRepresenter;
-import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.ConfigMapsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.DeploymentsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.DockerSecretsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.IngressesCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.JobsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.ServicesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.ResourceFactoriesFacade;
+import com.sap.cloud.lm.sl.mta.handlers.v3_1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 
-import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.Job;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.extensions.Deployment;
-import io.fabric8.kubernetes.api.model.extensions.Ingress;
 
 @Component("buildKubernetesCloudModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -35,19 +25,9 @@ public class BuildKubernetesCloudModelStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         DeploymentDescriptor deploymentDescriptor = (DeploymentDescriptor) StepsUtil.getDeploymentDescriptor(execution.getContext());
-        PropertiesAccessor propertiesAccessor = new PropertiesAccessor();
-        List<Job> jobs = new JobsCloudModelBuilder(propertiesAccessor).build(deploymentDescriptor);
-        showKubernetesResourcesAsYaml(jobs);
-        List<Deployment> deployments = new DeploymentsCloudModelBuilder(propertiesAccessor).build(deploymentDescriptor);
-        showKubernetesResourcesAsYaml(deployments);
-        List<ConfigMap> configMaps = new ConfigMapsCloudModelBuilder().build(deploymentDescriptor);
-        showKubernetesResourcesAsYaml(configMaps);
-        List<Secret> secrets = new DockerSecretsCloudModelBuilder(propertiesAccessor).build(deploymentDescriptor);
-        showKubernetesResourcesAsYaml(secrets);
-        List<Service> services = new ServicesCloudModelBuilder(propertiesAccessor).build(deploymentDescriptor);
-        showKubernetesResourcesAsYaml(services);
-        List<Ingress> ingresses = new IngressesCloudModelBuilder(propertiesAccessor).build(deploymentDescriptor);
-        showKubernetesResourcesAsYaml(ingresses);
+        ResourceFactoriesFacade resourceFactoriesFacade = new ResourceFactoriesFacade(new DescriptorHandler(), new PropertiesAccessor());
+        List<? extends HasMetadata> kubernetesResources = resourceFactoriesFacade.createFrom(deploymentDescriptor);
+        showKubernetesResourcesAsYaml(kubernetesResources);
         return StepPhase.DONE;
     }
 
