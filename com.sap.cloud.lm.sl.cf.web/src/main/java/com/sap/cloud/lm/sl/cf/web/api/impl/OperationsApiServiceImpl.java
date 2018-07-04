@@ -167,8 +167,8 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Operation operation = dao.findRequired(operationId);
         if (!operation.getSpaceId()
             .equals(spaceId)) {
-            LOGGER.info(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_SPACE_MISMATCH, operationId, operation.getSpaceId(),
-                spaceId);
+            LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_SPACE_MISMATCH, operationId,
+                operation.getSpaceId(), spaceId));
             throw new NotFoundException(com.sap.cloud.lm.sl.cf.core.message.Messages.OPERATION_NOT_FOUND, operationId);
         }
         operationsHelper.addState(operation);
