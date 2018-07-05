@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -27,16 +28,21 @@ public class BuildKubernetesCloudModelStep extends SyncActivitiStep {
         DeploymentDescriptor deploymentDescriptor = (DeploymentDescriptor) StepsUtil.getDeploymentDescriptor(execution.getContext());
         ResourceFactoriesFacade resourceFactoriesFacade = new ResourceFactoriesFacade(new DescriptorHandler(), new PropertiesAccessor());
         List<? extends HasMetadata> kubernetesResources = resourceFactoriesFacade.createFrom(deploymentDescriptor);
-        showKubernetesResourcesAsYaml(kubernetesResources);
+        showKubernetesResourcesAsYaml(execution, kubernetesResources);
         return StepPhase.DONE;
     }
 
-    private void showKubernetesResourcesAsYaml(List<? extends HasMetadata> resources) {
+    private void showKubernetesResourcesAsYaml(ExecutionWrapper execution, List<? extends HasMetadata> resources) {
         for (HasMetadata resource : resources) {
             ObjectMeta resourceMetadata = resource.getMetadata();
-            getStepLogger().info("----------------- " + resourceMetadata.getName() + ".yaml -----------------");
-            getStepLogger().info(yaml.dumpAsMap(resource));
+            Logger logger = createLogger(execution, resourceMetadata.getName() + ".yaml");
+            logger.info(yaml.dumpAsMap(resource));
         }
+    }
+
+    private Logger createLogger(ExecutionWrapper execution, String fileName) {
+        return getProcessLoggerProvider().getLoggerProvider(fileName)
+            .getLogger(StepsUtil.getCorrelationId(execution.getContext()), "com.sap.cloud.lm.sl.xs2", fileName);
     }
 
 }

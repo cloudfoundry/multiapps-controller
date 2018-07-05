@@ -48,7 +48,7 @@ public class DockerConfigurationFactory {
     private DockerConfiguration buildDockerConfigurationFromParameters(Map<String, Object> parameters) {
         String registry = (String) parameters.get(SupportedParameters.ContainerImageCredentialsSchema.REGISTRY);
         String username = (String) parameters.get(SupportedParameters.ContainerImageCredentialsSchema.USERNAME);
-        String password = (String) parameters.get(SupportedParameters.ContainerImageCredentialsSchema.REGISTRY);
+        String password = (String) parameters.get(SupportedParameters.ContainerImageCredentialsSchema.PASSWORD);
         DockerRegistryCredentials registryCredentials = new DockerRegistryCredentials(username, password);
         return new DockerConfiguration.Builder().addCredentialsForRepository(registry, registryCredentials)
             .build();

@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,8 @@ import io.fabric8.kubernetes.api.model.SecretBuilder;
 
 public class DockerSecretFactory implements ResourceFactory {
 
+    private static final String DOCKER_CONFIGURATION_FILE_AUTHENTICATION_KEY = "auths";
+    
     private static final String DOCKER_IMAGE_SECRET_TYPE = "kubernetes.io/dockerconfigjson";
     private static final String DOCKER_IMAGE_SECRET_KEY = ".dockerconfigjson";
 
@@ -66,9 +69,9 @@ public class DockerSecretFactory implements ResourceFactory {
     }
 
     private String getBase64EncodedDockerConfiguration(DockerConfiguration dockerConfiguration) {
-        String dockerConfigurationJson = JsonUtil.toJson(dockerConfiguration, true);
-        byte[] encodedDockerConfiguration = Base64.getEncoder()
-            .encode(dockerConfigurationJson.getBytes(StandardCharsets.UTF_8));
+        String dockerConfigurationJson = JsonUtil.toJson(dockerConfiguration.toMap(), true);
+        Base64.Encoder encoder = Base64.getEncoder();
+        byte[] encodedDockerConfiguration = encoder.encode(dockerConfigurationJson.getBytes(StandardCharsets.UTF_8));
         return new String(encodedDockerConfiguration, StandardCharsets.UTF_8);
     }
 

@@ -1,9 +1,11 @@
 package com.sap.cloud.lm.sl.cf.core.k8s.v3_1;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sap.cloud.lm.sl.cf.core.k8s.Labels;
 import com.sap.cloud.lm.sl.cf.core.k8s.ResourceTypes;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Module;
@@ -30,7 +32,7 @@ public class ServiceFactory implements ResourceFactory {
     @Override
     public List<HasMetadata> createFrom(DeploymentDescriptor descriptor, Module module, Map<String, String> labels) {
         return Arrays.asList(new ServiceBuilder().withMetadata(buildMeta(module, labels))
-            .withSpec(buildSpec(module))
+            .withSpec(buildSpec(module, labels))
             .build());
     }
 
@@ -40,16 +42,24 @@ public class ServiceFactory implements ResourceFactory {
             .build();
     }
 
-    private ServiceSpec buildSpec(Module module) {
+    private ServiceSpec buildSpec(Module module, Map<String, String> labels) {
         // FIXME: Allow users to specify custom service types and ports.
         return new ServiceSpecBuilder().withType(DEFAULT_SERVICE_TYPE)
             .addToPorts(buildDefaultServicePort())
+            .withSelector(buildSelector(labels))
             .build();
     }
 
     private ServicePort buildDefaultServicePort() {
         return new ServicePortBuilder().withPort(DeploymentFactory.DEFAULT_CONTAINER_PORT)
+            .withProtocol(DeploymentFactory.DEFAULT_PROTOCOL)
             .build();
+    }
+
+    private Map<String, String> buildSelector(Map<String, String> labels) {
+        Map<String, String> result = new LinkedHashMap<>();
+        result.put(Labels.APP, labels.get(Labels.APP));
+        return result;
     }
 
 }

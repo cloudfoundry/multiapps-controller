@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.k8s.v3_1;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ import com.sap.cloud.lm.sl.mta.handlers.v3_1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.ParametersContainer;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Module;
+import com.sap.cloud.lm.sl.mta.model.v3_1.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.v3_1.Resource;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapEnvSource;
@@ -27,6 +30,7 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
+import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.PodSpec;
@@ -60,7 +64,7 @@ public class DeploymentFactory implements ResourceFactory {
     private static final String TERMINATION_MESSAGE_POLICY = "File";
     private static final String IMAGE_PULL_POLICY = "Always";
     static final Integer DEFAULT_CONTAINER_PORT = 8080;
-    private static final String DEFAULT_PROTOCOL = "TCP";
+    static final String DEFAULT_PROTOCOL = "TCP";
 
     private final DescriptorHandler handler;
     private final PropertiesAccessor propertiesAccessor;
@@ -88,7 +92,7 @@ public class DeploymentFactory implements ResourceFactory {
 
     private Deployment buildDeployment(DeploymentDescriptor descriptor, Module module, ConfigMap configMap, Map<String, String> labels) {
         return new DeploymentBuilder().withMetadata(buildDeploymentMeta(module, labels))
-            .withSpec(buildDeploymentSpec(module, configMap, labels))
+            .withSpec(buildDeploymentSpec(descriptor, module, configMap, labels))
             .build();
     }
 
@@ -98,13 +102,14 @@ public class DeploymentFactory implements ResourceFactory {
             .build();
     }
 
-    private DeploymentSpec buildDeploymentSpec(Module module, ConfigMap configMap, Map<String, String> labels) {
+    private DeploymentSpec buildDeploymentSpec(DeploymentDescriptor descriptor, Module module, ConfigMap configMap,
+        Map<String, String> labels) {
         return new DeploymentSpecBuilder().withReplicas(getReplicas(module))
             .withSelector(buildSelector(module, labels))
             .withStrategy(buildStrategy(module))
             .withRevisionHistoryLimit(REVISION_HISTORY_LIMIT)
             .withProgressDeadlineSeconds(PROGRESS_DEADLINE_IN_SECONDS)
-            .withTemplate(buildPodTemplate(module, configMap, labels))
+            .withTemplate(buildPodTemplate(descriptor, module, configMap, labels))
             .build();
     }
 
@@ -127,9 +132,10 @@ public class DeploymentFactory implements ResourceFactory {
             .build();
     }
 
-    private PodTemplateSpec buildPodTemplate(Module module, ConfigMap configMap, Map<String, String> labels) {
+    private PodTemplateSpec buildPodTemplate(DeploymentDescriptor descriptor, Module module, ConfigMap configMap,
+        Map<String, String> labels) {
         return new PodTemplateSpecBuilder().withMetadata(buildPodMeta(module, labels))
-            .withSpec(buildPodSpec(module, configMap))
+            .withSpec(buildPodSpec(descriptor, module, configMap))
             .build();
     }
 
@@ -139,12 +145,13 @@ public class DeploymentFactory implements ResourceFactory {
             .build();
     }
 
-    private PodSpec buildPodSpec(Module module, ConfigMap configMap) {
+    private PodSpec buildPodSpec(DeploymentDescriptor descriptor, Module module, ConfigMap configMap) {
         return new PodSpecBuilder().addAllToContainers(buildContainers(module, configMap))
             .withRestartPolicy(RESTART_POLICY)
             .withDnsPolicy(DNS_POLICY)
             .withTerminationGracePeriodSeconds(TERMINATION_GRACE_PERIOD_IN_SECONDS)
             .withSchedulerName(SCHEDULER_NAME)
+            .withImagePullSecrets(buildImagePullSecrets(descriptor, module))
             .build();
     }
 
@@ -186,6 +193,22 @@ public class DeploymentFactory implements ResourceFactory {
             .getName();
         return new ConfigMapEnvSourceBuilder().withName(configMapName)
             .build();
+    }
+
+    private List<LocalObjectReference> buildImagePullSecrets(DeploymentDescriptor descriptor, Module module) {
+        List<LocalObjectReference> imagePullSecrets = new ArrayList<>();
+        for (RequiredDependency requiredDependency : module.getRequiredDependencies3_1()) {
+            Resource resource = (Resource) handler.findResource(descriptor, requiredDependency.getName());
+            if (resource == null) {
+                continue;
+            }
+            Map<String, Object> resourceParameters = propertiesAccessor.getParameters((ParametersContainer) resource);
+            String resourceType = (String) resourceParameters.get(SupportedParameters.TYPE);
+            if (ResourceTypes.DOCKER_SECRET.equals(resourceType)) {
+                imagePullSecrets.add(new LocalObjectReference(resource.getName()));
+            }
+        }
+        return imagePullSecrets;
     }
 
 }
