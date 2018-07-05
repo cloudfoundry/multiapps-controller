@@ -100,8 +100,15 @@ public class IngressFactory implements ResourceFactory {
 
     private IngressBackend buildBackend(Module module) {
         return new IngressBackendBuilder().withServiceName(module.getName() + ServiceFactory.SERVICE_NAME_SUFFIX)
-            .withServicePort(new IntOrString(DeploymentFactory.DEFAULT_CONTAINER_PORT))
+            .withServicePort(new IntOrString(getContainerPort(module)))
             .build();
+    }
+
+    private Integer getContainerPort(Module module) {
+        Map<String, Object> moduleParameters = propertiesAccessor.getParameters((ParametersContainer) module);
+        // TODO: Validate the type of the value before casting it:
+        return (Integer) moduleParameters.getOrDefault(com.sap.cloud.lm.sl.cf.core.k8s.SupportedParameters.CONTAINER_PORT,
+            DeploymentFactory.DEFAULT_CONTAINER_PORT);
     }
 
 }

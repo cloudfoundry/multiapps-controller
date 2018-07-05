@@ -169,9 +169,16 @@ public class DeploymentFactory implements ResourceFactory {
 
     private List<ContainerPort> buildPorts(Module module) {
         // TODO: Allow users to specify custom container ports.
-        return Arrays.asList(new ContainerPortBuilder().withContainerPort(DEFAULT_CONTAINER_PORT)
+        return Arrays.asList(new ContainerPortBuilder().withContainerPort(getContainerPort(module))
             .withProtocol(DEFAULT_PROTOCOL)
             .build());
+    }
+
+    private Integer getContainerPort(Module module) {
+        Map<String, Object> moduleParameters = propertiesAccessor.getParameters((ParametersContainer) module);
+        // TODO: Validate the type of the value before casting it:
+        return (Integer) moduleParameters.getOrDefault(com.sap.cloud.lm.sl.cf.core.k8s.SupportedParameters.CONTAINER_PORT,
+            DEFAULT_CONTAINER_PORT);
     }
 
     private String getImage(Module module) {

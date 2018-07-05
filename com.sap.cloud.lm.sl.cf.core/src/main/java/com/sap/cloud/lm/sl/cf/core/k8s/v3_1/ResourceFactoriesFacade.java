@@ -33,7 +33,7 @@ public class ResourceFactoriesFacade {
         resourceFactories.add(new JobFactory(handler, propertiesAccessor));
         resourceFactories.add(new DockerSecretFactory(propertiesAccessor));
         resourceFactories.add(new IngressFactory(propertiesAccessor));
-        resourceFactories.add(new ServiceFactory());
+        resourceFactories.add(new ServiceFactory(propertiesAccessor));
         return resourceFactories;
     }
 
