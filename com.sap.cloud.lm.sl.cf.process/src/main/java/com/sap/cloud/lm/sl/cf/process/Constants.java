@@ -7,6 +7,7 @@ public class Constants {
     public static final String DEPLOY_SERVICE_ID = "xs2-deploy";
     public static final String BLUE_GREEN_DEPLOY_SERVICE_ID = "xs2-bg-deploy";
     public static final String UNDEPLOY_SERVICE_ID = "xs2-undeploy";
+    public static final String CTS_DEPLOY_SERVICE_ID = "CTS_DEPLOY";
     public static final String DEPLOY_APP_SUB_PROCESS_ID = "deployAppSubProcess";
     public static final String SERVICE_VERSION_1_2 = "1.2";
     public static final String SERVICE_VERSION_1_1 = "1.1";
@@ -38,6 +39,14 @@ public class Constants {
     public static final String PARAM_GIT_SKIP_SSL = "gitSkipSsl";
     public static final String PARAM_NO_FAIL_ON_MISSING_PERMISSIONS = "noFailOnMissingPermissions";
     public static final String PARAM_ABORT_ON_ERROR = "abortOnError";
+    public static final String PARAM_CTS_PROCESS_ID = "ctsProcessId";
+    public static final String PARAM_FILE_LIST = "fileList";
+    public static final String PARAM_DEPLOY_URI = "deployUri";
+    public static final String PARAM_USERNAME = "userId";
+    public static final String PARAM_PASSWORD = "password";
+    public static final String PARAM_APPLICATION_TYPE = "applType";
+    public static final String PARAM_TRANSFER_TYPE = "transferType";
+    public static final String PARAM_GIT_REPOSITORY_LIST = "gitRepositoryList";
 
     public static final String VAR_USER = "user";
 
