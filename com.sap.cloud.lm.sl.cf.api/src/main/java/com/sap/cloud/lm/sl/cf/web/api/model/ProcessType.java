@@ -9,11 +9,13 @@ public class ProcessType {
     private static final String BLUE_GREEN_DEPLOY_NAME = "BLUE_GREEN_DEPLOY";
     private static final String UNDEPLOY_NAME = "UNDEPLOY";
     private static final String KUBERNETES_DEPLOY_NAME = "KUBERNETES_DEPLOY";
+    private static final String KUBERNETES_UNDEPLOY_NAME = "KUBERNETES_UNDEPLOY";
 
     public static final ProcessType DEPLOY = new ProcessType(DEPLOY_NAME);
     public static final ProcessType BLUE_GREEN_DEPLOY = new ProcessType(BLUE_GREEN_DEPLOY_NAME);
     public static final ProcessType UNDEPLOY = new ProcessType(UNDEPLOY_NAME);
     public static final ProcessType KUBERNETES_DEPLOY = new ProcessType(KUBERNETES_DEPLOY_NAME);
+    public static final ProcessType KUBERNETES_UNDEPLOY = new ProcessType(KUBERNETES_UNDEPLOY_NAME);
 
     private String name;
 
@@ -75,6 +77,8 @@ public class ProcessType {
                 return UNDEPLOY;
             case KUBERNETES_DEPLOY_NAME:
                 return KUBERNETES_DEPLOY;
+            case KUBERNETES_UNDEPLOY_NAME:
+                return KUBERNETES_UNDEPLOY;
             default:
                 throw new IllegalStateException("Illegal process type: " + name);
         }

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="k8s-undeploy" name="Kubernetes Undeploy Activiti Process" isExecutable="true">
+    <extensionElements>
+      <activiti:eventListener events="ENTITY_DELETED" entityType="process-instance" delegateExpression="${abortProcessListener}"></activiti:eventListener>
+      <activiti:eventListener events="JOB_EXECUTION_FAILURE" delegateExpression="${errorProcessListener}"></activiti:eventListener>
+    </extensionElements>
+    <endEvent id="endEvent" name="End">
+      <extensionElements>
+        <activiti:executionListener event="end" delegateExpression="${endProcessListener}"></activiti:executionListener>
+      </extensionElements>
+    </endEvent>
+    <startEvent id="startevent1" name="Start">
+      <extensionElements>
+        <activiti:executionListener event="start" delegateExpression="${startProcessListener}"></activiti:executionListener>
+      </extensionElements>
+    </startEvent>
+    <serviceTask id="deleteHelmRelease" name="Delete Helm Release" activiti:async="true" activiti:delegateExpression="${deleteHelmReleaseStep}"></serviceTask>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="deleteHelmRelease"></sequenceFlow>
+    <sequenceFlow id="flow2" sourceRef="deleteHelmRelease" targetRef="endEvent"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_k8s-undeploy">
+    <bpmndi:BPMNPlane bpmnElement="k8s-undeploy" id="BPMNPlane_k8s-undeploy">
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="35.0" width="35.0" x="330.0" y="50.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="30.0" y="50.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="deleteHelmRelease" id="BPMNShape_deleteHelmRelease">
+        <omgdc:Bounds height="55.0" width="105.0" x="140.0" y="40.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="65.0" y="67.0"></omgdi:waypoint>
+        <omgdi:waypoint x="140.0" y="67.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="245.0" y="67.0"></omgdi:waypoint>
+        <omgdi:waypoint x="330.0" y="67.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

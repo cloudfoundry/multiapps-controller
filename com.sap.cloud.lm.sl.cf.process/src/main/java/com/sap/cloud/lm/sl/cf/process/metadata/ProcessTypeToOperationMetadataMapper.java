@@ -22,6 +22,9 @@ public class ProcessTypeToOperationMetadataMapper {
         if (processType.equals(ProcessType.KUBERNETES_DEPLOY)) {
             return KubernetesDeployMetadata.getMetadata();
         }
+        if (processType.equals(ProcessType.KUBERNETES_UNDEPLOY)) {
+            return KubernetesUndeployMetadata.getMetadata();
+        }
         throw new SLException(Messages.UNSUPPORTED_PROCESS_TYPE, processType.toString());
     }
 

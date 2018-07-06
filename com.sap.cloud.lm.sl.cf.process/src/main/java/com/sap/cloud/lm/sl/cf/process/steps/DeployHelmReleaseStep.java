@@ -31,9 +31,9 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 
-@Component("deployHelmChartStep")
+@Component("deployHelmReleaseStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeployHelmChartStep extends SyncActivitiStep {
+public class DeployHelmReleaseStep extends SyncActivitiStep {
 
     private static final String KUBERNETES_CONFIGURATION_IS_NOT_SPECIFIED_IN_THE_ENVIRONMENT = "No Kubernetes configuration specified. Use the \"KUBERNETES_MASTER_URL\", \"KUBERNETES_USERNAME\", \"KUBERNETES_PASSWORD\" and \"KUBERNETES_NAMESPACE\" environment variables to do so.";
     private static final Integer HELM_RELEASE_OPERATION_TIMEOUT = 600;
