@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -14,7 +13,6 @@ import com.google.protobuf.ByteString;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.k8s.KubernetesModelRepresenter;
 import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.ResourceFactoriesFacade;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.handlers.v3_1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 
@@ -30,8 +28,10 @@ public class BuildHelmChartStep extends SyncActivitiStep {
 
     private final Yaml yaml = new Yaml(new KubernetesModelRepresenter());
 
+    static final String VAR_HELM_CHART = "helmChart";
+
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().info("Building helm chart...");
         DeploymentDescriptor deploymentDescriptor = (DeploymentDescriptor) StepsUtil.getDeploymentDescriptor(execution.getContext());
         ResourceFactoriesFacade resourceFactoriesFacade = new ResourceFactoriesFacade(new DescriptorHandler(), new PropertiesAccessor());
@@ -45,6 +45,8 @@ public class BuildHelmChartStep extends SyncActivitiStep {
                 .build())
             .addAllTemplates(asTemplates(kubernetesResources))
             .build();
+        execution.getContext()
+            .setVariable(VAR_HELM_CHART, chart.toByteArray());
         return StepPhase.DONE;
     }
 

@@ -94,6 +94,11 @@ public class ApplicationConfiguration {
     static final String CFG_MAIL_API_URL = "MAIL_API_URL";
     static final String CFG_CONTROLLER_OPERATIONS_TIMEOUT = "CFG_CONTROLLER_OPERATIONS_TIMEOUT";
 
+    static final String CFG_KUBERNETES_MASTER_URL = "KUBERNETES_MASTER_URL";
+    static final String CFG_KUBERNETES_USERNAME = "KUBERNETES_USERNAME";
+    static final String CFG_KUBERNETES_PASSWORD = "KUBERNETES_PASSWORD";
+    static final String CFG_KUBERNETES_NAMESPACE = "KUBERNETES_NAMESPACE";
+
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
     // Default values
@@ -193,6 +198,10 @@ public class ApplicationConfiguration {
     private Integer timeout;
     private String applicationId;
     private Integer applicationInstanceIndex;
+    private String kubernetesMasterUrl;
+    private String kubernetesUsername;
+    private String kubernetesPassword;
+    private String kubernetesNamespace;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -239,6 +248,10 @@ public class ApplicationConfiguration {
         getMailApiUrl();
         getApplicationId();
         getApplicationInstanceIndex();
+        getKubernetesMasterUrl();
+        getKubernetesUsername();
+        getKubernetesPassword();
+        getKubernetesNamespace();
     }
 
     public void logFullConfig() {
@@ -595,6 +608,34 @@ public class ApplicationConfiguration {
             applicationInstanceIndex = getApplicationInstanceIndexFromEnvironment();
         }
         return applicationInstanceIndex;
+    }
+
+    public String getKubernetesMasterUrl() {
+        if (kubernetesMasterUrl == null) {
+            kubernetesMasterUrl = getKubernetesMasterUrlFromEnvironment();
+        }
+        return kubernetesMasterUrl;
+    }
+
+    public String getKubernetesUsername() {
+        if (kubernetesUsername == null) {
+            kubernetesUsername = getKubernetesUsernameFromEnvironment();
+        }
+        return kubernetesUsername;
+    }
+
+    public String getKubernetesPassword() {
+        if (kubernetesPassword == null) {
+            kubernetesPassword = getKubernetesPasswordFromEnvironment();
+        }
+        return kubernetesPassword;
+    }
+
+    public String getKubernetesNamespace() {
+        if (kubernetesNamespace == null) {
+            kubernetesNamespace = getKubernetesNamespaceFromEnvironment();
+        }
+        return kubernetesNamespace;
     }
 
     private PlatformType getPlatformTypeFromEnvironment() {
@@ -974,6 +1015,22 @@ public class ApplicationConfiguration {
         Integer applicationInstanceIndex = environment.getInteger("CF_INSTANCE_INDEX");
         LOGGER.info(format(Messages.APPLICATION_INSTANCE_INDEX, applicationInstanceIndex));
         return applicationInstanceIndex;
+    }
+
+    private String getKubernetesMasterUrlFromEnvironment() {
+        return environment.getString(CFG_KUBERNETES_MASTER_URL);
+    }
+
+    private String getKubernetesUsernameFromEnvironment() {
+        return environment.getString(CFG_KUBERNETES_USERNAME);
+    }
+
+    private String getKubernetesPasswordFromEnvironment() {
+        return environment.getString(CFG_KUBERNETES_PASSWORD);
+    }
+
+    private String getKubernetesNamespaceFromEnvironment() {
+        return environment.getString(CFG_KUBERNETES_NAMESPACE);
     }
 
     private String getCronExpression(String name, String defaultValue) {
