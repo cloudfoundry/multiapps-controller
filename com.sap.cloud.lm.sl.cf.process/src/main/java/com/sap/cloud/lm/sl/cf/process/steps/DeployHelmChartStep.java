@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -17,9 +18,15 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 import hapi.chart.ChartOuterClass.Chart;
+import hapi.release.InfoOuterClass.Info;
+import hapi.release.ReleaseOuterClass.Release;
 import hapi.release.StatusOuterClass.Status.Code;
 import hapi.services.tiller.Tiller.InstallReleaseRequest;
 import hapi.services.tiller.Tiller.InstallReleaseResponse;
+import hapi.services.tiller.Tiller.ListReleasesRequest;
+import hapi.services.tiller.Tiller.ListReleasesResponse;
+import hapi.services.tiller.Tiller.UpdateReleaseRequest;
+import hapi.services.tiller.Tiller.UpdateReleaseResponse;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -29,7 +36,7 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 public class DeployHelmChartStep extends SyncActivitiStep {
 
     private static final String KUBERNETES_CONFIGURATION_IS_NOT_SPECIFIED_IN_THE_ENVIRONMENT = "No Kubernetes configuration specified. Use the \"KUBERNETES_MASTER_URL\", \"KUBERNETES_USERNAME\", \"KUBERNETES_PASSWORD\" and \"KUBERNETES_NAMESPACE\" environment variables to do so.";
-    private static final Integer HELM_INSTALL_TIMEOUT = 600;
+    private static final Integer HELM_RELEASE_OPERATION_TIMEOUT = 600;
 
     @Inject
     private ApplicationConfiguration configuration;
@@ -37,13 +44,18 @@ public class DeployHelmChartStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws IOException, InterruptedException, ExecutionException {
         Chart chart = getChart(execution);
-        getStepLogger().info("Installing chart \"{0}\"...", chart.getMetadata()
-            .getName());
 
         DefaultKubernetesClient client = buildKubernetesClient();
         try (Tiller tiller = new Tiller(client); ReleaseManager releaseManager = new ReleaseManager(tiller)) {
-            Future<InstallReleaseResponse> releaseFuture = releaseManager.install(buildInstallReleaseRequest(chart), chart.toBuilder());
-            getStepLogger().info("Status: {0}", getStatusCode(releaseFuture));
+            Code releaseStatus = getReleaseStatus(releaseManager, chart);
+            getStepLogger().info("Current status: {0}", releaseStatus);
+            if (releaseStatus == Code.UNKNOWN) {
+                deploy(releaseManager, chart);
+            } else if (releaseStatus == Code.DEPLOYED) {
+                update(releaseManager, chart);
+            } else {
+                throw new UnsupportedOperationException("The current release status is not supported.");
+            }
         }
         return StepPhase.DONE;
     }
@@ -77,22 +89,76 @@ public class DeployHelmChartStep extends SyncActivitiStep {
         Assert.notNull(configuration.getKubernetesNamespace(), KUBERNETES_CONFIGURATION_IS_NOT_SPECIFIED_IN_THE_ENVIRONMENT);
     }
 
-    private InstallReleaseRequest.Builder buildInstallReleaseRequest(Chart chart) {
-        String releaseName = chart.getMetadata()
-            .getName();
-        InstallReleaseRequest.Builder releaseRequestBuilder = InstallReleaseRequest.newBuilder();
-        releaseRequestBuilder.setName(releaseName);
-        releaseRequestBuilder.setWait(true);
-        releaseRequestBuilder.setTimeout(HELM_INSTALL_TIMEOUT);
-        return releaseRequestBuilder;
+    private Code getReleaseStatus(ReleaseManager releaseManager, Chart chart) throws IOException, InterruptedException, ExecutionException {
+        Iterator<ListReleasesResponse> releasesIterator = releaseManager.list(buildListReleasesRequest());
+        while (releasesIterator.hasNext()) {
+            ListReleasesResponse releases = releasesIterator.next();
+            for (Release release : releases.getReleasesList()) {
+                getStepLogger().debug("Checking release \"{0}\" in namespace \"{1}\"...", release.getName(), release.getNamespace());
+                if (release.getName()
+                    .equals(getReleaseName(chart))) {
+                    Info info = release.getInfo();
+                    return getStatus(info);
+                }
+            }
+        }
+        return Code.UNKNOWN;
     }
 
-    private Code getStatusCode(Future<InstallReleaseResponse> releaseFuture) throws InterruptedException, ExecutionException {
-        return releaseFuture.get()
-            .getRelease()
-            .getInfo()
-            .getStatus()
+    private ListReleasesRequest buildListReleasesRequest() {
+        return ListReleasesRequest.newBuilder()
+            .setNamespace(configuration.getKubernetesNamespace())
+            .build();
+    }
+
+    private Code getStatus(Info info) {
+        return info.getStatus()
             .getCode();
+    }
+
+    private void deploy(ReleaseManager releaseManager, Chart chart) throws IOException, InterruptedException, ExecutionException {
+        getStepLogger().info("Installing release \"{0}\"...", getReleaseName(chart));
+        Future<InstallReleaseResponse> releaseFuture = releaseManager.install(buildInstallReleaseRequest(chart), chart.toBuilder());
+        getStepLogger().info("Status: {0}", getInstallStatus(releaseFuture));
+    }
+
+    private InstallReleaseRequest.Builder buildInstallReleaseRequest(Chart chart) {
+        return InstallReleaseRequest.newBuilder()
+            .setName(getReleaseName(chart))
+            .setWait(true)
+            .setTimeout(HELM_RELEASE_OPERATION_TIMEOUT);
+    }
+
+    private String getReleaseName(Chart chart) {
+        return chart.getMetadata()
+            .getName();
+    }
+
+    private Code getInstallStatus(Future<InstallReleaseResponse> releaseFuture) throws InterruptedException, ExecutionException {
+        Info info = releaseFuture.get()
+            .getRelease()
+            .getInfo();
+        return getStatus(info);
+    }
+
+    private void update(ReleaseManager releaseManager, Chart chart) throws IOException, InterruptedException, ExecutionException {
+        getStepLogger().info("Updating release \"{0}\"...", getReleaseName(chart));
+        Future<UpdateReleaseResponse> releaseFuture = releaseManager.update(buildUpdateReleaseRequest(chart), chart.toBuilder());
+        getStepLogger().info("Status: {0}", getUpdateStatus(releaseFuture));
+    }
+
+    private UpdateReleaseRequest.Builder buildUpdateReleaseRequest(Chart chart) {
+        return UpdateReleaseRequest.newBuilder()
+            .setName(getReleaseName(chart))
+            .setWait(true)
+            .setTimeout(HELM_RELEASE_OPERATION_TIMEOUT);
+    }
+
+    private Object getUpdateStatus(Future<UpdateReleaseResponse> releaseFuture) throws InterruptedException, ExecutionException {
+        Info info = releaseFuture.get()
+            .getRelease()
+            .getInfo();
+        return getStatus(info);
     }
 
 }
