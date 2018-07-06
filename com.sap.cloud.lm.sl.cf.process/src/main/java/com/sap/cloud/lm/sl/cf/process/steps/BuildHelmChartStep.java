@@ -13,6 +13,7 @@ import com.google.protobuf.ByteString;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.k8s.KubernetesModelRepresenter;
 import com.sap.cloud.lm.sl.cf.core.k8s.v3_1.ResourceFactoriesFacade;
+import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.handlers.v3_1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
 
@@ -28,26 +29,32 @@ public class BuildHelmChartStep extends SyncActivitiStep {
 
     private final Yaml yaml = new Yaml(new KubernetesModelRepresenter());
 
+    private static final String UNSUPPORTED_SCHEMA_VERSION = "Only schema version \"3.1\" is supported at the moment. Set the \"_schema-version\" element in your deployment and extension descriptors to \"3.1\".";
     static final String VAR_HELM_CHART = "helmChart";
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().info("Building helm chart...");
-        DeploymentDescriptor deploymentDescriptor = (DeploymentDescriptor) StepsUtil.getDeploymentDescriptor(execution.getContext());
+        DeploymentDescriptor deploymentDescriptor = getDeploymentDescriptor(execution);
         ResourceFactoriesFacade resourceFactoriesFacade = new ResourceFactoriesFacade(new DescriptorHandler(), new PropertiesAccessor());
         List<HasMetadata> kubernetesResources = resourceFactoriesFacade.createFrom(deploymentDescriptor);
         showKubernetesResourcesAsYaml(execution, kubernetesResources);
-        Chart chart = Chart.newBuilder()
-            .setMetadata(Metadata.newBuilder()
-                .setApiVersion("v1")
-                .setName(deploymentDescriptor.getId())
-                .setVersion(deploymentDescriptor.getVersion())
-                .build())
-            .addAllTemplates(asTemplates(kubernetesResources))
-            .build();
+        Chart chart = buildChart(deploymentDescriptor, kubernetesResources);
         execution.getContext()
             .setVariable(VAR_HELM_CHART, chart.toByteArray());
         return StepPhase.DONE;
+    }
+
+    private DeploymentDescriptor getDeploymentDescriptor(ExecutionWrapper execution) {
+        com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor result = StepsUtil.getDeploymentDescriptor(execution.getContext());
+        validate(result);
+        return (DeploymentDescriptor) result;
+    }
+
+    private void validate(com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor deploymentDescriptor) {
+        if (!(deploymentDescriptor instanceof DeploymentDescriptor)) {
+            throw new ContentException(UNSUPPORTED_SCHEMA_VERSION);
+        }
     }
 
     private void showKubernetesResourcesAsYaml(ExecutionWrapper execution, List<HasMetadata> resources) {
@@ -61,6 +68,17 @@ public class BuildHelmChartStep extends SyncActivitiStep {
     private Logger createLogger(ExecutionWrapper execution, String fileName) {
         return getProcessLoggerProvider().getLoggerProvider(fileName)
             .getLogger(StepsUtil.getCorrelationId(execution.getContext()), "com.sap.cloud.lm.sl.xs2", fileName);
+    }
+
+    private Chart buildChart(DeploymentDescriptor deploymentDescriptor, List<HasMetadata> kubernetesResources) {
+        return Chart.newBuilder()
+            .setMetadata(Metadata.newBuilder()
+                .setApiVersion("v1")
+                .setName(deploymentDescriptor.getId())
+                .setVersion(deploymentDescriptor.getVersion())
+                .build())
+            .addAllTemplates(asTemplates(kubernetesResources))
+            .build();
     }
 
     private List<Template> asTemplates(List<HasMetadata> kubernetesResources) {
