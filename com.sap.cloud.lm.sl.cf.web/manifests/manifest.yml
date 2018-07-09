@@ -22,6 +22,8 @@ applications:
         {
           "name": "CLOUD-FOUNDRY",
           "module-types": [
+            { "name": "deployment", "parameters": { "type": "deployment" }},
+            { "name": "job", "parameters": { "type": "job" }},
             { "name": "custom" },
             { "name": "javascript.nodejs" },
             { "name": "java", "parameters": { "buildpack": "java_buildpack" }},
@@ -37,6 +39,9 @@ applications:
             { "name": "dotnet_core", "parameters": { "buildpack": "dotnet_core_buildpack" }}
           ],
           "resource-types": [
+            { "name": "docker-secret", "parameters": { "type": "docker-secret" }},
+            { "name": "secret", "parameters": { "type": "secret" }},
+            { "name": "service-instance", "parameters": { "type": "service-instance" }},
             { "name": "mongodb", "parameters": { "service": "mongodb", "service-plan": "v3.0-dev", "type": "managed-service" }},
             { "name": "postgresql", "parameters": { "service": "postgresql", "service-plan": "v9.4-dev", "type": "managed-service" }},
             { "name": "rabbitmq", "parameters": { "service": "rabbitmq", "service-plan": "v3.6-dev", "type": "managed-service" }},
