@@ -23,6 +23,7 @@ public class InputStreamProducer implements Closeable {
         for (ZipEntry zipEntry; (zipEntry = stream.getNextEntry()) != null;) {
             if (zipEntry.getName().startsWith(entryName)) {
                 StreamUtil.validateZipEntrySize(zipEntry, maxEntrySize);
+                StreamUtil.validateEntry(entryName);
                 streamEntryName = zipEntry.getName();
                 return stream;
             }
