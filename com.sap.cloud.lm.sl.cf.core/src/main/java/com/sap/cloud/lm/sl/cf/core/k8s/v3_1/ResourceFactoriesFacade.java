@@ -34,6 +34,7 @@ public class ResourceFactoriesFacade {
         resourceFactories.add(new DockerSecretFactory(propertiesAccessor));
         resourceFactories.add(new IngressFactory(propertiesAccessor));
         resourceFactories.add(new ServiceFactory(propertiesAccessor));
+        resourceFactories.add(new SecretFactory(propertiesAccessor));
         return resourceFactories;
     }
 

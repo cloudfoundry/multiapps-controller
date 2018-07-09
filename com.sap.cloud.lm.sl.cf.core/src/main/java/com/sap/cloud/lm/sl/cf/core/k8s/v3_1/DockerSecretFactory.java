@@ -23,8 +23,6 @@ import io.fabric8.kubernetes.api.model.SecretBuilder;
 
 public class DockerSecretFactory implements ResourceFactory {
 
-    private static final String DOCKER_CONFIGURATION_FILE_AUTHENTICATION_KEY = "auths";
-    
     private static final String DOCKER_IMAGE_SECRET_TYPE = "kubernetes.io/dockerconfigjson";
     private static final String DOCKER_IMAGE_SECRET_KEY = ".dockerconfigjson";
 

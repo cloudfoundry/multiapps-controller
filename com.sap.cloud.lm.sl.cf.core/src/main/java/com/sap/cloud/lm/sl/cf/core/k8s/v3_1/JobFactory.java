@@ -36,6 +36,7 @@ import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodSpecBuilder;
 import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
+import io.fabric8.kubernetes.api.model.SecretEnvSourceBuilder;
 
 public class JobFactory implements ResourceFactory {
 
@@ -99,18 +100,19 @@ public class JobFactory implements ResourceFactory {
     }
 
     private PodSpec buildPodSpec(DeploymentDescriptor descriptor, Module module, ConfigMap configMap) {
-        return new PodSpecBuilder().addAllToContainers(buildContainers(module, configMap))
+        return new PodSpecBuilder().addAllToContainers(buildContainers(descriptor, module, configMap))
             .withRestartPolicy(RESTART_POLICY)
             .withImagePullSecrets(buildImagePullSecrets(descriptor, module))
             .build();
     }
 
-    private List<Container> buildContainers(Module module, ConfigMap configMap) {
+    private List<Container> buildContainers(DeploymentDescriptor descriptor, Module module, ConfigMap configMap) {
         // TODO: Allow users to specify more than one container.
         return Arrays.asList(new ContainerBuilder().withName(module.getName())
             .withImage(getImage(module))
             .withImagePullPolicy(IMAGE_PULL_POLICY)
-            .withEnvFrom(buildEnvSource(configMap))
+            .addToEnvFrom(buildEnvSource(configMap))
+            .addAllToEnvFrom(buildAdditionalEnvSources(descriptor, module))
             .build());
     }
 
@@ -134,22 +136,47 @@ public class JobFactory implements ResourceFactory {
         return new ConfigMapEnvSourceBuilder().withName(configMapName)
             .build();
     }
-    
 
-    private List<LocalObjectReference> buildImagePullSecrets(DeploymentDescriptor descriptor, Module module) {
-        List<LocalObjectReference> imagePullSecrets = new ArrayList<>();
+    // TODO: Reduce duplication between this and the method below it:
+    private List<EnvFromSource> buildAdditionalEnvSources(DeploymentDescriptor descriptor, Module module) {
+        List<EnvFromSource> result = new ArrayList<>();
         for (RequiredDependency requiredDependency : module.getRequiredDependencies3_1()) {
             Resource resource = (Resource) handler.findResource(descriptor, requiredDependency.getName());
             if (resource == null) {
                 continue;
             }
-            Map<String, Object> resourceParameters = propertiesAccessor.getParameters((ParametersContainer) resource);
-            String resourceType = (String) resourceParameters.get(SupportedParameters.TYPE);
-            if (ResourceTypes.DOCKER_SECRET.equals(resourceType)) {
-                imagePullSecrets.add(new LocalObjectReference(resource.getName()));
+            String resourceType = getType(resource);
+            if (ResourceTypes.SECRET.equals(resourceType)) {
+                result.add(buildSecretEnvSource(resource.getName()));
             }
         }
-        return imagePullSecrets;
+        return result;
+    }
+
+    private String getType(Resource resource) {
+        Map<String, Object> resourceParameters = propertiesAccessor.getParameters((ParametersContainer) resource);
+        return (String) resourceParameters.get(SupportedParameters.TYPE);
+    }
+
+    private EnvFromSource buildSecretEnvSource(String resourceName) {
+        return new EnvFromSourceBuilder().withSecretRef(new SecretEnvSourceBuilder().withName(resourceName)
+            .build())
+            .build();
+    }
+
+    private List<LocalObjectReference> buildImagePullSecrets(DeploymentDescriptor descriptor, Module module) {
+        List<LocalObjectReference> result = new ArrayList<>();
+        for (RequiredDependency requiredDependency : module.getRequiredDependencies3_1()) {
+            Resource resource = (Resource) handler.findResource(descriptor, requiredDependency.getName());
+            if (resource == null) {
+                continue;
+            }
+            String resourceType = getType(resource);
+            if (ResourceTypes.DOCKER_SECRET.equals(resourceType)) {
+                result.add(new LocalObjectReference(resource.getName()));
+            }
+        }
+        return result;
     }
 
 }
