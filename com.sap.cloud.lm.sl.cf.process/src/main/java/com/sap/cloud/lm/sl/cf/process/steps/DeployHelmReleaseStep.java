@@ -130,8 +130,8 @@ public class DeployHelmReleaseStep extends SyncActivitiStep {
     }
 
     private String getReleaseName(Chart chart) {
-        return chart.getMetadata()
-            .getName();
+        return String.format("%s-%s", chart.getMetadata()
+            .getName(), configuration.getKubernetesNamespace());
     }
 
     private Code getInstallStatus(Future<InstallReleaseResponse> releaseFuture) throws InterruptedException, ExecutionException {
