@@ -146,7 +146,7 @@ public class JobFactory implements ResourceFactory {
                 continue;
             }
             String resourceType = getType(resource);
-            if (ResourceTypes.SECRET.equals(resourceType)) {
+            if (ResourceTypes.SECRET.equals(resourceType) || ResourceTypes.SERVICE_INSTANCE.equals(resourceType)) {
                 result.add(buildSecretEnvSource(resource.getName()));
             }
         }

@@ -35,6 +35,7 @@ public class ResourceFactoriesFacade {
         resourceFactories.add(new IngressFactory(propertiesAccessor));
         resourceFactories.add(new ServiceFactory(propertiesAccessor));
         resourceFactories.add(new SecretFactory(propertiesAccessor));
+        resourceFactories.add(new ServiceInstanceFactory(propertiesAccessor));
         return resourceFactories;
     }
 
