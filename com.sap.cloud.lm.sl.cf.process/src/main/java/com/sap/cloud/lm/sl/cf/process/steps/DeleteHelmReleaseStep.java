@@ -16,6 +16,7 @@ import org.springframework.util.Assert;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
+import hapi.chart.ChartOuterClass.Chart;
 import hapi.release.InfoOuterClass.Info;
 import hapi.release.StatusOuterClass.Status.Code;
 import hapi.services.tiller.Tiller.UninstallReleaseRequest;
@@ -36,18 +37,18 @@ public class DeleteHelmReleaseStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws IOException, InterruptedException, ExecutionException {
-        String releaseName = getReleaseName(execution);
-
         DefaultKubernetesClient client = buildKubernetesClient();
         try (Tiller tiller = new Tiller(client); ReleaseManager releaseManager = new ReleaseManager(tiller)) {
+            String releaseName = getReleaseName(execution);
             deleteRelease(releaseManager, releaseName);
         }
         return StepPhase.DONE;
     }
 
     private String getReleaseName(ExecutionWrapper execution) {
-        return (String) execution.getContext()
+        String mtaId = (String) execution.getContext()
             .getVariable(Constants.PARAM_MTA_ID);
+        return String.format("%s-%s", mtaId, configuration.getKubernetesNamespace());
     }
 
     // TODO: Copy-pasted from DeployHelmReleaseStep. Fix!
