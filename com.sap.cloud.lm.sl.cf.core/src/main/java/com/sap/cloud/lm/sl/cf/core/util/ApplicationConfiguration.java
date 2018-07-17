@@ -74,10 +74,6 @@ public class ApplicationConfiguration {
     static final String CFG_GLOBAL_AUDITOR_USER = "GLOBAL_AUDITOR_USER";
     static final String CFG_GLOBAL_AUDITOR_PASSWORD = "GLOBAL_AUDITOR_PASSWORD";
     static final String CFG_DB_CONNECTION_THREADS = "DB_CONNECTION_THREADS";
-    static final String CFG_XS_CLIENT_CORE_THREADS = "XS_CLIENT_CORE_THREADS";
-    static final String CFG_XS_CLIENT_MAX_THREADS = "XS_CLIENT_MAX_THREADS";
-    static final String CFG_XS_CLIENT_QUEUE_CAPACITY = "XS_CLIENT_QUEUE_CAPACITY";
-    static final String CFG_XS_CLIENT_KEEP_ALIVE = "XS_CLIENT_KEEP_ALIVE";
     static final String CFG_CONTROLLER_POLLING_INTERVAL = "CONTROLLER_POLLING_INTERVAL";
     static final String CFG_SKIP_SSL_VALIDATION = "SKIP_SSL_VALIDATION";
     static final String CFG_XS_PLACEHOLDERS_SUPPORTED = "XS_PLACEHOLDER_SUPPORT_TEST";
@@ -92,7 +88,10 @@ public class ApplicationConfiguration {
     static final String CFG_HEALTH_CHECK_USER = "HEALTH_CHECK_USER";
     static final String CFG_HEALTH_CHECK_TIME_RANGE = "HEALTH_CHECK_TIME_RANGE";
     static final String CFG_MAIL_API_URL = "MAIL_API_URL";
-    static final String CFG_CONTROLLER_OPERATIONS_TIMEOUT = "CFG_CONTROLLER_OPERATIONS_TIMEOUT";
+    static final String CFG_AUDIT_LOG_CLIENT_CORE_THREADS = "AUDIT_LOG_CLIENT_CORE_THREADS";
+    static final String CFG_AUDIT_LOG_CLIENT_MAX_THREADS = "AUDIT_LOG_CLIENT_MAX_THREADS";
+    static final String CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = "AUDIT_LOG_CLIENT_QUEUE_CAPACITY";
+    static final String CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE = "AUDIT_LOG_CLIENT_KEEP_ALIVE";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -116,13 +115,8 @@ public class ApplicationConfiguration {
     public static final String DEFAULT_GLOBAL_AUDITOR_USER = "";
     public static final String DEFAULT_GLOBAL_AUDITOR_PASSWORD = "";
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
-    public static final Integer DEFAULT_XS_CLIENT_CORE_THREADS = 2;
-    public static final Integer DEFAULT_XS_CLIENT_MAX_THREADS = 8;
-    public static final Integer DEFAULT_XS_CLIENT_QUEUE_CAPACITY = 8;
-    public static final Integer DEFAULT_XS_CLIENT_KEEP_ALIVE = 60;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
-    public static final int DEFAULT_CONTROLLER_OPERATIONS_TIMEOUT = 900;
     /**
      * The minimum duration for an Activiti timer is 5 seconds, because when the job manager schedules a new timer, it checks whether that
      * timer should fire in the next 5 seconds. If so, it hints the job executor that it should execute that timer ASAP. However, there is
@@ -141,6 +135,10 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_ATTEMPTS = 5; // 5 minute(s)
     public static final Boolean DEFAULT_GATHER_USAGE_STATISTICS = false;
     public static final Integer DEFAULT_HEALTH_CHECK_TIME_RANGE = (int) TimeUnit.MINUTES.toSeconds(5);
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS = 2;
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS = 8;
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = 8;
+    public static final Integer DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE = 60;
 
     // Type names
     private static final Map<String, PlatformType> TYPE_NAMES = createTypeNames();
@@ -174,10 +172,6 @@ public class ApplicationConfiguration {
     private String globalAuditorUser;
     private String globalAuditorPassword;
     private Integer dbConnectionThreads;
-    private Integer xsClientCoreThreads;
-    private Integer xsClientMaxThreads;
-    private Integer xsClientQueueCapacity;
-    private Integer xsClientKeepAlive;
     private Integer controllerPollingInterval;
     private Boolean skipSslValidation;
     private Boolean xsPlaceholdersSupported;
@@ -190,9 +184,12 @@ public class ApplicationConfiguration {
     private Boolean gatherUsageStatistics;
     private HealthCheckConfiguration healthCheckConfiguration;
     private String mailApiUrl;
-    private Integer timeout;
     private String applicationId;
     private Integer applicationInstanceIndex;
+    private Integer auditLogClientCoreThreads;
+    private Integer auditLogClientMaxThreads;
+    private Integer auditLogClientQueueCapacity;
+    private Integer auditLogClientKeepAlive;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -222,10 +219,6 @@ public class ApplicationConfiguration {
         getGlobalAuditorUser();
         getGlobalAuditorPassword();
         getDbConnectionThreads();
-        getXsClientCoreThreads();
-        getXsClientMaxThreads();
-        getXsClientQueueCapacity();
-        getXsClientKeepAlive();
         getControllerPollingInterval();
         shouldSkipSslValidation();
         areXsPlaceholdersSupported();
@@ -239,12 +232,17 @@ public class ApplicationConfiguration {
         getMailApiUrl();
         getApplicationId();
         getApplicationInstanceIndex();
+        getAuditLogClientCoreThreads();
+        getAuditLogClientMaxThreads();
+        getAuditLogClientQueueCapacity();
+        getAuditLogClientKeepAlive();
     }
 
     public void logFullConfig() {
         for (Map.Entry<String, String> envVariable : getFilteredEnv().entrySet()) {
             AuditableConfiguration auditConfiguration = getAuditableConfiguration(envVariable.getKey(), envVariable.getValue());
-            getAuditLoggingFascade().logConfig(auditConfiguration);
+            AuditLoggingProvider.getFacade()
+                .logConfig(auditConfiguration);
         }
     }
 
@@ -286,10 +284,10 @@ public class ApplicationConfiguration {
         return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_TARGET_URL, CFG_DB_TYPE, CFG_PLATFORMS, CFG_PLATFORMS_V2, CFG_PLATFORMS_V3,
             CFG_TARGETS, CFG_TARGETS_V2, CFG_TARGETS_V3, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE,
             CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
-            CFG_GLOBAL_AUDITOR_USER, CFG_XS_CLIENT_CORE_THREADS, CFG_XS_CLIENT_MAX_THREADS, CFG_XS_CLIENT_QUEUE_CAPACITY,
-            CFG_XS_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_POLLING_INTERVAL, CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION,
+            CFG_GLOBAL_AUDITOR_USER, CFG_CONTROLLER_POLLING_INTERVAL, CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION,
             CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
-            CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL));
+            CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
+            CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE));
     }
 
     public Configuration getFileConfiguration() {
@@ -471,34 +469,6 @@ public class ApplicationConfiguration {
         return dbConnectionThreads;
     }
 
-    public int getXsClientCoreThreads() {
-        if (xsClientCoreThreads == null) {
-            xsClientCoreThreads = getXsClientCoreThreadsFromEnvironment();
-        }
-        return xsClientCoreThreads;
-    }
-
-    public int getXsClientMaxThreads() {
-        if (xsClientMaxThreads == null) {
-            xsClientMaxThreads = getXsClientMaxThreadsFromEnvironment();
-        }
-        return xsClientMaxThreads;
-    }
-
-    public int getXsClientQueueCapacity() {
-        if (xsClientQueueCapacity == null) {
-            xsClientQueueCapacity = getXsClientQueueCapacityFromEnvironment();
-        }
-        return xsClientQueueCapacity;
-    }
-
-    public int getXsClientKeepAlive() {
-        if (xsClientKeepAlive == null) {
-            xsClientKeepAlive = getXsClientKeepAliveFromEnvironment();
-        }
-        return xsClientKeepAlive;
-    }
-
     public int getControllerPollingInterval() {
         if (controllerPollingInterval == null) {
             controllerPollingInterval = getControllerPollingIntervalFromEnvironment();
@@ -576,13 +546,6 @@ public class ApplicationConfiguration {
         return mailApiUrl;
     }
 
-    public Integer getControllerOperationsTimeout() {
-        if (timeout == null) {
-            timeout = getControllerOperationsTimeoutFromEnvironment();
-        }
-        return timeout;
-    }
-
     public String getApplicationId() {
         if (applicationId == null) {
             applicationId = getApplicationIdFromEnvironment();
@@ -595,6 +558,34 @@ public class ApplicationConfiguration {
             applicationInstanceIndex = getApplicationInstanceIndexFromEnvironment();
         }
         return applicationInstanceIndex;
+    }
+
+    public Integer getAuditLogClientCoreThreads() {
+        if (auditLogClientCoreThreads == null) {
+            auditLogClientCoreThreads = getAuditLogClientCoreThreadsFromEnvironment();
+        }
+        return auditLogClientCoreThreads;
+    }
+
+    public Integer getAuditLogClientMaxThreads() {
+        if (auditLogClientMaxThreads == null) {
+            auditLogClientMaxThreads = getAuditLogClientMaxThreadsFromEnvironment();
+        }
+        return auditLogClientMaxThreads;
+    }
+
+    public Integer getAuditLogClientQueueCapacity() {
+        if (auditLogClientQueueCapacity == null) {
+            auditLogClientQueueCapacity = getAuditLogClientQueueCapacityFromEnvironment();
+        }
+        return auditLogClientQueueCapacity;
+    }
+
+    public Integer getAuditLogClientKeepAlive() {
+        if (auditLogClientKeepAlive == null) {
+            auditLogClientKeepAlive = getAuditLogClientKeepAliveFromEnvironment();
+        }
+        return auditLogClientKeepAlive;
     }
 
     private PlatformType getPlatformTypeFromEnvironment() {
@@ -845,30 +836,6 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private Integer getXsClientCoreThreadsFromEnvironment() {
-        Integer value = environment.getPositiveInteger(CFG_XS_CLIENT_CORE_THREADS, DEFAULT_XS_CLIENT_CORE_THREADS);
-        LOGGER.info(format(Messages.XS_CLIENT_CORE_THREADS, value));
-        return value;
-    }
-
-    private Integer getXsClientMaxThreadsFromEnvironment() {
-        Integer value = environment.getPositiveInteger(CFG_XS_CLIENT_MAX_THREADS, DEFAULT_XS_CLIENT_MAX_THREADS);
-        LOGGER.info(format(Messages.XS_CLIENT_MAX_THREADS, value));
-        return value;
-    }
-
-    private Integer getXsClientQueueCapacityFromEnvironment() {
-        Integer value = environment.getPositiveInteger(CFG_XS_CLIENT_QUEUE_CAPACITY, DEFAULT_XS_CLIENT_QUEUE_CAPACITY);
-        LOGGER.info(format(Messages.XS_CLIENT_QUEUE_CAPACITY, value));
-        return value;
-    }
-
-    private int getXsClientKeepAliveFromEnvironment() {
-        int value = environment.getPositiveInteger(CFG_XS_CLIENT_KEEP_ALIVE, DEFAULT_XS_CLIENT_KEEP_ALIVE);
-        LOGGER.info(format(Messages.XS_CLIENT_KEEP_ALIVE, value));
-        return value;
-    }
-
     private int getControllerPollingIntervalFromEnvironment() {
         int value = environment.getPositiveInteger(CFG_CONTROLLER_POLLING_INTERVAL, DEFAULT_CONTROLLER_POLLING_INTERVAL);
         LOGGER.info(format(Messages.CONTROLLER_POLLING_INTERVAL, value));
@@ -957,12 +924,6 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private Integer getControllerOperationsTimeoutFromEnvironment() {
-        Integer timeout = environment.getPositiveInteger(CFG_CONTROLLER_OPERATIONS_TIMEOUT, DEFAULT_CONTROLLER_OPERATIONS_TIMEOUT);
-        LOGGER.info(format(Messages.CONTROLLER_OPERATIONS_TIMEOUT, timeout));
-        return timeout;
-    }
-
     private String getApplicationIdFromEnvironment() {
         Map<String, Object> vcapApplication = getVcapApplication();
         String applicationGuid = (String) vcapApplication.get("application_id");
@@ -974,6 +935,30 @@ public class ApplicationConfiguration {
         Integer applicationInstanceIndex = environment.getInteger("CF_INSTANCE_INDEX");
         LOGGER.info(format(Messages.APPLICATION_INSTANCE_INDEX, applicationInstanceIndex));
         return applicationInstanceIndex;
+    }
+
+    private Integer getAuditLogClientCoreThreadsFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_AUDIT_LOG_CLIENT_CORE_THREADS, DEFAULT_AUDIT_LOG_CLIENT_CORE_THREADS);
+        LOGGER.info(format(Messages.AUDIT_LOG_CLIENT_CORE_THREADS, value));
+        return value;
+    }
+
+    private Integer getAuditLogClientMaxThreadsFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_AUDIT_LOG_CLIENT_MAX_THREADS, DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS);
+        LOGGER.info(format(Messages.AUDIT_LOG_CLIENT_MAX_THREADS, value));
+        return value;
+    }
+
+    private Integer getAuditLogClientQueueCapacityFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY);
+        LOGGER.info(format(Messages.AUDIT_LOG_CLIENT_QUEUE_CAPACITY, value));
+        return value;
+    }
+
+    private Integer getAuditLogClientKeepAliveFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE);
+        LOGGER.info(format(Messages.AUDIT_LOG_CLIENT_KEEP_ALIVE, value));
+        return value;
     }
 
     private String getCronExpression(String name, String defaultValue) {

@@ -133,10 +133,6 @@ public final class Messages {
     public static final String ADMIN_USERNAME = "Admin username: {0}";
     public static final String USE_XS_AUDIT_LOGGING = "Use XSA audit logging: {0}";
     public static final String DB_CONNECTION_THREADS = "Database connection thread pool size: {0}";
-    public static final String XS_CLIENT_CORE_THREADS = "Platform client core pool size: {0}";
-    public static final String XS_CLIENT_MAX_THREADS = "Platform client max threads: {0}";
-    public static final String XS_CLIENT_QUEUE_CAPACITY = "Platform client queue capacity: {0}";
-    public static final String XS_CLIENT_KEEP_ALIVE = "Platform client thread keep alive time: {0}";
     public static final String CONTROLLER_POLLING_INTERVAL = "Controller polling interval: {0}";
     public static final String SKIP_SSL_VALIDATION = "Skip SSL validation: {0}";
     public static final String XS_PLACEHOLDERS_SUPPORTED = "XS placeholders supported: {0}";
@@ -148,9 +144,12 @@ public final class Messages {
     public static final String GATHER_STATISTICS = "Gather statistics: {0}";
     public static final String HEALTH_CHECK_CONFIGURATION = "Health check configuration: {0}";
     public static final String MAIL_API_URL = "Mail API URL: {0}";
-    public static final String CONTROLLER_OPERATIONS_TIMEOUT = "Controller operations timeout: {0}";
     public static final String APPLICATION_ID = "Application ID: {0}";
     public static final String APPLICATION_INSTANCE_INDEX = "Application instance index: {0}";
+    public static final String AUDIT_LOG_CLIENT_CORE_THREADS = "Audit log client core threads: {0}";
+    public static final String AUDIT_LOG_CLIENT_MAX_THREADS = "Audit log client max threads: {0}";
+    public static final String AUDIT_LOG_CLIENT_QUEUE_CAPACITY = "Audit log client queue capacity: {0}";
+    public static final String AUDIT_LOG_CLIENT_KEEP_ALIVE = "Audit log client keep alive: {0}";
 
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION = "About to perform action \"{0}\"";
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION_WITH_PARAMS = "About to perform action \"{0}\" with parameters \"{1}\"";
