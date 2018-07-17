@@ -61,7 +61,7 @@ public class ApplicationConfigurationTest {
     public void testLogFullConfig() {
         when(environment.getAllVariables()).thenReturn(ImmutableMap.of(ApplicationConfiguration.CFG_DB_TYPE, "POSTGRES"));
         ApplicationConfiguration testedConfig = new ApplicationConfiguration(environment) {
-            protected AuditLoggingFacade getAuditLoggingFascade() {
+            protected AuditLoggingFacade getAuditLoggingFacade() {
                 return auditLoggingFascade;
             }
         };

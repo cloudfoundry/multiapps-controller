@@ -241,12 +241,11 @@ public class ApplicationConfiguration {
     public void logFullConfig() {
         for (Map.Entry<String, String> envVariable : getFilteredEnv().entrySet()) {
             AuditableConfiguration auditConfiguration = getAuditableConfiguration(envVariable.getKey(), envVariable.getValue());
-            AuditLoggingProvider.getFacade()
-                .logConfig(auditConfiguration);
+            getAuditLoggingFacade().logConfig(auditConfiguration);
         }
     }
 
-    protected AuditLoggingFacade getAuditLoggingFascade() {
+    protected AuditLoggingFacade getAuditLoggingFacade() {
         return AuditLoggingProvider.getFacade();
     }
 
