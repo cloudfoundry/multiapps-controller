@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudFoundryOperations;
 
-import com.sap.cloud.lm.sl.cf.client.util.TimeoutExecutor;
-
 public interface CloudFoundryOperationsExtended extends CloudFoundryOperations {
 
     /**
@@ -58,7 +56,5 @@ public interface CloudFoundryOperationsExtended extends CloudFoundryOperations {
      * @return List of space auditor user id
      */
     List<String> getSpaceAuditors2(String orgName, String spaceName);
-
-    void withTimeoutExecutor(TimeoutExecutor timeoutExecutor);
 
 }
