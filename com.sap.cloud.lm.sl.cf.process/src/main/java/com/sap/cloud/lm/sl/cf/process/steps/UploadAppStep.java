@@ -233,8 +233,8 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
         @Override
         public void onError(String description) {
-            // TODO Auto-generated method stub
-
+            getStepLogger().error(Messages.ERROR_UPLOADING_APP_BECAUSE_OF, app.getName(), description);
+            cleanUpTempFile(file);
         }
 
     }
