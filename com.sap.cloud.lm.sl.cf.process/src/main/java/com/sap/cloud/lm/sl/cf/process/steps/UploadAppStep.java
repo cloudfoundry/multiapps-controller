@@ -55,15 +55,15 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
         try {
             getStepLogger().info(Messages.UPLOADING_APP, app.getName());
-            
+
             int uploadAppTimeoutSeconds = configuration.getUploadAppTimeout();
             getStepLogger().debug(Messages.UPLOAD_APP_TIMEOUT, uploadAppTimeoutSeconds);
 
-            CloudFoundryOperations client = execution.getCloudFoundryClientWithoutTimeout();
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
             String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
             String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
-            
+
             getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
             String uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
             getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
@@ -94,8 +94,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
                     file = saveToFile(fileName, streamProducer);
                     getStepLogger().debug(Messages.CREATED_TEMP_FILE, file);
                     detectApplicationFileDigestChanges(context, app, file, client);
-                    String uploadToken = client.asyncUploadApplication(app.getName(), file,
-                        getMonitorUploadStatusCallback(app, file));
+                    String uploadToken = client.asyncUploadApplication(app.getName(), file, getMonitorUploadStatusCallback(app, file));
                     uploadTokenBuilder.append(uploadToken);
                 } catch (IOException e) {
                     cleanUpTempFile(file);
@@ -134,8 +133,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private void setAppContentChanged(DelegateExecution context, boolean appContentChanged) {
-        context
-            .setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(appContentChanged));
+        context.setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(appContentChanged));
     }
 
     MonitorUploadStatusCallback getMonitorUploadStatusCallback(CloudApplication app, File file) {

@@ -11,7 +11,6 @@ import org.cloudfoundry.client.lib.domain.ServiceKey;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
-import com.sap.cloud.lm.sl.cf.client.util.TimeoutExecutor;
 
 public interface ClientExtensions {
 
@@ -106,7 +105,5 @@ public interface ClientExtensions {
      * @throws CloudFoundryException if there was an error
      */
     void updateServicePlan(String serviceName, String planName);
-
-    void withTimeoutExecutor(TimeoutExecutor timeoutExecutor);
 
 }
