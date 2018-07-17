@@ -52,7 +52,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
         try {
             getStepLogger().info(Messages.UPLOADING_APP, app.getName());
-            CloudFoundryOperations client = execution.getCloudFoundryClientWithoutTimeout();
+            CloudFoundryOperations client = execution.getCloudFoundryClient();
 
             String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
             String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());

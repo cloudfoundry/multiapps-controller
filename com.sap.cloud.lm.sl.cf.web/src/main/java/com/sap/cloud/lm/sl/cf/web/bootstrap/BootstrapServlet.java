@@ -20,12 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
-import com.sap.cloud.lm.sl.cf.client.util.TimeoutExecutor;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
-import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -65,9 +63,6 @@ public class BootstrapServlet extends HttpServlet {
     @Autowired(required = false)
     private List<AsyncChange> asyncChanges;
 
-    @Inject
-    private Environment environment;
-
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -75,7 +70,6 @@ public class BootstrapServlet extends HttpServlet {
             SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
             configuration.load();
             initializeProviders();
-            initializeTimeoutExecutor();
             initializeActiviti();
             addDeployTargets();
             initExtras();
@@ -91,17 +85,8 @@ public class BootstrapServlet extends HttpServlet {
         }
     }
 
-    private void initializeTimeoutExecutor() {
-        TimeoutExecutor.getInstance()
-            .init(configuration.getXsClientCoreThreads(), configuration.getXsClientMaxThreads(), configuration.getXsClientQueueCapacity(),
-                configuration.getXsClientKeepAlive(), configuration.getControllerOperationsTimeout());
-    }
-
     @Override
     public void destroy() {
-        TimeoutExecutor.getInstance()
-            .destroy();
-
         destroyExtras();
     }
 
