@@ -11,6 +11,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import com.sap.cloud.lm.sl.cf.web.api.model.Mta;
 
 import io.swagger.annotations.Api;
@@ -25,18 +28,21 @@ import io.swagger.annotations.Authorization;
 @Produces({ "application/json" })
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-19T13:17:38.801+03:00")
 
+@Component
+@Scope(value = "request")
 public class MtasApi {
 
-    @Context
-    SecurityContext securityContext;
-
-    @Inject
-    MtasApiService delegate;
-
-    @Inject
-    HttpServletRequest request;
-
+    @PathParam("space_guid")
     private String spaceGuid;
+
+    @Context
+    private SecurityContext securityContext;
+
+    @Inject
+    private MtasApiService delegate;
+
+    @Inject
+    private HttpServletRequest request;
 
     @GET
     @Path("/{mta_id}")
@@ -62,9 +68,5 @@ public class MtasApi {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Mta.class, responseContainer = "List") })
     public Response getMtas() {
         return delegate.getMtas(securityContext, spaceGuid, request);
-    }
-
-    public void setSpaceGuid(String spaceGuid) {
-        this.spaceGuid = spaceGuid;
     }
 }
