@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
@@ -31,19 +31,19 @@ public class ExecutionWrapper {
         return stepLogger;
     }
 
-    public CloudFoundryOperations getCloudFoundryClient() throws SLException {
-        return StepsUtil.getCloudFoundryClient(context, clientProvider, stepLogger);
+    public CloudControllerClient getCloudControllerClient() {
+        return StepsUtil.getCloudControllerClient(context, clientProvider, stepLogger);
     }
 
-    public CloudFoundryOperations getCloudFoundryClient(String org, String space) throws SLException {
-        return StepsUtil.getCloudFoundryClient(context, clientProvider, stepLogger, org, space);
+    public CloudControllerClient getCloudControllerClient(String org, String space) {
+        return StepsUtil.getCloudControllerClient(context, clientProvider, stepLogger, org, space);
     }
 
-    public ClientExtensions getClientExtensions() throws SLException {
+    public ClientExtensions getClientExtensions() {
         return StepsUtil.getClientExtensions(context, clientProvider, stepLogger);
     }
 
-    public ClientExtensions getClientExtensions(String org, String space) throws SLException {
+    public ClientExtensions getClientExtensions(String org, String space) {
         return StepsUtil.getClientExtensions(context, clientProvider, stepLogger, org, space);
     }
 

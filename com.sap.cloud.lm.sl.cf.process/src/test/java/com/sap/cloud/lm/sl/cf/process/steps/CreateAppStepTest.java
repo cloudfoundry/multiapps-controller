@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.junit.Before;
 import org.junit.Rule;
@@ -165,7 +165,7 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
         for (String appName : stepInput.bindingErrors.keySet()) {
             String serviceName = stepInput.bindingErrors.get(appName);
             Mockito
-                .doThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                .doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                     "Something happened!"))
                 .when((ClientExtensions) client)
                 .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any());

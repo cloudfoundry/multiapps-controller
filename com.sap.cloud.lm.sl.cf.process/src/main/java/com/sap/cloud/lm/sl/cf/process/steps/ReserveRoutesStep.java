@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -29,7 +29,7 @@ public class ReserveRoutesStep extends SyncActivitiStep {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
             boolean portBasedRouting = StepsUtil.getVariableOrDefault(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
             if (!(client instanceof ClientExtensions) || !portBasedRouting) {
                 return StepPhase.DONE;
@@ -45,11 +45,11 @@ public class ReserveRoutesStep extends SyncActivitiStep {
                 }
             }
             return StepPhase.DONE;
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_RESERVING_ROUTES, app.getName());
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_RESERVING_ROUTES, app.getName());
             throw e;
         }

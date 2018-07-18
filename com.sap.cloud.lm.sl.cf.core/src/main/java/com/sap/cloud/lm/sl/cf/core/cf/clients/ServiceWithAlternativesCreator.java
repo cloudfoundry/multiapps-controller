@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.springframework.http.HttpStatus;
@@ -31,7 +31,7 @@ public class ServiceWithAlternativesCreator {
         this.userMessageLogger = userMessageLogger;
     }
 
-    public void createService(CloudFoundryOperations client, CloudServiceExtended service, String spaceId) {
+    public void createService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
         if (CollectionUtils.isEmpty(service.getAlternativeLabels())) {
             serviceCreator.createService(client, service, spaceId);
             return;
@@ -81,14 +81,14 @@ public class ServiceWithAlternativesCreator {
         return validServiceOfferings;
     }
 
-    private void attemptToFindServiceOfferingAndCreateService(CloudFoundryOperations client, CloudServiceExtended service, String spaceId,
+    private void attemptToFindServiceOfferingAndCreateService(CloudControllerClient client, CloudServiceExtended service, String spaceId,
         List<String> validServiceOfferings) {
         for (String validServiceOffering : validServiceOfferings) {
             try {
                 service.setLabel(validServiceOffering);
                 serviceCreator.createService(client, service, spaceId);
                 return;
-            } catch (CloudFoundryException e) {
+            } catch (CloudOperationException e) {
                 if (!shouldIgnoreException(e)) {
                     throw e;
                 }
@@ -99,7 +99,7 @@ public class ServiceWithAlternativesCreator {
         throw new SLException(Messages.CANT_CREATE_SERVICE, service.getName(), validServiceOfferings);
     }
 
-    private boolean shouldIgnoreException(CloudFoundryException e) {
+    private boolean shouldIgnoreException(CloudOperationException e) {
         return e.getStatusCode()
             .equals(HttpStatus.FORBIDDEN);
     }

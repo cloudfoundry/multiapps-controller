@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
@@ -21,7 +21,7 @@ public abstract class CustomControllerClient {
         this.restTemplateFactory = restTemplateFactory;
     }
 
-    protected RestTemplate getRestTemplate(CloudFoundryOperations client) {
+    protected RestTemplate getRestTemplate(CloudControllerClient client) {
         return restTemplateFactory.getRestTemplate(client);
     }
 

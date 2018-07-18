@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 
 public class CFOptimizedEventGetter extends CustomControllerClient {
 
     private static final String FIND_EVENT_BY_TYPE_AND_TIMESTAMP_ENDPOINT = "/v2/events?inline-relations-depth=1&results-per-page=100&q=type:{type}&q=timestamp>{timestamp}";
-    private CloudFoundryOperations client;
+    private CloudControllerClient client;
 
-    public CFOptimizedEventGetter(CloudFoundryOperations client) {
+    public CFOptimizedEventGetter(CloudControllerClient client) {
         super(new RestTemplateFactory());
         this.client = client;
     }

@@ -6,7 +6,7 @@ import java.util.function.Function;
 import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -47,8 +47,8 @@ public class PrepareToUndeployStep extends SyncActivitiStep {
             getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);
 
             return StepPhase.DONE;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY);
             throw e;
         } catch (SLException e) {

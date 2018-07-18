@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.springframework.stereotype.Component;
@@ -27,11 +27,11 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    public void updateApplicationStaging(CloudFoundryOperations client, String appName, Staging staging) {
+    public void updateApplicationStaging(CloudControllerClient client, String appName, Staging staging) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToUpdateApplicationStaging(client, appName, staging));
     }
 
-    private void attemptToUpdateApplicationStaging(CloudFoundryOperations client, String appName, Staging staging) {
+    private void attemptToUpdateApplicationStaging(CloudControllerClient client, String appName, Staging staging) {
         String applicationsEndpoint = getApplicationsEndpoint(client.getCloudControllerUrl()
             .toString());
         CloudApplication application = client.getApplication(appName);

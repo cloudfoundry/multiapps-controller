@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudJob.Status;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.junit.Before;
@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
 @RunWith(Parameterized.class)
 public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
 
-    private static final CloudFoundryException CFEXCEPTION = new CloudFoundryException(HttpStatus.BAD_REQUEST);
+    private static final CloudOperationException CLOUD_OPERATION_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
     private static final String UPLOAD_TOKEN = "tokenString";
     private static final String APP_NAME = "test-app-1";
 
@@ -44,7 +44,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
 // @formatter:off
             // (00) The previous step used asynchronous upload but getting the upload progress fails with an exception:
             {
-                null, null, CFEXCEPTION.getMessage(),
+                null, null, CLOUD_OPERATION_EXCEPTION.getMessage(),
             },
             // (01) The previous step used asynchronous upload and it finished successfully:
             {
@@ -94,7 +94,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
 
     private void prepareClient() {
         if (expectedCfExceptionMessage != null) {
-            when(client.getUploadStatus(UPLOAD_TOKEN)).thenThrow(CFEXCEPTION);
+            when(client.getUploadStatus(UPLOAD_TOKEN)).thenThrow(CLOUD_OPERATION_EXCEPTION);
         } else {
             when(client.getUploadStatus(UPLOAD_TOKEN)).thenReturn(new Upload(uploadState, null));
         }

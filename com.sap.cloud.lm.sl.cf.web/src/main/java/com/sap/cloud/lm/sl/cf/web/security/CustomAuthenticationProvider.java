@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             String userName = (String) auth.getPrincipal();
             String password = (String) auth.getCredentials();
 
-            Pair<CloudFoundryOperations, TokenProvider> client = cloudFoundryClientFactory.createClient(userName, password);
+            Pair<CloudControllerClient, TokenProvider> client = cloudFoundryClientFactory.createClient(userName, password);
             TokenProvider tokenProvider = client._2;
 
             // Get a valid token from the client
@@ -94,7 +94,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             }
 
             return auth2;
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             String message = Messages.CANNOT_AUTHENTICATE_WITH_CLOUD_CONTROLLER;
             AuditLoggingProvider.getFacade()
                 .logSecurityIncident(message);

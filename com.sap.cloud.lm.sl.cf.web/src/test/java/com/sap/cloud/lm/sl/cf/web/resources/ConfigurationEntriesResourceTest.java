@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -332,7 +332,7 @@ public class ConfigurationEntriesResourceTest {
         private static final String PROVIDER_ID = "I";
 
         @Mock
-        private CloudFoundryOperations client;
+        private CloudControllerClient client;
         @Mock
         private CloudFoundryClientProvider clientProvider;
         @Mock

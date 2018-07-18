@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import java.net.URL;
 import java.util.Arrays;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ public class ServiceBrokerCreatorTest {
     private static final String SERVICE_BROKERS_ENDPOINT = "/v2/service_brokers";
 
     @Mock
-    private CloudFoundryOperations client;
+    private CloudControllerClient client;
     @Mock
     private RestTemplateFactory restTemplateFactory;
     @Mock

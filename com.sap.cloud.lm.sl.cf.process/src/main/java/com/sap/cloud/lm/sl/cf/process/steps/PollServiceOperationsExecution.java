@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 
 import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -57,7 +57,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
                 return AsyncExecutionState.FINISHED;
             }
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
 
             Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(execution.getContext());
             List<CloudServiceExtended> servicesToPoll = getServiceOperationsToPoll(execution, triggeredServiceOperations);
@@ -85,8 +85,8 @@ public class PollServiceOperationsExecution implements AsyncExecution {
                 return AsyncExecutionState.FINISHED;
             }
             return AsyncExecutionState.RUNNING;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             execution.getStepLogger()
                 .error(e, Messages.ERROR_MONITORING_CREATION_OF_SERVICES);
             throw e;
@@ -116,7 +116,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
             .collect(Collectors.toList());
     }
 
-    private ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudFoundryOperations client,
+    private ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudControllerClient client,
         CloudServiceExtended service) {
         Map<String, Object> cloudServiceInstance = serviceOperationExecutor.executeServiceOperation(service,
             () -> serviceInstanceGetter.getServiceInstance(client, service.getName(), StepsUtil.getSpaceId(execution.getContext())),

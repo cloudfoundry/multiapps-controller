@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.junit.Before;
@@ -23,7 +23,7 @@ public class ApplicationEnvironmentUpdaterTest {
     private Input input;
     private String expectedResult;
     private ApplicationEnvironmentUpdater applicationEnvironmentUpdater;
-    private CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
+    private CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
 
     @Parameters
     public static Iterable<Object[]> getParameters() {

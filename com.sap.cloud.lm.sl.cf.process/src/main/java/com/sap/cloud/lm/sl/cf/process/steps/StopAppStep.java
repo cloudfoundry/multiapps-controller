@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -30,7 +30,7 @@ public class StopAppStep extends SyncActivitiStep {
                 getStepLogger().info(Messages.STOPPING_APP, app.getName());
 
                 // Get a cloud foundry client
-                CloudFoundryOperations client = execution.getCloudFoundryClient();
+                CloudControllerClient client = execution.getCloudControllerClient();
 
                 // Stop the application
                 client.stopApplication(app.getName());
@@ -41,11 +41,11 @@ public class StopAppStep extends SyncActivitiStep {
             }
 
             return StepPhase.DONE;
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_STOPPING_APP, app.getName());
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_STOPPING_APP, app.getName());
             throw e;
         }

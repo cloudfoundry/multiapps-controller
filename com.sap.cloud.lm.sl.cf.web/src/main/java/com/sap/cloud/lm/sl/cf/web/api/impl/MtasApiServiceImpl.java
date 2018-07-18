@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.springframework.stereotype.Component;
@@ -66,7 +66,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         return new DeployedComponentsDetector().detectAllDeployedComponents(applications);
     }
 
-    private CloudFoundryOperations getCloudFoundryClient(String spaceGuid) throws SLException {
+    private CloudControllerClient getCloudFoundryClient(String spaceGuid) throws SLException {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         return clientProvider.getCloudFoundryClient(userInfo.getName(), spaceGuid);
     }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.junit.Before;
@@ -36,7 +36,7 @@ public class DeleteServiceBrokersStepTest extends SyncActivitiStepTest<DeleteSer
     private final String[] expectedDeletedBrokers;
     private final String expectedExceptionMessage;
 
-    private CloudFoundryException deleteException;
+    private CloudOperationException deleteException;
 
     private StepInput input;
 
@@ -69,22 +69,22 @@ public class DeleteServiceBrokersStepTest extends SyncActivitiStepTest<DeleteSer
             },
             // (5) One service broker  should be deleted, but an exception is thrown by the client:
             {
-                "delete-service-brokers-step-input-01.json", new String[] {}, "Controller operation failed: 418 I'm a teapot", new CloudFoundryException(HttpStatus.I_AM_A_TEAPOT),
+                "delete-service-brokers-step-input-01.json", new String[] {}, "Controller operation failed: 418 I'm a teapot", new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
             },
             // (6) Service broker should not be deleted and an exception should be thrown, because the user is not an admin and failsafe option is not set:
             {
-                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, "Controller operation failed: 403 Forbidden", new CloudFoundryException(HttpStatus.FORBIDDEN),
+                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, "Controller operation failed: 403 Forbidden", new CloudOperationException(HttpStatus.FORBIDDEN),
             },
             // (7) Service broker should not be deleted without an exception, because the user is not an admin and failsafe option is set:
             {
-                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, new CloudFoundryException(HttpStatus.FORBIDDEN),
+                "delete-service-brokers-step-input-01.json", new String[] { "foo-broker", }, null, new CloudOperationException(HttpStatus.FORBIDDEN),
             },
 // @formatter:on
         });
     }
 
     public DeleteServiceBrokersStepTest(String inputLocation, String[] expectedDeletedBrokers, String expectedExceptionMessage,
-        CloudFoundryException deleteException) {
+        CloudOperationException deleteException) {
         this.expectedDeletedBrokers = expectedDeletedBrokers;
         this.expectedExceptionMessage = expectedExceptionMessage;
         this.inputLocation = inputLocation;

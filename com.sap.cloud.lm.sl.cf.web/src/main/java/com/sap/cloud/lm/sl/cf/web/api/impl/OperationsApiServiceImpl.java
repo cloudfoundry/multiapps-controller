@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import org.activiti.engine.runtime.ProcessInstance;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.slf4j.Logger;
@@ -235,7 +235,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private void addServiceParameters(Operation operation, String spaceGuid) {
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Map<String, Object> parameters = operation.getParameters();
-        CloudFoundryOperations client = getCloudFoundryClient(spaceGuid);
+        CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         CloudSpace space = new CFOptimizedSpaceGetter().getSpace(client, spaceGuid);
         parameters.put("__SPACE_ID", spaceGuid);
         parameters.put("__SERVICE_ID", processDefinitionKey);
@@ -305,7 +305,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return user;
     }
 
-    private CloudFoundryOperations getCloudFoundryClient(String spaceGuid) throws SLException {
+    private CloudControllerClient getCloudFoundryClient(String spaceGuid) throws SLException {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         return clientProvider.getCloudFoundryClient(userInfo.getName(), spaceGuid);
     }

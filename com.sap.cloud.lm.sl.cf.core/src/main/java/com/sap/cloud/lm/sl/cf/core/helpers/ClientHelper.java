@@ -2,8 +2,8 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.text.MessageFormat;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +18,10 @@ public class ClientHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientHelper.class);
 
-    private CloudFoundryOperations client;
+    private CloudControllerClient client;
     private SpaceGetter spaceGetter;
 
-    public ClientHelper(CloudFoundryOperations client, SpaceGetter spaceGetter) {
+    public ClientHelper(CloudControllerClient client, SpaceGetter spaceGetter) {
         this.client = client;
         this.spaceGetter = spaceGetter;
     }
@@ -61,7 +61,7 @@ public class ClientHelper {
     private CloudSpace attemptToFindSpace(String spaceId) {
         try {
             return spaceGetter.getSpace(client, spaceId);
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             // From our point of view 403 means the same as 404 - the user does not have access to a space, so it is like it does not exist
             // for him.
             if (e.getStatusCode()

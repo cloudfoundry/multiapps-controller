@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.util.JsonUtil;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class MtaConfigurationPurgerTest {
     private final static String TARGET_ORG = "org";
 
     @Mock
-    CloudFoundryOperations client;
+    CloudControllerClient client;
     
     @Mock
     SpaceGetter spaceGetter;

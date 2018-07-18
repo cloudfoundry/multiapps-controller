@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -42,8 +42,8 @@ public class ExecuteTaskStep extends TimeoutAsyncActivitiStep {
         CloudTask taskToExecute = StepsUtil.getTask(execution.getContext());
         try {
             return attemptToExecuteTask(execution, app, taskToExecute);
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
             throw e;
         } catch (SLException e) {

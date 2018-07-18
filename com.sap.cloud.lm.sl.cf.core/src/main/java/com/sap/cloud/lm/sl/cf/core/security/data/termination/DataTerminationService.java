@@ -9,7 +9,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.cloudfoundry.client.lib.CloudCredentials;
-import org.cloudfoundry.client.lib.CloudFoundryClient;
+import org.cloudfoundry.client.lib.CloudControllerClientImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -93,26 +93,24 @@ public class DataTerminationService {
         }
     }
 
-    protected CloudFoundryClient getCFClient() {
-
+    protected CloudControllerClientImpl getCFClient() {
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
             configuration.getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
 
-        CloudFoundryClient cfClient = new CloudFoundryClient(cloudCredentials, configuration.getTargetURL(),
+        CloudControllerClientImpl cfClient = new CloudControllerClientImpl(cloudCredentials, configuration.getTargetURL(),
             configuration.shouldSkipSslValidation());
         cfClient.login();
         return cfClient;
     }
 
     private List<String> getDeleteSpaceEvents() {
-        CloudFoundryClient cfClient = getCFClient();
+        CloudControllerClientImpl cfClient = getCFClient();
         CFOptimizedEventGetter cfOptimizedEventGetter = new CFOptimizedEventGetter(cfClient);
         List<String> events = cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeTwoDays());
         return events;
     }
 
     private String getDateBeforeTwoDays() {
-
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         long currentDateInMillis = new Date().getTime();
         long timeInMillisBeforeTwoDays = currentDateInMillis - GET_EVENTS_DAYS_BEFORE * DateUtils.MILLIS_PER_DAY;

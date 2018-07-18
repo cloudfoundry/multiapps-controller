@@ -2,13 +2,13 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.util.Set;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 
 public interface PortAllocator {
 
-    int allocatePort() throws CloudFoundryException;
+    int allocatePort() throws CloudOperationException;
 
-    int allocateTcpPort(boolean tcps) throws CloudFoundryException;
+    int allocateTcpPort(boolean tcps) throws CloudOperationException;
 
     void freeAll();
 

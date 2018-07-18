@@ -3,8 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static java.text.MessageFormat.format;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.Upload;
 
@@ -22,7 +22,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
             execution.getStepLogger()
                 .debug(Messages.CHECKING_UPLOAD_APP_STATUS, app.getName());
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
 
             String uploadToken = (String) execution.getContext()
                 .getVariable(Constants.VAR_UPLOAD_TOKEN);
@@ -43,12 +43,12 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
                 default:
                     throw new IllegalStateException(format(Messages.UNKNOWN_UPLOAD_STATUS, upload.getStatus()));
             }
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             execution.getStepLogger()
                 .error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             execution.getStepLogger()
                 .error(e, Messages.ERROR_CHECKING_UPLOAD_APP_STATUS, app.getName());
             throw e;

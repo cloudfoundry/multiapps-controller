@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
@@ -69,7 +69,7 @@ public class CreateAppStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.CREATING_APP, app.getName());
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
 
             // Get application parameters:
             String appName = app.getName();
@@ -108,24 +108,24 @@ public class CreateAppStep extends SyncActivitiStep {
 
             getStepLogger().debug(Messages.APP_CREATED, app.getName());
             return StepPhase.DONE;
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_CREATING_APP, app.getName());
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_CREATING_APP, app.getName());
             throw e;
         }
     }
 
-    protected void injectServiceKeysCredentialsInAppEnv(DelegateExecution context, CloudFoundryOperations client,
+    protected void injectServiceKeysCredentialsInAppEnv(DelegateExecution context, CloudControllerClient client,
         CloudApplicationExtended app, Map<String, String> appEnv) {
         Map<String, String> appServiceKeysCredentials = buildServiceKeysCredentials(client, app, appEnv);
         app.setEnv(MapUtil.upcast(appEnv));
         updateContextWithServiceKeysCredentials(context, app, appServiceKeysCredentials);
     }
 
-    private Map<String, String> buildServiceKeysCredentials(CloudFoundryOperations client, CloudApplicationExtended app,
+    private Map<String, String> buildServiceKeysCredentials(CloudControllerClient client, CloudApplicationExtended app,
         Map<String, String> appEnv) {
         if (CollectionUtils.isEmpty(app.getServiceKeysToInject())) {
             return Collections.emptyMap();
@@ -150,7 +150,7 @@ public class CreateAppStep extends SyncActivitiStep {
         StepsUtil.setServiceKeysCredentialsToInject(context, serviceKeysCredentialsToInject);
     }
 
-    private Map<String, Object> getServiceKeyCredentials(CloudFoundryOperations client, ServiceKeyToInject serviceKeyToInject) {
+    private Map<String, Object> getServiceKeyCredentials(CloudControllerClient client, ServiceKeyToInject serviceKeyToInject) {
         List<ServiceKey> existingServiceKeys = client.getServiceKeys(serviceKeyToInject.getServiceName());
         for (ServiceKey existingServiceKey : existingServiceKeys) {
             if (existingServiceKey.getName()
@@ -236,12 +236,12 @@ public class CreateAppStep extends SyncActivitiStep {
             .orElse(null);
     }
 
-    protected void bindService(ExecutionWrapper execution, CloudFoundryOperations client, String appName, String serviceName,
+    protected void bindService(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
         Map<String, Object> bindingParameters) throws SLException {
 
         try {
             bindServiceToApplication(execution, client, appName, serviceName, bindingParameters);
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             List<CloudServiceExtended> servicesToBind = StepsUtil.getServicesToBind(execution.getContext());
             CloudServiceExtended serviceToBind = findServiceCloudModel(servicesToBind, serviceName);
 
@@ -253,7 +253,7 @@ public class CreateAppStep extends SyncActivitiStep {
         }
     }
 
-    private void bindServiceToApplication(ExecutionWrapper execution, CloudFoundryOperations client, String appName, String serviceName,
+    private void bindServiceToApplication(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
         Map<String, Object> bindingParameters) {
         if (bindingParameters != null) {
             ClientExtensions clientExtensions = execution.getClientExtensions();
@@ -264,7 +264,7 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     // TODO Fix update of service bindings parameters
-    private void bindServiceWithParameters(ClientExtensions clientExtensions, CloudFoundryOperations client, String appName,
+    private void bindServiceWithParameters(ClientExtensions clientExtensions, CloudControllerClient client, String appName,
         String serviceName, Map<String, Object> bindingParameters) {
         getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters.get(serviceName));
         if (clientExtensions == null) {
@@ -274,7 +274,7 @@ public class CreateAppStep extends SyncActivitiStep {
         }
     }
 
-    private void bindService(CloudFoundryOperations client, String appName, String serviceName) {
+    private void bindService(CloudControllerClient client, String appName, String serviceName) {
         getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE, appName, serviceName);
         client.bindService(appName, serviceName);
     }

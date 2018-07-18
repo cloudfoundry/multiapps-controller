@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.impl.identity.Authentication;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
@@ -74,14 +74,14 @@ public class StepsUtil {
             .getLogger(getCorrelationId(context), PARENT_LOGGER, appName);
     }
 
-    static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,
+    static CloudControllerClient getCloudControllerClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,
         StepLogger stepLogger) throws SLException {
         String userName = determineCurrentUser(context, stepLogger);
         String spaceId = getSpaceId(context);
         return clientProvider.getCloudFoundryClient(userName, spaceId);
     }
 
-    static CloudFoundryOperations getCloudFoundryClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,
+    static CloudControllerClient getCloudControllerClient(DelegateExecution context, CloudFoundryClientProvider clientProvider,
         StepLogger stepLogger, String org, String space) throws SLException {
         // Determine the current user
         String userName = determineCurrentUser(context, stepLogger);
@@ -90,18 +90,18 @@ public class StepsUtil {
 
     static ClientExtensions getClientExtensions(DelegateExecution context, CloudFoundryClientProvider clientProvider, StepLogger stepLogger)
         throws SLException {
-        CloudFoundryOperations cloudFoundryClient = StepsUtil.getCloudFoundryClient(context, clientProvider, stepLogger);
-        if (cloudFoundryClient instanceof ClientExtensions) {
-            return (ClientExtensions) cloudFoundryClient;
+        CloudControllerClient client = StepsUtil.getCloudControllerClient(context, clientProvider, stepLogger);
+        if (client instanceof ClientExtensions) {
+            return (ClientExtensions) client;
         }
         return null;
     }
 
     static ClientExtensions getClientExtensions(DelegateExecution context, CloudFoundryClientProvider clientProvider, StepLogger stepLogger,
         String org, String space) throws SLException {
-        CloudFoundryOperations cloudFoundryClient = StepsUtil.getCloudFoundryClient(context, clientProvider, stepLogger, org, space);
-        if (cloudFoundryClient instanceof ClientExtensions) {
-            return (ClientExtensions) cloudFoundryClient;
+        CloudControllerClient client = StepsUtil.getCloudControllerClient(context, clientProvider, stepLogger, org, space);
+        if (client instanceof ClientExtensions) {
+            return (ClientExtensions) client;
         }
         return null;
     }
@@ -791,7 +791,7 @@ public class StepsUtil {
         return (String) context.getVariable(Constants.VAR_PARENTPROCESS_ID);
     }
 
-    static void saveAppLogs(DelegateExecution context, CloudFoundryOperations client, RecentLogsRetriever recentLogsRetriever,
+    static void saveAppLogs(DelegateExecution context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
         CloudApplication app, Logger logger, ProcessLoggerProviderFactory processLoggerProviderFactory) {
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName());
         if (recentLogs != null) {

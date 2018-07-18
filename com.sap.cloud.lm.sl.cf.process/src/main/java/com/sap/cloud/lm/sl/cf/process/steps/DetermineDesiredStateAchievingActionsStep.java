@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -33,8 +33,8 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
         CloudApplication app = StepsUtil.getApp(context.getContext());
         try {
             return attemptToExecuteStep(context);
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_DETERMINING_ACTIONS_TO_EXECUTE_ON_APP, app.getName());
             throw e;
         } catch (SLException e) {
@@ -59,7 +59,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
     }
 
     private ApplicationStartupState computeCurrentState(ExecutionWrapper execution, CloudApplication app) {
-        CloudFoundryOperations client = execution.getCloudFoundryClient();
+        CloudControllerClient client = execution.getCloudControllerClient();
         return appStateCalculatorSupplier.get()
             .computeCurrentState(client.getApplication(app.getName()));
     }

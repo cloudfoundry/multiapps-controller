@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -21,7 +21,7 @@ public class AddDomainsStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         try {
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
 
             List<String> customDomains = StepsUtil.getCustomDomains(execution.getContext());
             getStepLogger().debug("Custom domains: " + customDomains);
@@ -39,8 +39,8 @@ public class AddDomainsStep extends SyncActivitiStep {
 
             getStepLogger().debug(Messages.DOMAINS_ADDED);
             return StepPhase.DONE;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_ADDING_DOMAINS);
             throw e;
         } catch (SLException e) {
@@ -57,13 +57,13 @@ public class AddDomainsStep extends SyncActivitiStep {
         return domainNames;
     }
 
-    private void addDomains(CloudFoundryOperations client, List<String> domainNames, List<String> existingDomainNames) {
+    private void addDomains(CloudControllerClient client, List<String> domainNames, List<String> existingDomainNames) {
         for (String domainName : domainNames) {
             addDomain(client, domainName, existingDomainNames);
         }
     }
 
-    private void addDomain(CloudFoundryOperations client, String domainName, List<String> existingDomainNames) {
+    private void addDomain(CloudControllerClient client, String domainName, List<String> existingDomainNames) {
         if (existingDomainNames.contains(domainName)) {
             getStepLogger().debug(Messages.DOMAIN_ALREADY_EXISTS, domainName);
         } else {

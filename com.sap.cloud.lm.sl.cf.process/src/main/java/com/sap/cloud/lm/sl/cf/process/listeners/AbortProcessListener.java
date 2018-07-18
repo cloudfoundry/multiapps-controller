@@ -14,8 +14,8 @@ import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.impl.event.logger.handler.ProcessInstanceEndedEventHandler;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -124,7 +124,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         if (allocatedPortsInstance == null) {
             return;
         }
-        CloudFoundryOperations client = getCloudFoundryClient(historyService, processInstanceId);
+        CloudControllerClient client = getCloudFoundryClient(historyService, processInstanceId);
         String defaultDomain = client.getDefaultDomain() != null ? client.getDefaultDomain()
             .getName() : null;
         if (defaultDomain == null) {
@@ -135,13 +135,13 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         for (Integer port : allocatedPorts) {
             try {
                 client.deleteRoute(port.toString(), defaultDomain);
-            } catch (CloudFoundryException e) {
+            } catch (CloudOperationException e) {
                 LOGGER.warn(format(Messages.COULD_NOT_DELETE_ROUTE_FOR_PORT, port.toString()));
             }
         }
     }
 
-    protected CloudFoundryOperations getCloudFoundryClient(HistoryService historyService, String processInstanceId) throws SLException {
+    protected CloudControllerClient getCloudFoundryClient(HistoryService historyService, String processInstanceId) throws SLException {
         String user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER).getValue();
         String organization = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_ORG).getValue();
         String space = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_SPACE).getValue();

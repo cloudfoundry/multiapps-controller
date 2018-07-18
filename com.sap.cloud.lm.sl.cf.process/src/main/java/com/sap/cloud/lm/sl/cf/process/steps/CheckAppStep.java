@@ -1,8 +1,8 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -23,7 +23,7 @@ public class CheckAppStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.CHECKING_APP, app.getName());
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
 
             // Check if an application with this name already exists, and store it in the context:
             CloudApplication existingApp = client.getApplication(app.getName(), false);
@@ -39,8 +39,8 @@ public class CheckAppStep extends SyncActivitiStep {
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_CHECKING_APP, app.getName());
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_CHECKING_APP, app.getName());
             throw e;
         }

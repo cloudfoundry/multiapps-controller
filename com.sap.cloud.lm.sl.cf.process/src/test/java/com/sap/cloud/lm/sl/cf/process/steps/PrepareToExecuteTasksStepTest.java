@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -51,7 +51,7 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
         // Given:
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(createDummyApplicationWithTasks(0)), context);
 
-        CloudFoundryOperations client = getClientThatSupportsTasks();
+        CloudControllerClient client = getClientThatSupportsTasks();
         when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
 
         // When:
@@ -66,7 +66,7 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
         // Given:
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(createDummyApplicationWithTasks(0)), context);
 
-        CloudFoundryOperations client = Mockito.mock(CloudFoundryOperations.class);
+        CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
         mockControllerTasksSupport(client);
         when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
 
@@ -82,7 +82,7 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
         // Given:
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(createDummyApplicationWithTasks(0)), context);
 
-        CloudFoundryOperations client = getClientThatSupportsTasks();
+        CloudControllerClient client = getClientThatSupportsTasks();
         mockControllerTasksSupport(client);
         when(clientProvider.getCloudFoundryClient(anyString(), anyString())).thenReturn(client);
 
@@ -93,7 +93,7 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
         assertTrue((boolean) context.getVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS));
     }
 
-    private void mockControllerTasksSupport(CloudFoundryOperations client) {
+    private void mockControllerTasksSupport(CloudControllerClient client) {
         CloudInfo info = getInfoSayingTheControllerSupportsTasks();
         when(client.getCloudInfo()).thenReturn(info);
     }
@@ -104,8 +104,8 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
         return info;
     }
 
-    private CloudFoundryOperations getClientThatSupportsTasks() {
-        return Mockito.mock(CloudFoundryOperations.class, withSettings().extraInterfaces(ClientExtensions.class));
+    private CloudControllerClient getClientThatSupportsTasks() {
+        return Mockito.mock(CloudControllerClient.class, withSettings().extraInterfaces(ClientExtensions.class));
     }
 
     private CloudApplicationExtended createDummyApplicationWithTasks(int numberOfTasks) {

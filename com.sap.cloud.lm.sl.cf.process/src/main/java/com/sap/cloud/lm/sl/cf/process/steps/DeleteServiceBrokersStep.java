@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.cloudfoundry.client.lib.ServiceBrokerException;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -32,7 +32,7 @@ public class DeleteServiceBrokersStep extends SyncActivitiStep {
             getStepLogger().info(Messages.DELETING_SERVICE_BROKERS);
 
             List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(execution.getContext());
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
             List<String> serviceBrokersToCreate = getServiceBrokerNames(StepsUtil.getServiceBrokersToCreate(execution.getContext()));
 
             for (CloudApplication app : appsToUndeploy) {
@@ -41,18 +41,18 @@ public class DeleteServiceBrokersStep extends SyncActivitiStep {
 
             getStepLogger().debug(Messages.SERVICE_BROKERS_DELETED);
             return StepPhase.DONE;
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_DELETING_SERVICE_BROKERS);
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_DELETING_SERVICE_BROKERS);
             throw e;
         }
     }
 
     private void deleteServiceBrokerIfNecessary(DelegateExecution context, CloudApplication app, List<String> serviceBrokersToCreate,
-        CloudFoundryOperations client) {
+        CloudControllerClient client) {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         if (!appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return;
@@ -65,16 +65,16 @@ public class DeleteServiceBrokersStep extends SyncActivitiStep {
                 getStepLogger().info(MessageFormat.format(Messages.DELETING_SERVICE_BROKER, name, app.getName()));
                 client.deleteServiceBroker(name);
                 getStepLogger().debug(MessageFormat.format(Messages.DELETED_SERVICE_BROKER, name, app.getName()));
-            } catch (CloudFoundryException e) {
+            } catch (CloudOperationException e) {
                 switch (e.getStatusCode()) {
                     case FORBIDDEN:
                         if (shouldSucceed(context)) {
                             getStepLogger().warn(Messages.DELETE_OF_SERVICE_BROKERS_FAILED_403, name);
                             return;
                         }
-                        throw new ServiceBrokerException(e);
+                        throw new CloudServiceBrokerException(e);
                     case BAD_GATEWAY:
-                        throw new ServiceBrokerException(e);
+                        throw new CloudServiceBrokerException(e);
                     default:
                         throw e;
                 }

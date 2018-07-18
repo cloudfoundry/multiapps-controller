@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
@@ -47,8 +47,8 @@ public class RestartUpdatedSubscribersStepTest extends SyncActivitiStepTest<Rest
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace("org", "space-bar")));
         StepsUtil.setUpdatedSubscribers(context, updatedSubscribers);
 
-        CloudFoundryOperations clientForSpaceFoo = Mockito.mock(CloudFoundryOperations.class);
-        CloudFoundryOperations clientForSpaceBar = Mockito.mock(CloudFoundryOperations.class);
+        CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class);
+        CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class);
         Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString()))
             .thenReturn(clientForSpaceFoo);
         Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-bar"), anyString()))
@@ -77,9 +77,9 @@ public class RestartUpdatedSubscribersStepTest extends SyncActivitiStepTest<Rest
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace("org", "space-bar")));
         StepsUtil.setUpdatedSubscribers(context, updatedSubscribers);
 
-        CloudFoundryOperations clientForSpaceFoo = Mockito.mock(CloudFoundryOperations.class,
+        CloudControllerClient clientForSpaceFoo = Mockito.mock(CloudControllerClient.class,
             withSettings().extraInterfaces(ClientExtensions.class));
-        CloudFoundryOperations clientForSpaceBar = Mockito.mock(CloudFoundryOperations.class,
+        CloudControllerClient clientForSpaceBar = Mockito.mock(CloudControllerClient.class,
             withSettings().extraInterfaces(ClientExtensions.class));
 
         Mockito.when(clientProvider.getCloudFoundryClient(eq(USER_NAME), eq("org"), eq("space-foo"), anyString()))
@@ -122,7 +122,7 @@ public class RestartUpdatedSubscribersStepTest extends SyncActivitiStepTest<Rest
         updatedSubscribers.add(createCloudApplication("app-2", createCloudSpace(ORG_NAME, SPACE_NAME)));
         StepsUtil.setUpdatedSubscribers(context, updatedSubscribers);
 
-        Mockito.doThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR))
+        Mockito.doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR))
             .when(client)
             .stopApplication("app-1");
 

@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
 import org.springframework.web.client.RestTemplate;
@@ -23,11 +23,11 @@ public class ServiceBrokersGetter extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    public List<CloudServiceBrokerExtended> getServiceBrokers(CloudFoundryOperations client) {
+    public List<CloudServiceBrokerExtended> getServiceBrokers(CloudControllerClient client) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetServiceBrokers(client));
     }
 
-    private List<CloudServiceBrokerExtended> attemptToGetServiceBrokers(CloudFoundryOperations client) {
+    private List<CloudServiceBrokerExtended> attemptToGetServiceBrokers(CloudControllerClient client) {
         String controllerUrl = client.getCloudControllerUrl()
             .toString();
         RestTemplate restTemplate = getRestTemplate(client);

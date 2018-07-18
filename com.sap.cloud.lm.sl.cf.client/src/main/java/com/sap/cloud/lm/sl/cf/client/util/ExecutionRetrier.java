@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,7 +39,7 @@ public class ExecutionRetrier {
                 return supplier.get();
             } catch (ResourceAccessException e) {
                 LOGGER.warn(e.getMessage(), e);
-            } catch (CloudFoundryException e) {
+            } catch (CloudOperationException e) {
                 if (!shouldIgnoreException(e, httpStatuses)) {
                     throw e;
                 }
@@ -57,18 +57,18 @@ public class ExecutionRetrier {
         }, httpStatusesToIgnore);
     }
 
-    private boolean shouldIgnoreException(CloudFoundryException ex, Set<HttpStatus> httpStatusesToIgnore) {
+    private boolean shouldIgnoreException(CloudOperationException e, Set<HttpStatus> httpStatusesToIgnore) {
         for (HttpStatus status : httpStatusesToIgnore) {
-            if (ex.getStatusCode()
+            if (e.getStatusCode()
                 .equals(status)) {
                 return true;
             }
         }
-        return ex.getStatusCode()
+        return e.getStatusCode()
             .equals(HttpStatus.INTERNAL_SERVER_ERROR)
-            || ex.getStatusCode()
+            || e.getStatusCode()
                 .equals(HttpStatus.BAD_GATEWAY)
-            || ex.getStatusCode()
+            || e.getStatusCode()
                 .equals(HttpStatus.SERVICE_UNAVAILABLE);
     }
 

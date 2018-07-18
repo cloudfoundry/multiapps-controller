@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.collections.map.ReferenceMap;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
@@ -35,26 +35,26 @@ public class CloudFoundryClientProvider {
     // Cached clients. These are stored in memory-sensitive cache, i.e. no OutOfMemory error would
     // occur before GC tries to release the not-used clients.
     @SuppressWarnings("unchecked")
-    private Map<String, Pair<CloudFoundryOperations, TokenProvider>> clients = Collections
+    private Map<String, Pair<CloudControllerClient, TokenProvider>> clients = Collections
         .synchronizedMap(new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT));
 
-    public CloudFoundryOperations getCloudFoundryClient(String userName, String org, String space, String processId) throws SLException {
-        Pair<CloudFoundryOperations, TokenProvider> client = retrieveClientForToken(userName, org, space, processId);
+    public CloudControllerClient getCloudFoundryClient(String userName, String org, String space, String processId) throws SLException {
+        Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, org, space, processId);
         return client._1;
     }
 
-    public CloudFoundryOperations getCloudFoundryClient(String userName, String spaceGuid, String processId) throws SLException {
-        Pair<CloudFoundryOperations, TokenProvider> client = retrieveClientForToken(userName, spaceGuid, processId);
+    public CloudControllerClient getCloudFoundryClient(String userName, String spaceGuid, String processId) throws SLException {
+        Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, spaceGuid, processId);
         return client._1;
     }
 
-    public CloudFoundryOperations getCloudFoundryClient(String userName, String spaceGuid) throws SLException {
-        Pair<CloudFoundryOperations, TokenProvider> client = retrieveClientForToken(userName, spaceGuid);
+    public CloudControllerClient getCloudFoundryClient(String userName, String spaceGuid) throws SLException {
+        Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, spaceGuid);
         return client._1;
     }
 
-    public CloudFoundryOperations getCloudFoundryClient(String userName) throws SLException {
-        Pair<CloudFoundryOperations, TokenProvider> client = createClientForToken(userName);
+    public CloudControllerClient getCloudFoundryClient(String userName) throws SLException {
+        Pair<CloudControllerClient, TokenProvider> client = createClientForToken(userName);
         return client._1;
     }
 
@@ -91,36 +91,36 @@ public class CloudFoundryClientProvider {
         return token;
     }
 
-    private Pair<CloudFoundryOperations, TokenProvider> retrieveClientForToken(String userName, String org, String space, String processId)
+    private Pair<CloudControllerClient, TokenProvider> retrieveClientForToken(String userName, String org, String space, String processId)
         throws SLException {
         try {
             return getClientFromCache(userName, org, space, processId);
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT_2, org, space);
         }
     }
 
-    private Pair<CloudFoundryOperations, TokenProvider> retrieveClientForToken(String userName, String spaceGuid, String processId)
+    private Pair<CloudControllerClient, TokenProvider> retrieveClientForToken(String userName, String spaceGuid, String processId)
         throws SLException {
         try {
             return getClientFromCache(userName, spaceGuid, processId);
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT_FOR_SPACE_ID, spaceGuid);
         }
     }
 
-    private Pair<CloudFoundryOperations, TokenProvider> retrieveClientForToken(String userName, String spaceGuid) throws SLException {
+    private Pair<CloudControllerClient, TokenProvider> retrieveClientForToken(String userName, String spaceGuid) throws SLException {
         try {
             return getClientFromCache(userName, spaceGuid);
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT_FOR_SPACE_ID, spaceGuid);
         }
     }
 
-    private Pair<CloudFoundryOperations, TokenProvider> createClientForToken(String userName) throws SLException {
+    private Pair<CloudControllerClient, TokenProvider> createClientForToken(String userName) throws SLException {
         try {
             return cloudFoundryClientFactory.createClient(getValidToken(userName));
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT);
         }
     }
@@ -135,14 +135,14 @@ public class CloudFoundryClientProvider {
      * @return a CF client for the specified access token, organization, and space
      * @throws MalformedURLException if the configured target URL is malformed
      */
-    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(String userName, String org, String space) {
+    public Pair<CloudControllerClient, TokenProvider> getClientFromCache(String userName, String org, String space) {
         return getClientFromCache(userName, org, space, null);
     }
 
-    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(String userName, String org, String space, String processId) {
+    public Pair<CloudControllerClient, TokenProvider> getClientFromCache(String userName, String org, String space, String processId) {
         // Get a client from the cache or create a new one if needed
         String key = getKey(userName, org, space);
-        Pair<CloudFoundryOperations, TokenProvider> client = clients.get(key);
+        Pair<CloudControllerClient, TokenProvider> client = clients.get(key);
         if (client == null) {
             client = cloudFoundryClientFactory.createClient(getValidToken(userName), org, space);
             if (processId != null) {
@@ -152,10 +152,10 @@ public class CloudFoundryClientProvider {
         return client;
     }
 
-    public Pair<CloudFoundryOperations, TokenProvider> getClientFromCache(String userName, String spaceId) {
+    public Pair<CloudControllerClient, TokenProvider> getClientFromCache(String userName, String spaceId) {
         // Get a client from the cache or create a new one if needed
         String key = getKey(userName, spaceId);
-        Pair<CloudFoundryOperations, TokenProvider> client = clients.get(key);
+        Pair<CloudControllerClient, TokenProvider> client = clients.get(key);
         if (client == null) {
             client = cloudFoundryClientFactory.createClient(getValidToken(userName), spaceId);
             clients.put(key, client);
@@ -174,7 +174,7 @@ public class CloudFoundryClientProvider {
      */
     public void updateClientInCache(String userName, String org, String space) {
         String key = getKey(userName, org, space);
-        Pair<CloudFoundryOperations, TokenProvider> client = clients.remove(key);
+        Pair<CloudControllerClient, TokenProvider> client = clients.remove(key);
         if (client != null) {
             String key2 = getKey(userName, org, space);
             clients.put(key2, client);

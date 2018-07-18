@@ -16,7 +16,7 @@ import java.util.UUID;
 import org.cloudfoundry.client.lib.ApplicationLogListener;
 import org.cloudfoundry.client.lib.ClientHttpResponseCallback;
 import org.cloudfoundry.client.lib.CloudCredentials;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.RestLogCallback;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
@@ -54,7 +54,7 @@ import org.springframework.web.client.ResponseErrorHandler;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 
-public class MockCloudFoundryClient implements CloudFoundryOperations {
+public class MockCloudFoundryClient implements CloudControllerClient {
 
     private Map<String, CloudApplication> apps = new HashMap<>();
     private Map<String, Map<String, String>> appsEnv = new HashMap<>();

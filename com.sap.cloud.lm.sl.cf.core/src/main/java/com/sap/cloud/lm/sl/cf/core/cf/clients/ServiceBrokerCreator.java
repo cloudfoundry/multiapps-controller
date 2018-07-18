@@ -5,7 +5,7 @@ import java.util.TreeMap;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,11 +20,11 @@ public class ServiceBrokerCreator extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    public void createServiceBroker(CloudFoundryOperations client, CloudServiceBrokerExtended serviceBroker) {
+    public void createServiceBroker(CloudControllerClient client, CloudServiceBrokerExtended serviceBroker) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToCreateServiceBroker(client, serviceBroker));
     }
 
-    private void attemptToCreateServiceBroker(CloudFoundryOperations client, CloudServiceBrokerExtended serviceBroker) {
+    private void attemptToCreateServiceBroker(CloudControllerClient client, CloudServiceBrokerExtended serviceBroker) {
         validateEntity(serviceBroker);
         Map<String, Object> serviceBrokerCreationRequest = getServiceBrokerCreationRequest(serviceBroker);
         String controllerUrl = client.getCloudControllerUrl()

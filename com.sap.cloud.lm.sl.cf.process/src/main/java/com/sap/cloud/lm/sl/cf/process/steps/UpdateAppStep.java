@@ -10,8 +10,8 @@ import java.util.TreeMap;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.Staging;
@@ -44,7 +44,7 @@ public class UpdateAppStep extends CreateAppStep {
             getStepLogger().info(Messages.UPDATING_APP, app.getName());
 
             // Get a cloud foundry client
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
 
             // Get application parameters
             String appName = app.getName();
@@ -99,11 +99,11 @@ public class UpdateAppStep extends CreateAppStep {
 
             StepsUtil.setAppPropertiesChanged(execution.getContext(), appPropertiesChanged);
             return StepPhase.DONE;
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_UPDATING_APP, app.getName());
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_UPDATING_APP, app.getName());
             throw e;
         }
@@ -126,7 +126,7 @@ public class UpdateAppStep extends CreateAppStep {
         return deployAttributesMap.get(com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST);
     }
 
-    private boolean updateApplicationServices(CloudApplicationExtended app, CloudApplication existingApp, CloudFoundryOperations client,
+    private boolean updateApplicationServices(CloudApplicationExtended app, CloudApplication existingApp, CloudControllerClient client,
         ExecutionWrapper execution) throws SLException, FileStorageException {
         boolean hasUnboundServices = unbindNotRequiredServices(existingApp, app.getServices(), client);
         List<String> services = app.getServices();
@@ -136,7 +136,7 @@ public class UpdateAppStep extends CreateAppStep {
         return hasUnboundServices || hasUpdatedServices;
     }
 
-    private boolean unbindNotRequiredServices(CloudApplication app, List<String> requiredServices, CloudFoundryOperations client) {
+    private boolean unbindNotRequiredServices(CloudApplication app, List<String> requiredServices, CloudControllerClient client) {
         boolean hasUnbindedService = false;
         for (String serviceName : app.getServices()) {
             if (!requiredServices.contains(serviceName)) {
@@ -147,7 +147,7 @@ public class UpdateAppStep extends CreateAppStep {
         return hasUnbindedService;
     }
 
-    private void unbindService(String appName, String serviceName, CloudFoundryOperations client) {
+    private void unbindService(String appName, String serviceName, CloudControllerClient client) {
         getStepLogger().debug(Messages.UNBINDING_APP_FROM_SERVICE, appName, serviceName);
         client.unbindService(appName, serviceName);
     }
@@ -165,7 +165,7 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     private boolean updateServices(CloudApplicationExtended app, CloudApplication existingApp,
-        Map<String, Map<String, Object>> bindingParameters, CloudFoundryOperations client, ExecutionWrapper execution,
+        Map<String, Map<String, Object>> bindingParameters, CloudControllerClient client, ExecutionWrapper execution,
         Set<String> updatedServices, List<String> services) throws SLException {
         boolean hasUpdatedService = false;
         List<String> existingAppServices = existingApp.getServices();

@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
@@ -24,11 +24,11 @@ public class ServiceBindingCreator extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    public void bindService(CloudFoundryOperations client, String appName, String serviceName, Map<String, Object> parameters) {
+    public void bindService(CloudControllerClient client, String appName, String serviceName, Map<String, Object> parameters) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToBindService(client, appName, serviceName, parameters));
     }
 
-    private void attemptToBindService(CloudFoundryOperations client, String appName, String serviceName, Map<String, Object> parameters) {
+    private void attemptToBindService(CloudControllerClient client, String appName, String serviceName, Map<String, Object> parameters) {
         String serviceBindingsUrl = getUrl(client.getCloudControllerUrl()
             .toString(), SERVICE_BINDINGS_ENDPOINT);
         CloudApplication cloudApplication = client.getApplication(appName);

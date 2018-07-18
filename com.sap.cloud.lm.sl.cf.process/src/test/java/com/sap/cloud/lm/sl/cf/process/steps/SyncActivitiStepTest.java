@@ -6,7 +6,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.junit.Before;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -52,7 +52,7 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     @Mock
     protected AbstractFileService fileService;
     @Mock(extraInterfaces = ClientExtensions.class)
-    protected CloudFoundryOperations client;
+    protected CloudControllerClient client;
     protected ClientExtensions clientExtensions;
     @Mock
     protected CloudFoundryClientProvider clientProvider;

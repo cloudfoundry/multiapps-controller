@@ -8,8 +8,8 @@ import java.util.TreeSet;
 
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.history.HistoricVariableInstance;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.junit.Before;
 import org.junit.Test;
@@ -166,7 +166,7 @@ public class AbortProcessListenerTest {
         @Mock
         private CloudFoundryClientProvider clientProvider;
         @Mock
-        private CloudFoundryOperations client;
+        private CloudControllerClient client;
 
         @InjectMocks
         BeanProvider beanProvider = BeanProvider.getInstance();
@@ -185,10 +185,10 @@ public class AbortProcessListenerTest {
                 .thenReturn(client);
             Mockito.when(client.getDefaultDomain())
                 .thenReturn(new CloudDomain(null, DEFAULT_DOMAIN, null));
-            Mockito.doThrow(CloudFoundryException.class)
+            Mockito.doThrow(CloudOperationException.class)
                 .when(client)
                 .deleteRoute(Integer.toString(1), DEFAULT_DOMAIN);
-            Mockito.doThrow(CloudFoundryException.class)
+            Mockito.doThrow(CloudOperationException.class)
                 .when(client)
                 .deleteRoute(Integer.toString(3), DEFAULT_DOMAIN);
 

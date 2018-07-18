@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
@@ -43,7 +43,7 @@ public class CFOptimizedSpaceGetterTest extends CFOptimizedSpaceGetterBaseTest {
         when(restTemplate.getForObject(GET_SPACE_ENDPOINT, String.class, urlVariables)).thenThrow(new HttpClientErrorException(status));
         try {
             spaceGetter.getSpace(client, "1");
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             assertEquals(e.getStatusCode(), status);
             return;
         }

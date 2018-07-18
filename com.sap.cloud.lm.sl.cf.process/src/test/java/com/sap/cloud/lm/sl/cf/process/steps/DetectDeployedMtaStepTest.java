@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -40,7 +40,7 @@ public class DetectDeployedMtaStepTest extends SyncActivitiStepTest<DetectDeploy
 
     @Test(expected = CloudControllerException.class)
     public void testExecute2() throws Exception {
-        when(client.getApplications("0")).thenThrow(new CloudFoundryException(HttpStatus.INTERNAL_SERVER_ERROR));
+        when(client.getApplications("0")).thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         step.execute(context);
     }
