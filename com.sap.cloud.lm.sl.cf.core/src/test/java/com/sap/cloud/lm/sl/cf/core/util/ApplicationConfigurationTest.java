@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration.DatabaseType;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import static org.mockito.Mockito.when;
 
 public class ApplicationConfigurationTest {
 
@@ -55,17 +54,6 @@ public class ApplicationConfigurationTest {
         when(environment.getString(ApplicationConfiguration.CFG_DB_TYPE)).thenReturn(expectedDBType.toString());
         ApplicationConfiguration testedConfiguration = new ApplicationConfiguration(environment);
         assertEquals(expectedDBType, testedConfiguration.getDatabaseType());
-    }
-
-    @Test
-    public void testLogFullConfig() {
-        when(environment.getAllVariables()).thenReturn(ImmutableMap.of(ApplicationConfiguration.CFG_DB_TYPE, "POSTGRES"));
-        ApplicationConfiguration testedConfig = new ApplicationConfiguration(environment) {
-            protected AuditLoggingFacade getAuditLoggingFacade() {
-                return auditLoggingFascade;
-            }
-        };
-        testedConfig.logFullConfig();
     }
 
     @Test
