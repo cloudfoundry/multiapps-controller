@@ -6,7 +6,7 @@ import java.util.function.BiFunction;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
@@ -59,7 +59,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
         try {
             getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
             Target target = StepsUtil.getTarget(execution.getContext());
@@ -113,7 +113,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
         descriptor.accept(resolverInvoker);
     }
 
-    protected BiFunction<String, String, String> getSpaceIdSupplier(CloudFoundryOperations client) {
+    protected BiFunction<String, String, String> getSpaceIdSupplier(CloudControllerClient client) {
         return (orgName, spaceName) -> new ClientHelper(client, spaceGetter).computeSpaceId(orgName, spaceName);
     }
 

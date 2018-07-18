@@ -12,8 +12,8 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -62,7 +62,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         PortAllocator portAllocator = null;
         try {
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
             String defaultDomainName = getDefaultDomain(client);
             getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
             boolean portBasedRouting = isPortBasedRouting(client);
@@ -88,8 +88,8 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
                 .setVariable(Constants.VAR_PORT_BASED_ROUTING, portBasedRouting);
 
             StepsUtil.setSystemParameters(execution.getContext(), systemParameters);
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             cleanUp(portAllocator);
             getStepLogger().error(e, Messages.ERROR_COLLECTING_SYSTEM_PARAMETERS);
             throw e;
@@ -103,7 +103,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         return StepPhase.DONE;
     }
 
-    private String getDefaultDomain(CloudFoundryOperations client) {
+    private String getDefaultDomain(CloudControllerClient client) {
         CloudDomain defaultDomain = client.getDefaultDomain();
         if (defaultDomain != null) {
             return defaultDomain.getName();
@@ -111,7 +111,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         return null;
     }
 
-    private boolean isPortBasedRouting(CloudFoundryOperations client) {
+    private boolean isPortBasedRouting(CloudControllerClient client) {
         CloudInfo info = client.getCloudInfo();
         if (info instanceof CloudInfoExtended) {
             return ((CloudInfoExtended) info).isPortBasedRouting();
@@ -119,7 +119,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         return false;
     }
 
-    private SystemParametersBuilder createParametersBuilder(DelegateExecution context, CloudFoundryOperations client,
+    private SystemParametersBuilder createParametersBuilder(DelegateExecution context, CloudControllerClient client,
         PortAllocator portAllocator, boolean portBasedRouting, String defaultDomainName, boolean reserveTemporaryRoute) {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
         String platformName = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_TARGET_NAME);
@@ -162,7 +162,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         return result;
     }
 
-    private String getDeployServiceUrl(CloudFoundryOperations client) {
+    private String getDeployServiceUrl(CloudControllerClient client) {
         CloudInfo info = client.getCloudInfo();
         if (info instanceof CloudInfoExtended) {
             return ((CloudInfoExtended) info).getDeployServiceUrl();

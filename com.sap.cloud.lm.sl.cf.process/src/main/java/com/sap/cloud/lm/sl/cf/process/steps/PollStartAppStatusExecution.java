@@ -9,8 +9,8 @@ import java.util.Map;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.InstanceInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
@@ -44,7 +44,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {
         CloudApplication app = getAppToPoll(execution.getContext());
-        CloudFoundryOperations client = execution.getCloudFoundryClient();
+        CloudControllerClient client = execution.getCloudControllerClient();
 
         try {
             execution.getStepLogger()
@@ -54,8 +54,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
             return checkStartupStatus(execution, app, status);
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
             throw e;
         } catch (SLException e) {
@@ -78,7 +78,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         return StepsUtil.getApp(context);
     }
 
-    private StartupStatus getStartupStatus(ExecutionWrapper execution, CloudFoundryOperations client, String appName) {
+    private StartupStatus getStartupStatus(ExecutionWrapper execution, CloudControllerClient client, String appName) {
         CloudApplication app = client.getApplication(appName);
         List<InstanceInfo> instances = getApplicationInstances(client, app);
 
@@ -173,7 +173,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             .info(message);
     }
 
-    private static List<InstanceInfo> getApplicationInstances(CloudFoundryOperations client, CloudApplication app) {
+    private static List<InstanceInfo> getApplicationInstances(CloudControllerClient client, CloudApplication app) {
         InstancesInfo instancesInfo = client.getApplicationInstances(app);
         return (instancesInfo != null) ? instancesInfo.getInstances() : null;
     }

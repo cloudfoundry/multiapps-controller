@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -51,14 +51,14 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             return AsyncExecutionState.FINISHED;
         }
         try {
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
             ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
             Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
             return checkAppExecutionStatus(execution, client, app, appAttributes, status);
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             execution.getStepLogger()
                 .error(e, Messages.ERROR_EXECUTING_APP_1, app.getName());
             throw e;
@@ -73,7 +73,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         return StepsUtil.getApp(context);
     }
 
-    private Pair<AppExecutionStatus, String> getAppExecutionStatus(DelegateExecution context, CloudFoundryOperations client,
+    private Pair<AppExecutionStatus, String> getAppExecutionStatus(DelegateExecution context, CloudControllerClient client,
         ApplicationAttributes appAttributes, CloudApplication app) {
         Pair<AppExecutionStatus, String> status = new Pair<>(AppExecutionStatus.EXECUTING, null);
         long startTime = (Long) context.getVariable(Constants.VAR_START_TIME);
@@ -114,7 +114,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             return null;
     }
 
-    private AsyncExecutionState checkAppExecutionStatus(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
+    private AsyncExecutionState checkAppExecutionStatus(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app,
         ApplicationAttributes appAttributes, Pair<AppExecutionStatus, String> status) {
         if (status._1.equals(AppExecutionStatus.FAILED)) {
             // Application execution failed
@@ -135,7 +135,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         }
     }
 
-    private void stopApplicationIfSpecified(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app,
+    private void stopApplicationIfSpecified(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app,
         ApplicationAttributes appAttributes) {
         boolean stopApp = appAttributes.get(SupportedParameters.STOP_APP, Boolean.class, false);
         if (!stopApp) {

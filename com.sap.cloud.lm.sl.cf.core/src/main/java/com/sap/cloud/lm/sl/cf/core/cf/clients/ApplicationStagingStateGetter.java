@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
 import org.springframework.web.client.RestTemplate;
@@ -22,12 +22,12 @@ public class ApplicationStagingStateGetter extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    public ApplicationStagingState getApplicationStagingState(CloudFoundryOperations client, String appName) {
+    public ApplicationStagingState getApplicationStagingState(CloudControllerClient client, String appName) {
         return new CustomControllerClientErrorHandler()
             .handleErrorsOrReturnResult(() -> attemptToGetApplicationStagingState(client, appName));
     }
 
-    private ApplicationStagingState attemptToGetApplicationStagingState(CloudFoundryOperations client, String appName) {
+    private ApplicationStagingState attemptToGetApplicationStagingState(CloudControllerClient client, String appName) {
         CloudApplication app = client.getApplication(appName);
         String appUrl = getAppUrl(app.getMeta()
             .getGuid());
@@ -38,7 +38,7 @@ public class ApplicationStagingStateGetter extends CustomControllerClient {
         return "/v2/apps/" + appGuid.toString();
     }
 
-    private ApplicationStagingState doGetApplicationStagingState(CloudFoundryOperations client, String appUrl) {
+    private ApplicationStagingState doGetApplicationStagingState(CloudControllerClient client, String appUrl) {
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = client.getCloudControllerUrl()
             .toString();

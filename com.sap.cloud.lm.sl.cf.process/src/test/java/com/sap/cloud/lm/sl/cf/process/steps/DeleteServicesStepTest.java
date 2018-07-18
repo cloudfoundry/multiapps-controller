@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.junit.Before;
@@ -108,7 +108,7 @@ public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesS
                 .thenReturn(createServiceInstance(service));
             if (service.httpErrorCodeToReturnOnDelete != null) {
                 HttpStatus httpStatusToReturnOnDelete = HttpStatus.valueOf(service.httpErrorCodeToReturnOnDelete);
-                Mockito.doThrow(new CloudFoundryException(httpStatusToReturnOnDelete))
+                Mockito.doThrow(new CloudOperationException(httpStatusToReturnOnDelete))
                     .when(client)
                     .deleteService(service.name);
             }

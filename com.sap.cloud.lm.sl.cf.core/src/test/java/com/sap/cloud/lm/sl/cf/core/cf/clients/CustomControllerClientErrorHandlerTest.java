@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -46,31 +46,31 @@ public class CustomControllerClientErrorHandlerTest {
                 // (0) The response body contains a description in the supported format:
                 {
                     prepareHttpStatusCodeException(HttpStatus.BAD_GATEWAY, "Service broker error", "cf-error-response-body-0.json"),
-                         new CloudFoundryException(HttpStatus.BAD_GATEWAY, "Service broker error", "Application currency-services-core-uaa-dev1!i211 does not exist"),
+                         new CloudOperationException(HttpStatus.BAD_GATEWAY, "Service broker error", "Application currency-services-core-uaa-dev1!i211 does not exist"),
                 },
                 // (1) The response body does not contain a description (but does contain other information in a JSON format):
                 {
                     prepareHttpStatusCodeException(HttpStatus.BAD_GATEWAY, "Service broker error", "cf-error-response-body-1.json"),
-                         new CloudFoundryException(HttpStatus.BAD_GATEWAY, "Service broker error", null),
+                         new CloudOperationException(HttpStatus.BAD_GATEWAY, "Service broker error", null),
                 },
                 // (2) The response body contains a description in an unsupported format:
                 {
                     prepareHttpStatusCodeException(HttpStatus.BAD_GATEWAY, "Service broker error", "cf-error-response-body-2.json"),
-                         new CloudFoundryException(HttpStatus.BAD_GATEWAY, "Service broker error", null),
+                         new CloudOperationException(HttpStatus.BAD_GATEWAY, "Service broker error", null),
                 },
                 // (3) The response body contains a description in an unsupported format:
                 {
                     prepareHttpStatusCodeException(HttpStatus.BAD_GATEWAY, "Service broker error", "cf-error-response-body-3.json"),
-                         new CloudFoundryException(HttpStatus.BAD_GATEWAY, "Service broker error", null),
+                         new CloudOperationException(HttpStatus.BAD_GATEWAY, "Service broker error", null),
                 },
 // @formatter:on
             });
         }
 
         private HttpStatusCodeException exceptionToThrow;
-        private CloudFoundryException expected;
+        private CloudOperationException expected;
 
-        public ParameterizedTest(HttpStatusCodeException exceptionToThrow, CloudFoundryException expected) {
+        public ParameterizedTest(HttpStatusCodeException exceptionToThrow, CloudOperationException expected) {
             this.exceptionToThrow = exceptionToThrow;
             this.expected = expected;
         }
@@ -81,7 +81,7 @@ public class CustomControllerClientErrorHandlerTest {
                 new CustomControllerClientErrorHandler(NULL_RETRIER).handleErrors(() -> {
                     throw exceptionToThrow;
                 });
-            } catch (CloudFoundryException result) {
+            } catch (CloudOperationException result) {
                 assertEquals(expected.getStatusCode(), result.getStatusCode());
                 assertEquals(expected.getStatusText(), result.getStatusText());
                 assertEquals(expected.getDescription(), result.getDescription());

@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -41,11 +41,11 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
 
             getStepLogger().debug(Messages.SERVICE_URLS_UNREGISTERED);
             return StepPhase.DONE;
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_UNREGISTERING_SERVICE_URLS);
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_UNREGISTERING_SERVICE_URLS);
             throw e;
         }
@@ -69,7 +69,7 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
                 getStepLogger().info(Messages.UNREGISTERING_SERVICE_URL, serviceName, app.getName());
                 clientExtensions.unregisterServiceURL(serviceName);
                 getStepLogger().debug(Messages.UNREGISTERED_SERVICE_URL, serviceName, app.getName());
-            } catch (CloudFoundryException e) {
+            } catch (CloudOperationException e) {
                 switch (e.getStatusCode()) {
                     case FORBIDDEN:
                         if (shouldSucceed(context)) {

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 
@@ -102,7 +102,7 @@ public interface ClientExtensions {
      * 
      * @param serviceName the name of the service instance to update
      * @param planName the new service plan
-     * @throws CloudFoundryException if there was an error
+     * @throws CloudOperationException if there was an error
      */
     void updateServicePlan(String serviceName, String planName);
 

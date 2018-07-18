@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -41,8 +41,8 @@ public class StageAppStep extends TimeoutAsyncActivitiStep {
             ClientExtensions clientExtensions = execution.getClientExtensions();
 
             return stageApp(execution.getContext(), clientExtensions, app);
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
             throw e;
         }

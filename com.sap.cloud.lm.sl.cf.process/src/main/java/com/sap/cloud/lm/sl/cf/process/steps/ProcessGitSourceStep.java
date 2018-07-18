@@ -21,7 +21,7 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -166,12 +166,12 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
     }
 
     private CloudInfoExtended getCloudInfoExtended(ExecutionWrapper execution) throws SLException {
-        return (CloudInfoExtended) execution.getCloudFoundryClient()
+        return (CloudInfoExtended) execution.getCloudControllerClient()
             .getCloudInfo();
     }
 
     private boolean isClientExtensionsAvailable(ExecutionWrapper execution) throws SLException {
-        CloudFoundryOperations client = execution.getCloudFoundryClient();
+        CloudControllerClient client = execution.getCloudControllerClient();
         return client.getCloudInfo() instanceof CloudInfoExtended;
     }
 

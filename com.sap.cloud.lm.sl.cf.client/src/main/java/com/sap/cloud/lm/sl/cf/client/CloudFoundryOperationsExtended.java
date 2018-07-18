@@ -3,9 +3,9 @@ package com.sap.cloud.lm.sl.cf.client;
 import java.util.List;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 
-public interface CloudFoundryOperationsExtended extends CloudFoundryOperations {
+public interface CloudFoundryOperationsExtended extends CloudControllerClient {
 
     /**
      * Get list of space manager user id for the space.

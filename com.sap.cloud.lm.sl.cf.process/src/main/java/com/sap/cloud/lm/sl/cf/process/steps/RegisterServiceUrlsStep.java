@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -45,11 +45,11 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
             StepsUtil.setServiceUrlsToRegister(execution.getContext(), serviceUrlsToRegister);
             getStepLogger().debug(Messages.SERVICE_URLS_REGISTERED);
             return StepPhase.DONE;
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_REGISTERING_SERVICE_URLS);
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_REGISTERING_SERVICE_URLS);
             throw e;
         }
@@ -88,7 +88,7 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
             getStepLogger().info(Messages.REGISTERING_SERVICE_URL, serviceUrl.getUrl(), serviceUrl.getServiceName());
             clientExtensions.registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
             getStepLogger().debug(Messages.REGISTERED_SERVICE_URL, serviceUrl.getUrl(), serviceUrl.getServiceName());
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             switch (e.getStatusCode()) {
                 case FORBIDDEN:
                     if (shouldSucceed(context)) {

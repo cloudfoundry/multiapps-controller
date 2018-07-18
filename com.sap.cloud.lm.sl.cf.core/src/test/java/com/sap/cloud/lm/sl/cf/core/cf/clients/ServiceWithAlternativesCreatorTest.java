@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,11 +57,11 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
             },
             // (5) Service plan doesn't exist:
             {
-                "service-06.json", "Could not create service instance \"foo\". Service plan \"v3.4-extra-large\" from service offering \"mongodb\" was not found.", CloudFoundryException.class
+                "service-06.json", "Could not create service instance \"foo\". Service plan \"v3.4-extra-large\" from service offering \"mongodb\" was not found.", CloudOperationException.class
             },
             // (6) Service offering doesn't exist:
             {
-                "service-07.json", "Could not create service instance \"foo\". Service plan \"v2.0-sp3\" from service offering \"hana\" was not found.", CloudFoundryException.class
+                "service-07.json", "Could not create service instance \"foo\". Service plan \"v2.0-sp3\" from service offering \"hana\" was not found.", CloudOperationException.class
             },
             // (7) Service has defined alternatives and default offering is matching:
             {
@@ -97,7 +97,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
             },
             // (15) Service has defined alternatives, but the creation fails with 401 Unauthorized:
             {
-                "service-16.json", "401 Unauthorized", CloudFoundryException.class
+                "service-16.json", "401 Unauthorized", CloudOperationException.class
             },
 // @formatter:on
         });
@@ -138,7 +138,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
             }
             HttpStatus httpStatusCode = HttpStatus.valueOf(exchange.responseCode);
             Mockito.when(getMockedRestTemplate().postForObject(getControllerUrl() + CREATE_SERVICE_URL, exchange.requestBody, String.class))
-                .thenThrow(new CloudFoundryException(httpStatusCode));
+                .thenThrow(new CloudOperationException(httpStatusCode));
         }
     }
 

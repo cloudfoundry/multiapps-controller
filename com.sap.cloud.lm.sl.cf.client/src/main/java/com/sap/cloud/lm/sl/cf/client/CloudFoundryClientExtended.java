@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.ApplicationLogListener;
-import org.cloudfoundry.client.lib.CloudFoundryClient;
+import org.cloudfoundry.client.lib.CloudControllerClientImpl;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
@@ -27,16 +27,16 @@ import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
-import org.cloudfoundry.client.lib.rest.CloudControllerClient;
+import org.cloudfoundry.client.lib.rest.CloudControllerRestClient;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
 
-public class CloudFoundryClientExtended extends CloudFoundryClient implements CloudFoundryOperationsExtended {
+public class CloudFoundryClientExtended extends CloudControllerClientImpl implements CloudFoundryOperationsExtended {
 
     private final ExecutionRetrier retrier = new ExecutionRetrier();
 
-    public CloudFoundryClientExtended(CloudControllerClient cc) {
+    public CloudFoundryClientExtended(CloudControllerRestClient cc) {
         super(cc);
     }
 

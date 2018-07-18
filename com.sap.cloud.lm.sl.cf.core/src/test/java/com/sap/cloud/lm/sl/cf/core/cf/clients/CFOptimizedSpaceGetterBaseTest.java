@@ -4,7 +4,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.URL;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -21,7 +21,7 @@ public abstract class CFOptimizedSpaceGetterBaseTest {
     @Mock
     protected RestTemplateFactory restTemplateFactory;
     @Mock
-    protected CloudFoundryOperations client;
+    protected CloudControllerClient client;
 
     protected CFOptimizedSpaceGetter spaceGetter;
 

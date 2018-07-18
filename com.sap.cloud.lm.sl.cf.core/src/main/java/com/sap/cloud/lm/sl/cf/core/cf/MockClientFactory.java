@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf;
 
 import org.cloudfoundry.client.lib.CloudCredentials;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
@@ -10,16 +10,16 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 public class MockClientFactory extends ClientFactory {
 
     @Override
-    protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials) {
+    protected Pair<CloudControllerClient, TokenProvider> createClient(CloudCredentials credentials) {
         return createClient();
     }
 
     @Override
-    protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String org, String space) {
+    protected Pair<CloudControllerClient, TokenProvider> createClient(CloudCredentials credentials, String org, String space) {
         return createClient();
     }
 
-    private static Pair<CloudFoundryOperations, TokenProvider> createClient() {
+    private static Pair<CloudControllerClient, TokenProvider> createClient() {
         return new Pair<>(new MockCloudFoundryClient(), createMockTokenProvider());
     }
 
@@ -33,7 +33,7 @@ public class MockClientFactory extends ClientFactory {
     }
 
     @Override
-    protected Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String spaceId) {
+    protected Pair<CloudControllerClient, TokenProvider> createClient(CloudCredentials credentials, String spaceId) {
         return createClient();
     }
 

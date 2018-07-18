@@ -9,9 +9,9 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
-import org.cloudfoundry.client.lib.ServiceBrokerException;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -48,7 +48,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.CREATING_SERVICE_BROKERS);
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
             List<CloudServiceBrokerExtended> existingServiceBrokers = serviceBrokersGetter.getServiceBrokers(client);
             List<CloudServiceBrokerExtended> serviceBrokersToCreate = getServiceBrokersToCreate(
                 mapApplicationsFromContextToCloudApplications(execution, client), execution.getContext());
@@ -67,18 +67,18 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
             StepsUtil.setServiceBrokersToCreate(execution.getContext(), serviceBrokersToCreate);
             getStepLogger().debug(Messages.SERVICE_BROKERS_CREATED);
             return StepPhase.DONE;
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICE_BROKERS);
             throw e;
         }
     }
 
     private List<CloudApplication> mapApplicationsFromContextToCloudApplications(ExecutionWrapper execution,
-        CloudFoundryOperations client) {
+        CloudControllerClient client) {
         return StepsUtil.getAppsToDeploy(execution.getContext())
             .stream()
             .map(app -> client.getApplication(app.getName()))
@@ -86,7 +86,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
     }
 
     private void updateServiceBroker(DelegateExecution context, CloudServiceBrokerExtended serviceBroker,
-        CloudServiceBrokerExtended existingBroker, CloudFoundryOperations client) {
+        CloudServiceBrokerExtended existingBroker, CloudControllerClient client) {
         serviceBroker.setMeta(existingBroker.getMeta());
         if (existingBroker.getSpaceGuid() != null && serviceBroker.getSpaceGuid() == null) {
             getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL,
@@ -166,12 +166,12 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
             .collect(Collectors.toList());
     }
 
-    protected void updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudFoundryOperations client) {
+    protected void updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudControllerClient client) {
         try {
             getStepLogger().info(MessageFormat.format(Messages.UPDATING_SERVICE_BROKER, serviceBroker.getName()));
             client.updateServiceBroker(serviceBroker);
             getStepLogger().debug(MessageFormat.format(Messages.UPDATED_SERVICE_BROKER, serviceBroker.getName()));
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             switch (e.getStatusCode()) {
                 case NOT_IMPLEMENTED:
                     getStepLogger().warn(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_501, serviceBroker.getName());
@@ -181,30 +181,30 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
                         getStepLogger().warn(Messages.UPDATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
                         return;
                     }
-                    throw new ServiceBrokerException(e);
+                    throw new CloudServiceBrokerException(e);
                 case BAD_GATEWAY:
-                    throw new ServiceBrokerException(e);
+                    throw new CloudServiceBrokerException(e);
                 default:
                     throw e;
             }
         }
     }
 
-    private void createServiceBroker(DelegateExecution context, CloudServiceBrokerExtended serviceBroker, CloudFoundryOperations client) {
+    private void createServiceBroker(DelegateExecution context, CloudServiceBrokerExtended serviceBroker, CloudControllerClient client) {
         try {
             getStepLogger().info(MessageFormat.format(Messages.CREATING_SERVICE_BROKER, serviceBroker.getName()));
             serviceBrokerCreator.createServiceBroker(client, serviceBroker);
             getStepLogger().debug(MessageFormat.format(Messages.CREATED_SERVICE_BROKER, serviceBroker.getName()));
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             switch (e.getStatusCode()) {
                 case FORBIDDEN:
                     if (shouldSucceed(context)) {
                         getStepLogger().warn(Messages.CREATE_OF_SERVICE_BROKERS_FAILED_403, serviceBroker.getName());
                         return;
                     }
-                    throw new ServiceBrokerException(e);
+                    throw new CloudServiceBrokerException(e);
                 case BAD_GATEWAY:
-                    throw new ServiceBrokerException(e);
+                    throw new CloudServiceBrokerException(e);
                 default:
                     throw e;
             }

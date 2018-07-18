@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -22,12 +22,12 @@ public class ServiceInstanceGetter extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    public Map<String, Object> getServiceInstance(CloudFoundryOperations client, String serviceName, String spaceId) {
+    public Map<String, Object> getServiceInstance(CloudControllerClient client, String serviceName, String spaceId) {
         return new CustomControllerClientErrorHandler()
             .handleErrorsOrReturnResult(() -> attemptToGetServiceInstance(client, serviceName, spaceId));
     }
 
-    private Map<String, Object> attemptToGetServiceInstance(CloudFoundryOperations client, String serviceName, String spaceId) {
+    private Map<String, Object> attemptToGetServiceInstance(CloudControllerClient client, String serviceName, String spaceId) {
         String serviceInstancesEndpoint = getUrl(client.getCloudControllerUrl()
             .toString(), SERVICE_INSTANCES_URL);
         Map<String, Object> queryParameters = buildQueryParameters(serviceName, spaceId);
@@ -42,7 +42,7 @@ public class ServiceInstanceGetter extends CustomControllerClient {
         return queryVariables;
     }
 
-    private Map<String, Object> getCloudServiceInstance(CloudFoundryOperations client, String serviceInstancesEndpoint,
+    private Map<String, Object> getCloudServiceInstance(CloudControllerClient client, String serviceInstancesEndpoint,
         Map<String, Object> queryParameters) {
         String response = getRestTemplate(client).getForObject(serviceInstancesEndpoint, String.class, queryParameters);
         Map<String, Object> serviceInstancesResponse = parseResponse(response);

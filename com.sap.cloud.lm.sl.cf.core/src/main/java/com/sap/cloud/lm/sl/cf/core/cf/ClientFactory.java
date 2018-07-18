@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf;
 
 import org.cloudfoundry.client.lib.CloudCredentials;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.oauth2.OauthClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -22,27 +22,27 @@ public abstract class ClientFactory {
     @Autowired
     private UAAClient uaaClient;
 
-    public Pair<CloudFoundryOperations, TokenProvider> createClient(String userName, String password) {
+    public Pair<CloudControllerClient, TokenProvider> createClient(String userName, String password) {
         return createClient(createCredentials(userName, password));
     }
 
-    public Pair<CloudFoundryOperations, TokenProvider> createClient(OAuth2AccessToken token) {
+    public Pair<CloudControllerClient, TokenProvider> createClient(OAuth2AccessToken token) {
         return createClient(createCredentials(token));
     }
 
-    public Pair<CloudFoundryOperations, TokenProvider> createClient(OAuth2AccessToken token, String org, String space) {
+    public Pair<CloudControllerClient, TokenProvider> createClient(OAuth2AccessToken token, String org, String space) {
         return createClient(createCredentials(token), org, space);
     }
 
-    public Pair<CloudFoundryOperations, TokenProvider> createClient(OAuth2AccessToken token, String spaceId) {
+    public Pair<CloudControllerClient, TokenProvider> createClient(OAuth2AccessToken token, String spaceId) {
         return createClient(createCredentials(token), spaceId);
     }
 
-    protected abstract Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials);
+    protected abstract Pair<CloudControllerClient, TokenProvider> createClient(CloudCredentials credentials);
 
-    protected abstract Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String org, String space);
+    protected abstract Pair<CloudControllerClient, TokenProvider> createClient(CloudCredentials credentials, String org, String space);
 
-    protected abstract Pair<CloudFoundryOperations, TokenProvider> createClient(CloudCredentials credentials, String spaceId);
+    protected abstract Pair<CloudControllerClient, TokenProvider> createClient(CloudCredentials credentials, String spaceId);
 
     protected OauthClient createOauthClient(RestTemplate restTemplate) {
         return new OauthClientExtended(uaaClient.getUaaUrl(), restTemplate, tokenService);

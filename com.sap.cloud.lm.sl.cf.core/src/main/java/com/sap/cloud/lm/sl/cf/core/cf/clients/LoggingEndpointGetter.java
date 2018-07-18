@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.util.CloudUtil;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,11 +19,11 @@ public class LoggingEndpointGetter extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    public String getLoggingEndpoint(CloudFoundryOperations client) {
+    public String getLoggingEndpoint(CloudControllerClient client) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attmeptToGetLoggingEndpoint(client));
     }
 
-    private String attmeptToGetLoggingEndpoint(CloudFoundryOperations client) {
+    private String attmeptToGetLoggingEndpoint(CloudControllerClient client) {
         RestTemplate restTemplate = getRestTemplate(client);
         String controllerUrl = client.getCloudControllerUrl()
             .toString();

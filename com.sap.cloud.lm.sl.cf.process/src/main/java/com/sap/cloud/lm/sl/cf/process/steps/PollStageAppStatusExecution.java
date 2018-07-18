@@ -3,8 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static java.text.MessageFormat.format;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
-        CloudFoundryOperations client = execution.getCloudFoundryClient();
+        CloudControllerClient client = execution.getCloudControllerClient();
 
         try {
             execution.getStepLogger()
@@ -53,8 +53,8 @@ public class PollStageAppStatusExecution implements AsyncExecution {
             execution.getStepLogger()
                 .info(Messages.APP_STAGED, app.getName());
             return AsyncExecutionState.FINISHED;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             execution.getStepLogger()
                 .error(e, Messages.ERROR_STAGING_APP_1, app.getName());
             throw e;
@@ -65,7 +65,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         }
     }
 
-    private Pair<ApplicationStagingState, String> getStagingState(ExecutionWrapper execution, CloudFoundryOperations client,
+    private Pair<ApplicationStagingState, String> getStagingState(ExecutionWrapper execution, CloudControllerClient client,
         CloudApplication app) {
         ApplicationStagingState applicationStagingState = applicationStagingStateGetter.getApplicationStagingState(client, app.getName());
         Pair<ApplicationStagingState, String> applicationStagingStateGuess = reportStagingLogs(execution, client);
@@ -78,7 +78,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         return new Pair<>(applicationStagingState, null);
     }
 
-    private Pair<ApplicationStagingState, String> reportStagingLogs(ExecutionWrapper execution, CloudFoundryOperations client) {
+    private Pair<ApplicationStagingState, String> reportStagingLogs(ExecutionWrapper execution, CloudControllerClient client) {
         try {
             StartingInfo startingInfo = StepsUtil.getStartingInfo(execution.getContext());
             int offset = (Integer) execution.getContext()
@@ -101,7 +101,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
                 // No more staging logs
                 return new Pair<>(ApplicationStagingState.STAGED, null);
             }
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             // "400 Bad Request" might mean that staging had already finished
             if (e.getStatusCode()
                 .equals(HttpStatus.BAD_REQUEST)) {

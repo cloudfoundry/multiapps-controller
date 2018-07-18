@@ -15,8 +15,8 @@ import javax.inject.Inject;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -52,7 +52,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
         try {
             getStepLogger().info(Messages.UPLOADING_APP, app.getName());
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
 
             String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
             String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
@@ -62,8 +62,8 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
             getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
             execution.getContext()
                 .setVariable(Constants.VAR_UPLOAD_TOKEN, uploadToken);
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_UPLOADING_APP, app.getName());
             throw e;
         } catch (SLException e) {
@@ -73,7 +73,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         return StepPhase.POLL;
     }
 
-    private String asyncUploadFiles(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app, String appArchiveId,
+    private String asyncUploadFiles(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, String appArchiveId,
         String fileName) throws FileStorageException, SLException {
         final StringBuilder uploadTokenBuilder = new StringBuilder();
         final DelegateExecution context = execution.getContext();
@@ -87,7 +87,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
                 } catch (IOException e) {
                     cleanUp(filePath);
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
-                } catch (CloudFoundryException e) {
+                } catch (CloudOperationException e) {
                     cleanUp(filePath);
                     throw e;
                 }
@@ -101,8 +101,8 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         return appExtractor.extract();
     }
 
-    private void upload(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app, Path filePath, String fileName,
-        final StringBuilder uploadTokenBuilder) throws IOException, CloudFoundryException {
+    private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath, String fileName,
+        final StringBuilder uploadTokenBuilder) throws IOException, CloudOperationException {
         detectApplicationFileDigestChanges(execution, app, filePath.toFile(), client);
         String uploadToken = client.asyncUploadApplication(app.getName(), filePath.toFile(),
             getMonitorUploadStatusCallback(app, filePath.toFile()));
@@ -110,7 +110,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private void detectApplicationFileDigestChanges(ExecutionWrapper execution, CloudApplication app, File applicationFile,
-        CloudFoundryOperations client) {
+        CloudControllerClient client) {
         CloudApplication existingApp = client.getApplication(app.getName());
         ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(existingApp);
         String appNewFileDigest = applicationFileDigestDetector.detectNewAppFileDigest(applicationFile);
@@ -119,7 +119,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         setAppContentChanged(execution, hasAppFileDigestChanged(appNewFileDigest, currentFileDigest));
     }
 
-    private void attemptToUpdateApplicationDigest(CloudFoundryOperations client, CloudApplication app, String newFileDigest,
+    private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newFileDigest,
         String currentFileDigest) {
         if (!hasAppFileDigestChanged(newFileDigest, currentFileDigest)) {
             return;

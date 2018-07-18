@@ -5,7 +5,7 @@ import static com.sap.cloud.lm.sl.common.util.MapUtil.cast;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 
 import com.sap.cloud.lm.sl.common.SLException;
@@ -14,10 +14,10 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class ApplicationEnvironmentUpdater {
 
     private CloudApplication app;
-    private CloudFoundryOperations client;
+    private CloudControllerClient client;
     private boolean prettyPrinting = true;
 
-    public ApplicationEnvironmentUpdater(CloudApplication app, CloudFoundryOperations client) {
+    public ApplicationEnvironmentUpdater(CloudApplication app, CloudControllerClient client) {
         this.app = app;
         this.client = client;
     }

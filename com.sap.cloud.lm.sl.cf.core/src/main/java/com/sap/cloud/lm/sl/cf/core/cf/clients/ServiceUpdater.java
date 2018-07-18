@@ -7,8 +7,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.slf4j.Logger;
@@ -31,23 +31,23 @@ public class ServiceUpdater extends CloudServiceOperator {
         super(restTemplateFactory);
     }
 
-    public void updateServicePlanQuietly(CloudFoundryOperations client, String serviceName, String servicePlan) {
+    public void updateServicePlanQuietly(CloudControllerClient client, String serviceName, String servicePlan) {
         ignoreBadGatewayErrors(() -> updateServicePlan(client, serviceName, servicePlan));
     }
 
-    public void updateServicePlan(CloudFoundryOperations client, String serviceName, String servicePlan) {
+    public void updateServicePlan(CloudControllerClient client, String serviceName, String servicePlan) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToUpdateServicePlan(client, serviceName, servicePlan));
     }
 
-    public void updateServiceTagsQuietly(CloudFoundryOperations client, String serviceName, List<String> serviceTags) {
+    public void updateServiceTagsQuietly(CloudControllerClient client, String serviceName, List<String> serviceTags) {
         ignoreBadGatewayErrors(() -> updateServiceTags(client, serviceName, serviceTags));
     }
 
-    public void updateServiceTags(CloudFoundryOperations client, String serviceName, List<String> serviceTags) {
+    public void updateServiceTags(CloudControllerClient client, String serviceName, List<String> serviceTags) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToUpdateServiceTags(client, serviceName, serviceTags));
     }
 
-    private void attemptToUpdateServicePlan(CloudFoundryOperations client, String serviceName, String servicePlanName) {
+    private void attemptToUpdateServicePlan(CloudControllerClient client, String serviceName, String servicePlanName) {
         CloudService service = client.getService(serviceName);
 
         CloudServicePlan servicePlan = findPlanForService(client, service, servicePlanName);
@@ -55,24 +55,24 @@ public class ServiceUpdater extends CloudServiceOperator {
         attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_PLAN_GUID, servicePlanGuid);
     }
 
-    private void attemptToUpdateServiceTags(CloudFoundryOperations client, String serviceName, List<String> serviceTags) {
+    private void attemptToUpdateServiceTags(CloudControllerClient client, String serviceName, List<String> serviceTags) {
         attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_TAGS, serviceTags);
     }
 
-    private String getCloudControllerUrl(CloudFoundryOperations client) {
+    private String getCloudControllerUrl(CloudControllerClient client) {
         return client.getCloudControllerUrl()
             .toString();
     }
 
-    public void updateServiceParametersQuietly(CloudFoundryOperations client, String serviceName, Map<String, Object> parameters) {
+    public void updateServiceParametersQuietly(CloudControllerClient client, String serviceName, Map<String, Object> parameters) {
         ignoreBadGatewayErrors(() -> updateServiceParameters(client, serviceName, parameters));
     }
 
-    public void updateServiceParameters(CloudFoundryOperations client, String serviceName, Map<String, Object> parameters) {
+    public void updateServiceParameters(CloudControllerClient client, String serviceName, Map<String, Object> parameters) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToUpdateServiceParameters(client, serviceName, parameters));
     }
 
-    private void attemptToUpdateServiceParameters(CloudFoundryOperations client, String serviceName, Map<String, Object> parameters) {
+    private void attemptToUpdateServiceParameters(CloudControllerClient client, String serviceName, Map<String, Object> parameters) {
         assertServiceAttributes(serviceName, parameters);
         CloudService service = client.getService(serviceName);
 
@@ -84,7 +84,7 @@ public class ServiceUpdater extends CloudServiceOperator {
         attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_PARAMETERS, parameters);
     }
 
-    private void attemptToUpdateServiceParameter(CloudFoundryOperations client, String serviceName, String serviceUrl, String parameterName,
+    private void attemptToUpdateServiceParameter(CloudControllerClient client, String serviceName, String serviceUrl, String parameterName,
         Object parameter) {
 
         CloudService service = client.getService(serviceName);
@@ -117,7 +117,7 @@ public class ServiceUpdater extends CloudServiceOperator {
     private void ignoreBadGatewayErrors(Runnable runnable) {
         try {
             runnable.run();
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             if (!e.getStatusCode()
                 .equals(HttpStatus.BAD_GATEWAY)) {
                 throw e;

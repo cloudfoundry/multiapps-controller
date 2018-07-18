@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
@@ -112,7 +112,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
             List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(execution.getContext(), activitiFacade);
             List<ConfigurationEntry> updatedEntries = merge(publishedEntries, deletedEntries);
 
-            CloudFoundryOperations clientForCurrentSpace = execution.getCloudFoundryClient();
+            CloudControllerClient clientForCurrentSpace = execution.getCloudControllerClient();
 
             List<CloudApplication> updatedSubscribers = new ArrayList<>();
             List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
@@ -188,13 +188,13 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
         String subscriptionName = getRequiredDependency(subscription).getName();
         try {
             return attemptToUpdateSubscriber(execution.getContext(), getClient(execution, orgAndSpace), subscription);
-        } catch (CloudFoundryException | SLException e) {
+        } catch (CloudOperationException | SLException e) {
             getStepLogger().warn(e, Messages.COULD_NOT_UPDATE_SUBSCRIBER, appName, mtaId, subscriptionName);
             return null;
         }
     }
 
-    private CloudApplication attemptToUpdateSubscriber(DelegateExecution context, CloudFoundryOperations client,
+    private CloudApplication attemptToUpdateSubscriber(DelegateExecution context, CloudControllerClient client,
         ConfigurationSubscription subscription) throws SLException {
         HandlerFactory handlerFactory = new HandlerFactory(MAJOR_SCHEMA_VERSION);
 
@@ -300,8 +300,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
         return new SystemParameters(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
-    private CloudFoundryOperations getClient(ExecutionWrapper execution, Pair<String, String> orgAndSpace) throws SLException {
-        return execution.getCloudFoundryClient(orgAndSpace._1, orgAndSpace._2);
+    private CloudControllerClient getClient(ExecutionWrapper execution, Pair<String, String> orgAndSpace) throws SLException {
+        return execution.getCloudControllerClient(orgAndSpace._1, orgAndSpace._2);
     }
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory)
