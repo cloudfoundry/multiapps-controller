@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.junit.Before;
 import org.mockito.Mock;
@@ -26,7 +26,7 @@ public abstract class CloudServiceOperatorTest {
     @Mock
     private RestTemplateFactory restTemplateFactory;
     @Mock
-    private CloudFoundryOperations client;
+    private CloudControllerClient client;
 
     @Before
     public void prepareClients() throws IOException {
@@ -68,7 +68,7 @@ public abstract class CloudServiceOperatorTest {
         return restTemplateFactory;
     }
 
-    protected CloudFoundryOperations getMockedClient() {
+    protected CloudControllerClient getMockedClient() {
         return client;
     }
 

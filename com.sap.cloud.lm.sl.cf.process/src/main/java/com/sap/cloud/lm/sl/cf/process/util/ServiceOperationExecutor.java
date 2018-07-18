@@ -2,8 +2,8 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.util.function.Supplier;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.ServiceBrokerException;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -21,10 +21,10 @@ public class ServiceOperationExecutor {
     public <T> T executeServiceOperation(CloudServiceExtended service, Supplier<T> serviceOperation, StepLogger stepLogger) {
         try {
             return serviceOperation.get();
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             if (!service.isOptional()) {
                 if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
-                    throw new ServiceBrokerException(e);
+                    throw new CloudServiceBrokerException(e);
                 }
                 throw e;
             }

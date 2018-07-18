@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
@@ -22,11 +22,11 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    public List<CloudRoute> getRoutes(CloudFoundryOperations client, String appName) {
+    public List<CloudRoute> getRoutes(CloudControllerClient client, String appName) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetRoutes(client, appName));
     }
 
-    private List<CloudRoute> attemptToGetRoutes(CloudFoundryOperations client, String appName) {
+    private List<CloudRoute> attemptToGetRoutes(CloudControllerClient client, String appName) {
         CloudApplication app = client.getApplication(appName);
         String appRoutesUrl = getAppRoutesUrl(app.getMeta()
             .getGuid());
@@ -37,7 +37,7 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
         return "/v2/apps/" + appGuid.toString() + "/routes?inline-relations-depth=1";
     }
 
-    private List<CloudRoute> doGetRoutes(CloudFoundryOperations client, String appRoutesUrl) {
+    private List<CloudRoute> doGetRoutes(CloudControllerClient client, String appRoutesUrl) {
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = client.getCloudControllerUrl()
             .toString();

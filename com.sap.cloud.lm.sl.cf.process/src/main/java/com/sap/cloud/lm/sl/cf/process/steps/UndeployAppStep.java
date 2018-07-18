@@ -6,8 +6,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
@@ -43,7 +43,7 @@ public class UndeployAppStep extends SyncActivitiStep {
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         try {
             CloudApplication appToUndeploy = StepsUtil.getAppToUndeploy(execution.getContext());
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
 
             cancelRunningTasksIfTasksAreSupported(appToUndeploy, client);
             stopApplication(appToUndeploy, client);
@@ -52,8 +52,8 @@ public class UndeployAppStep extends SyncActivitiStep {
 
             getStepLogger().debug(Messages.APPS_UNDEPLOYED);
             return StepPhase.DONE;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_UNDEPLOYING_APPS);
             throw e;
         } catch (SLException e) {
@@ -62,14 +62,14 @@ public class UndeployAppStep extends SyncActivitiStep {
         }
     }
 
-    private void cancelRunningTasksIfTasksAreSupported(CloudApplication appToUndeploy, CloudFoundryOperations client) {
+    private void cancelRunningTasksIfTasksAreSupported(CloudApplication appToUndeploy, CloudControllerClient client) {
         if (!oneOffTasksSupportChecker.areOneOffTasksSupported(client)) {
             return;
         }
         cancelRunningTasks(appToUndeploy, client);
     }
 
-    private void cancelRunningTasks(CloudApplication appToUndeploy, CloudFoundryOperations client) {
+    private void cancelRunningTasks(CloudApplication appToUndeploy, CloudControllerClient client) {
         ClientExtensions clientExtensions = (ClientExtensions) client;
         List<CloudTask> tasksToCancel = clientExtensions.getTasks(appToUndeploy.getName());
         for (CloudTask task : tasksToCancel) {
@@ -87,19 +87,19 @@ public class UndeployAppStep extends SyncActivitiStep {
         getStepLogger().debug(Messages.CANCELED_TASK_ON_APP, task.getName(), appToUndeploy.getName());
     }
 
-    private void stopApplication(CloudApplication app, CloudFoundryOperations client) {
+    private void stopApplication(CloudApplication app, CloudControllerClient client) {
         getStepLogger().info(Messages.STOPPING_APP, app.getName());
         client.stopApplication(app.getName());
         getStepLogger().debug(Messages.APP_STOPPED, app.getName());
     }
 
-    private void deleteApplication(CloudApplication app, CloudFoundryOperations client) {
+    private void deleteApplication(CloudApplication app, CloudControllerClient client) {
         getStepLogger().info(Messages.DELETING_APP, app.getName());
         client.deleteApplication(app.getName());
         getStepLogger().debug(Messages.APP_DELETED, app.getName());
     }
 
-    private void deleteApplicationRoutes(CloudApplication app, CloudFoundryOperations client) {
+    private void deleteApplicationRoutes(CloudApplication app, CloudControllerClient client) {
         getStepLogger().info(Messages.DELETING_APP_ROUTES, app.getName());
         List<CloudRoute> appRoutes = applicationRoutesGetter.getRoutes(client, app.getName());
         getStepLogger().debug(Messages.ROUTES_FOR_APPLICATION, app.getName(), JsonUtil.toJson(appRoutes));
@@ -110,7 +110,7 @@ public class UndeployAppStep extends SyncActivitiStep {
         getStepLogger().debug(Messages.DELETED_APP_ROUTES, app.getName());
     }
 
-    private void deleteApplicationRoutes(List<CloudRoute> routes, String uri, CloudFoundryOperations client) {
+    private void deleteApplicationRoutes(List<CloudRoute> routes, String uri, CloudControllerClient client) {
         getStepLogger().info(Messages.DELETING_ROUTE, uri);
         boolean isPortBasedRouting = isPortBasedRouting(client);
         try {
@@ -126,7 +126,7 @@ public class UndeployAppStep extends SyncActivitiStep {
         getStepLogger().debug(Messages.ROUTE_DELETED, uri);
     }
 
-    private boolean isPortBasedRouting(CloudFoundryOperations client) {
+    private boolean isPortBasedRouting(CloudControllerClient client) {
         CloudInfo info = client.getCloudInfo();
         return info instanceof CloudInfoExtended && ((CloudInfoExtended) info).isPortBasedRouting();
     }

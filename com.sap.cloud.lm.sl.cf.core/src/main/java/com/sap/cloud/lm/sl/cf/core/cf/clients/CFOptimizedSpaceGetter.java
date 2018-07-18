@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.util.CloudEntityResourceMapper;
@@ -42,7 +42,7 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
     }
 
     @Override
-    public CloudSpace findSpace(CloudFoundryOperations client, String orgName, String spaceName) {
+    public CloudSpace findSpace(CloudControllerClient client, String orgName, String spaceName) {
         List<Map<String, Object>> parsedSpacesResponse = new CustomControllerClientErrorHandler()
             .handleErrorsOrReturnResult(() -> attemptToFindSpace(client, orgName, spaceName));
         validateParsedResponse(parsedSpacesResponse);
@@ -50,17 +50,17 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
     }
 
     @Override
-    public List<CloudSpace> findSpaces(CloudFoundryOperations client, String orgName) {
+    public List<CloudSpace> findSpaces(CloudControllerClient client, String orgName) {
         List<Map<String, Object>> parsedSpacesResponse = new CustomControllerClientErrorHandler()
             .handleErrorsOrReturnResult(() -> attemptToFindSpace(client, orgName, null));
         return toCloudSpaces(parsedSpacesResponse);
     }
 
-    public CloudSpace findSpace(CloudFoundryOperations client, String spaceId) {
+    public CloudSpace findSpace(CloudControllerClient client, String spaceId) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetSpace(client, spaceId));
     }
 
-    private List<Map<String, Object>> attemptToFindSpace(CloudFoundryOperations client, String orgName, String spaceName) {
+    private List<Map<String, Object>> attemptToFindSpace(CloudControllerClient client, String orgName, String spaceName) {
         RestTemplate restTemplate = getRestTemplate(client);
         String url = buildEndpoint(orgName, spaceName);
 
@@ -71,7 +71,7 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
             .toString(), url, urlVariables);
     }
 
-    private String getOrgGuid(CloudFoundryOperations client, String orgName) {
+    private String getOrgGuid(CloudControllerClient client, String orgName) {
         if (orgName == null) {
             return null;
         }
@@ -99,7 +99,7 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
         }
     }
 
-    private String getUrlForEndpoint(CloudFoundryOperations client, String endpoint) {
+    private String getUrlForEndpoint(CloudControllerClient client, String endpoint) {
         return client.getCloudControllerUrl() + endpoint;
     }
 
@@ -165,11 +165,11 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
     }
 
     @Override
-    public CloudSpace getSpace(CloudFoundryOperations client, String spaceId) {
+    public CloudSpace getSpace(CloudControllerClient client, String spaceId) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetSpace(client, spaceId));
     }
 
-    private CloudSpace attemptToGetSpace(CloudFoundryOperations client, String spaceId) {
+    private CloudSpace attemptToGetSpace(CloudControllerClient client, String spaceId) {
         RestTemplate restTemplate = getRestTemplate(client);
         String url = getUrlForEndpoint(client, GET_SPACE_ENDPOINT);
         Map<String, Object> urlVariables = MapUtil.asMap("id", spaceId);

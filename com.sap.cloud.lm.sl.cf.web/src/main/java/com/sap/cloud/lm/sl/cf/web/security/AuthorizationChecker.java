@@ -9,7 +9,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -81,7 +81,7 @@ public class AuthorizationChecker {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-        CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
+        CloudControllerClient client = clientProvider.getCloudFoundryClient(userInfo.getName());
         CloudFoundryOperationsExtended clientx = (CloudFoundryOperationsExtended) client;
         return hasPermissions(clientx, userInfo.getId(), orgName, spaceName, readOnly) && hasAccess(clientx, orgName, spaceName);
     }
@@ -95,7 +95,7 @@ public class AuthorizationChecker {
         }
         
         UUID spaceUUID = UUID.fromString(spaceGuid);
-        CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
+        CloudControllerClient client = clientProvider.getCloudFoundryClient(userInfo.getName());
         CloudFoundryOperationsExtended clientx = (CloudFoundryOperationsExtended) client;
         if(PlatformType.CF.equals(applicationConfiguration.getPlatformType())) {
             return hasPermissions(clientx, userInfo.getId(), spaceUUID, readOnly);
@@ -178,7 +178,7 @@ public class AuthorizationChecker {
         throw new WebApplicationException(ResponseRenderer.renderResponseForStatus(status, message));
     }
     
-    public ClientHelper getClientHelper(CloudFoundryOperations client) {
+    public ClientHelper getClientHelper(CloudControllerClient client) {
         return new ClientHelper(client, spaceGetter);
     }
 }

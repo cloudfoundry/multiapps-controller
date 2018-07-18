@@ -4,8 +4,8 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
@@ -28,11 +28,11 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    protected CloudServicePlan findPlanForService(CloudFoundryOperations client, CloudService service) {
+    protected CloudServicePlan findPlanForService(CloudControllerClient client, CloudService service) {
         return findPlanForService(client, service, service.getPlan());
     }
 
-    protected CloudServicePlan findPlanForService(CloudFoundryOperations client, CloudService service, String newPlan) {
+    protected CloudServicePlan findPlanForService(CloudControllerClient client, CloudService service, String newPlan) {
         List<CloudServiceOffering> offerings = getServiceOfferings(client, service);
         for (CloudServiceOffering offering : offerings) {
             for (CloudServicePlan plan : offering.getCloudServicePlans()) {
@@ -42,11 +42,11 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
                 }
             }
         }
-        throw new CloudFoundryException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
+        throw new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
             MessageFormat.format(Messages.NO_SERVICE_PLAN_FOUND, service.getName(), newPlan, service.getLabel()));
     }
 
-    private List<CloudServiceOffering> getServiceOfferings(CloudFoundryOperations client, CloudService service) {
+    private List<CloudServiceOffering> getServiceOfferings(CloudControllerClient client, CloudService service) {
         List<CloudServiceOffering> offerings = client.getServiceOfferings();
         offerings = filterByLabel(offerings, service.getLabel());
         offerings = filterByVersion(offerings, service.getVersion());

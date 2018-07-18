@@ -5,7 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -31,8 +31,8 @@ public class PrepareToExecuteTasksStep extends SyncActivitiStep {
         List<CloudTask> tasksToExecute = app.getTasks();
         try {
             return attemptToPrepareExecutionOfTasks(execution, tasksToExecute);
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP, app.getName());
             throw e;
         } catch (SLException e) {
@@ -62,7 +62,7 @@ public class PrepareToExecuteTasksStep extends SyncActivitiStep {
     }
 
     private boolean platformSupportsTasks(ExecutionWrapper execution) {
-        return new OneOffTasksSupportChecker().areOneOffTasksSupported(execution.getCloudFoundryClient());
+        return new OneOffTasksSupportChecker().areOneOffTasksSupported(execution.getCloudControllerClient());
     }
 
 }

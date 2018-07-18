@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.springframework.http.HttpStatus;
@@ -21,16 +21,16 @@ public class SpaceGetter extends CustomControllerClient {
         super(restTemplateFactory);
     }
 
-    public CloudSpace findSpace(CloudFoundryOperations client, String orgName, String spaceName) {
+    public CloudSpace findSpace(CloudControllerClient client, String orgName, String spaceName) {
         return filterSpaces(client, orgName, spaceName).findAny()
             .orElse(null);
     }
 
-    public List<CloudSpace> findSpaces(CloudFoundryOperations client, String orgName) {
+    public List<CloudSpace> findSpaces(CloudControllerClient client, String orgName) {
         return filterSpaces(client, orgName, null).collect(Collectors.toList());
     }
 
-    private Stream<CloudSpace> filterSpaces(CloudFoundryOperations client, String orgName, String spaceName) {
+    private Stream<CloudSpace> filterSpaces(CloudControllerClient client, String orgName, String spaceName) {
         return client.getSpaces()
             .stream()
             .filter(space -> isSameSpace(space, orgName, spaceName));
@@ -46,13 +46,13 @@ public class SpaceGetter extends CustomControllerClient {
             .equals(spaceName);
     }
 
-    public CloudSpace getSpace(CloudFoundryOperations client, String spaceId) {
+    public CloudSpace getSpace(CloudControllerClient client, String spaceId) {
         return client.getSpaces()
             .stream()
             .filter(space -> isSameSpace(space, spaceId))
             .findAny()
             .orElseThrow(
-                () -> new CloudFoundryException(HttpStatus.NOT_FOUND, MessageFormat.format("Space with ID {0} does not exist", spaceId)));
+                () -> new CloudOperationException(HttpStatus.NOT_FOUND, MessageFormat.format("Space with ID {0} does not exist", spaceId)));
     }
 
     private boolean isSameSpace(CloudSpace space, String spaceId) {

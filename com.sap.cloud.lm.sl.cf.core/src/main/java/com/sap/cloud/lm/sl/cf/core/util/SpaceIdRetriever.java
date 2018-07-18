@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
@@ -43,7 +43,7 @@ public class SpaceIdRetriever {
     }
 
     public String getSpaceId(UserInfo userInfo, String orgName, String spaceName) {
-        CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
+        CloudControllerClient client = clientProvider.getCloudFoundryClient(userInfo.getName());
         String spaceId = new ClientHelper(client, spaceGetter).computeSpaceId(orgName, spaceName);
         if (spaceId == null) {
             throw new SLException(Messages.COULD_NOT_COMPUTE_SPACE_ID, orgName, spaceName);

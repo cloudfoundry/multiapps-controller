@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 
 public class PortAllocatorMock implements PortAllocator {
 
@@ -42,7 +42,7 @@ public class PortAllocatorMock implements PortAllocator {
     }
 
     @Override
-    public int allocateTcpPort(boolean tcps) throws CloudFoundryException {
+    public int allocateTcpPort(boolean tcps) throws CloudOperationException {
         return allocatePort();
     }
 

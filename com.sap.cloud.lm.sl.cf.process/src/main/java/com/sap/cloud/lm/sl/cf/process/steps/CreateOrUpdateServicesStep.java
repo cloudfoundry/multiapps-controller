@@ -19,8 +19,8 @@ import javax.inject.Named;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
@@ -79,7 +79,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             execution.getStepLogger()
                 .info(Messages.CREATING_OR_UPDATING_SERVICES);
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
             Map<String, List<String>> defaultTags = computeDefaultTags(client);
             getStepLogger().debug("Default tags: " + JsonUtil.toJson(defaultTags, true));
 
@@ -98,8 +98,8 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
             getStepLogger().debug(Messages.SERVICES_CREATED_OR_UPDATED);
             return StepPhase.POLL;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICES);
             throw e;
         } catch (SLException e) {
@@ -114,7 +114,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return servicesMap;
     }
 
-    private Map<String, ServiceOperationType> createOrUpdateServices(ExecutionWrapper execution, CloudFoundryOperations client,
+    private Map<String, ServiceOperationType> createOrUpdateServices(ExecutionWrapper execution, CloudControllerClient client,
         List<CloudServiceExtended> services, Map<String, CloudService> existingServices, Map<String, List<ServiceKey>> serviceKeys,
         Map<String, List<String>> defaultTags) throws SLException, FileStorageException {
 
@@ -132,7 +132,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return triggeredOperations;
     }
 
-    private void createOrUpdateServiceKeys(List<ServiceKey> serviceKeys, CloudServiceExtended service, CloudFoundryOperations client,
+    private void createOrUpdateServiceKeys(List<ServiceKey> serviceKeys, CloudServiceExtended service, CloudControllerClient client,
         ExecutionWrapper execution) throws SLException {
         // TODO: Do not use client extensions when the CF Java Client we use supports managing of
         // service keys.
@@ -241,7 +241,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             .getName(), key.getName());
     }
 
-    private ServiceOperationType createOrUpdateService(ExecutionWrapper execution, CloudFoundryOperations client, String spaceId,
+    private ServiceOperationType createOrUpdateService(ExecutionWrapper execution, CloudControllerClient client, String spaceId,
         CloudServiceExtended service, CloudService existingService, List<String> defaultTags) throws SLException, FileStorageException {
 
         // Set service parameters if a file containing their values exists:
@@ -295,7 +295,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return type;
     }
 
-    private void updateServicePlan(CloudFoundryOperations client, CloudServiceExtended service) {
+    private void updateServicePlan(CloudControllerClient client, CloudServiceExtended service) {
         getStepLogger()
             .debug(MessageFormat.format("Updating service plan of a service {0} with new plan: {1}", service.getName(), service.getPlan()));
         if (service.shouldIgnoreUpdateErrors()) {
@@ -305,7 +305,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         }
     }
 
-    private List<ServiceAction> determineActions(CloudFoundryOperations client, String spaceId, CloudServiceExtended service,
+    private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceExtended service,
         CloudService existingService, List<String> defaultTags) {
         List<ServiceAction> actions = new ArrayList<>();
 
@@ -348,7 +348,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return !Objects.equals(service.getPlan(), existingService.getPlan());
     }
 
-    private void createService(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service) {
+    private void createService(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service) {
         getStepLogger().info(Messages.CREATING_SERVICE, service.getName());
         if (service.isUserProvided()) {
             client.createUserProvidedService(service, service.getCredentials());
@@ -359,7 +359,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
     }
 
-    private void updateServiceTags(CloudFoundryOperations client, CloudServiceExtended service) throws SLException {
+    private void updateServiceTags(CloudControllerClient client, CloudServiceExtended service) throws SLException {
         // TODO: Remove the service.isUserProvided() check when user provided services support tags.
         // See the following issue for more info:
         // https://www.pivotaltracker.com/n/projects/966314/stories/105674948
@@ -376,7 +376,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     }
 
-    private Map<String, List<String>> computeDefaultTags(CloudFoundryOperations client) {
+    private Map<String, List<String>> computeDefaultTags(CloudControllerClient client) {
         if (!(client instanceof ClientExtensions)) {
             return Collections.emptyMap();
         }
@@ -389,7 +389,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return defaultTags;
     }
 
-    private void updateServiceCredentials(CloudFoundryOperations client, CloudServiceExtended service) throws SLException {
+    private void updateServiceCredentials(CloudControllerClient client, CloudServiceExtended service) throws SLException {
         getStepLogger().info(Messages.UPDATING_SERVICE, service.getName());
         if (service.shouldIgnoreUpdateErrors()) {
             serviceUpdater.updateServiceParametersQuietly(client, service.getName(), service.getCredentials());
@@ -399,7 +399,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         getStepLogger().debug(Messages.SERVICE_UPDATED, service.getName());
     }
 
-    private void deleteService(DelegateExecution context, CloudFoundryOperations client, CloudServiceExtended service) throws SLException {
+    private void deleteService(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service) throws SLException {
 
         List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(context);
         List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(context);
@@ -457,7 +457,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return haveDifferentTypes || haveDifferentLabels;
     }
 
-    private boolean shouldUpdateTags(CloudFoundryOperations client, String spaceId, CloudServiceExtended service,
+    private boolean shouldUpdateTags(CloudControllerClient client, String spaceId, CloudServiceExtended service,
         CloudService existingService, List<String> defaultTags) {
         if (service.isUserProvided()) {
             return false;
@@ -469,7 +469,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return !existingTags.equals(newServiceTags);
     }
 
-    private List<String> getServiceTags(CloudFoundryOperations client, String spaceId, CloudService service) {
+    private List<String> getServiceTags(CloudControllerClient client, String spaceId, CloudService service) {
         if (service instanceof CloudServiceExtended) {
             CloudServiceExtended serviceExtended = (CloudServiceExtended) service;
             return serviceExtended.getTags();
@@ -482,7 +482,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return !Objects.equals(service.getCredentials(), credentials);
     }
 
-    private List<String> getBoundAppNames(CloudFoundryOperations client, List<CloudApplicationExtended> apps,
+    private List<String> getBoundAppNames(CloudControllerClient client, List<CloudApplicationExtended> apps,
         List<CloudApplication> appsToUndeploy, List<CloudServiceBinding> bindings) {
         Set<String> appNames = apps.stream()
             .map(app -> app.getName())

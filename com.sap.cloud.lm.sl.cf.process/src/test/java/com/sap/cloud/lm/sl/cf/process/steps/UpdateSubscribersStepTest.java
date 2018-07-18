@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.history.HistoricVariableInstance;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.junit.Before;
@@ -113,14 +113,14 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
     private ConfigurationEntryDao entriesDao;
 
     @Mock
-    private CloudFoundryOperations clientForCurrentSpace;
+    private CloudControllerClient clientForCurrentSpace;
 
     private String expectedExceptionMessage;
 
     private int majorSchemaVersion;
     private String expectedOutputLocation;
     private StepOutput expectedOutput;
-    private Map<CloudSpace, CloudFoundryOperations> clients;
+    private Map<CloudSpace, CloudControllerClient> clients;
     private String inputLocation;
     private StepInput input;
 
@@ -200,29 +200,29 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
         }
     }
 
-    private void prepareClientProvider(CloudSpace space, CloudFoundryOperations clientMock) throws Exception {
+    private void prepareClientProvider(CloudSpace space, CloudControllerClient clientMock) throws Exception {
         String orgName = space.getOrganization()
             .getName();
         String spaceName = space.getName();
         when(clientProvider.getCloudFoundryClient(eq(USER), eq(orgName), eq(spaceName), anyString())).thenReturn(clientMock);
     }
 
-    private Map<CloudSpace, CloudFoundryOperations> createClientsForSpacesOfSubscribedApps() {
-        Map<CloudSpace, CloudFoundryOperations> result = new HashMap<>();
+    private Map<CloudSpace, CloudControllerClient> createClientsForSpacesOfSubscribedApps() {
+        Map<CloudSpace, CloudControllerClient> result = new HashMap<>();
         for (SubscriberToUpdate subscriber : input.subscribersToUpdate) {
-            CloudFoundryOperations client = getOrCreateClientForSpace(result, subscriber.app.getSpace());
+            CloudControllerClient client = getOrCreateClientForSpace(result, subscriber.app.getSpace());
             mockClientInvocations(subscriber, client);
         }
         return result;
     }
 
-    private CloudFoundryOperations getOrCreateClientForSpace(Map<CloudSpace, CloudFoundryOperations> clients, CloudSpace space) {
+    private CloudControllerClient getOrCreateClientForSpace(Map<CloudSpace, CloudControllerClient> clients, CloudSpace space) {
         for (CloudSpace existingSpace : clients.keySet()) {
             if (isSameSpace(space, existingSpace)) {
                 return clients.get(existingSpace);
             }
         }
-        client = mock(CloudFoundryOperations.class);
+        client = mock(CloudControllerClient.class);
         clients.put(space, client);
         return client;
     }
@@ -237,14 +237,14 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
     }
 
     @SuppressWarnings("unchecked")
-    private void mockClientInvocations(SubscriberToUpdate subscriber, CloudFoundryOperations client) {
+    private void mockClientInvocations(SubscriberToUpdate subscriber, CloudControllerClient client) {
         if (userHasPermissions(subscriber.app.getSpace(), UserPermission.READ)) {
             when(client.getApplication(subscriber.subscription.getAppName())).thenReturn(subscriber.app);
         } else {
-            when(client.getApplication(subscriber.subscription.getAppName())).thenThrow(new CloudFoundryException(HttpStatus.FORBIDDEN));
+            when(client.getApplication(subscriber.subscription.getAppName())).thenThrow(new CloudOperationException(HttpStatus.FORBIDDEN));
         }
         if (!userHasPermissions(subscriber.app.getSpace(), UserPermission.WRITE)) {
-            doThrow(new CloudFoundryException(HttpStatus.FORBIDDEN)).when(client)
+            doThrow(new CloudOperationException(HttpStatus.FORBIDDEN)).when(client)
                 .updateApplicationEnv(eq(subscriber.subscription.getAppName()), any(Map.class));
         }
     }
@@ -300,7 +300,7 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private List<CloudApplication> getCallArgumentsOfUpdateApplicationEnvMethod(CloudSpace space, CloudFoundryOperations client) {
+    private List<CloudApplication> getCallArgumentsOfUpdateApplicationEnvMethod(CloudSpace space, CloudControllerClient client) {
         ArgumentCaptor<Map> appEnvCaptor = ArgumentCaptor.forClass(Map.class);
         ArgumentCaptor<String> appNameCaptor = ArgumentCaptor.forClass(String.class);
         verify(client, Mockito.atLeast(0)).updateApplicationEnv(appNameCaptor.capture(), appEnvCaptor.capture());

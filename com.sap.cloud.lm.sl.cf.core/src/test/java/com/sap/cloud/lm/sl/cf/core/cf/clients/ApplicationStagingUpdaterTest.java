@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.Staging;
@@ -51,7 +51,7 @@ public class ApplicationStagingUpdaterTest {
     @Mock
     private RestTemplateFactory restTemplateFactory;
     @Mock
-    private CloudFoundryOperations client;
+    private CloudControllerClient client;
 
     private ApplicationStagingUpdater applicationStagingUpdater;
 

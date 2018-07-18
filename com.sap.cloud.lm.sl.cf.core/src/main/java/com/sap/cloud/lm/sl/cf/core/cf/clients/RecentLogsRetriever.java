@@ -18,7 +18,7 @@ import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.MultipartStream.MalformedStreamException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
@@ -42,11 +42,11 @@ public class RecentLogsRetriever extends CustomControllerClient {
         this.loggingEndpointGetter = loggingEndpointGetter;
     }
 
-    public List<ApplicationLog> getRecentLogs(CloudFoundryOperations client, String appName) {
+    public List<ApplicationLog> getRecentLogs(CloudControllerClient client, String appName) {
         return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetRecentLogs(client, appName));
     }
 
-    private List<ApplicationLog> attemptToGetRecentLogs(CloudFoundryOperations client, String appName) {
+    private List<ApplicationLog> attemptToGetRecentLogs(CloudControllerClient client, String appName) {
         UUID applicationGuid = client.getApplication(appName)
             .getMeta()
             .getGuid();

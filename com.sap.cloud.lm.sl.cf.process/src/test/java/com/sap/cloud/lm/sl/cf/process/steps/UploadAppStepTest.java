@@ -18,7 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class UploadAppStepTest {
     public static class UploadAppStepParameterizedTest extends SyncActivitiStepTest<UploadAppStep> {
 
         private static final IOException IO_EXCEPTION = new IOException();
-        private static final CloudFoundryException CF_EXCEPTION = new CloudFoundryException(HttpStatus.BAD_REQUEST);
+        private static final CloudOperationException CO_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
 
         private static final String APP_NAME = "sample-app-backend";
         private static final String APP_FILE = "web.zip";
@@ -84,11 +84,11 @@ public class UploadAppStepTest {
                 },
                 // (04)
                 {
-                    null, createException(CF_EXCEPTION).getMessage(),
+                    null, createException(CO_EXCEPTION).getMessage(),
                 },
                 // (05)
                 {
-                    null, createException(CF_EXCEPTION).getMessage(),
+                    null, createException(CO_EXCEPTION).getMessage(),
                 },
 // @formatter:on
             });
@@ -158,7 +158,7 @@ public class UploadAppStepTest {
             } else if (expectedIOExceptionMessage != null) {
                 when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(IO_EXCEPTION);
             } else if (expectedCFExceptionMessage != null) {
-                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CF_EXCEPTION);
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CO_EXCEPTION);
             }
             when(client.getApplication(APP_NAME)).thenReturn(new SimpleApplication(APP_NAME, 2).toCloudApplication());
         }
@@ -209,7 +209,7 @@ public class UploadAppStepTest {
             return new UploadAppStepMock();
         }
 
-        private static SLException createException(CloudFoundryException e) {
+        private static SLException createException(CloudOperationException e) {
             return new SLException(e, Messages.CF_ERROR, e.getMessage());
         }
 

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +30,12 @@ public class MtaConfigurationPurger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MtaConfigurationPurger.class);
 
-    private CloudFoundryOperations client;
+    private CloudControllerClient client;
     private SpaceGetter spaceGetter;
     private ConfigurationEntryDao entryDao;
     private ConfigurationSubscriptionDao subscriptionDao;
 
-    public MtaConfigurationPurger(CloudFoundryOperations client, SpaceGetter spaceGetter, ConfigurationEntryDao entryDao,
+    public MtaConfigurationPurger(CloudControllerClient client, SpaceGetter spaceGetter, ConfigurationEntryDao entryDao,
         ConfigurationSubscriptionDao subscriptionDao) {
         this.client = client;
         this.spaceGetter = spaceGetter;
@@ -132,7 +132,7 @@ public class MtaConfigurationPurger {
     private List<CloudApplication> getExistingApps() {
         try {
             return client.getApplications();
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             throw new SLException(e, Messages.ERROR_GETTING_APPLICATIONS);
         }
     }

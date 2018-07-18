@@ -29,7 +29,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +116,7 @@ public class ConfigurationEntriesResource {
 
     private List<CloudTarget> getUserTargets() {
         UserInfo userInfo = userInfoSupplier.get();
-        CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName());
+        CloudControllerClient client = clientProvider.getCloudFoundryClient(userInfo.getName());
         return client.getSpaces()
             .stream()
             .map(cloudSpace -> getCloudTarget(cloudSpace))
@@ -279,7 +279,7 @@ public class ConfigurationEntriesResource {
 
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         authorizationChecker.ensureUserIsAuthorized(request, userInfo, org, space, PURGE_COMMAND);
-        CloudFoundryOperations client = clientProvider.getCloudFoundryClient(userInfo.getName(), org, space, null);
+        CloudControllerClient client = clientProvider.getCloudFoundryClient(userInfo.getName(), org, space, null);
         MtaConfigurationPurger purger = new MtaConfigurationPurger(client, spaceGetter, entryDao, subscriptionDao);
         purger.purge(org, space);
         return Response.status(Response.Status.NO_CONTENT)

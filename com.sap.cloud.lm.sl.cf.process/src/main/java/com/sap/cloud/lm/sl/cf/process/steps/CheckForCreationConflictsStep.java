@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
@@ -43,14 +43,14 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
         List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(execution.getContext());
         try {
             getStepLogger().info(Messages.VALIDATING_SERVICES);
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
             validateServicesToCreate(client, execution.getContext(), deployedMta, deployedApps);
             getStepLogger().debug(Messages.SERVICES_VALIDATED);
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_VALIDATING_SERVICES);
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_VALIDATING_SERVICES);
             throw e;
         }
@@ -59,11 +59,11 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
             getStepLogger().info(Messages.VALIDATING_APPLICATIONS);
             validateApplicationsToDeploy(execution.getContext(), deployedMta, deployedApps);
             getStepLogger().debug(Messages.APPLICATIONS_VALIDATED);
-        } catch (SLException e) {
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_VALIDATING_APPLICATIONS);
             throw e;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_VALIDATING_APPLICATIONS);
             throw e;
         }
@@ -71,7 +71,7 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
         return StepPhase.DONE;
     }
 
-    private void validateServicesToCreate(CloudFoundryOperations client, DelegateExecution context, DeployedMta deployedMta,
+    private void validateServicesToCreate(CloudControllerClient client, DelegateExecution context, DeployedMta deployedMta,
         List<CloudApplication> deployedApps) {
         List<CloudServiceExtended> servicesToCreate = StepsUtil.getServicesToCreate(context);
         Map<String, CloudService> existingServicesMap = createExistingServicesMap(client.getServices());
@@ -83,7 +83,7 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
         }
     }
 
-    private void validateExistingServiceAssociation(CloudServiceExtended serviceToCreate, CloudFoundryOperations client,
+    private void validateExistingServiceAssociation(CloudServiceExtended serviceToCreate, CloudControllerClient client,
         List<CloudApplication> deployedApps, Set<String> servicesInDeployedMta) {
 
         getStepLogger().debug(Messages.VALIDATING_EXISTING_SERVICE_ASSOCIATION, serviceToCreate.getName());
@@ -164,7 +164,7 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
             .contains(service.getName());
     }
 
-    private List<CloudServiceBinding> getServiceBindings(CloudFoundryOperations client, CloudServiceExtended service) {
+    private List<CloudServiceBinding> getServiceBindings(CloudControllerClient client, CloudServiceExtended service) {
         CloudServiceInstance serviceInstance = client.getServiceInstance(service.getName());
         return serviceInstance.getBindings();
     }

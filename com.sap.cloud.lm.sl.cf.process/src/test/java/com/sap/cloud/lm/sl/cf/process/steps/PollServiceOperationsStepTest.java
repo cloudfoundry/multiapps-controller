@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -90,7 +90,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     @Mock
     private ServiceInstanceGetter serviceInstanceGetter;
     @Mock
-    protected CloudFoundryOperations client;
+    protected CloudControllerClient client;
     @Rule
     public ExpectedException exception = ExpectedException.none();
     private StepInput input;

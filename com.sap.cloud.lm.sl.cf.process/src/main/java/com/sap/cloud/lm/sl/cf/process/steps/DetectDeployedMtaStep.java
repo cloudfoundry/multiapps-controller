@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -34,7 +34,7 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.DETECTING_DEPLOYED_MTA);
 
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
 
             List<CloudApplication> deployedApps = client.getApplications("0");
             StepsUtil.setDeployedApps(execution.getContext(), deployedApps);
@@ -52,8 +52,8 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
             StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
             getStepLogger().debug(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps));
             return StepPhase.DONE;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_DETECTING_DEPLOYED_MTA);
             throw e;
         } catch (SLException e) {

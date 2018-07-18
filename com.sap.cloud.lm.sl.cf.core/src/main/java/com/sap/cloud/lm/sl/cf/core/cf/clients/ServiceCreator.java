@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +23,11 @@ public class ServiceCreator extends CloudServiceOperator {
         super(restTemplateFactory);
     }
 
-    public void createService(CloudFoundryOperations client, CloudServiceExtended service, String spaceId) {
+    public void createService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
         new CustomControllerClientErrorHandler().handleErrors(() -> attemptToCreateService(client, service, spaceId));
     }
 
-    private void attemptToCreateService(CloudFoundryOperations client, CloudServiceExtended service, String spaceId) {
+    private void attemptToCreateService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
         assertServiceAttributes(service);
 
         RestTemplate restTemplate = getRestTemplate(client);

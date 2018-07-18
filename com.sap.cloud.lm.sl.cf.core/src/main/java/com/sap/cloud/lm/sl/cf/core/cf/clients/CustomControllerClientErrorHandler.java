@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -33,7 +33,7 @@ public class CustomControllerClientErrorHandler {
             try {
                 return supplier.get();
             } catch (HttpStatusCodeException e) {
-                throw asCloudFoundryException(e);
+                throw asCloudOperationException(e);
             }
         }, httpStatusesToIgnore);
     }
@@ -45,9 +45,9 @@ public class CustomControllerClientErrorHandler {
         });
     }
 
-    private CloudFoundryException asCloudFoundryException(HttpStatusCodeException exception) {
+    private CloudOperationException asCloudOperationException(HttpStatusCodeException exception) {
         String description = getDescriptionFromResponseBody(exception.getResponseBodyAsString());
-        return new CloudFoundryException(exception.getStatusCode(), exception.getStatusText(), description);
+        return new CloudOperationException(exception.getStatusCode(), exception.getStatusText(), description);
     }
 
     private String getDescriptionFromResponseBody(String responseBody) {

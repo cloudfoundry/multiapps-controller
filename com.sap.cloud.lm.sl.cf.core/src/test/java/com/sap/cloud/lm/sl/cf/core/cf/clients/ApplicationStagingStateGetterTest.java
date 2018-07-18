@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class ApplicationStagingStateGetterTest {
     @Mock
     private RestTemplate restTemplate;
     @Mock
-    private CloudFoundryOperations client;
+    private CloudControllerClient client;
 
     private ApplicationStagingStateGetter applicationStagingStateGetter;
 

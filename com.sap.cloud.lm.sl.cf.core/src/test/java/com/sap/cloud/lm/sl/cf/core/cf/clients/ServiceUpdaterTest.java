@@ -6,8 +6,8 @@ import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     @Test
     public void testUpdateServicePlan1() throws MalformedURLException {
         // Given:
-        CloudFoundryOperations client = getMockedClient();
+        CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
             .thenReturn(EXISTING_SERVICE);
 
@@ -67,14 +67,14 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     @Test
     public void testUpdateServicePlan2() {
         // Given:
-        CloudFoundryOperations client = getMockedClient();
+        CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
             .thenReturn(EXISTING_SERVICE);
 
         try {
             // When:
             serviceUpdater.updateServicePlan(client, EXISTING_SERVICE_NAME, "v3.0-large");
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             // Then:
             assertEquals(
                 "404 Not Found: Could not create service instance \"foo\". Service plan \"v3.0-large\" from service offering \"mongodb\" was not found.",
@@ -85,15 +85,15 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     @Test
     public void testUpdateServicePlan3() {
         // Given:
-        CloudFoundryOperations client = getMockedClient();
+        CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
             .thenThrow(
-                new CloudFoundryException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(), "Service \"foo\" was not found!"));
+                new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(), "Service \"foo\" was not found!"));
 
         try {
             // When:
             serviceUpdater.updateServicePlan(client, EXISTING_SERVICE_NAME, "v3.0-small");
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             // Then:
             assertEquals("404 Not Found: Service \"foo\" was not found!", e.getMessage());
         }

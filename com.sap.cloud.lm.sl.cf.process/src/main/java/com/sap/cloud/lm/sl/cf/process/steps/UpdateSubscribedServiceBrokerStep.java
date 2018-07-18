@@ -3,8 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -25,7 +25,7 @@ public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrok
         CloudServiceBrokerExtended broker = getServiceBrokerFromApp(serviceBrokerAppication, execution.getContext());
 
         try {
-            CloudFoundryOperations client = execution.getCloudFoundryClient();
+            CloudControllerClient client = execution.getCloudControllerClient();
             CloudServiceBroker existingServiceBroker = client.getServiceBroker(broker.getName(), false);
             if (existingServiceBroker == null) {
                 getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, broker.getName()));
@@ -34,8 +34,8 @@ public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrok
                 updateServiceBroker(execution.getContext(), broker, client);
             }
             return StepPhase.DONE;
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_UPDATE, broker.getName());
             return StepPhase.DONE;
         }

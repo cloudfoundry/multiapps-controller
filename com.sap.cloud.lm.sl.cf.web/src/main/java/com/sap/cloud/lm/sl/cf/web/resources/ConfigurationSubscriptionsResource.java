@@ -17,7 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +49,7 @@ public class ConfigurationSubscriptionsResource {
 
     @GET
     public Response getConfigurationSubscriptions(@QueryParam(ORG) String org, @QueryParam(SPACE) String space) {
-        CloudFoundryOperations client = getCloudFoundryClient();
+        CloudControllerClient client = getCloudFoundryClient();
         List<CloudSpace> clientSpaces = getClientSpaces(org, space, client);
 
         List<ConfigurationSubscription> configurationSubscriptions = getConfigurationEntries(clientSpaces, client);
@@ -59,14 +59,14 @@ public class ConfigurationSubscriptionsResource {
             .build();
     }
 
-    private List<CloudSpace> getClientSpaces(String org, String space, CloudFoundryOperations client) {
+    private List<CloudSpace> getClientSpaces(String org, String space, CloudControllerClient client) {
         if (space == null) {
             return spaceGetter.findSpaces(client, org);
         }
         return Arrays.asList(spaceGetter.findSpace(client, org, space));
     }
 
-    private List<ConfigurationSubscription> getConfigurationEntries(List<CloudSpace> clientSpaces, CloudFoundryOperations client) {
+    private List<ConfigurationSubscription> getConfigurationEntries(List<CloudSpace> clientSpaces, CloudControllerClient client) {
         return clientSpaces.stream()
             .map(clientSpace -> configurationSubscriptionsDao.findAll(null, null, computeSpaceId(client, clientSpace.getOrganization()
                 .getName(), clientSpace.getName()), null))
@@ -78,12 +78,12 @@ public class ConfigurationSubscriptionsResource {
         return new ConfigurationSubscriptions(configurationSubscriptions);
     }
 
-    private CloudFoundryOperations getCloudFoundryClient() {
+    private CloudControllerClient getCloudFoundryClient() {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         return clientProvider.getCloudFoundryClient(userInfo.getName());
     }
 
-    private String computeSpaceId(CloudFoundryOperations client, String orgName, String spaceName) {
+    private String computeSpaceId(CloudControllerClient client, String orgName, String spaceName) {
         return new ClientHelper(client, spaceGetter).computeSpaceId(orgName, spaceName);
     }
 

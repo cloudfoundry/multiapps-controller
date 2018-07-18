@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
-import org.cloudfoundry.client.lib.CloudFoundryOperations;
+import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
@@ -43,8 +43,8 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
         CloudApplication app = getAppToStart(execution.getContext());
         try {
             attemptToStartApp(execution, app);
-        } catch (CloudFoundryException cfe) {
-            CloudControllerException e = new CloudControllerException(cfe);
+        } catch (CloudOperationException coe) {
+            CloudControllerException e = new CloudControllerException(coe);
             onError(format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
             throw e;
         }
@@ -60,7 +60,7 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private void attemptToStartApp(ExecutionWrapper execution, CloudApplication app) {
-        CloudFoundryOperations client = execution.getCloudFoundryClient();
+        CloudControllerClient client = execution.getCloudControllerClient();
 
         if (isAppStarted(client, app.getName())) {
             stopApp(client, app);
@@ -83,12 +83,12 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
         return StepsUtil.getApp(context);
     }
 
-    private boolean isAppStarted(CloudFoundryOperations client, String appName) {
+    private boolean isAppStarted(CloudControllerClient client, String appName) {
         try {
             CloudApplication app2 = client.getApplication(appName);
             return app2.getState()
                 .equals(AppState.STARTED);
-        } catch (CloudFoundryException e) {
+        } catch (CloudOperationException e) {
             if (e.getStatusCode()
                 .equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
                 logger.warn(e.getMessage(), e);
@@ -98,12 +98,12 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
         }
     }
 
-    private void stopApp(CloudFoundryOperations client, CloudApplication app) {
+    private void stopApp(CloudControllerClient client, CloudApplication app) {
         getStepLogger().info(Messages.STOPPING_APP, app.getName());
         client.stopApplication(app.getName());
     }
 
-    private StartingInfo startApp(ExecutionWrapper execution, CloudFoundryOperations client, CloudApplication app) {
+    private StartingInfo startApp(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app) {
         ClientExtensions clientExtensions = execution.getClientExtensions();
         getStepLogger().info(Messages.STARTING_APP, app.getName());
         if (clientExtensions != null) {

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudFoundryException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,8 +56,8 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncActivitiStepTest<C
 
     @InjectMocks
     private CreateOrUpdateServiceBrokersStep step = new CreateOrUpdateServiceBrokersStep();
-    private CloudFoundryException updateException;
-    private CloudFoundryException createException;
+    private CloudOperationException updateException;
+    private CloudOperationException createException;
     private Class<? extends Throwable> expectedExceptionClass;
 
     @Parameters
@@ -102,23 +102,23 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncActivitiStepTest<C
             },
             // (09) Create/update calls for both brokers should be made, although update throws exception:
             {
-                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", "Could not update service broker \"foo-broker\". Operation not supported.", null, null, null, new CloudFoundryException(HttpStatus.NOT_IMPLEMENTED),
+                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", "Could not update service broker \"foo-broker\". Operation not supported.", null, null, null, new CloudOperationException(HttpStatus.NOT_IMPLEMENTED),
             },
             // (10) A random exception is thrown during create:
             {
-                "create-service-brokers-step-input-09.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, new CloudFoundryException(HttpStatus.I_AM_A_TEAPOT), null,
+                "create-service-brokers-step-input-09.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT), null,
             },
             // (11) A random exception is thrown during update:
             {
-                "create-service-brokers-step-input-09.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, null, new CloudFoundryException(HttpStatus.I_AM_A_TEAPOT),
+                "create-service-brokers-step-input-09.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, null, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
             },
             // (12) Create/update calls for should fail, because both create and update throw an exception and failsafe option is not set: 
             {
-                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", null, "Controller operation failed: 403 Forbidden", CloudControllerException.class, new CloudFoundryException(HttpStatus.FORBIDDEN), new CloudFoundryException(HttpStatus.FORBIDDEN),
+                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", null, "Controller operation failed: 403 Forbidden", CloudControllerException.class, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
             },
             // (13) Create/update calls for both brokers should be made, although both create and update throw an exception but failsafe option is set: 
             {
-                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", "Could not create service broker \"bar-broker\". Operation forbidden. Only admin users can manage service brokers!", null, null, new CloudFoundryException(HttpStatus.FORBIDDEN), new CloudFoundryException(HttpStatus.FORBIDDEN),
+                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", "Could not create service broker \"bar-broker\". Operation forbidden. Only admin users can manage service brokers!", null, null, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
             },
             // (14) A service broker should be created, all necessary parameters are present and it is space scoped:
             {
@@ -141,8 +141,8 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncActivitiStepTest<C
     }
 
     public CreateOrUpdateServiceBrokersStepTest(String inputLocation, String expectedOutputLocation, String expectedWarningMessage,
-        String expectedExceptionMessage, Class<? extends Throwable> expectedExceptionClass, CloudFoundryException createException,
-        CloudFoundryException updateException) {
+        String expectedExceptionMessage, Class<? extends Throwable> expectedExceptionClass, CloudOperationException createException,
+        CloudOperationException updateException) {
         this.expectedOutputLocation = expectedOutputLocation;
         this.expectedWarningMessage = expectedWarningMessage;
         this.expectedExceptionMessage = expectedExceptionMessage;
