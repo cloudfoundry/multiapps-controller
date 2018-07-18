@@ -71,7 +71,6 @@ public class BootstrapServlet extends HttpServlet {
             initializeActiviti();
             addDeployTargets();
             initExtras();
-            configuration.logFullConfig();
             processEngine.getProcessEngineConfiguration().getJobExecutor().start();
             LOGGER.info(Messages.ALM_SERVICE_ENV_INITIALIZED);
         } catch (Exception e) {
