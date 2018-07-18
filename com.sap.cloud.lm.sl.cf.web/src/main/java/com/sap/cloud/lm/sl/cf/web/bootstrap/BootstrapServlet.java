@@ -74,7 +74,6 @@ public class BootstrapServlet extends HttpServlet {
             addDeployTargets();
             initExtras();
             executeAsyncDatabaseChanges();
-            configuration.logFullConfig();
             processEngine.getProcessEngineConfiguration()
                 .getJobExecutor()
                 .start();
