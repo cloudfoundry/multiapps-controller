@@ -5,10 +5,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
 
@@ -22,18 +26,22 @@ import io.swagger.annotations.Authorization;
 @Consumes({ "application/json" })
 @Produces({ "application/json" })
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-19T13:17:38.801+03:00")
+
+@Component
+@Scope(value = "request")
 public class FilesApi {
 
-    @Context
-    SecurityContext securityContext;
+    @PathParam("space_guid")
+    private String spaceGuid;
 
     @Context
-    HttpServletRequest request;
+    private SecurityContext securityContext;
+
+    @Context
+    private HttpServletRequest request;
 
     @Inject
-    FilesApiService delegate;
-
-    private String spaceGuid;
+    private FilesApiService delegate;
 
     @GET
 
@@ -59,9 +67,5 @@ public class FilesApi {
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = FileMetadata.class) })
     public Response uploadMtaFile() {
         return delegate.uploadMtaFile(request, securityContext, spaceGuid);
-    }
-
-    public void setSpaceGuid(String spaceGuid) {
-        this.spaceGuid = spaceGuid;
     }
 }

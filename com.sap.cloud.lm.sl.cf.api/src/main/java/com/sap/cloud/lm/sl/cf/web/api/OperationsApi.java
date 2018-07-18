@@ -15,6 +15,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import com.sap.cloud.lm.sl.cf.web.api.model.Log;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
@@ -30,15 +33,18 @@ import io.swagger.annotations.Authorization;
 @Produces({ "application/json" })
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJAXRSCXFCDIServerCodegen", date = "2017-10-23T14:07:53.974+03:00")
 
+@Component
+@Scope(value = "request")
 public class OperationsApi {
 
+    @PathParam("space_guid")
+    private String spaceGuid;
+
     @Context
-    SecurityContext securityContext;
+    private SecurityContext securityContext;
 
     @Inject
-    OperationsApiService delegate;
-
-    private String spaceGuid;
+    private OperationsApiService delegate;
 
     @POST
     @Path("/{operationId}")
@@ -80,7 +86,6 @@ public class OperationsApi {
     public Response getMtaOperationLogs(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId) {
         return delegate.getMtaOperationLogs(operationId, securityContext, spaceGuid);
     }
-    
 
     @GET
     @Path("/{operationId}/logs/{logId}/content")
@@ -88,27 +93,25 @@ public class OperationsApi {
     @Produces({ "text/plain" })
     @ApiOperation(value = "", notes = "Retrieves the log content for Multi-Target Application operation ", response = String.class, authorizations = {
         @Authorization(value = "oauth2", scopes = {
-            
-        })
-    }, tags={  })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = String.class) })
-    public Response getMtaOperationLogContent(@ApiParam(value = "",required=true) @PathParam("operationId") String operationId, @ApiParam(value = "",required=true) @PathParam("logId") String logId) {
+
+        }) }, tags = {})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class) })
+    public Response getMtaOperationLogContent(@ApiParam(value = "", required = true) @PathParam("operationId") String operationId,
+        @ApiParam(value = "", required = true) @PathParam("logId") String logId) {
         return delegate.getMtaOperationLogContent(operationId, logId, securityContext, spaceGuid);
     }
 
     @GET
-    
+
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
     @ApiOperation(value = "", notes = "Retrieves Multi-Target Application operations ", response = Operation.class, responseContainer = "List", authorizations = {
         @Authorization(value = "oauth2", scopes = {
-            
-        })
-    }, tags={  })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = Operation.class, responseContainer = "List") })
-    public Response getMtaOperations( @ApiParam(value = "")  @QueryParam("last") Integer last,  @ApiParam(value = "")  @QueryParam("state") List<String> state) {
+
+        }) }, tags = {})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Operation.class, responseContainer = "List") })
+    public Response getMtaOperations(@ApiParam(value = "") @QueryParam("last") Integer last,
+        @ApiParam(value = "") @QueryParam("state") List<String> state) {
         return delegate.getMtaOperations(last, state, securityContext, spaceGuid);
     }
 
@@ -136,10 +139,5 @@ public class OperationsApi {
     @ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted", response = Void.class) })
     public Response startMtaOperation(@ApiParam(value = "", required = true) Operation operation) {
         return delegate.startMtaOperation(operation, securityContext, spaceGuid);
-    }
-
-    public void setSpaceGuid(String spaceGuid) {
-        this.spaceGuid = spaceGuid;
-
     }
 }
