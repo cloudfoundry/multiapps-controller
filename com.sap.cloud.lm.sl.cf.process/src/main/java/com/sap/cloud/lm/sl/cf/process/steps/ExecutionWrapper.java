@@ -3,19 +3,18 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
 
 public class ExecutionWrapper {
     private DelegateExecution context;
     private StepLogger stepLogger;
-    private CloudFoundryClientProvider clientProvider;
+    private CloudControllerClientProvider clientProvider;
     private ProcessLoggerProviderFactory processLoggerProviderFactory;
 
-    public ExecutionWrapper(DelegateExecution context, StepLogger stepLogger, CloudFoundryClientProvider clientProvider,
+    public ExecutionWrapper(DelegateExecution context, StepLogger stepLogger, CloudControllerClientProvider clientProvider,
         ProcessLoggerProviderFactory processLoggerProviderFactory) {
         this.context = context;
         this.stepLogger = stepLogger;
@@ -31,20 +30,20 @@ public class ExecutionWrapper {
         return stepLogger;
     }
 
-    public CloudControllerClient getCloudControllerClient() {
-        return StepsUtil.getCloudControllerClient(context, clientProvider, stepLogger);
+    public CloudControllerClient getControllerClient() {
+        return StepsUtil.getControllerClient(context, clientProvider, stepLogger);
     }
 
-    public CloudControllerClient getCloudControllerClient(String org, String space) {
-        return StepsUtil.getCloudControllerClient(context, clientProvider, stepLogger, org, space);
+    public CloudControllerClient getControllerClient(String org, String space) {
+        return StepsUtil.getControllerClient(context, clientProvider, stepLogger, org, space);
     }
 
-    public ClientExtensions getClientExtensions() {
-        return StepsUtil.getClientExtensions(context, clientProvider, stepLogger);
+    public XsCloudControllerClient getXsControllerClient() {
+        return StepsUtil.getXsControllerClient(context, clientProvider, stepLogger);
     }
 
-    public ClientExtensions getClientExtensions(String org, String space) {
-        return StepsUtil.getClientExtensions(context, clientProvider, stepLogger, org, space);
+    public XsCloudControllerClient getXsControllerClient(String org, String space) {
+        return StepsUtil.getXsControllerClient(context, clientProvider, stepLogger, org, space);
     }
 
     public ProcessLoggerProviderFactory getProcessLoggerProviderFactory() {

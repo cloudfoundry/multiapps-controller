@@ -25,7 +25,7 @@ import org.mockito.MockitoAnnotations;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationEntryDto;
 import com.sap.cloud.lm.sl.cf.core.dto.serialization.ConfigurationFilterDto;
@@ -334,7 +334,7 @@ public class ConfigurationEntriesResourceTest {
         @Mock
         private CloudControllerClient client;
         @Mock
-        private CloudFoundryClientProvider clientProvider;
+        private CloudControllerClientProvider clientProvider;
         @Mock
         private ConfigurationEntryDao dao;
         @Mock
@@ -363,7 +363,7 @@ public class ConfigurationEntriesResourceTest {
             MockitoAnnotations.initMocks(this);
             resource.userInfoSupplier = () -> userInfo;
             when(userInfo.getName()).thenReturn("");
-            when(clientProvider.getCloudFoundryClient("")).thenReturn(client);
+            when(clientProvider.getControllerClient("")).thenReturn(client);
             when(client.getSpaces()).thenReturn(Collections.emptyList());
             when(dao.find(eq(PROVIDER_NID), eq(PROVIDER_ID), eq(PROVIDER_VERSION), eq(TARGET_SPACE), eq(input.getParsedRequiredContent()),
                 any(), any())).thenReturn(Collections.emptyList());

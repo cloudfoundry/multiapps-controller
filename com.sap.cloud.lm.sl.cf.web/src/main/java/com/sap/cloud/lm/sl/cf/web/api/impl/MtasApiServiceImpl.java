@@ -13,7 +13,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedComponentsDetector;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedComponents;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -37,7 +37,7 @@ public class MtasApiServiceImpl implements MtasApiService {
     private static final String ACTION = "Get deployed components";
 
     @Inject
-    private CloudFoundryClientProvider clientProvider;
+    private CloudControllerClientProvider clientProvider;
     @Inject
     private AuthorizationChecker authorizationChecker;
 
@@ -68,7 +68,7 @@ public class MtasApiServiceImpl implements MtasApiService {
 
     private CloudControllerClient getCloudFoundryClient(String spaceGuid) throws SLException {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getCloudFoundryClient(userInfo.getName(), spaceGuid);
+        return clientProvider.getControllerClient(userInfo.getName(), spaceGuid);
     }
 
     private List<Mta> getMtas(DeployedComponents components) {

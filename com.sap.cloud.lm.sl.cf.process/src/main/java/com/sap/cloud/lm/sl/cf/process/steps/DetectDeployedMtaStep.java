@@ -34,7 +34,7 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.DETECTING_DEPLOYED_MTA);
 
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             List<CloudApplication> deployedApps = client.getApplications("0");
             StepsUtil.setDeployedApps(execution.getContext(), deployedApps);

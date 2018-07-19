@@ -32,72 +32,72 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
 
-public class CloudFoundryClientExtended extends CloudControllerClientImpl implements CloudFoundryOperationsExtended {
+public class ResilientCloudControllerClient extends CloudControllerClientImpl implements CloudControllerClientSupportingCustomUserIds {
 
     private final ExecutionRetrier retrier = new ExecutionRetrier();
 
-    public CloudFoundryClientExtended(CloudControllerRestClient cc) {
+    public ResilientCloudControllerClient(CloudControllerRestClient cc) {
         super(cc);
     }
 
     @Override
-    public List<String> getSpaceManagers2(String spaceName) {
+    public List<String> getSpaceManagerIdsAsStrings(String spaceName) {
         return executeWithRetry(() -> super.getSpaceManagers(spaceName).stream()
             .map(uuid -> uuid.toString())
             .collect(Collectors.toList()), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<String> getSpaceManagers2(UUID spaceGuid) {
+    public List<String> getSpaceManagerIdsAsStrings(UUID spaceGuid) {
         return executeWithRetry(() -> super.getSpaceManagers(spaceGuid).stream()
             .map(uuid -> uuid.toString())
             .collect(Collectors.toList()), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<String> getSpaceDevelopers2(String spaceName) {
+    public List<String> getSpaceDeveloperIdsAsStrings(String spaceName) {
         return executeWithRetry(() -> super.getSpaceDevelopers(spaceName).stream()
             .map(uuid -> uuid.toString())
             .collect(Collectors.toList()), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<String> getSpaceDevelopers2(UUID spaceGuid) {
+    public List<String> getSpaceDeveloperIdsAsStrings(UUID spaceGuid) {
         return executeWithRetry(() -> super.getSpaceDevelopers(spaceGuid).stream()
             .map(uuid -> uuid.toString())
             .collect(Collectors.toList()), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<String> getSpaceAuditors2(String spaceName) {
+    public List<String> getSpaceAuditorIdsAsStrings(String spaceName) {
         return executeWithRetry(() -> super.getSpaceAuditors(spaceName).stream()
             .map(uuid -> uuid.toString())
             .collect(Collectors.toList()), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<String> getSpaceAuditors2(UUID spaceGuid) {
+    public List<String> getSpaceAuditorIdsAsStrings(UUID spaceGuid) {
         return executeWithRetry(() -> super.getSpaceAuditors(spaceGuid).stream()
             .map(uuid -> uuid.toString())
             .collect(Collectors.toList()), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<String> getSpaceManagers2(String orgName, String spaceName) {
+    public List<String> getSpaceManagerIdsAsStrings(String orgName, String spaceName) {
         return executeWithRetry(() -> super.getSpaceManagers(orgName, spaceName).stream()
             .map(uuid -> uuid.toString())
             .collect(Collectors.toList()), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<String> getSpaceDevelopers2(String orgName, String spaceName) {
+    public List<String> getSpaceDeveloperIdsAsStrings(String orgName, String spaceName) {
         return executeWithRetry(() -> super.getSpaceDevelopers(orgName, spaceName).stream()
             .map(uuid -> uuid.toString())
             .collect(Collectors.toList()), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public List<String> getSpaceAuditors2(String orgName, String spaceName) {
+    public List<String> getSpaceAuditorIdsAsStrings(String orgName, String spaceName) {
         return executeWithRetry(() -> super.getSpaceAuditors(orgName, spaceName).stream()
             .map(uuid -> uuid.toString())
             .collect(Collectors.toList()), HttpStatus.NOT_FOUND);

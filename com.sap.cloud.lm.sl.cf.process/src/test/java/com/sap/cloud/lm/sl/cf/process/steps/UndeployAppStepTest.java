@@ -112,9 +112,9 @@ public class UndeployAppStepTest extends SyncActivitiStepTest<UndeployAppStep> {
 
     private void assertRoutesWereDeleted() {
         int routesToDeleteCount = stepOutput.expectedRoutesToDelete.size();
-        verify(clientExtensions, times(routesToDeleteCount)).deleteRoute(anyString(), anyString(), anyString());
+        verify(client, times(routesToDeleteCount)).deleteRoute(anyString(), anyString(), anyString());
         for (Pair<String, String> hostAndDomain : stepOutput.expectedRoutesToDelete) {
-            verify(clientExtensions).deleteRoute(hostAndDomain._1, hostAndDomain._2, null);
+            verify(client).deleteRoute(hostAndDomain._1, hostAndDomain._2, null);
             routesToDeleteCount--;
         }
         assertEquals("A number of routes were not deleted: ", 0, routesToDeleteCount);
@@ -122,9 +122,9 @@ public class UndeployAppStepTest extends SyncActivitiStepTest<UndeployAppStep> {
 
     private void assertTasksWereCanceled() {
         int tasksToCancelCount = stepOutput.expectedTasksToCancel.size();
-        verify(clientExtensions, times(tasksToCancelCount)).cancelTask(any(UUID.class));
+        verify(client, times(tasksToCancelCount)).cancelTask(any(UUID.class));
         for (String taskGuid : stepOutput.expectedTasksToCancel) {
-            verify(clientExtensions).cancelTask(UUID.fromString(taskGuid));
+            verify(client).cancelTask(UUID.fromString(taskGuid));
             tasksToCancelCount--;
         }
         assertEquals("A number of tasks were not canceled: ", 0, tasksToCancelCount);
@@ -149,7 +149,7 @@ public class UndeployAppStepTest extends SyncActivitiStepTest<UndeployAppStep> {
                 return stepInput.appRoutesPerApplication.get(appName);
 
             });
-        Mockito.when(clientExtensions.getTasks(anyString()))
+        Mockito.when(client.getTasks(anyString()))
             .thenAnswer((invocation) -> {
 
                 String appName = (String) invocation.getArguments()[0];

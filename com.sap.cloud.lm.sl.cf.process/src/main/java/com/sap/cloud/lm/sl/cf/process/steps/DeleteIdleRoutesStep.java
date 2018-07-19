@@ -31,7 +31,7 @@ public class DeleteIdleRoutesStep extends SyncActivitiStep {
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         try {
             getStepLogger().info(Messages.DELETING_IDLE_URIS);
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
             boolean portBasedRouting = (boolean) execution.getContext()
                 .getVariable(Constants.VAR_PORT_BASED_ROUTING);
 

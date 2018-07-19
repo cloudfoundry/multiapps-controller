@@ -112,7 +112,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
             List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(execution.getContext(), activitiFacade);
             List<ConfigurationEntry> updatedEntries = merge(publishedEntries, deletedEntries);
 
-            CloudControllerClient clientForCurrentSpace = execution.getCloudControllerClient();
+            CloudControllerClient clientForCurrentSpace = execution.getControllerClient();
 
             List<CloudApplication> updatedSubscribers = new ArrayList<>();
             List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
@@ -301,7 +301,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     }
 
     private CloudControllerClient getClient(ExecutionWrapper execution, Pair<String, String> orgAndSpace) throws SLException {
-        return execution.getCloudControllerClient(orgAndSpace._1, orgAndSpace._2);
+        return execution.getControllerClient(orgAndSpace._1, orgAndSpace._2);
     }
 
     private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory)

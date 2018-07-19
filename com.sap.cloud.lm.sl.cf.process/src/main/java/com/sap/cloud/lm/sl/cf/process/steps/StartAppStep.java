@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -60,7 +60,7 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private void attemptToStartApp(ExecutionWrapper execution, CloudApplication app) {
-        CloudControllerClient client = execution.getCloudControllerClient();
+        CloudControllerClient client = execution.getControllerClient();
 
         if (isAppStarted(client, app.getName())) {
             stopApp(client, app);
@@ -104,10 +104,10 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private StartingInfo startApp(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app) {
-        ClientExtensions clientExtensions = execution.getClientExtensions();
+        XsCloudControllerClient xsClient = execution.getXsControllerClient();
         getStepLogger().info(Messages.STARTING_APP, app.getName());
-        if (clientExtensions != null) {
-            return clientExtensions.startApplication(app.getName(), false);
+        if (xsClient != null) {
+            return xsClient.startApplication(app.getName(), false);
         }
         return client.startApplication(app.getName());
     }

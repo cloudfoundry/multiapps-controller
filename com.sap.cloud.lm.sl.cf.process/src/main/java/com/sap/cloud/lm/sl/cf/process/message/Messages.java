@@ -344,7 +344,7 @@ public class Messages {
     public static final String CLIENT_EXTENSIONS_ARE_NOT_SUPPORTED = "Client extensions are not supported";
     public static final String PROCESS_ENVIRONMENT = "Process environment: {0}";
     public static final String PROCESS_VARIABLES = "Process variables: {0}";
-    public static final String AUTHENTICATED_USER_ID = "Authenticated user id: {0}";
+    public static final String AUTHENTICATED_USER_ID = "Authenticated user ID: {0}";
     public static final String PREVIOUS_USER = "Previous user: {0}";
     public static final String PROCESS_INITIATOR = "Process initiator: {0}";
     public static final String CURRENT_USER = "Current user: {0}";

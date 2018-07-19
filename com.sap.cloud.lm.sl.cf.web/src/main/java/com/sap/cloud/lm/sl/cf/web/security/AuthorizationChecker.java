@@ -14,11 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.CloudFoundryOperationsExtended;
+import com.sap.cloud.lm.sl.cf.client.CloudControllerClientSupportingCustomUserIds;
 import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
@@ -36,12 +36,12 @@ public class AuthorizationChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationChecker.class);
 
     private final ExecutionRetrier retrier = new ExecutionRetrier();
-    private final CloudFoundryClientProvider clientProvider;
+    private final CloudControllerClientProvider clientProvider;
     private final SpaceGetter spaceGetter;
     private final ApplicationConfiguration applicationConfiguration;
 
     @Inject
-    public AuthorizationChecker(CloudFoundryClientProvider clientProvider, SpaceGetter spaceGetter,
+    public AuthorizationChecker(CloudControllerClientProvider clientProvider, SpaceGetter spaceGetter,
         ApplicationConfiguration applicationConfiguration) {
         this.clientProvider = clientProvider;
         this.spaceGetter = spaceGetter;
@@ -81,9 +81,9 @@ public class AuthorizationChecker {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-        CloudControllerClient client = clientProvider.getCloudFoundryClient(userInfo.getName());
-        CloudFoundryOperationsExtended clientx = (CloudFoundryOperationsExtended) client;
-        return hasPermissions(clientx, userInfo.getId(), orgName, spaceName, readOnly) && hasAccess(clientx, orgName, spaceName);
+        CloudControllerClientSupportingCustomUserIds client = (CloudControllerClientSupportingCustomUserIds) clientProvider
+            .getControllerClient(userInfo.getName());
+        return hasPermissions(client, userInfo.getId(), orgName, spaceName, readOnly) && hasAccess(client, orgName, spaceName);
     }
 
     boolean checkPermissions(UserInfo userInfo, String spaceGuid, boolean readOnly) {
@@ -93,34 +93,33 @@ public class AuthorizationChecker {
         if (hasAdminScope(userInfo)) {
             return true;
         }
-        
+
         UUID spaceUUID = UUID.fromString(spaceGuid);
-        CloudControllerClient client = clientProvider.getCloudFoundryClient(userInfo.getName());
-        CloudFoundryOperationsExtended clientx = (CloudFoundryOperationsExtended) client;
-        if(PlatformType.CF.equals(applicationConfiguration.getPlatformType())) {
-            return hasPermissions(clientx, userInfo.getId(), spaceUUID, readOnly);
+        CloudControllerClientSupportingCustomUserIds client = (CloudControllerClientSupportingCustomUserIds) clientProvider
+            .getControllerClient(userInfo.getName());
+        if (PlatformType.CF.equals(applicationConfiguration.getPlatformType())) {
+            return hasPermissions(client, userInfo.getId(), spaceUUID, readOnly);
         }
-        
+
         Pair<String, String> location = getClientHelper(client).computeOrgAndSpace(spaceGuid);
         if (location == null) {
             throw new NotFoundException(Messages.ORG_AND_SPACE_NOT_FOUND, spaceGuid);
         }
-        return hasPermissions(clientx, userInfo.getId(), location._1, location._2, readOnly);
+        return hasPermissions(client, userInfo.getId(), location._1, location._2, readOnly);
     }
-    
-    private boolean hasPermissions(CloudFoundryOperationsExtended client, String userId, UUID spaceGuid,
-        boolean readOnly) {
-        
-        if (client.getSpaceDevelopers2(spaceGuid)
+
+    private boolean hasPermissions(CloudControllerClientSupportingCustomUserIds client, String userId, UUID spaceGuid, boolean readOnly) {
+
+        if (client.getSpaceDeveloperIdsAsStrings(spaceGuid)
             .contains(userId)) {
             return true;
         }
         if (readOnly) {
-            if (client.getSpaceAuditors2(spaceGuid)
+            if (client.getSpaceAuditorIdsAsStrings(spaceGuid)
                 .contains(userId)) {
                 return true;
             }
-            if (client.getSpaceManagers2(spaceGuid)
+            if (client.getSpaceManagerIdsAsStrings(spaceGuid)
                 .contains(userId)) {
                 return true;
             }
@@ -128,18 +127,18 @@ public class AuthorizationChecker {
         return false;
     }
 
-    private boolean hasPermissions(CloudFoundryOperationsExtended client, String userId, String orgName, String spaceName,
+    private boolean hasPermissions(CloudControllerClientSupportingCustomUserIds client, String userId, String orgName, String spaceName,
         boolean readOnly) {
-        if (client.getSpaceDevelopers2(orgName, spaceName)
+        if (client.getSpaceDeveloperIdsAsStrings(orgName, spaceName)
             .contains(userId)) {
             return true;
         }
         if (readOnly) {
-            if (client.getSpaceAuditors2(orgName, spaceName)
+            if (client.getSpaceAuditorIdsAsStrings(orgName, spaceName)
                 .contains(userId)) {
                 return true;
             }
-            if (client.getSpaceManagers2(orgName, spaceName)
+            if (client.getSpaceManagerIdsAsStrings(orgName, spaceName)
                 .contains(userId)) {
                 return true;
             }
@@ -147,7 +146,7 @@ public class AuthorizationChecker {
         return false;
     }
 
-    private boolean hasAccess(CloudFoundryOperationsExtended client, String orgName, String spaceName) {
+    private boolean hasAccess(CloudControllerClientSupportingCustomUserIds client, String orgName, String spaceName) {
         return retrier.executeWithRetry(() -> spaceGetter.findSpace(client, orgName, spaceName)) != null;
     }
 
@@ -177,7 +176,7 @@ public class AuthorizationChecker {
             .logSecurityIncident(message);
         throw new WebApplicationException(ResponseRenderer.renderResponseForStatus(status, message));
     }
-    
+
     public ClientHelper getClientHelper(CloudControllerClient client) {
         return new ClientHelper(client, spaceGetter);
     }

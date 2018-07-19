@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -31,9 +31,9 @@ public class ClientHelper {
             uri = UriUtil.removePort(uri);
         }
         Pair<String, String> hostAndDomain = UriUtil.getHostAndDomain(uri);
-        if (client instanceof ClientExtensions) {
-            ClientExtensions clientExtensions = (ClientExtensions) client;
-            clientExtensions.deleteRoute(hostAndDomain._1, hostAndDomain._2, UriUtil.getPath(uri));
+        if (client instanceof XsCloudControllerClient) {
+            XsCloudControllerClient xsClient = (XsCloudControllerClient) client;
+            xsClient.deleteRoute(hostAndDomain._1, hostAndDomain._2, UriUtil.getPath(uri));
         } else {
             client.deleteRoute(hostAndDomain._1, hostAndDomain._2);
         }

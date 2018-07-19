@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
@@ -21,10 +21,10 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 
 @Component
-public class CloudFoundryClientProvider {
+public class CloudControllerClientProvider {
 
     @Autowired
-    private ClientFactory cloudFoundryClientFactory;
+    private ClientFactory clientFactory;
 
     @Autowired(required = false)
     private PortAllocatorFactory portAllocatorFactory;
@@ -38,27 +38,27 @@ public class CloudFoundryClientProvider {
     private Map<String, Pair<CloudControllerClient, TokenProvider>> clients = Collections
         .synchronizedMap(new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT));
 
-    public CloudControllerClient getCloudFoundryClient(String userName, String org, String space, String processId) throws SLException {
+    public CloudControllerClient getControllerClient(String userName, String org, String space, String processId) throws SLException {
         Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, org, space, processId);
         return client._1;
     }
 
-    public CloudControllerClient getCloudFoundryClient(String userName, String spaceGuid, String processId) throws SLException {
+    public CloudControllerClient getControllerClient(String userName, String spaceGuid, String processId) throws SLException {
         Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, spaceGuid, processId);
         return client._1;
     }
 
-    public CloudControllerClient getCloudFoundryClient(String userName, String spaceGuid) throws SLException {
+    public CloudControllerClient getControllerClient(String userName, String spaceGuid) throws SLException {
         Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, spaceGuid);
         return client._1;
     }
 
-    public CloudControllerClient getCloudFoundryClient(String userName) throws SLException {
+    public CloudControllerClient getControllerClient(String userName) throws SLException {
         Pair<CloudControllerClient, TokenProvider> client = createClientForToken(userName);
         return client._1;
     }
 
-    public PortAllocator getPortAllocator(ClientExtensions client, String domain) {
+    public PortAllocator getPortAllocator(XsCloudControllerClient client, String domain) {
         return portAllocatorFactory.createPortAllocator(client, domain);
     }
 
@@ -119,7 +119,7 @@ public class CloudFoundryClientProvider {
 
     private Pair<CloudControllerClient, TokenProvider> createClientForToken(String userName) throws SLException {
         try {
-            return cloudFoundryClientFactory.createClient(getValidToken(userName));
+            return clientFactory.createClient(getValidToken(userName));
         } catch (CloudOperationException e) {
             throw new SLException(e, Messages.CANT_CREATE_CLIENT);
         }
@@ -144,7 +144,7 @@ public class CloudFoundryClientProvider {
         String key = getKey(userName, org, space);
         Pair<CloudControllerClient, TokenProvider> client = clients.get(key);
         if (client == null) {
-            client = cloudFoundryClientFactory.createClient(getValidToken(userName), org, space);
+            client = clientFactory.createClient(getValidToken(userName), org, space);
             if (processId != null) {
                 clients.put(key, client);
             }
@@ -157,7 +157,7 @@ public class CloudFoundryClientProvider {
         String key = getKey(userName, spaceId);
         Pair<CloudControllerClient, TokenProvider> client = clients.get(key);
         if (client == null) {
-            client = cloudFoundryClientFactory.createClient(getValidToken(userName), spaceId);
+            client = clientFactory.createClient(getValidToken(userName), spaceId);
             clients.put(key, client);
         }
         return client;

@@ -30,7 +30,7 @@ public class StopAppStep extends SyncActivitiStep {
                 getStepLogger().info(Messages.STOPPING_APP, app.getName());
 
                 // Get a cloud foundry client
-                CloudControllerClient client = execution.getCloudControllerClient();
+                CloudControllerClient client = execution.getControllerClient();
 
                 // Stop the application
                 client.stopApplication(app.getName());

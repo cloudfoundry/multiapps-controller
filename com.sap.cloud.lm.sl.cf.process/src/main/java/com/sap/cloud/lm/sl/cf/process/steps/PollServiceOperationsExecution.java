@@ -17,7 +17,7 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
@@ -51,13 +51,13 @@ public class PollServiceOperationsExecution implements AsyncExecution {
             execution.getStepLogger()
                 .debug(Messages.POLLING_SERVICE_OPERATIONS);
 
-            ClientExtensions clientExtensions = execution.getClientExtensions();
-            if (clientExtensions != null) {
+            XsCloudControllerClient xsClient = execution.getXsControllerClient();
+            if (xsClient != null) {
                 // The asynchronous creation of services is not supported yet on XSA.
                 return AsyncExecutionState.FINISHED;
             }
 
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(execution.getContext());
             List<CloudServiceExtended> servicesToPoll = getServiceOperationsToPoll(execution, triggeredServiceOperations);

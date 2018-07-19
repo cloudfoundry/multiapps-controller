@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -164,7 +164,7 @@ public class AbortProcessListenerTest {
         private Set<Integer> allocatedPorts;
 
         @Mock
-        private CloudFoundryClientProvider clientProvider;
+        private CloudControllerClientProvider clientProvider;
         @Mock
         private CloudControllerClient client;
 
@@ -181,7 +181,7 @@ public class AbortProcessListenerTest {
 
         @Test
         public void testDeleteAllocatedRoutes1() throws Exception {
-            Mockito.when(clientProvider.getCloudFoundryClient(USER, ORG, SPACE, null))
+            Mockito.when(clientProvider.getControllerClient(USER, ORG, SPACE, null))
                 .thenReturn(client);
             Mockito.when(client.getDefaultDomain())
                 .thenReturn(new CloudDomain(null, DEFAULT_DOMAIN, null));
@@ -204,7 +204,7 @@ public class AbortProcessListenerTest {
 
         @Test
         public void testDeleteAllocatedRoutes2() throws Exception {
-            Mockito.when(clientProvider.getCloudFoundryClient(USER, ORG, SPACE, null))
+            Mockito.when(clientProvider.getControllerClient(USER, ORG, SPACE, null))
                 .thenReturn(client);
             abortListener.deleteAllocatedRoutes(mock(HistoryService.class), PROCESS_INSTANCE_ID);
             Mockito.verify(client, Mockito.never())

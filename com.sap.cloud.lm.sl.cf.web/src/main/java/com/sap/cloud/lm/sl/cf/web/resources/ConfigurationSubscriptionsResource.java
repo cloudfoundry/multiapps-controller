@@ -21,7 +21,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
@@ -39,7 +39,7 @@ public class ConfigurationSubscriptionsResource {
     private ConfigurationSubscriptionDao configurationSubscriptionsDao;
 
     @Inject
-    private CloudFoundryClientProvider clientProvider;
+    private CloudControllerClientProvider clientProvider;
 
     @Inject
     private SpaceGetter spaceGetter;
@@ -80,7 +80,7 @@ public class ConfigurationSubscriptionsResource {
 
     private CloudControllerClient getCloudFoundryClient() {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getCloudFoundryClient(userInfo.getName());
+        return clientProvider.getControllerClient(userInfo.getName());
     }
 
     private String computeSpaceId(CloudControllerClient client, String orgName, String spaceName) {

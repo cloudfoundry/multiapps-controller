@@ -44,7 +44,7 @@ public class UpdateAppStep extends CreateAppStep {
             getStepLogger().info(Messages.UPDATING_APP, app.getName());
 
             // Get a cloud foundry client
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             // Get application parameters
             String appName = app.getName();

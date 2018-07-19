@@ -22,7 +22,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
             execution.getStepLogger()
                 .debug(Messages.CHECKING_UPLOAD_APP_STATUS, app.getName());
 
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             String uploadToken = (String) execution.getContext()
                 .getVariable(Constants.VAR_UPLOAD_TOKEN);

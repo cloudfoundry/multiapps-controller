@@ -62,7 +62,7 @@ public class PrepareToExecuteTasksStep extends SyncActivitiStep {
     }
 
     private boolean platformSupportsTasks(ExecutionWrapper execution) {
-        return new OneOffTasksSupportChecker().areOneOffTasksSupported(execution.getCloudControllerClient());
+        return new OneOffTasksSupportChecker().areOneOffTasksSupported(execution.getControllerClient());
     }
 
 }

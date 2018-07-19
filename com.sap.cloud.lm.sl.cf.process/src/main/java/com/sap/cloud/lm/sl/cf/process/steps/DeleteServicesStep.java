@@ -28,7 +28,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.DELETING_SERVICES);
 
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             List<String> servicesToDelete = StepsUtil.getServicesToDelete(execution.getContext());
             deleteServices(client, servicesToDelete);

@@ -37,7 +37,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
-        CloudControllerClient client = execution.getCloudControllerClient();
+        CloudControllerClient client = execution.getControllerClient();
 
         try {
             execution.getStepLogger()

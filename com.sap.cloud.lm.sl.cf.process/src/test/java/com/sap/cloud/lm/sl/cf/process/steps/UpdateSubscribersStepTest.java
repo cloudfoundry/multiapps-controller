@@ -5,7 +5,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,8 +17,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.history.HistoricVariableInstance;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.junit.Before;
@@ -204,7 +203,7 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
         String orgName = space.getOrganization()
             .getName();
         String spaceName = space.getName();
-        when(clientProvider.getCloudFoundryClient(eq(USER), eq(orgName), eq(spaceName), anyString())).thenReturn(clientMock);
+        when(clientProvider.getControllerClient(eq(USER), eq(orgName), eq(spaceName), anyString())).thenReturn(clientMock);
     }
 
     private Map<CloudSpace, CloudControllerClient> createClientsForSpacesOfSubscribedApps() {
@@ -222,7 +221,6 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
                 return clients.get(existingSpace);
             }
         }
-        client = mock(CloudControllerClient.class);
         clients.put(space, client);
         return client;
     }

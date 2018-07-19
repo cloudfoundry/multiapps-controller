@@ -15,7 +15,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
@@ -43,7 +43,7 @@ public class UndeployAppStep extends SyncActivitiStep {
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         try {
             CloudApplication appToUndeploy = StepsUtil.getAppToUndeploy(execution.getContext());
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             cancelRunningTasksIfTasksAreSupported(appToUndeploy, client);
             stopApplication(appToUndeploy, client);
@@ -70,19 +70,19 @@ public class UndeployAppStep extends SyncActivitiStep {
     }
 
     private void cancelRunningTasks(CloudApplication appToUndeploy, CloudControllerClient client) {
-        ClientExtensions clientExtensions = (ClientExtensions) client;
-        List<CloudTask> tasksToCancel = clientExtensions.getTasks(appToUndeploy.getName());
+        XsCloudControllerClient xsClient = (XsCloudControllerClient) client;
+        List<CloudTask> tasksToCancel = xsClient.getTasks(appToUndeploy.getName());
         for (CloudTask task : tasksToCancel) {
             CloudTask.State taskState = task.getState();
             if (taskState.equals(CloudTask.State.RUNNING) || taskState.equals(CloudTask.State.PENDING)) {
-                cancelTask(task, appToUndeploy, clientExtensions);
+                cancelTask(task, appToUndeploy, xsClient);
             }
         }
     }
 
-    private void cancelTask(CloudTask task, CloudApplication appToUndeploy, ClientExtensions clientExtensions) {
+    private void cancelTask(CloudTask task, CloudApplication appToUndeploy, XsCloudControllerClient xsClient) {
         getStepLogger().info(Messages.CANCELING_TASK_ON_APP, task.getName(), appToUndeploy.getName());
-        clientExtensions.cancelTask(task.getMeta()
+        xsClient.cancelTask(task.getMeta()
             .getGuid());
         getStepLogger().debug(Messages.CANCELED_TASK_ON_APP, task.getName(), appToUndeploy.getName());
     }

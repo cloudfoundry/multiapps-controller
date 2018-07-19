@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -19,13 +19,13 @@ public class SpaceIdRetriever {
 
     private static final String SPACE_CACHE_SEPARATOR = "|";
 
-    private final CloudFoundryClientProvider clientProvider;
+    private final CloudControllerClientProvider clientProvider;
     private final SpaceGetter spaceGetter;
     // FIXME: Nothing is ever removed from this cache.
     private final Map<String, String> processSpaceCache = new HashMap<>();
 
     @Inject
-    public SpaceIdRetriever(CloudFoundryClientProvider clientProvider, SpaceGetter spaceGetter) {
+    public SpaceIdRetriever(CloudControllerClientProvider clientProvider, SpaceGetter spaceGetter) {
         this.clientProvider = clientProvider;
         this.spaceGetter = spaceGetter;
     }
@@ -43,7 +43,7 @@ public class SpaceIdRetriever {
     }
 
     public String getSpaceId(UserInfo userInfo, String orgName, String spaceName) {
-        CloudControllerClient client = clientProvider.getCloudFoundryClient(userInfo.getName());
+        CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
         String spaceId = new ClientHelper(client, spaceGetter).computeSpaceId(orgName, spaceName);
         if (spaceId == null) {
             throw new SLException(Messages.COULD_NOT_COMPUTE_SPACE_ID, orgName, spaceName);

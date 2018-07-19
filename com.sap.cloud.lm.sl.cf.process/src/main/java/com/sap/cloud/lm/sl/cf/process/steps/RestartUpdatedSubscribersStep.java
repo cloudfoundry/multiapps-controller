@@ -9,7 +9,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("restartUpdatedSubscribersStep")
@@ -36,13 +36,13 @@ public class RestartUpdatedSubscribersStep extends SyncActivitiStep {
 
     private void attemptToRestartApplication(ExecutionWrapper execution, CloudApplication app) {
         CloudControllerClient client = getClientForApp(execution, app);
-        ClientExtensions clientExtensions = getClientExtensionsForApp(execution, app);
+        XsCloudControllerClient xsClient = getClientExtensionsForApp(execution, app);
 
         getStepLogger().info(Messages.STOPPING_APP, app.getName());
         client.stopApplication(app.getName());
         getStepLogger().info(Messages.STARTING_APP, app.getName());
-        if (clientExtensions != null) {
-            clientExtensions.startApplication(app.getName(), false);
+        if (xsClient != null) {
+            xsClient.startApplication(app.getName(), false);
         } else {
             client.startApplication(app.getName());
         }
@@ -54,16 +54,16 @@ public class RestartUpdatedSubscribersStep extends SyncActivitiStep {
             .getName();
         String spaceName = app.getSpace()
             .getName();
-        return execution.getCloudControllerClient(orgName, spaceName);
+        return execution.getControllerClient(orgName, spaceName);
     }
 
-    private ClientExtensions getClientExtensionsForApp(ExecutionWrapper execution, CloudApplication app) {
+    private XsCloudControllerClient getClientExtensionsForApp(ExecutionWrapper execution, CloudApplication app) {
         String orgName = app.getSpace()
             .getOrganization()
             .getName();
         String spaceName = app.getSpace()
             .getName();
-        return execution.getClientExtensions(orgName, spaceName);
+        return execution.getXsControllerClient(orgName, spaceName);
     }
 
 }

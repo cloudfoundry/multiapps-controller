@@ -111,7 +111,7 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     private void prepareClientExtensions() {
         CloudTask taskWithState = StepsTestUtil.copy(task);
         taskWithState.setState(currentTaskState);
-        when(clientExtensions.getTasks(APPLICATION_NAME)).thenReturn(Arrays.asList(taskWithState));
+        when(client.getTasks(APPLICATION_NAME)).thenReturn(Arrays.asList(taskWithState));
     }
 
     @Override

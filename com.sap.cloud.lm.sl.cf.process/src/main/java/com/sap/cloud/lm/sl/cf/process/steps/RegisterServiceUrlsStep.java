@@ -10,7 +10,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
@@ -29,8 +29,8 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.REGISTERING_SERVICE_URLS);
 
-            ClientExtensions clientExtensions = execution.getClientExtensions();
-            if (clientExtensions == null) {
+            XsCloudControllerClient xsClient = execution.getXsControllerClient();
+            if (xsClient == null) {
                 getStepLogger().debug(Messages.CLIENT_EXTENSIONS_ARE_NOT_SUPPORTED);
                 return StepPhase.DONE;
             }
@@ -39,7 +39,7 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
             getStepLogger().debug(Messages.SERVICE_URLS, JsonUtil.toJson(serviceUrlsToRegister, true));
 
             for (ServiceUrl serviceUrl : serviceUrlsToRegister) {
-                registerServiceUrl(execution.getContext(), serviceUrl, clientExtensions);
+                registerServiceUrl(execution.getContext(), serviceUrl, xsClient);
             }
 
             StepsUtil.setServiceUrlsToRegister(execution.getContext(), serviceUrlsToRegister);
@@ -83,10 +83,10 @@ public class RegisterServiceUrlsStep extends SyncActivitiStep {
         return new ServiceUrl(serviceName, url);
     }
 
-    private void registerServiceUrl(DelegateExecution context, ServiceUrl serviceUrl, ClientExtensions clientExtensions) {
+    private void registerServiceUrl(DelegateExecution context, ServiceUrl serviceUrl, XsCloudControllerClient xsClient) {
         try {
             getStepLogger().info(Messages.REGISTERING_SERVICE_URL, serviceUrl.getUrl(), serviceUrl.getServiceName());
-            clientExtensions.registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
+            xsClient.registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
             getStepLogger().debug(Messages.REGISTERED_SERVICE_URL, serviceUrl.getUrl(), serviceUrl.getServiceName());
         } catch (CloudOperationException e) {
             switch (e.getStatusCode()) {

@@ -16,7 +16,7 @@ import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
@@ -52,7 +52,7 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(createDummyApplicationWithTasks(0)), context);
 
         CloudControllerClient client = getClientThatSupportsTasks();
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
 
         // When:
         step.execute(context);
@@ -68,7 +68,7 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
 
         CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
         mockControllerTasksSupport(client);
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
 
         // When:
         step.execute(context);
@@ -84,7 +84,7 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
 
         CloudControllerClient client = getClientThatSupportsTasks();
         mockControllerTasksSupport(client);
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
 
         // When:
         step.execute(context);
@@ -105,7 +105,7 @@ public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareT
     }
 
     private CloudControllerClient getClientThatSupportsTasks() {
-        return Mockito.mock(CloudControllerClient.class, withSettings().extraInterfaces(ClientExtensions.class));
+        return Mockito.mock(CloudControllerClient.class, withSettings().extraInterfaces(XsCloudControllerClient.class));
     }
 
     private CloudApplicationExtended createDummyApplicationWithTasks(int numberOfTasks) {

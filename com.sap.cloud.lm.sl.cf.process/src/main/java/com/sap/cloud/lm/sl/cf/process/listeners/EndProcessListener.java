@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -46,7 +46,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     private OperationDao operationDao;
 
     @Inject
-    protected CloudFoundryClientProvider clientProvider;
+    protected CloudControllerClientProvider clientProvider;
 
     @Inject
     private ApplicationConfiguration configuration;

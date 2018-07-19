@@ -59,7 +59,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
         try {
             getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
             Target target = StepsUtil.getTarget(execution.getContext());

@@ -12,7 +12,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
@@ -70,8 +70,8 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         }
 
         private CloudTask.State getCurrentState() {
-            ClientExtensions clientExtensions = execution.getClientExtensions();
-            List<CloudTask> allTasksForApp = clientExtensions.getTasks(app.getName());
+            XsCloudControllerClient xsClient = execution.getXsControllerClient();
+            List<CloudTask> allTasksForApp = xsClient.getTasks(app.getName());
 
             return findTaskWithGuid(allTasksForApp, taskToPoll.getMeta()
                 .getGuid()).getState();
@@ -93,7 +93,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
         }
 
         private void saveAppLogs() {
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
                 execution.getProcessLoggerProviderFactory());
         }

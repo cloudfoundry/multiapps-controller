@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import javax.inject.Inject;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 
@@ -14,7 +14,7 @@ public class BeanProvider {
     private OperationDao operationDao;
 
     @Inject
-    private CloudFoundryClientProvider clientProvider;
+    private CloudControllerClientProvider clientProvider;
 
     @Inject
     private AbstractFileService fileService;
@@ -30,7 +30,7 @@ public class BeanProvider {
         return operationDao;
     }
 
-    public CloudFoundryClientProvider getCloudFoundryClientProvider() {
+    public CloudControllerClientProvider getCloudFoundryClientProvider() {
         return clientProvider;
     }
 

@@ -32,7 +32,7 @@ public class DeleteServiceBrokersStep extends SyncActivitiStep {
             getStepLogger().info(Messages.DELETING_SERVICE_BROKERS);
 
             List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(execution.getContext());
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
             List<String> serviceBrokersToCreate = getServiceBrokerNames(StepsUtil.getServiceBrokersToCreate(execution.getContext()));
 
             for (CloudApplication app : appsToUndeploy) {

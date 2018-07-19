@@ -192,7 +192,7 @@ public class UpdateAppStepTest extends SyncActivitiStepTest<UpdateAppStep> {
             .getBindingParameters();
         for (String serviceToBind : expectedServicesToBind) {
             if (currentBindingParameters != null && currentBindingParameters.get(serviceToBind) != null) {
-                Mockito.verify(clientExtensions)
+                Mockito.verify(client)
                     .bindService(input.existingApplication.name, serviceToBind, currentBindingParameters.get(serviceToBind));
             } else {
                 Mockito.verify(client)

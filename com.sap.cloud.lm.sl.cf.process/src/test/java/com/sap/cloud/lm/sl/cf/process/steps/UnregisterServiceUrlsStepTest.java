@@ -93,7 +93,7 @@ public class UnregisterServiceUrlsStepTest extends SyncActivitiStepTest<Unregist
 
     private String[] captureStepOutput() {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(clientExtensions, Mockito.times(expectedUnregisteredServiceUrls.length))
+        Mockito.verify(client, Mockito.times(expectedUnregisteredServiceUrls.length))
             .unregisterServiceURL(captor.capture());
         return captor.getAllValues()
             .toArray(new String[0]);
