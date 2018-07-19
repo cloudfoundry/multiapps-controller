@@ -51,7 +51,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             return AsyncExecutionState.FINISHED;
         }
         try {
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
             ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
             Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,

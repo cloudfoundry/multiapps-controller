@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiAction;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
@@ -56,7 +56,7 @@ import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 public class OperationsApiServiceImpl implements OperationsApiService {
 
     @Inject
-    private CloudFoundryClientProvider clientProvider;
+    private CloudControllerClientProvider clientProvider;
     @Inject
     private OperationDao dao;
     @Inject
@@ -307,7 +307,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private CloudControllerClient getCloudFoundryClient(String spaceGuid) throws SLException {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
-        return clientProvider.getCloudFoundryClient(userInfo.getName(), spaceGuid);
+        return clientProvider.getControllerClient(userInfo.getName(), spaceGuid);
     }
 
     private List<Message> getOperationMessages(Operation operation) {

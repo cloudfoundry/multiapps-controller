@@ -14,7 +14,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.lm.sl.cf.client.CloudFoundryClientExtended;
+import com.sap.cloud.lm.sl.cf.client.ResilientCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.CloudFoundryTokenProvider;
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
@@ -32,7 +32,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         addTaggingInterceptor(factory.getRestTemplate());
         OauthClient oauthClient = createOauthClient(factory.getRestTemplate());
         CloudControllerRestClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, null, oauthClient);
-        return new Pair<>(new CloudFoundryClientExtended(controllerClient), new CloudFoundryTokenProvider(oauthClient));
+        return new Pair<>(new ResilientCloudControllerClient(controllerClient), new CloudFoundryTokenProvider(oauthClient));
     }
 
     @Override
@@ -43,7 +43,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         OauthClient oauthClient = createOauthClient(factory.getRestTemplate());
         CloudControllerRestClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace,
             oauthClient);
-        return new Pair<>(new CloudFoundryClientExtended(controllerClient), new CloudFoundryTokenProvider(oauthClient));
+        return new Pair<>(new ResilientCloudControllerClient(controllerClient), new CloudFoundryTokenProvider(oauthClient));
     }
 
     protected Pair<CloudControllerClient, TokenProvider> createClient(CloudCredentials credentials, String spaceId) {
@@ -54,7 +54,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         OauthClient oauthClient = createOauthClient(factory.getRestTemplate());
         CloudControllerRestClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace,
             oauthClient);
-        return new Pair<>(new CloudFoundryClientExtended(controllerClient), new CloudFoundryTokenProvider(oauthClient));
+        return new Pair<>(new ResilientCloudControllerClient(controllerClient), new CloudFoundryTokenProvider(oauthClient));
     }
 
     private void addTaggingInterceptor(RestTemplate template) {

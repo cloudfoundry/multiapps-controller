@@ -22,7 +22,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
@@ -167,7 +167,7 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
             Mockito
                 .doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                     "Something happened!"))
-                .when((ClientExtensions) client)
+                .when((XsCloudControllerClient) client)
                 .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any());
         }
 
@@ -192,7 +192,7 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
                     Mockito.verify(client)
                         .bindService(application.getName(), service);
                 } else {
-                    Mockito.verify(clientExtensions)
+                    Mockito.verify(client)
                         .bindService(application.getName(), service, application.getBindingParameters()
                             .get(service));
                 }

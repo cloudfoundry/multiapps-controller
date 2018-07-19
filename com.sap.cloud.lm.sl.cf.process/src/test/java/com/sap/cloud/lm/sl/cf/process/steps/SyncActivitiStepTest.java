@@ -6,7 +6,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.junit.Before;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -16,9 +15,9 @@ import org.mockito.Spy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
@@ -51,11 +50,10 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     protected ProgressMessageService progressMessageService;
     @Mock
     protected AbstractFileService fileService;
-    @Mock(extraInterfaces = ClientExtensions.class)
-    protected CloudControllerClient client;
-    protected ClientExtensions clientExtensions;
     @Mock
-    protected CloudFoundryClientProvider clientProvider;
+    protected XsCloudControllerClient client;
+    @Mock
+    protected CloudControllerClientProvider clientProvider;
     @Mock
     protected ActivitiFacade activitiFacade;
     @Mock
@@ -70,15 +68,14 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        this.clientExtensions = (ClientExtensions) client;
         this.stepLogger = Mockito.spy(new StepLogger(context, progressMessageService, processLoggerProviderFactory, LOGGER));
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
         context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
         context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
         context.setVariable(Constants.VAR_USER, USER_NAME);
         context.setVariable(Constants.VAR_ORG, ORG_NAME);
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString())).thenReturn(client);
-        when(clientProvider.getCloudFoundryClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
+        when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
         context.setVariable("correlationId", getCorrelationId());
         prepareExecution();
     }

@@ -11,7 +11,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -28,15 +28,15 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.UNREGISTERING_SERVICE_URLS);
 
-            ClientExtensions clientExtensions = execution.getClientExtensions();
-            if (clientExtensions == null) {
+            XsCloudControllerClient xsClient = execution.getXsControllerClient();
+            if (xsClient == null) {
                 getStepLogger().debug(Messages.CLIENT_EXTENSIONS_ARE_NOT_SUPPORTED);
                 return StepPhase.DONE;
             }
             List<String> serviceUrlToRegisterNames = getServiceNames(StepsUtil.getServiceUrlsToRegister(execution.getContext()));
 
             for (CloudApplication app : StepsUtil.getAppsToUndeploy(execution.getContext())) {
-                unregisterServiceUrlIfNecessary(execution.getContext(), app, serviceUrlToRegisterNames, clientExtensions);
+                unregisterServiceUrlIfNecessary(execution.getContext(), app, serviceUrlToRegisterNames, xsClient);
             }
 
             getStepLogger().debug(Messages.SERVICE_URLS_UNREGISTERED);
@@ -58,7 +58,7 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
     }
 
     private void unregisterServiceUrlIfNecessary(DelegateExecution context, CloudApplication app, List<String> serviceUrlsToRegister,
-        ClientExtensions clientExtensions) {
+        XsCloudControllerClient xsClient) {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         if (!appAttributes.get(SupportedParameters.REGISTER_SERVICE_URL, Boolean.class, false)) {
             return;
@@ -67,7 +67,7 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
         if (serviceName != null && !serviceUrlsToRegister.contains(serviceName)) {
             try {
                 getStepLogger().info(Messages.UNREGISTERING_SERVICE_URL, serviceName, app.getName());
-                clientExtensions.unregisterServiceURL(serviceName);
+                xsClient.unregisterServiceURL(serviceName);
                 getStepLogger().debug(Messages.UNREGISTERED_SERVICE_URL, serviceName, app.getName());
             } catch (CloudOperationException e) {
                 switch (e.getStatusCode()) {

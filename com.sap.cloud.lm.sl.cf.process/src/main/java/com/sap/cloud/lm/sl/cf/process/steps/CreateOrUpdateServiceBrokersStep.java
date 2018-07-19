@@ -48,7 +48,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.CREATING_SERVICE_BROKERS);
 
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
             List<CloudServiceBrokerExtended> existingServiceBrokers = serviceBrokersGetter.getServiceBrokers(client);
             List<CloudServiceBrokerExtended> serviceBrokersToCreate = getServiceBrokersToCreate(
                 mapApplicationsFromContextToCloudApplications(execution, client), execution.getContext());

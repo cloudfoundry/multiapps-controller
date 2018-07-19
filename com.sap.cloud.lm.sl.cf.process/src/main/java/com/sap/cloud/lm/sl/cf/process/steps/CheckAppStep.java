@@ -23,7 +23,7 @@ public class CheckAppStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.CHECKING_APP, app.getName());
 
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             // Check if an application with this name already exists, and store it in the context:
             CloudApplication existingApp = client.getApplication(app.getName(), false);

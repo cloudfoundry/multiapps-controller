@@ -36,7 +36,7 @@ public class ExecuteTaskStepTest extends SyncActivitiStepTest<ExecuteTaskStep> {
         StepsUtil.setTasksToExecute(context, Arrays.asList(task));
         context.setVariable(Constants.VAR_TASKS_INDEX, 0);
 
-        when(clientExtensions.runTask(app.getName(), task.getName(), task.getCommand(), task.getEnvironmentVariables()))
+        when(client.runTask(app.getName(), task.getName(), task.getCommand(), task.getEnvironmentVariables()))
             .thenReturn(StepsTestUtil.copy(task));
 
         // When:
@@ -53,7 +53,7 @@ public class ExecuteTaskStepTest extends SyncActivitiStepTest<ExecuteTaskStep> {
     }
 
     private void verifyTaskWasStarted() {
-        verify(clientExtensions).runTask(app.getName(), task.getName(), task.getCommand(), task.getEnvironmentVariables());
+        verify(client).runTask(app.getName(), task.getName(), task.getCommand(), task.getEnvironmentVariables());
         assertEquals(DUMMY_TIME, context.getVariable(Constants.VAR_START_TIME));
         String expectedStartedTaskJson = JsonUtil.toJson(task, true);
         String actualStartedTaskJson = JsonUtil.toJson(StepsUtil.getStartedTask(context), true);

@@ -25,7 +25,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
@@ -69,7 +69,7 @@ public class CreateAppStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.CREATING_APP, app.getName());
 
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             // Get application parameters:
             String appName = app.getName();
@@ -256,21 +256,21 @@ public class CreateAppStep extends SyncActivitiStep {
     private void bindServiceToApplication(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
         Map<String, Object> bindingParameters) {
         if (bindingParameters != null) {
-            ClientExtensions clientExtensions = execution.getClientExtensions();
-            bindServiceWithParameters(clientExtensions, client, appName, serviceName, bindingParameters);
+            XsCloudControllerClient xsClient = execution.getXsControllerClient();
+            bindServiceWithParameters(xsClient, client, appName, serviceName, bindingParameters);
         } else {
             bindService(client, appName, serviceName);
         }
     }
 
     // TODO Fix update of service bindings parameters
-    private void bindServiceWithParameters(ClientExtensions clientExtensions, CloudControllerClient client, String appName,
+    private void bindServiceWithParameters(XsCloudControllerClient xsClient, CloudControllerClient client, String appName,
         String serviceName, Map<String, Object> bindingParameters) {
         getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters.get(serviceName));
-        if (clientExtensions == null) {
+        if (xsClient == null) {
             serviceBindingCreator.bindService(client, appName, serviceName, bindingParameters);
         } else {
-            clientExtensions.bindService(appName, serviceName, bindingParameters);
+            xsClient.bindService(appName, serviceName, bindingParameters);
         }
     }
 

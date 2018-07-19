@@ -183,9 +183,9 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
                 .thenReturn(existingServiceKeys.get(serviceName));
         }
         Mockito.doNothing()
-            .when(clientExtensions)
+            .when(client)
             .deleteServiceKey(Mockito.any(), Mockito.any());
-        Mockito.when(clientExtensions.createServiceKey(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(client.createServiceKey(Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(null);
     }
 
@@ -308,7 +308,7 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
         for (String serviceName : stepInput.expectedCreatedServiceKeys.keySet()) {
             for (String keyName : stepInput.expectedCreatedServiceKeys.get(serviceName)) {
                 ServiceKey keyToCreate = findKey(serviceKeysToCreate, serviceName, keyName);
-                Mockito.verify(clientExtensions)
+                Mockito.verify(client)
                     .createServiceKey(serviceName, keyToCreate.getName(), JsonUtil.toJson(keyToCreate.getParameters()));
             }
         }
@@ -317,7 +317,7 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
     private void validateServiceKeysToDelete() {
         for (String serviceName : stepInput.expectedDeletedServiceKeys.keySet()) {
             for (String keyName : stepInput.expectedDeletedServiceKeys.get(serviceName)) {
-                Mockito.verify(clientExtensions)
+                Mockito.verify(client)
                     .deleteServiceKey(serviceName, keyName);
             }
         }

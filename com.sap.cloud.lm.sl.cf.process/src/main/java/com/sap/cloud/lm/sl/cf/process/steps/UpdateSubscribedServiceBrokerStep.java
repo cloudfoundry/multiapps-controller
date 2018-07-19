@@ -25,7 +25,7 @@ public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrok
         CloudServiceBrokerExtended broker = getServiceBrokerFromApp(serviceBrokerAppication, execution.getContext());
 
         try {
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
             CloudServiceBroker existingServiceBroker = client.getServiceBroker(broker.getName(), false);
             if (existingServiceBroker == null) {
                 getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, broker.getName()));

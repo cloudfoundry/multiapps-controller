@@ -73,7 +73,7 @@ public class RegisterServiceUrlsStepTest extends SyncActivitiStepTest<RegisterSe
         assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
 
         for (ServiceUrl serviceUrl : expectedOutput.serviceUrlsToRegister) {
-            Mockito.verify(clientExtensions)
+            Mockito.verify(client)
                 .registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
         }
     }

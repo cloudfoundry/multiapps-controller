@@ -166,12 +166,12 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
     }
 
     private CloudInfoExtended getCloudInfoExtended(ExecutionWrapper execution) throws SLException {
-        return (CloudInfoExtended) execution.getCloudControllerClient()
+        return (CloudInfoExtended) execution.getControllerClient()
             .getCloudInfo();
     }
 
     private boolean isClientExtensionsAvailable(ExecutionWrapper execution) throws SLException {
-        CloudControllerClient client = execution.getCloudControllerClient();
+        CloudControllerClient client = execution.getControllerClient();
         return client.getCloudInfo() instanceof CloudInfoExtended;
     }
 

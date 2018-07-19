@@ -78,7 +78,7 @@ public class ReserveRoutesStepTest extends SyncActivitiStepTest<ReserveRoutesSte
     private void verifyReservedForDomains(ApplicationPort applicationPort) {
         for (String domain : stepInput.domains) {
             boolean tcps = ApplicationPortType.TCPS.equals(applicationPort.getPortType());
-            Mockito.verify(clientExtensions)
+            Mockito.verify(client)
                 .reserveTcpPort(applicationPort.getPort(), domain, tcps);
         }
     }

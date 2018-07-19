@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -145,7 +145,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         String user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER).getValue();
         String organization = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_ORG).getValue();
         String space = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_SPACE).getValue();
-        return getClientProvider().getCloudFoundryClient(user, organization, space, null);
+        return getClientProvider().getControllerClient(user, organization, space, null);
     }
 
     protected void deleteDeploymentFiles(HistoryService historyService, String processInstanceId) throws FileStorageException {
@@ -185,7 +185,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
             .singleResult();
     }
 
-    private CloudFoundryClientProvider getClientProvider() {
+    private CloudControllerClientProvider getClientProvider() {
         return getBeanProvider().getCloudFoundryClientProvider();
     }
 

@@ -6,7 +6,7 @@ import org.activiti.engine.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -15,9 +15,9 @@ public class ClientReleaser {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClientReleaser.class);
 
 	private final ActivitiEvent event;
-	private final CloudFoundryClientProvider clientProvider;
+	private final CloudControllerClientProvider clientProvider;
 
-	public ClientReleaser(ActivitiEvent event, CloudFoundryClientProvider clientProvider) {
+	public ClientReleaser(ActivitiEvent event, CloudControllerClientProvider clientProvider) {
 		this.event = event;
 		this.clientProvider = clientProvider;
 	}

@@ -14,7 +14,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
@@ -53,10 +53,10 @@ public class ExecuteTaskStep extends TimeoutAsyncActivitiStep {
     }
 
     private StepPhase attemptToExecuteTask(ExecutionWrapper execution, CloudApplication app, CloudTask taskToExecute) {
-        ClientExtensions clientExtensions = execution.getClientExtensions();
+        XsCloudControllerClient xsClient = execution.getXsControllerClient();
 
         getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
-        CloudTask startedTask = runTask(clientExtensions, app, taskToExecute);
+        CloudTask startedTask = runTask(xsClient, app, taskToExecute);
 
         StepsUtil.setStartedTask(execution.getContext(), startedTask);
         execution.getContext()
@@ -64,8 +64,8 @@ public class ExecuteTaskStep extends TimeoutAsyncActivitiStep {
         return StepPhase.POLL;
     }
 
-    private CloudTask runTask(ClientExtensions clientExtensions, CloudApplication app, CloudTask task) {
-        return clientExtensions.runTask(app.getName(), task.getName(), task.getCommand(), task.getEnvironmentVariables());
+    private CloudTask runTask(XsCloudControllerClient xsClient, CloudApplication app, CloudTask task) {
+        return xsClient.runTask(app.getName(), task.getName(), task.getCommand(), task.getEnvironmentVariables());
     }
 
     @Override

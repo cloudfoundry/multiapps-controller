@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 
-public interface ClientExtensions {
+public interface XsCloudControllerClient extends CloudControllerClientSupportingCustomUserIds {
 
     void registerServiceURL(String serviceName, String serviceUrl);
 

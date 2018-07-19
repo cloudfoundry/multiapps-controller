@@ -25,8 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.web.client.HttpClientErrorException;
 
-import com.sap.cloud.lm.sl.cf.client.CloudFoundryOperationsExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.client.CloudControllerClientSupportingCustomUserIds;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -43,9 +43,9 @@ public class AuthorizationCheckerTest {
     private static final String SPACE_ID = "a72df2e8-b06c-44b2-a8fa-5cadb0239573";
 
     @Mock
-    private CloudFoundryClientProvider clientProvider;
+    private CloudControllerClientProvider clientProvider;
     @Mock
-    private CloudFoundryOperationsExtended client;
+    private CloudControllerClientSupportingCustomUserIds client;
     @Mock
     private SpaceGetter spaceGetter;
     @Mock
@@ -140,11 +140,11 @@ public class AuthorizationCheckerTest {
         }
 
         if (e == null) {
-            when(client.getSpaceDevelopers2(ORG, SPACE)).thenReturn(spaceDevelopersList);
+            when(client.getSpaceDeveloperIdsAsStrings(ORG, SPACE)).thenReturn(spaceDevelopersList);
         } else {
-            when(client.getSpaceDevelopers2(ORG, SPACE)).thenThrow(e);
+            when(client.getSpaceDeveloperIdsAsStrings(ORG, SPACE)).thenThrow(e);
         }
 
-        when(clientProvider.getCloudFoundryClient(userInfo.getName())).thenReturn(client);
+        when(clientProvider.getControllerClient(userInfo.getName())).thenReturn(client);
     }
 }

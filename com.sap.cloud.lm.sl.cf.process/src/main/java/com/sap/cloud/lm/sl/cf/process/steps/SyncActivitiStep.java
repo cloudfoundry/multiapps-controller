@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
-import com.sap.cloud.lm.sl.cf.core.cf.CloudFoundryClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -23,7 +23,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Inject
-    protected CloudFoundryClientProvider clientProvider;
+    protected CloudControllerClientProvider clientProvider;
     @Inject
     private StepLogger.Factory stepLoggerFactory;
     @Inject

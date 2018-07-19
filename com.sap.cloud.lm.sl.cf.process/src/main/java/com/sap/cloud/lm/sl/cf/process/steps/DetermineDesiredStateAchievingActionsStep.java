@@ -59,7 +59,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
     }
 
     private ApplicationStartupState computeCurrentState(ExecutionWrapper execution, CloudApplication app) {
-        CloudControllerClient client = execution.getCloudControllerClient();
+        CloudControllerClient client = execution.getControllerClient();
         return appStateCalculatorSupplier.get()
             .computeCurrentState(client.getApplication(app.getName()));
     }

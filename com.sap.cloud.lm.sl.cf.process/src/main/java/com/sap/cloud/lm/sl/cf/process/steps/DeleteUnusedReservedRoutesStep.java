@@ -33,7 +33,7 @@ public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
             String defaultDomain = getDefaultDomain(execution.getContext());
 
             if (portBasedRouting) {
-                PortAllocator portAllocator = clientProvider.getPortAllocator(execution.getClientExtensions(), defaultDomain);
+                PortAllocator portAllocator = clientProvider.getPortAllocator(execution.getXsControllerClient(), defaultDomain);
                 portAllocator.setAllocatedPorts(StepsUtil.getAllocatedPorts(execution.getContext()));
 
                 Set<Integer> applicationPorts = getApplicationPorts(apps);

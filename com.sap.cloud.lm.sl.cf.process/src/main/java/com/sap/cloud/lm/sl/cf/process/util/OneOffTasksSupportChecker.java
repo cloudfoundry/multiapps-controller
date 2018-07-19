@@ -4,7 +4,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 
 @Component
@@ -24,7 +24,7 @@ public class OneOffTasksSupportChecker {
     }
 
     private boolean clientSupportsTasks(CloudControllerClient client) {
-        return client instanceof ClientExtensions;
+        return client instanceof XsCloudControllerClient;
     }
 
 }

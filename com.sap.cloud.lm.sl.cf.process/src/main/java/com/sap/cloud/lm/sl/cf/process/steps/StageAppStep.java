@@ -14,7 +14,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.ClientExtensions;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingStateGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -38,9 +38,9 @@ public class StageAppStep extends TimeoutAsyncActivitiStep {
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
         try {
-            ClientExtensions clientExtensions = execution.getClientExtensions();
+            XsCloudControllerClient xsClient = execution.getXsControllerClient();
 
-            return stageApp(execution.getContext(), clientExtensions, app);
+            return stageApp(execution.getContext(), xsClient, app);
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
             getStepLogger().error(e, Messages.ERROR_STAGING_APP_1, app.getName());
@@ -48,9 +48,9 @@ public class StageAppStep extends TimeoutAsyncActivitiStep {
         }
     }
 
-    private StepPhase stageApp(DelegateExecution context, ClientExtensions clientExtensions, CloudApplication app) {
+    private StepPhase stageApp(DelegateExecution context, XsCloudControllerClient xsClient, CloudApplication app) {
         getStepLogger().info(Messages.STAGING_APP, app.getName());
-        StartingInfo startingInfo = clientExtensions.stageApplication(app.getName());
+        StartingInfo startingInfo = xsClient.stageApplication(app.getName());
         StepsUtil.setStartingInfo(context, startingInfo);
         context.setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
         context.setVariable(Constants.VAR_OFFSET, 0);

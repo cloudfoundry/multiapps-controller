@@ -117,13 +117,13 @@ public class DeleteIdleRoutesStepTest extends SyncActivitiStepTest<DeleteIdleRou
         assertStepFinishedSuccessfully();
 
         if (CollectionUtils.isEmpty(output.urisToDelete)) {
-            verify(clientExtensions, never()).deleteRoute(anyString(), anyString(), anyString());
+            verify(client, never()).deleteRoute(anyString(), anyString(), anyString());
             return;
         }
 
         for (String uri : output.urisToDelete) {
             Pair<String, String> hostAndDomain = UriUtil.getHostAndDomain(uri);
-            verify(clientExtensions, times(1)).deleteRoute(hostAndDomain._1, hostAndDomain._2, null);
+            verify(client, times(1)).deleteRoute(hostAndDomain._1, hostAndDomain._2, null);
         }
     }
 

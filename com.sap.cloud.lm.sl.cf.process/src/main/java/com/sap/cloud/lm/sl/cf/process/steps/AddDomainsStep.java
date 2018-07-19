@@ -21,7 +21,7 @@ public class AddDomainsStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         try {
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             List<String> customDomains = StepsUtil.getCustomDomains(execution.getContext());
             getStepLogger().debug("Custom domains: " + customDomains);

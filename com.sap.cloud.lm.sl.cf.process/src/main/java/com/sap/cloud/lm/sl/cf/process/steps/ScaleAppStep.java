@@ -24,7 +24,7 @@ public class ScaleAppStep extends SyncActivitiStep {
         try {
             getStepLogger().info(Messages.SCALING_APP, app.getName());
 
-            CloudControllerClient client = execution.getCloudControllerClient();
+            CloudControllerClient client = execution.getControllerClient();
 
             String appName = app.getName();
             Integer instances = (app.getInstances() != 0) ? app.getInstances() : null;
