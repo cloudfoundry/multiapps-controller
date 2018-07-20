@@ -3,9 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.jobs;
 import static java.text.MessageFormat.format;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +15,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import org.activiti.engine.history.HistoricProcessInstance;
-import org.activiti.engine.history.HistoricVariableInstance;
 import org.apache.commons.collections.CollectionUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -40,10 +37,8 @@ import com.sap.cloud.lm.sl.cf.core.security.data.termination.DataTerminationServ
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
@@ -86,7 +81,7 @@ public class CleanUpJob implements Job {
 
         executeSafely(() -> removeActivitiHistoricData(expirationTime));
 
-        executeSafely(() -> removeOldOrphanedFiles(expirationTime));
+        executeSafely(() -> removeOldFiles(expirationTime));
 
         executeSafely(() -> removeExpiredTokens());
 
@@ -129,30 +124,16 @@ public class CleanUpJob implements Job {
 
         removeProgressMessages(finishedProcessIds);
         removeProcessLogs(finishedProcessIds);
-        removeFilesForOperations(finishedOperations);
         markOperationsAsCleanedUp(finishedOperations);
     }
 
-    private void removeOldOrphanedFiles(Date expirationTime) {
-        LOGGER.info(format("Deleting old orphaned MTA files modified before: {0}", expirationTime));
+    private void removeOldFiles(Date expirationTime) {
+        LOGGER.info(format("Deleting old MTA files modified before: {0}", expirationTime));
         try {
-            List<String> appArchiveIds = activitiFacade.getHistoricVariableInstancesByVariableName(Constants.PARAM_APP_ARCHIVE_ID)
-                .stream()
-                .map(appArchiveId -> (String) appArchiveId.getValue())
-                .collect(Collectors.toList());
-
-            List<FileEntry> orphanedFileEntries = fileService.listByModificationTime(expirationTime)
-                .stream()
-                .filter(oldFileEntry -> !appArchiveIds.contains(oldFileEntry.getId()))
-                .collect(Collectors.toList());
-
-            Map<String, List<String>> spaceToFileIds = orphanedFileEntries.stream()
-                .collect(Collectors.groupingBy(FileEntry::getSpace, Collectors.mapping(FileEntry::getId, Collectors.toList())));
-
-            int removedOldOrhpanedFiles = fileService.deleteAllByFileIds(spaceToFileIds);
-            LOGGER.info(format("Deleted old orphaned MTA files: {0}", removedOldOrhpanedFiles));
+            int removedOldFilesCount = fileService.deleteByModificationTime(expirationTime);
+            LOGGER.info(format("Deleted old MTA files: {0}", removedOldFilesCount));
         } catch (FileStorageException e) {
-            throw new SLException(e, "Deletion of old orphaned MTA files failed");
+            throw new SLException(e, "Deletion of old MTA files failed");
         }
     }
 
@@ -249,56 +230,6 @@ public class CleanUpJob implements Job {
     private void removeProcessLogs(List<String> oldFinishedOperationsIds) {
         int removedProcessLogs = processLogsPersistenceService.deleteAllByNamespaces(oldFinishedOperationsIds);
         LOGGER.info(format("Deleted process logs rows count: {0}", removedProcessLogs));
-    }
-
-    private Map<String, String> mapProcessIdToArchive() {
-        List<HistoricVariableInstance> appArchiveIds = activitiFacade
-            .getHistoricVariableInstancesByVariableName(Constants.PARAM_APP_ARCHIVE_ID);
-        Map<String, String> processIdToAppArchiveId = new HashMap<>();
-        for (HistoricVariableInstance appArchiveId : appArchiveIds) {
-            processIdToAppArchiveId.put(appArchiveId.getProcessInstanceId(), (String) appArchiveId.getValue());
-        }
-        return processIdToAppArchiveId;
-    }
-
-    private Map<String, List<String>> getSpaceToProcessIds(List<Operation> operations) {
-        return operations.stream()
-            .collect(Collectors.groupingBy(Operation::getSpaceId, Collectors.mapping(Operation::getProcessId, Collectors.toList())));
-    }
-
-    private Map<String, List<String>> getSpaceToFileIds(Map<String, List<String>> spaceToProcessIds,
-        Map<String, String> processIdToAppArchiveId) {
-        if (spaceToProcessIds.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        Map<String, List<String>> spaceToFileIds = new HashMap<>();
-        for (String space : spaceToProcessIds.keySet()) {
-            if (spaceToProcessIds.get(space) == null) {
-                continue;
-            }
-            List<String> fileIds = new ArrayList<>();
-            for (String processId : spaceToProcessIds.get(space)) {
-                if (processIdToAppArchiveId.containsKey(processId)) {
-                    fileIds.add(processIdToAppArchiveId.get(processId));
-                }
-            }
-            spaceToFileIds.put(space, fileIds);
-        }
-        return spaceToFileIds;
-    }
-
-    private void removeFilesForOperations(List<Operation> operations) {
-        Map<String, String> processIdToAppArchiveId = mapProcessIdToArchive();
-        Map<String, List<String>> spaceToProcessIds = getSpaceToProcessIds(operations);
-        Map<String, List<String>> spaceToFileIds = getSpaceToFileIds(spaceToProcessIds, processIdToAppArchiveId);
-
-        try {
-            Map<String, List<String>> spaceToFileChunkIds = splitAllFilesInChunks(spaceToFileIds);
-            int removedOldFiles = fileService.deleteAllByFileIds(spaceToFileChunkIds);
-            LOGGER.info(format("Deleted MTA files: {0}", removedOldFiles));
-        } catch (FileStorageException e) {
-            throw new SLException(e);
-        }
     }
 
     Map<String, List<String>> splitAllFilesInChunks(Map<String, List<String>> spaceToFileIds) {
