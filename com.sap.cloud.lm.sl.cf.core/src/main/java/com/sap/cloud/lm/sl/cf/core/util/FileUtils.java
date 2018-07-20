@@ -4,18 +4,11 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.MessageFormat;
-
-import org.apache.commons.io.FilenameUtils;
 
 public class FileUtils {
-
-    public static final String PATH_SHOULD_NOT_BE_ABSOLUTE = "Archive entry name \"{0}\" should not be absolute";
-    public static final String PATH_SHOULD_BE_NORMALIZED = "Archive entry name \"{0}\" should be normalized";
 
     public static void deleteDirectory(Path path) throws IOException {
         Files.walkFileTree(path, new DeleteDirVisitor());
@@ -30,20 +23,6 @@ public class FileUtils {
             Files.createDirectories(toPath.getParent());
         }
         Files.copy(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-    }
-
-    public static void validatePath(String path) {
-        if (!path.equals(FilenameUtils.normalize(path, true))) {
-            throw new IllegalArgumentException(MessageFormat.format(PATH_SHOULD_BE_NORMALIZED, path));
-        }
-        if (Paths.get(path)
-            .isAbsolute()) {
-            throw new IllegalArgumentException(MessageFormat.format(PATH_SHOULD_NOT_BE_ABSOLUTE, path));
-        }
-    }
-
-    public static boolean isDirectory(String fileName) {
-        return fileName.endsWith("/");
     }
 
     private static class DeleteDirVisitor extends SimpleFileVisitor<Path> {
