@@ -20,7 +20,6 @@ public class Messages {
     public static final String ERROR_DELETING_APP_TEMP_FILE = "Error deleting temp application file \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_RESOURCE_CONTENT = "Error retrieving content of MTA resource \"{0}\"";
     public static final String MODULE_CONTENT_NA = "The content of MTA module \"{0}\" is not available";
-    public static final String SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
     public static final String CF_ERROR = "Controller operation failed: {0}";
     public static final String CANT_DELETE_SERVICE = "Service \"{0}\" cannot be deleted because there are external applications bound to it";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
