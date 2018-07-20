@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -29,6 +30,7 @@ import org.activiti.engine.ActivitiOptimisticLockingException;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -46,6 +48,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
@@ -200,6 +203,12 @@ public class CleanUpJobTest {
 
         assertTrue("Splited file Ids must match with given ones.", splitAllFilesInChunks.get(SPACE_ID)
             .containsAll(expectedFileIds));
+    }
+
+    @Test
+    public void testRemoveOldFiles() throws JobExecutionException, FileStorageException {
+        cleanUpJob.execute(null);
+        verify(fileService, times(1)).deleteByModificationTime(any(Date.class));
     }
 
     @Test
