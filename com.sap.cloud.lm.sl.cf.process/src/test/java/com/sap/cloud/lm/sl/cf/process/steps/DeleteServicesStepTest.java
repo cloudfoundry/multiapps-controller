@@ -1,12 +1,13 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.junit.Before;
@@ -20,6 +21,8 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -60,8 +63,7 @@ public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesS
             },
             // (5) The user does not have the necessary rights to delete the service:
             {
-                "delete-services-step-input-6.json", "Controller operation failed: 403 Forbidden",
-            },
+                "delete-services-step-input-6.json", MessageFormat.format(Messages.ERROR_DELETING_SERVICE, "service-2", "servicelabel", "serviceplan", "Controller operation failed: 403 Forbidden")},
         // @formatter:on
         });
     }
@@ -92,7 +94,7 @@ public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesS
             .map((service) -> service.name)
             .collect(Collectors.toList());
         if (expectedExceptionMessage != null) {
-            expectedException.expect(CloudControllerException.class);
+            expectedException.expect(SLException.class);
             expectedException.expectMessage(expectedExceptionMessage);
         }
     }
@@ -120,6 +122,11 @@ public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesS
         if (service.hasBoundApplications) {
             instance.setBindings(Arrays.asList(new CloudServiceBinding()));
         }
+        CloudService cloudService = new CloudService();
+        cloudService.setName(service.name);
+        cloudService.setLabel(service.label);
+        cloudService.setPlan(service.plan);
+        instance.setService(cloudService);
         return instance;
     }
 
@@ -138,6 +145,8 @@ public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesS
 
     private static class SimpleService {
         String name;
+        String label;
+        String plan;
         boolean hasBoundApplications;
         Integer httpErrorCodeToReturnOnDelete;
     }
