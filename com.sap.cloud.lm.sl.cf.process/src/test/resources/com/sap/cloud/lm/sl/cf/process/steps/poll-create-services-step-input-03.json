@@ -2,12 +2,14 @@
   "services": [
     {
       "name": "test-service-1",
+      "label": "test",
       "plan": "test",
       "provider": "test",
       "version": "test"
     },
     {
       "name": "test-service-2",
+      "label": "test",
       "isOptional": true,
       "plan": "test",
       "provider": "test",
@@ -15,6 +17,7 @@
     },
     {
       "name": "test-service-3",
+      "label": "test",
       "plan": "test",
       "provider": "test",
       "version": "test"

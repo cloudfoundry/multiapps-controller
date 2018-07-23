@@ -2,6 +2,7 @@
   "services": [
     {
       "name": "test-service",
+      "label": "test",
       "plan": "test",
       "provider": "test",
       "version": "test"

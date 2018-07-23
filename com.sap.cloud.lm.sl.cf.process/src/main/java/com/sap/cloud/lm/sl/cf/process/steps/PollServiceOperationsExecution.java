@@ -13,9 +13,9 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -209,11 +209,14 @@ public class PollServiceOperationsExecution implements AsyncExecution {
     private String getFailureMessage(CloudServiceExtended service, ServiceOperation operation) {
         switch (operation.getType()) {
             case CREATE:
-                return MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), operation.getDescription());
+                return MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
+                    operation.getDescription());
             case UPDATE:
-                return MessageFormat.format(Messages.ERROR_UPDATING_SERVICE, service.getName(), operation.getDescription());
+                return MessageFormat.format(Messages.ERROR_UPDATING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
+                    operation.getDescription());
             case DELETE:
-                return MessageFormat.format(Messages.ERROR_DELETING_SERVICE, service.getName(), operation.getDescription());
+                return MessageFormat.format(Messages.ERROR_DELETING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
+                    operation.getDescription());
             default:
                 throw new IllegalStateException(
                     MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE, operation.getType()));
@@ -223,11 +226,14 @@ public class PollServiceOperationsExecution implements AsyncExecution {
     private String getWarningMessage(CloudServiceExtended service, ServiceOperation operation) {
         switch (operation.getType()) {
             case CREATE:
-                return MessageFormat.format(Messages.ERROR_CREATING_OPTIONAL_SERVICE, service.getName(), operation.getDescription());
+                return MessageFormat.format(Messages.ERROR_CREATING_OPTIONAL_SERVICE, service.getName(), service.getLabel(),
+                    service.getPlan(), operation.getDescription());
             case UPDATE:
-                return MessageFormat.format(Messages.ERROR_UPDATING_OPTIONAL_SERVICE, service.getName(), operation.getDescription());
+                return MessageFormat.format(Messages.ERROR_UPDATING_OPTIONAL_SERVICE, service.getName(), service.getLabel(),
+                    service.getPlan(), operation.getDescription());
             case DELETE:
-                return MessageFormat.format(Messages.ERROR_DELETING_OPTIONAL_SERVICE, service.getName(), operation.getDescription());
+                return MessageFormat.format(Messages.ERROR_DELETING_OPTIONAL_SERVICE, service.getName(), service.getLabel(),
+                    service.getPlan(), operation.getDescription());
             default:
                 throw new IllegalStateException(
                     MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.ILLEGAL_SERVICE_OPERATION_TYPE, operation.getType()));
@@ -282,5 +288,4 @@ public class PollServiceOperationsExecution implements AsyncExecution {
             .map(serviceWithLastOperation -> serviceWithLastOperation.getKey())
             .collect(Collectors.toList());
     }
-
 }

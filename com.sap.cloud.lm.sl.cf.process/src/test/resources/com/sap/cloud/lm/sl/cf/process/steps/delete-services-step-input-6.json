@@ -2,10 +2,14 @@
   "servicesToDelete": [
     {
       "name": "service-1",
+      "label": "servicelabel",
+      "plan": "serviceplan",
       "hasBoundApplications": false
     },
     {
       "name": "service-2",
+      "label": "servicelabel",
+      "plan": "serviceplan",
       "httpErrorCodeToReturnOnDelete": 403,
       "hasBoundApplications": false
     }

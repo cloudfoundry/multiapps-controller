@@ -1,15 +1,19 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudControllerException;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudControllerException;
+import org.cloudfoundry.client.lib.CloudException;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
+import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -35,10 +39,6 @@ public class DeleteServicesStep extends SyncActivitiStep {
 
             getStepLogger().debug(Messages.SERVICES_DELETED);
             return StepPhase.DONE;
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_DELETING_SERVICES);
-            throw e;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_DELETING_SERVICES);
             throw e;
@@ -52,23 +52,16 @@ public class DeleteServicesStep extends SyncActivitiStep {
     }
 
     private void deleteService(CloudControllerClient client, String serviceName) {
+        CloudServiceInstance serviceInstance = null;
         try {
-            attemptToDeleteService(client, serviceName);
-        } catch (CloudOperationException e) {
-            switch (e.getStatusCode()) {
-                case NOT_FOUND:
-                    getStepLogger().warn(e, Messages.COULD_NOT_DELETE_SERVICE, serviceName);
-                    break;
-                case BAD_GATEWAY:
-                    throw new CloudServiceBrokerException(e);
-                default:
-                    throw e;
-            }
+            serviceInstance = client.getServiceInstance(serviceName);
+            attemptToDeleteService(client, serviceInstance, serviceName);
+        } catch (CloudOperationException | CloudException e) {
+            processException(e, serviceInstance, serviceName);
         }
     }
 
-    private void attemptToDeleteService(CloudControllerClient client, String serviceName) {
-        CloudServiceInstance serviceInstance = client.getServiceInstance(serviceName);
+    private void attemptToDeleteService(CloudControllerClient client, CloudServiceInstance serviceInstance, String serviceName) {
         List<CloudServiceBinding> bindings = serviceInstance.getBindings();
         if (!CommonUtil.isNullOrEmpty(bindings)) {
             logBindings(bindings);
@@ -79,6 +72,43 @@ public class DeleteServicesStep extends SyncActivitiStep {
         getStepLogger().info(Messages.DELETING_SERVICE, serviceName);
         client.deleteService(serviceName);
         getStepLogger().debug(Messages.SERVICE_DELETED, serviceName);
+    }
+
+    private void processException(Exception e, CloudServiceInstance serviceInstance, String serviceName) {
+        if (e instanceof CloudOperationException) {
+            e = evaluateCloudOperationException((CloudOperationException) e, serviceInstance, serviceName);
+            if (e == null) {
+                return;
+            }
+        }
+        wrapAndThrowException(e, serviceInstance, serviceName);
+    }
+
+    private CloudOperationException evaluateCloudOperationException(CloudOperationException e, CloudServiceInstance serviceInstance,
+        String serviceName) {
+        if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+            getStepLogger().warn(e, Messages.COULD_NOT_DELETE_SERVICE, serviceName);
+            return null;
+        }
+        if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
+            return new CloudServiceBrokerException(e);
+        }
+        return new CloudControllerException(e);
+
+    }
+
+    private void wrapAndThrowException(Exception e, CloudServiceInstance serviceInstance, String serviceName) {
+        String msg = buildNewExceptionMessage(e, serviceInstance, serviceName);
+        throw new SLException(e, msg);
+    }
+
+    private String buildNewExceptionMessage(Exception e, CloudServiceInstance serviceInstance, String serviceName) {
+        if (serviceInstance == null) {
+            return MessageFormat.format(Messages.ERROR_DELETING_SERVICE_SHORT, serviceName, e.getMessage());
+        }
+        CloudService service = serviceInstance.getService();
+        return MessageFormat.format(Messages.ERROR_DELETING_SERVICE, service.getName(), service.getLabel(), service.getPlan(),
+            e.getMessage());
     }
 
     private void logBindings(List<CloudServiceBinding> bindings) {

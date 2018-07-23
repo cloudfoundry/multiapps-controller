@@ -125,12 +125,13 @@ public class Messages {
     public static final String ERROR_RECONFIGURING_APPS_ENVIRONMENTS = "Error reconfiguring apps environments";
     public static final String ERROR_NOT_FOUND_APPLICATION = "Application \"{0}\" not found.";
     public static final String ERROR_MONITORING_SUBPROCESS = "Error monitoring subprocess with id {0}";
-    public static final String ERROR_CREATING_SERVICE = "Error creating service \"{0}\": {1}";
-    public static final String ERROR_UPDATING_SERVICE = "Error updating service \"{0}\": {1}";
-    public static final String ERROR_DELETING_SERVICE = "Error deleting service \"{0}\": {1}";
-    public static final String ERROR_CREATING_OPTIONAL_SERVICE = "Error creating optional service \"{0}\": {1}";
-    public static final String ERROR_UPDATING_OPTIONAL_SERVICE = "Error updating optional service \"{0}\": {1}";
-    public static final String ERROR_DELETING_OPTIONAL_SERVICE = "Error deleting optional service \"{0}\": {1}";
+    public static final String ERROR_CREATING_SERVICE = "Error creating service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
+    public static final String ERROR_UPDATING_SERVICE = "Error updating service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
+    public static final String ERROR_DELETING_SERVICE = "Error deleting service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
+    public static final String ERROR_DELETING_SERVICE_SHORT = "Error deleting service \"{0}\": {1}";
+    public static final String ERROR_CREATING_OPTIONAL_SERVICE = "Error creating optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
+    public static final String ERROR_UPDATING_OPTIONAL_SERVICE = "Error updating optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
+    public static final String ERROR_DELETING_OPTIONAL_SERVICE = "Error deleting optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_MONITORING_CREATION_OF_SERVICES = "Error monitoring creation of services";
 
     // WARN log messages

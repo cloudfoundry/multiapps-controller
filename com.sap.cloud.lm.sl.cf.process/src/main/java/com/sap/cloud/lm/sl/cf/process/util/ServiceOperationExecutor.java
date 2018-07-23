@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.util.function.Supplier;
 
+import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class ServiceOperationExecutor {
                 if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
                     throw new CloudServiceBrokerException(e);
                 }
-                throw e;
+                throw new CloudControllerException(e);
             }
             stepLogger.warn(e, Messages.COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE, service.getName());
             return null;

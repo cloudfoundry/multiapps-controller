@@ -60,7 +60,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
             },
             // (5) With failure and optional service:
             {
-                "poll-create-services-step-input-05.json", "Error creating service \"test-service-2\": Something happened!"
+                "poll-create-services-step-input-05.json", "Error creating service \"test-service-2\" from offering \"test\" and plan \"test\": Something happened!"
             },
             // (6) With user provided service:
             {
@@ -72,11 +72,11 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
             },
             // (8) With failure on creation of service and update of service:
             {
-                "poll-create-services-step-input-08.json", "Error creating service \"test-service-2\": Something happened!"
+                "poll-create-services-step-input-08.json", "Error creating service \"test-service-2\" from offering \"test\" and plan \"test\": Something happened!"
             },
             // (8) With failure on creation of service and no error description:
             {
-                "poll-create-services-step-input-09.json", "Error creating service \"test-service\": " + Messages.DEFAULT_FAILED_OPERATION_DESCRIPTION
+                "poll-create-services-step-input-09.json", "Error creating service \"test-service\" from offering \"test\" and plan \"test\": " + Messages.DEFAULT_FAILED_OPERATION_DESCRIPTION
             },
 // @formatter:on
         });

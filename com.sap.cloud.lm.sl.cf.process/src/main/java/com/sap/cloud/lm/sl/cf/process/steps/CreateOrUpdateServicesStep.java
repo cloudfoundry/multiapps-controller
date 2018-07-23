@@ -19,7 +19,6 @@ import javax.inject.Named;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
@@ -74,7 +73,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     protected ServiceUpdater serviceUpdater;
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws SLException, FileStorageException {
+    protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws SLException {
         try {
             execution.getStepLogger()
                 .info(Messages.CREATING_OR_UPDATING_SERVICES);
@@ -98,10 +97,6 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
             getStepLogger().debug(Messages.SERVICES_CREATED_OR_UPDATED);
             return StepPhase.POLL;
-        } catch (CloudOperationException coe) {
-            CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().error(e, Messages.ERROR_CREATING_SERVICES);
-            throw e;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_CREATING_SERVICES);
             throw e;
@@ -116,18 +111,25 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     private Map<String, ServiceOperationType> createOrUpdateServices(ExecutionWrapper execution, CloudControllerClient client,
         List<CloudServiceExtended> services, Map<String, CloudService> existingServices, Map<String, List<ServiceKey>> serviceKeys,
-        Map<String, List<String>> defaultTags) throws SLException, FileStorageException {
+        Map<String, List<String>> defaultTags) throws SLException {
 
         Map<String, ServiceOperationType> triggeredOperations = new TreeMap<>();
         String spaceId = StepsUtil.getSpaceId(execution.getContext());
         for (CloudServiceExtended service : services) {
             CloudService existingService = existingServices.get(service.getName());
-            List<String> defaultTagsForService = defaultTags.getOrDefault(service.getLabel(), Collections.emptyList());
-            ServiceOperationType triggeredOperation = createOrUpdateService(execution, client, spaceId, service, existingService,
-                defaultTagsForService);
-            triggeredOperations.put(service.getName(), triggeredOperation);
-            List<ServiceKey> serviceKeysForService = serviceKeys.getOrDefault(service.getName(), Collections.emptyList());
-            createOrUpdateServiceKeys(serviceKeysForService, service, client, execution);
+            try {
+                List<String> defaultTagsForService = defaultTags.getOrDefault(service.getLabel(), Collections.emptyList());
+                ServiceOperationType triggeredOperation = createOrUpdateService(execution, client, spaceId, service, existingService,
+                    defaultTagsForService);
+                triggeredOperations.put(service.getName(), triggeredOperation);
+                List<ServiceKey> serviceKeysForService = serviceKeys.getOrDefault(service.getName(), Collections.emptyList());
+                createOrUpdateServiceKeys(serviceKeysForService, service, client, execution);
+            } catch (CloudOperationException | FileStorageException | SLException e) {
+                String msg = MessageFormat.format(
+                    existingService == null ? Messages.ERROR_CREATING_SERVICE : Messages.ERROR_UPDATING_SERVICE, service.getName(),
+                    service.getLabel(), service.getPlan(), e.getMessage());
+                throw new SLException(e, msg);
+            }
         }
         return triggeredOperations;
     }
@@ -251,7 +253,6 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
             setServiceParameters(execution.getContext(), service, appArchiveId, fileName);
         }
-
         if (existingService == null) {
             serviceOperationExecutor.executeServiceOperation(service, () -> createService(execution.getContext(), client, service),
                 getStepLogger());

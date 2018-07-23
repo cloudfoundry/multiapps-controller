@@ -2,10 +2,14 @@
   "servicesToDelete": [
     {
       "name": "service-1",
+      "label": "testoffering",
+      "plan": "testplan",
       "hasBoundApplications": true
     },
     {
       "name": "service-2",
+      "label": "testoffering",
+      "plan": "testplan",
       "hasBoundApplications": false
     }
   ]
