@@ -94,7 +94,7 @@
     <sequenceFlow id="doNotExecuteOneOffTasksFlow" sourceRef="shouldExecuteTasks" targetRef="shouldUpdateConfigurations">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(not executeOneOffTasks)}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="startAppTask" name="Start App" activiti:async="true" activiti:delegateExpression="${startAppStep}"></serviceTask>
+    <serviceTask id="startAppTask" name="Start App" activiti:async="true" activiti:delegateExpression="${restartAppStep}"></serviceTask>
     <intermediateCatchEvent id="timerintermediatecatchevent1" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT${controllerPollingInterval}S</timeDuration>
