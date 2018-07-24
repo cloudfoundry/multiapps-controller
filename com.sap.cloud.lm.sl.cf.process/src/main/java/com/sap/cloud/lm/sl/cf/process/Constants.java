@@ -84,8 +84,8 @@ public class Constants {
     public static final String VAR_APPS_TO_DEPLOY = "appsToDeploy";
     public static final String VAR_UPDATED_SUBSCRIBERS = "updatedSubscribers";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS = "updatedServiceBrokerSubscribers";
-    public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = "updatedSubscribersCount";
-    public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX = "updatedSubscribersIndex";
+    public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = "updatedServiceBrokerSubscribersCount";
+    public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX = "updatedServiceBrokerSubscribersIndex";
     public static final String VAR_APPS_TO_UNDEPLOY_COUNT = "appsToUndeployCount";
     public static final String VAR_APPS_TO_UNDEPLOY_INDEX = "appsToUndeployIndex";
     public static final String VAR_APPS_INDEX = "appsIndex";

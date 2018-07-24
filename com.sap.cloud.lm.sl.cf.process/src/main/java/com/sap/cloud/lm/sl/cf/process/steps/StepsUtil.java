@@ -88,8 +88,8 @@ public class StepsUtil {
         return clientProvider.getControllerClient(userName, org, space, context.getProcessInstanceId());
     }
 
-    static XsCloudControllerClient getXsControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider, StepLogger stepLogger)
-        throws SLException {
+    static XsCloudControllerClient getXsControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
+        StepLogger stepLogger) throws SLException {
         CloudControllerClient client = StepsUtil.getControllerClient(context, clientProvider, stepLogger);
         if (client instanceof XsCloudControllerClient) {
             return (XsCloudControllerClient) client;
@@ -97,8 +97,8 @@ public class StepsUtil {
         return null;
     }
 
-    static XsCloudControllerClient getXsControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider, StepLogger stepLogger,
-        String org, String space) throws SLException {
+    static XsCloudControllerClient getXsControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
+        StepLogger stepLogger, String org, String space) throws SLException {
         CloudControllerClient client = StepsUtil.getControllerClient(context, clientProvider, stepLogger, org, space);
         if (client instanceof XsCloudControllerClient) {
             return (XsCloudControllerClient) client;
@@ -424,14 +424,14 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_UPDATED_SUBSCRIBERS, JsonUtil.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
     }
 
-    public static List<CloudApplicationExtended> getServiceBrokerSubscribersToRestart(DelegateExecution context) {
-        CloudApplicationExtended[] apps = JsonUtil.getFromBinaryJson(
-            (byte[]) context.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS), CloudApplicationExtended[].class);
+    public static List<CloudApplication> getServiceBrokerSubscribersToRestart(DelegateExecution context) {
+        CloudApplication[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS),
+            CloudApplication[].class);
         return Arrays.asList(apps);
     }
 
-    static CloudApplicationExtended getServiceBrokerSubscriberToRestart(DelegateExecution context) {
-        List<CloudApplicationExtended> apps = getServiceBrokerSubscribersToRestart(context);
+    static CloudApplication getServiceBrokerSubscriberToRestart(DelegateExecution context) {
+        List<CloudApplication> apps = getServiceBrokerSubscribersToRestart(context);
         int index = (Integer) context.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         return apps.get(index);
     }
@@ -965,7 +965,7 @@ public class StepsUtil {
         return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), configuration,
             stepLogger);
     }
-    
+
     static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context, StepLogger stepLogger) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);

@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 
-public class RestartUpdatedSubscribersStepTest extends SyncActivitiStepTest<RestartUpdatedSubscribersStep> {
+public class RestartSubscribersStepTest extends SyncActivitiStepTest<RestartSubscribersStep> {
 
     @Test
     public void testClientsForCorrectSpacesAreRequested() throws Exception {
@@ -148,8 +148,8 @@ public class RestartUpdatedSubscribersStepTest extends SyncActivitiStepTest<Rest
     }
 
     @Override
-    protected RestartUpdatedSubscribersStep createStep() {
-        return new RestartUpdatedSubscribersStep();
+    protected RestartSubscribersStep createStep() {
+        return new RestartSubscribersStep();
     }
 
 }
