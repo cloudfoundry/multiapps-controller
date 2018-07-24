@@ -12,10 +12,9 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.apache.commons.collections.CollectionUtils;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
@@ -127,10 +126,6 @@ public class CreateAppStep extends SyncActivitiStep {
 
     private Map<String, String> buildServiceKeysCredentials(CloudControllerClient client, CloudApplicationExtended app,
         Map<String, String> appEnv) {
-        if (CollectionUtils.isEmpty(app.getServiceKeysToInject())) {
-            return Collections.emptyMap();
-        }
-
         Map<String, String> appServiceKeysCredentials = new HashMap<>();
         for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
             String serviceKeyCredentials = JsonUtil.toJson(getServiceKeyCredentials(client, serviceKeyToInject), true);

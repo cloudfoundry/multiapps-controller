@@ -15,28 +15,28 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-@Component("updateSubscribedServiceBrokerStep")
+@Component("updateServiceBrokerSubscriberStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UpdateSubscribedServiceBrokerStep extends CreateOrUpdateServiceBrokersStep {
+public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrokersStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
         CloudApplication serviceBrokerAppication = StepsUtil.getServiceBrokerSubscriberToRestart(execution.getContext());
-        CloudServiceBrokerExtended broker = getServiceBrokerFromApp(serviceBrokerAppication, execution.getContext());
+        CloudServiceBrokerExtended serviceBroker = getServiceBrokerFromApp(serviceBrokerAppication, execution.getContext());
 
         try {
             CloudControllerClient client = execution.getControllerClient();
-            CloudServiceBroker existingServiceBroker = client.getServiceBroker(broker.getName(), false);
+            CloudServiceBroker existingServiceBroker = client.getServiceBroker(serviceBroker.getName(), false);
             if (existingServiceBroker == null) {
-                getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, broker.getName()));
+                getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, serviceBroker.getName()));
             } else {
-                broker.setMeta(existingServiceBroker.getMeta());
-                updateServiceBroker(execution.getContext(), broker, client);
+                serviceBroker.setMeta(existingServiceBroker.getMeta());
+                updateServiceBroker(execution.getContext(), serviceBroker, client);
             }
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
-            getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_UPDATE, broker.getName());
+            getStepLogger().warn(e, Messages.FAILED_SERVICE_BROKER_UPDATE, serviceBroker.getName());
             return StepPhase.DONE;
         }
     }

@@ -81,8 +81,6 @@ public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
                 "Unable to retrieve required service key element \"expected-service-key\" for service \"existing-service\"",
                 PlatformType.XS2
             },
-            // (7) Service keys to inject are null
-            { "create-app-step-input-08.json", null, PlatformType.XS2 },
 // @formatter:on
         });
     }
