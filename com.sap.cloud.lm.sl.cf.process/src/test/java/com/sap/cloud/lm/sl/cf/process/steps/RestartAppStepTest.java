@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-public class StartAppStepTest extends SyncActivitiStepTest<StartAppStep> {
+public class RestartAppStepTest extends SyncActivitiStepTest<RestartAppStep> {
 
     private static final String APP_NAME = "foo";
 
@@ -75,8 +75,8 @@ public class StartAppStepTest extends SyncActivitiStepTest<StartAppStep> {
     }
 
     @Override
-    protected StartAppStep createStep() {
-        return new StartAppStep();
+    protected RestartAppStep createStep() {
+        return new RestartAppStep();
     }
 
 }
