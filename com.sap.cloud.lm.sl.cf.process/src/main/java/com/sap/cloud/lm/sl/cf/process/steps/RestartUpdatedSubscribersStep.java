@@ -2,9 +2,11 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudOrganization;
+import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -20,7 +22,7 @@ public class RestartUpdatedSubscribersStep extends SyncActivitiStep {
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         List<CloudApplication> updatedSubscribers = StepsUtil.getUpdatedSubscribers(execution.getContext());
         for (CloudApplication subscriber : updatedSubscribers) {
-            getStepLogger().debug(Messages.UPDATED_SUBSCRIBERS, subscriber.getName());
+            getStepLogger().debug(Messages.UPDATING_SUBSCRIBER_0, subscriber.getName());
             restartSubscriber(execution, subscriber);
         }
         return StepPhase.DONE;
@@ -30,40 +32,27 @@ public class RestartUpdatedSubscribersStep extends SyncActivitiStep {
         try {
             attemptToRestartApplication(execution, subscriber);
         } catch (CloudOperationException e) {
-            getStepLogger().warn(e, Messages.COULD_NOT_RESTART_SUBSCRIBER, subscriber.getName());
+            getStepLogger().warn(e, Messages.COULD_NOT_RESTART_SUBSCRIBER_0, subscriber.getName());
         }
     }
 
     private void attemptToRestartApplication(ExecutionWrapper execution, CloudApplication app) {
-        CloudControllerClient client = getClientForApp(execution, app);
-        XsCloudControllerClient xsClient = getClientExtensionsForApp(execution, app);
+        CloudControllerClient client = getClientForApplicationSpace(execution, app);
 
         getStepLogger().info(Messages.STOPPING_APP, app.getName());
         client.stopApplication(app.getName());
         getStepLogger().info(Messages.STARTING_APP, app.getName());
-        if (xsClient != null) {
-            xsClient.startApplication(app.getName(), false);
+        if (client instanceof XsCloudControllerClient) {
+            ((XsCloudControllerClient) client).startApplication(app.getName(), false);
         } else {
             client.startApplication(app.getName());
         }
     }
 
-    private CloudControllerClient getClientForApp(ExecutionWrapper execution, CloudApplication app) {
-        String orgName = app.getSpace()
-            .getOrganization()
-            .getName();
-        String spaceName = app.getSpace()
-            .getName();
-        return execution.getControllerClient(orgName, spaceName);
-    }
-
-    private XsCloudControllerClient getClientExtensionsForApp(ExecutionWrapper execution, CloudApplication app) {
-        String orgName = app.getSpace()
-            .getOrganization()
-            .getName();
-        String spaceName = app.getSpace()
-            .getName();
-        return execution.getXsControllerClient(orgName, spaceName);
+    private CloudControllerClient getClientForApplicationSpace(ExecutionWrapper execution, CloudApplication app) {
+        CloudSpace space = app.getSpace();
+        CloudOrganization organization = space.getOrganization();
+        return execution.getControllerClient(organization.getName(), space.getName());
     }
 
 }
