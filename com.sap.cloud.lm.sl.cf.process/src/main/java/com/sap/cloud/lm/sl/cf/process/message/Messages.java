@@ -143,7 +143,7 @@ public class Messages {
     public static final String COULD_NOT_COMPUTE_DEFAULT_DOMAIN = "Could not compute the default domain";
     public static final String COULD_NOT_DELETE_SUBSCRIPTION = "Could not delete subscription for application \"{0}\" and resource \"{1}\"";
     public static final String COULD_NOT_UPDATE_SUBSCRIBER = "Could not update application \"{0}\" from MTA \"{1}\" for subscription \"{2}\"";
-    public static final String COULD_NOT_RESTART_SUBSCRIBER = "Could not restart subscribed application \"{0}\"";
+    public static final String COULD_NOT_RESTART_SUBSCRIBER_0 = "Could not restart subscribed application \"{0}\"";
     public static final String CANNOT_CREATE_SPACE_SCOPED_SERVICE_BROKER_ON_THIS_PLATFORM = "Service broker \"{0}\" will be created as global, since space-scoped service brokers are not yet supported on this platform!";
     public static final String CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL = "Visibility of service broker \"{0}\" will not be changed from space-scoped to global, as visibility changes are not yet supported!";
     public static final String CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_GLOBAL_TO_SPACE_SCOPED = "Visibility of service broker \"{0}\" will not be changed from global to space-scoped, as visibility changes are not yet supported!";
@@ -413,7 +413,7 @@ public class Messages {
     public static final String MERGING_ARCHIVE_PART = "Merging archive part with ID \"{0}\", name \"{1}\"";
     public static final String EXTENSION_DESCRIPTOR = "Еxtension descriptor/s: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
-    public static final String UPDATED_SUBSCRIBERS = "Updating subscriber: {0} ";
+    public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
     public static final String DELETED_APP_ROUTES = "App routes for applications \"{0}\" deleted";
     public static final String MODULES_TO_UNDEPLOY = "Modules to undeploy: {0}";
     public static final String MODULES_TO_KEEP = "Modules to keep: {0}";
