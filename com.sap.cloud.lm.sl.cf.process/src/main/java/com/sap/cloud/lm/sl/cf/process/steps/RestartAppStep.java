@@ -24,9 +24,9 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@Component("startAppStep")
+@Component("restartAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StartAppStep extends TimeoutAsyncActivitiStep {
+public class RestartAppStep extends TimeoutAsyncActivitiStep {
 
     @Autowired
     protected RecentLogsRetriever recentLogsRetriever;
@@ -34,15 +34,10 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
     protected ApplicationConfiguration configuration;
 
     @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_APPS_INDEX;
-    }
-
-    @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) {
-        CloudApplication app = getAppToStart(execution.getContext());
+        CloudApplication app = getAppToRestart(execution.getContext());
         try {
-            attemptToStartApp(execution, app);
+            restartApp(execution, app);
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
             onError(format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
@@ -51,42 +46,35 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
         return StepPhase.POLL;
     }
 
-    protected void onError(String message, Exception e) {
-        getStepLogger().error(e, message);
-    }
-
-    protected void onError(String message) {
-        getStepLogger().error(message);
-    }
-
-    private void attemptToStartApp(ExecutionWrapper execution, CloudApplication app) {
-        CloudControllerClient client = execution.getControllerClient();
-
-        if (isAppStarted(client, app.getName())) {
-            stopApp(client, app);
-        }
-        StartingInfo startingInfo = startApp(execution, client, app);
-        StepsUtil.setStartingInfo(execution.getContext(), startingInfo);
-        if (execution.getContext()
-            .getVariable(Constants.VAR_START_TIME) == null) {
-            execution.getContext()
-                .setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
-        }
-        if (execution.getContext()
-            .getVariable(Constants.VAR_OFFSET) == null) {
-            execution.getContext()
-                .setVariable(Constants.VAR_OFFSET, 0);
-        }
-    }
-
-    protected CloudApplication getAppToStart(DelegateExecution context) {
+    protected CloudApplication getAppToRestart(DelegateExecution context) {
         return StepsUtil.getApp(context);
     }
 
-    private boolean isAppStarted(CloudControllerClient client, String appName) {
+    private void restartApp(ExecutionWrapper execution, CloudApplication app) {
+        CloudControllerClient client = execution.getControllerClient();
+
+        if (isStarted(client, app.getName())) {
+            stopApp(client, app);
+        }
+        StartingInfo startingInfo = startApp(execution, client, app);
+        setStartupPollingInfo(execution.getContext(), startingInfo);
+
+    }
+
+    private void setStartupPollingInfo(DelegateExecution context, StartingInfo startingInfo) {
+        StepsUtil.setStartingInfo(context, startingInfo);
+        if (context.getVariable(Constants.VAR_START_TIME) == null) {
+            context.setVariable(Constants.VAR_START_TIME, System.currentTimeMillis());
+        }
+        if (context.getVariable(Constants.VAR_OFFSET) == null) {
+            context.setVariable(Constants.VAR_OFFSET, 0);
+        }
+    }
+
+    private boolean isStarted(CloudControllerClient client, String appName) {
         try {
-            CloudApplication app2 = client.getApplication(appName);
-            return app2.getState()
+            CloudApplication app = client.getApplication(appName);
+            return app.getState()
                 .equals(AppState.STARTED);
         } catch (CloudOperationException e) {
             if (e.getStatusCode()
@@ -104,12 +92,20 @@ public class StartAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private StartingInfo startApp(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app) {
-        XsCloudControllerClient xsClient = execution.getXsControllerClient();
         getStepLogger().info(Messages.STARTING_APP, app.getName());
-        if (xsClient != null) {
-            return xsClient.startApplication(app.getName(), false);
+        if (client instanceof XsCloudControllerClient) {
+            return ((XsCloudControllerClient) client).startApplication(app.getName(), false);
         }
         return client.startApplication(app.getName());
+    }
+
+    protected void onError(String message, Exception e) {
+        getStepLogger().error(e, message);
+    }
+
+    @Override
+    protected String getIndexVariable() {
+        return Constants.VAR_APPS_INDEX;
     }
 
     @Override
