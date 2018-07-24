@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -106,11 +108,16 @@ public class ApplicationArchiveExtractor {
     }
 
     private Path createTempFile() throws IOException {
-        return Files.createTempFile(null, ".tmp");
+        return Files.createTempFile(null, getFileExtension());
     }
 
     private Path createTempDirectory() throws IOException {
         return Files.createTempDirectory(null);
+    }
+    
+    private String getFileExtension() {
+        String extension = FilenameUtils.getExtension(moduleFileName);
+        return extension.isEmpty() ? extension : FilenameUtils.EXTENSION_SEPARATOR_STR + extension;
     }
 
     private boolean isFile(String fileName) {
