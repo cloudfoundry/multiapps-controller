@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-@Component("restartUpdatedSubscribersStep")
+@Component("restartSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RestartUpdatedSubscribersStep extends SyncActivitiStep {
+public class RestartSubscribersStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {

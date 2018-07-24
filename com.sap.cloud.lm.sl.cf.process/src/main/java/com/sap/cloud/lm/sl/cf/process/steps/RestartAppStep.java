@@ -58,7 +58,6 @@ public class RestartAppStep extends TimeoutAsyncActivitiStep {
         }
         StartingInfo startingInfo = startApp(execution, client, app);
         setStartupPollingInfo(execution.getContext(), startingInfo);
-
     }
 
     private void setStartupPollingInfo(DelegateExecution context, StartingInfo startingInfo) {
