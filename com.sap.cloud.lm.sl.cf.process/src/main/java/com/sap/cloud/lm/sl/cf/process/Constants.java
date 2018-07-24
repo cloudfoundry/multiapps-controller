@@ -98,7 +98,6 @@ public class Constants {
     public static final String VAR_TASKS_COUNT = "tasksCount";
     public static final String VAR_PLATFORM_SUPPORTS_TASKS = "platformSupportsTasks";
     public static final String VAR_STARTED_TASK = "startedTask";
-    public static final String VAR_APPS_TO_RESTART = "appsToRestart";
     public static final String VAR_APPS_TO_RESTART_COUNT = "appsToRestartCount";
     public static final String VAR_APPS_TO_UNDEPLOY = "appsToUndeploy";
     public static final String VAR_SERVICES_TO_DELETE = "servicesToDelete";

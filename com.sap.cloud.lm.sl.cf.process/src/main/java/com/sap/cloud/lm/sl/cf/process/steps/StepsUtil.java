@@ -458,15 +458,6 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_STARTED_TASK, JsonUtil.getAsBinaryJson(task));
     }
 
-    public static void setAppsToRestart(DelegateExecution context, List<String> apps) {
-        context.setVariable(Constants.VAR_APPS_TO_RESTART, JsonUtil.getAsBinaryJson(apps.toArray(new String[] {})));
-    }
-
-    static List<String> getAppsToRestart(DelegateExecution context) {
-        String[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_APPS_TO_RESTART), String[].class);
-        return Arrays.asList(apps);
-    }
-
     public static List<CloudApplication> getAppsToUndeploy(DelegateExecution context) {
         CloudApplication[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY),
             CloudApplication[].class);
@@ -740,18 +731,6 @@ public class StepsUtil {
         List<CloudTask> tasks = StepsUtil.getTasksToExecute(context);
         int index = (Integer) context.getVariable(Constants.VAR_TASKS_INDEX);
         return tasks.get(index);
-    }
-
-    public static CloudApplicationExtended getAppToRestart(DelegateExecution context) {
-        List<String> appsToRestart = StepsUtil.getAppsToRestart(context);
-        int index = (Integer) context.getVariable(Constants.VAR_APPS_INDEX);
-        final String appToRestartName = appsToRestart.get(index);
-        List<CloudApplicationExtended> appsToDeploy = StepsUtil.getAppsToDeploy(context);
-        return appsToDeploy.stream()
-            .filter(app -> app.getName()
-                .equals(appToRestartName))
-            .findFirst()
-            .get();
     }
 
     static CloudApplication getExistingApp(DelegateExecution context) {
