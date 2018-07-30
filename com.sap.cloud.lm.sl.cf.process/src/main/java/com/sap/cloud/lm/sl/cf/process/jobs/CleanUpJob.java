@@ -232,15 +232,6 @@ public class CleanUpJob implements Job {
         LOGGER.info(format("Deleted process logs rows count: {0}", removedProcessLogs));
     }
 
-    Map<String, List<String>> splitAllFilesInChunks(Map<String, List<String>> spaceToFileIds) {
-        Map<String, List<String>> spaceToFileChunks = new HashMap<>();
-        for (String space : spaceToFileIds.keySet()) {
-            List<String> fileChunksInSpace = NameUtil.splitFilesIds(spaceToFileIds.get(space));
-            spaceToFileChunks.put(space, fileChunksInSpace);
-        }
-        return spaceToFileChunks;
-    }
-
     private void markOperationsAsCleanedUp(List<Operation> finishedOperations) {
         for (Operation finishedOperation : finishedOperations) {
             finishedOperation.setCleanedUp(true);
