@@ -4,9 +4,6 @@ import static java.text.MessageFormat.format;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -33,31 +30,22 @@ public class ActivitiHistoricDataCleaner implements Cleaner {
 
     @Override
     public void execute(Date expirationTime) {
-        Set<String> historicProcessIds = activitiFacade.getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime)
-            .stream()
-            .flatMap(this::getProcessAndSubProcessIdsStream)
-            .collect(Collectors.<String> toSet());
+        List<HistoricProcessInstance> processesToDelete = activitiFacade
+            .getHistoricProcessInstancesFinishedAndStartedBefore(expirationTime);
 
-        LOGGER.info(format("Historic Processes marked for deletion count: {0}", historicProcessIds.size()));
-        historicProcessIds.stream()
-            .forEach(this::tryToDeleteHistoricProcessInstance);
+        LOGGER.info(format("Historic processes marked for deletion count: {0}", processesToDelete.size()));
+        processesToDelete.stream()
+            .forEach(this::deleteHistoricProcessInstanceSafely);
     }
 
-    private Stream<String> getProcessAndSubProcessIdsStream(HistoricProcessInstance historicProcessInstance) {
-        List<String> processIds = activitiFacade.getHistoricSubProcessIds(historicProcessInstance.getId());
-        processIds.add(historicProcessInstance.getId());
-        return processIds.stream();
-    }
-
-    private boolean tryToDeleteHistoricProcessInstance(String processId) {
+    private void deleteHistoricProcessInstanceSafely(HistoricProcessInstance historicProcessInstance) {
+        String processId = historicProcessInstance.getId();
         try {
-            LOGGER.info(format("Deleting Historic Process with id: {0}", processId));
+            LOGGER.info(format("Deleting historic process with ID \"{0}\"...", processId));
             activitiFacade.deleteHistoricProcessInstance(processId);
-            LOGGER.info(format("Successfully deleted Historic Process with id: {0}", processId));
-            return true;
+            LOGGER.info(format("Successfully deleted historic process with ID \"{0}\"", processId));
         } catch (Exception e) {
-            LOGGER.error(format("Error when trying to delete historic process with id {0}: {1}", processId, e.getMessage()), e);
-            return false;
+            LOGGER.warn(format("Could not delete historic process with ID \"{0}\"", processId), e);
         }
     }
 
