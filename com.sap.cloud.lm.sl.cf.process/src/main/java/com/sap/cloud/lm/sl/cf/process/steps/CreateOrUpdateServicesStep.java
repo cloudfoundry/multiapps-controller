@@ -517,7 +517,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions() {
+    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         return Arrays.asList(new PollServiceOperationsExecution(serviceInstanceGetter));
     }
 }

@@ -112,8 +112,8 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncOperations() {
-        return step.getAsyncStepExecutions();
+    protected List<AsyncExecution> getAsyncOperations(ExecutionWrapper wrapper) {
+        return step.getAsyncStepExecutions(wrapper);
     }
 
     @Override

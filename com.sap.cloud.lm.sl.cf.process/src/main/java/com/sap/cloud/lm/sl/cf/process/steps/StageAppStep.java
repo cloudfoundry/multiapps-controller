@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingStateGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -26,8 +25,6 @@ public class StageAppStep extends TimeoutAsyncActivitiStep {
 
     @Inject
     protected RecentLogsRetriever recentLogsRetriever;
-    @Inject
-    protected ApplicationStagingStateGetter applicationStagingStateGetter;
 
     @Override
     protected String getIndexVariable() {
@@ -59,8 +56,8 @@ public class StageAppStep extends TimeoutAsyncActivitiStep {
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions() {
-        return Arrays.asList(new PollStageAppStatusExecution(recentLogsRetriever, applicationStagingStateGetter));
+    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+        return Arrays.asList(new PollStageAppStatusExecution(recentLogsRetriever));
     }
 
     @Override

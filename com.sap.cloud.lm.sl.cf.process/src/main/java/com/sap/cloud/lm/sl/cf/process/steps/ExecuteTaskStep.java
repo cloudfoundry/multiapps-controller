@@ -69,7 +69,7 @@ public class ExecuteTaskStep extends TimeoutAsyncActivitiStep {
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions() {
+    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         return Arrays.asList(new PollExecuteTaskStatusExecution(recentLogsRetriever, currentTimeSupplier));
     }
 

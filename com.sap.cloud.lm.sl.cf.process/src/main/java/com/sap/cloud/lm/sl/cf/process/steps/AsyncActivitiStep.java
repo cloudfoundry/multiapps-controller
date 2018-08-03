@@ -22,7 +22,7 @@ public abstract class AsyncActivitiStep extends SyncActivitiStep {
     }
 
     private StepPhase executeStepExecution(ExecutionWrapper execution) throws Exception {
-        List<AsyncExecution> stepExecutions = getAsyncStepExecutions();
+        List<AsyncExecution> stepExecutions = getAsyncStepExecutions(execution);
 
         AsyncExecutionState stepExecutionStatus = getStepExecution(execution, stepExecutions).execute(execution);
         return handleStepExecutionStatus(execution, stepExecutionStatus, stepExecutions);
@@ -73,6 +73,6 @@ public abstract class AsyncActivitiStep extends SyncActivitiStep {
 
     protected abstract StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception;
 
-    protected abstract List<AsyncExecution> getAsyncStepExecutions();
+    protected abstract List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution);
 
 }
