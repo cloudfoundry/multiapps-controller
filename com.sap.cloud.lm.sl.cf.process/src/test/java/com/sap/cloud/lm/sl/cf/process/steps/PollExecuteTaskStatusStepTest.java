@@ -125,8 +125,8 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncOperations() {
-        return step.getAsyncStepExecutions();
+    protected List<AsyncExecution> getAsyncOperations(ExecutionWrapper wrapper) {
+        return step.getAsyncStepExecutions(wrapper);
     }
 
 }

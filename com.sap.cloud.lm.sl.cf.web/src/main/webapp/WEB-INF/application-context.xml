@@ -32,9 +32,6 @@
 
         <bean id="serviceBrokersGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokersGetter" />
 
-        <bean id="applicationStagingStateGetter"
-            class="com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingStateGetter" />
-
         <bean id="serviceUpdater" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater" />
 
         <bean id="blueGreenRenameStep" class="com.sap.cloud.lm.sl.cf.process.steps.BlueGreenRenameStep"

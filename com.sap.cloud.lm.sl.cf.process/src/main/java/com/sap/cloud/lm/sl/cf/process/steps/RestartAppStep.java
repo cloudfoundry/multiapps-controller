@@ -2,13 +2,13 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
-import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
@@ -108,9 +108,14 @@ public class RestartAppStep extends TimeoutAsyncActivitiStep {
     }
 
     @Override
-    protected List<AsyncExecution> getAsyncStepExecutions() {
-        return Arrays.asList(new PollStartAppStatusExecution(recentLogsRetriever, configuration),
-            new PollExecuteAppStatusExecution(recentLogsRetriever));
+    protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+        List<AsyncExecution> stepExecutions = new LinkedList<>();
+        if (!(execution.getControllerClient() instanceof XsCloudControllerClient)) {
+            stepExecutions.add(new PollStageAppStatusExecution(recentLogsRetriever));
+        }
+        stepExecutions.add(new PollStartAppStatusExecution(recentLogsRetriever, configuration));
+        stepExecutions.add(new PollExecuteAppStatusExecution(recentLogsRetriever));
+        return stepExecutions;
     }
 
     @Override
