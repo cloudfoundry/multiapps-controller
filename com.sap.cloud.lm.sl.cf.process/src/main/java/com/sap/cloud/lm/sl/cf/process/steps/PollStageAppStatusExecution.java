@@ -63,8 +63,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
     private Pair<PackageState, String> getStagingState(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app) {
         if (client instanceof XsCloudControllerClient) {
-            Pair<PackageState, String> applicationStagingStateGuess = reportStagingLogs(execution, client);
-            return applicationStagingStateGuess;
+            return reportStagingLogs(execution, client);
         } else {
             app = client.getApplication(app.getName());
             return new Pair<>(app.getPackageState(), app.getStagingError());
