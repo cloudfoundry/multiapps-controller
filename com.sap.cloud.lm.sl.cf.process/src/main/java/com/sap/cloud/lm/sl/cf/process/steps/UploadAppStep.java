@@ -96,7 +96,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         return uploadTokenBuilder.toString();
     }
 
-    protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) throws SLException {
+    protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) throws IOException {
         ApplicationArchiveExtractor appExtractor = new ApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, getStepLogger());
         return appExtractor.extract();
     }

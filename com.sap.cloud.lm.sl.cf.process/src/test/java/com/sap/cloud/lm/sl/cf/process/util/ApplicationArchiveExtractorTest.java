@@ -69,8 +69,7 @@ public class ApplicationArchiveExtractorTest {
     public void testFailingExtract(String mtar, String fileName, String expectedException, long maxFileUploadSize) {
         ApplicationArchiveExtractor extractor = getApplicationArchiveExtractor(mtar, fileName, maxFileUploadSize);
         Exception exception = Assertions.assertThrows(Exception.class, () -> appPath = extractor.extract());
-        assertEquals(expectedException, exception.getCause()
-            .getMessage());
+        assertEquals(expectedException, exception.getMessage());
     }
 
     @ParameterizedTest
@@ -78,8 +77,7 @@ public class ApplicationArchiveExtractorTest {
     public void testBadAbsolutePathExtract(String mtar, String fileName, String expectedException, long maxFileUploadSize) {
         ApplicationArchiveExtractor extractor = getApplicationArchiveExtractorForAbsolutePath(mtar, fileName, maxFileUploadSize);
         Exception exception = Assertions.assertThrows(Exception.class, () -> appPath = extractor.extract());
-        assertEquals(expectedException, exception.getCause()
-            .getMessage());
+        assertEquals(expectedException, exception.getMessage());
     }
 
     private ApplicationArchiveExtractor getApplicationArchiveExtractor(String mtar, String fileName, long maxFileUploadSize) {

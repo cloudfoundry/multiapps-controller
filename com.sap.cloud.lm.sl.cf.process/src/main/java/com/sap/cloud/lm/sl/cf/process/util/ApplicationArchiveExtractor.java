@@ -32,7 +32,7 @@ public class ApplicationArchiveExtractor {
         this.logger = logger;
     }
 
-    public Path extract() throws SLException {
+    public Path extract() throws IOException {
         Path appPath = null;
         try {
             moveStreamToApplicationEntry();
@@ -46,9 +46,9 @@ public class ApplicationArchiveExtractor {
             appPath = createTempDirectory();
             saveAllEntries(appPath);
             return appPath;
-        } catch (Exception e) {
+        } catch (ContentException | IOException e) {
             cleanUp(appPath);
-            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, moduleFileName);
+            throw e;
         }
     }
 
