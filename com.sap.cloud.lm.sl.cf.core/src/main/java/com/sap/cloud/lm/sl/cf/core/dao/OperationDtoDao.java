@@ -133,27 +133,27 @@ public class OperationDtoDao {
             predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
                 .isNotNull());
         }
-        if (operationFilter.hasNotAcquiredLock()) {
+        if (operationFilter.isWithoutAcquiredLock()) {
             predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.ACQUIRED_LOCK), false));
         }
-        if (operationFilter.hasAcquiredLock()) {
+        if (operationFilter.isWithAcquiredLock()) {
             predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.ACQUIRED_LOCK), true));
         }
         if (operationFilter.getStates() != null) {
             predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
                 .in(toStrings(operationFilter.getStates())));
         }
-        if (operationFilter.getStartTimeUpperBound() != null) {
+        if (operationFilter.getStartedBefore() != null) {
             predicates
-                .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.STARTED_AT), operationFilter.getStartTimeUpperBound()));
+                .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.STARTED_AT), operationFilter.getStartedBefore()));
         }
-        if (operationFilter.getEndTimeUpperBound() != null) {
+        if (operationFilter.getEndedBefore() != null) {
             predicates
-                .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndTimeUpperBound()));
+                .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndedBefore()));
         }
-        if (operationFilter.getEndTimeLowerBound() != null) {
+        if (operationFilter.getEndedAfter() != null) {
             predicates
-                .add(criteriaBuilder.greaterThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndTimeLowerBound()));
+                .add(criteriaBuilder.greaterThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndedAfter()));
         }
 
         return predicates.toArray(new Predicate[0]);
