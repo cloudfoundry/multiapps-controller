@@ -78,7 +78,7 @@ public class ActivitiHistoricDataCleaner implements Cleaner {
     private boolean deleteProcessSafely(HistoricProcessInstance process) {
         String processId = process.getId();
         try {
-            LOGGER.info(format("Deleting historic process with ID \"{0}\"...", processId));
+            LOGGER.debug(format("Deleting historic process with ID \"{0}\"...", processId));
             historyService.deleteHistoricProcessInstance(processId);
             return true;
         } catch (Exception e) {

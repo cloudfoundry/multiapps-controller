@@ -48,6 +48,7 @@ public class OperationsCleaner implements Cleaner {
         for (Operation operation : operations) {
             cleanUpSafely(operation);
         }
+        LOGGER.info(format("Cleaned up operations: {0}", operations.size()));
     }
 
     private void cleanUpSafely(Operation operation) {
@@ -77,19 +78,18 @@ public class OperationsCleaner implements Cleaner {
     private void abortOperation(Operation operation) {
         String processId = operation.getProcessId();
         ActivitiAction abortAction = ActivitiActionFactory.getAction("abort", activitiFacade, null);
-        LOGGER.info(format("Aborting operation with id: {0}", processId));
+        LOGGER.debug(format("Aborting operation \"{0}\"", processId));
         abortAction.executeAction(processId);
-        LOGGER.info(format("Successfully aborted operation with id: {0}", processId));
     }
 
     private void removeProgressMessages(Operation operation) {
         int removedProgressMessages = progressMessageService.removeByProcessId(operation.getProcessId());
-        LOGGER.info(format("Deleted progress messages for operation \"{0}\": {1}", operation.getProcessId(), removedProgressMessages));
+        LOGGER.debug(format("Deleted progress messages for operation \"{0}\": {1}", operation.getProcessId(), removedProgressMessages));
     }
 
     private void removeProcessLogs(Operation operation) {
         int removedProcessLogs = processLogsPersistenceService.deleteByNamespace(operation.getProcessId());
-        LOGGER.info(format("Deleted process logs for operation \"{0}\": {1}", operation.getProcessId(), removedProcessLogs));
+        LOGGER.debug(format("Deleted process logs for operation \"{0}\": {1}", operation.getProcessId(), removedProcessLogs));
     }
 
     private void markOperationAsCleanedUp(Operation operation) {
