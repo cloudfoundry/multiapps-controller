@@ -107,8 +107,7 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
                 int currentOperationsCnt = dao.findAll()
                     .size();
                 Operation operation1 = new Operation().processId(processId)
-                    .acquiredLock(false)
-                    .cleanedUp(false);
+                    .acquiredLock(false);
                 dao.add(operation1);
 
                 assertEquals(currentOperationsCnt + 1, dao.findAll()
@@ -146,8 +145,7 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
             @Override
             public void run() throws Exception {
                 Operation operation1 = new Operation().processId(processId)
-                    .acquiredLock(false)
-                    .cleanedUp(false);
+                    .acquiredLock(false);
                 Operation operation2 = dao.findRequired(processId);
 
                 assertEquals(operation1.getProcessId(), operation2.getProcessId());

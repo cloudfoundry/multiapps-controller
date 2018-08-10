@@ -65,19 +65,18 @@ public class OperationsCleaner implements Cleaner {
         }
         removeProgressMessages(operation);
         removeProcessLogs(operation);
-        markOperationAsCleanedUp(operation);
+        dao.remove(operation.getProcessId());
     }
 
     private List<Operation> getOperationsToCleanUp(Date expirationTime) {
-        OperationFilter filter = new OperationFilter.Builder().isNotCleanedUp()
-            .startedBefore(expirationTime)
+        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime)
             .build();
         return dao.find(filter);
     }
 
     private void abortOperation(Operation operation) {
         String processId = operation.getProcessId();
-        ActivitiAction abortAction = ActivitiActionFactory.getAction("abort", activitiFacade, null);
+        ActivitiAction abortAction = ActivitiActionFactory.getAction(ActivitiActionFactory.ACTION_ID_ABORT, activitiFacade, null);
         LOGGER.debug(format("Aborting operation \"{0}\"", processId));
         abortAction.executeAction(processId);
     }
@@ -90,11 +89,6 @@ public class OperationsCleaner implements Cleaner {
     private void removeProcessLogs(Operation operation) {
         int removedProcessLogs = processLogsPersistenceService.deleteByNamespace(operation.getProcessId());
         LOGGER.debug(format("Deleted process logs for operation \"{0}\": {1}", operation.getProcessId(), removedProcessLogs));
-    }
-
-    private void markOperationAsCleanedUp(Operation operation) {
-        operation.setCleanedUp(true);
-        dao.merge(operation);
     }
 
 }

@@ -1,9 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.jobs;
 
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -66,14 +64,11 @@ public class OperationsCleanerTest {
     @Test
     public void testAbortOfExpiredOperationsInActiveState() throws JobExecutionException {
         Operation operation1 = new Operation().startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
-            .processId(OPERATION_ID_1)
-            .cleanedUp(false);
+            .processId(OPERATION_ID_1);
         Operation operation2 = new Operation().startedAt(epochMillisToZonedDateTime(TIME_AFTER_EXPIRATION))
-            .processId(OPERATION_ID_2)
-            .cleanedUp(false);
+            .processId(OPERATION_ID_2);
         Operation operation3 = new Operation().startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
-            .processId(OPERATION_ID_3)
-            .cleanedUp(false);
+            .processId(OPERATION_ID_3);
 
         List<Operation> operationsList = Arrays.asList(operation1, operation2, operation3);
         mockOperationDao(dao, operationsList);
@@ -86,11 +81,9 @@ public class OperationsCleanerTest {
     @Test
     public void testAbortOfExpiredOperationsResilience() throws JobExecutionException {
         Operation operation1 = new Operation().startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_1))
-            .processId(OPERATION_ID_1)
-            .cleanedUp(false);
+            .processId(OPERATION_ID_1);
         Operation operation2 = new Operation().startedAt(epochMillisToZonedDateTime(TIME_BEFORE_EXPIRATION_2))
-            .processId(OPERATION_ID_2)
-            .cleanedUp(false);
+            .processId(OPERATION_ID_2);
 
         List<Operation> operationsList = Arrays.asList(operation1, operation2);
         mockOperationDao(dao, operationsList);
@@ -115,7 +108,7 @@ public class OperationsCleanerTest {
         mockOperationDao(dao, operationsList);
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(dao).merge(any());
+        verify(dao).remove(OPERATION_ID_2);
     }
 
     @Test
@@ -134,7 +127,8 @@ public class OperationsCleanerTest {
             when(progressMessageService.removeAllByProcessIds(any())).thenThrow(new SLException("I'm an exception"));
             cleaner.execute(EXPIRATION_TIME);
         } catch (Exception e) {
-            verify(dao, never()).merge(any());
+            verify(dao, never()).remove(OPERATION_ID_1);
+            verify(dao, never()).remove(OPERATION_ID_2);
         }
     }
 
@@ -156,24 +150,9 @@ public class OperationsCleanerTest {
                 return result;
             }
         });
-
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                Operation operation = (Operation) args[0];
-                assertTrue("OperationDao should only merge cleaned up operations!", operation.isCleanedUp());
-                return null;
-            }
-        }).when(dao)
-            .merge(any());
     }
 
     private boolean filterOperations(Operation operation, OperationFilter filter) {
-        if (operation.isCleanedUp() != null && filter.isCleanedUp() != operation.isCleanedUp()) {
-            return false;
-        }
-
         Instant startTimeUpperBound = filter.getStartTimeUpperBound()
             .toInstant();
         Instant startTime = operation.getStartedAt()

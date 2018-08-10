@@ -57,8 +57,7 @@ public class DataTerminationService {
     }
 
     private void deleteUserOperationsOrphanData(String deleteEventSpaceId) {
-        OperationFilter operationFilter = new OperationFilter.Builder().isCleanedUp()
-            .spaceId(deleteEventSpaceId)
+        OperationFilter operationFilter = new OperationFilter.Builder().spaceId(deleteEventSpaceId)
             .build();
         List<Operation> operationsToBeDeleted = operationDao.find(operationFilter);
         List<String> result = operationsToBeDeleted.stream()
