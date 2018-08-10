@@ -153,7 +153,7 @@ public class OperationsCleanerTest {
     }
 
     private boolean filterOperations(Operation operation, OperationFilter filter) {
-        Instant startTimeUpperBound = filter.getStartTimeUpperBound()
+        Instant startTimeUpperBound = filter.getStartedBefore()
             .toInstant();
         Instant startTime = operation.getStartedAt()
             .toInstant();

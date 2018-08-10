@@ -20,17 +20,17 @@ public class OperationDaoFindWithFilterTest extends AbstractOperationDaoParamete
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-            // (0) Filter based on end time upper bound:
+            // (0) Filter based on ended before:
             {
-                "database-content-for-filter-test.json", "filter-with-end-time-upper-bound.json", "R:operations-filtered-based-on-end-time-upper-bound.json",
+                "database-content-for-filter-test.json", "filter-with-ended-before.json", "R:operations-filtered-based-on-ended-before.json",
             },
-            // (1) Filter based on end time lower bound:
+            // (1) Filter based on ended after:
             {
-                "database-content-for-filter-test.json", "filter-with-end-time-lower-bound.json", "R:operations-filtered-based-on-end-time-lower-bound.json",
+                "database-content-for-filter-test.json", "filter-with-ended-after.json", "R:operations-filtered-based-on-ended-after.json",
             },
-            // (2) Filter based on end time upper and lower bounds:
+            // (2) Filter based on ended before and after:
             {
-                "database-content-for-filter-test.json", "filter-with-end-time-upper-and-lower-bounds.json", "R:operations-filtered-based-on-end-time-upper-and-lower-bounds.json",
+                "database-content-for-filter-test.json", "filter-with-ended-before-and-after.json", "R:operations-filtered-based-on-ended-before-and-after.json",
             },
             // (3) Filter based on space ID:
             {

@@ -9,9 +9,9 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 public class OperationFilter {
 
-    private Date startTimeUpperBound;
-    private Date endTimeUpperBound;
-    private Date endTimeLowerBound;
+    private Date startedBefore;
+    private Date endedBefore;
+    private Date endedAfter;
     private String spaceId;
     private String mtaId;
     private String user;
@@ -26,9 +26,9 @@ public class OperationFilter {
     private Integer maxResults;
 
     protected OperationFilter(Builder builder) {
-        this.startTimeUpperBound = builder.startTimeUpperBound;
-        this.endTimeUpperBound = builder.endTimeUpperBound;
-        this.endTimeLowerBound = builder.endTimeLowerBound;
+        this.startedBefore = builder.startedBefore;
+        this.endedBefore = builder.endedBefore;
+        this.endedAfter = builder.endedAfter;
         this.spaceId = builder.spaceId;
         this.mtaId = builder.mtaId;
         this.user = builder.user;
@@ -42,16 +42,16 @@ public class OperationFilter {
         this.states = builder.states;
     }
 
-    public Date getStartTimeUpperBound() {
-        return startTimeUpperBound;
+    public Date getStartedBefore() {
+        return startedBefore;
     }
 
-    public Date getEndTimeUpperBound() {
-        return endTimeUpperBound;
+    public Date getEndedBefore() {
+        return endedBefore;
     }
 
-    public Date getEndTimeLowerBound() {
-        return endTimeLowerBound;
+    public Date getEndedAfter() {
+        return endedAfter;
     }
 
     public String getSpaceId() {
@@ -74,20 +74,16 @@ public class OperationFilter {
         return inFinalState;
     }
 
-    public boolean hasNotAcquiredLock() {
+    public boolean isWithoutAcquiredLock() {
         return withoutAcquiredLock;
     }
 
-    public boolean hasAcquiredLock() {
+    public boolean isWithAcquiredLock() {
         return withAcquiredLock;
     }
 
     public List<State> getStates() {
         return states;
-    }
-
-    public Integer getMaxResults() {
-        return maxResults;
     }
 
     public String getOrderAttribute() {
@@ -98,11 +94,15 @@ public class OperationFilter {
         return orderDirection;
     }
 
+    public Integer getMaxResults() {
+        return maxResults;
+    }
+
     public static class Builder {
 
-        private Date startTimeUpperBound;
-        private Date endTimeUpperBound;
-        private Date endTimeLowerBound;
+        private Date startedBefore;
+        private Date endedBefore;
+        private Date endedAfter;
         private String spaceId;
         private String mtaId;
         private String user;
@@ -116,18 +116,18 @@ public class OperationFilter {
         private OrderDirection orderDirection = OrderDirection.ASCENDING;
         private Integer maxResults;
 
-        public Builder startedBefore(Date startTimeUpperBound) {
-            this.startTimeUpperBound = startTimeUpperBound;
+        public Builder startedBefore(Date startedBefore) {
+            this.startedBefore = startedBefore;
             return this;
         }
 
-        public Builder endedBefore(Date endTimeUpperBound) {
-            this.endTimeUpperBound = endTimeUpperBound;
+        public Builder endedBefore(Date endedBefore) {
+            this.endedBefore = endedBefore;
             return this;
         }
 
-        public Builder endedAfter(Date endTimeLowerBound) {
-            this.endTimeLowerBound = endTimeLowerBound;
+        public Builder endedAfter(Date endedAfter) {
+            this.endedAfter = endedAfter;
             return this;
         }
 
