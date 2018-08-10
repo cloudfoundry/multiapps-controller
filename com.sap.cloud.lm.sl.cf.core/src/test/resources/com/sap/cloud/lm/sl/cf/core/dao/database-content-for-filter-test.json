@@ -7,7 +7,6 @@
     "mtaId": "anatz",
     "user": "nictas",
     "acquiredLock": false,
-    "cleanedUp": false,
     "state": "FINISHED"
   },
   {
@@ -18,7 +17,6 @@
     "mtaId": "denip",
     "user": "nictas",
     "acquiredLock": false,
-    "cleanedUp": false,
     "state": "ABORTED"
   },
   {
@@ -29,7 +27,6 @@
     "mtaId": "denip",
     "user": "megaboy",
     "acquiredLock": false,
-    "cleanedUp": true,
     "state": "ABORTED"
   },
   {
@@ -40,7 +37,6 @@
     "mtaId": "anatz",
     "user": "megaboy",
     "acquiredLock": false,
-    "cleanedUp": true,
     "state": "FINISHED"
   },
   {
@@ -49,7 +45,6 @@
     "spaceId": "9818394d-38d6-47a6-b080-1ba013a4932c",
     "mtaId": "anatz",
     "user": "megaboy",
-    "acquiredLock": false,
-    "cleanedUp": false
+    "acquiredLock": false
   }
 ]

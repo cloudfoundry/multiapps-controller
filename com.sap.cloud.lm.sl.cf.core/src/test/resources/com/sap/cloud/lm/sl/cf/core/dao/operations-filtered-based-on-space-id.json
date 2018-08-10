@@ -7,7 +7,6 @@
     "mtaId": "anatz",
     "user": "nictas",
     "acquiredLock": false,
-    "cleanedUp": false,
     "state": "FINISHED",
     "messages": [],
     "parameters": {}
@@ -20,7 +19,6 @@
     "mtaId": "denip",
     "user": "megaboy",
     "acquiredLock": false,
-    "cleanedUp": true,
     "state": "ABORTED",
     "messages": [],
     "parameters": {}

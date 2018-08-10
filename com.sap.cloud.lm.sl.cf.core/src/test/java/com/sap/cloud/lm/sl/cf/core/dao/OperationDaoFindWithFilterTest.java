@@ -52,14 +52,6 @@ public class OperationDaoFindWithFilterTest extends AbstractOperationDaoParamete
             {
                 "database-content-for-filter-test.json", "filter-for-operations-in-non-final-state.json", "R:operations-in-non-final-state.json",
             },
-            // (8) Find operations in final state that are cleaned up
-            {
-                "database-content-for-filter-test.json", "filter-for-operations-in-final-state-and-cleaned-up.json", "R:operations-in-final-state-and-cleaned-up.json",
-            },
-            // (9) Find operations in final state that are not cleaned up 
-            {
-                "database-content-for-filter-test.json", "filter-for-operations-in-final-state-and-not-cleaned-up.json", "R:operations-in-final-state-and-not-cleaned-up.json",
-            },
 // @formatter:on
         });
     }

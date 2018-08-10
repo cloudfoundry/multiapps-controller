@@ -26,7 +26,6 @@ public class OperationDto {
         public static final String MTA_ID = "mtaId";
         public static final String USER = "user";
         public static final String ACQUIRED_LOCK = "acquiredLock";
-        public static final String CLEANED_UP = "cleanedUp";
         public static final String FINAL_STATE = "finalState";
 
     }
@@ -58,9 +57,6 @@ public class OperationDto {
     @Column(name = "acquired_lock")
     private boolean acquiredLock;
 
-    @Column(name = "cleaned_up")
-    private boolean cleanedUp;
-
     @Column(name = "final_state")
     private String finalState;
 
@@ -69,7 +65,7 @@ public class OperationDto {
     }
 
     public OperationDto(String processId, String processType, Date startedAt, Date endedAt, String spaceId, String mtaId, String user,
-        boolean acquiredLock, boolean cleanedUp, String finalState) {
+        boolean acquiredLock, String finalState) {
         this.processId = processId;
         this.processType = processType;
         this.startedAt = startedAt;
@@ -78,7 +74,6 @@ public class OperationDto {
         this.mtaId = mtaId;
         this.user = user;
         this.acquiredLock = acquiredLock;
-        this.cleanedUp = cleanedUp;
         this.finalState = finalState;
     }
 
@@ -112,10 +107,6 @@ public class OperationDto {
 
     public boolean hasAcquiredLock() {
         return acquiredLock;
-    }
-
-    public boolean isCleanedUp() {
-        return cleanedUp;
     }
 
     public String getFinalState() {

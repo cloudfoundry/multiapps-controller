@@ -19,8 +19,6 @@ public class OperationFilter {
     private boolean inFinalState;
     private boolean withoutAcquiredLock;
     private boolean withAcquiredLock;
-    private boolean isCleanedUp;
-    private boolean isNotCleanedUp;
     private List<State> states;
 
     private String orderAttribute;
@@ -38,8 +36,6 @@ public class OperationFilter {
         this.inFinalState = builder.inFinalState;
         this.withoutAcquiredLock = builder.withoutAcquiredLock;
         this.withAcquiredLock = builder.withAcquiredLock;
-        this.isCleanedUp = builder.isCleanedUp;
-        this.isNotCleanedUp = builder.isNotCleanedUp;
         this.orderAttribute = builder.orderAttribute;
         this.orderDirection = builder.orderDirection;
         this.maxResults = builder.maxResults;
@@ -86,14 +82,6 @@ public class OperationFilter {
         return withAcquiredLock;
     }
 
-    public boolean isCleanedUp() {
-        return isCleanedUp;
-    }
-
-    public boolean isNotCleanedUp() {
-        return isNotCleanedUp;
-    }
-
     public List<State> getStates() {
         return states;
     }
@@ -122,8 +110,6 @@ public class OperationFilter {
         private boolean inNonFinalState;
         private boolean withoutAcquiredLock;
         private boolean withAcquiredLock;
-        private boolean isCleanedUp;
-        private boolean isNotCleanedUp;
         private List<State> states;
 
         private String orderAttribute;
@@ -177,16 +163,6 @@ public class OperationFilter {
 
         public Builder withAcquiredLock() {
             this.withAcquiredLock = true;
-            return this;
-        }
-
-        public Builder isCleanedUp() {
-            this.isCleanedUp = true;
-            return this;
-        }
-
-        public Builder isNotCleanedUp() {
-            this.isNotCleanedUp = true;
             return this;
         }
 

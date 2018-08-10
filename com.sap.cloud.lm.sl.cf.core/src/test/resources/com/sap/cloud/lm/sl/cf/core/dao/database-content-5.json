@@ -5,7 +5,6 @@
     "processType": "DEPLOY",
     "mtaId": "1",
     "acquiredLock": false,
-    "cleanedUp": false,
     "startedAt": "2016-04-27T10:29:27.074Z[UTC]"
   },
   {
@@ -14,7 +13,6 @@
     "processType": "DEPLOY",
     "mtaId": "2",
     "acquiredLock": false,
-    "cleanedUp": false,
     "startedAt": "2016-04-27T10:30:27.074Z[UTC]"
   },
   {
@@ -23,7 +21,6 @@
     "processType": "DEPLOY",
     "mtaId": "3",
     "acquiredLock": false,
-    "cleanedUp": false,
     "startedAt": "2016-04-27T10:31:27.074Z[UTC]"
   },
   {
@@ -32,7 +29,6 @@
     "processType": "UNDEPLOY",
     "mtaId": "4",
     "acquiredLock": false,
-    "cleanedUp": false,
     "startedAt": "2016-04-27T10:32:27.074Z[UTC]"
   },
   {
@@ -41,7 +37,6 @@
     "processType": "BLUE_GREEN_DEPLOY",
     "mtaId": "5",
     "acquiredLock": false,
-    "cleanedUp": false,
     "startedAt": "2016-04-27T10:33:27.074Z[UTC]"
   },
   {
@@ -50,7 +45,6 @@
     "processType": "DEPLOY",
     "mtaId": "6",
     "acquiredLock": false,
-    "cleanedUp": false,
     "startedAt": "2016-04-27T10:34:27.074Z[UTC]"
   }
 ]

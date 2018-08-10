@@ -133,8 +133,7 @@ public class StartProcessListenerTest {
             .spaceId(SPACE_ID)
             .startedAt(START_TIME)
             .user(user)
-            .acquiredLock(false)
-            .cleanedUp(false);
+            .acquiredLock(false);
         Mockito.verify(dao)
             .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
     }

@@ -139,12 +139,6 @@ public class OperationDtoDao {
         if (operationFilter.hasAcquiredLock()) {
             predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.ACQUIRED_LOCK), true));
         }
-        if (operationFilter.isCleanedUp()) {
-            predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.CLEANED_UP), true));
-        }
-        if (operationFilter.isNotCleanedUp()) {
-            predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.CLEANED_UP), false));
-        }
         if (operationFilter.getStates() != null) {
             predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
                 .in(toStrings(operationFilter.getStates())));
