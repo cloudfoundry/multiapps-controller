@@ -23,6 +23,7 @@ public class OperationFilter {
 
     private String orderAttribute;
     private OrderDirection orderDirection;
+    private Integer firstElement;
     private Integer maxResults;
 
     protected OperationFilter(Builder builder) {
@@ -38,6 +39,7 @@ public class OperationFilter {
         this.withAcquiredLock = builder.withAcquiredLock;
         this.orderAttribute = builder.orderAttribute;
         this.orderDirection = builder.orderDirection;
+        this.firstElement = builder.firstElement;
         this.maxResults = builder.maxResults;
         this.states = builder.states;
     }
@@ -94,6 +96,10 @@ public class OperationFilter {
         return orderDirection;
     }
 
+    public Integer getFirstElement() {
+        return firstElement;
+    }
+
     public Integer getMaxResults() {
         return maxResults;
     }
@@ -114,6 +120,7 @@ public class OperationFilter {
 
         private String orderAttribute;
         private OrderDirection orderDirection = OrderDirection.ASCENDING;
+        private Integer firstElement;
         private Integer maxResults;
 
         public Builder startedBefore(Date startedBefore) {
@@ -188,6 +195,11 @@ public class OperationFilter {
 
         public Builder orderByEndTime() {
             this.orderAttribute = OperationDto.AttributeNames.ENDED_AT;
+            return this;
+        }
+
+        public Builder firstElement(Integer firstElement) {
+            this.firstElement = firstElement;
             return this;
         }
 
