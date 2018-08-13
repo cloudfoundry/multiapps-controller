@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.persistence.message.Constants;
 import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
@@ -36,9 +38,27 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         try {
             this.stepLogger = createStepLogger(context);
             notifyInternal(context);
+        } catch (Exception e) {
+            logException(context, e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
+            throw new SLException(e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
         } finally {
             finalizeLogs(context);
         }
+    }
+
+    protected void logException(DelegateExecution context, Exception e, String message) {
+        LOGGER.error(message, e);
+        getProcessLogger(context).error(message, e);
+    }
+
+    protected org.apache.log4j.Logger getProcessLogger(DelegateExecution context) {
+        return getProcessLoggerProviderFactory().getDefaultLoggerProvider()
+            .getLogger(getCorrelationId(context), this.getClass()
+                .getName());
+    }
+
+    private String getCorrelationId(DelegateExecution context) {
+        return (String) context.getVariable(Constants.CORRELATION_ID);
     }
 
     protected void finalizeLogs(DelegateExecution context) {
@@ -49,7 +69,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
         try {
             writeLogs(context);
         } catch (IOException | FileStorageException e) {
-            logException(e);
+            LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, e.getMessage()), e);
         }
     }
 
@@ -59,10 +79,6 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
 
     protected static String getLogDir() {
         return ProcessLoggerProviderFactory.LOG_DIR;
-    }
-
-    private static void logException(Exception e) {
-        LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, e.getMessage()), e);
     }
 
     protected StepLogger getStepLogger() {
