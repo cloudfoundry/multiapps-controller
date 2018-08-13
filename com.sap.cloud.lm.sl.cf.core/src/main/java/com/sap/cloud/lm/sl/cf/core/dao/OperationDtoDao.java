@@ -110,6 +110,9 @@ public class OperationDtoDao {
         if (operationFilter.getMaxResults() != null) {
             typedQuery.setMaxResults(operationFilter.getMaxResults());
         }
+        if (operationFilter.getFirstElement() != null) {
+            typedQuery.setFirstResult(operationFilter.getFirstElement());
+        }
         return typedQuery;
     }
 
@@ -144,16 +147,13 @@ public class OperationDtoDao {
                 .in(toStrings(operationFilter.getStates())));
         }
         if (operationFilter.getStartedBefore() != null) {
-            predicates
-                .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.STARTED_AT), operationFilter.getStartedBefore()));
+            predicates.add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.STARTED_AT), operationFilter.getStartedBefore()));
         }
         if (operationFilter.getEndedBefore() != null) {
-            predicates
-                .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndedBefore()));
+            predicates.add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndedBefore()));
         }
         if (operationFilter.getEndedAfter() != null) {
-            predicates
-                .add(criteriaBuilder.greaterThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndedAfter()));
+            predicates.add(criteriaBuilder.greaterThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndedAfter()));
         }
 
         return predicates.toArray(new Predicate[0]);

@@ -6,14 +6,17 @@ import static org.junit.Assume.assumeTrue;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.util.Callable;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Runnable;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -27,15 +30,24 @@ public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
     private static final int LAST_OPERATIONS_COUNT = 3;
     private static final String SPACE_ID = "1234";
 
+    private String databaseContentResource;
     private DaoOperation operation;
     private String processId;
     private String expected;
 
-    public OperationDaoTest(DaoOperation operation, String processId, String databaseContent, String expected) {
-        super(databaseContent);
+    public OperationDaoTest(DaoOperation operation, String processId, String databaseContentResource, String expected) {
+        this.databaseContentResource = databaseContentResource;
         this.operation = operation;
         this.processId = processId;
         this.expected = expected;
+    }
+
+    @Before
+    public void loadDatabaseContent() throws Exception {
+        String databaseContentJson = TestUtil.getResourceAsString(databaseContentResource, getClass());
+        List<Operation> databaseContent = JsonUtil.convertJsonToList(databaseContentJson, new TypeToken<List<Operation>>() {
+        }.getType());
+        addOperations(databaseContent);
     }
 
     @Parameters
