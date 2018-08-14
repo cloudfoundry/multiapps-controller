@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,7 +33,6 @@ import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.NamedQueries;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component
 public class ConfigurationEntryDtoDao {
@@ -186,14 +186,14 @@ public class ConfigurationEntryDtoDao {
 
     private ConfigurationEntryDto merge(ConfigurationEntryDto existingEntry, ConfigurationEntryDto entry) {
         long id = existingEntry.getId();
-        String providerNid = CommonUtil.merge(existingEntry.getProviderNid(), removeDefault(entry.getProviderNid()), null);
-        String providerId = CommonUtil.merge(existingEntry.getProviderId(), entry.getProviderId(), null);
-        String targetOrg = CommonUtil.merge(existingEntry.getTargetOrg(), entry.getTargetOrg(), null);
-        String targetSpace = CommonUtil.merge(existingEntry.getTargetSpace(), entry.getTargetSpace(), null);
-        String providerVersion = CommonUtil.merge(existingEntry.getProviderVersion(), removeDefault(entry.getProviderVersion()), null);
-        String content = CommonUtil.merge(existingEntry.getContent(), entry.getContent(), null);
-        String visibility = CommonUtil.merge(existingEntry.getVisibility(), entry.getVisibility(), null);
-        String spaceId = CommonUtil.merge(existingEntry.getSpaceId(), entry.getSpaceId(), null);
+        String providerNid = ObjectUtils.firstNonNull(removeDefault(entry.getProviderNid()), existingEntry.getProviderNid());
+        String providerId = ObjectUtils.firstNonNull(entry.getProviderId(), existingEntry.getProviderId());
+        String targetOrg = ObjectUtils.firstNonNull(entry.getTargetOrg(), existingEntry.getTargetOrg());
+        String targetSpace = ObjectUtils.firstNonNull(entry.getTargetSpace(), existingEntry.getTargetSpace());
+        String providerVersion = ObjectUtils.firstNonNull(removeDefault(entry.getProviderVersion()), existingEntry.getProviderVersion());
+        String content = ObjectUtils.firstNonNull(entry.getContent(), existingEntry.getContent());
+        String visibility = ObjectUtils.firstNonNull(entry.getVisibility(), existingEntry.getVisibility());
+        String spaceId = ObjectUtils.firstNonNull(entry.getSpaceId(), existingEntry.getSpaceId());
         return new ConfigurationEntryDto(id, providerNid, providerId, providerVersion, targetOrg, targetSpace, content, visibility,
             spaceId);
     }

@@ -27,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.services.TypedServiceOperationState;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class PollServiceOperationsExecution implements AsyncExecution {
@@ -249,8 +248,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
         int doneOperations = triggeredServiceOperations.size() - nonFinalStates.size();
         if (!nonFinalStateStrings.isEmpty()) {
             execution.getStepLogger()
-                .info("{0} of {1} done, ({2})", doneOperations, triggeredServiceOperations.size(),
-                    CommonUtil.toCommaDelimitedString(nonFinalStateStrings, ""));
+                .info("{0} of {1} done, ({2})", doneOperations, triggeredServiceOperations.size(), String.join(",", nonFinalStateStrings));
         } else {
             execution.getStepLogger()
                 .info("{0} of {0} done", triggeredServiceOperations.size());

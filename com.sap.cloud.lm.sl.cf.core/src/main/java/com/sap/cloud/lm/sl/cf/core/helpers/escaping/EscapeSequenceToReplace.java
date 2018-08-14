@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.helpers.escaping;
 
 import java.util.regex.Matcher;
 
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import org.apache.commons.lang3.StringUtils;
 
 public class EscapeSequenceToReplace {
 
@@ -29,7 +29,7 @@ public class EscapeSequenceToReplace {
 
     public String getMatchReplacement(Matcher matcher) {
         String escapeCharacters = matcher.group("escapeCharacters");
-        String replacement = CommonUtil.repeat(escapeCharacter.getReplacement(), getEscapedEscapeCharactersCount(escapeCharacters));
+        String replacement = StringUtils.repeat(escapeCharacter.getReplacement(), getEscapedEscapeCharactersCount(escapeCharacters));
         // If there is an unescaped escape character then the character following it is escaped and
         // should be replaced with its proper value. Otherwise it should be left untouched:
         if (hasUnescapedEscapeCharacter(escapeCharacters)) {
