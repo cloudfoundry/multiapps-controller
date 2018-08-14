@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import org.apache.commons.lang3.ObjectUtils;
 
 public class OperationMetadata {
 
@@ -32,8 +32,8 @@ public class OperationMetadata {
             OperationMetadata metadata = new OperationMetadata();
             metadata.parameters = parameters;
             metadata.activitiDiagramId = activitiDiagramId;
-            metadata.previousActivitiDiagramIds = CommonUtil.getOrDefault(previousActivitiDiagramIds, Collections.<String> emptyList());
-            metadata.versions = CommonUtil.getOrDefault(versions, Collections.<String> emptyList());
+            metadata.previousActivitiDiagramIds = ObjectUtils.defaultIfNull(previousActivitiDiagramIds, Collections.<String> emptyList());
+            metadata.versions = ObjectUtils.defaultIfNull(versions, Collections.<String> emptyList());
             return metadata;
         }
 

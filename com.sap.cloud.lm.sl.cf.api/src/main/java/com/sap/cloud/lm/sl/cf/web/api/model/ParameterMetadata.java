@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.web.api.model;
 
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import org.apache.commons.lang3.ObjectUtils;
 
 public class ParameterMetadata {
 
@@ -56,9 +56,9 @@ public class ParameterMetadata {
         public ParameterMetadata build() {
             ParameterMetadata result = new ParameterMetadata();
             result.setId(id);
-            result.setRequired(CommonUtil.getOrDefault(required, false));
+            result.setRequired(ObjectUtils.defaultIfNull(required, false));
             result.setDefaultValue(defaultValue);
-            result.setType(CommonUtil.getOrDefault(type, ParameterType.STRING));
+            result.setType(ObjectUtils.defaultIfNull(type, ParameterType.STRING));
             return result;
         }
 

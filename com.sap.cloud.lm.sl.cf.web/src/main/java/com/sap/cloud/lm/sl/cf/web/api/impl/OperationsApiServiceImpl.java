@@ -275,7 +275,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         List<String> parameterIds = missingRequiredParameters.stream()
             .map(parameter -> parameter.getId())
             .collect(Collectors.toList());
-        return CommonUtil.toCommaDelimitedString(parameterIds, "");
+        return String.join(",", parameterIds);
     }
 
     private Set<ParameterMetadata> getRequiredParameters(Set<ParameterMetadata> parameters) {
