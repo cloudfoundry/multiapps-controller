@@ -511,6 +511,10 @@ public class MockCloudFoundryClient implements CloudControllerClient {
     @Override
     public void createServiceBroker(CloudServiceBroker serviceBroker) {
     }
+    
+    @Override
+    public void createServiceKey(String serviceName, String serviceKeyName, Map<String, Object> parameters) {
+    }
 
     @Override
     public void updateServiceBroker(CloudServiceBroker serviceBroker) {
@@ -520,6 +524,10 @@ public class MockCloudFoundryClient implements CloudControllerClient {
     public void deleteServiceBroker(String name) {
     }
 
+    @Override
+    public void deleteServiceKey(String service, String serviceKey) {
+    }
+    
     @Override
     public void updateServicePlanVisibilityForBroker(String name, boolean visibility) {
     }

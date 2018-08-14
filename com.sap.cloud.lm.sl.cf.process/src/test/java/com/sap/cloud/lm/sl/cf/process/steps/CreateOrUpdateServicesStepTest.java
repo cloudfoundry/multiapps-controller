@@ -185,8 +185,9 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
         Mockito.doNothing()
             .when(client)
             .deleteServiceKey(Mockito.any(), Mockito.any());
-        Mockito.when(client.createServiceKey(Mockito.any(), Mockito.any(), Mockito.any()))
-            .thenReturn(null);
+        Mockito.doNothing()
+            .when(client)
+            .createServiceKey(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     private Map<CloudServiceExtended, CloudServiceInstance> createServiceInstances(StepInput stepInput) throws Exception {
@@ -309,7 +310,7 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
             for (String keyName : stepInput.expectedCreatedServiceKeys.get(serviceName)) {
                 ServiceKey keyToCreate = findKey(serviceKeysToCreate, serviceName, keyName);
                 Mockito.verify(client)
-                    .createServiceKey(serviceName, keyToCreate.getName(), JsonUtil.toJson(keyToCreate.getParameters()));
+                    .createServiceKey(serviceName, keyToCreate.getName(), keyToCreate.getParameters());
             }
         }
     }
