@@ -25,9 +25,9 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
-import com.sap.cloud.lm.sl.persistence.message.Constants;
 
 public class ActivitiFacade {
 

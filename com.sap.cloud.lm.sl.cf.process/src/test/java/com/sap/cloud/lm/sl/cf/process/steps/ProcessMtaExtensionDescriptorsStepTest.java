@@ -18,7 +18,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 
 @RunWith(Parameterized.class)
 public class ProcessMtaExtensionDescriptorsStepTest extends SyncActivitiStepTest<ProcessMtaExtensionDescriptorsStep> {
@@ -59,7 +59,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncActivitiStepTest
             fileIds.add(Integer.toString(i));
         }
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIds));
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
     }
 
     private void prepareFileService() throws Exception {

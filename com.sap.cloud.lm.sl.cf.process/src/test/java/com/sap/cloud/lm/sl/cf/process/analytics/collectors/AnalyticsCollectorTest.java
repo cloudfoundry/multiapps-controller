@@ -27,6 +27,8 @@ import org.mockito.Spy;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.collectors.AnalyticsCollector;
 import com.sap.cloud.lm.sl.cf.process.analytics.collectors.DeployProcessAttributesCollector;
@@ -36,8 +38,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 
 public class AnalyticsCollectorTest {
     protected static final String PROCESS_ID = "process-instance-id";

@@ -11,8 +11,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.quartz.JobExecutionException;
 
-import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 
 public class FilesCleanerTest {
 

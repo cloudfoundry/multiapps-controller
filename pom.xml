@@ -74,6 +74,7 @@
         <module>com.sap.cloud.lm.sl.cf.process</module>
         <module>com.sap.cloud.lm.sl.cf.web</module>
         <module>com.sap.cloud.lm.sl.cf.api</module>
+        <module>com.sap.cloud.lm.sl.cf.persistence</module>
     </modules>
 
     <organization>
@@ -897,9 +898,9 @@
                 <version>${com.sap.cloud.lm.sl.open.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>com.sap.cloud.lm.sl.persistence</artifactId>
-                <version>${com.sap.cloud.lm.sl.open.version}</version>
+                <groupId>com.sap.cloud.lm.sl.cf</groupId>
+                <artifactId>com.sap.cloud.lm.sl.cf.persistence</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl.cf</groupId>

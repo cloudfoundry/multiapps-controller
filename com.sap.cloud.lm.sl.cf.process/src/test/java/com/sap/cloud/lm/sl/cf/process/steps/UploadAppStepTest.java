@@ -34,6 +34,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
@@ -41,7 +42,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveExtractor;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 
 @RunWith(Enclosed.class)
 public class UploadAppStepTest {
@@ -147,7 +147,7 @@ public class UploadAppStepTest {
             StepsUtil.setApp(context, app);
             context.setVariable(Constants.VAR_APPS_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
-            context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
+            context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             StepsUtil.setModuleFileName(context, APP_NAME, APP_FILE);
             StepsUtil.setAppPropertiesChanged(context, false);
         }

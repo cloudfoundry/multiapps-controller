@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.persistence.changes.liquibase.AbstractDataTransformationChange;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.persistence.changes.liquibase.AbstractDataTransformationChange;
 
 public class AlterOperationTableTimestampStoringColumnsPostgresqlChange extends
     AbstractDataTransformationChange<List<AlterOperationTableTimestampStoringColumnsPostgresqlChange.OriginalOperation>, List<AlterOperationTableTimestampStoringColumnsPostgresqlChange.TransformedOperation>> {

@@ -6,9 +6,9 @@ import org.activiti.engine.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 public class FileSweeper {
 

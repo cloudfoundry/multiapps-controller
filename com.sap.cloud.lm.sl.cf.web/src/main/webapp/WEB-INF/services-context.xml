@@ -5,7 +5,7 @@
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
 
-    <bean id="databaseFileService" class="com.sap.cloud.lm.sl.persistence.services.DatabaseFileService">
+    <bean id="databaseFileService" class="com.sap.cloud.lm.sl.cf.persistence.services.DatabaseFileService">
         <constructor-arg name="dataSourceWithDialect" ref="dataSourceWithDialect" />
     </bean>
 
@@ -20,14 +20,14 @@
     </bean>
 
     <bean id="processLogsPersistenceService"
-        class="com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService">
+        class="com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService">
         <constructor-arg name="dataSourceWithDialect" ref="dataSourceWithDialect" />
     </bean>
 
     <bean id="processLoggerProviderFactory"
-        class="com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory" factory-method="getInstance" />
+        class="com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory" factory-method="getInstance" />
 
-    <bean id="progressMessageService" class="com.sap.cloud.lm.sl.persistence.services.ProgressMessageService">
+    <bean id="progressMessageService" class="com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService">
         <constructor-arg name="dataSourceWithDialect" ref="dataSourceWithDialect" />
     </bean>
 

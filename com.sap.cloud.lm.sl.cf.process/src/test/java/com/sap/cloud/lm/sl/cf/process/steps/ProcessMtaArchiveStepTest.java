@@ -26,12 +26,12 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
 
 @RunWith(Parameterized.class)
 public class ProcessMtaArchiveStepTest extends SyncActivitiStepTest<ProcessMtaArchiveStep> {
@@ -63,7 +63,7 @@ public class ProcessMtaArchiveStepTest extends SyncActivitiStepTest<ProcessMtaAr
 
     private void prepareContext() {
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_APP_ARCHIVE_ID, FILE_ID);
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         step.conflictPreventerSupplier = (dao) -> mock(ProcessConflictPreventer.class);
     }
 

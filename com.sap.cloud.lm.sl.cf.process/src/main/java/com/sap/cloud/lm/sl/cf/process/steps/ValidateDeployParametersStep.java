@@ -18,15 +18,15 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
-import com.sap.cloud.lm.sl.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.util.Configuration;
 
 @Component("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

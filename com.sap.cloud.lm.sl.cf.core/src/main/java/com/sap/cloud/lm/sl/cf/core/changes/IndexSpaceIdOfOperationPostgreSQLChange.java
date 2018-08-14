@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.changes;
 
-import com.sap.cloud.lm.sl.persistence.changes.AbstractIndexSQLChange;
+import com.sap.cloud.lm.sl.cf.persistence.changes.AbstractIndexSQLChange;
 
 public class IndexSpaceIdOfOperationPostgreSQLChange extends AbstractIndexSQLChange {
 

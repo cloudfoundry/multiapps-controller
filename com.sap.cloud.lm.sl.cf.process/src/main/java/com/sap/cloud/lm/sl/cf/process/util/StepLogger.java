@@ -8,13 +8,13 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 /**
  * The purpose of this class is to group logging of progress messages and process logs in a single place.

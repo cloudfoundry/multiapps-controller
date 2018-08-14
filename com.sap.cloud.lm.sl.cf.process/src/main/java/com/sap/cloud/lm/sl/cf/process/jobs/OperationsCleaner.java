@@ -17,9 +17,9 @@ import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 @Component
 @Order(20)

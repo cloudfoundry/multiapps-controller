@@ -166,7 +166,7 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
 
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICES, true);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICE_KEYS, true);
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         context.setVariable("servicesToCreateCount", 0);
     }
 
