@@ -42,10 +42,6 @@ public interface XsCloudControllerClient extends CloudControllerClientSupporting
      */
     int reservePort(String domain);
 
-    ServiceKey createServiceKey(String serviceName, String serviceKey, String parameters);
-
-    void deleteServiceKey(String serviceName, String serviceKey);
-
     List<CloudServiceOfferingExtended> getExtendedServiceOfferings();
 
     void addRoute(String host, String domainName, String path);

@@ -135,13 +135,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private void createOrUpdateServiceKeys(List<ServiceKey> serviceKeys, CloudServiceExtended service, CloudControllerClient client,
-        ExecutionWrapper execution) {
-        // TODO: Do not use client extensions when the CF Java Client we use supports managing of
-        // service keys.
-        XsCloudControllerClient xsClient = execution.getXsControllerClient();
-        if (xsClient == null) {
-            return;
-        }
+        ExecutionWrapper execution) throws SLException {
         // User provided services cannot have service keys.
         if (service.isUserProvided()) {
             return;
@@ -158,18 +152,18 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         List<ServiceKey> serviceKeysToDelete = getServiceKeysToDelete(serviceKeys, existingServiceKeys);
 
         if (canDeleteServiceKeys(execution.getContext())) {
-            deleteServiceKeys(xsClient, serviceKeysToDelete);
+            deleteServiceKeys(client, serviceKeysToDelete);
             // Recreate the service keys, which should be updated, as direct update is not supported
             // by the controller:
-            deleteServiceKeys(xsClient, serviceKeysToUpdate);
-            createServiceKeys(xsClient, serviceKeysToUpdate);
+            deleteServiceKeys(client, serviceKeysToUpdate);
+            createServiceKeys(client, serviceKeysToUpdate);
         } else {
             serviceKeysToDelete.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getService()
                 .getName()));
             serviceKeysToUpdate.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(), key.getService()
                 .getName()));
         }
-        createServiceKeys(xsClient, serviceKeysToCreate);
+        createServiceKeys(client, serviceKeysToCreate);
     }
 
     private boolean canDeleteServiceKeys(DelegateExecution context) {
@@ -219,24 +213,25 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return Objects.equals(key1.getParameters(), key2.getParameters()) && Objects.equals(key1.getName(), key2.getName());
     }
 
-    private void deleteServiceKeys(XsCloudControllerClient client, List<ServiceKey> serviceKeys) {
+    private void deleteServiceKeys(CloudControllerClient client, List<ServiceKey> serviceKeys) {
         serviceKeys.stream()
             .forEach(key -> deleteServiceKey(client, key));
     }
 
-    private void createServiceKeys(XsCloudControllerClient client, List<ServiceKey> serviceKeys) {
+    private void createServiceKeys(CloudControllerClient client, List<ServiceKey> serviceKeys) {
         serviceKeys.stream()
             .forEach(key -> createServiceKey(client, key));
     }
 
-    private void createServiceKey(XsCloudControllerClient client, ServiceKey key) {
+    private void createServiceKey(CloudControllerClient client, ServiceKey key) {
         getStepLogger().info(Messages.CREATING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
             .getName());
         client.createServiceKey(key.getService()
-            .getName(), key.getName(), JsonUtil.toJson(key.getParameters()));
+            .getName(), key.getName(), key.getParameters());
+        getStepLogger().info(Messages.CREATED_SERVICE_KEY, key.getName());
     }
 
-    private void deleteServiceKey(XsCloudControllerClient client, ServiceKey key) {
+    private void deleteServiceKey(CloudControllerClient client, ServiceKey key) {
         getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
             .getName());
         client.deleteServiceKey(key.getService()
