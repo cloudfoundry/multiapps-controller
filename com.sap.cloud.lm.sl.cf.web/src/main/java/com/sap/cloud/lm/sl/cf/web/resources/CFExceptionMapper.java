@@ -9,13 +9,12 @@ import javax.ws.rs.ext.ExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.persistence.security.VirusScannerException;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
-
-import virusscanner.VirusScannerException;
 
 public class CFExceptionMapper implements ExceptionMapper<Throwable> {
 

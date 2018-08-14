@@ -10,11 +10,11 @@ import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudException;
 import org.springframework.cloud.CloudFactory;
 
+import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileService;
 import com.sap.cloud.lm.sl.cf.web.configuration.service.FileSystemServiceInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
-import com.sap.cloud.lm.sl.persistence.DataSourceWithDialect;
-import com.sap.cloud.lm.sl.persistence.services.FileSystemFileService;
 
 public class FileSystemFileServiceFactoryBean implements FactoryBean<FileSystemFileService>, InitializingBean {
 

@@ -11,15 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 public class ProcessStepHelper {
 

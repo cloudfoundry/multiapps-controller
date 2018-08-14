@@ -29,13 +29,13 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveExtractor;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("uploadAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

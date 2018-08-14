@@ -4,7 +4,7 @@ import javax.inject.Inject;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
 
 public class BeanProvider {
 

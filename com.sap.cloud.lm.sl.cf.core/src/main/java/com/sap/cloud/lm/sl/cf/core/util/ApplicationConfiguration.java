@@ -28,6 +28,8 @@ import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
+import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -36,8 +38,6 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.persistence.util.Configuration;
-import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
 @Component
 public class ApplicationConfiguration {

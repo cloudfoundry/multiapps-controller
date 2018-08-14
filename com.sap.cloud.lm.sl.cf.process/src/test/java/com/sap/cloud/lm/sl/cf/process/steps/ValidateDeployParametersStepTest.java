@@ -21,12 +21,12 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.files.FilePartsMerger;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
-import com.sap.cloud.lm.sl.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
 @RunWith(Parameterized.class)
 public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<ValidateDeployParametersStep> {
@@ -112,8 +112,8 @@ public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<Valid
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, stepInput.extDescriptorId);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_START_TIMEOUT, stepInput.startTimeout);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_VERSION_RULE, stepInput.versionRule);
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, "space-id");
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, "service-id");
     }
 
     private void prepareExpectedException() {

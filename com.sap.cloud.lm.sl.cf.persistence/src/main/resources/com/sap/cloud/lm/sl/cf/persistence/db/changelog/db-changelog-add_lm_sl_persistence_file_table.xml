@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    logicalFilePath="com/sap/cloud/lm/sl/persistence/db/changelog/db-changelog-add_lm_sl_persistence_file_table.xml"
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+    <changeSet author="i031908" id="add_lm_sl_persistence_file_table">
+
+        <createTable tableName="lm_sl_persistence_file">
+            <column name="file_id" type="CHAR(36)">
+                <constraints primaryKey="true" primaryKeyName="file_id_pk" nullable="false" />
+            </column>
+            <column name="content" type="BLOB">
+                <constraints nullable="false" />
+            </column>
+            <column name="digest" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="digest_algorithm" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="modified" type="TIMESTAMP" />
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="namespace" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="file_size" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -7,9 +7,9 @@ import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.util.ActivitiExceptionEventHandler;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 @Component("errorProcessListener")
 public class ErrorProcessListener implements ActivitiEventListener {

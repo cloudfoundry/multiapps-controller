@@ -31,6 +31,11 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
 import com.sap.cloud.lm.sl.cf.web.api.OperationsApiService;
@@ -46,11 +51,6 @@ import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 @RequestScoped
 public class OperationsApiServiceImpl implements OperationsApiService {

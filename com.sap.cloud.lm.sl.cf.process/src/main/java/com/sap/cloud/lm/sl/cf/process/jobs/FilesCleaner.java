@@ -11,9 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component
 @Order(40)

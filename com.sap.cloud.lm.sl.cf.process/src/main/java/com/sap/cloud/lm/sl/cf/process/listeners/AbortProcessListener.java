@@ -25,6 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.adapters.ActivitiEventToDelegateExecutionAdapter;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
@@ -39,7 +40,6 @@ import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Runnable;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("abortProcessListener")
 public class AbortProcessListener implements ActivitiEventListener, Serializable {
@@ -159,7 +159,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
             Constants.PARAM_APP_ARCHIVE_ID);
 
         String spaceId = (String) getHistoricVarInstanceValue(historyService, processInstanceId,
-            com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
+            com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
         FileSweeper fileSweeper = new FileSweeper(spaceId, getBeanProvider().getFileService());
         fileSweeper.sweep(extensionDescriptorFileIds);
