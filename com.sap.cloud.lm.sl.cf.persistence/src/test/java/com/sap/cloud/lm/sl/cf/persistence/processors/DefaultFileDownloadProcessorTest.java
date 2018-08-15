@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.persistence.processors;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
@@ -24,7 +25,7 @@ public class DefaultFileDownloadProcessorTest {
         FileContentProcessor fileContentProcessor = new FileContentProcessor() {
 
             @Override
-            public void processFileContent(InputStream is) throws Exception {
+            public void processFileContent(InputStream is) throws IOException {
                 byte[] result = new byte[data.length];
                 is.read(result, 0, data.length);
                 assertEquals(new String(data), new String(result));

@@ -2,17 +2,12 @@ package com.sap.cloud.lm.sl.cf.persistence.processors;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 
 public class DefaultFileUploadProcessor implements FileUploadProcessor<FileOutputStream, FileOutputStream> {
 
     private boolean shouldScanFile = true; // default
-
-    public DefaultFileUploadProcessor(BigInteger maxUploadSize) {
-        this(true);
-    }
 
     public DefaultFileUploadProcessor(boolean shouldScanFile) {
         this.shouldScanFile = shouldScanFile;

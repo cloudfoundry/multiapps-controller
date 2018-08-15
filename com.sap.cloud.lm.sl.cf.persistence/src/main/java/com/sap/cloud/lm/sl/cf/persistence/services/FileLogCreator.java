@@ -4,6 +4,8 @@ import static java.text.MessageFormat.format;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Appender;
@@ -60,9 +62,12 @@ public class FileLogCreator implements Callable<Logger> {
     }
 
     private void recreateLogFile(File logFile) {
-        logFile.delete();
+        Path logFilePath = logFile.toPath();
         try {
-            logFile.createNewFile();
+            if(logFile.exists()) {
+                Files.delete(logFilePath);
+            }
+            Files.createFile(logFilePath);
         } catch (IOException e) {
             throw new SLException(e);
         }

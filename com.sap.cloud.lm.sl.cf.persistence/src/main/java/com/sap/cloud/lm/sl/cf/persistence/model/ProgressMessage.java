@@ -104,4 +104,75 @@ public class ProgressMessage implements Comparable<ProgressMessage> {
         return this.timestamp.compareTo(otherProgressMessage.getTimestamp());
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (id ^ (id >>> 32));
+        result = prime * result + ((processId == null) ? 0 : processId.hashCode());
+        result = prime * result + ((taskExecutionId == null) ? 0 : taskExecutionId.hashCode());
+        result = prime * result + ((taskId == null) ? 0 : taskId.hashCode());
+        result = prime * result + ((text == null) ? 0 : text.hashCode());
+        result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof ProgressMessage)) {
+            return false;
+        }
+        ProgressMessage other = (ProgressMessage) obj;
+        if (id != other.id) {
+            return false;
+        }
+        if (processId == null) {
+            if (other.processId != null) {
+                return false;
+            }
+        } else if (!processId.equals(other.processId)) {
+            return false;
+        }
+        if (taskExecutionId == null) {
+            if (other.taskExecutionId != null) {
+                return false;
+            }
+        } else if (!taskExecutionId.equals(other.taskExecutionId)) {
+            return false;
+        }
+        if (taskId == null) {
+            if (other.taskId != null) {
+                return false;
+            }
+        } else if (!taskId.equals(other.taskId)) {
+            return false;
+        }
+        if (text == null) {
+            if (other.text != null) {
+                return false;
+            }
+        } else if (!text.equals(other.text)) {
+            return false;
+        }
+        if (timestamp == null) {
+            if (other.timestamp != null) {
+                return false;
+            }
+        } else if (!timestamp.equals(other.timestamp)) {
+            return false;
+        }
+        if (type != other.type) {
+            return false;
+        }
+        return true;
+    }
+
+
 }
