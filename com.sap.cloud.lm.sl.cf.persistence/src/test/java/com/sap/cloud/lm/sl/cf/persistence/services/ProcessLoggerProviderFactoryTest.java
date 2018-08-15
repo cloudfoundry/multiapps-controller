@@ -108,12 +108,11 @@ public class ProcessLoggerProviderFactoryTest {
             .contains(name));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
+    @SuppressWarnings("unchecked")
     public void testFileLogStorageThreadInterruption() throws InterruptedException, ExecutionException, TimeoutException {
         ExecutorService executorMock = mock(ExecutorService.class);
         Future<Logger> futureTaskMock = mock(Future.class);
-        org.slf4j.Logger loggerMock = mock(org.slf4j.Logger.class);
 
         when(executorMock.submit((java.util.concurrent.Callable<Logger>) any())).thenReturn(futureTaskMock);
         doThrow(InterruptedException.class).when(futureTaskMock)

@@ -58,7 +58,7 @@ public class ProgressMessageService {
         this.sqlExecutor = new SqlExecutor(dataSourceWithDialect.getDataSource());
     }
 
-    public boolean add(final ProgressMessage message) throws SLException {
+    public boolean add(final ProgressMessage message) {
         try {
             return getSqlExecutor().execute(new StatementExecutor<Boolean>() {
                 @Override
@@ -87,7 +87,7 @@ public class ProgressMessageService {
         }
     }
 
-    public boolean update(final long existingId, final ProgressMessage newMessage) throws SLException {
+    public boolean update(final long existingId, final ProgressMessage newMessage) {
         try {
             return getSqlExecutor().execute(new StatementExecutor<Boolean>() {
                 @Override
@@ -111,7 +111,7 @@ public class ProgressMessageService {
         }
     }
 
-    public int removeByProcessId(final String processId) throws SLException {
+    public int removeByProcessId(final String processId) {
         try {
             return getSqlExecutor().execute(new StatementExecutor<Integer>() {
                 @Override
@@ -120,8 +120,7 @@ public class ProgressMessageService {
                     try {
                         statement = connection.prepareStatement(getQuery(DELETE_MESSAGES_BY_PROCESS_ID, tableName));
                         statement.setString(1, processId);
-                        int rowsRemoved = statement.executeUpdate();
-                        return rowsRemoved;
+                        return statement.executeUpdate();
                     } finally {
                         JdbcUtil.closeQuietly(statement);
                     }
@@ -132,7 +131,7 @@ public class ProgressMessageService {
         }
     }
 
-    public int removeAllByProcessIds(final List<String> processIds) throws SLException {
+    public int removeAllByProcessIds(final List<String> processIds) {
         try {
             return getSqlExecutor().executeInSingleTransaction(new StatementExecutor<Integer>() {
                 @Override
@@ -157,8 +156,7 @@ public class ProgressMessageService {
         }
     }
 
-    public int removeByProcessIdTaskIdAndTaskExecutionId(final String processId, final String taskId, final String taskExecutionId)
-        throws SLException {
+    public int removeByProcessIdTaskIdAndTaskExecutionId(final String processId, final String taskId, final String taskExecutionId) {
         try {
             return getSqlExecutor().execute(new StatementExecutor<Integer>() {
                 @Override
@@ -169,8 +167,7 @@ public class ProgressMessageService {
                         statement.setString(1, processId);
                         statement.setString(2, taskId);
                         statement.setString(3, taskExecutionId);
-                        int rowsRemoved = statement.executeUpdate();
-                        return rowsRemoved;
+                        return statement.executeUpdate();
                     } finally {
                         JdbcUtil.closeQuietly(statement);
                     }
@@ -182,7 +179,7 @@ public class ProgressMessageService {
         }
     }
 
-    public List<ProgressMessage> findAll() throws SLException {
+    public List<ProgressMessage> findAll() {
         try {
             return getSqlExecutor().execute(new StatementExecutor<List<ProgressMessage>>() {
                 @Override
@@ -208,7 +205,7 @@ public class ProgressMessageService {
         }
     }
 
-    public List<ProgressMessage> findByProcessId(final String processId) throws SLException {
+    public List<ProgressMessage> findByProcessId(final String processId) {
         try {
             return getSqlExecutor().execute(new StatementExecutor<List<ProgressMessage>>() {
                 @Override
@@ -236,7 +233,7 @@ public class ProgressMessageService {
     }
 
     public List<ProgressMessage> findByProcessIdTaskIdAndTaskExecutionId(final String processId, final String taskId,
-        final String taskExecutionId) throws SLException {
+        final String taskExecutionId) {
         try {
             return getSqlExecutor().execute(new StatementExecutor<List<ProgressMessage>>() {
                 @Override
@@ -267,7 +264,7 @@ public class ProgressMessageService {
         }
     }
 
-    public String findLastTaskExecutionId(final String processId, final String taskId) throws SLException {
+    public String findLastTaskExecutionId(final String processId, final String taskId) {
         try {
             return getSqlExecutor().execute(new StatementExecutor<String>() {
                 @Override
@@ -295,7 +292,7 @@ public class ProgressMessageService {
     }
 
     public List<ProgressMessage> findByProcessIdTaskIdTaskExecutionIdAndType(final String processId, final String taskId,
-        final String taskExecutionId, final ProgressMessageType type) throws SLException {
+        final String taskExecutionId, final ProgressMessageType type) {
         try {
             return getSqlExecutor().execute(new StatementExecutor<List<ProgressMessage>>() {
                 @Override
@@ -326,7 +323,7 @@ public class ProgressMessageService {
         }
     }
 
-    public List<ProgressMessage> findByProcessIdAndType(final String processInstanceId, final ProgressMessageType type) throws SLException {
+    public List<ProgressMessage> findByProcessIdAndType(final String processInstanceId, final ProgressMessageType type) {
         try {
             return getSqlExecutor().execute(new StatementExecutor<List<ProgressMessage>>() {
                 @Override

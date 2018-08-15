@@ -54,7 +54,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     protected void writeLogs(DelegateExecution context) throws IOException, FileStorageException {
-        getProcessLoggerProviderFactory().flushDefaultDir(context);
+        getProcessLoggerProviderFactory().flush(context);
     }
 
 

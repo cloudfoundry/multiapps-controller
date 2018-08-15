@@ -34,7 +34,7 @@ public class ProcessLoggerProviderFactory {
 
     // map between process id and logger
     // WARNING - not thread safe!
-    private final Map<String, Map<String, Logger>> LOGGERS = new HashMap<>();
+    private final Map<String, Map<String, Logger>> loggers = new HashMap<>();
     private final Map<String, ThreadLocalLogProvider> threadLocalProviderMap = new ConcurrentHashMap<>();
 
     @Inject
@@ -106,16 +106,10 @@ public class ProcessLoggerProviderFactory {
 
         @Override
         protected Logger initialValue() {
-            Map<String, Logger> nameMap = LOGGERS.get(processId);
-            if (nameMap == null) {
-                nameMap = new HashMap<String, Logger>();
-                LOGGERS.put(processId, nameMap);
-            }
+            Map<String, Logger> nameMap = loggers.computeIfAbsent(processId, pid -> new HashMap<>());
 
-            Logger logger = nameMap.get(name);
-            if (logger == null) {
-                logger = getLoggerInSeparateThread();
-            }
+            Logger logger = nameMap.computeIfAbsent(name, n -> getLoggerInSeparateThread());
+
             if (logger.getLevel() != null) {
                 nameMap.put(name, logger);
             }
@@ -139,8 +133,6 @@ public class ProcessLoggerProviderFactory {
             try {
                 return logStorageTask.get(30, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
-                Thread.currentThread()
-                    .interrupt();
                 LOGGER.warn("Get logger operation was interrupted", e);
             } catch (ExecutionException e) {
                 LOGGER.warn("Get logger operation failed", e);
@@ -162,14 +154,14 @@ public class ProcessLoggerProviderFactory {
         return (String) context.getVariable(Constants.VARIABLE_NAME_SPACE_ID);
     }
 
-    public void flushDefaultDir(DelegateExecution context) throws IOException, FileStorageException {
+    public void flush(DelegateExecution context) throws IOException, FileStorageException {
         this.flush(context, getDefaultLogDir());
     }
 
     public void flush(DelegateExecution context, String logDir) throws IOException, FileStorageException {
         String processId = getProcessId(context);
         String spaceId = getSpaceId(context);
-        Map<String, Logger> nameMap = LOGGERS.remove(processId);
+        Map<String, Logger> nameMap = loggers.remove(processId);
         if (nameMap != null) {
             LOGGER.debug(format(Messages.REMOVING_ALL_LOGGERS_FOR_PROCESS, processId, nameMap.keySet()));
             for (String name : nameMap.keySet()) {
@@ -181,13 +173,13 @@ public class ProcessLoggerProviderFactory {
         }
     }
 
-    public void appendToDefaultDir(DelegateExecution context) throws IOException, FileStorageException {
+    public void append(DelegateExecution context) throws IOException, FileStorageException {
         this.append(context, getDefaultLogDir());
     }
 
     public void append(DelegateExecution context, String logDir) throws IOException, FileStorageException {
         String processId = getProcessId(context);
-        Map<String, Logger> nameMap = LOGGERS.remove(processId);
+        Map<String, Logger> nameMap = loggers.remove(processId);
         if (nameMap == null) {
             return;
         }

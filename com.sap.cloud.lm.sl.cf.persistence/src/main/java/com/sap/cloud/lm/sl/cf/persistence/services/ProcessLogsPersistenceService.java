@@ -161,7 +161,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         processFileContent(new DefaultFileDownloadProcessor(space, fileId, fileProcessor));
     }
 
-    public int deleteByNamespace(final String namespace) throws SLException {
+    public int deleteByNamespace(final String namespace) {
         try {
             return getSqlExecutor().executeInSingleTransaction(new StatementExecutor<Integer>() {
                 @Override
@@ -170,8 +170,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
                     try {
                         statement = connection.prepareStatement(getQuery(DELETE_CONTENT_BY_NAMESPACE));
                         statement.setString(1, namespace);
-                        int rowsRemovedArray = statement.executeUpdate();
-                        return rowsRemovedArray;
+                        return statement.executeUpdate();
                     } finally {
                         JdbcUtil.closeQuietly(statement);
                     }
