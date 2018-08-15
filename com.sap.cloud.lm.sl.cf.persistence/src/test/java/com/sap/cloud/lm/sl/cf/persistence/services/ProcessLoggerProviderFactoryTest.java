@@ -1,15 +1,9 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -25,10 +19,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +31,11 @@ import org.mockito.MockitoAnnotations;
 import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory.ThreadLocalLogProvider;
 
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 public class ProcessLoggerProviderFactoryTest {
 
     private String logDir;
@@ -47,16 +44,19 @@ public class ProcessLoggerProviderFactoryTest {
     private ProcessLogsPersistenceService processLogsPersistenceServiceMock;
 
     @InjectMocks
-    private ProcessLoggerProviderFactory processLoggerProviderFactory = ProcessLoggerProviderFactory.getInstance();
+    private ProcessLoggerProviderFactory processLoggerProviderFactory = new ProcessLoggerProviderFactory() {
+        public String getDefaultLogDir() {
+            return logDir;
+        }
+    };
     private ThreadLocalLogProvider threadLocalProvider;
 
     @Before
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
-        threadLocalProvider = processLoggerProviderFactory.getLoggerProvider("test");
-        logDir = Files.createTempDirectory("testLogDir")
+        this.logDir = Files.createTempDirectory("testLogDir")
             .toString();
-        ProcessLoggerProviderFactory.LOG_DIR = logDir;
+        threadLocalProvider = processLoggerProviderFactory.getLoggerProvider("test");
     }
 
     @After
@@ -108,17 +108,6 @@ public class ProcessLoggerProviderFactoryTest {
             .contains(name));
     }
 
-    @Test
-    public void testGetLoggerWithCustomLoggingLevel() throws IOException {
-        String processId = "1";
-        String prefix = "-";
-        Level customLoggingLevel = Level.INFO;
-        PatternLayout customLayout = mock(PatternLayout.class);
-
-        Logger logger4 = threadLocalProvider.getLogger(processId, prefix, customLoggingLevel, customLayout, logDir);
-        assertEquals(logger4.getLevel(), customLoggingLevel);
-    }
-
     @SuppressWarnings("unchecked")
     @Test
     public void testFileLogStorageThreadInterruption() throws InterruptedException, ExecutionException, TimeoutException {
@@ -129,11 +118,7 @@ public class ProcessLoggerProviderFactoryTest {
         when(executorMock.submit((java.util.concurrent.Callable<Logger>) any())).thenReturn(futureTaskMock);
         doThrow(InterruptedException.class).when(futureTaskMock)
             .get(anyLong(), any(TimeUnit.class));
-
-        ProcessLoggerProviderFactory.LOGGER = loggerMock;
         threadLocalProvider.tryToGetLogger(executorMock);
-
-        verify(loggerMock).warn(anyString());
     }
 
     @SuppressWarnings("unchecked")
@@ -141,47 +126,36 @@ public class ProcessLoggerProviderFactoryTest {
     public void testFileLogStorageThreadTimeout() throws InterruptedException, ExecutionException, TimeoutException {
         ExecutorService executorMock = mock(ExecutorService.class);
         Future<Logger> futureTaskMock = mock(Future.class);
-        org.slf4j.Logger loggerMock = mock(org.slf4j.Logger.class);
-
         when(executorMock.submit((java.util.concurrent.Callable<Logger>) any())).thenReturn(futureTaskMock);
         doThrow(TimeoutException.class).when(futureTaskMock)
             .get(anyLong(), any(TimeUnit.class));
 
-        ProcessLoggerProviderFactory.LOGGER = loggerMock;
         threadLocalProvider.tryToGetLogger(executorMock);
-
-        verify(loggerMock).warn(anyString());
     }
 
     @Test
     public void testFlush() throws IOException, FileStorageException {
-        org.slf4j.Logger loggerMock = mock(org.slf4j.Logger.class);
         DelegateExecution contextMock = mock(DelegateExecution.class);
         String processId = "11";
 
-        ProcessLoggerProviderFactory.LOGGER = loggerMock;
         when(contextMock.getProcessInstanceId()).thenReturn(processId);
         when(contextMock.getVariable(Constants.VARIABLE_NAME_SPACE_ID)).thenReturn(null);
 
         threadLocalProvider.getLogger(processId, "-");
         processLoggerProviderFactory.flush(contextMock, processId);
-        verify(loggerMock, atLeastOnce()).debug(anyString());
         verify(processLogsPersistenceServiceMock).saveLog(anyString(), anyString(), anyString());
     }
 
     @Test
     public void testAppend() throws IOException, FileStorageException {
-        org.slf4j.Logger loggerMock = mock(org.slf4j.Logger.class);
         DelegateExecution contextMock = mock(DelegateExecution.class);
         String processId = "11";
 
-        ProcessLoggerProviderFactory.LOGGER = loggerMock;
         when(contextMock.getProcessInstanceId()).thenReturn(processId);
         when(contextMock.getVariable(Constants.VARIABLE_NAME_SPACE_ID)).thenReturn(null);
 
         threadLocalProvider.getLogger(processId, "-");
         processLoggerProviderFactory.append(contextMock, processId);
-        verify(loggerMock, atLeastOnce()).debug(anyString());
         verify(processLogsPersistenceServiceMock).appendLog(anyString(), anyString(), anyString());
     }
 }

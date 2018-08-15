@@ -5,6 +5,7 @@ import static java.text.MessageFormat.format;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -28,18 +29,18 @@ import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 
 public class ProcessLoggerProviderFactory {
 
-    static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ProcessLoggerProviderFactory.class);
-
-    public static String LOG_DIR = "logs";
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ProcessLoggerProviderFactory.class);
+    private static final String DEFAULT_LOG_DIR = "logs";
 
     // map between process id and logger
-    private final Map<String, Map<String, Logger>> LOGGERS = new HashMap<String, Map<String, Logger>>();
-    private final Map<String, ThreadLocalLogProvider> threadLocalProviderMap = new ConcurrentHashMap<String, ProcessLoggerProviderFactory.ThreadLocalLogProvider>();
-
-    private static ProcessLoggerProviderFactory instance;
+    // WARNING - not thread safe!
+    private final Map<String, Map<String, Logger>> LOGGERS = new HashMap<>();
+    private final Map<String, ThreadLocalLogProvider> threadLocalProviderMap = new ConcurrentHashMap<>();
 
     @Inject
     private ProcessLogsPersistenceService processLogsPersistenceService;
+
+    private static ProcessLoggerProviderFactory instance;
 
     public static ProcessLoggerProviderFactory getInstance() {
         if (instance == null) {
@@ -48,17 +49,20 @@ public class ProcessLoggerProviderFactory {
         return instance;
     }
 
+    protected ProcessLoggerProviderFactory() {
+        // singleton
+    }
+
+    public String getDefaultLogDir() {
+        return DEFAULT_LOG_DIR;
+    }
+
     public final ThreadLocalLogProvider getDefaultLoggerProvider() {
         return getLoggerProvider(DEFAULT_NAME);
     }
 
     public final ThreadLocalLogProvider getLoggerProvider(String name) {
-        ThreadLocalLogProvider result = threadLocalProviderMap.get(name);
-        if (result == null) {
-            result = new ThreadLocalLogProvider();
-            threadLocalProviderMap.put(name, result);
-        }
-        return result;
+        return threadLocalProviderMap.computeIfAbsent(name, key -> new ThreadLocalLogProvider());
     }
 
     public final void removeAll() {
@@ -84,38 +88,19 @@ public class ProcessLoggerProviderFactory {
         }
 
         public synchronized Logger getLogger(String processId, String prefix) {
-            this.processId = processId;
-            this.prefix = prefix;
-            this.name = DEFAULT_NAME;
-            this.logDir = LOG_DIR;
-            return get();
+            return getLogger(processId, prefix, DEFAULT_NAME);
         }
 
         public synchronized Logger getLogger(String processId, String prefix, String name) {
-            this.processId = processId;
-            this.prefix = prefix;
-            this.name = name;
-            this.logDir = LOG_DIR;
-            return get();
+            return getLogger(processId, prefix, name, null);
         }
 
         public synchronized Logger getLogger(String processId, String prefix, String name, PatternLayout customLayout) {
             this.processId = processId;
             this.prefix = prefix;
-            this.customLayout = customLayout;
             this.name = name;
-            this.logDir = LOG_DIR;
-            return get();
-        }
-
-        public synchronized Logger getLogger(String processId, String prefix, Level customLoggingLevel, PatternLayout customLayout,
-            String customLogDir) {
-            this.processId = processId;
-            this.prefix = prefix;
-            this.customLoggingLevel = customLoggingLevel;
+            this.logDir = ProcessLoggerProviderFactory.this.getDefaultLogDir();
             this.customLayout = customLayout;
-            this.name = DEFAULT_NAME;
-            this.logDir = customLogDir;
             return get();
         }
 
@@ -153,8 +138,12 @@ public class ProcessLoggerProviderFactory {
             Future<Logger> logStorageTask = executor.submit(logStorage);
             try {
                 return logStorageTask.get(30, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.warn("Get logger operation was interrupted");
+            } catch (InterruptedException e) {
+                Thread.currentThread()
+                    .interrupt();
+                LOGGER.warn("Get logger operation was interrupted", e);
+            } catch (ExecutionException e) {
+                LOGGER.warn("Get logger operation failed", e);
             } catch (TimeoutException e) {
                 LOGGER.warn("Get logger operation has timed out");
             }
@@ -173,6 +162,10 @@ public class ProcessLoggerProviderFactory {
         return (String) context.getVariable(Constants.VARIABLE_NAME_SPACE_ID);
     }
 
+    public void flushDefaultDir(DelegateExecution context) throws IOException, FileStorageException {
+        this.flush(context, getDefaultLogDir());
+    }
+
     public void flush(DelegateExecution context, String logDir) throws IOException, FileStorageException {
         String processId = getProcessId(context);
         String spaceId = getSpaceId(context);
@@ -188,18 +181,23 @@ public class ProcessLoggerProviderFactory {
         }
     }
 
+    public void appendToDefaultDir(DelegateExecution context) throws IOException, FileStorageException {
+        this.append(context, getDefaultLogDir());
+    }
+
     public void append(DelegateExecution context, String logDir) throws IOException, FileStorageException {
         String processId = getProcessId(context);
-        String spaceId = getSpaceId(context);
         Map<String, Logger> nameMap = LOGGERS.remove(processId);
-        if (nameMap != null) {
-            LOGGER.debug(format(Messages.REMOVING_ALL_LOGGERS_FOR_PROCESS, processId, nameMap.keySet()));
-            for (String name : nameMap.keySet()) {
-                Logger logger = nameMap.get(name);
-                LOGGER.debug(format(Messages.REMOVING_ALL_APPENDERS_FROM_LOGGER, logger.getName()));
-                logger.removeAllAppenders();
-                appendLog(logDir, processId, spaceId, name);
-            }
+        if (nameMap == null) {
+            return;
+        }
+        LOGGER.debug(format(Messages.REMOVING_ALL_LOGGERS_FOR_PROCESS, processId, nameMap.keySet()));
+        for (Entry<String, Logger> entry : nameMap.entrySet()) {
+            Logger logger = entry.getValue();
+            LOGGER.debug(format(Messages.REMOVING_ALL_APPENDERS_FROM_LOGGER, logger.getName()));
+            logger.removeAllAppenders();
+            String spaceId = getSpaceId(context);
+            appendLog(logDir, processId, spaceId, entry.getKey());
         }
     }
 
