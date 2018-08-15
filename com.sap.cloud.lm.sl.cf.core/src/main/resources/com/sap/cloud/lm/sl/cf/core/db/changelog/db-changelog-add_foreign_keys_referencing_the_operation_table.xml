@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+    <changeSet author="sap.com" id="add_foreign_keys_referencing_the_operation_table">
+        <addForeignKeyConstraint constraintName="fk_progress_message_operation"
+            baseTableName="progress_message" baseColumnNames="process_id" referencedTableName="operation"
+            referencedColumnNames="process_id" onDelete="CASCADE" onUpdate="CASCADE" />
+        <addForeignKeyConstraint constraintName="fk_task_extension_operation"
+            baseTableName="task_extension" baseColumnNames="process_id" referencedTableName="operation"
+            referencedColumnNames="process_id" onDelete="CASCADE" onUpdate="CASCADE" />
+        <addForeignKeyConstraint constraintName="fk_lm_sl_persistence_file"
+            baseTableName="lm_sl_persistence_file" baseColumnNames="namespace" referencedTableName="operation"
+            referencedColumnNames="process_id" onDelete="CASCADE" onUpdate="CASCADE" />
+        <addForeignKeyConstraint constraintName="fk_process_log_operation"
+            baseTableName="process_log" baseColumnNames="namespace" referencedTableName="operation"
+            referencedColumnNames="process_id" onDelete="CASCADE" onUpdate="CASCADE" />
+    </changeSet>
+</databaseChangeLog>

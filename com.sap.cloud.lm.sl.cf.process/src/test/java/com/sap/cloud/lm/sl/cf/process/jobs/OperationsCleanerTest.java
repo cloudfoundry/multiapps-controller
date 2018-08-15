@@ -28,8 +28,6 @@ import org.quartz.JobExecutionException;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -49,10 +47,6 @@ public class OperationsCleanerTest {
     private OperationDao dao;
     @Mock
     private ActivitiFacade activitiFacade;
-    @Mock
-    private ProgressMessageService progressMessageService;
-    @Mock
-    private ProcessLogsPersistenceService processLogsPersistenceService;
     @InjectMocks
     private OperationsCleaner cleaner;
 
@@ -123,13 +117,11 @@ public class OperationsCleanerTest {
         List<Operation> operationsList = Arrays.asList(operation1, operation2);
         mockOperationDao(dao, operationsList);
 
-        try {
-            when(progressMessageService.removeAllByProcessIds(any())).thenThrow(new SLException("I'm an exception"));
-            cleaner.execute(EXPIRATION_TIME);
-        } catch (Exception e) {
-            verify(dao, never()).remove(OPERATION_ID_1);
-            verify(dao, never()).remove(OPERATION_ID_2);
-        }
+        doThrow(new SLException("I'm an exception")).when(activitiFacade)
+            .deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
+        cleaner.execute(EXPIRATION_TIME);
+        verify(dao, never()).remove(OPERATION_ID_1);
+        verify(dao).remove(OPERATION_ID_2);
     }
 
     private ZonedDateTime epochMillisToZonedDateTime(long epochMillis) {
