@@ -47,4 +47,6 @@
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_context_extension_table.xml" />
     <include
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_operation_table_drop_cleaned_up_column.xml" />
+    <include
+        file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-add_foreign_keys_referencing_the_operation_table.xml" />
 </databaseChangeLog>
