@@ -14,6 +14,10 @@ public class JdbcUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcUtil.class);
 
+    private JdbcUtil() {
+        // only static members
+    }
+
     public static void closeQuietly(ResultSet resultSet) {
         if (resultSet == null) {
             return;

@@ -47,7 +47,7 @@ public class ProcessStepHelper {
         processLoggerProviderFactory.removeAll();
         // Write the log messages:
         try {
-            processLoggerProviderFactory.appendToDefaultDir(context);
+            processLoggerProviderFactory.append(context);
         } catch (IOException | FileStorageException e) {
             LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, e.getMessage()), e);
         }

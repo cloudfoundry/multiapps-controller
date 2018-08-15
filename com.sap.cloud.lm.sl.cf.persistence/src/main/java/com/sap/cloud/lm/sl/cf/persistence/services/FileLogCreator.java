@@ -4,8 +4,7 @@ import static java.text.MessageFormat.format;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.concurrent.Callable;
 
 import org.apache.log4j.Appender;
@@ -62,12 +61,11 @@ public class FileLogCreator implements Callable<Logger> {
     }
 
     private void recreateLogFile(File logFile) {
-        Path logFilePath = logFile.toPath();
+        logFile.delete();
         try {
-            if(logFile.exists()) {
-                Files.delete(logFilePath);
+            if(!logFile.createNewFile()) {
+                LOGGER.warn(MessageFormat.format("log file {0} could not be recreated", logFile.getName()));
             }
-            Files.createFile(logFilePath);
         } catch (IOException e) {
             throw new SLException(e);
         }

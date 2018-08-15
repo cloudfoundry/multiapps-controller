@@ -100,7 +100,7 @@ public class DatabaseFileServiceTest {
     @SuppressWarnings("deprecation")
     private FileEntry addFileEntry(String spaceId) throws FileStorageException {
         InputStream resourceStream = getResource(PIC1_RESOURCE_NAME);
-        return fileService.addFile(spaceId, SYSTEM_NAMESPACE, PIC1_STORAGE_NAME, resourceStream, MAX_UPLOAD_SIZE, false);
+        return fileService.addFile(spaceId, SYSTEM_NAMESPACE, PIC1_STORAGE_NAME, new DefaultFileUploadProcessor(false), resourceStream);
     }
 
     private InputStream getResource(String name) {
@@ -187,8 +187,8 @@ public class DatabaseFileServiceTest {
         assertEquals(1, systemFiles.size());
 
         InputStream resourceStream = getResource(PIC2_RESOURCE_NAME);
-        fileService.addFile(MY_SPACE_ID, PERSONAL_NAMESPACE, PIC2_STORAGE_NAME, resourceStream, MAX_UPLOAD_SIZE, false);
 
+        fileService.addFile(MY_SPACE_ID, PERSONAL_NAMESPACE, PIC2_STORAGE_NAME, new DefaultFileUploadProcessor(false), resourceStream);
         personalFiles = fileService.listFiles(MY_SPACE_ID, PERSONAL_NAMESPACE);
         assertEquals(1, personalFiles.size());
 

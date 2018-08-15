@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.junit.Before;
@@ -27,6 +26,8 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 
+import static org.mockito.Mockito.when;
+
 public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SyncActivitiStepTest.class);
@@ -40,7 +41,7 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     protected DelegateExecution context = MockDelegateExecution.createSpyInstance();
     @Spy
     @InjectMocks
-    protected ProcessLoggerProviderFactory processLoggerProviderFactory = new ProcessLoggerProviderFactory();
+    protected ProcessLoggerProviderFactory processLoggerProviderFactory = ProcessLoggerProviderFactory.getInstance();
     @Mock
     protected StepLogger.Factory stepLoggerFactory;
     protected StepLogger stepLogger;
