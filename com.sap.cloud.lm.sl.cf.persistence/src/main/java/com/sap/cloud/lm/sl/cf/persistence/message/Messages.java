@@ -29,8 +29,6 @@ public final class Messages {
     public static final String ERROR_GETTING_FILES_MODIFIED_BEFORE = "Error getting files modified before {0}";
     public static final String ERROR_DELETING_PROCESS_LOGS_WITH_NAMESPACE = "Error deleting process logs with namespace \"{0}\"";
 
-    // Audit log messages:
-
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
     public static final String DELETING_LOCAL_FILE_BECAUSE_OF_INFECTION = "File \"{0}\" is infected and will be removed";
@@ -58,6 +56,7 @@ public final class Messages {
     public static final String REMOVING_ALL_APPENDERS_FROM_LOGGER = "Removing all appenders from logger \"{0}\"...";
     public static final String DELETED_FILE_ATTRIBUTES_COUNT = "Count of deleted files attributes: {0}";
 
-    // TRACE log messages:
+    protected Messages() {
+    }
 
 }

@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileUpload;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileUploadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
 
 public class FileUploader {
@@ -31,9 +30,7 @@ public class FileUploader {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUploader.class);
 
-    @Deprecated
-    public static FileUpload uploadFile(InputStream is, BigInteger maxUploadSize) throws FileStorageException {
-        return uploadFile(is, new DefaultFileUploadProcessor(maxUploadSize));
+    private FileUploader() {
     }
 
     /**
@@ -85,8 +82,7 @@ public class FileUploader {
             IOUtils.closeQuietly(outputFileStream);
         }
 
-        FileUpload fileContent = new FileUpload(tempFile, size, getDigestString(digest.digest()), DIGEST_METHOD);
-        return fileContent;
+        return new FileUpload(tempFile, size, getDigestString(digest.digest()), DIGEST_METHOD);
     }
 
     private static int getProcessingBufferSize(@SuppressWarnings("rawtypes") FileUploadProcessor fileUploadProcessor) {

@@ -122,12 +122,13 @@ public class DatabaseFileService extends AbstractFileService {
         }
     }
 
-    /*
-     * The implementation of this method is empty because the content of the file is being deleted by the abstract file service using a
-     * DELETE query for the whole file record
-     */
+
     @Override
     protected void deleteFileContent(String space, String id) throws FileStorageException {
+        /*
+         * The implementation of this method is empty because the content of the file is being deleted by the abstract file service using a
+         * DELETE query for the whole file record
+         */
     }
 
     @Override
@@ -150,8 +151,7 @@ public class DatabaseFileService extends AbstractFileService {
                     PreparedStatement statement = null;
                     try {
                         statement = connection.prepareStatement(getQuery(DELETE_FILES_WITHOUT_CONTENT));
-                        int rowsDeleted = statement.executeUpdate();
-                        return rowsDeleted;
+                        return statement.executeUpdate();
                     } finally {
                         JdbcUtil.closeQuietly(statement);
                     }

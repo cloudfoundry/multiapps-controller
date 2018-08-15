@@ -56,7 +56,8 @@ public class FileSystemFileService extends AbstractFileService {
             Path filesDirectory = getFilesDirectory(fileEntry.getSpace());
             Path newFilePath = Paths.get(filesDirectory.toString(), fileEntry.getId());
             Files.copy(inputStream, newFilePath, StandardCopyOption.REPLACE_EXISTING);
-            return Files.exists(newFilePath);
+            return newFilePath.toFile()
+                .exists();// squid:S3725 - java 8 Files.exists() has poor performance
         } catch (IOException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
@@ -108,7 +109,7 @@ public class FileSystemFileService extends AbstractFileService {
 
     private Path getFilesDirectory(String space) throws IOException {
         Path filesPerSpaceDirectory = getFilesPerSpaceDirectory(space);
-        if (!Files.exists(filesPerSpaceDirectory)) {
+        if (!filesPerSpaceDirectory.toFile().exists()) { // squid:S3725 - java 8 Files.exists() has poor performance
             Files.createDirectories(filesPerSpaceDirectory);
         }
         return filesPerSpaceDirectory;
@@ -147,8 +148,7 @@ public class FileSystemFileService extends AbstractFileService {
     }
 
     private Path getFilesPerSpaceDirectory(String space) {
-        Path filesPerSpaceDirectory = Paths.get(storagePath, space, DEFAULT_FILES_STORAGE_PATH);
-        return filesPerSpaceDirectory;
+        return Paths.get(storagePath, space, DEFAULT_FILES_STORAGE_PATH);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class FileSystemFileService extends AbstractFileService {
     private boolean hasContent(FileEntry entry) throws FileStorageException {
         try {
             Path filePath = getFilePath(entry);
-            return Files.exists(filePath);
+            return filePath.toFile().exists();// squid:S3725 - java 8 Files.exists() has poor performance
         } catch (IOException e) {
             throw new FileStorageException(e.getMessage(), e);
         }

@@ -1,9 +1,12 @@
 package com.sap.cloud.lm.sl.cf.persistence.processors;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 
 public class DefaultFileDownloadProcessor implements FileDownloadProcessor {
 
@@ -20,7 +23,7 @@ public class DefaultFileDownloadProcessor implements FileDownloadProcessor {
     }
 
     @Override
-    public void processContent(InputStream is) throws Exception {
+    public void processContent(InputStream is) throws NoSuchAlgorithmException, IOException, FileStorageException {
         this.fileContentProcessor.processFileContent(is);
     }
 

@@ -1,6 +1,8 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * An interface for reading the content of an uploaded file
@@ -18,6 +20,6 @@ public interface FileContentProcessor {
      * @param is an input stream representing the file content
      * @throws Exception
      */
-    public void processFileContent(InputStream is) throws Exception; // NOPMD
+    public void processFileContent(InputStream is) throws NoSuchAlgorithmException, IOException, FileStorageException; // NOPMD
 
 }

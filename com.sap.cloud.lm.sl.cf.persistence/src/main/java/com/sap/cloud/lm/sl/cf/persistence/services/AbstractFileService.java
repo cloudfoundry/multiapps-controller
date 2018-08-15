@@ -28,8 +28,6 @@ import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileUpload;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileUploadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.security.VirusScanner;
@@ -67,28 +65,6 @@ public abstract class AbstractFileService {
 
     public void setVirusScanner(VirusScanner virusScanner) {
         this.virusScanner = virusScanner;
-    }
-
-    @Deprecated
-    public FileEntry addFile(String space, String namespace, String name, InputStream is, BigInteger maxUploadSize)
-        throws FileStorageException {
-        return addFile(space, namespace, name, is, maxUploadSize, false);
-    }
-
-    /**
-     * Uploads a new file
-     * 
-     * @param namespace namespace to upload the file to
-     * @param name name for the uploaded file
-     * @param is input stream to read the content from
-     * @param scanUpload
-     * @return a FileEntry object representing the file upload
-     * @throws FileStorageException
-     */
-    @Deprecated
-    public FileEntry addFile(String space, String namespace, String name, InputStream is, BigInteger maxUploadSize, boolean scanUpload)
-        throws FileStorageException {
-        return addFile(space, namespace, name, new DefaultFileUploadProcessor(scanUpload), is);
     }
 
     public FileEntry addFile(String space, String name,
@@ -401,12 +377,6 @@ public abstract class AbstractFileService {
         return fileEntry;
     }
 
-    @Deprecated
-    public void processFileContent(final String space, final String fileId, final FileContentProcessor streamProcessor)
-        throws FileStorageException {
-        processFileContent(new DefaultFileDownloadProcessor(space, fileId, streamProcessor));
-    }
-
     protected void setOrNull(PreparedStatement statement, int position, String value) throws SQLException {
         if (value == null) {
             statement.setNull(position, Types.NULL);
@@ -436,7 +406,7 @@ public abstract class AbstractFileService {
         return sqlExecutor;
     }
 
-    public class FileServiceColumnNames {
+    public static class FileServiceColumnNames {
         public static final String CONTENT = "CONTENT";
         public static final String MODIFIED = "MODIFIED";
         public static final String DIGEST_ALGORITHM = "DIGEST_ALGORITHM";
@@ -446,6 +416,9 @@ public abstract class AbstractFileService {
         public static final String FILE_NAME = "FILE_NAME";
         public static final String DIGEST = "DIGEST";
         public static final String FILE_ID = "FILE_ID";
+
+        protected FileServiceColumnNames() {
+        }
     }
 
 }
