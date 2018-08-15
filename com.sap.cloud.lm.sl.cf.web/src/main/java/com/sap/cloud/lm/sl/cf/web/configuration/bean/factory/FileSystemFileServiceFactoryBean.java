@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.web.configuration.bean.factory;
 
 import java.text.MessageFormat;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
@@ -14,7 +15,6 @@ import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileService;
 import com.sap.cloud.lm.sl.cf.web.configuration.service.FileSystemServiceInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 public class FileSystemFileServiceFactoryBean implements FactoryBean<FileSystemFileService>, InitializingBean {
 
@@ -58,7 +58,7 @@ public class FileSystemFileServiceFactoryBean implements FactoryBean<FileSystemF
     }
 
     private String getStoragePath(String serviceName) {
-        if (CommonUtil.isNullOrEmpty(serviceName)) {
+        if (StringUtils.isEmpty(serviceName)) {
             LOGGER.warn(Messages.FILE_SYSTEM_SERVICE_NAME_IS_NOT_SPECIFIED);
             return null;
         }

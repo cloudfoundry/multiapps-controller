@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.apache.commons.collections.MapUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -39,7 +40,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
@@ -281,7 +281,7 @@ public class CreateAppStep extends SyncActivitiStep {
 
     protected static Map<String, Object> getBindingParametersOrDefault(CloudServiceBinding cloudServiceBinding) {
         Map<String, Object> bindingParameters = cloudServiceBinding.getBindingOptions();
-        return (CommonUtil.isNullOrEmpty(bindingParameters)) ? null : bindingParameters;
+        return MapUtils.isEmpty(bindingParameters) ? null : bindingParameters;
     }
 
 }

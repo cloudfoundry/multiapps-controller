@@ -29,6 +29,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.slf4j.Logger;
@@ -56,7 +57,6 @@ import com.sap.cloud.lm.sl.cf.web.security.AuthorizationChecker;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.XmlUtil;
 
@@ -271,7 +271,7 @@ public class ConfigurationEntriesResource {
     @Path("/purge")
     @POST
     public Response purgeConfigurationRegistry(@QueryParam("org") String org, @QueryParam("space") String space) {
-        if (CommonUtil.isNullOrEmpty(org) || CommonUtil.isNullOrEmpty(space)) {
+        if (StringUtils.isEmpty(org) || StringUtils.isEmpty(space)) {
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(Messages.ORG_AND_SPACE_MUST_BE_SPECIFIED)
                 .build();

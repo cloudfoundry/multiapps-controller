@@ -7,7 +7,6 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 
 public class DomainValidator implements ParameterValidator {
@@ -35,7 +34,8 @@ public class DomainValidator implements ParameterValidator {
         if (!(domain instanceof String)) {
             return false;
         }
-        return !CommonUtil.isEmpty(domain) && NameUtil.isValidName((String) domain, DOMAIN_PATTERN);
+        String domainString = (String) domain;
+        return !domainString.isEmpty() && NameUtil.isValidName(domainString, DOMAIN_PATTERN);
     }
 
     @Override

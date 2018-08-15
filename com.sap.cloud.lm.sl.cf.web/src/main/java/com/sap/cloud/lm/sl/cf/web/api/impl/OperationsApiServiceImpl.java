@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -50,7 +51,6 @@ import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @RequestScoped
 public class OperationsApiServiceImpl implements OperationsApiService {
@@ -192,7 +192,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private OperationFilter buildOperationFilter(String spaceGuid, List<State> statusList, Integer lastRequestedOperationsCount) {
         OperationFilter.Builder builder = new OperationFilter.Builder();
         builder.spaceId(spaceGuid);
-        if (!CommonUtil.isNullOrEmpty(statusList) && containsOnlyFinishedStates(statusList)) {
+        if (!CollectionUtils.isEmpty(statusList) && containsOnlyFinishedStates(statusList)) {
             builder.stateIn(statusList);
         }
         builder.orderByStartTime();

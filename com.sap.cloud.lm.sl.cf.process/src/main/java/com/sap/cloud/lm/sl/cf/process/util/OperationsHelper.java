@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component
 public class OperationsHelper {
@@ -86,7 +86,7 @@ public class OperationsHelper {
     }
 
     private List<Operation> filterBasedOnStates(List<Operation> operations, List<State> statusList) {
-        if (CommonUtil.isNullOrEmpty(statusList)) {
+        if (CollectionUtils.isEmpty(statusList)) {
             return operations;
         }
         return operations.stream()

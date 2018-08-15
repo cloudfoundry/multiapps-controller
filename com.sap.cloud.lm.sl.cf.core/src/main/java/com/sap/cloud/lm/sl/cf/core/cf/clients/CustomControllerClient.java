@@ -7,10 +7,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.web.client.RestTemplate;
 
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class CustomControllerClient {
@@ -33,7 +34,7 @@ public abstract class CustomControllerClient {
         Map<String, Object> urlVariables) {
         List<Map<String, Object>> allResources = new ArrayList<>();
         String nextUrl = urlPath;
-        while (!CommonUtil.isNullOrEmpty(nextUrl)) {
+        while (!StringUtils.isEmpty(nextUrl)) {
             nextUrl = addPageOfResources(restTemplate, controllerUrl, nextUrl, allResources, urlVariables);
         }
         return allResources;
@@ -46,7 +47,7 @@ public abstract class CustomControllerClient {
         Map<String, Object> responseMap = JsonUtil.convertJsonToMap(response);
         validateResponse(responseMap);
         List<Map<String, Object>> newResources = (List<Map<String, Object>>) responseMap.get("resources");
-        if (!CommonUtil.isNullOrEmpty(newResources)) {
+        if (!CollectionUtils.isEmpty(newResources)) {
             allResources.addAll(newResources);
         }
         String nextUrl = (String) responseMap.get("next_url");

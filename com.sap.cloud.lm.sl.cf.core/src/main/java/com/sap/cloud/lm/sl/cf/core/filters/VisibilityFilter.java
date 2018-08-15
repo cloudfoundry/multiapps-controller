@@ -4,15 +4,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 public class VisibilityFilter implements BiFunction<ConfigurationEntry, List<CloudTarget>, Boolean> {
 
     @Override
     public Boolean apply(ConfigurationEntry entry, List<CloudTarget> cloudTargets) {
-        if (CommonUtil.isNullOrEmpty(cloudTargets)) {
+        if (CollectionUtils.isEmpty(cloudTargets)) {
             return true;
         }
         List<CloudTarget> visibilityTargets = getVisibilityTargets(entry);
