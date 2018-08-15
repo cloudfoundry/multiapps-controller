@@ -17,6 +17,8 @@ import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 @Component
@@ -27,11 +29,16 @@ public class OperationsCleaner implements Cleaner {
 
     private final OperationDao dao;
     private final ActivitiFacade activitiFacade;
+    private final ProgressMessageService progressMessageService;
+    private final ProcessLogsPersistenceService processLogsPersistenceService;
 
     @Inject
-    public OperationsCleaner(OperationDao dao, ActivitiFacade activitiFacade) {
+    public OperationsCleaner(OperationDao dao, ActivitiFacade activitiFacade, ProgressMessageService progressMessageService,
+        ProcessLogsPersistenceService processLogsPersistenceService) {
         this.dao = dao;
         this.activitiFacade = activitiFacade;
+        this.progressMessageService = progressMessageService;
+        this.processLogsPersistenceService = processLogsPersistenceService;
     }
 
     @Override
@@ -56,6 +63,8 @@ public class OperationsCleaner implements Cleaner {
         if (operation.getState() == null) {
             abortOperation(operation);
         }
+        removeProgressMessages(operation);
+        removeProcessLogs(operation);
         dao.remove(operation.getProcessId());
     }
 
@@ -70,6 +79,16 @@ public class OperationsCleaner implements Cleaner {
         ActivitiAction abortAction = ActivitiActionFactory.getAction(ActivitiActionFactory.ACTION_ID_ABORT, activitiFacade, null);
         LOGGER.debug(format("Aborting operation \"{0}\"", processId));
         abortAction.executeAction(processId);
+    }
+
+    private void removeProgressMessages(Operation operation) {
+        int removedProgressMessages = progressMessageService.removeByProcessId(operation.getProcessId());
+        LOGGER.debug(format("Deleted progress messages for operation \"{0}\": {1}", operation.getProcessId(), removedProgressMessages));
+    }
+
+    private void removeProcessLogs(Operation operation) {
+        int removedProcessLogs = processLogsPersistenceService.deleteByNamespace(operation.getProcessId());
+        LOGGER.debug(format("Deleted process logs for operation \"{0}\": {1}", operation.getProcessId(), removedProcessLogs));
     }
 
 }
