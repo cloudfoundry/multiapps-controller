@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.persistence.model;
 
 import java.util.Date;
 
-public class ProgressMessage implements Comparable<ProgressMessage> {
+public class ProgressMessage {// {
     private static final int MAX_TEXT_LENGTH = 4000;
 
     private long id;
@@ -99,9 +99,9 @@ public class ProgressMessage implements Comparable<ProgressMessage> {
             + ", type=" + type + ", text=" + text + ", timestamp=" + timestamp + "]";
     }
 
-    @Override
-    public int compareTo(ProgressMessage otherProgressMessage) {
-        return this.timestamp.compareTo(otherProgressMessage.getTimestamp());
-    }
+//    @Override
+//    public int compareTo(ProgressMessage otherProgressMessage) {
+//        return this.timestamp.compareTo(otherProgressMessage.getTimestamp());
+//    }
 
 }

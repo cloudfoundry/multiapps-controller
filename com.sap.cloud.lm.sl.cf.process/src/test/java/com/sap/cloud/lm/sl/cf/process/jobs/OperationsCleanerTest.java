@@ -106,7 +106,7 @@ public class OperationsCleanerTest {
     }
 
     @Test
-    public void testOperationsAreNotMarkedAsCleanedUpInCaseOfErrors() throws JobExecutionException {
+    public void testOperationsAreNotDeletedInCaseOfErrors() throws JobExecutionException {
         Operation operation1 = new Operation().startedAt(epochMillisToZonedDateTime(TIME_AFTER_EXPIRATION))
             .processId(OPERATION_ID_1)
             .spaceId(SPACE_ID);
