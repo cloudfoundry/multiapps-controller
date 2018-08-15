@@ -86,6 +86,23 @@ public class OperationDaoTest {
     }
 
     @Test
+    public void testRemoveExpiredInFinalState() {
+        Operation operation1 = createOperation("1").startedAt(ZonedDateTime.parse("2010-10-10T10:00:00.000Z[UTC]"))
+            .state(State.FINISHED);
+        Operation operation2 = createOperation("2").startedAt(ZonedDateTime.parse("2010-10-10T20:00:00.000Z[UTC]"));
+        Operation operation3 = createOperation("3").startedAt(ZonedDateTime.parse("2010-10-20T10:00:00.000Z[UTC]"))
+            .state(State.FINISHED);
+        Operation operation4 = createOperation("4").startedAt(ZonedDateTime.parse("2010-10-20T20:00:00.000Z[UTC]"));
+        addOperations(Arrays.asList(operation1, operation2, operation3, operation4));
+
+        dao.removeExpiredInFinalState(parseDate("2010-10-20T15:00:00.000Z[UTC]"));
+        Set<Operation> result = asSet(dao.findAll());
+
+        Set<Operation> expectedResult = asSet(operation2, operation4);
+        assertEquals(expectedResult, result);
+    }
+
+    @Test
     public void testRemoveWithNonExistingOperation() {
         Exception exception = assertThrows(NotFoundException.class, () -> dao.remove(OPERATION_1_ID));
 

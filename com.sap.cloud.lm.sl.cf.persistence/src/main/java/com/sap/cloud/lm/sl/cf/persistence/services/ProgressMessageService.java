@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -38,6 +37,7 @@ public class ProgressMessageService {
     private static final String INSERT_MESSAGE = "INSERT INTO %s (ID, PROCESS_ID, TASK_ID, TASK_EXECUTION_ID, TYPE, TEXT, TIMESTAMP) VALUES(%s, ?, ?, ?, ?, ?, ?)";
     private static final String DELETE_MESSAGES_BY_PROCESS_AND_TASK_ID = "DELETE FROM %s WHERE PROCESS_ID=? AND TASK_ID=? AND TASK_EXECUTION_ID=?";
     private static final String DELETE_MESSAGES_BY_PROCESS_ID = "DELETE FROM %s WHERE PROCESS_ID=?";
+    private static final String DELETE_MESSAGES_OLDER_THAN = "DELETE FROM %s WHERE TIMESTAMP < ?";
     private static final String UPDATE_MESSAGE_BY_ID = "UPDATE %s SET TEXT=?, TIMESTAMP=? WHERE ID=?";
 
     private static final String ID_SEQ_NAME = "ID_SEQ";
@@ -131,31 +131,6 @@ public class ProgressMessageService {
         }
     }
 
-    public int removeAllByProcessIds(final List<String> processIds) {
-        try {
-            return getSqlExecutor().executeInSingleTransaction(new StatementExecutor<Integer>() {
-                @Override
-                public Integer execute(Connection connection) throws SQLException {
-                    PreparedStatement statement = null;
-                    try {
-                        statement = connection.prepareStatement(getQuery(DELETE_MESSAGES_BY_PROCESS_ID, tableName));
-                        for (String processId : processIds) {
-                            statement.setString(1, processId);
-                            statement.addBatch();
-                        }
-                        int[] rowsRemovedArray = statement.executeBatch();
-                        return Arrays.stream(rowsRemovedArray)
-                            .sum();
-                    } finally {
-                        JdbcUtil.closeQuietly(statement);
-                    }
-                }
-            });
-        } catch (SQLException e) {
-            throw new SLException(e, Messages.ERROR_DELETING_MESSAGES_WITH_PROCESS_ID, processIds);
-        }
-    }
-
     public int removeByProcessIdTaskIdAndTaskExecutionId(final String processId, final String taskId, final String taskExecutionId) {
         try {
             return getSqlExecutor().execute(new StatementExecutor<Integer>() {
@@ -176,6 +151,26 @@ public class ProgressMessageService {
         } catch (SQLException e) {
             throw new SLException(e, Messages.ERROR_DELETING_MESSAGES_WITH_PROCESS_ID_TASK_ID_AND_TASK_EXECUTION_ID, processId, taskId,
                 taskExecutionId);
+        }
+    }
+
+    public int removeOlderThan(Date timestamp) {
+        try {
+            return getSqlExecutor().execute(new StatementExecutor<Integer>() {
+                @Override
+                public Integer execute(Connection connection) throws SQLException {
+                    PreparedStatement statement = null;
+                    try {
+                        statement = connection.prepareStatement(getQuery(DELETE_MESSAGES_OLDER_THAN, tableName));
+                        statement.setTimestamp(1, new Timestamp(timestamp.getTime()));
+                        return statement.executeUpdate();
+                    } finally {
+                        JdbcUtil.closeQuietly(statement);
+                    }
+                }
+            });
+        } catch (SQLException e) {
+            throw new SLException(e, Messages.ERROR_DELETING_MESSAGES_OLDER_THAN, timestamp);
         }
     }
 

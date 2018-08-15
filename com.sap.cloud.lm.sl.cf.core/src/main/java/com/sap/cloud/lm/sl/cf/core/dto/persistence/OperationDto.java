@@ -13,7 +13,9 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "operation")
-@NamedQueries({ @NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o ORDER BY o.startedAt") })
+@NamedQueries({ @NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o ORDER BY o.startedAt"),
+    // TODO: Replace this named query by building it dynamically with JPA's criteria API (requires JPA 2.1).
+    @NamedQuery(name = "remove_expired_in_final_state", query = "DELETE FROM OperationDto o WHERE o.finalState IS NOT NULL AND o.startedAt < :expirationTime") })
 public class OperationDto {
 
     public static class AttributeNames {

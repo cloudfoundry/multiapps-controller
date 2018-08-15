@@ -1,11 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.dao;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -57,6 +59,14 @@ public class OperationDtoDao {
             }
             manager.remove(dto);
             return null;
+        });
+    }
+
+    public int removeExpiredInFinalState(Date expirationTime) {
+        return new TransactionalExecutor<Integer>(createEntityManager()).execute(manager -> {
+            return manager.createNamedQuery("remove_expired_in_final_state")
+                .setParameter("expirationTime", expirationTime, TemporalType.TIMESTAMP)
+                .executeUpdate();
         });
     }
 
