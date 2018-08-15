@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.After;
@@ -92,8 +93,8 @@ public class ProgressMessageServiceTest {
         final String TASK_ID = "test-update-taskId";
         final String TASK_EXECUTION_ID = "test-update-executionId";
 
-        ProgressMessage progressMessage = new ProgressMessage(PROCESS_ID, TASK_ID, TASK_EXECUTION_ID,
-            ProgressMessageType.INFO, "test-update-info-message", new Timestamp(System.currentTimeMillis()));
+        ProgressMessage progressMessage = new ProgressMessage(PROCESS_ID, TASK_ID, TASK_EXECUTION_ID, ProgressMessageType.INFO,
+            "test-update-info-message", new Timestamp(System.currentTimeMillis()));
         boolean insertSuccess = service.add(progressMessage);
         assertTrue(insertSuccess);
 
@@ -169,22 +170,9 @@ public class ProgressMessageServiceTest {
     }
 
     @Test
-    public void testRemoveAllByProcessIds() {
-        int deletedMessages = service.removeAllByProcessIds(Arrays.asList("nonexisting"));
-        assertEquals(0, deletedMessages);
-
-        deletedMessages = service.removeAllByProcessIds(Arrays.asList(PROCESS_INSTANCE_ID_1));
-        assertEquals(2, deletedMessages);
-
-        List<ProgressMessage> allMessages = service.findAll();
-        assertEquals(2, allMessages.size());
-        assertSameProgressMessage(progressMessage3, allMessages.get(0));
-        assertSameProgressMessage(progressMessage4, allMessages.get(1));
-
-        deletedMessages = service.removeAllByProcessIds(Arrays.asList(PROCESS_INSTANCE_ID_2));
-        assertEquals(2, deletedMessages);
-        allMessages = service.findAll();
-        assertEquals(0, allMessages.size());
+    public void testRemoveOlderThan() {
+        int removedProgressMessages = service.removeOlderThan(new Date(System.currentTimeMillis() + 1));
+        assertEquals(4, removedProgressMessages);
     }
 
     private static void assertSameProgressMessage(ProgressMessage expected, ProgressMessage actual) {

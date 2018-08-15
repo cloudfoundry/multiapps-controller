@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
@@ -104,6 +107,16 @@ public class OperationFilter {
         return maxResults;
     }
 
+    @Override
+    public boolean equals(Object object) {
+        return EqualsBuilder.reflectionEquals(this, object);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
     public static class Builder {
 
         private Date startedBefore;
@@ -185,6 +198,11 @@ public class OperationFilter {
 
         public Builder stateIn(List<State> states) {
             this.states = states;
+            return this;
+        }
+
+        public Builder orderByProcessId() {
+            this.orderAttribute = OperationDto.AttributeNames.PROCESS_ID;
             return this;
         }
 
