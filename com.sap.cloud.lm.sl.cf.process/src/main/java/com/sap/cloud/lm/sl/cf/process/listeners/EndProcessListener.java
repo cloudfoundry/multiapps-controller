@@ -53,7 +53,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
 
     @Override
     protected void writeLogs(DelegateExecution context) throws IOException, FileStorageException {
-        processLoggerProviderFactory.append(context, getLogDir());
+        processLoggerProviderFactory.appendToDefaultDir(context);
     }
 
     @Override

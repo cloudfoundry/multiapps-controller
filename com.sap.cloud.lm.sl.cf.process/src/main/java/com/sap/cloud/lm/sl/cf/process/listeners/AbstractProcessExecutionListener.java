@@ -54,12 +54,9 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     protected void writeLogs(DelegateExecution context) throws IOException, FileStorageException {
-        getProcessLoggerProviderFactory().flush(context, getLogDir());
+        getProcessLoggerProviderFactory().flushDefaultDir(context);
     }
 
-    protected static String getLogDir() {
-        return ProcessLoggerProviderFactory.LOG_DIR;
-    }
 
     private static void logException(Exception e) {
         LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, e.getMessage()), e);
