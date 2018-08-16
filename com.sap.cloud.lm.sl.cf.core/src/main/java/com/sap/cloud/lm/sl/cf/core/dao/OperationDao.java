@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.dao;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,10 +29,6 @@ public class OperationDao {
 
     public void remove(String processId) throws NotFoundException {
         dao.remove(processId);
-    }
-
-    public int removeExpired(Date expirationTime) {
-        return dao.removeExpired(expirationTime);
     }
 
     public void removeAll(List<String> processIds) throws NotFoundException {

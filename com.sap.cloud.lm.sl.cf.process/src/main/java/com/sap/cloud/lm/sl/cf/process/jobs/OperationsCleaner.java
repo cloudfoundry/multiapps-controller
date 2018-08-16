@@ -24,11 +24,9 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 public class OperationsCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsCleaner.class);
-    private static final int DEFAULT_PAGE_SIZE = 100;
 
     private final OperationDao dao;
     private final ActivitiFacade activitiFacade;
-    private int pageSize = DEFAULT_PAGE_SIZE;
 
     @Inject
     public OperationsCleaner(OperationDao dao, ActivitiFacade activitiFacade) {
@@ -36,55 +34,41 @@ public class OperationsCleaner implements Cleaner {
         this.activitiFacade = activitiFacade;
     }
 
-    public OperationsCleaner withPageSize(int pageSize) {
-        this.pageSize = pageSize;
-        return this;
-    }
-
     @Override
     public void execute(Date expirationTime) {
-        LOGGER.info(format("Cleaning up data for operations started before: {0}", expirationTime));
-        int abortedOperations = abortOperationsInNonFinalState(expirationTime);
-        LOGGER.info(format("Aborted operations: {0}", abortedOperations));
-        int deletedOperations = dao.removeExpired(expirationTime);
-        LOGGER.info(format("Deleted operations: {0}", deletedOperations));
+        LOGGER.info(format("Cleaning up data for finished operations started before: {0}", expirationTime));
+        List<Operation> operations = getOperationsToCleanUp(expirationTime);
+        for (Operation operation : operations) {
+            cleanUpSafely(operation);
+        }
+        LOGGER.info(format("Cleaned up operations: {0}", operations.size()));
     }
 
-    private int abortOperationsInNonFinalState(Date expirationTime) {
-        int offset = 0;
-        while (true) {
-            List<Operation> operationsToAbort = getOperationsToAbortPage(expirationTime, offset);
-            offset += operationsToAbort.size();
-            for (Operation operation : operationsToAbort) {
-                abortSafely(operation);
-            }
-            if (operationsToAbort.size() < pageSize) {
-                return offset;
-            }
+    private void cleanUpSafely(Operation operation) {
+        try {
+            cleanUp(operation);
+        } catch (Exception e) {
+            LOGGER.warn(format("Could not clean up data for operation \"{0}\"", operation.getProcessId()), e);
         }
     }
 
-    private List<Operation> getOperationsToAbortPage(Date expirationTime, int firstElement) {
-        OperationFilter filter = new OperationFilter.Builder().inNonFinalState()
-            .startedBefore(expirationTime)
-            .firstElement(firstElement)
-            .maxResults(pageSize)
+    private void cleanUp(Operation operation) {
+        if (operation.getState() == null) {
+            abortOperation(operation);
+        }
+        dao.remove(operation.getProcessId());
+    }
+
+    private List<Operation> getOperationsToCleanUp(Date expirationTime) {
+        OperationFilter filter = new OperationFilter.Builder().startedBefore(expirationTime)
             .build();
         return dao.find(filter);
     }
 
-    private void abortSafely(Operation operation) {
-        try {
-            abort(operation);
-        } catch (Exception e) {
-            LOGGER.warn(format("Could not abort operation \"{0}\"", operation.getProcessId()), e);
-        }
-    }
-
-    private void abort(Operation operation) {
-        ActivitiAction abortAction = ActivitiActionFactory.getAction(ActivitiActionFactory.ACTION_ID_ABORT, activitiFacade, null);
+    private void abortOperation(Operation operation) {
         String processId = operation.getProcessId();
-        LOGGER.debug(format("Aborting operation \"{0}\"...", processId));
+        ActivitiAction abortAction = ActivitiActionFactory.getAction(ActivitiActionFactory.ACTION_ID_ABORT, activitiFacade, null);
+        LOGGER.debug(format("Aborting operation \"{0}\"", processId));
         abortAction.executeAction(processId);
     }
 
