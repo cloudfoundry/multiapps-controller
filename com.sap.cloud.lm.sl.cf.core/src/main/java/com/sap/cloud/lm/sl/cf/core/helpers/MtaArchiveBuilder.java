@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -89,7 +90,8 @@ public class MtaArchiveBuilder {
 
     public Path buildMtaArchive() {
         mtaAssemblyDir = mtaDir.resolve(MTA_ASSEMBLY_DIR);
-        if (Files.exists(mtaAssemblyDir)) {
+        if (mtaAssemblyDir.toFile()
+            .exists()) {
             try {
                 FileUtils.deleteDirectory(mtaAssemblyDir);
                 Files.createDirectory(mtaAssemblyDir);
@@ -198,12 +200,13 @@ public class MtaArchiveBuilder {
     private void prepareFile(String path) {
         MtaPathValidator.validatePath(path);
         Path source = mtaDir.resolve(path);
-        if (Files.notExists(source)) {
+        File sourceAsFile = source.toFile();
+        if (!sourceAsFile.exists()) {
             throw new SLException(Messages.PATH_IS_RESOLVED_TO_NOT_EXISTING_FILE, path, source.toAbsolutePath());
         }
         try {
             Path target = mtaAssemblyDir.resolve(path);
-            if (Files.isDirectory(source)) {
+            if (sourceAsFile.isDirectory()) {
                 FileUtils.copyDirectory(source, target);
             } else {
                 FileUtils.copyFile(source, target);
@@ -215,7 +218,8 @@ public class MtaArchiveBuilder {
     }
 
     private void addJarEntry(Path source, JarOutputStream out) throws IOException {
-        if (Files.isDirectory(source)) {
+        if (source.toFile()
+            .isDirectory()) {
             JarEntry entry = createJarEntry(source);
             out.putNextEntry(entry);
             out.closeEntry();
@@ -244,7 +248,8 @@ public class MtaArchiveBuilder {
     private JarEntry createJarEntry(Path source) throws IOException {
         String entryName = FilenameUtils.separatorsToUnix(mtaAssemblyDir.relativize(source)
             .toString());
-        if (Files.isDirectory(source) && !entryName.endsWith(Constants.UNIX_PATH_SEPARATOR)) {
+        if (source.toFile()
+            .isDirectory() && !entryName.endsWith(Constants.UNIX_PATH_SEPARATOR)) {
             entryName += Constants.UNIX_PATH_SEPARATOR;
         }
 

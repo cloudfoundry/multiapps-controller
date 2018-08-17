@@ -26,8 +26,10 @@ public class FileUtils {
     }
 
     public static void copyFile(Path fromPath, Path toPath) throws IOException {
-        if (Files.notExists(toPath.getParent())) {
-            Files.createDirectories(toPath.getParent());
+        Path destinationParent = toPath.getParent();
+        if (!destinationParent.toFile()
+            .exists()) {
+            Files.createDirectories(destinationParent);
         }
         Files.copy(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
     }
@@ -77,7 +79,8 @@ public class FileUtils {
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             Path targetPath = toPath.resolve(fromPath.relativize(dir));
-            if (!Files.exists(targetPath)) {
+            if (!targetPath.toFile()
+                .exists()) {
                 Files.createDirectory(targetPath);
             }
             return FileVisitResult.CONTINUE;
