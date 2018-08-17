@@ -58,7 +58,7 @@ public class ConfigurationSubscriptionDao {
 
     private static List<ConfigurationSubscription> toConfigurationSubscriptions(List<ConfigurationSubscriptionDto> dtos) {
         return dtos.stream()
-            .map(dto -> dto.toConfigurationSubscription())
+            .map(ConfigurationSubscriptionDto::toConfigurationSubscription)
             .collect(Collectors.toList());
     }
 

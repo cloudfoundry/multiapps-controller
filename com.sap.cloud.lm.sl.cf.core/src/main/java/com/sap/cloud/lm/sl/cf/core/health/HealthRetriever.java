@@ -25,7 +25,7 @@ public class HealthRetriever {
 
     @Inject
     public HealthRetriever(OperationDao operationDao, ApplicationConfiguration configuration) {
-        this(operationDao, configuration, () -> ZonedDateTime.now());
+        this(operationDao, configuration, ZonedDateTime::now);
     }
 
     protected HealthRetriever(OperationDao operationDao, ApplicationConfiguration configuration, Supplier<ZonedDateTime> currentTimeSupplier) {

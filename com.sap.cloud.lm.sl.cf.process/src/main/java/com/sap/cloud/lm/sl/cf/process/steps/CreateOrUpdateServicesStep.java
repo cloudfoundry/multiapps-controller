@@ -486,16 +486,16 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     private List<String> getBoundAppNames(CloudControllerClient client, List<CloudApplicationExtended> apps,
         List<CloudApplication> appsToUndeploy, List<CloudServiceBinding> bindings) {
         Set<String> appNames = apps.stream()
-            .map(app -> app.getName())
+            .map(CloudApplication::getName)
             .collect(Collectors.toSet());
         appNames.addAll(appsToUndeploy.stream()
-            .map(app -> app.getName())
+            .map(CloudApplication::getName)
             .collect(Collectors.toSet()));
 
         List<CloudApplication> existingApps = client.getApplications();
         return bindings.stream()
             .map(binding -> getApplication(existingApps, binding).getName())
-            .filter(boundApp -> appNames.contains(boundApp))
+            .filter(appNames::contains)
             .collect(Collectors.toList());
     }
 

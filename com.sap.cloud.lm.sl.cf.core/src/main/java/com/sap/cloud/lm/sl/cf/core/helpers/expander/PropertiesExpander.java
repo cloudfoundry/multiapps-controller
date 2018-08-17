@@ -53,7 +53,7 @@ public class PropertiesExpander extends ReferencingPropertiesVisitor implements 
             }
         }
         return result.stream()
-            .map(builder -> builder.toString())
+            .map(StringBuilder::toString)
             .collect(Collectors.toList());
     }
 

@@ -344,7 +344,7 @@ public class ActivitiFacade {
             .processInstanceId(processInstanceId)
             .list()
             .stream()
-            .map(historicVariableInstance -> historicVariableInstance.getVariableName())
+            .map(HistoricVariableInstance::getVariableName)
             .collect(Collectors.toSet());
     }
 

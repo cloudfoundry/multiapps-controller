@@ -28,7 +28,7 @@ public class SecurityUtil {
 
     private static List<SimpleGrantedAuthority> getAuthorities(Set<String> scopes) {
         return scopes.stream()
-            .map(scope -> new SimpleGrantedAuthority(scope))
+            .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
     }
 

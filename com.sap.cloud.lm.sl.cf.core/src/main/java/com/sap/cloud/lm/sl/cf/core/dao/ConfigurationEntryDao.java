@@ -42,7 +42,7 @@ public class ConfigurationEntryDao {
 
     private List<ConfigurationEntry> toConfigurationEntries(List<ConfigurationEntryDto> dtos) {
         return dtos.stream()
-            .map(dto -> dto.toConfigurationEntry())
+            .map(ConfigurationEntryDto::toConfigurationEntry)
             .collect(Collectors.toList());
     }
 

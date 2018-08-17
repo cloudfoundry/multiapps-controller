@@ -50,7 +50,7 @@ public class ProcessConflictPreventer {
 
     private List<String> getOperationIds(List<Operation> operations) {
         return operations.stream()
-            .map(operation -> operation.getProcessId())
+            .map(Operation::getProcessId)
             .collect(Collectors.toList());
     }
 

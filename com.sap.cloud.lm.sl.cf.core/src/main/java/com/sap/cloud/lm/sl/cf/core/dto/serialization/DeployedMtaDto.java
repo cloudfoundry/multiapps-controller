@@ -39,13 +39,13 @@ public class DeployedMtaDto {
 
     private static List<DeployedMtaModuleDto> toDtos(List<DeployedMtaModule> modules) {
         return modules.stream()
-            .map(module -> new DeployedMtaModuleDto(module))
+            .map(DeployedMtaModuleDto::new)
             .collect(Collectors.toList());
     }
 
     private static List<DeployedMtaModule> toDeployedMtaModules(List<DeployedMtaModuleDto> modules) {
         return modules.stream()
-            .map(module -> module.toDeployedMtaModule())
+            .map(DeployedMtaModuleDto::toDeployedMtaModule)
             .collect(Collectors.toList());
     }
 

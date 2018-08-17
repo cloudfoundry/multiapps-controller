@@ -75,7 +75,7 @@ public class ConfigurationEntriesResource {
         .getResource("/update-configuration-entry-schema.xsd");
     private static final URL CONFIGURATION_FILTER_SCHEMA_LOCATION = ConfigurationEntriesResource.class
         .getResource("/configuration-filter-schema.xsd");
-    protected Supplier<UserInfo> userInfoSupplier = () -> SecurityContextUtil.getUserInfo();
+    protected Supplier<UserInfo> userInfoSupplier = SecurityContextUtil::getUserInfo;
 
     @Inject
     private ConfigurationEntryDao entryDao;
@@ -118,7 +118,7 @@ public class ConfigurationEntriesResource {
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName());
         return client.getSpaces()
             .stream()
-            .map(cloudSpace -> getCloudTarget(cloudSpace))
+            .map(this::getCloudTarget)
             .collect(Collectors.toList());
     }
 

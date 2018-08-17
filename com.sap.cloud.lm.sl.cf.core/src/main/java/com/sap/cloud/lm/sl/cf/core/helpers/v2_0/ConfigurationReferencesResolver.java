@@ -52,7 +52,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     protected List<String> getNames(List<RequiredDependency> dependencies) {
         return dependencies.stream()
-            .map(dependency -> dependency.getName())
+            .map(RequiredDependency::getName)
             .collect(Collectors.toList());
     }
 

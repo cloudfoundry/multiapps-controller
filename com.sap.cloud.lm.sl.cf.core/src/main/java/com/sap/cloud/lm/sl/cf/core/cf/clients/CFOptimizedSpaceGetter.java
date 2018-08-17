@@ -160,7 +160,7 @@ public class CFOptimizedSpaceGetter extends SpaceGetter {
         }
 
         return resources.stream()
-            .map(resource -> toCloudSpace(resource))
+            .map(this::toCloudSpace)
             .collect(Collectors.toList());
     }
 

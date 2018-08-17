@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static java.text.MessageFormat.format;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -86,7 +87,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
         if (recentLogs != null) {
             Optional<Pair<AppExecutionStatus, String>> statusx = recentLogs.stream()
                 .map(log -> getAppExecutionStatus(log, startTime, sm, fm, deployId))
-                .filter(aes -> (aes != null))
+                .filter(Objects::nonNull)
                 .reduce((a, b) -> b);
             if (statusx.isPresent()) {
                 status = statusx.get();

@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ExecuteTaskStep extends TimeoutAsyncActivitiStep {
 
-    protected Supplier<Long> currentTimeSupplier = () -> System.currentTimeMillis();
+    protected Supplier<Long> currentTimeSupplier = System::currentTimeMillis;
 
     @Inject
     private RecentLogsRetriever recentLogsRetriever;

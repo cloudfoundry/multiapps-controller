@@ -243,7 +243,7 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
 
     private Set<String> getApplicationsInDeployedMta(List<DeployedMtaModule> modules) {
         return modules.stream()
-            .map(module -> module.getAppName())
+            .map(DeployedMtaModule::getAppName)
             .collect(Collectors.toSet());
     }
 

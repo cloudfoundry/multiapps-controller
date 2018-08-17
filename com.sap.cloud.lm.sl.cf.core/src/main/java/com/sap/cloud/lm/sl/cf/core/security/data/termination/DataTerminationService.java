@@ -61,7 +61,7 @@ public class DataTerminationService {
             .build();
         List<Operation> operationsToBeDeleted = operationDao.find(operationFilter);
         List<String> result = operationsToBeDeleted.stream()
-            .map(cleanedUpOperation -> cleanedUpOperation.getProcessId())
+            .map(Operation::getProcessId)
             .collect(Collectors.toList());
         auditLogDeletion(operationsToBeDeleted);
         operationDao.removeAll(result);

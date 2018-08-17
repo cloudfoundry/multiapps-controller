@@ -49,7 +49,7 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
             getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
             List<String> appNames = appsToDeploy.stream()
-                .map(app -> app.getName())
+                .map(CloudApplication::getName)
                 .collect(Collectors.toList());
 
             List<DeployedMtaModule> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames);

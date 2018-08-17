@@ -98,8 +98,8 @@ public class ApplicationEnvironmentCloudModelBuilder {
     protected void addProvidedDependenciesMetadata(Map<String, Object> env, Module module) {
         List<String> mtaModuleProvidedDependencies = module.getProvidedDependencies1_0()
             .stream()
-            .filter(providedDependency -> CloudModelBuilderUtil.isPublic(providedDependency))
-            .map(providedDependency -> providedDependency.getName())
+            .filter(CloudModelBuilderUtil::isPublic)
+            .map(ProvidedDependency::getName)
             .collect(Collectors.toList());
         env.put(Constants.ENV_MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES, mtaModuleProvidedDependencies);
     }
@@ -206,7 +206,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         if (!destinationGroups.isEmpty()) {
             addToGroups(groups, destinationGroups, subgroupName, properties);
         } else {
-            properties.forEach((key, value) -> env.put(key, value));
+            properties.forEach(env::put);
         }
     }
 
