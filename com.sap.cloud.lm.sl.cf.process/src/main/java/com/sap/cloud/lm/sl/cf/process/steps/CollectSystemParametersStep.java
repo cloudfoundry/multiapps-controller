@@ -142,12 +142,11 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
 
         boolean areXsPlaceholdersSupported = configuration.areXsPlaceholdersSupported();
 
-        SystemParametersBuilder systemParametersBuilder = new SystemParametersBuilder(platformName, StepsUtil.getOrg(context),
+        return new SystemParametersBuilder(platformName, StepsUtil.getOrg(context),
             StepsUtil.getSpace(context), user, defaultDomainName, configuration.getPlatformType(), targetUrl, authorizationEndpoint,
             deployServiceUrl, routerPort, portBasedRouting, reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices,
             deployedMta, credentialsGeneratorSupplier.get(), majorSchemaVersion, areXsPlaceholdersSupported, xsPlaceholderResolver,
             timestampSupplier);
-        return systemParametersBuilder;
     }
 
     private Map<String, Object> buildXsPlaceholderReplacementValues(String defaultDomain, String authorizationEndpoint,

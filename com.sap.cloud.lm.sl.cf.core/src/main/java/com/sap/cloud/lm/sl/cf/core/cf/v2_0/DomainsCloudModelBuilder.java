@@ -23,7 +23,6 @@ public class DomainsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1_
     @Override
     protected List<String> getDomains(com.sap.cloud.lm.sl.mta.model.v1_0.Module module) {
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
-        List<String> domains = getAll(parametersList, SupportedParameters.DOMAIN, SupportedParameters.DOMAINS);
-        return domains;
+        return getAll(parametersList, SupportedParameters.DOMAIN, SupportedParameters.DOMAINS);
     }
 }

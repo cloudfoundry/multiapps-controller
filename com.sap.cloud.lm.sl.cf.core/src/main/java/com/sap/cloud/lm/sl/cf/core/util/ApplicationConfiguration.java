@@ -796,8 +796,7 @@ public class ApplicationConfiguration {
     }
 
     private String getGlobalAuditorPasswordFromEnvironment() {
-        String value = environment.getString(CFG_GLOBAL_AUDITOR_PASSWORD, DEFAULT_GLOBAL_AUDITOR_PASSWORD);
-        return value;
+        return environment.getString(CFG_GLOBAL_AUDITOR_PASSWORD, DEFAULT_GLOBAL_AUDITOR_PASSWORD);
     }
 
     private Integer getDbConnectionThreadsFromEnvironment() {

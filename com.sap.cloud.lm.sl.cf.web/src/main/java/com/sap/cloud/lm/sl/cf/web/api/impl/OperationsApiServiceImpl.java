@@ -81,8 +81,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     public List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
         List<State> states = getStates(statusList);
-        List<Operation> foundOperations = filterByQueryParameters(last, states, spaceGuid);
-        return foundOperations;
+        return filterByQueryParameters(last, states, spaceGuid);
     }
 
     @Override

@@ -50,8 +50,7 @@ public class CFOptimizedEventGetter extends CustomControllerClient {
     @SuppressWarnings("unchecked")
     private String extractSpaceId(Map<String, Object> event) {
         Map<String, Object> entity = (Map<String, Object>) event.get("entity");
-        String spaceId = (String) entity.get("space_guid");
-        return spaceId;
+        return (String) entity.get("space_guid");
     }
 
 }
