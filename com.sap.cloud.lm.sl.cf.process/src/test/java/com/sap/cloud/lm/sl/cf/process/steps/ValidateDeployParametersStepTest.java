@@ -144,7 +144,7 @@ public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<Valid
             .thenReturn(createFileEntry(EXISTING_FILE_ID, MERGED_ARCHIVE_TEST_MTAR, 1024 * 1024 * 1024l));
     }
 
-    private void prepareArchiveMerger() throws IOException {
+    private void prepareArchiveMerger() {
         merger = Mockito.mock(FilePartsMerger.class);
         Mockito.when(merger.getMergedFilePath())
             .thenReturn(Paths.get(MERGED_ARCHIVE_TEST_MTAR));

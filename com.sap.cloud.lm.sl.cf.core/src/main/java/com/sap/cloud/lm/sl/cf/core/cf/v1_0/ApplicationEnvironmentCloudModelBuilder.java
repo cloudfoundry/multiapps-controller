@@ -19,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
@@ -49,8 +48,8 @@ public class ApplicationEnvironmentCloudModelBuilder {
         this.deployId = deployId;
     }
 
-    public Map<Object, Object> build(Module module, List<String> descriptorDefinedUris, List<String> services, List<String> sharedServices)
-        throws ContentException {
+    public Map<Object, Object> build(Module module, List<String> descriptorDefinedUris, List<String> services,
+        List<String> sharedServices) {
         Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
         Map<String, Object> properties = propertiesAccessor.getProperties(module, specialModuleProperties);
         Map<String, Object> parameters = propertiesAccessor.getParameters(module, specialModuleProperties);

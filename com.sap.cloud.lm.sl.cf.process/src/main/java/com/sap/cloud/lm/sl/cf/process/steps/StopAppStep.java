@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class StopAppStep extends SyncActivitiStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         // Get the next cloud application from the context
         CloudApplication app = StepsUtil.getApp(execution.getContext());
 

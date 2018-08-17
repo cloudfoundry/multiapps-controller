@@ -33,7 +33,7 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
 
     protected abstract EntityManagerFactory getEmf();
 
-    public PersistentObject<Tgt> add(Tgt target) throws ConflictException {
+    public PersistentObject<Tgt> add(Tgt target) {
         TransactionalExecutor<Dto> executor = new TransactionalExecutor<>(createEntityManager());
         Dto persisted = executor.execute(manager -> {
             if (existsInternal(manager, target.getName())) {
@@ -70,14 +70,14 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
         return true;
     }
 
-    public void remove(long id) throws NotFoundException {
+    public void remove(long id) {
         new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             manager.remove(findInternal(manager, id));
             return null;
         });
     }
 
-    public PersistentObject<Tgt> merge(long id, Tgt target) throws ConflictException, NotFoundException {
+    public PersistentObject<Tgt> merge(long id, Tgt target) {
         Dto dto = new TransactionalExecutor<Dto>(createEntityManager()).execute(manager -> {
             Dto existingDto = findInternal(manager, id);
 
@@ -90,7 +90,7 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
         return dto.toDeployTarget();
     }
 
-    protected void checkForConflicts(EntityManager manager, Tgt oldTarget, Tgt newTarget) throws ConflictException {
+    protected void checkForConflicts(EntityManager manager, Tgt oldTarget, Tgt newTarget) {
         String oldTargetName = oldTarget.getName();
         String newTargetName = newTarget.getName();
         if (!oldTargetName.equals(newTargetName) && existsInternal(manager, newTargetName)) {
@@ -98,17 +98,17 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
         }
     }
 
-    public PersistentObject<Tgt> find(long id) throws NotFoundException {
+    public PersistentObject<Tgt> find(long id) {
         Dto entity = new Executor<Dto>(createEntityManager()).execute(manager -> findInternal(manager, id));
         return entity.toDeployTarget();
     }
 
-    public PersistentObject<Tgt> findByName(String name) throws NotFoundException {
+    public PersistentObject<Tgt> findByName(String name) {
         Dto entity = new Executor<Dto>(createEntityManager()).execute(manager -> findInternalByName(manager, name));
         return entity.toDeployTarget();
     }
 
-    protected Dto findInternal(EntityManager manager, long id) throws NotFoundException {
+    protected Dto findInternal(EntityManager manager, long id) {
         Dto entity = manager.find(classVersion, id);
         if (entity == null) {
             throw new NotFoundException(Messages.DEPLOY_TARGET_NOT_FOUND, id);
@@ -116,7 +116,7 @@ public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTarg
         return entity;
     }
 
-    protected Dto findInternalByName(EntityManager manager, String name) throws NotFoundException {
+    protected Dto findInternalByName(EntityManager manager, String name) {
         TypedQuery<Dto> query = createFindByNameQuery(manager, name);
         try {
             return query.getSingleResult();

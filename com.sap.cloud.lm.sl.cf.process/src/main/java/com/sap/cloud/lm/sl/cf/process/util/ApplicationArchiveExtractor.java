@@ -32,7 +32,7 @@ public class ApplicationArchiveExtractor {
         this.logger = logger;
     }
 
-    public Path extract() throws SLException {
+    public Path extract() {
         Path appPath = null;
         try {
             moveStreamToApplicationEntry();

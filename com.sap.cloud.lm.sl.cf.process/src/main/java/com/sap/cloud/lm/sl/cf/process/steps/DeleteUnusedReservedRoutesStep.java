@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.DELETING_UNUSED_RESERVED_ROUTES);
             boolean portBasedRouting = StepsUtil.getVariableOrDefault(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
@@ -51,7 +51,7 @@ public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
         }
     }
 
-    private String getDefaultDomain(DelegateExecution context) throws SLException {
+    private String getDefaultDomain(DelegateExecution context) {
         Map<String, Object> xsPlaceholderReplacementValues = StepsUtil.getXsPlaceholderReplacementValues(context);
         return (String) xsPlaceholderReplacementValues.get(SupportedParameters.XSA_DEFAULT_DOMAIN_PLACEHOLDER);
     }

@@ -18,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedComponents;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
-import com.sap.cloud.lm.sl.common.ParsingException;
 
 public class DeployedComponentsDetector {
 
@@ -26,7 +25,7 @@ public class DeployedComponentsDetector {
      * Detects all deployed components on this platform.
      * 
      */
-    public DeployedComponents detectAllDeployedComponents(Collection<CloudApplication> apps) throws ParsingException {
+    public DeployedComponents detectAllDeployedComponents(Collection<CloudApplication> apps) {
         Map<DeployedMtaMetadata, Set<String>> servicesMap = new HashMap<>();
         Map<DeployedMtaMetadata, List<DeployedMtaModule>> modulesMap = new HashMap<>();
         List<String> standaloneApps = new ArrayList<>();

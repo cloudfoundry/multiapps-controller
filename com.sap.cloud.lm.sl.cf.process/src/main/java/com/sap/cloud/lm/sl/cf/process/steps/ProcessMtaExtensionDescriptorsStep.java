@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().info(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
         List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(execution.getContext());
         try {
@@ -41,7 +41,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
         return StepPhase.DONE;
     }
 
-    private List<String> getExtensionDescriptors(String spaceId, List<String> fileIds) throws SLException {
+    private List<String> getExtensionDescriptors(String spaceId, List<String> fileIds) {
         try {
             final List<String> extensionDescriptorStrings = new ArrayList<>();
 

@@ -25,8 +25,6 @@ import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
-import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("endProcessListener")
 public class EndProcessListener extends AbstractProcessExecutionListener {
@@ -57,7 +55,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     }
 
     @Override
-    protected void notifyInternal(DelegateExecution context) throws SLException, FileStorageException {
+    protected void notifyInternal(DelegateExecution context) throws FileStorageException {
         if (configuration.shouldGatherUsageStatistics()) {
             sendStatistics(context);
         }
@@ -71,14 +69,14 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         setOperationInFinishedState(StepsUtil.getCorrelationId(context));
     }
 
-    protected void setOperationInFinishedState(String processInstanceId) throws NotFoundException {
+    protected void setOperationInFinishedState(String processInstanceId) {
         Operation operation = operationDao.findRequired(processInstanceId);
         operation.setState(State.FINISHED);
         operation.setEndedAt(ZonedDateTime.now());
         operationDao.merge(operation);
     }
 
-    private void removeClientForProcess(DelegateExecution context) throws SLException {
+    private void removeClientForProcess(DelegateExecution context) {
         String user = StepsUtil.determineCurrentUser(context, getStepLogger());
         String space = StepsUtil.getSpace(context);
         String org = StepsUtil.getOrg(context);
@@ -88,7 +86,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
         clientProvider.releaseClient(user, spaceID);
     }
 
-    protected void deleteDeploymentFiles(DelegateExecution context) throws SLException, FileStorageException {
+    protected void deleteDeploymentFiles(DelegateExecution context) throws FileStorageException {
         if (shouldKeepFiles((Boolean) context.getVariable(Constants.PARAM_KEEP_FILES))) {
             return;
         }

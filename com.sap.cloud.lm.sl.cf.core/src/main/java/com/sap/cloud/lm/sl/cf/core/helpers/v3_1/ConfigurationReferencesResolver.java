@@ -19,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.ElementContext;
 import com.sap.cloud.lm.sl.mta.model.PropertiesContainer;
 import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
@@ -41,13 +40,12 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     }
 
     @Override
-    protected void updateReferencesToResolvedResources(com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor descriptor)
-        throws ContentException {
+    protected void updateReferencesToResolvedResources(com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor descriptor) {
         DeploymentDescriptor descriptor3_1 = (DeploymentDescriptor) descriptor;
         this.updateReferencesToResolvedResources(descriptor3_1);
     }
 
-    protected void updateReferencesToResolvedResources(DeploymentDescriptor descriptor) throws ContentException {
+    protected void updateReferencesToResolvedResources(DeploymentDescriptor descriptor) {
         super.updateReferencesToResolvedResources(descriptor);
         com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor descriptor3_1 = cast(descriptor);
         for (Resource resource : descriptor3_1.getResources3_1()) {
@@ -69,16 +67,16 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     @Override
     protected List<com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency> expandRequiredDependencyIfNecessary(
         com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor descriptor, PropertiesContainer dependencyOwner,
-        com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency dependency) throws ContentException {
+        com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency dependency) {
         RequiredDependency dependencyV3 = (RequiredDependency) dependency;
         ResolvedConfigurationReference resolvedReference = resolvedReferences.get(dependencyV3.getName());
 
         if (!refersToResolvedResource(dependencyV3)) {
             return Arrays.asList(dependencyV3);
         }
-        
-        if(refersToInactiveResource(dependencyV3)) {
-            if(permitsMultipleResources(dependencyV3)) {
+
+        if (refersToInactiveResource(dependencyV3)) {
+            if (permitsMultipleResources(dependencyV3)) {
                 setEmptyListProperty(dependencyOwner, dependencyV3);
                 expandedDependenciesMap.put(dependencyV3, Collections.emptyList());
             }
@@ -114,8 +112,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
                 .equals(dependency.getName()));
     }
 
-    protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Resource resource)
-        throws ContentException {
+    protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Resource resource) {
         List<RequiredDependency> requiredDependencies = new ArrayList<>();
         for (RequiredDependency dependency : resource.getRequiredDependencies3_1()) {
             List<RequiredDependency> dependencies = cast(expandRequiredDependencyIfNecessary(descriptor, resource, dependency));
@@ -140,7 +137,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     }
 
     @Override
-    public void visit(ElementContext context, com.sap.cloud.lm.sl.mta.model.v1_0.Resource sourceResource) throws ContentException {
+    public void visit(ElementContext context, com.sap.cloud.lm.sl.mta.model.v1_0.Resource sourceResource) {
         ConfigurationFilter configurationFilter = filterParser.parse(sourceResource);
         if (configurationFilter == null) {
             // resource is not a config reference.

@@ -56,7 +56,6 @@ import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.security.AuthorizationChecker;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ParsingException;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.XmlUtil;
 
@@ -99,7 +98,7 @@ public class ConfigurationEntriesResource {
     @Context
     private HttpServletRequest request;
 
-    protected Response filterConfigurationEntries(ConfigurationFilter filter) throws ParsingException {
+    protected Response filterConfigurationEntries(ConfigurationFilter filter) {
         try {
             CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
             List<ConfigurationEntry> entries = findConfigurationEntries(entryDao, filter, getUserTargets(), globalConfigTarget);
@@ -138,13 +137,13 @@ public class ConfigurationEntriesResource {
 
     @Path("/{id}")
     @GET
-    public Response getConfigurationEntry(@PathParam(ID) long id) throws SLException {
+    public Response getConfigurationEntry(@PathParam(ID) long id) {
         return Response.status(Response.Status.OK)
             .entity(new ConfigurationEntryDto(entryDao.find(id)))
             .build();
     }
 
-    private Map<String, Object> parseContentFilterParameter(List<String> content) throws ParsingException {
+    private Map<String, Object> parseContentFilterParameter(List<String> content) {
         if (content == null || content.isEmpty()) {
             return null;
         }
@@ -169,12 +168,12 @@ public class ConfigurationEntriesResource {
         throw new ParsingException(Messages.COULD_NOT_PARSE_CONTENT_PARAMETER);
     }
 
-    private Map<String, Object> parseContentQueryJsonParameter(List<String> content) throws ParsingException {
+    private Map<String, Object> parseContentQueryJsonParameter(List<String> content) {
         return JsonUtil.fromJson(content.get(0), new TypeToken<Map<String, String>>() {
         }.getType());
     }
 
-    private Map<String, Object> parseContentQueryListParameter(List<String> content) throws ParsingException {
+    private Map<String, Object> parseContentQueryListParameter(List<String> content) {
         Map<String, Object> parsedContent = new HashMap<>();
         for (String property : content) {
             String[] keyValuePair = property.split(KEYVALUE_SEPARATOR, 2);
@@ -188,7 +187,7 @@ public class ConfigurationEntriesResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
-    public Response createConfigurationEntry(String xml) throws SLException {
+    public Response createConfigurationEntry(String xml) {
 
         ConfigurationEntryDto dto = parseDto(xml, CREATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION);
         ConfigurationEntry configurationEntry = dto.toConfigurationEntry();
@@ -208,7 +207,7 @@ public class ConfigurationEntriesResource {
     @Path("/{id}")
     @PUT
     @Consumes(MediaType.APPLICATION_XML)
-    public Response updateConfigurationEntry(@PathParam(ID) long id, String xml) throws SLException {
+    public Response updateConfigurationEntry(@PathParam(ID) long id, String xml) {
         ConfigurationEntryDto dto = parseDto(xml, UPDATE_CONFIGURATION_ENTRY_SCHEMA_LOCATION);
         if (dto.getId() != 0 && dto.getId() != id) {
             throw new ParsingException(Messages.CONFIGURATION_ENTRY_ID_CANNOT_BE_UPDATED, id);
@@ -223,13 +222,13 @@ public class ConfigurationEntriesResource {
             .build();
     }
 
-    private ConfigurationEntryDto parseDto(String dXml, URL schemaLocation) throws ParsingException {
+    private ConfigurationEntryDto parseDto(String dXml, URL schemaLocation) {
         return XmlUtil.fromXml(dXml, ConfigurationEntryDto.class, schemaLocation);
     }
 
     @Path("/{id}")
     @DELETE
-    public Response deleteConfigurationEntry(@PathParam(ID) long id) throws SLException {
+    public Response deleteConfigurationEntry(@PathParam(ID) long id) {
         ConfigurationEntry entry = entryDao.find(id);
         if (entry == null) {
             return Response.status(Response.Status.NOT_FOUND)
@@ -243,22 +242,22 @@ public class ConfigurationEntriesResource {
     }
 
     @GET
-    public Response getConfigurationEntries(@BeanParam ConfigurationFilterDto filterDto) throws SLException {
+    public Response getConfigurationEntries(@BeanParam ConfigurationFilterDto filterDto) {
         return filterConfigurationEntries(asConfigurationFilter(filterDto));
     }
 
-    private ConfigurationFilterDto parseFilterBean(String fXml) throws ParsingException {
+    private ConfigurationFilterDto parseFilterBean(String fXml) {
         return XmlUtil.fromXml(fXml, ConfigurationFilterDto.class, CONFIGURATION_FILTER_SCHEMA_LOCATION);
     }
 
     @Path("/searches")
     @POST
     @Consumes(MediaType.APPLICATION_XML)
-    public Response search(String xml) throws SLException {
+    public Response search(String xml) {
         return filterConfigurationEntries(asConfigurationFilter(parseFilterBean(xml)));
     }
 
-    private ConfigurationFilter asConfigurationFilter(ConfigurationFilterDto bean) throws SLException {
+    private ConfigurationFilter asConfigurationFilter(ConfigurationFilterDto bean) {
         String providerId = bean.getProviderId();
         String providerVersion = bean.getProviderVersion();
         String providerNid = bean.getProviderNid();

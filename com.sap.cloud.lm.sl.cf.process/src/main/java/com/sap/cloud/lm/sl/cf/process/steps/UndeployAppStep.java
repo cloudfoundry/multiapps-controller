@@ -40,7 +40,7 @@ public class UndeployAppStep extends SyncActivitiStep {
     private SpaceGetter spaceGetter;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             CloudApplication appToUndeploy = StepsUtil.getAppToUndeploy(execution.getContext());
             CloudControllerClient client = execution.getControllerClient();

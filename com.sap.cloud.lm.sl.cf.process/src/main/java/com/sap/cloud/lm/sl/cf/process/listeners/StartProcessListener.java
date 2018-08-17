@@ -23,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.OperationMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ParameterMetadata;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class StartProcessListener extends AbstractProcessExecutionListener {
@@ -43,7 +42,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     Supplier<ZonedDateTime> currentTimeSupplier = () -> ZonedDateTime.now();
 
     @Override
-    protected void notifyInternal(DelegateExecution context) throws SLException {
+    protected void notifyInternal(DelegateExecution context) {
         String correlationId = StepsUtil.getCorrelationId(context);
         if (correlationId == null) {
             correlationId = context.getProcessInstanceId();

@@ -50,7 +50,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @RequestScoped
 public class OperationsApiServiceImpl implements OperationsApiService {
@@ -305,7 +304,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return user;
     }
 
-    private CloudControllerClient getCloudFoundryClient(String spaceGuid) throws SLException {
+    private CloudControllerClient getCloudFoundryClient(String spaceGuid) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         return clientProvider.getControllerClient(userInfo.getName(), spaceGuid);
     }

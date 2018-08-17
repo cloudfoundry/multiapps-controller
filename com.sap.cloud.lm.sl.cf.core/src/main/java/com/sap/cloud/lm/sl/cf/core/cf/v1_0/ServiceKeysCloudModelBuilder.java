@@ -29,7 +29,7 @@ public class ServiceKeysCloudModelBuilder {
         this.propertiesAccessor = propertiesAccessor;
     }
 
-    public Map<String, List<ServiceKey>> build() throws ContentException {
+    public Map<String, List<ServiceKey>> build() {
         Map<String, List<ServiceKey>> serviceKeys = new HashMap<>();
         for (Resource resource : deploymentDescriptor.getResources1_0()) {
             if (isService(resource, propertiesAccessor)) {
@@ -39,7 +39,7 @@ public class ServiceKeysCloudModelBuilder {
         return serviceKeys;
     }
 
-    protected List<ServiceKey> getServiceKeysForService(Resource resource) throws ContentException {
+    protected List<ServiceKey> getServiceKeysForService(Resource resource) {
         List<Map<String, Object>> serviceKeysMaps = getServiceKeysMaps(resource);
         return serviceKeysMaps.stream()
             .map(keysMap -> getServiceKey(resource, keysMap))
@@ -57,7 +57,7 @@ public class ServiceKeysCloudModelBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    protected List<Map<String, Object>> getServiceKeysMaps(Resource resource) throws ContentException {
+    protected List<Map<String, Object>> getServiceKeysMaps(Resource resource) {
         Object serviceKeys = propertiesAccessor.getParameters(resource)
             .get(SupportedParameters.SERVICE_KEYS);
         if (serviceKeys == null) {

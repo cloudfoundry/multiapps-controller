@@ -51,7 +51,7 @@ public class ConfigurationReferencesResolver extends Visitor {
         return new ConfigurationReferenceResolver(dao, configuration);
     }
 
-    public void resolve(DeploymentDescriptor descriptor) throws ContentException {
+    public void resolve(DeploymentDescriptor descriptor) {
         descriptor.accept(this);
         insertResolvedResources(descriptor);
     }
@@ -64,7 +64,7 @@ public class ConfigurationReferencesResolver extends Visitor {
         return resolvedReferences;
     }
 
-    protected void insertResolvedResources(DeploymentDescriptor descriptor) throws ContentException {
+    protected void insertResolvedResources(DeploymentDescriptor descriptor) {
         descriptor.setResources1_0(getResolvedResources(descriptor));
         updateReferencesToResolvedResources(descriptor);
     }
@@ -84,14 +84,13 @@ public class ConfigurationReferencesResolver extends Visitor {
         return Arrays.asList(resource);
     }
 
-    protected void updateReferencesToResolvedResources(DeploymentDescriptor descriptor) throws ContentException {
+    protected void updateReferencesToResolvedResources(DeploymentDescriptor descriptor) {
         for (String resolvedResourceName : resolvedReferences.keySet()) {
             makeSureIsResolvedToSingleResource(resolvedResourceName, (resolvedReferences.get(resolvedResourceName)).getResolvedResources());
         }
     }
 
-    protected void makeSureIsResolvedToSingleResource(String resolvedResourceName, List<Resource> resultingResources)
-        throws ContentException {
+    protected void makeSureIsResolvedToSingleResource(String resolvedResourceName, List<Resource> resultingResources) {
         if (resultingResources.size() > 1) {
             LOGGER.debug(Messages.MULTIPLE_CONFIGURATION_ENTRIES, resolvedResourceName, resultingResources);
             throw new ContentException(format(Messages.MULTIPLE_CONFIGURATION_ENTRIES_WERE_FOUND, resolvedResourceName));
@@ -101,7 +100,7 @@ public class ConfigurationReferencesResolver extends Visitor {
     }
 
     @Override
-    public void visit(ElementContext context, Resource sourceResource) throws ContentException {
+    public void visit(ElementContext context, Resource sourceResource) {
         ConfigurationFilter configurationFilter = filterParser.parse(sourceResource);
         if (configurationFilter == null) {
             // resource is not a config reference.

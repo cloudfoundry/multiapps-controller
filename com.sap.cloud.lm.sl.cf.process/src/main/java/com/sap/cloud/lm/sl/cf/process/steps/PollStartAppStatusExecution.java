@@ -42,7 +42,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     @Override
-    public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {
+    public AsyncExecutionState execute(ExecutionWrapper execution) {
         CloudApplication app = getAppToPoll(execution.getContext());
         CloudControllerClient client = execution.getControllerClient();
 

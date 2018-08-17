@@ -11,7 +11,6 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
-import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.builders.v1_0.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
@@ -33,7 +32,7 @@ public class ConfigurationFilterParser {
         this.chainBuilder = chainBuilder;
     }
 
-    public ConfigurationFilter parse(Resource resource) throws ContentException {
+    public ConfigurationFilter parse(Resource resource) {
         String type = getType(resource);
         if (OLD_SYNTAX_FILTER.equals(type)) {
             return parseOldSyntaxFilter(resource);
@@ -49,7 +48,7 @@ public class ConfigurationFilterParser {
         return (String) mergedParameters.get(SupportedParameters.TYPE);
     }
 
-    private ConfigurationFilter parseOldSyntaxFilter(Resource resource) throws ContentException {
+    private ConfigurationFilter parseOldSyntaxFilter(Resource resource) {
         Map<String, Object> parameters = getParameters(resource);
         String mtaId = getRequiredParameter(parameters, SupportedParameters.MTA_ID);
         CloudTarget cloudTarget = getCurrentOrgAndSpace();
@@ -59,7 +58,7 @@ public class ConfigurationFilterParser {
         return new ConfigurationFilter(PROVIDER_NID, providerId, mtaVersion, cloudTarget, null);
     }
 
-    private ConfigurationFilter parseNewSyntaxFilter(Resource resource) throws ContentException {
+    private ConfigurationFilter parseNewSyntaxFilter(Resource resource) {
         Map<String, Object> parameters = getParameters(resource);
         String version = getOptionalParameter(parameters, SupportedParameters.VERSION);
         String namespaceId = getOptionalParameter(parameters, SupportedParameters.PROVIDER_NID);

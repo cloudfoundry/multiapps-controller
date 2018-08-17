@@ -84,7 +84,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     private List<FileEntry> uploadFiles(HttpServletRequest request, String spaceGuid)
-        throws FileUploadException, IOException, FileStorageException, SLException {
+        throws FileUploadException, IOException, FileStorageException {
         ServletFileUpload upload = getFileUploadServlet();
         long maxUploadSize = getConfiguration().getMaxUploadSize();
         upload.setSizeMax(maxUploadSize);

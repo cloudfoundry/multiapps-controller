@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.fileupload.MultipartStream.MalformedStreamException;
 import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
@@ -71,8 +70,7 @@ public class RecentLogsRetriever extends CustomControllerClient {
             .collect(Collectors.toList());
     }
 
-    private List<LogMessageConverter> extractLogMessages(ResponseEntity<Resource> responseResource)
-        throws MalformedStreamException, InvalidProtocolBufferException, IOException {
+    private List<LogMessageConverter> extractLogMessages(ResponseEntity<Resource> responseResource) throws IOException {
         List<LogMessageConverter> parsedLogs = new ArrayList<>();
         MediaType contentType = responseResource.getHeaders()
             .getContentType();
@@ -104,7 +102,7 @@ public class RecentLogsRetriever extends CustomControllerClient {
             parsedLogs.add(new LogMessageConverter(logEnvelope.getLogMessage()));
         }
     }
-    
+
     private byte[] removeLeadingNewLine(byte[] data) {
         if (data == null || data.length == 0) {
             return data;

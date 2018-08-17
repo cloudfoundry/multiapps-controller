@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -44,7 +43,7 @@ public class XmlNamespaceIgnoringMessageBodyReader<T> implements MessageBodyRead
     @SuppressWarnings("unchecked")
     @Override
     public T readFrom(Class<T> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-        MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws WebApplicationException {
+        MultivaluedMap<String, String> httpHeaders, InputStream entityStream) {
 
         try {
             Unmarshaller unmarshaller = JAXBContext.newInstance(type)

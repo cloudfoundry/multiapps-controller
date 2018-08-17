@@ -104,7 +104,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     private ApplicationConfiguration configuration;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.UPDATING_SUBSCRIBERS);
             List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(),
@@ -195,7 +195,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     }
 
     private CloudApplication attemptToUpdateSubscriber(DelegateExecution context, CloudControllerClient client,
-        ConfigurationSubscription subscription) throws SLException {
+        ConfigurationSubscription subscription) {
         HandlerFactory handlerFactory = new HandlerFactory(MAJOR_SCHEMA_VERSION);
 
         DeploymentDescriptor dummyDescriptor = buildDummyDescriptor(subscription, handlerFactory);
@@ -300,12 +300,11 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
         return new SystemParameters(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
-    private CloudControllerClient getClient(ExecutionWrapper execution, Pair<String, String> orgAndSpace) throws SLException {
+    private CloudControllerClient getClient(ExecutionWrapper execution, Pair<String, String> orgAndSpace) {
         return execution.getControllerClient(orgAndSpace._1, orgAndSpace._2);
     }
 
-    private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory)
-        throws SLException {
+    private DeploymentDescriptor buildDummyDescriptor(ConfigurationSubscription subscription, HandlerFactory handlerFactory) {
         ModuleDto moduleDto = subscription.getModuleDto();
         String resourceJson = toJson(subscription.getResourceDto());
         Map<String, Object> resourceMap = convertJsonToMap(resourceJson);

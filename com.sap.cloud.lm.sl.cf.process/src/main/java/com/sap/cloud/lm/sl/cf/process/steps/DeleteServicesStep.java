@@ -28,7 +28,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.DELETING_SERVICES);
 

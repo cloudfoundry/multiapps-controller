@@ -1,13 +1,11 @@
 package com.sap.cloud.lm.sl.cf.web.bootstrap;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.naming.NamingException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -101,12 +99,12 @@ public class BootstrapServlet extends HttpServlet {
         return () -> SecurityContextUtil.getUserInfo();
     }
 
-    private void initializeProviders() throws NamingException {
+    private void initializeProviders() {
         // Initialize audit logging provider
         AuditLoggingProvider.setFacade(new AuditLoggingFacadeSLImpl(dataSource, getUserInfoProvider()));
     }
 
-    private void initializeActiviti() throws IOException {
+    private void initializeActiviti() {
         ActivitiFacade.getInstance()
             .init(processEngine);
     }

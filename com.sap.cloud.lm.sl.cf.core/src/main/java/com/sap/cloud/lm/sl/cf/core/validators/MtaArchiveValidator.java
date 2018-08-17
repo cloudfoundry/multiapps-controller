@@ -34,9 +34,8 @@ import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
@@ -140,7 +139,7 @@ public class MtaArchiveValidator {
         return applications;
     }
 
-    public void validate() throws SLException, IOException {
+    public void validate() throws IOException {
         // Get MTAR contents as byte array
         byte[] mtar = IOUtils.toByteArray(mtarStream);
 

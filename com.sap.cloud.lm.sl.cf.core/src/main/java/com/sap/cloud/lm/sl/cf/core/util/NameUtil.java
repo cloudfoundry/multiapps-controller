@@ -40,18 +40,17 @@ public class NameUtil {
         return name.matches(namePattern);
     }
 
-    public static String getApplicationName(String moduleName, String mtaId, boolean useNamespaces) throws SLException {
+    public static String getApplicationName(String moduleName, String mtaId, boolean useNamespaces) {
         String prefix = (useNamespaces ? getNamespacePrefix(mtaId) : "");
         return prefix + getNameWithProperLength(moduleName, NameRequirements.APP_NAME_MAX_LENGTH - prefix.length());
     }
 
-    public static String getServiceName(String resourceName, String mtaId, boolean useNamespaces, boolean useNamespacesForServices)
-        throws SLException {
+    public static String getServiceName(String resourceName, String mtaId, boolean useNamespaces, boolean useNamespacesForServices) {
         String prefix = (useNamespaces && useNamespacesForServices ? getNamespacePrefix(mtaId) : "");
         return prefix + getNameWithProperLength(resourceName, NameRequirements.SERVICE_NAME_MAX_LENGTH - prefix.length());
     }
 
-    public static String createValidContainerName(String organization, String space, String serviceName) throws SLException {
+    public static String createValidContainerName(String organization, String space, String serviceName) {
         String properOrganization = organization.toUpperCase(Locale.US)
             .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
         String properSpace = space.toUpperCase(Locale.US)
@@ -62,7 +61,7 @@ public class NameUtil {
             NameRequirements.CONTAINER_NAME_MAX_LENGTH).toUpperCase(Locale.US);
     }
 
-    public static String createValidXsAppName(String serviceName) throws SLException {
+    public static String createValidXsAppName(String serviceName) {
         if (serviceName.startsWith("sap_system")) {
             serviceName = serviceName.replaceFirst("sap_system", "");
         }
@@ -73,14 +72,14 @@ public class NameUtil {
             NameRequirements.XS_APP_NAME_MAX_LENGTH);
     }
 
-    public static String getNameWithProperLength(String name, int maxLength) throws SLException {
+    public static String getNameWithProperLength(String name, int maxLength) {
         if (name.length() > maxLength) {
             return getShortenedName(name, maxLength);
         }
         return name;
     }
 
-    private static String getShortenedName(String name, int maxLength) throws SLException {
+    private static String getShortenedName(String name, int maxLength) {
         String nameHashCode = getHashCodeAsHexString(name);
         if (maxLength < nameHashCode.length()) {
             throw new SLException(Messages.CANNOT_SHORTEN_NAME_TO_N_CHARACTERS, name, maxLength);

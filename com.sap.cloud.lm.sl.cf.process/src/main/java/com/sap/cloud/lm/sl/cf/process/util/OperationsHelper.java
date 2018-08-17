@@ -20,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMap
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component
 public class OperationsHelper {
@@ -61,11 +60,11 @@ public class OperationsHelper {
         }
     }
 
-    public void addState(Operation ongoingOperation) throws SLException {
+    public void addState(Operation ongoingOperation) {
         ongoingOperation.setState(getOngoingOperationState(ongoingOperation));
     }
 
-    protected State getOngoingOperationState(Operation ongoingOperation) throws SLException {
+    protected State getOngoingOperationState(Operation ongoingOperation) {
         if (ongoingOperation.getState() != null) {
             return ongoingOperation.getState();
         }
@@ -79,7 +78,7 @@ public class OperationsHelper {
         return state;
     }
 
-    public State computeState(Operation ongoingOperation) throws SLException {
+    public State computeState(Operation ongoingOperation) {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
             ongoingOperation.getProcessId()));
         return activitiFacade.getOngoingOperationState(ongoingOperation);

@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("deleteIdleRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -26,9 +25,9 @@ public class DeleteIdleRoutesStep extends SyncActivitiStep {
 
     @Inject
     private SpaceGetter spaceGetter;
-    
+
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.DELETING_IDLE_URIS);
             CloudControllerClient client = execution.getControllerClient();

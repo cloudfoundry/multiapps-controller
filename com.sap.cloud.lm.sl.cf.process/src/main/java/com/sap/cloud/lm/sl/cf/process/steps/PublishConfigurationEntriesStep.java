@@ -29,7 +29,7 @@ public class PublishConfigurationEntriesStep extends SyncActivitiStep {
     ConfigurationEntryDao configurationEntryDao;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {

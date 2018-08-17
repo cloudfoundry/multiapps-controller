@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class AddDomainsStep extends SyncActivitiStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             CloudControllerClient client = execution.getControllerClient();
 
