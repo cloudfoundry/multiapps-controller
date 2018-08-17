@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,7 +70,8 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
             final String repoName = extractRepoName(gitUri, processId);
             final Path reposDir = Paths.get(REPOSITORY_DIRECTORY_NAME, repoName);
             Path gitConfigFilePath = generateGitConfigFilepath(processId);
-            if (!Files.exists(reposDir)) {
+            if (!reposDir.toFile()
+                .exists()) {
                 Files.createDirectories(reposDir);
             }
             Path mtarZip = null;
@@ -85,10 +87,12 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
             } finally {
                 try {
                     deleteTemporaryRepositoryDirectory(reposDir);
-                    if (Files.exists(gitConfigFilePath)) {
+                    if (gitConfigFilePath.toFile()
+                        .exists()) {
                         Files.delete(gitConfigFilePath);
                     }
-                    if (mtarZip != null && Files.exists(mtarZip)) {
+                    if (mtarZip != null && mtarZip.toFile()
+                        .exists()) {
                         FileUtils.deleteDirectory(mtarZip);
                     }
                 } catch (IOException e) {
@@ -257,9 +261,11 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
 
     private boolean directoryContainsManifest(Path mtaPath) {
         Path metaInfPath = mtaPath.resolve(META_INF_PATH);
-        Path manifestPath = metaInfPath.resolve(MANIFEST_PATH);
-        Path mtadPath = metaInfPath.resolve(MTAD_PATH);
-        return Files.exists(manifestPath) && Files.exists(mtadPath);
+        File manifestFile = metaInfPath.resolve(MANIFEST_PATH)
+            .toFile();
+        File mtadFile = metaInfPath.resolve(MTAD_PATH)
+            .toFile();
+        return manifestFile.exists() && mtadFile.exists();
     }
 
     private void deleteTemporaryRepositoryDirectory(Path clonedRepoDir) throws IOException {

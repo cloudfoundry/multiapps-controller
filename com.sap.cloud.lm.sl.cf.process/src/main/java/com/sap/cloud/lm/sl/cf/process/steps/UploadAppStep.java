@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -14,9 +13,9 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.commons.io.FileUtils;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -143,13 +142,17 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private void cleanUp(Path filePath) {
-        if (filePath == null || !Files.exists(filePath)) {
+        if (filePath == null) {
+            return;
+        }
+        File file = filePath.toFile();
+        if (!file.exists()) {
             return;
         }
 
         try {
             getStepLogger().debug(Messages.DELETING_TEMP_FILE, filePath);
-            FileUtils.forceDelete(filePath.toFile());
+            FileUtils.forceDelete(file);
         } catch (IOException e) {
             getStepLogger().warn(Messages.ERROR_DELETING_APP_TEMP_FILE, filePath.toAbsolutePath());
         }
