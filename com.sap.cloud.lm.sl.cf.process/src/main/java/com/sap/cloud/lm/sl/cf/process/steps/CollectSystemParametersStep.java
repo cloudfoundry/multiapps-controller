@@ -49,7 +49,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
     @Inject
     private ApplicationConfiguration configuration;
 
-    protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = () -> new CredentialsGenerator();
+    protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()
         .getTime());
 

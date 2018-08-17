@@ -43,7 +43,7 @@ public class CFOptimizedEventGetter extends CustomControllerClient {
 
     private List<String> extractSpaceIds(List<Map<String, Object>> events) {
         return events.stream()
-            .map(event -> extractSpaceId(event))
+            .map(this::extractSpaceId)
             .collect(Collectors.toList());
     }
 

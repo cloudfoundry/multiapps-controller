@@ -170,7 +170,7 @@ public class OperationDtoDao {
 
     private Object toStrings(List<State> states) {
         return states.stream()
-            .map(state -> state.toString())
+            .map(State::toString)
             .collect(Collectors.toList());
     }
 

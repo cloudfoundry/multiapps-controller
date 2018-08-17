@@ -66,7 +66,7 @@ public class RecentLogsRetriever extends CustomControllerClient {
 
     private List<ApplicationLog> convertToApplicationLogs(List<LogMessageConverter> logMessages) {
         return logMessages.stream()
-            .map(message -> message.convertToApplicationLog())
+            .map(LogMessageConverter::convertToApplicationLog)
             .collect(Collectors.toList());
     }
 

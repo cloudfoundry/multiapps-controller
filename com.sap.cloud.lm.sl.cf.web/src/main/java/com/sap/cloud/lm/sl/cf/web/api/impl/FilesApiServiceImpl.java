@@ -54,7 +54,7 @@ public class FilesApiServiceImpl implements FilesApiService {
         try {
             List<FileEntry> entries = fileService.listFiles(spaceGuid, null);
             List<FileMetadata> files = entries.stream()
-                .map(entry -> parseFileEntry(entry))
+                .map(this::parseFileEntry)
                 .collect(Collectors.toList());
             return Response.ok()
                 .entity(files)

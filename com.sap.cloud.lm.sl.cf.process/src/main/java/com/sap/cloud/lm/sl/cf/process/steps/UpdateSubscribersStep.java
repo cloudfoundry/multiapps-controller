@@ -278,7 +278,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
 
     private List<String> getFirstComponents(List<String> properties) {
         return properties.stream()
-            .map(propertyName -> getFirstComponent(propertyName))
+            .map(this::getFirstComponent)
             .collect(Collectors.toList());
     }
 

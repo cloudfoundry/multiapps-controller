@@ -322,7 +322,7 @@ public class StepsUtil {
 
     static void setServicesToCreate(DelegateExecution context, List<CloudServiceExtended> services) {
         List<String> servicesAsStrings = services.stream()
-            .map(service -> JsonUtil.toJson(service))
+            .map(JsonUtil::toJson)
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_SERVICES_TO_CREATE, servicesAsStrings);
     }
@@ -337,7 +337,7 @@ public class StepsUtil {
 
     static void setServicesToBind(DelegateExecution context, List<CloudServiceExtended> services) {
         List<String> servicesAsStrings = services.stream()
-            .map(service -> JsonUtil.toJson(service))
+            .map(JsonUtil::toJson)
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_SERVICES_TO_BIND, servicesAsStrings);
     }
@@ -397,7 +397,7 @@ public class StepsUtil {
 
     public static void setAppsToDeploy(DelegateExecution context, List<CloudApplicationExtended> apps) {
         List<String> cloudApplicationsAsStrings = apps.stream()
-            .map(app -> JsonUtil.toJson(app))
+            .map(JsonUtil::toJson)
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
     }
@@ -747,13 +747,13 @@ public class StepsUtil {
         @SuppressWarnings("unchecked")
         Set<String> actionsAsStrings = (Set<String>) context.getVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE);
         return actionsAsStrings.stream()
-            .map(action -> ApplicationStateAction.valueOf(action))
+            .map(ApplicationStateAction::valueOf)
             .collect(Collectors.toSet());
     }
 
     static void setAppStateActionsToExecute(DelegateExecution context, Set<ApplicationStateAction> actions) {
         Set<String> actionsAsStrings = actions.stream()
-            .map(action -> action.toString())
+            .map(ApplicationStateAction::toString)
             .collect(Collectors.toSet());
         context.setVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE, actionsAsStrings);
     }

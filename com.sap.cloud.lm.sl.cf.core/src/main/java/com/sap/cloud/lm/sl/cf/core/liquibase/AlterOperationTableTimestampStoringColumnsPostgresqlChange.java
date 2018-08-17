@@ -50,7 +50,7 @@ public class AlterOperationTableTimestampStoringColumnsPostgresqlChange extends
     @Override
     public List<TransformedOperation> transformData(List<OriginalOperation> retrievedData) {
         return retrievedData.stream()
-            .map(operation -> transformOperation(operation))
+            .map(this::transformOperation)
             .collect(Collectors.toList());
     }
 

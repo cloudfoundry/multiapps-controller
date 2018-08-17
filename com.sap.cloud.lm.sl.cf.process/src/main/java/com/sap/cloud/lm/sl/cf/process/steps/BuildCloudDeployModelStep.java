@@ -74,7 +74,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
 
             // Build a list of services for creation and save them in the context:
             List<CloudServiceExtended> servicesToCreate = allServices.stream()
-                .filter(service -> service.isManaged())
+                .filter(CloudServiceExtended::isManaged)
                 .collect(Collectors.toList());
             getStepLogger().debug(Messages.SERVICES_TO_CREATE, secureSerializer.toJson(servicesToCreate));
             StepsUtil.setServicesToCreate(execution.getContext(), servicesToCreate);

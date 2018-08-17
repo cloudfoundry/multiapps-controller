@@ -27,7 +27,7 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
             Collections.emptyList());
 
         return tasks.stream()
-            .map(task -> toCloudTask(task))
+            .map(this::toCloudTask)
             .collect(Collectors.toList());
     }
 

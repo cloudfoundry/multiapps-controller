@@ -176,7 +176,7 @@ public class MtaArchiveBuilder {
         prepareFile(path);
         Attributes attributes = new Attributes();
         List<String> moduleNames = modules.stream()
-            .map(module -> module.getName())
+            .map(Module::getName)
             .collect(Collectors.toList());
         attributes.putValue(MtaArchiveHelper.ATTR_MTA_MODULE, String.join(Constants.MODULE_SEPARATOR, moduleNames));
         manifestEntries.put(path, attributes);

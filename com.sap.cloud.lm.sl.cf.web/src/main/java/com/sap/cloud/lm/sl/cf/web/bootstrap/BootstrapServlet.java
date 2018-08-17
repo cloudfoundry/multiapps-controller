@@ -96,7 +96,7 @@ public class BootstrapServlet extends HttpServlet {
     }
 
     protected static UserInfoProvider getUserInfoProvider() {
-        return () -> SecurityContextUtil.getUserInfo();
+        return SecurityContextUtil::getUserInfo;
     }
 
     private void initializeProviders() {

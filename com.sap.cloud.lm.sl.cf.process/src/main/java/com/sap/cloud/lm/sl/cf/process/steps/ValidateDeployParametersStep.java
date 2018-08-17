@@ -121,7 +121,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         List<FileEntry> sortedParts = sort(archivePartEntries);
         String archiveName = getArchiveName(sortedParts.get(0));
         FilePartsMerger archiveMerger = getArchiveMerger(archiveName);
-        FileContentProcessor archivePartProcessor = appArchivePartInputStream -> archiveMerger.merge(appArchivePartInputStream);
+        FileContentProcessor archivePartProcessor = archiveMerger::merge;
         try {
             for (FileEntry fileEntry : sortedParts) {
                 getStepLogger().debug(Messages.MERGING_ARCHIVE_PART, fileEntry.getId(), fileEntry.getName());

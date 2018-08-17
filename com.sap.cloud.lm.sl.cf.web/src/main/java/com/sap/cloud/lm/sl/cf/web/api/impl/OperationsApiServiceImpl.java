@@ -178,7 +178,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private List<State> getStates(List<String> statusList) {
         return statusList.stream()
-            .map(status -> State.valueOf(status))
+            .map(State::valueOf)
             .collect(Collectors.toList());
     }
 
@@ -271,14 +271,14 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private String getParameterIds(List<ParameterMetadata> missingRequiredParameters) {
         List<String> parameterIds = missingRequiredParameters.stream()
-            .map(parameter -> parameter.getId())
+            .map(ParameterMetadata::getId)
             .collect(Collectors.toList());
         return String.join(",", parameterIds);
     }
 
     private Set<ParameterMetadata> getRequiredParameters(Set<ParameterMetadata> parameters) {
         return parameters.stream()
-            .filter(parameter -> parameter.getRequired())
+            .filter(ParameterMetadata::getRequired)
             .collect(Collectors.toSet());
     }
 
@@ -312,7 +312,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(operation.getProcessId());
         return progressMessages.stream()
             .filter(message -> message.getType() != ProgressMessageType.TASK_STARTUP)
-            .map(message -> getMessage(message))
+            .map(this::getMessage)
             .collect(Collectors.toList());
     }
 

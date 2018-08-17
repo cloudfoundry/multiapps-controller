@@ -35,8 +35,8 @@ public class AnalyticsCollector {
     @Inject
     private ProcessTypeParser processTypeParser;
 
-    Supplier<Long> endTimeSupplier = () -> System.currentTimeMillis();
-    Supplier<ZoneId> timeZoneSupplier = () -> ZoneId.systemDefault();
+    Supplier<Long> endTimeSupplier = System::currentTimeMillis;
+    Supplier<ZoneId> timeZoneSupplier = ZoneId::systemDefault;
 
     public AnalyticsData collectAnalyticsData(DelegateExecution context) {
         String processId = context.getProcessInstanceId();

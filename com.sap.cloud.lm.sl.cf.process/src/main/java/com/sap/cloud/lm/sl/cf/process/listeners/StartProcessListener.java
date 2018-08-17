@@ -39,7 +39,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     @Inject
     private ApplicationConfiguration configuration;
 
-    Supplier<ZonedDateTime> currentTimeSupplier = () -> ZonedDateTime.now();
+    Supplier<ZonedDateTime> currentTimeSupplier = ZonedDateTime::now;
 
     @Override
     protected void notifyInternal(DelegateExecution context) {

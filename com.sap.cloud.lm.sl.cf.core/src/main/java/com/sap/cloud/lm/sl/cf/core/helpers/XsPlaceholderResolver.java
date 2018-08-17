@@ -75,7 +75,7 @@ public class XsPlaceholderResolver {
 
     public List<String> resolve(List<String> values) {
         return values.stream()
-            .map(value -> resolve(value))
+            .map(this::resolve)
             .collect(Collectors.toList());
     }
 

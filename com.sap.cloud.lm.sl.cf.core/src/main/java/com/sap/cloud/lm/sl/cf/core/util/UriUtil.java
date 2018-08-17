@@ -78,7 +78,7 @@ public class UriUtil {
 
     public static List<String> getUrisWithoutScheme(List<String> uris) {
         return uris.stream()
-            .map(uri -> getUriWithoutScheme(uri))
+            .map(UriUtil::getUriWithoutScheme)
             .collect(Collectors.toList());
     }
 

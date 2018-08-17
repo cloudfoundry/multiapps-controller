@@ -32,7 +32,7 @@ public class Health {
 
     private static List<HealthCheckOperation> toHealthCheckOperations(List<Operation> operations) {
         return operations.stream()
-            .map(operation -> HealthCheckOperation.fromOperation(operation))
+            .map(HealthCheckOperation::fromOperation)
             .collect(Collectors.toList());
     }
 
