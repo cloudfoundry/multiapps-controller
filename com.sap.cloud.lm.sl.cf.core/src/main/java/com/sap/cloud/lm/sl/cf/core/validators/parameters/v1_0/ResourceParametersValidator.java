@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParametersValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParametersValidatorHelper;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
 public class ResourceParametersValidator extends ParametersValidator<Resource> {
@@ -17,7 +16,7 @@ public class ResourceParametersValidator extends ParametersValidator<Resource> {
     }
 
     @Override
-    public Resource validate() throws SLException {
+    public Resource validate() {
         Map<String, Object> properties = validateParameters(resource, resource.getProperties());
         resource.setProperties(properties);
         return resource;

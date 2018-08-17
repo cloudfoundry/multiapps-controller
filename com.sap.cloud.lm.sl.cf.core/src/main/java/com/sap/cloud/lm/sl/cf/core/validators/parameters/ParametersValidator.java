@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public abstract class ParametersValidator<T> {
@@ -23,9 +22,9 @@ public abstract class ParametersValidator<T> {
         this(prefix, objectName, new ParametersValidatorHelper(parameterValidators, doNotCorrect), containerClass);
     }
 
-    public abstract T validate() throws SLException;
+    public abstract T validate();
 
-    protected Map<String, Object> validateParameters(Object container, Map<String, Object> parameters) throws SLException {
+    protected Map<String, Object> validateParameters(Object container, Map<String, Object> parameters) {
         return helper.validate(prefix, container, containerClass, parameters);
     }
 

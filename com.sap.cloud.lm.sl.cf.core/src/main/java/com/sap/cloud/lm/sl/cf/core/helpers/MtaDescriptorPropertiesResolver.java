@@ -27,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v3_1.VisibilityValidator;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
@@ -71,7 +70,7 @@ public class MtaDescriptorPropertiesResolver {
             new VisibilityValidator());
     }
 
-    public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) throws SLException {
+    public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
         // Resolve placeholders in parameters:
         descriptor = handlerFactory
             .getDescriptorPlaceholderResolver(descriptor, platform, target, systemParameters, new NullPropertiesResolverBuilder(),

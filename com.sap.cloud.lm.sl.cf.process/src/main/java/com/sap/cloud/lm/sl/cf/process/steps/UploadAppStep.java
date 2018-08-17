@@ -47,7 +47,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     protected ApplicationConfiguration configuration;
 
     @Override
-    public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException, SLException {
+    public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {
@@ -74,7 +74,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private String asyncUploadFiles(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, String appArchiveId,
-        String fileName) throws FileStorageException, SLException {
+        String fileName) throws FileStorageException {
         final StringBuilder uploadTokenBuilder = new StringBuilder();
         final DelegateExecution context = execution.getContext();
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
@@ -96,13 +96,13 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         return uploadTokenBuilder.toString();
     }
 
-    protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) throws SLException {
+    protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) {
         ApplicationArchiveExtractor appExtractor = new ApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, getStepLogger());
         return appExtractor.extract();
     }
 
     private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath, String fileName,
-        final StringBuilder uploadTokenBuilder) throws IOException, CloudOperationException {
+        final StringBuilder uploadTokenBuilder) throws IOException {
         detectApplicationFileDigestChanges(execution, app, filePath.toFile(), client);
         String uploadToken = client.asyncUploadApplication(app.getName(), filePath.toFile(),
             getMonitorUploadStatusCallback(app, filePath.toFile()));

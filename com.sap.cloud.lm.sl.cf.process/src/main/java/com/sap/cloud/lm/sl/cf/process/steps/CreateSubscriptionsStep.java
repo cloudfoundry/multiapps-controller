@@ -22,7 +22,7 @@ public class CreateSubscriptionsStep extends SyncActivitiStep {
     private ConfigurationSubscriptionDao dao;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.CREATING_SUBSCRIPTIONS);
 
@@ -59,7 +59,7 @@ public class CreateSubscriptionsStep extends SyncActivitiStep {
         return detectSubscription(subscription.getMtaId(), subscription.getAppName(), subscription.getSpaceId(), resourceDto.getName());
     }
 
-    protected void createSubscription(ConfigurationSubscription subscription) throws SLException {
+    protected void createSubscription(ConfigurationSubscription subscription) {
         ConfigurationSubscription existingSubscription = detectSubscription(subscription);
         if (existingSubscription != null) {
             dao.update(existingSubscription.getId(), subscription);

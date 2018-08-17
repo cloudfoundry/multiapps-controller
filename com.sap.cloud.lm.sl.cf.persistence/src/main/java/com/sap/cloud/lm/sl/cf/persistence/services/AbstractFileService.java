@@ -107,7 +107,7 @@ public abstract class AbstractFileService {
 
     public FileEntry addFile(String space, String namespace, String name,
         FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileUploadProcessor, File existingFile)
-        throws VirusScannerException, FileStorageException {
+        throws FileStorageException {
         try {
             FileUpload fileUpload = createFileUpload(existingFile);
 
@@ -121,14 +121,14 @@ public abstract class AbstractFileService {
         }
     }
 
-    private FileUpload createFileUpload(File existingFile) throws NoSuchAlgorithmException, FileNotFoundException, IOException {
+    private FileUpload createFileUpload(File existingFile) throws NoSuchAlgorithmException, IOException {
         return new FileUpload(existingFile, BigInteger.valueOf(existingFile.length()),
             DigestHelper.computeFileChecksum(existingFile.toPath(), FileUploader.DIGEST_METHOD), FileUploader.DIGEST_METHOD);
     }
 
     private FileEntry addFile(String space, String namespace, String name,
         FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileUploadProcessor, FileUpload fileUpload)
-        throws VirusScannerException, FileStorageException {
+        throws FileStorageException {
 
         if (fileUploadProcessor.shouldScanFile()) {
             scanUpload(fileUpload);
@@ -139,7 +139,7 @@ public abstract class AbstractFileService {
         return fileEntry;
     }
 
-    private void scanUpload(FileUpload file) throws VirusScannerException, FileStorageException {
+    private void scanUpload(FileUpload file) throws FileStorageException {
         if (virusScanner == null) {
             throw new FileStorageException(Messages.NO_VIRUS_SCANNER_CONFIGURED);
         }

@@ -8,7 +8,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
@@ -66,7 +65,7 @@ public class JsonMessageBodyWriter<T> implements MessageBodyWriter<T> {
 
     @Override
     public void writeTo(T t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+        MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
 
         String json = JsonUtil.toJson(t);
         entityStream.write(json.getBytes(getCharset(mediaType)));

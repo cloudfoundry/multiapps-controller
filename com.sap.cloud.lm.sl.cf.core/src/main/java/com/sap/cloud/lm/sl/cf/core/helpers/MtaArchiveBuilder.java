@@ -66,12 +66,12 @@ public class MtaArchiveBuilder {
         return mtaAssemblyDir;
     }
 
-    public MtaArchiveBuilder(Path mtaDirectory) throws SLException {
+    public MtaArchiveBuilder(Path mtaDirectory) {
         this.mtaDir = mtaDirectory;
         this.deploymentDescriptor = getDeploymentDescriptor(mtaDirectory);
     }
 
-    private DeploymentDescriptor getDeploymentDescriptor(Path mtaDirectory) throws SLException {
+    private DeploymentDescriptor getDeploymentDescriptor(Path mtaDirectory) {
         deploymentDescriptorFile = findDeploymenDescriptor(mtaDirectory);
         String deploymentDescriptorString = readDeploymentDescriptor(deploymentDescriptorFile);
 
@@ -87,7 +87,7 @@ public class MtaArchiveBuilder {
             .parseDeploymentDescriptorYaml(deploymentDescriptorString);
     }
 
-    public Path buildMtaArchive() throws SLException {
+    public Path buildMtaArchive() {
         mtaAssemblyDir = mtaDir.resolve(MTA_ASSEMBLY_DIR);
         if (Files.exists(mtaAssemblyDir)) {
             try {
@@ -119,7 +119,7 @@ public class MtaArchiveBuilder {
         return mtaArchive;
     }
 
-    private void prepareArchiveContents() throws SLException {
+    private void prepareArchiveContents() {
         manifestEntries = new HashMap<>();
         jarEntries = new ArrayList<>();
         prepareDirectories();
@@ -129,7 +129,7 @@ public class MtaArchiveBuilder {
 
     }
 
-    private void prepareModules() throws SLException {
+    private void prepareModules() {
         Map<String, List<Module>> modulesMap = createModulesMap(deploymentDescriptor.getModules2_0());
         for (Map.Entry<String, List<Module>> entry : modulesMap.entrySet()) {
             prepareModuleEntries(entry.getKey(), entry.getValue());
@@ -137,13 +137,13 @@ public class MtaArchiveBuilder {
         }
     }
 
-    private void prepareDependencies(List<Module> modules) throws SLException {
+    private void prepareDependencies(List<Module> modules) {
         for (Module module : modules) {
             prepareModuleDependencies(module);
         }
     }
 
-    private void prepareDirectories() throws SLException {
+    private void prepareDirectories() {
         try {
             Files.createDirectories(mtaAssemblyDir.resolve(META_INF_DIR));
             Path targetDeployDescriptorFile = mtaAssemblyDir.resolve(DEPLOYMENT_DESCRIPTOR_ARCHIVE_PATH);
@@ -156,7 +156,7 @@ public class MtaArchiveBuilder {
 
     }
 
-    private void prepareResourceEntries(DeploymentDescriptor deploymentDescriptor) throws SLException {
+    private void prepareResourceEntries(DeploymentDescriptor deploymentDescriptor) {
         for (Resource resource : deploymentDescriptor.getResources2_0()) {
             String resourceConfigPath = (String) resource.getParameters()
                 .get(SupportedParameters.SERVICE_CONFIG_PATH);
@@ -170,7 +170,7 @@ public class MtaArchiveBuilder {
         }
     }
 
-    private void prepareModuleEntries(String path, List<Module> modules) throws SLException {
+    private void prepareModuleEntries(String path, List<Module> modules) {
         prepareFile(path);
         Attributes attributes = new Attributes();
         List<String> moduleNames = modules.stream()
@@ -180,7 +180,7 @@ public class MtaArchiveBuilder {
         manifestEntries.put(path, attributes);
     }
 
-    private void prepareModuleDependencies(Module module) throws SLException {
+    private void prepareModuleDependencies(Module module) {
         for (RequiredDependency requiredDependency : module.getRequiredDependencies2_0()) {
             String requiredDependencyConfigPath = (String) requiredDependency.getParameters()
                 .get(SupportedParameters.SERVICE_BINDING_CONFIG_PATH);
@@ -195,7 +195,7 @@ public class MtaArchiveBuilder {
         }
     }
 
-    private void prepareFile(String path) throws SLException {
+    private void prepareFile(String path) {
         MtaPathValidator.validatePath(path);
         Path source = mtaDir.resolve(path);
         if (Files.notExists(source)) {
@@ -254,7 +254,7 @@ public class MtaArchiveBuilder {
         return entry;
     }
 
-    private static String readDeploymentDescriptor(Path deploymentDescriptorFile) throws SLException {
+    private static String readDeploymentDescriptor(Path deploymentDescriptorFile) {
         try {
             return new String(Files.readAllBytes(deploymentDescriptorFile), StandardCharsets.UTF_8);
         } catch (IOException e) {
@@ -262,7 +262,7 @@ public class MtaArchiveBuilder {
         }
     }
 
-    private Path findDeploymenDescriptor(Path mtaDirectory) throws SLException {
+    private Path findDeploymenDescriptor(Path mtaDirectory) {
         try (Stream<Path> mtaDirContents = Files.list(mtaDirectory)) {
             Optional<Path> deploymentDescriptor = mtaDirContents.filter(path -> MTAD_YAML.equals(path.getFileName()
                 .toString()))

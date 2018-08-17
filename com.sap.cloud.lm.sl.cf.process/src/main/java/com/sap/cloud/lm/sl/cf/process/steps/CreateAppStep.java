@@ -61,7 +61,7 @@ public class CreateAppStep extends SyncActivitiStep {
     protected ApplicationConfiguration configuration;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
         // Get the next cloud application from the context:
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
@@ -158,7 +158,7 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     protected Map<String, Map<String, Object>> getBindingParameters(DelegateExecution context, CloudApplicationExtended app)
-        throws SLException, FileStorageException {
+        throws FileStorageException {
         List<CloudServiceExtended> services = getServices(StepsUtil.getServicesToBind(context), app.getServices());
 
         Map<String, Map<String, Object>> descriptorProvidedBindingParameters = app.getBindingParameters();
@@ -180,7 +180,7 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     private Map<String, Map<String, Object>> getFileProvidedBindingParameters(DelegateExecution context, String moduleName,
-        List<CloudServiceExtended> services) throws SLException, FileStorageException {
+        List<CloudServiceExtended> services) throws FileStorageException {
         Map<String, Map<String, Object>> result = new TreeMap<>();
         for (CloudServiceExtended service : services) {
             String requiredDependencyName = ValidatorUtil.getPrefixedName(moduleName, service.getResourceName(),
@@ -191,7 +191,7 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     private void addFileProvidedBindingParameters(DelegateExecution context, String serviceName, String requiredDependencyName,
-        Map<String, Map<String, Object>> result) throws SLException, FileStorageException {
+        Map<String, Map<String, Object>> result) throws FileStorageException {
         String archiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
         String fileName = StepsUtil.getRequiresFileName(context, requiredDependencyName);
         if (fileName == null) {
@@ -199,7 +199,7 @@ public class CreateAppStep extends SyncActivitiStep {
         }
         FileContentProcessor fileProcessor = new FileContentProcessor() {
             @Override
-            public void processFileContent(InputStream archive) throws SLException {
+            public void processFileContent(InputStream archive) {
                 try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, configuration.getMaxManifestSize())) {
                     MapUtil.addNonNull(result, serviceName, JsonUtil.convertJsonToMap(file));
                 } catch (IOException e) {
@@ -232,7 +232,7 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     protected void bindService(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
-        Map<String, Object> bindingParameters) throws SLException {
+        Map<String, Object> bindingParameters) {
 
         try {
             bindServiceToApplication(execution, client, appName, serviceName, bindingParameters);

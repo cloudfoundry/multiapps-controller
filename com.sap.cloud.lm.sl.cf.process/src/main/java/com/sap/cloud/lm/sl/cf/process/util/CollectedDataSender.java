@@ -19,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.process.analytics.model.Analysis;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.GeneralProcess;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.XmlUtil;
 
 @Component("collectedDataSender")
@@ -35,7 +34,7 @@ public class CollectedDataSender {
     @Inject
     private GeneralScenarioDetailsCollector details;
 
-    public AnalyticsData collectAnalyticsData(DelegateExecution context, State processState) throws SLException {
+    public AnalyticsData collectAnalyticsData(DelegateExecution context, State processState) {
         AnalyticsData model = analytics.collectAnalyticsData(context);
         model.setProcessFinalState(processState);
         return model;

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.analytics.model.GeneralProcess;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.GeneralScenarioDetails;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("generalScenarioDetailsCollector")
 public class GeneralScenarioDetailsCollector {
@@ -17,7 +16,7 @@ public class GeneralScenarioDetailsCollector {
     @Inject
     private AnalyticsCollector analytics;
 
-    public GeneralScenarioDetails collectDetails(DelegateExecution context, GeneralProcess generalProcess) throws SLException {
+    public GeneralScenarioDetails collectDetails(DelegateExecution context, GeneralProcess generalProcess) {
         String processId = context.getProcessInstanceId();
         long startDate = analytics.getStartTime(context, processId);
         long endDate = analytics.getEndTime();

@@ -20,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
@@ -36,7 +35,7 @@ public class ConfigurationReferenceResolver {
         this.configuration = configuration;
     }
 
-    public List<Resource> resolve(Resource resource, ConfigurationFilter filter, CloudTarget cloudTarget) throws ParsingException {
+    public List<Resource> resolve(Resource resource, ConfigurationFilter filter, CloudTarget cloudTarget) {
         CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
         return asResources(findConfigurationEntries(dao, filter, getCloudTargetsList(cloudTarget), globalConfigTarget), resource);
     }
@@ -45,7 +44,7 @@ public class ConfigurationReferenceResolver {
         return target == null ? null : Arrays.asList(target);
     }
 
-    protected List<Resource> asResources(List<ConfigurationEntry> entries, Resource resource) throws ParsingException {
+    protected List<Resource> asResources(List<ConfigurationEntry> entries, Resource resource) {
         List<Resource> result = new ArrayList<>();
         for (int i = 0; i < entries.size(); i++) {
             result.add(asResource(entries.get(i), resource, i, entries.size()));
@@ -53,7 +52,7 @@ public class ConfigurationReferenceResolver {
         return result;
     }
 
-    protected Resource asResource(ConfigurationEntry entry, Resource resource, int index, int entriesCount) throws ParsingException {
+    protected Resource asResource(ConfigurationEntry entry, Resource resource, int index, int entriesCount) {
         String indexedResourceName = getIndexedName(resource.getName(), index, entriesCount, RESOURCE_INDEX_DELIMITER);
         Map<String, Object> properties = mergeProperties(resource, entry);
         Resource.Builder builder = getResourceBuilder();
@@ -75,7 +74,7 @@ public class ConfigurationReferenceResolver {
         return result;
     }
 
-    protected Map<String, Object> mergeProperties(Resource resource, ConfigurationEntry configurationEntry) throws ParsingException {
+    protected Map<String, Object> mergeProperties(Resource resource, ConfigurationEntry configurationEntry) {
         Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MapWithNumbersAdapterFactory())
             .create();
         Map<String, Object> contentMap = gson.fromJson(configurationEntry.getContent(), new TypeToken<Map<String, Object>>() {

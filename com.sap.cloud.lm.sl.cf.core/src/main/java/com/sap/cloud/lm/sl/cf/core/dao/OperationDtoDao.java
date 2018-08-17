@@ -31,7 +31,7 @@ public class OperationDtoDao {
     @Qualifier("operationEntityManagerFactory")
     EntityManagerFactory emf;
 
-    public void add(OperationDto operation) throws ConflictException {
+    public void add(OperationDto operation) {
         new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             if (existsInternal(manager, operation.getProcessId())) {
                 throw new ConflictException(Messages.OPERATION_ALREADY_EXISTS, operation.getProcessId());
@@ -49,7 +49,7 @@ public class OperationDtoDao {
         return manager.find(OperationDto.class, processId) != null;
     }
 
-    public void remove(String processId) throws NotFoundException {
+    public void remove(String processId) {
         new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             OperationDto dto = manager.find(OperationDto.class, processId);
             if (dto == null) {
@@ -64,7 +64,7 @@ public class OperationDtoDao {
         return new Executor<OperationDto>(createEntityManager()).execute(manager -> manager.find(OperationDto.class, processId));
     }
 
-    public OperationDto findRequired(String processId) throws NotFoundException {
+    public OperationDto findRequired(String processId) {
         OperationDto dto = find(processId);
         if (dto == null) {
             throw new NotFoundException(Messages.OPERATION_NOT_FOUND, processId);
@@ -82,7 +82,7 @@ public class OperationDtoDao {
             .getResultList());
     }
 
-    public void merge(OperationDto operation) throws NotFoundException {
+    public void merge(OperationDto operation) {
         new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             OperationDto dto = manager.find(OperationDto.class, operation.getProcessId());
             if (dto == null) {

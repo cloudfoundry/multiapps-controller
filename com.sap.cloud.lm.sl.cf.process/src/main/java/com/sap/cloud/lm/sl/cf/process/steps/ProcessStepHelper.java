@@ -55,7 +55,7 @@ public class ProcessStepHelper {
         context.setVariable(Constants.VAR_STEP_EXECUTION, state.toString());
     }
 
-    void preExecuteStep(DelegateExecution context, StepPhase initialPhase) throws SLException {
+    void preExecuteStep(DelegateExecution context, StepPhase initialPhase) {
         init(context, initialPhase);
 
         context.setVariable(Constants.TASK_ID, taskId);
@@ -101,7 +101,7 @@ public class ProcessStepHelper {
         return taskIndex;
     }
 
-    private int getLastTaskIndex(DelegateExecution context) throws SLException {
+    private int getLastTaskIndex(DelegateExecution context) {
         String taskId = context.getCurrentActivityId();
         String lastTaskExecutionId = progressMessageService.findLastTaskExecutionId(getCorrelationId(context), taskId);
         if (lastTaskExecutionId == null) {
@@ -169,7 +169,7 @@ public class ProcessStepHelper {
                 .getName());
     }
 
-    public void failStepIfProcessIsAborted(DelegateExecution context) throws SLException {
+    public void failStepIfProcessIsAborted(DelegateExecution context) {
         Boolean processAborted = (Boolean) context.getVariable(Constants.PROCESS_ABORTED);
         if (processAborted != null && processAborted) {
             throw new SLException(Messages.PROCESS_WAS_ABORTED);

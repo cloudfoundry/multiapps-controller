@@ -8,7 +8,6 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.mta.model.v3_1.Resource;
 
 public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v3_0.ConfigurationReferenceResolver {
@@ -19,11 +18,11 @@ public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.
 
     @Override
     protected Resource asResource(ConfigurationEntry entry, com.sap.cloud.lm.sl.mta.model.v1_0.Resource resource, int index,
-        int entriesCount) throws ParsingException {
+        int entriesCount) {
         return asResource(entry, (Resource) resource, index, entriesCount);
     }
 
-    private Resource asResource(ConfigurationEntry entry, Resource resource, int index, int entriesCount) throws ParsingException {
+    private Resource asResource(ConfigurationEntry entry, Resource resource, int index, int entriesCount) {
         Resource resource3_1 = cast(resource);
         String indexedResourceName = getIndexedName(resource.getName(), index, entriesCount, RESOURCE_INDEX_DELIMITER);
         Map<String, Object> properties = mergeProperties(resource, entry);

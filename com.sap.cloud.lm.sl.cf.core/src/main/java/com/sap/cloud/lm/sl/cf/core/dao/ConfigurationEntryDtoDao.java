@@ -43,7 +43,7 @@ public class ConfigurationEntryDtoDao {
     @Qualifier("configurationEntryEntityManagerFactory")
     EntityManagerFactory emf;
 
-    public ConfigurationEntryDto add(ConfigurationEntryDto entry) throws ConflictException {
+    public ConfigurationEntryDto add(ConfigurationEntryDto entry) {
         try {
             return new TransactionalExecutor<ConfigurationEntryDto>(createEntityManager()).execute(manager -> {
                 manager.persist(entry);
@@ -55,7 +55,7 @@ public class ConfigurationEntryDtoDao {
         }
     }
 
-    public ConfigurationEntryDto update(long id, ConfigurationEntryDto entryDelta) throws NotFoundException, ConflictException {
+    public ConfigurationEntryDto update(long id, ConfigurationEntryDto entryDelta) {
         try {
             return new TransactionalExecutor<ConfigurationEntryDto>(createEntityManager()).execute(manager -> {
                 ConfigurationEntryDto existingEntry = findInternal(id, manager);
@@ -73,7 +73,7 @@ public class ConfigurationEntryDtoDao {
         }
     }
 
-    public void remove(long id) throws NotFoundException {
+    public void remove(long id) {
         new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             ConfigurationEntryDto entry = findInternal(id, manager);
             if (entry == null) {
@@ -122,7 +122,7 @@ public class ConfigurationEntryDtoDao {
         return filter(query.getResultList(), requiredProperties, targetSpace);
     }
 
-    public ConfigurationEntryDto find(long id) throws NotFoundException {
+    public ConfigurationEntryDto find(long id) {
         return new Executor<ConfigurationEntryDto>(createEntityManager()).execute(manager -> {
             ConfigurationEntryDto entry = findInternal(id, manager);
             if (entry == null) {

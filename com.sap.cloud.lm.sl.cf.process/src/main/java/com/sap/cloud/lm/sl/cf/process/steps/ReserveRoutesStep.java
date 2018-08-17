@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class ReserveRoutesStep extends SyncActivitiStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
         // Get the next cloud application from the context:
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 

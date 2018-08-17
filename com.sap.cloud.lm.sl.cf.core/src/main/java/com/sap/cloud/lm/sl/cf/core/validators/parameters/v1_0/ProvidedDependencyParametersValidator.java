@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParametersValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParametersValidatorHelper;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 import com.sap.cloud.lm.sl.mta.model.v1_0.ProvidedDependency;
 
@@ -20,7 +19,7 @@ public class ProvidedDependencyParametersValidator extends ParametersValidator<P
     }
 
     @Override
-    public ProvidedDependency validate() throws SLException {
+    public ProvidedDependency validate() {
         Map<String, Object> properties = validateParameters(module, providedDependency.getProperties());
         providedDependency.setProperties(properties);
         return providedDependency;

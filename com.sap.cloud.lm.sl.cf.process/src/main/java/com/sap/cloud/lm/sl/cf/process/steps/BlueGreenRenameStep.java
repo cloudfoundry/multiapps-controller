@@ -19,7 +19,7 @@ public class BlueGreenRenameStep extends SyncActivitiStep {
     protected Supplier<ApplicationColorDetector> colorDetectorSupplier = () -> new ApplicationColorDetector();
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
 

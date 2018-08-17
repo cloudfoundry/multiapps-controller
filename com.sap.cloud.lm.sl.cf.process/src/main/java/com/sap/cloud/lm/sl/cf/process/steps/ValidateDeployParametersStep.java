@@ -38,7 +38,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
     private ApplicationConfiguration configuration;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.VALIDATING_PARAMETERS);
 
@@ -52,14 +52,14 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         }
     }
 
-    private void validateParameters(DelegateExecution context) throws SLException {
+    private void validateParameters(DelegateExecution context) {
         validateStartTimeout(context);
         validateAppArchiveId(context);
         validateExtDescriptorFileId(context);
         validateVersionRule(context);
     }
 
-    private void validateVersionRule(DelegateExecution context) throws SLException {
+    private void validateVersionRule(DelegateExecution context) {
         String parameter = (String) context.getVariable(Constants.PARAM_VERSION_RULE);
         try {
             VersionRule.valueOf(parameter);
@@ -69,7 +69,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         }
     }
 
-    private void validateExtDescriptorFileId(DelegateExecution context) throws SLException {
+    private void validateExtDescriptorFileId(DelegateExecution context) {
         String parameter = (String) context.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
         if (parameter == null) {
             return;
@@ -82,7 +82,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         }
     }
 
-    private void validateDescriptorSize(FileEntry file) throws SLException {
+    private void validateDescriptorSize(FileEntry file) {
         Long maxSizeLimit = configuration.getMaxMtaDescriptorSize();
         if (file.getSize()
             .compareTo(BigInteger.valueOf(maxSizeLimit)) > 0) {
@@ -93,7 +93,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         }
     }
 
-    private void validateAppArchiveId(DelegateExecution context) throws SLException {
+    private void validateAppArchiveId(DelegateExecution context) {
         String appArchiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
 
         String[] appArchivePartsId = appArchiveId.split(",");
@@ -164,7 +164,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         return fileEntryName.substring(0, fileEntryName.indexOf(PART_POSTFIX));
     }
 
-    private void persistMergedArchive(Path archivePath, DelegateExecution context) throws FileStorageException, IOException {
+    private void persistMergedArchive(Path archivePath, DelegateExecution context) throws FileStorageException {
         Configuration fileConfiguration = configuration.getFileConfiguration();
         String name = archivePath.getFileName()
             .toString();
@@ -189,7 +189,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
             .collect(Collectors.toList());
     }
 
-    private FileEntry findFile(DelegateExecution context, String fileId) throws SLException {
+    private FileEntry findFile(DelegateExecution context, String fileId) {
         try {
             FileEntry fileEntry = fileService.getFile(StepsUtil.getSpaceId(context), fileId);
             if (fileEntry == null) {
@@ -201,7 +201,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
         }
     }
 
-    private void validateStartTimeout(DelegateExecution context) throws SLException {
+    private void validateStartTimeout(DelegateExecution context) {
         Object parameter = context.getVariable(Constants.PARAM_START_TIMEOUT);
         if (parameter == null) {
             return;

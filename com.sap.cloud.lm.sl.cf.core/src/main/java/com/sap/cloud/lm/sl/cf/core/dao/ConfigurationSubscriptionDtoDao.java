@@ -51,7 +51,7 @@ public class ConfigurationSubscriptionDtoDao {
                 .getResultList());
     }
 
-    public ConfigurationSubscriptionDto find(long id) throws NotFoundException {
+    public ConfigurationSubscriptionDto find(long id) {
         return new Executor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
             ConfigurationSubscriptionDto subscription = findInternal(id, manager);
             if (subscription == null) {
@@ -73,7 +73,7 @@ public class ConfigurationSubscriptionDtoDao {
         return query.getResultList();
     }
 
-    public ConfigurationSubscriptionDto add(ConfigurationSubscriptionDto subscription) throws ConflictException {
+    public ConfigurationSubscriptionDto add(ConfigurationSubscriptionDto subscription) {
         try {
             return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
                 manager.persist(subscription);
@@ -85,7 +85,7 @@ public class ConfigurationSubscriptionDtoDao {
         }
     }
 
-    public ConfigurationSubscriptionDto update(long id, ConfigurationSubscriptionDto delta) throws ConflictException, NotFoundException {
+    public ConfigurationSubscriptionDto update(long id, ConfigurationSubscriptionDto delta) {
         try {
             return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
                 ConfigurationSubscriptionDto existingSubscription = findInternal(id, manager);
@@ -103,7 +103,7 @@ public class ConfigurationSubscriptionDtoDao {
         }
     }
 
-    public ConfigurationSubscriptionDto remove(long id) throws NotFoundException {
+    public ConfigurationSubscriptionDto remove(long id) {
         return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
             ConfigurationSubscriptionDto subscription = findInternal(id, manager);
             if (subscription == null) {

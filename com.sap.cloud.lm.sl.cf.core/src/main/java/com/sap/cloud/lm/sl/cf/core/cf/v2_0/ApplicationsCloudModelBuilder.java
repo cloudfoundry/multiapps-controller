@@ -35,11 +35,10 @@ import com.sap.cloud.lm.sl.cf.core.parser.StagingParametersParser;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.builders.v2_0.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.builders.v2_0.ParametersChainBuilder;
+import com.sap.cloud.lm.sl.mta.builders.v2_0.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
@@ -93,7 +92,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     }
 
     @Override
-    protected CloudApplicationExtended getApplication(com.sap.cloud.lm.sl.mta.model.v1_0.Module module) throws SLException {
+    protected CloudApplicationExtended getApplication(com.sap.cloud.lm.sl.mta.model.v1_0.Module module) {
         DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
         warnAboutUnsupportedParameters(parametersList);
@@ -142,7 +141,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         }
     }
 
-    protected Map<String, Map<String, Object>> getBindingParameters(Module module) throws SLException {
+    protected Map<String, Map<String, Object>> getBindingParameters(Module module) {
         Map<String, Map<String, Object>> result = new HashMap<>();
         for (RequiredDependency dependency : module.getRequiredDependencies2_0()) {
             addBindingParameters(result, dependency, module);
@@ -153,8 +152,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         return result;
     }
 
-    protected void addBindingParameters(Map<String, Map<String, Object>> result, RequiredDependency dependency, Module module)
-        throws SLException {
+    protected void addBindingParameters(Map<String, Map<String, Object>> result, RequiredDependency dependency, Module module) {
         Resource resource = (Resource) getResource(dependency.getName());
         if (resource != null) {
             MapUtil.addNonNull(result, cloudServiceNameMapper.getServiceName(resource.getName()),
@@ -163,7 +161,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     }
 
     @SuppressWarnings("unchecked")
-    protected Map<String, Object> getBindingParameters(RequiredDependency dependency, String moduleName) throws ContentException {
+    protected Map<String, Object> getBindingParameters(RequiredDependency dependency, String moduleName) {
         Object bindingParameters = dependency.getParameters()
             .get(SupportedParameters.SERVICE_BINDING_CONFIG);
         if (bindingParameters == null) {
@@ -185,11 +183,11 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
 
     @Override
     protected List<String> getApplicationServices(com.sap.cloud.lm.sl.mta.model.v1_0.Module module,
-        Predicate<ResourceAndResourceType> filterRule) throws SLException {
+        Predicate<ResourceAndResourceType> filterRule) {
         return getApplicationServices((Module) module, filterRule);
     }
 
-    protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) throws SLException {
+    protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) {
         List<String> services = new ArrayList<>();
         for (RequiredDependency dependency : module.getRequiredDependencies2_0()) {
             ResourceAndResourceType pair = getApplicationService(dependency.getName());

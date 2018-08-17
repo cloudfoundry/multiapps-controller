@@ -24,7 +24,7 @@ public class ProcessConflictPreventer {
         this.dao = dao;
     }
 
-    public synchronized void attemptToAcquireLock(String mtaId, String spaceId, String processId) throws SLException {
+    public synchronized void attemptToAcquireLock(String mtaId, String spaceId, String processId) {
         LOGGER.info(format(Messages.ACQUIRING_LOCK, processId, mtaId));
 
         validateNoConflictingOperationsExist(mtaId, spaceId);
@@ -62,7 +62,7 @@ public class ProcessConflictPreventer {
         return dao.find(filter);
     }
 
-    public synchronized void attemptToReleaseLock(String processId) throws SLException {
+    public synchronized void attemptToReleaseLock(String processId) {
         Operation currentOperation = dao.findRequired(processId);
         String mtaId = currentOperation.getMtaId();
 

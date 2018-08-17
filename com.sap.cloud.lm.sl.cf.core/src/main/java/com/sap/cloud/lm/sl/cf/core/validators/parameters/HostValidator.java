@@ -15,7 +15,7 @@ public class HostValidator implements ParameterValidator {
     public static final int HOST_MAX_LENGTH = 63;
 
     @Override
-    public String attemptToCorrect(Object host) throws SLException {
+    public String attemptToCorrect(Object host) {
         if (!(host instanceof String)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_HOST, host);
         }

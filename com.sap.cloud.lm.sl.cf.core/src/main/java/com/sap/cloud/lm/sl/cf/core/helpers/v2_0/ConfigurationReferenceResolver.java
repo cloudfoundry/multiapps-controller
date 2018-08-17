@@ -8,7 +8,6 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Resource;
 
@@ -20,11 +19,11 @@ public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.
 
     @Override
     protected Resource asResource(ConfigurationEntry entry, com.sap.cloud.lm.sl.mta.model.v1_0.Resource resource, int index,
-        int entriesCount) throws ParsingException {
+        int entriesCount) {
         return asResource(entry, (Resource) resource, index, entriesCount);
     }
 
-    private Resource asResource(ConfigurationEntry entry, Resource resource, int index, int entriesCount) throws ParsingException {
+    private Resource asResource(ConfigurationEntry entry, Resource resource, int index, int entriesCount) {
         String indexedResourceName = getIndexedName(resource.getName(), index, entriesCount, RESOURCE_INDEX_DELIMITER);
         Map<String, Object> properties = mergeProperties(resource, entry);
         Map<String, Object> parameters = removeConfigurationParameters(resource.getParameters());
@@ -43,7 +42,7 @@ public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.
 
     @Override
     protected Map<String, Object> mergeProperties(com.sap.cloud.lm.sl.mta.model.v1_0.Resource resource,
-        ConfigurationEntry configurationEntry) throws ParsingException {
+        ConfigurationEntry configurationEntry) {
         return merge(JsonUtil.convertJsonToMap(configurationEntry.getContent()), resource.getProperties());
     }
 

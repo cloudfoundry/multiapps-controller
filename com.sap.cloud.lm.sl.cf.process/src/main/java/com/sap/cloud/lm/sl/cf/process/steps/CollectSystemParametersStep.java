@@ -53,11 +53,11 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()
         .getTime());
 
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         return executeStepInternal(execution, false);
     }
 
-    protected StepPhase executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoute) throws SLException {
+    protected StepPhase executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoute) {
         getStepLogger().info(Messages.COLLECTING_SYSTEM_PARAMETERS);
         PortAllocator portAllocator = null;
         try {

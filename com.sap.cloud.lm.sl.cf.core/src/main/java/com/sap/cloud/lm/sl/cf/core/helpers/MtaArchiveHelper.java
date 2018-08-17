@@ -7,7 +7,6 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
-import com.sap.cloud.lm.sl.common.ContentException;
 
 public class MtaArchiveHelper {
 
@@ -38,7 +37,7 @@ public class MtaArchiveHelper {
         return mtaArchiveRequiresDependencies;
     }
 
-    public void init() throws ContentException {
+    public void init() {
         // Determine MTA archive modules:
         mtaArchiveModules = getEntriesWithAttribute(ATTR_MTA_MODULE);
 
@@ -49,7 +48,7 @@ public class MtaArchiveHelper {
         mtaArchiveResources = getEntriesWithAttribute(ATTR_MTA_RESOURCE);
     }
 
-    private Map<String, String> getEntriesWithAttribute(String attributeName) throws ContentException {
+    private Map<String, String> getEntriesWithAttribute(String attributeName) {
         Map<String, String> result = new HashMap<>();
         for (Map.Entry<String, Attributes> entry : manifest.getEntries()
             .entrySet()) {

@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
-import com.sap.cloud.lm.sl.common.SLException;
-
 public interface ParameterValidator {
 
     default boolean isValid(Object container, Object parameter) {
@@ -19,11 +17,11 @@ public interface ParameterValidator {
         return false;
     }
 
-    default Object attemptToCorrect(Object container, Object parameter) throws SLException, UnsupportedOperationException {
+    default Object attemptToCorrect(Object container, Object parameter) {
         return attemptToCorrect(parameter);
     }
 
-    default Object attemptToCorrect(Object parameter) throws SLException, UnsupportedOperationException {
+    default Object attemptToCorrect(Object parameter) {
         throw new UnsupportedOperationException();
     }
 

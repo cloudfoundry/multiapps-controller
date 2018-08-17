@@ -77,7 +77,7 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
         return context.getVariable(variableName) != null ? attributeValueSupplier.get() : null;
     }
 
-    public BigInteger getMtaSize(DelegateExecution context) throws SLException {
+    public BigInteger getMtaSize(DelegateExecution context) {
         String appArchiveId = (String) context.getVariable(Constants.PARAM_APP_ARCHIVE_ID);
         try {
             return computeMtaSize(appArchiveId, context);

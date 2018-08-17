@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -42,7 +41,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
     }
 
     @Override
-    public OAuth2Authentication loadAuthentication(String tokenString) throws AuthenticationException, InvalidTokenException {
+    public OAuth2Authentication loadAuthentication(String tokenString) {
 
         // Get an access token for the specified token string
         OAuth2AccessToken token = readAccessToken(tokenString);
@@ -88,7 +87,7 @@ public class CustomTokenServices implements ResourceServerTokenServices {
         return token;
     }
 
-    private void logToAuditLogAndThrow(String message) throws InvalidTokenException {
+    private void logToAuditLogAndThrow(String message) {
         AuditLoggingProvider.getFacade()
             .logSecurityIncident(message);
         throw new InvalidTokenException(message);

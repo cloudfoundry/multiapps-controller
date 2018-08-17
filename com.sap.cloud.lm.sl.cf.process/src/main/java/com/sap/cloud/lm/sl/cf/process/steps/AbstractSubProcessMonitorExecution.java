@@ -43,8 +43,7 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
             .singleResult();
     }
 
-    private AsyncExecutionState getSubProcessStatus(ExecutionWrapper execution, HistoricProcessInstance subProcess)
-        throws MonitoringException {
+    private AsyncExecutionState getSubProcessStatus(ExecutionWrapper execution, HistoricProcessInstance subProcess) {
         ErrorType errorType = StepsUtil.getErrorType(execution.getContext());
 
         Execution subProcessInstanceExecution = activitiFacade.getProcessExecution(subProcess.getId());
@@ -87,7 +86,7 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
     }
 
     private AsyncExecutionState getFinishedProcessStatus(HistoricProcessInstance subProcess, ExecutionWrapper execution,
-        ErrorType errorType) throws MonitoringException {
+        ErrorType errorType) {
         if (subProcess.getEndTime() == null) {
             return AsyncExecutionState.RUNNING;
         }
@@ -97,9 +96,9 @@ public abstract class AbstractSubProcessMonitorExecution implements AsyncExecuti
         return onAbort(execution.getContext(), errorType);
     }
 
-    protected abstract AsyncExecutionState onError(DelegateExecution context, ErrorType errorType) throws MonitoringException;
+    protected abstract AsyncExecutionState onError(DelegateExecution context, ErrorType errorType);
 
-    protected abstract AsyncExecutionState onAbort(DelegateExecution context, ErrorType errorType) throws MonitoringException;
+    protected abstract AsyncExecutionState onAbort(DelegateExecution context, ErrorType errorType);
 
     protected AsyncExecutionState onSuccess(DelegateExecution context) {
         injectProcessVariablesFromSubProcess(context);

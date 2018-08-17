@@ -33,8 +33,7 @@ public class FileSplitter {
         this.fileSize = Files.size(filePath);
     }
 
-    public FileSplitter(String fileName, String filePath, InputStream fileInputStream, FilePartConfiguration configuration)
-        throws IOException {
+    public FileSplitter(String fileName, String filePath, InputStream fileInputStream, FilePartConfiguration configuration) {
         this.fileName = fileName;
         this.filePath = filePath;
         this.fileInputStream = fileInputStream;

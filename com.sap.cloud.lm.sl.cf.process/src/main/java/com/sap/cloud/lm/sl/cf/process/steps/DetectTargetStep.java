@@ -55,7 +55,7 @@ public class DetectTargetStep extends SyncActivitiStep {
     };
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().info(Messages.DETECTING_TARGET);
         try {
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
@@ -114,8 +114,7 @@ public class DetectTargetStep extends SyncActivitiStep {
         return CloudModelBuilderUtil.buildImplicitDeployTargetName(org, space);
     }
 
-    private void validateOrgAndSpace(DelegateExecution context, Target target, Platform platform, HandlerFactory handlerFactory)
-        throws SLException {
+    private void validateOrgAndSpace(DelegateExecution context, Target target, Platform platform, HandlerFactory handlerFactory) {
         Pair<String, String> orgSpace = handlerFactory.getOrgAndSpaceHelper(target, platform)
             .getOrgAndSpace();
         getStepLogger().debug(Messages.ORG_SPACE, orgSpace._1, orgSpace._2);
@@ -123,7 +122,7 @@ public class DetectTargetStep extends SyncActivitiStep {
         validateOrgAndSpace(context, orgSpace._1, orgSpace._2);
     }
 
-    private void validateOrgAndSpace(DelegateExecution context, String org, String space) throws SLException {
+    private void validateOrgAndSpace(DelegateExecution context, String org, String space) {
         StepsUtil.validateSpace(space, context);
         StepsUtil.validateOrg(org, context);
     }

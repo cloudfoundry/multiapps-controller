@@ -20,7 +20,7 @@ public class PartialPropertiesResolver extends PropertiesResolver {
     }
 
     @Override
-    protected Object resolveReference(Reference reference) throws ContentException {
+    protected Object resolveReference(Reference reference) {
         if (reference.getDependencyName() != null && dependenciesToIgnore.contains(reference.getDependencyName())) {
             return reference.getMatchedPattern();
         }
