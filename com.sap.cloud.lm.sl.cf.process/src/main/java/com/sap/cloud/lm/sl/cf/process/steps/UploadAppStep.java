@@ -82,7 +82,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
                 long maxSize = configuration.getMaxResourceFileSize();
                 try {
                     filePath = extractFromMtar(appArchiveStream, fileName, maxSize);
-                    upload(execution, client, app, filePath, fileName, uploadTokenBuilder);
+                    upload(execution, client, app, filePath, uploadTokenBuilder);
                 } catch (IOException e) {
                     cleanUp(filePath);
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
@@ -100,7 +100,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         return appExtractor.extract();
     }
 
-    private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath, String fileName,
+    private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath,
         final StringBuilder uploadTokenBuilder) throws IOException {
         detectApplicationFileDigestChanges(execution, app, filePath.toFile(), client);
         String uploadToken = client.asyncUploadApplication(app.getName(), filePath.toFile(),
