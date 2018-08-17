@@ -75,9 +75,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!(empty gitUri)}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="noGitRepoUriFlow" name="No Git repo URI" sourceRef="hasGitRepoUriGateway" targetRef="validateParametersTask"></sequenceFlow>
-    <serviceTask id="checkForCreationConflictsTask" name="Check For Creation Conflicts" activiti:async="true" activiti:delegateExpression="${checkForCreationConflictsStep}"></serviceTask>
-    <sequenceFlow id="flow48" sourceRef="buildUndeployModelTask" targetRef="checkForCreationConflictsTask"></sequenceFlow>
-    <sequenceFlow id="flow49" sourceRef="checkForCreationConflictsTask" targetRef="addDomainsTask"></sequenceFlow>
+    <sequenceFlow id="flow49" sourceRef="buildUndeployModelTask" targetRef="addDomainsTask"></sequenceFlow>
     <sequenceFlow id="flow51" sourceRef="startEvent" targetRef="hasGitRepoUriGateway"></sequenceFlow>
     <sequenceFlow id="flow55" sourceRef="prepareAppsDeploymentTask" targetRef="exclusivegateway4"></sequenceFlow>
     <sequenceFlow id="flow57" sourceRef="updateSubscribersTask" targetRef="shouldRestartSubscribersGateway"></sequenceFlow>
@@ -248,9 +246,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="hasGitRepoUriGateway" id="BPMNShape_hasGitRepoUriGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="367.0" y="40.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="checkForCreationConflictsTask" id="BPMNShape_checkForCreationConflictsTask">
-        <omgdc:Bounds height="65.0" width="106.0" x="619.0" y="109.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="shouldRestartSubscribersGateway" id="BPMNShape_shouldRestartSubscribersGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="302.0" y="803.0"></omgdc:Bounds>
@@ -436,14 +431,10 @@
           <omgdc:Bounds height="14.0" width="73.0" x="307.0" y="11.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
-        <omgdi:waypoint x="756.0" y="141.0"></omgdi:waypoint>
-        <omgdi:waypoint x="725.0" y="141.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow49" id="BPMNEdge_flow49">
-        <omgdi:waypoint x="619.0" y="141.0"></omgdi:waypoint>
-        <omgdi:waypoint x="321.0" y="141.0"></omgdi:waypoint>
-        <omgdi:waypoint x="321.0" y="181.0"></omgdi:waypoint>
+        <omgdi:waypoint x="756.0" y="141.0"></omgdi:waypoint>
+        <omgdi:waypoint x="691.0" y="141.0"></omgdi:waypoint>
+        <omgdi:waypoint x="691.0" y="181.0"></omgdi:waypoint>
         <omgdi:waypoint x="1474.0" y="181.0"></omgdi:waypoint>
         <omgdi:waypoint x="1474.0" y="248.0"></omgdi:waypoint>
         <omgdi:waypoint x="1412.0" y="248.0"></omgdi:waypoint>
