@@ -61,9 +61,8 @@ public class ActivitiFacade {
                 .latestVersion();
             String processDefinitionId = query.singleResult()
                 .getId();
-            ProcessInstance processInstance = engine.getRuntimeService()
+            return engine.getRuntimeService()
                 .startProcessInstanceById(processDefinitionId, variables);
-            return processInstance;
         } finally {
             // After the setAuthenticatedUserId() method is invoked, all Activiti service methods
             // executed within the current thread will have access to this userId. Just before

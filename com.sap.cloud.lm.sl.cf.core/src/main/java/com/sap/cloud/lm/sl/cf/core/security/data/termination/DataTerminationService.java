@@ -105,8 +105,7 @@ public class DataTerminationService {
     private List<String> getDeleteSpaceEvents() {
         CloudControllerClientImpl cfClient = getCFClient();
         CFOptimizedEventGetter cfOptimizedEventGetter = new CFOptimizedEventGetter(cfClient);
-        List<String> events = cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeTwoDays());
-        return events;
+        return cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeTwoDays());
     }
 
     private String getDateBeforeTwoDays() {

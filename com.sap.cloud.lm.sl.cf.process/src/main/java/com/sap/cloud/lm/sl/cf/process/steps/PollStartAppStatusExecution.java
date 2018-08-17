@@ -190,10 +190,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     private List<String> toUrls(List<String> uris) {
         String protocolPrefix = getProtocolPrefix();
-        List<String> urls = uris.stream()
+        return uris.stream()
             .map(uri -> protocolPrefix + uri)
             .collect(Collectors.toList());
-        return urls;
     }
 
     private String getProtocolPrefix() {

@@ -38,8 +38,7 @@ public class OperationsHelper {
     public List<Operation> findOperations(OperationFilter operationFilter, List<State> statusList) {
         List<Operation> operations = dao.find(operationFilter);
         addOngoingOperationsState(operations);
-        List<Operation> result = filterBasedOnStates(operations, statusList);
-        return result;
+        return filterBasedOnStates(operations, statusList);
     }
 
     public String getProcessDefinitionKey(Operation operation) {
