@@ -966,7 +966,7 @@ public class StepsUtil {
             stepLogger);
     }
 
-    static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context, StepLogger stepLogger) {
+    static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
         return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor());

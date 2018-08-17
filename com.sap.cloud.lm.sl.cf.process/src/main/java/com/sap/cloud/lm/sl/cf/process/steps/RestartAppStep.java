@@ -56,7 +56,7 @@ public class RestartAppStep extends TimeoutAsyncActivitiStep {
         if (isStarted(client, app.getName())) {
             stopApp(client, app);
         }
-        StartingInfo startingInfo = startApp(execution, client, app);
+        StartingInfo startingInfo = startApp(client, app);
         setStartupPollingInfo(execution.getContext(), startingInfo);
     }
 
@@ -90,7 +90,7 @@ public class RestartAppStep extends TimeoutAsyncActivitiStep {
         client.stopApplication(app.getName());
     }
 
-    private StartingInfo startApp(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app) {
+    private StartingInfo startApp(CloudControllerClient client, CloudApplication app) {
         getStepLogger().info(Messages.STARTING_APP, app.getName());
         if (client instanceof XsCloudControllerClient) {
             return ((XsCloudControllerClient) client).startApplication(app.getName(), false);

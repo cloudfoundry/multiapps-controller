@@ -76,7 +76,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
 
     private void processException(Exception e, CloudServiceInstance serviceInstance, String serviceName) {
         if (e instanceof CloudOperationException) {
-            e = evaluateCloudOperationException((CloudOperationException) e, serviceInstance, serviceName);
+            e = evaluateCloudOperationException((CloudOperationException) e, serviceName);
             if (e == null) {
                 return;
             }
@@ -84,8 +84,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
         wrapAndThrowException(e, serviceInstance, serviceName);
     }
 
-    private CloudOperationException evaluateCloudOperationException(CloudOperationException e, CloudServiceInstance serviceInstance,
-        String serviceName) {
+    private CloudOperationException evaluateCloudOperationException(CloudOperationException e, String serviceName) {
         if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
             getStepLogger().warn(e, Messages.COULD_NOT_DELETE_SERVICE, serviceName);
             return null;

@@ -96,7 +96,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
     }
 
     protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getServiceKeysCloudModelBuilder(context, getStepLogger());
+        return StepsUtil.getServiceKeysCloudModelBuilder(context);
     }
 
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {
