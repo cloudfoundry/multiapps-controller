@@ -117,6 +117,10 @@ public class DatabaseFileService extends AbstractFileService {
     }
 
     @Override
+    public void deleteBySpace(String space) throws FileStorageException {
+    }
+
+    @Override
     protected void deleteFileContent(String space, String id) throws FileStorageException {
         /*
          * The implementation of this method is empty because the content of the file is being deleted by the abstract file service using a

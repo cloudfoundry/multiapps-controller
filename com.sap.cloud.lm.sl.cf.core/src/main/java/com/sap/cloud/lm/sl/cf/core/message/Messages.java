@@ -73,7 +73,8 @@ public final class Messages {
     public static final String CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN = "Service \"{0}\" could not be created because none of the service offering(s) \"{1}\" match with existing service offerings or provide service plan \"{2}\"";
     public static final String CANT_CREATE_SERVICE = "Service \"{0}\" could not be created because all attempt(s) to use service offerings \"{1}\" failed";
     public static final String COULD_NOT_PARSE_MTA_METADATA_FOR_APP_0 = "Could not parse MTA metadata for application \"{0}\"";
-
+    public static final String COULD_NOT_DELETE_SPACE_LEFTOVERS = "Could not delete space leftovers";
+    
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
     public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\", using default \"{1}\"";

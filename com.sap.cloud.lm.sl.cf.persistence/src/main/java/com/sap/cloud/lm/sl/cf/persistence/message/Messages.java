@@ -30,6 +30,7 @@ public final class Messages {
     public static final String ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE = "Error getting files with space {0} and namespace {1}";
     public static final String ERROR_GETTING_FILES_MODIFIED_BEFORE = "Error getting files modified before {0}";
     public static final String ERROR_DELETING_PROCESS_LOGS_WITH_NAMESPACE = "Error deleting process logs with namespace \"{0}\"";
+    public static final String ERROR_DELETING_DIRECTORY = "Error deleting directory \"{0}\"";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";

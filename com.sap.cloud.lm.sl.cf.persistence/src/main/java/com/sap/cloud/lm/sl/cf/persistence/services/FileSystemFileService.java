@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
@@ -107,6 +108,18 @@ public class FileSystemFileService extends AbstractFileService {
     public int deleteAll(String space, String namespace) throws FileStorageException {
         throw new UnsupportedOperationException();
     }
+    
+    @Override
+    public void deleteBySpace(String space) throws FileStorageException {
+        File spaceDirectory = getSpaceDirectory(space).toFile();
+        try {
+            if (spaceDirectory.exists()) {
+                FileUtils.deleteDirectory(spaceDirectory);
+            }
+        } catch (IOException e) {
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_DELETING_DIRECTORY, spaceDirectory), e);
+        }
+    }
 
     private Path getFilesDirectory(String space) throws IOException {
         Path filesPerSpaceDirectory = getFilesPerSpaceDirectory(space);
@@ -194,6 +207,10 @@ public class FileSystemFileService extends AbstractFileService {
 
     public String getStoragePath() {
         return storagePath;
+    }
+    
+    private Path getSpaceDirectory(String space) {
+        return Paths.get(storagePath, space);
     }
 
 }

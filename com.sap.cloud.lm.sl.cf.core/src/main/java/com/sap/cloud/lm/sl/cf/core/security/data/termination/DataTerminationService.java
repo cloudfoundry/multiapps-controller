@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.CloudControllerClientImpl;
+import org.cloudfoundry.client.lib.CloudCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,10 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
+import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 
 @Component
@@ -45,6 +48,9 @@ public class DataTerminationService {
     private OperationDao operationDao;
 
     @Inject
+    private AbstractFileService fileService;
+
+    @Inject
     private ApplicationConfiguration configuration;
 
     public void deleteOrphanUserData() {
@@ -53,6 +59,15 @@ public class DataTerminationService {
             deleteConfigurationSubscriptionOrphanData(spaceId);
             deleteConfigurationEntryOrphanData(spaceId);
             deleteUserOperationsOrphanData(spaceId);
+            deleteSpaceLeftovers(spaceId);
+        }
+    }
+
+    private void deleteSpaceLeftovers(String spaceId) {
+        try {
+            fileService.deleteBySpace(spaceId);
+        } catch (FileStorageException e) {
+            throw new SLException(e, Messages.COULD_NOT_DELETE_SPACE_LEFTOVERS);
         }
     }
 
