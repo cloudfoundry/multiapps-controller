@@ -93,6 +93,17 @@ public class FileSystemFileServiceTest extends DatabaseFileServiceTest {
     }
 
     @Test
+    public void testDeleteSpaceLeftovers() throws FileStorageException, IOException {
+        Path testFilePath = Paths.get(TEST_FILE_LOCATION)
+            .toAbsolutePath();
+        fileService.addFile(spaceId, namespace, testFilePath.toFile()
+            .getName(), new DefaultFileUploadProcessor(false), testFilePath.toFile());
+
+        fileService.deleteBySpace(spaceId);
+        Assert.assertFalse(Files.exists(Paths.get(temporaryStorageLocation.toString(), spaceId)));
+    }
+
+    @Test
     public void testGetFile() throws FileStorageException, NoSuchAlgorithmException, IOException {
         Path testFilePath = Paths.get(TEST_FILE_LOCATION)
             .toAbsolutePath();
