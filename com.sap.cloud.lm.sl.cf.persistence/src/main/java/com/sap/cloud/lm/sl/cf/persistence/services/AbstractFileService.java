@@ -243,6 +243,8 @@ public abstract class AbstractFileService {
             throw new FileStorageException(e.getMessage(), e);
         }
     }
+    
+    public abstract void deleteBySpace(final String space) throws FileStorageException;
 
     public int deleteModifiedBefore(Date modificationTime) throws FileStorageException {
         try {
