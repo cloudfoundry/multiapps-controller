@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component
-@Order(10)
+@Order(20)
 public class ProcessLogsCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessLogsCleaner.class);

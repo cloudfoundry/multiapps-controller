@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 
 @Component
-@Order(10)
+@Order(20)
 public class ProgressMessagesCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProgressMessagesCleaner.class);

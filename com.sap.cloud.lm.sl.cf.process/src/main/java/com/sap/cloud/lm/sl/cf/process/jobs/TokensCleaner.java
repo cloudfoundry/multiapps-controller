@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.core.util.SecurityUtil;
 
 @Component
-@Order(50)
+@Order(10)
 public class TokensCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokensCleaner.class);
