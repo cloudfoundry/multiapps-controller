@@ -52,8 +52,6 @@ public class DatabaseFileServiceTest {
     private static final String PIC2_STORAGE_NAME = "pic2.jpeg";
     private static final String PERSONAL_NAMESPACE = "dido";
 
-    private static final BigInteger MAX_UPLOAD_SIZE = BigInteger.valueOf(PIC1_SIZE);
-
     protected AbstractFileService fileService;
 
     private FileEntry storedFile;
@@ -97,7 +95,6 @@ public class DatabaseFileServiceTest {
         storedFile = addFileEntry(MY_SPACE_ID);
     }
 
-    @SuppressWarnings("deprecation")
     private FileEntry addFileEntry(String spaceId) throws FileStorageException {
         InputStream resourceStream = getResource(PIC1_RESOURCE_NAME);
         return fileService.addFile(spaceId, SYSTEM_NAMESPACE, PIC1_STORAGE_NAME, new DefaultFileUploadProcessor(false), resourceStream);
@@ -177,7 +174,6 @@ public class DatabaseFileServiceTest {
         return md.digest();
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testNamespaceIsolation() throws Exception {
         List<FileEntry> personalFiles = fileService.listFiles(MY_SPACE_ID, PERSONAL_NAMESPACE);
