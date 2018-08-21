@@ -32,6 +32,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
+import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
@@ -221,11 +222,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             case ABORTED:
                 return Collections.emptyList();
             case ERROR:
-                return new ArrayList<>(Arrays.asList("abort", "retry"));
+                return new ArrayList<>(Arrays.asList(ActivitiActionFactory.ACTION_ID_ABORT, ActivitiActionFactory.ACTION_ID_RETRY));
             case RUNNING:
-                return new ArrayList<>(Arrays.asList("abort"));
+                return new ArrayList<>(Arrays.asList(ActivitiActionFactory.ACTION_ID_ABORT));
             case ACTION_REQUIRED:
-                return new ArrayList<>(Arrays.asList("abort", "resume"));
+                return new ArrayList<>(Arrays.asList(ActivitiActionFactory.ACTION_ID_ABORT, ActivitiActionFactory.ACTION_ID_RESUME));
         }
         throw new IllegalStateException("State " + operationState.value() + " not recognised!");
     }
@@ -235,11 +236,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Map<String, Object> parameters = operation.getParameters();
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         CloudSpace space = new CFOptimizedSpaceGetter().getSpace(client, spaceGuid);
-        parameters.put("__SPACE_ID", spaceGuid);
-        parameters.put("__SERVICE_ID", processDefinitionKey);
-        parameters.put("org", space.getOrganization()
+        parameters.put(Constants.VARIABLE_NAME_SPACE_ID, spaceGuid);
+        parameters.put(Constants.VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
+        parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_ORG, space.getOrganization()
             .getName());
-        parameters.put("space", space.getName());
+        parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_SPACE, space.getName());
     }
 
     private void addDefaultParameters(Operation operation, Set<ParameterMetadata> predefinedParameters) {
