@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component
-@Order(40)
+@Order(20)
 public class FilesCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilesCleaner.class);

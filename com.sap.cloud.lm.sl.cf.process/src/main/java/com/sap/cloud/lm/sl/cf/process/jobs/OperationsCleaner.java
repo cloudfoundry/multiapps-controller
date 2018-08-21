@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 @Component
-@Order(20)
+@Order(10)
 public class OperationsCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsCleaner.class);

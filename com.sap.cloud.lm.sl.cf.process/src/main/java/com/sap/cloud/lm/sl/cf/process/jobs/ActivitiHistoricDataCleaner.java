@@ -16,7 +16,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(30)
+@Order(20)
 public class ActivitiHistoricDataCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActivitiHistoricDataCleaner.class);

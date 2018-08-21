@@ -14,7 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.security.data.termination.DataTerminationServ
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 @Component
-@Order(60)
+@Order(10)
 public class UserDataCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDataCleaner.class);
