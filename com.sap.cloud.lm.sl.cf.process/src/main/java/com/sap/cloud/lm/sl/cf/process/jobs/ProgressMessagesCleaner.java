@@ -12,6 +12,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component
 @Order(20)
@@ -28,9 +29,9 @@ public class ProgressMessagesCleaner implements Cleaner {
 
     @Override
     public void execute(Date expirationTime) {
-        LOGGER.info(format("Removing progress messages older than \"{0}\"...", expirationTime));
+        LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_PROGRESS_MESSAGES_STORED_BEFORE_0, expirationTime));
         int removedProcessMessages = progressMessageService.removeOlderThan(expirationTime);
-        LOGGER.info(format("Removed progress messages: {0}", removedProcessMessages));
+        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_PROGRESS_MESSAGES_0, removedProcessMessages));
     }
 
 }

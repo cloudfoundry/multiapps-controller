@@ -14,14 +14,17 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @DisallowConcurrentExecution
 public class CleanUpJob implements Job {
 
+    protected static final Marker LOG_MARKER = MarkerFactory.getMarker("clean-up-job");
     private static final Logger LOGGER = LoggerFactory.getLogger(CleanUpJob.class);
-    private static final String LOG_ERROR_MESSAGE_PATTERN = "[Clean up Job] Error during cleaning up: {0}";
 
     @Inject
     ApplicationConfiguration configuration;
@@ -30,30 +33,29 @@ public class CleanUpJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LOGGER.info(format("Cleanup Job started by application instance: {0}  at: {1}", configuration.getApplicationInstanceIndex(),
-            Instant.now()));
+        LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1,
+            configuration.getApplicationInstanceIndex(), Instant.now()));
 
         Date expirationTime = computeExpirationTime();
+        LOGGER.info(LOG_MARKER, format(Messages.WILL_CLEAN_UP_DATA_STORED_BEFORE_0, expirationTime));
         for (Cleaner cleaner : cleaners) {
             executeSafely(() -> cleaner.execute(expirationTime));
         }
 
-        LOGGER.info(format("Cleanup Job finished at: {0}", Instant.now()));
+        LOGGER.info(LOG_MARKER, format(Messages.CLEAN_UP_JOB_FINISHED_AT_0, Instant.now()));
     }
 
     private Date computeExpirationTime() {
         long maxTtlForOldData = configuration.getMaxTtlForOldData();
-        Date cleanUpTimestamp = Date.from(Instant.now()
+        return Date.from(Instant.now()
             .minusSeconds(maxTtlForOldData));
-        LOGGER.info(format("Will perform clean up for data stored before: {0}", cleanUpTimestamp));
-        return cleanUpTimestamp;
     }
 
     private void executeSafely(Runnable r) {
         try {
             r.run();
         } catch (Exception e) {
-            LOGGER.error(format(LOG_ERROR_MESSAGE_PATTERN, e.getMessage()), e);
+            LOGGER.error(LOG_MARKER, format(Messages.ERROR_DURING_CLEAN_UP_0, e.getMessage()), e);
         }
     }
 

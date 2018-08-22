@@ -6,7 +6,6 @@ package com.sap.cloud.lm.sl.cf.process.message;
 public class Messages {
 
     // Exception messages
-
     public static final String COULD_NOT_FIND_LAST_MTA_DEPLOY_ACTIVITY = "Could not find last MTA deploy activity";
     public static final String CANT_DETERMINE_CURRENT_USER = "Cannot determine the current user";
     public static final String NO_PLATFORMS_CONFIGURED = "No platforms configured";
@@ -64,6 +63,8 @@ public class Messages {
     public static final String VERSION_RULE_DOES_NOT_ALLOW_DEPLOYMENT_TYPE = "Version rule \"{0}\" does not allow deployment type \"{1}\".";
     public static final String UNKNOWN_UPLOAD_STATUS = "Unknown upload status: {0}";
     public static final String APPLICATION_NOT_FOUND_IN_REBUILT_CLOUD_MODEL = "Application \"{0}\" could not be found in the rebuilt cloud model";
+    public static final String COULD_NOT_DELETE_FILES_MODIFIED_BEFORE_0 = "Could not delete files modified before {0}";
+    public static final String COULD_NOT_DELETE_PROCESS_LOGS_MODIFIED_BEFORE_0 = "Could not delete process logs modified before {0}";
 
     // Audit log messages
 
@@ -137,7 +138,6 @@ public class Messages {
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service {0}";
     public static final String CANNOT_RETRIEVE_INSTANCE_OF_SERVICE = "Cannot retrieve instance of service {0}";
-
     public static final String COULD_NOT_DELETE_PROVIDED_DEPENDENCY = "Could not delete published provided dependency \"{0}\" from configuration registry";
     public static final String COULD_NOT_DELETE_ROUTE_FOR_PORT = "Could not delete route for allocated port \"{0}\"";
     public static final String COULD_NOT_DELETE_SERVICE = "Could not delete service \"{0}\", as it does not exist";
@@ -165,6 +165,9 @@ public class Messages {
     public static final String COULD_NOT_BIND_APP_TO_OPTIONAL_SERVICE = "Could not bind application \"{0}\" to optional service \"{1}\"";
     public static final String COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE = "Could not execute operation over optional service \"{0}\"";
     public static final String DEFAULT_FAILED_OPERATION_DESCRIPTION = "The service broker returned an error with no description!";
+    public static final String ERROR_DURING_CLEAN_UP_0 = "Error during clean-up: {0}";
+    public static final String COULD_NOT_DELETE_HISTORIC_PROCESS_0 = "Could not delete historic process \"{0}\"";
+    public static final String COULD_NOT_ABORT_OPERATION_0 = "Could not abort operation \"{0}\"";
 
     // INFO log messages
     public static final String MTA_NOT_FOUND = "An MTA with id \"{0}\" does not exist";
@@ -180,6 +183,17 @@ public class Messages {
     public static final String PROCESS_WILL_BE_AUTO_ABORTED = "Process \"{0}\" has an abortOnError parameter set to ''true'' and will be auto-aborted.";
     public static final String SOME_INSTANCES_ARE_FLAPPING = "Some instances are flapping. Check the logs of your application for more information.";
     public static final String SOME_INSTANCES_HAVE_CRASHED = "Some instances have crashed. Check the logs of your application for more information.";
+    public static final String CLEAN_UP_JOB_STARTED_BY_APPLICATION_INSTANCE_0_AT_1 = "Clean-up job started by application instance {0} at: {1}";
+    public static final String CLEAN_UP_JOB_FINISHED_AT_0 = "Clean-up job finished at: {0}";
+    public static final String WILL_CLEAN_UP_DATA_STORED_BEFORE_0 = "Will clean-up data stored before: {0}";
+    public static final String DELETED_HISTORIC_PROCESSES_0 = "Deleted historic processes: {0}";
+    public static final String DELETED_FILES_0 = "Deleted files: {0}";
+    public static final String ABORTED_OPERATIONS_0 = "Aborted operations: {0}";
+    public static final String DELETED_OPERATIONS_0 = "Deleted operations: {0}";
+    public static final String DELETED_PROCESS_LOGS_0 = "Deleted process logs: {0}";
+    public static final String DELETED_PROGRESS_MESSAGES_0 = "Deleted progress messages: {0}";
+    public static final String REMOVED_TOKENS_0 = "Removed tokens: {0}";
+    public static final String DELETED_DATA_FOR_NON_EXISTING_USERS = "Deleted data for no-longer existing users.";
 
     // Progress messages
     public static final String PREPARING_DEPLOY_PARAMETERS = "Preparing deploy parameters...";
@@ -435,5 +449,13 @@ public class Messages {
     public static final String DELETING_TEMP_FILE = "Deleting temp file: {0}";
     public static final String UPLOADING_FILE_0_FOR_APP_1 = "Uploading file \"{0}\" for application \"{1}\"";
     public static final String STARTED_ASYNC_UPLOAD_OF_APP_0 = "Started async upload of application \"{0}\"";
+    public static final String DELETING_HISTORIC_PROCESS_0 = "Deleting historic process \"{0}\"...";
+    public static final String DELETING_FILES_MODIFIED_BEFORE_0 = "Deleting files modified before: {0}";
+    public static final String DELETING_OPERATIONS_STARTED_BEFORE_0 = "Deleting operations started before: {0}";
+    public static final String ABORTING_OPERATION_0 = "Aborting operation \"{0}\"...";
+    public static final String DELETING_PROCESS_LOGS_MODIFIED_BEFORE_0 = "Deleting process logs modified before \"{0}\"...";
+    public static final String DELETING_PROGRESS_MESSAGES_STORED_BEFORE_0 = "Deleting progress messages stored before \"{0}\"...";
+    public static final String REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE = "Removing expired tokens from the token store...";
+    public static final String DELETING_DATA_FOR_NON_EXISTING_USERS = "Deleting data for no-longer existing users...";
 
 }
