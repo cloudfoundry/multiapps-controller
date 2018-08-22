@@ -69,6 +69,10 @@ public class UndeployAppStepTest extends SyncActivitiStepTest<UndeployAppStep> {
           // (5) There are not found routes matching app uri:
           {
               "undeploy-apps-step-input-05.json", "undeploy-apps-step-output-05.json",
+          },          
+          // (6) There are tcp/tcps routes to undeploy (host based routing (XSA)):
+          {
+              "undeploy-apps-step-input-06.json", "undeploy-apps-step-output-06.json",
           },
 // @formatter:on
         });

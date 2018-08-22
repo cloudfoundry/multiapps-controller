@@ -11,9 +11,9 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -67,7 +67,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
             getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
             boolean portBasedRouting = isPortBasedRouting(client);
             getStepLogger().debug(Messages.PORT_BASED_ROUTING, portBasedRouting);
-            if (portBasedRouting) {
+            if (client instanceof XsCloudControllerClient) {
                 XsCloudControllerClient xsClient = execution.getXsControllerClient();
                 portAllocator = clientProvider.getPortAllocator(xsClient, defaultDomainName);
             }
@@ -80,7 +80,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
 
             determineIsVersionAccepted(execution.getContext(), descriptor);
 
-            if (portBasedRouting) {
+            if (client instanceof XsCloudControllerClient) {
                 StepsUtil.setAllocatedPorts(execution.getContext(), portAllocator.getAllocatedPorts());
                 getStepLogger().debug(Messages.ALLOCATED_PORTS, portAllocator.getAllocatedPorts());
             }
@@ -142,11 +142,10 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
 
         boolean areXsPlaceholdersSupported = configuration.areXsPlaceholdersSupported();
 
-        return new SystemParametersBuilder(platformName, StepsUtil.getOrg(context),
-            StepsUtil.getSpace(context), user, defaultDomainName, configuration.getPlatformType(), targetUrl, authorizationEndpoint,
-            deployServiceUrl, routerPort, portBasedRouting, reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices,
-            deployedMta, credentialsGeneratorSupplier.get(), majorSchemaVersion, areXsPlaceholdersSupported, xsPlaceholderResolver,
-            timestampSupplier);
+        return new SystemParametersBuilder(platformName, StepsUtil.getOrg(context), StepsUtil.getSpace(context), user, defaultDomainName,
+            configuration.getPlatformType(), targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting,
+            reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices, deployedMta, credentialsGeneratorSupplier.get(),
+            majorSchemaVersion, areXsPlaceholdersSupported, xsPlaceholderResolver, timestampSupplier);
     }
 
     private Map<String, Object> buildXsPlaceholderReplacementValues(String defaultDomain, String authorizationEndpoint,

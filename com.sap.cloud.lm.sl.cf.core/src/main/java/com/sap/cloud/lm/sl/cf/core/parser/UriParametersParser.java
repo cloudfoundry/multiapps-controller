@@ -9,12 +9,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 
 public class UriParametersParser implements ParametersParser<List<String>> {
 
     private boolean portBasedRouting;
+    private boolean includeProtocol;
     private String defaultHost;
     private String defaultDomain;
     private Integer defaultPort;
@@ -22,15 +25,19 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     private String domainParameterName;
     private String portParameterName;
     private String routePath;
+    private String protocol;
 
-    public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort, String routePath) {
+    public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort, String routePath,
+        boolean includeProtocol, String protocol) {
         this(portBasedRouting, defaultHost, defaultDomain, defaultPort, SupportedParameters.HOST, SupportedParameters.DOMAIN,
-            SupportedParameters.PORT, routePath);
+            SupportedParameters.PORT, routePath, includeProtocol, protocol);
     }
 
     public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort,
-        String hostParameterName, String domainParameterName, String portParameterName, String routePath) {
+        String hostParameterName, String domainParameterName, String portParameterName, String routePath, boolean includeProtocol,
+        String protocol) {
         this.portBasedRouting = portBasedRouting;
+        this.includeProtocol = includeProtocol;
         this.defaultHost = defaultHost;
         this.defaultDomain = defaultDomain;
         this.defaultPort = defaultPort;
@@ -38,6 +45,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         this.domainParameterName = domainParameterName;
         this.portParameterName = portParameterName;
         this.routePath = routePath;
+        this.protocol = protocol;
     }
 
     @Override
@@ -109,7 +117,17 @@ public class UriParametersParser implements ParametersParser<List<String>> {
                 uris.add(appendRoutePathIfPresent(domain));
             }
         }
-        return new ArrayList<>(uris);
+
+        return uris.stream()
+            .map(this::addProtocol)
+            .collect(Collectors.toList());
+    }
+
+    private String addProtocol(String uri) {
+        if (includeProtocol) {
+            return protocol + UriUtil.DEFAULT_SCHEME_SEPARATOR + uri;
+        }
+        return uri;
     }
 
     private String appendRoutePathIfPresent(String uri) {
@@ -120,7 +138,11 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     private boolean shouldUsePortBasedUris(List<Integer> ports, List<String> hosts) {
-        return (portBasedRouting || hosts.isEmpty()) && !ports.isEmpty();
+        return (portBasedRouting || hosts.isEmpty() || isTcpOrTcps()) && !ports.isEmpty();
+    }
+
+    private boolean isTcpOrTcps() {
+        return SupportedParameters.TCP.equals(protocol) || SupportedParameters.TCPS.equals(protocol);
     }
 
 }

@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
@@ -112,7 +112,7 @@ public class UndeployAppStep extends SyncActivitiStep {
 
     private void deleteApplicationRoutes(List<CloudRoute> routes, String uri, CloudControllerClient client) {
         getStepLogger().info(Messages.DELETING_ROUTE, uri);
-        boolean isPortBasedRouting = isPortBasedRouting(client);
+        boolean isPortBasedRouting = isPortBasedRouting(client, uri);
         try {
             CloudRoute route = UriUtil.findRoute(routes, uri, isPortBasedRouting);
             if (route.getAppsUsingRoute() > 1) {
@@ -126,9 +126,10 @@ public class UndeployAppStep extends SyncActivitiStep {
         getStepLogger().debug(Messages.ROUTE_DELETED, uri);
     }
 
-    private boolean isPortBasedRouting(CloudControllerClient client) {
+    private boolean isPortBasedRouting(CloudControllerClient client, String uri) {
         CloudInfo info = client.getCloudInfo();
-        return info instanceof CloudInfoExtended && ((CloudInfoExtended) info).isPortBasedRouting();
+        boolean isPortBasedSystem = info instanceof CloudInfoExtended && ((CloudInfoExtended) info).isPortBasedRouting();
+        return isPortBasedSystem || UriUtil.isTcpOrTcpsUri(uri);
     }
 
 }
