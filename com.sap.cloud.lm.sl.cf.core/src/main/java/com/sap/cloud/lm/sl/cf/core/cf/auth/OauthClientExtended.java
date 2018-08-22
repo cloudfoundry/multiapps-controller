@@ -32,7 +32,7 @@ public class OauthClientExtended extends OauthClient {
         if (token.getExpiresIn() < 120) {
             TokenProperties tokenProperties = TokenProperties.fromToken(token);
             token = tokenService.getToken(tokenProperties.getUserName());
-            LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.UPDATED_USER_TOKEN, tokenProperties.getUserName(),
+            LOGGER.info(MessageFormat.format(com.sap.cloud.lm.sl.cf.core.message.Messages.RETRIEVED_USER_TOKEN, tokenProperties.getUserName(),
                 token.getExpiresIn()));
         }
 

@@ -167,7 +167,7 @@ public final class Messages {
     public static final String PURGING_SUBSCRIPTIONS = "Purging configuration subscriptions for target: {0}";
     public static final String PURGING_ENTRIES = "Purging entries for target: {0}";
     public static final String PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES = "All delete request spaces after date: {0} will be deleted from configuration tables.";
-    public static final String UPDATED_USER_TOKEN = "Token updated for user: {0} with new expiration time: {1}";
+    public static final String RETRIEVED_USER_TOKEN = "Retrieved token for user: {0} with expiration time: {1}";
 
     // Debug messages
     public static final String EXTENSION_DESCRIPTOR = "Extension descriptor \"{0}\": {1}";
