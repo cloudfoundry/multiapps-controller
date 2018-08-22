@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
@@ -68,7 +67,6 @@ public class BootstrapServlet extends HttpServlet {
             SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
             configuration.load();
             initializeProviders();
-            initializeActiviti();
             addDeployTargets();
             initExtras();
             executeAsyncDatabaseChanges();
@@ -102,11 +100,6 @@ public class BootstrapServlet extends HttpServlet {
     private void initializeProviders() {
         // Initialize audit logging provider
         AuditLoggingProvider.setFacade(new AuditLoggingFacadeSLImpl(dataSource, getUserInfoProvider()));
-    }
-
-    private void initializeActiviti() {
-        ActivitiFacade.getInstance()
-            .init(processEngine);
     }
 
     private void addDeployTargets() {
