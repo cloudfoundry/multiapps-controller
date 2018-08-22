@@ -25,8 +25,6 @@ import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
 public class SystemParametersBuilder {
 
-    private static final String TCPS_PROTOCOL = "tcps";
-    private static final String TCP_PROTOCOL = "tcp";
     public static final int GENERATED_CREDENTIALS_LENGTH = 16;
     public static final String IDLE_HOST_SUFFIX = "-idle";
     private static final String ROUTE_PATH_PLACEHOLDER = "${route-path}";
@@ -167,7 +165,8 @@ public class SystemParametersBuilder {
 
     private void putRoutingParameters(Module module, Map<String, Object> moduleParameters, Map<String, Object> moduleSystemParameters) {
         putHostParameters(module, moduleSystemParameters);
-        if (portBasedRouting) {
+        String protocol = getProtocol(moduleParameters);
+        if (portBasedRouting || (isTcpOrTcpsProtocol(protocol) && portAllocator != null)) {
             putPortRoutingParameters(module, moduleParameters, moduleSystemParameters);
         } else {
             boolean isStandardPort = UriUtil.isStandardPort(routerPort, targetUrl.getProtocol());
@@ -188,8 +187,12 @@ public class SystemParametersBuilder {
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_URL, defaultIdleUrl);
             defaultUrl = defaultIdleUrl;
         }
-        moduleSystemParameters.put(SupportedParameters.PROTOCOL, getProtocol(moduleParameters));
+        moduleSystemParameters.put(SupportedParameters.PROTOCOL, protocol);
         moduleSystemParameters.put(SupportedParameters.DEFAULT_URL, defaultUrl);
+    }
+
+    private boolean isTcpOrTcpsProtocol(String protocol) {
+        return (UriUtil.TCP_PROTOCOL.equals(protocol) || UriUtil.TCPS_PROTOCOL.equals(protocol));
     }
 
     private void putHostParameters(Module module, Map<String, Object> moduleSystemParameters) {
@@ -328,10 +331,10 @@ public class SystemParametersBuilder {
         boolean isTcpRoute = getBooleanParameter(moduleParameters, SupportedParameters.TCP);
         boolean isTcpsRoute = getBooleanParameter(moduleParameters, SupportedParameters.TCPS);
         if (isTcpRoute) {
-            return TCP_PROTOCOL;
+            return UriUtil.TCP_PROTOCOL;
         }
         if (isTcpsRoute) {
-            return TCPS_PROTOCOL;
+            return UriUtil.TCPS_PROTOCOL;
         }
         if (shouldUseXsPlaceholders()) {
             return SupportedParameters.XSA_PROTOCOL_PLACEHOLDER;

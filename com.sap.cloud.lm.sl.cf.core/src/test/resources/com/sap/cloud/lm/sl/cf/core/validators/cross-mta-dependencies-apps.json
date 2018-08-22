@@ -2,7 +2,7 @@
   {
     "moduleName": "module",
     "idleUris": [
-      "sofd60245639a:55001"
+      "{xsa-placeholder-protocol}://sofd60245639a:55001"
     ],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -17,7 +17,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:55001\"\n  ]\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:55001\"\n  ]\n}",
       "MTA_METADATA\u003d{\n  \"id\": \"cross-mta-dependencies-test\",\n  \"version\": \"0.0.1\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"module\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"module\"\n]",
@@ -34,7 +34,7 @@
     "services": [],
     "staging": {},
     "uris": [
-      "sofd60245639a:55001"
+      "{xsa-placeholder-protocol}://sofd60245639a:55001"
     ],
     "meta": {},
     "name": "module"

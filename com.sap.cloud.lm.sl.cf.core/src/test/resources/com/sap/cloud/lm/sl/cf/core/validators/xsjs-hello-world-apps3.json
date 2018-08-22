@@ -53,7 +53,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:51000\",\n    \"{xsa-placeholder-domain-default}:51001\"\n  ]\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:51000\",\n    \"{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:51001\"\n  ]\n}",
       "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-backend\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs\",\n  \"xsjs-hello-world-backend\"\n]",
@@ -69,8 +69,8 @@
     ],
     "staging": {},
     "uris": [
-      "sofd60245639a:51000",
-      "sofd60245639a:51001"
+      "{xsa-placeholder-protocol}://sofd60245639a:51000",
+      "{xsa-placeholder-protocol}://sofd60245639a:51001"
     ],
     "meta": {},
     "name": "xsjs-hello-world-backend"
@@ -91,7 +91,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:55000\"\n  ]\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:55000\"\n  ]\n}",
       "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world\"\n]",
@@ -107,7 +107,7 @@
     ],
     "staging": {},
     "uris": [
-      "sofd60245639a:55000"
+      "{xsa-placeholder-protocol}://sofd60245639a:55000"
     ],
     "meta": {},
     "name": "xsjs-hello-world"

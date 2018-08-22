@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -12,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,6 +64,10 @@ public class DeleteIdleRoutesStepTest extends SyncActivitiStepTest<DeleteIdleRou
             // (1) There are no idle URIs:
             {
                 new StepInput("apps-to-deploy-07.json"), new StepOutput("apps-to-deploy-07.json", Collections.emptyList()),
+            },
+            // (2) There are idle TCP URIs:
+            {
+                new StepInput("apps-to-deploy-11.json"), new StepOutput("apps-to-deploy-11.json", Arrays.asList("tcp://test.domain.com:51052")),
             },
 // @formatter:on
         });
@@ -123,6 +129,9 @@ public class DeleteIdleRoutesStepTest extends SyncActivitiStepTest<DeleteIdleRou
 
         for (String uri : output.urisToDelete) {
             Pair<String, String> hostAndDomain = UriUtil.getHostAndDomain(uri);
+            if (UriUtil.isTcpOrTcpsUri(uri)) {
+                assertTrue("The host segment should be a port number", NumberUtils.isDigits(hostAndDomain._1));
+            }
             verify(client, times(1)).deleteRoute(hostAndDomain._1, hostAndDomain._2, null);
         }
     }

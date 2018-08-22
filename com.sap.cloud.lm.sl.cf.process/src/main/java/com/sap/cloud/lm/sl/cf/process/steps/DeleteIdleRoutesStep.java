@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
+import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
@@ -58,7 +59,8 @@ public class DeleteIdleRoutesStep extends SyncActivitiStep {
 
     private void deleteRoute(String uri, boolean portBasedRouting, CloudControllerClient client) {
         try {
-            new ClientHelper(client, spaceGetter).deleteRoute(uri, portBasedRouting);
+            boolean portRoute = portBasedRouting || UriUtil.isTcpOrTcpsUri(uri);
+            new ClientHelper(client, spaceGetter).deleteRoute(uri, portRoute);
         } catch (CloudOperationException e) {
             if (!e.getStatusCode()
                 .equals(HttpStatus.CONFLICT)) {

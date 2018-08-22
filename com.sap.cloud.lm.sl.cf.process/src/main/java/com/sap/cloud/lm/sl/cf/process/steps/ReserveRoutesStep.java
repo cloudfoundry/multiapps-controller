@@ -3,9 +3,9 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 import java.util.Set;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -13,9 +13,8 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort.ApplicationPortType;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -30,8 +29,7 @@ public class ReserveRoutesStep extends SyncActivitiStep {
 
         try {
             CloudControllerClient client = execution.getControllerClient();
-            boolean portBasedRouting = StepsUtil.getVariableOrDefault(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
-            if (!(client instanceof XsCloudControllerClient) || !portBasedRouting) {
+            if (!(client instanceof XsCloudControllerClient)) {
                 return StepPhase.DONE;
             }
             Set<Integer> allocatedPorts = StepsUtil.getAllocatedPorts(execution.getContext());
