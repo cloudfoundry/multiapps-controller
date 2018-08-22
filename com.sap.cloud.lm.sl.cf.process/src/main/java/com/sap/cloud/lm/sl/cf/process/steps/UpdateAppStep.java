@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.Staging;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -231,7 +230,7 @@ public class UpdateAppStep extends CreateAppStep {
 
     private boolean hasChanged(List<String> uris, List<String> existingUris) {
         Set<String> urisSet = new HashSet<>(uris);
-        Set<String> existingUrisSet = new HashSet<>(UriUtil.getUrisWithoutScheme(existingUris));
+        Set<String> existingUrisSet = new HashSet<>(existingUris);
         return !urisSet.equals(existingUrisSet);
     }
 }

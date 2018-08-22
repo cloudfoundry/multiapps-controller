@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 
@@ -12,14 +11,20 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class UriUtil {
 
-    private static final String DEFAULT_SCHEME_SEPARATOR = "://";
-    private static final char DEFAULT_PATH_SEPARATOR = '/';
-    private static final char DEFAULT_HOST_DOMAIN_SEPARATOR = '.';
-    private static final char DEFAULT_PORT_SEPARATOR = ':';
     private static final PortValidator PORT_VALIDATOR = new PortValidator();
+
+    public static final String DEFAULT_SCHEME_SEPARATOR = "://";
+    public static final char DEFAULT_PATH_SEPARATOR = '/';
+    public static final char DEFAULT_HOST_DOMAIN_SEPARATOR = '.';
+    public static final char DEFAULT_PORT_SEPARATOR = ':';
 
     public static final int STANDARD_HTTP_PORT = 80;
     public static final int STANDARD_HTTPS_PORT = 443;
+
+    public static final String TCP_PROTOCOL = "tcp";
+    public static final String TCPS_PROTOCOL = "tcps";
+    public static final String HTTP_PROTOCOL = "http";
+    public static final String HTTPS_PROTOCOL = "https";
 
     public static Pair<String, String> getHostAndDomain(String uri) {
         uri = getUriWithoutScheme(uri);
@@ -76,10 +81,8 @@ public class UriUtil {
         return uri;
     }
 
-    public static List<String> getUrisWithoutScheme(List<String> uris) {
-        return uris.stream()
-            .map(UriUtil::getUriWithoutScheme)
-            .collect(Collectors.toList());
+    public static boolean isTcpOrTcpsUri(String uri) {
+        return uri.startsWith(TCP_PROTOCOL + DEFAULT_SCHEME_SEPARATOR) || uri.startsWith(TCPS_PROTOCOL + DEFAULT_SCHEME_SEPARATOR);
     }
 
     public static boolean isValidPort(int port) {
@@ -107,7 +110,8 @@ public class UriUtil {
     }
 
     public static boolean isStandardPort(int port, String protocol) {
-        return protocol.equals("http") && port == STANDARD_HTTP_PORT || protocol.equals("https") && port == STANDARD_HTTPS_PORT;
+        return protocol.equals(HTTP_PROTOCOL) && port == STANDARD_HTTP_PORT
+            || protocol.equals(HTTPS_PROTOCOL) && port == STANDARD_HTTPS_PORT;
     }
 
     public static CloudRoute findRoute(List<CloudRoute> routes, String uri, boolean isPortBasedRouting) {

@@ -1,0 +1,12 @@
+{
+  "expectedRoutesToDelete": [
+    {
+      "_1": "1112",
+      "_2": "routerhost.example.com"
+    },
+    {
+      "_1": "1113",
+      "_2": "routerhost.example.com"
+    }
+  ]
+}

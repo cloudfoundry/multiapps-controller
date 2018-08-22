@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -125,9 +124,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                 execution.getStepLogger()
                     .info(Messages.APP_STARTED, app.getName());
             } else {
-                List<String> urls = toUrls(uris);
                 execution.getStepLogger()
-                    .info(Messages.APP_STARTED_URLS, app.getName(), String.join(",", urls));
+                    .info(Messages.APP_STARTED_URLS, app.getName(), String.join(",", uris));
             }
             return AsyncExecutionState.FINISHED;
         }
@@ -186,18 +184,6 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             }
         }
         return count;
-    }
-
-    private List<String> toUrls(List<String> uris) {
-        String protocolPrefix = getProtocolPrefix();
-        return uris.stream()
-            .map(uri -> protocolPrefix + uri)
-            .collect(Collectors.toList());
-    }
-
-    private String getProtocolPrefix() {
-        return configuration.getTargetURL()
-            .getProtocol() + "://";
     }
 
 }

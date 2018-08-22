@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
-import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 
 public class UrisClassifier {
 
@@ -21,7 +20,7 @@ public class UrisClassifier {
         if (deployedModule == null) {
             return Collections.emptyList();
         }
-        List<String> allUris = getUrisWithoutScheme(deployedModule);
+        List<String> allUris = deployedModule.getUris();
         List<String> descriptorDefinedUris = getDescriptorDefinedUris(deployedModule);
         List<String> customUris = new ArrayList<>(allUris);
         customUris.removeAll(descriptorDefinedUris);
@@ -32,7 +31,7 @@ public class UrisClassifier {
         if (deployedModule == null) {
             return Collections.emptyList();
         }
-        List<String> allUris = getUrisWithoutScheme(deployedModule);
+        List<String> allUris = deployedModule.getUris();
         List<String> descriptorDefinedUris = getDescriptorDefinedUrisOrDefault(deployedModule, allUris);
         descriptorDefinedUris.retainAll(allUris);
         return descriptorDefinedUris;
@@ -46,10 +45,6 @@ public class UrisClassifier {
         }
         List<String> descriptorDefinedUris = (List<String>) attributes.get(Constants.ATTR_DESCRIPTOR_DEFINED_URIS);
         return xsPlaceholderResolver.resolve(descriptorDefinedUris);
-    }
-
-    private List<String> getUrisWithoutScheme(DeployedMtaModule deployedModule) {
-        return UriUtil.getUrisWithoutScheme(deployedModule.getUris());
     }
 
 }
