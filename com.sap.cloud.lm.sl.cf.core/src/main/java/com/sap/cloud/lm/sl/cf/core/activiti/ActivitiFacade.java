@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.activiti.engine.ActivitiOptimisticLockingException;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.history.HistoricActivityInstance;
@@ -17,43 +19,37 @@ import org.activiti.engine.runtime.Job;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
+@Component
 public class ActivitiFacade {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActivitiFacade.class);
     private static final int DEFAULT_ABORT_TIMEOUT_MS = 30000;
 
-    private ProcessEngine engine;
+    private final ProcessEngine processEngine;
 
-    private static final ActivitiFacade INSTANCE = new ActivitiFacade();
-
-    public static ActivitiFacade getInstance() {
-        return INSTANCE;
-    }
-
-    protected ActivitiFacade() {
-    }
-
-    public void init(ProcessEngine engine) {
-        this.engine = engine;
+    @Inject
+    public ActivitiFacade(ProcessEngine processEngine) {
+        this.processEngine = processEngine;
     }
 
     public ProcessInstance startProcess(String userId, String processDefinitionKey, Map<String, Object> variables) {
         try {
-            engine.getIdentityService()
+            processEngine.getIdentityService()
                 .setAuthenticatedUserId(userId);
-            return engine.getRuntimeService()
+            return processEngine.getRuntimeService()
                 .startProcessInstanceByKey(processDefinitionKey, variables);
         } finally {
             // After the setAuthenticatedUserId() method is invoked, all Activiti service methods
             // executed within the current thread will have access to this userId. Just before
             // leaving the method, the userId is set to null, preventing other services from using
             // it unintentionally.
-            engine.getIdentityService()
+            processEngine.getIdentityService()
                 .setAuthenticatedUserId(null);
         }
     }
@@ -70,7 +66,7 @@ public class ActivitiFacade {
     }
 
     public List<HistoricActivityInstance> getHistoricActivities(String activityType, String processInstanceId) {
-        return engine.getHistoryService()
+        return processEngine.getHistoryService()
             .createHistoricActivityInstanceQuery()
             .activityType(activityType)
             .processInstanceId(processInstanceId)
@@ -92,7 +88,7 @@ public class ActivitiFacade {
     }
 
     private List<HistoricVariableInstance> retrieveVariablesByCorrelationId(String correlationId) {
-        return engine.getHistoryService()
+        return processEngine.getHistoryService()
             .createHistoricVariableInstanceQuery()
             .variableValueEquals(Constants.CORRELATION_ID, correlationId)
             .orderByProcessInstanceId()
@@ -101,7 +97,7 @@ public class ActivitiFacade {
     }
 
     public HistoricVariableInstance getHistoricVariableInstance(String processInstanceId, String variableName) {
-        return engine.getHistoryService()
+        return processEngine.getHistoryService()
             .createHistoricVariableInstanceQuery()
             .processInstanceId(processInstanceId)
             .variableName(variableName)
@@ -121,7 +117,7 @@ public class ActivitiFacade {
     }
 
     private HistoricActivityInstance getHistoricActivitiInstance(String processId, String activityType) {
-        return engine.getHistoryService()
+        return processEngine.getHistoryService()
             .createHistoricActivityInstanceQuery()
             .activityType(activityType)
             .processInstanceId(processId)
@@ -129,7 +125,7 @@ public class ActivitiFacade {
     }
 
     public String getActivityType(String processInstanceId, String executionId, String activityId) {
-        List<HistoricActivityInstance> historicInstancesList = engine.getHistoryService()
+        List<HistoricActivityInstance> historicInstancesList = processEngine.getHistoryService()
             .createHistoricActivityInstanceQuery()
             .processInstanceId(processInstanceId)
             .activityId(activityId)
@@ -152,7 +148,7 @@ public class ActivitiFacade {
     }
 
     private List<Execution> getExecutionsByProcessId(String processInstanceId) {
-        return engine.getRuntimeService()
+        return processEngine.getRuntimeService()
             .createExecutionQuery()
             .processInstanceId(processInstanceId)
             .list();
@@ -164,18 +160,18 @@ public class ActivitiFacade {
             return;
         }
         try {
-            engine.getIdentityService()
+            processEngine.getIdentityService()
                 .setAuthenticatedUserId(userId);
-            engine.getManagementService()
+            processEngine.getManagementService()
                 .executeJob(job.getId());
         } finally {
-            engine.getIdentityService()
+            processEngine.getIdentityService()
                 .setAuthenticatedUserId(null);
         }
     }
 
     private Job getJob(String processInstanceId) {
-        return engine.getManagementService()
+        return processEngine.getManagementService()
             .createJobQuery()
             .processInstanceId(processInstanceId)
             .singleResult();
@@ -183,19 +179,19 @@ public class ActivitiFacade {
 
     public void signal(String userId, String executionId) {
         try {
-            engine.getIdentityService()
+            processEngine.getIdentityService()
                 .setAuthenticatedUserId(userId);
-            engine.getRuntimeService()
+            processEngine.getRuntimeService()
                 .signal(executionId);
         } finally {
-            engine.getIdentityService()
+            processEngine.getIdentityService()
                 .setAuthenticatedUserId(null);
         }
     }
 
     public void deleteProcessInstance(String userId, String processInstanceId, String deleteReason) {
         try {
-            engine.getIdentityService()
+            processEngine.getIdentityService()
                 .setAuthenticatedUserId(userId);
 
             long deadline = System.currentTimeMillis() + DEFAULT_ABORT_TIMEOUT_MS;
@@ -204,11 +200,11 @@ public class ActivitiFacade {
                     LOGGER.debug(format(Messages.SETTING_VARIABLE, Constants.PROCESS_ABORTED, Boolean.TRUE));
                     // TODO: Use execution ID instead of process instance ID, as they can be
                     // different if the process has parallel executions.
-                    engine.getRuntimeService()
+                    processEngine.getRuntimeService()
                         .setVariable(processInstanceId, Constants.PROCESS_ABORTED, Boolean.TRUE);
                     LOGGER.debug(format(Messages.SET_SUCCESSFULLY, Constants.PROCESS_ABORTED));
 
-                    engine.getRuntimeService()
+                    processEngine.getRuntimeService()
                         .deleteProcessInstance(processInstanceId, deleteReason);
                     break;
                 } catch (ActivitiOptimisticLockingException e) {
@@ -219,13 +215,13 @@ public class ActivitiFacade {
                 }
             }
         } finally {
-            engine.getIdentityService()
+            processEngine.getIdentityService()
                 .setAuthenticatedUserId(null);
         }
     }
 
     public boolean isProcessInstanceSuspended(String processInstanceId) {
-        ProcessInstance processInstance = engine.getRuntimeService()
+        ProcessInstance processInstance = processEngine.getRuntimeService()
             .createProcessInstanceQuery()
             .processInstanceId(processInstanceId)
             .singleResult();
@@ -233,12 +229,12 @@ public class ActivitiFacade {
     }
 
     public void activateProcessInstance(String processInstanceId) {
-        engine.getRuntimeService()
+        processEngine.getRuntimeService()
             .activateProcessInstanceById(processInstanceId);
     }
 
     public Set<String> getAllVariableNames(String processInstanceId) {
-        return engine.getHistoryService()
+        return processEngine.getHistoryService()
             .createHistoricVariableInstanceQuery()
             .processInstanceId(processInstanceId)
             .list()
@@ -248,7 +244,7 @@ public class ActivitiFacade {
     }
 
     public void suspendProcessInstance(String processInstanceId) {
-        engine.getRuntimeService()
+        processEngine.getRuntimeService()
             .suspendProcessInstanceById(processInstanceId);
     }
 

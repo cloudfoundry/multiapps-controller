@@ -31,8 +31,6 @@
         <constructor-arg name="dataSourceWithDialect" ref="dataSourceWithDialect" />
     </bean>
 
-    <bean class="com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade" factory-method="getInstance" />
-
     <bean class="com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider" factory-method="getInstance" />
 
 </beans>
