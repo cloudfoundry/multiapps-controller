@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
+
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters.RoutingParameterSet;
@@ -23,6 +26,13 @@ public class ApplicationUrisCloudModelBuilder {
         this.portBasedRouting = portBasedRouting;
         this.systemParameters = systemParameters;
         this.propertiesAccessor = propertiesAccessor;
+    }
+
+    private boolean includeProtocol() {
+        Map<String, Object> generalParameters = systemParameters.getGeneralParameters();
+        String platform = (String) generalParameters.get(SupportedParameters.XS_TYPE);
+        return PlatformType.XS2.toString()
+            .equals(platform);
     }
 
     public List<String> getApplicationUris(Module module, List<Map<String, Object>> propertiesList) {
@@ -46,8 +56,9 @@ public class ApplicationUrisCloudModelBuilder {
         String defaultRoutePath = (String) propertiesAccessor.getParameters(module)
             .getOrDefault(SupportedParameters.ROUTE_PATH, null);
         String defaultDomain = getDefaultDomain(parametersType, moduleSystemParameters);
-        return new IdleUriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, defaultRoutePath)
-            .parse(propertiesList);
+        String protocol = MapUtils.getString(moduleSystemParameters, SupportedParameters.PROTOCOL);
+        return new IdleUriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, defaultRoutePath, includeProtocol(),
+            protocol).parse(propertiesList);
     }
 
     private UriParametersParser getUriParametersParser(Module module) {
@@ -59,7 +70,8 @@ public class ApplicationUrisCloudModelBuilder {
         String routePath = (String) propertiesAccessor.getParameters(module)
             .getOrDefault(SupportedParameters.ROUTE_PATH, null);
         String defaultDomain = getDefaultDomain(parametersType, moduleSystemParameters);
-        return new UriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, routePath);
+        String protocol = MapUtils.getString(moduleSystemParameters, SupportedParameters.PROTOCOL);
+        return new UriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, routePath, includeProtocol(), protocol);
     }
 
     private String getDefaultDomain(RoutingParameterSet parametersType, Map<String, Object> moduleSystemParameters) {

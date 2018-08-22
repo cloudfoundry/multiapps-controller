@@ -15,7 +15,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-domain-default}:55000\"\n  ]\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:55000\"\n  ]\n}",
       "MTA_METADATA\u003d{\n  \"id\": \"myapp\",\n  \"version\": \"0.0.1\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"m1\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"m1\"\n]",
@@ -28,7 +28,7 @@
     "services": [],
     "staging": {},
     "uris": [
-      "sofd60245639a:55000"
+      "{xsa-placeholder-protocol}://sofd60245639a:55000"
     ],
     "meta": {},
     "name": "m1"
