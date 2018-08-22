@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component
@@ -30,12 +31,12 @@ public class ProcessLogsCleaner implements Cleaner {
 
     @Override
     public void execute(Date expirationTime) {
-        LOGGER.info(format("Deleting process logs older than \"{0}\"...", expirationTime));
+        LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_PROCESS_LOGS_MODIFIED_BEFORE_0, expirationTime));
         try {
             int deletedProcessLogs = processLogsPersistenceService.deleteByModificationTime(expirationTime);
-            LOGGER.info(format("Deleted process logs: {0}", deletedProcessLogs));
+            LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_PROCESS_LOGS_0, deletedProcessLogs));
         } catch (FileStorageException e) {
-            throw new SLException(e, "Deletion of process logs failed");
+            throw new SLException(e, Messages.COULD_NOT_DELETE_PROCESS_LOGS_MODIFIED_BEFORE_0, expirationTime);
         }
     }
 

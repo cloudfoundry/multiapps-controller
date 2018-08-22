@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component
@@ -30,12 +31,12 @@ public class FilesCleaner implements Cleaner {
 
     @Override
     public void execute(Date expirationTime) {
-        LOGGER.info(format("Deleting old MTA files modified before: {0}", expirationTime));
+        LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_FILES_MODIFIED_BEFORE_0, expirationTime));
         try {
             int removedOldFilesCount = fileService.deleteByModificationTime(expirationTime);
-            LOGGER.info(format("Deleted old MTA files: {0}", removedOldFilesCount));
+            LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_FILES_0, removedOldFilesCount));
         } catch (FileStorageException e) {
-            throw new SLException(e, "Deletion of old MTA files failed");
+            throw new SLException(e, Messages.COULD_NOT_DELETE_FILES_MODIFIED_BEFORE_0, expirationTime);
         }
     }
 

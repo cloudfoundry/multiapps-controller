@@ -17,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
 @Component
@@ -43,11 +44,11 @@ public class OperationsCleaner implements Cleaner {
 
     @Override
     public void execute(Date expirationTime) {
-        LOGGER.info(format("Cleaning up operations started before: {0}", expirationTime));
+        LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_OPERATIONS_STARTED_BEFORE_0, expirationTime));
         int abortedOperations = abortActiveOperations(expirationTime);
-        LOGGER.info(format("Aborted operations: {0}", abortedOperations));
+        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.ABORTED_OPERATIONS_0, abortedOperations));
         int deletedOperations = dao.removeExpiredInFinalState(expirationTime);
-        LOGGER.info(format("Deleted operations: {0}", deletedOperations));
+        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_OPERATIONS_0, deletedOperations));
     }
 
     private int abortActiveOperations(Date expirationTime) {
@@ -83,7 +84,7 @@ public class OperationsCleaner implements Cleaner {
             abort(operation);
             return true;
         } catch (Exception e) {
-            LOGGER.warn(format("Could not abort operation \"{0}\"", operation.getProcessId()), e);
+            LOGGER.warn(CleanUpJob.LOG_MARKER, format(Messages.COULD_NOT_ABORT_OPERATION_0, operation.getProcessId()), e);
             return false;
         }
     }
@@ -91,7 +92,7 @@ public class OperationsCleaner implements Cleaner {
     private void abort(Operation operation) {
         ActivitiAction abortAction = ActivitiActionFactory.getAction(ActivitiActionFactory.ACTION_ID_ABORT, activitiFacade, null);
         String processId = operation.getProcessId();
-        LOGGER.debug(format("Aborting operation \"{0}\"...", processId));
+        LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.ABORTING_OPERATION_0, processId));
         abortAction.executeAction(processId);
     }
 
