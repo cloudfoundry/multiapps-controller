@@ -135,7 +135,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private void createOrUpdateServiceKeys(List<ServiceKey> serviceKeys, CloudServiceExtended service, CloudControllerClient client,
-        ExecutionWrapper execution) throws SLException {
+        ExecutionWrapper execution) {
         // User provided services cannot have service keys.
         if (service.isUserProvided()) {
             return;
@@ -420,14 +420,11 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     private void setServiceParameters(DelegateExecution context, CloudServiceExtended service, final String appArchiveId,
         final String fileName) throws FileStorageException {
-        FileContentProcessor parametersFileProcessor = new FileContentProcessor() {
-            @Override
-            public void processFileContent(InputStream appArchiveStream) {
-                try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
-                    mergeCredentials(service, is);
-                } catch (IOException e) {
-                    throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
-                }
+        FileContentProcessor parametersFileProcessor = appArchiveStream -> {
+            try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
+                mergeCredentials(service, is);
+            } catch (IOException e) {
+                throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
             }
         };
         fileService
