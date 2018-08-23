@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.core.activiti;
 
 import static java.text.MessageFormat.format;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,15 +75,10 @@ public class ActivitiFacade {
     }
 
     public List<String> getHistoricSubProcessIds(String correlationId) {
-        List<String> subProcessIds = new ArrayList<>();
-        List<HistoricVariableInstance> variablesWithCorrelationId = retrieveVariablesByCorrelationId(correlationId);
-        for (HistoricVariableInstance historicVariableInstance : variablesWithCorrelationId) {
-            if (!historicVariableInstance.getProcessInstanceId()
-                .equals(correlationId)) {
-                subProcessIds.add(historicVariableInstance.getProcessInstanceId());
-            }
-        }
-        return subProcessIds;
+        return retrieveVariablesByCorrelationId(correlationId).stream()
+            .map(HistoricVariableInstance::getProcessInstanceId)
+            .filter(id -> !id.equals(correlationId))
+            .collect(Collectors.toList());
     }
 
     private List<HistoricVariableInstance> retrieveVariablesByCorrelationId(String correlationId) {
@@ -104,16 +98,14 @@ public class ActivitiFacade {
             .singleResult();
     }
 
-    public List<String> getActiveHistoricSubProcessIds(String superProcessId) {
-        List<String> subProcessIds = getHistoricSubProcessIds(superProcessId);
-        List<String> activeSubProcessIds = new ArrayList<>();
-        for (String subProcessId : subProcessIds) {
-            HistoricActivityInstance subProcessEndActivity = getHistoricActivitiInstance(subProcessId, "endEvent");
-            if (subProcessEndActivity == null) {
-                activeSubProcessIds.add(subProcessId);
-            }
-        }
-        return activeSubProcessIds;
+    public List<String> getActiveHistoricSubProcessIds(String correlationId) {
+        return getHistoricSubProcessIds(correlationId).stream()
+            .filter(this::isActive)
+            .collect(Collectors.toList());
+    }
+
+    private boolean isActive(String processId) {
+        return getHistoricActivitiInstance(processId, "endEvent") == null;
     }
 
     private HistoricActivityInstance getHistoricActivitiInstance(String processId, String activityType) {
@@ -138,13 +130,10 @@ public class ActivitiFacade {
     }
 
     public Execution getProcessExecution(String processInstanceId) {
-        List<Execution> executionQueryByProcessId = getExecutionsByProcessId(processInstanceId);
-        for (Execution execution : executionQueryByProcessId) {
-            if (execution.getActivityId() != null) {
-                return execution;
-            }
-        }
-        return null;
+        return getExecutionsByProcessId(processInstanceId).stream()
+            .filter(execution -> execution.getActivityId() != null)
+            .findFirst()
+            .orElse(null);
     }
 
     private List<Execution> getExecutionsByProcessId(String processInstanceId) {
