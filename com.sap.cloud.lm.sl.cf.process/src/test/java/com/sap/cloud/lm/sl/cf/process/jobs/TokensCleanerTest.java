@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.quartz.JobExecutionException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
@@ -30,7 +29,7 @@ public class TokensCleanerTest {
     }
 
     @Test
-    public void testRemoveExpiredTokens() throws JobExecutionException {
+    public void testExecute() {
         OAuth2AccessToken expiredToken = mock(OAuth2AccessToken.class);
         when(expiredToken.isExpired()).thenReturn(true);
         OAuth2AccessToken token = mock(OAuth2AccessToken.class);
