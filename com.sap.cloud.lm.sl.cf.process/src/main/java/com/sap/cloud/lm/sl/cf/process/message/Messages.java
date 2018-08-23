@@ -457,5 +457,6 @@ public class Messages {
     public static final String DELETING_PROGRESS_MESSAGES_STORED_BEFORE_0 = "Deleting progress messages stored before \"{0}\"...";
     public static final String REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE = "Removing expired tokens from the token store...";
     public static final String DELETING_DATA_FOR_NON_EXISTING_USERS = "Deleting data for no-longer existing users...";
+    public static final String REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0 = "Registered cleaners in clean-up job: {0}";
 
 }

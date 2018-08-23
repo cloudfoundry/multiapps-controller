@@ -1,10 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.jobs;
 
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doThrow;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.quartz.JobExecutionException;
 
 public class ActivitiHistoricDataCleanerTest {
 
@@ -41,7 +40,7 @@ public class ActivitiHistoricDataCleanerTest {
     }
 
     @Test
-    public void testExecuteWithMultiplePages() throws JobExecutionException {
+    public void testExecuteWithMultiplePages() {
         HistoricProcessInstance process1 = mockHistoricProcessInstanceWithId(OPERATION_ID_1);
         HistoricProcessInstance process2 = mockHistoricProcessInstanceWithId(OPERATION_ID_2);
         HistoricProcessInstance process3 = mockHistoricProcessInstanceWithId(OPERATION_ID_3);

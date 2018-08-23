@@ -30,8 +30,8 @@ public class ProgressMessagesCleaner implements Cleaner {
     @Override
     public void execute(Date expirationTime) {
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_PROGRESS_MESSAGES_STORED_BEFORE_0, expirationTime));
-        int removedProcessMessages = progressMessageService.removeOlderThan(expirationTime);
-        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_PROGRESS_MESSAGES_0, removedProcessMessages));
+        int removedProgressMessages = progressMessageService.removeOlderThan(expirationTime);
+        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_PROGRESS_MESSAGES_0, removedProgressMessages));
     }
 
 }

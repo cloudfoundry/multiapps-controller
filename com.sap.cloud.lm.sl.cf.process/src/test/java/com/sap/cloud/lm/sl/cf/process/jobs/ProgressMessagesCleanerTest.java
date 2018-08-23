@@ -9,9 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.quartz.JobExecutionException;
 
-import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 
 public class ProgressMessagesCleanerTest {
@@ -29,7 +27,7 @@ public class ProgressMessagesCleanerTest {
     }
 
     @Test
-    public void testRemoveOldFiles() throws JobExecutionException, FileStorageException {
+    public void testExecute() {
         cleaner.execute(EXPIRATION_TIME);
         verify(progressMessageService).removeOlderThan(EXPIRATION_TIME);
     }

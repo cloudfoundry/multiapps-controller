@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.quartz.JobExecutionException;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
@@ -29,7 +28,7 @@ public class ProcessLogsCleanerTest {
     }
 
     @Test
-    public void testRemoveOldFiles() throws JobExecutionException, FileStorageException {
+    public void testExecute() throws FileStorageException {
         cleaner.execute(EXPIRATION_TIME);
         verify(processLogsPersistenceService).deleteByModificationTime(EXPIRATION_TIME);
     }
