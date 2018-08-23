@@ -197,14 +197,11 @@ public class CreateAppStep extends SyncActivitiStep {
         if (fileName == null) {
             return;
         }
-        FileContentProcessor fileProcessor = new FileContentProcessor() {
-            @Override
-            public void processFileContent(InputStream archive) {
-                try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, configuration.getMaxManifestSize())) {
-                    MapUtil.addNonNull(result, serviceName, JsonUtil.convertJsonToMap(file));
-                } catch (IOException e) {
-                    throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
-                }
+        FileContentProcessor fileProcessor = archive -> {
+            try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, configuration.getMaxManifestSize())) {
+                MapUtil.addNonNull(result, serviceName, JsonUtil.convertJsonToMap(file));
+            } catch (IOException e) {
+                throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
             }
         };
         fileService.processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), archiveId, fileProcessor));

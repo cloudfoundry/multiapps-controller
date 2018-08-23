@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.StartingInfo;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
