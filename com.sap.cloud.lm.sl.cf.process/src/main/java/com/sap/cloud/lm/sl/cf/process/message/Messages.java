@@ -56,6 +56,7 @@ public class Messages {
     public static final String NO_RETRY_MESSAGE = "No retry message available";
     public static final String MULTIPLE_OPERATIONS_WITH_LOCK_FOUND = "Multiple operations found with lock for MTA \"{0}\" in space \"{1}\": {2}";
     public static final String EXECUTION_OF_STEP_HAS_TIMED_OUT = "Execution of step {0} has timed out";
+    public static final String EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED = "Execution of process listener has failed";
     // TODO: With these messages, the backend 'knows' about command line options. This is obviously not ideal, so consider using some
     // placeholders here, which are replaced with the options on client-side.
     public static final String HIGHER_VERSION_ALREADY_DEPLOYED = "A higher version of your MTA is already deployed. Include the command line option \"--version-rule ALL\" in your deploy command if you want to allow downgrades.";
