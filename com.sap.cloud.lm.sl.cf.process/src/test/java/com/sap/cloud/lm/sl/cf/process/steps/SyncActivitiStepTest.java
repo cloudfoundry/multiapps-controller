@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.junit.Before;
@@ -19,13 +18,15 @@ import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
-import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
+
+import static org.mockito.Mockito.when;
 
 public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
 
@@ -40,7 +41,7 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     protected DelegateExecution context = MockDelegateExecution.createSpyInstance();
     @Spy
     @InjectMocks
-    protected ProcessLoggerProviderFactory processLoggerProviderFactory = new ProcessLoggerProviderFactory();
+    protected ProcessLoggerProviderFactory processLoggerProviderFactory = ProcessLoggerProviderFactory.getInstance();
     @Mock
     protected StepLogger.Factory stepLoggerFactory;
     protected StepLogger stepLogger;
@@ -71,7 +72,7 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
         this.stepLogger = Mockito.spy(new StepLogger(context, progressMessageService, processLoggerProviderFactory, LOGGER));
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
         context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
         context.setVariable(Constants.VAR_USER, USER_NAME);
         context.setVariable(Constants.VAR_ORG, ORG_NAME);
         when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);

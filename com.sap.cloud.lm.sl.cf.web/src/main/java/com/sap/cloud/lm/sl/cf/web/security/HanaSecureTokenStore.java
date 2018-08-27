@@ -178,7 +178,7 @@ public class HanaSecureTokenStore extends JdbcTokenStore {
     }
 
     private Map<String, Object> callRetrieve(String tokenKey, List<SqlParameter> paramList, final String procedureSecurestoreRetrieve) {
-        Map<String, Object> result = jdbcTemplate.call(new CallableStatementCreator() {
+        return jdbcTemplate.call(new CallableStatementCreator() {
             @Override
             public CallableStatement createCallableStatement(Connection connection) throws SQLException {
                 CallableStatement callableStatement = connection.prepareCall(procedureSecurestoreRetrieve);
@@ -189,7 +189,6 @@ public class HanaSecureTokenStore extends JdbcTokenStore {
                 return callableStatement;
             }
         }, paramList);
-        return result;
     }
 
     private void removeAccessTokenFromSecureStore(String tokenKey) {

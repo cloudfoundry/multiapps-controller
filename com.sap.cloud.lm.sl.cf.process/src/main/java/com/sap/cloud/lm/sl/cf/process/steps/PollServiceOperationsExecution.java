@@ -27,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.services.TypedServiceOperationState;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class PollServiceOperationsExecution implements AsyncExecution {
@@ -249,8 +248,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
         int doneOperations = triggeredServiceOperations.size() - nonFinalStates.size();
         if (!nonFinalStateStrings.isEmpty()) {
             execution.getStepLogger()
-                .info("{0} of {1} done, ({2})", doneOperations, triggeredServiceOperations.size(),
-                    CommonUtil.toCommaDelimitedString(nonFinalStateStrings, ""));
+                .info("{0} of {1} done, ({2})", doneOperations, triggeredServiceOperations.size(), String.join(",", nonFinalStateStrings));
         } else {
             execution.getStepLogger()
                 .info("{0} of {0} done", triggeredServiceOperations.size());
@@ -259,7 +257,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
 
     private List<TypedServiceOperationState> getNonFinalStates(Collection<ServiceOperation> operations) {
         return operations.stream()
-            .map(operation -> TypedServiceOperationState.fromServiceOperation(operation))
+            .map(TypedServiceOperationState::fromServiceOperation)
             .filter(state -> state != TypedServiceOperationState.DONE)
             .collect(Collectors.toList());
     }
@@ -277,7 +275,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
 
     private TreeMap<TypedServiceOperationState, Long> getStateCounts(Collection<TypedServiceOperationState> serviceOperationStates) {
         return serviceOperationStates.stream()
-            .collect(Collectors.groupingBy(state -> state, () -> new TreeMap<>(), Collectors.counting()));
+            .collect(Collectors.groupingBy(state -> state, TreeMap::new, Collectors.counting()));
     }
 
     private List<CloudServiceExtended> getRemainingServicesToPoll(Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation) {
@@ -285,7 +283,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
             .stream()
             .filter(serviceWithLastOperation -> serviceWithLastOperation.getValue()
                 .getState() == ServiceOperationState.IN_PROGRESS)
-            .map(serviceWithLastOperation -> serviceWithLastOperation.getKey())
+            .map(Map.Entry::getKey)
             .collect(Collectors.toList());
     }
 }

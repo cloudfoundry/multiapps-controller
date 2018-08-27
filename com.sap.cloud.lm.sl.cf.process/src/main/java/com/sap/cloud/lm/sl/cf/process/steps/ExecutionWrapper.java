@@ -5,8 +5,8 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
 
 public class ExecutionWrapper {
     private DelegateExecution context;

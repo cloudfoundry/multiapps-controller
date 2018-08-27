@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.lm.sl.cf</groupId>
     <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
-    <version>1.64.0-SNAPSHOT</version>
+    <version>1.65.0</version>
     <packaging>pom</packaging>
     <name>LM SL CF Parent</name>
     <description>Multi-Target Application (MTA) deployment service for Cloud Foundry</description>
@@ -60,13 +60,13 @@
         <jackson-asl.version>1.9.13</jackson-asl.version>
         <liquibase.version>3.4.1</liquibase.version>
         <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
-        <cloudfoundry.client.version>1.1.4.RELEASE-sap-19</cloudfoundry.client.version>
+        <cloudfoundry.client.version>1.1.4.RELEASE-sap-21</cloudfoundry.client.version>
         <protobuf-java.version>3.1.0</protobuf-java.version>
-        <jackson.version>2.9.5</jackson.version>
+        <jackson.version>2.9.6</jackson.version>
         <semver4j.version>2.1.0</semver4j.version>
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <swagger.version>1.5.16</swagger.version>
-        <com.sap.cloud.lm.sl.open.version>1.62.0-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
+        <com.sap.cloud.lm.sl.open.version>1.62.1</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
         <module>com.sap.cloud.lm.sl.cf.client</module>
@@ -74,6 +74,7 @@
         <module>com.sap.cloud.lm.sl.cf.process</module>
         <module>com.sap.cloud.lm.sl.cf.web</module>
         <module>com.sap.cloud.lm.sl.cf.api</module>
+        <module>com.sap.cloud.lm.sl.cf.persistence</module>
     </modules>
 
     <organization>
@@ -897,9 +898,9 @@
                 <version>${com.sap.cloud.lm.sl.open.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sap.cloud.lm.sl</groupId>
-                <artifactId>com.sap.cloud.lm.sl.persistence</artifactId>
-                <version>${com.sap.cloud.lm.sl.open.version}</version>
+                <groupId>com.sap.cloud.lm.sl.cf</groupId>
+                <artifactId>com.sap.cloud.lm.sl.cf.persistence</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sap.cloud.lm.sl.cf</groupId>

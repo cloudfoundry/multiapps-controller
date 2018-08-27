@@ -5,7 +5,6 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 
@@ -22,7 +21,7 @@ public class CloudServiceNameMapper {
         this.deploymentDescriptor = deploymentDescriptor;
     }
 
-    public String mapServiceName(Resource resource, ResourceType serviceType) throws SLException {
+    public String mapServiceName(Resource resource, ResourceType serviceType) {
         Map<String, Object> parameters = propertiesAccessor.getParameters(resource);
         String overwritingName = (String) parameters.get(SupportedParameters.SERVICE_NAME);
 
@@ -33,7 +32,7 @@ public class CloudServiceNameMapper {
         return getServiceName(shortServiceName);
     }
 
-    public String getServiceName(String name) throws SLException {
+    public String getServiceName(String name) {
         return NameUtil.getServiceName(name, deploymentDescriptor.getId(), configuration.shouldUseNamespaces(),
             configuration.shouldUseNamespacesForServices());
     }

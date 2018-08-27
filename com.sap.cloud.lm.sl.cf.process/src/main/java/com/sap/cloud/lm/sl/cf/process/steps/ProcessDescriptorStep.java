@@ -36,7 +36,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;
-    
+
     @Inject
     private ApplicationConfiguration configuration;
 
@@ -46,7 +46,8 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
     protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platform, Target target,
         SystemParameters systemParameters, ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
         CloudTarget cloudTarget) {
-        return new MtaDescriptorPropertiesResolver(factory, platform, target, systemParameters, spaceIdSupplier, dao, cloudTarget, configuration);
+        return new MtaDescriptorPropertiesResolver(factory, platform, target, systemParameters, spaceIdSupplier, dao, cloudTarget,
+            configuration);
     }
 
     protected UserProvidedResourceResolver getUserProvidedResourceResolver(DeploymentDescriptor descriptor, HandlerFactory handlerFactory,
@@ -55,7 +56,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
     }
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
@@ -107,8 +108,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
         }
     }
 
-    private void resolveXsPlaceholders(DeploymentDescriptor descriptor, XsPlaceholderResolver xsPlaceholderResolver, int majorVersion)
-        throws SLException {
+    private void resolveXsPlaceholders(DeploymentDescriptor descriptor, XsPlaceholderResolver xsPlaceholderResolver, int majorVersion) {
         XsPlaceholderResolverInvoker resolverInvoker = new XsPlaceholderResolverInvoker(majorVersion, xsPlaceholderResolver);
         descriptor.accept(resolverInvoker);
     }

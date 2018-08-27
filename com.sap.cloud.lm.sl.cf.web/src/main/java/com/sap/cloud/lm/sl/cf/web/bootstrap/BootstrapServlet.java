@@ -1,13 +1,11 @@
 package com.sap.cloud.lm.sl.cf.web.bootstrap;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.naming.NamingException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -20,20 +18,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.changes.AsyncChange;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.persistence.changes.AsyncChange;
 
 public class BootstrapServlet extends HttpServlet {
 
@@ -70,7 +67,6 @@ public class BootstrapServlet extends HttpServlet {
             SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
             configuration.load();
             initializeProviders();
-            initializeActiviti();
             addDeployTargets();
             initExtras();
             executeAsyncDatabaseChanges();
@@ -98,17 +94,12 @@ public class BootstrapServlet extends HttpServlet {
     }
 
     protected static UserInfoProvider getUserInfoProvider() {
-        return () -> SecurityContextUtil.getUserInfo();
+        return SecurityContextUtil::getUserInfo;
     }
 
-    private void initializeProviders() throws NamingException {
+    private void initializeProviders() {
         // Initialize audit logging provider
         AuditLoggingProvider.setFacade(new AuditLoggingFacadeSLImpl(dataSource, getUserInfoProvider()));
-    }
-
-    private void initializeActiviti() throws IOException {
-        ActivitiFacade.getInstance()
-            .init(processEngine);
     }
 
     private void addDeployTargets() {

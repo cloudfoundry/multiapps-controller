@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudException;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component("deleteServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -28,7 +28,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.DELETING_SERVICES);
 
@@ -63,7 +63,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
 
     private void attemptToDeleteService(CloudControllerClient client, CloudServiceInstance serviceInstance, String serviceName) {
         List<CloudServiceBinding> bindings = serviceInstance.getBindings();
-        if (!CommonUtil.isNullOrEmpty(bindings)) {
+        if (!CollectionUtils.isEmpty(bindings)) {
             logBindings(bindings);
             getStepLogger().info(Messages.SERVICE_HAS_BINDINGS_AND_CANNOT_BE_DELETED, serviceName);
             return;
@@ -76,7 +76,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
 
     private void processException(Exception e, CloudServiceInstance serviceInstance, String serviceName) {
         if (e instanceof CloudOperationException) {
-            e = evaluateCloudOperationException((CloudOperationException) e, serviceInstance, serviceName);
+            e = evaluateCloudOperationException((CloudOperationException) e, serviceName);
             if (e == null) {
                 return;
             }
@@ -84,8 +84,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
         wrapAndThrowException(e, serviceInstance, serviceName);
     }
 
-    private CloudOperationException evaluateCloudOperationException(CloudOperationException e, CloudServiceInstance serviceInstance,
-        String serviceName) {
+    private CloudOperationException evaluateCloudOperationException(CloudOperationException e, String serviceName) {
         if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
             getStepLogger().warn(e, Messages.COULD_NOT_DELETE_SERVICE, serviceName);
             return null;

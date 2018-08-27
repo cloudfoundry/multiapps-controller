@@ -15,8 +15,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
+
 @Component
-@Order(30)
+@Order(20)
 public class ActivitiHistoricDataCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActivitiHistoricDataCleaner.class);
@@ -42,7 +44,7 @@ public class ActivitiHistoricDataCleaner implements Cleaner {
         for (int i = 0; i < expiredProcessesPages; i++) {
             deletedProcessesCount += deleteExpiredProcessesPage(expirationTime);
         }
-        LOGGER.info(format("Deleted historic processes count: {0}", deletedProcessesCount));
+        LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_HISTORIC_PROCESSES_0, deletedProcessesCount));
     }
 
     private long getExpiredProcessesPageCount(Date expirationTime) {
@@ -78,11 +80,11 @@ public class ActivitiHistoricDataCleaner implements Cleaner {
     private boolean deleteProcessSafely(HistoricProcessInstance process) {
         String processId = process.getId();
         try {
-            LOGGER.debug(format("Deleting historic process with ID \"{0}\"...", processId));
+            LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_HISTORIC_PROCESS_0, processId));
             historyService.deleteHistoricProcessInstance(processId);
             return true;
         } catch (Exception e) {
-            LOGGER.warn(format("Could not delete historic process with ID \"{0}\"", processId), e);
+            LOGGER.warn(CleanUpJob.LOG_MARKER, format(Messages.COULD_NOT_DELETE_HISTORIC_PROCESS_0, processId), e);
             return false;
         }
     }

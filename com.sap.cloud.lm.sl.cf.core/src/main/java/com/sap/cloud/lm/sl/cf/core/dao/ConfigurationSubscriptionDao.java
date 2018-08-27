@@ -9,8 +9,6 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationSubscriptionDto;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Component
 public class ConfigurationSubscriptionDao {
@@ -22,12 +20,12 @@ public class ConfigurationSubscriptionDao {
         return toConfigurationSubscriptions(dao.findAll());
     }
 
-    public ConfigurationSubscription update(long id, ConfigurationSubscription subscription) throws ConflictException, NotFoundException {
+    public ConfigurationSubscription update(long id, ConfigurationSubscription subscription) {
         return dao.update(id, new ConfigurationSubscriptionDto(subscription))
             .toConfigurationSubscription();
     }
 
-    public ConfigurationSubscription remove(long id) throws NotFoundException {
+    public ConfigurationSubscription remove(long id) {
         return dao.remove(id)
             .toConfigurationSubscription();
     }
@@ -39,7 +37,7 @@ public class ConfigurationSubscriptionDao {
         return configurationSubscriptions;
     }
 
-    public ConfigurationSubscription add(ConfigurationSubscription subscription) throws ConflictException {
+    public ConfigurationSubscription add(ConfigurationSubscription subscription) {
         return dao.add(new ConfigurationSubscriptionDto(subscription))
             .toConfigurationSubscription();
     }
@@ -60,11 +58,11 @@ public class ConfigurationSubscriptionDao {
 
     private static List<ConfigurationSubscription> toConfigurationSubscriptions(List<ConfigurationSubscriptionDto> dtos) {
         return dtos.stream()
-            .map(dto -> dto.toConfigurationSubscription())
+            .map(ConfigurationSubscriptionDto::toConfigurationSubscription)
             .collect(Collectors.toList());
     }
 
-    public ConfigurationSubscription find(long id) throws NotFoundException {
+    public ConfigurationSubscription find(long id) {
         return dao.find(id)
             .toConfigurationSubscription();
     }

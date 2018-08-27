@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import org.activiti.engine.runtime.ProcessInstance;
+import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -31,6 +32,12 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
+import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.util.OperationsHelper;
 import com.sap.cloud.lm.sl.cf.web.api.OperationsApiService;
@@ -44,13 +51,6 @@ import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLogsPersistenceService;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 @RequestScoped
 public class OperationsApiServiceImpl implements OperationsApiService {
@@ -82,8 +82,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     public List<Operation> getOperations(Integer last, List<String> statusList, String spaceGuid) {
         List<State> states = getStates(statusList);
-        List<Operation> foundOperations = filterByQueryParameters(last, states, spaceGuid);
-        return foundOperations;
+        return filterByQueryParameters(last, states, spaceGuid);
     }
 
     @Override
@@ -180,7 +179,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private List<State> getStates(List<String> statusList) {
         return statusList.stream()
-            .map(status -> State.valueOf(status))
+            .map(State::valueOf)
             .collect(Collectors.toList());
     }
 
@@ -192,7 +191,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     private OperationFilter buildOperationFilter(String spaceGuid, List<State> statusList, Integer lastRequestedOperationsCount) {
         OperationFilter.Builder builder = new OperationFilter.Builder();
         builder.spaceId(spaceGuid);
-        if (!CommonUtil.isNullOrEmpty(statusList) && containsOnlyFinishedStates(statusList)) {
+        if (!CollectionUtils.isEmpty(statusList) && containsOnlyFinishedStates(statusList)) {
             builder.stateIn(statusList);
         }
         builder.orderByStartTime();
@@ -223,11 +222,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             case ABORTED:
                 return Collections.emptyList();
             case ERROR:
-                return new ArrayList<>(Arrays.asList("abort", "retry"));
+                return new ArrayList<>(Arrays.asList(ActivitiActionFactory.ACTION_ID_ABORT, ActivitiActionFactory.ACTION_ID_RETRY));
             case RUNNING:
-                return new ArrayList<>(Arrays.asList("abort"));
+                return new ArrayList<>(Arrays.asList(ActivitiActionFactory.ACTION_ID_ABORT));
             case ACTION_REQUIRED:
-                return new ArrayList<>(Arrays.asList("abort", "resume"));
+                return new ArrayList<>(Arrays.asList(ActivitiActionFactory.ACTION_ID_ABORT, ActivitiActionFactory.ACTION_ID_RESUME));
         }
         throw new IllegalStateException("State " + operationState.value() + " not recognised!");
     }
@@ -237,11 +236,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         Map<String, Object> parameters = operation.getParameters();
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
         CloudSpace space = new CFOptimizedSpaceGetter().getSpace(client, spaceGuid);
-        parameters.put("__SPACE_ID", spaceGuid);
-        parameters.put("__SERVICE_ID", processDefinitionKey);
-        parameters.put("org", space.getOrganization()
+        parameters.put(Constants.VARIABLE_NAME_SPACE_ID, spaceGuid);
+        parameters.put(Constants.VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
+        parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_ORG, space.getOrganization()
             .getName());
-        parameters.put("space", space.getName());
+        parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_SPACE, space.getName());
     }
 
     private void addDefaultParameters(Operation operation, Set<ParameterMetadata> predefinedParameters) {
@@ -273,14 +272,14 @@ public class OperationsApiServiceImpl implements OperationsApiService {
 
     private String getParameterIds(List<ParameterMetadata> missingRequiredParameters) {
         List<String> parameterIds = missingRequiredParameters.stream()
-            .map(parameter -> parameter.getId())
+            .map(ParameterMetadata::getId)
             .collect(Collectors.toList());
-        return CommonUtil.toCommaDelimitedString(parameterIds, "");
+        return String.join(",", parameterIds);
     }
 
     private Set<ParameterMetadata> getRequiredParameters(Set<ParameterMetadata> parameters) {
         return parameters.stream()
-            .filter(parameter -> parameter.getRequired())
+            .filter(ParameterMetadata::getRequired)
             .collect(Collectors.toSet());
     }
 
@@ -305,7 +304,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         return user;
     }
 
-    private CloudControllerClient getCloudFoundryClient(String spaceGuid) throws SLException {
+    private CloudControllerClient getCloudFoundryClient(String spaceGuid) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         return clientProvider.getControllerClient(userInfo.getName(), spaceGuid);
     }
@@ -314,7 +313,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         List<ProgressMessage> progressMessages = progressMessageService.findByProcessId(operation.getProcessId());
         return progressMessages.stream()
             .filter(message -> message.getType() != ProgressMessageType.TASK_STARTUP)
-            .map(message -> getMessage(message))
+            .map(this::getMessage)
             .collect(Collectors.toList());
     }
 

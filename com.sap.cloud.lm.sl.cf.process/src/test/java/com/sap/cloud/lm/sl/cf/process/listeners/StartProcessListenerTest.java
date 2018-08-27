@@ -115,7 +115,7 @@ public class StartProcessListenerTest {
             .thenReturn(Collections.emptyMap());
         Mockito.when(processTypeParser.getProcessType(context))
             .thenReturn(processType);
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         context.setVariable(Constants.VAR_USER, USER);
     }
 
@@ -133,8 +133,7 @@ public class StartProcessListenerTest {
             .spaceId(SPACE_ID)
             .startedAt(START_TIME)
             .user(user)
-            .acquiredLock(false)
-            .cleanedUp(false);
+            .acquiredLock(false);
         Mockito.verify(dao)
             .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
     }

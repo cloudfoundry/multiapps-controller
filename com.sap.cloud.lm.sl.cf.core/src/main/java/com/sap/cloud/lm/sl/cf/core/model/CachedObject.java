@@ -11,7 +11,7 @@ public class CachedObject<T> {
     private Supplier<Long> currentTimeSupplier;
 
     public CachedObject(long expirationTimeInSeconds) {
-        this(expirationTimeInSeconds, () -> System.currentTimeMillis());
+        this(expirationTimeInSeconds, System::currentTimeMillis);
     }
 
     public CachedObject(long expirationTimeInSeconds, Supplier<Long> currentTimeSupplier) {

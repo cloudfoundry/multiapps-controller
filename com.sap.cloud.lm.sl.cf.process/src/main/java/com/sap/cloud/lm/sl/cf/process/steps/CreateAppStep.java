@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.apache.commons.collections.MapUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -33,17 +34,16 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
-import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("createAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -61,7 +61,7 @@ public class CreateAppStep extends SyncActivitiStep {
     protected ApplicationConfiguration configuration;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
         // Get the next cloud application from the context:
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
@@ -158,7 +158,7 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     protected Map<String, Map<String, Object>> getBindingParameters(DelegateExecution context, CloudApplicationExtended app)
-        throws SLException, FileStorageException {
+        throws FileStorageException {
         List<CloudServiceExtended> services = getServices(StepsUtil.getServicesToBind(context), app.getServices());
 
         Map<String, Map<String, Object>> descriptorProvidedBindingParameters = app.getBindingParameters();
@@ -180,7 +180,7 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     private Map<String, Map<String, Object>> getFileProvidedBindingParameters(DelegateExecution context, String moduleName,
-        List<CloudServiceExtended> services) throws SLException, FileStorageException {
+        List<CloudServiceExtended> services) throws FileStorageException {
         Map<String, Map<String, Object>> result = new TreeMap<>();
         for (CloudServiceExtended service : services) {
             String requiredDependencyName = ValidatorUtil.getPrefixedName(moduleName, service.getResourceName(),
@@ -191,20 +191,17 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     private void addFileProvidedBindingParameters(DelegateExecution context, String serviceName, String requiredDependencyName,
-        Map<String, Map<String, Object>> result) throws SLException, FileStorageException {
+        Map<String, Map<String, Object>> result) throws FileStorageException {
         String archiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
         String fileName = StepsUtil.getRequiresFileName(context, requiredDependencyName);
         if (fileName == null) {
             return;
         }
-        FileContentProcessor fileProcessor = new FileContentProcessor() {
-            @Override
-            public void processFileContent(InputStream archive) throws SLException {
-                try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, configuration.getMaxManifestSize())) {
-                    MapUtil.addNonNull(result, serviceName, JsonUtil.convertJsonToMap(file));
-                } catch (IOException e) {
-                    throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
-                }
+        FileContentProcessor fileProcessor = archive -> {
+            try (InputStream file = ArchiveHandler.getInputStream(archive, fileName, configuration.getMaxManifestSize())) {
+                MapUtil.addNonNull(result, serviceName, JsonUtil.convertJsonToMap(file));
+            } catch (IOException e) {
+                throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT, fileName);
             }
         };
         fileService.processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), archiveId, fileProcessor));
@@ -232,7 +229,7 @@ public class CreateAppStep extends SyncActivitiStep {
     }
 
     protected void bindService(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
-        Map<String, Object> bindingParameters) throws SLException {
+        Map<String, Object> bindingParameters) {
 
         try {
             bindServiceToApplication(execution, client, appName, serviceName, bindingParameters);
@@ -281,7 +278,7 @@ public class CreateAppStep extends SyncActivitiStep {
 
     protected static Map<String, Object> getBindingParametersOrDefault(CloudServiceBinding cloudServiceBinding) {
         Map<String, Object> bindingParameters = cloudServiceBinding.getBindingOptions();
-        return (CommonUtil.isNullOrEmpty(bindingParameters)) ? null : bindingParameters;
+        return MapUtils.isEmpty(bindingParameters) ? null : bindingParameters;
     }
 
 }

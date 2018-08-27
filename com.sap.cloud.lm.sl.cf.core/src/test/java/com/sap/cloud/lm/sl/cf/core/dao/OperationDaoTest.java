@@ -1,219 +1,339 @@
 package com.sap.cloud.lm.sl.cf.core.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.text.MessageFormat;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import javax.persistence.Persistence;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.core.helpers.OperationFactory;
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.common.util.Callable;
-import com.sap.cloud.lm.sl.common.util.Runnable;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.cf.web.api.model.State;
+import com.sap.cloud.lm.sl.common.ConflictException;
+import com.sap.cloud.lm.sl.common.NotFoundException;
 
-@RunWith(Parameterized.class)
-public class OperationDaoTest extends AbstractOperationDaoParameterizedTest {
+public class OperationDaoTest {
 
-    private static enum DaoOperation {
-        ADD, REMOVE, MERGE, FIND, FIND_ALL, FIND_ALL_IN_SPACE, FIND_LAST_IN_SPACE, FIND_ACTIVE_IN_SPACE, FIND_FINISHED_IN_SPACE,
-    }
+    private static final String OPERATION_1_ID = "1";
+    private static final String OPERATION_2_ID = "2";
+    private static final Operation OPERATION_1 = createOperation(OPERATION_1_ID);
+    private static final Operation OPERATION_2 = createOperation(OPERATION_2_ID);
 
-    private static final int LAST_OPERATIONS_COUNT = 3;
-    private static final String SPACE_ID = "1234";
+    private OperationDao dao = createDao();
 
-    private DaoOperation operation;
-    private String processId;
-    private String expected;
-
-    public OperationDaoTest(DaoOperation operation, String processId, String databaseContent, String expected) {
-        super(databaseContent);
-        this.operation = operation;
-        this.processId = processId;
-        this.expected = expected;
-    }
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-            // (0) Find all ongoing deployments in non-empty database:
-            {
-                DaoOperation.FIND_ALL, null, "database-content-2.json", "R:database-content-2.json",
-            },
-            // (1) Find all ongoing deployments in empty database:
-            {
-                DaoOperation.FIND_ALL, null, "database-content-1.json", "R:database-content-1.json",
-            },
-            // (2) Add ongoing deployment to empty database:
-            {
-                DaoOperation.ADD, "1", "database-content-1.json", "",
-            },
-            // (3) Add ongoing deployment to non-empty database (conflict):
-            {
-                DaoOperation.ADD, "1", "database-content-2.json", "E:MTA operation with ID \"1\" already exists",
-            },
-            // (4) Add ongoing deployment to non-empty database:
-            {
-                DaoOperation.ADD, "3", "database-content-2.json", "",
-            },
-            // (5) Remove ongoing deployment from database (non-existing):
-            {
-                DaoOperation.REMOVE, "1", "database-content-1.json", "E:MTA operation with ID \"1\" does not exist",
-            },
-            // (6) Remove ongoing deployment from database:
-            {
-                DaoOperation.REMOVE, "1", "database-content-2.json", "",
-            },
-            // (7) Find ongoing deployment in database (non-existing):
-            {
-                DaoOperation.FIND, "1", "database-content-1.json", "E:MTA operation with ID \"1\" does not exist",
-            },
-            // (8) Find ongoing deployment in database:
-            {
-                DaoOperation.FIND, "2", "database-content-2.json", "",
-            },
-            // (9) Find all ongoing deployments in space in non-empty database:
-            {
-                DaoOperation.FIND_ALL_IN_SPACE, null, "database-content-3.json", "R:database-content-4.json",
-            },
-            // (10) Find last ongoing deployments in space in non-empty database:
-            {
-                DaoOperation.FIND_LAST_IN_SPACE, null, "database-content-5.json", "R:database-content-6.json",
-            },
-            // (11) Find active ongoing deployments in space in non-empty database:
-            {
-                DaoOperation.FIND_ACTIVE_IN_SPACE, null, "database-content-7.json", "R:database-content-8.json",
-            },
-            // (12) Find finished ongoing deployments in space in non-empty database:
-            {
-                DaoOperation.FIND_FINISHED_IN_SPACE, null, "database-content-7.json", "R:database-content-9.json",
-            },
-// @formatter:on
-        });
+    @AfterEach
+    public void clearDatabase() {
+        for (Operation operation : dao.findAll()) {
+            dao.remove(operation.getProcessId());
+        }
     }
 
     @Test
-    public void testAdd() throws Throwable {
-        assumeTrue(operation.equals(DaoOperation.ADD));
-        TestUtil.test(new Runnable() {
-            @Override
-            public void run() throws Exception {
-                int currentOperationsCnt = dao.findAll()
-                    .size();
-                Operation operation1 = new Operation().processId(processId)
-                    .acquiredLock(false)
-                    .cleanedUp(false);
-                dao.add(operation1);
+    public void testAdd() {
+        dao.add(OPERATION_1);
 
-                assertEquals(currentOperationsCnt + 1, dao.findAll()
-                    .size());
+        Set<Operation> operations = asSet(dao.findAll());
 
-                Operation operation2 = dao.findRequired(processId);
-
-                assertEquals(operation1.getProcessId(), operation2.getProcessId());
-            }
-        }, expected);
+        Set<Operation> expectedOperations = asSet(OPERATION_1);
+        assertEquals(expectedOperations, operations);
     }
 
     @Test
-    public void testRemove() throws Throwable {
-        assumeTrue(operation.equals(DaoOperation.REMOVE));
+    public void testAddWithNonEmptyDatabase() {
+        dao.add(OPERATION_1);
+        dao.add(OPERATION_2);
 
-        TestUtil.test(new Runnable() {
-            @Override
-            public void run() throws Exception {
-                int currentOperationsCnt = dao.findAll()
-                    .size();
-                dao.remove(processId);
+        Set<Operation> operations = asSet(dao.findAll());
 
-                assertEquals(currentOperationsCnt - 1, dao.findAll()
-                    .size());
-            }
-        }, expected);
+        Set<Operation> expectedOperations = asSet(OPERATION_1, OPERATION_2);
+        assertEquals(expectedOperations, operations);
     }
 
     @Test
-    public void testFind() throws Throwable {
-        assumeTrue(operation.equals(DaoOperation.FIND));
+    public void testAddWithAlreadyExistingOperation() {
+        dao.add(OPERATION_1);
 
-        TestUtil.test(new Runnable() {
-            @Override
-            public void run() throws Exception {
-                Operation operation1 = new Operation().processId(processId)
-                    .acquiredLock(false)
-                    .cleanedUp(false);
-                Operation operation2 = dao.findRequired(processId);
+        Exception exception = assertThrows(ConflictException.class, () -> dao.add(OPERATION_1));
 
-                assertEquals(operation1.getProcessId(), operation2.getProcessId());
-            }
-        }, expected);
+        String expectedExceptionMessage = MessageFormat.format(Messages.OPERATION_ALREADY_EXISTS, OPERATION_1_ID);
+        assertEquals(expectedExceptionMessage, exception.getMessage());
     }
 
     @Test
-    public void testFindAll() throws Throwable {
-        assumeTrue(operation.equals(DaoOperation.FIND_ALL));
+    public void testRemove() {
+        dao.add(OPERATION_1);
+        assertEquals(1, dao.findAll()
+            .size());
 
-        TestUtil.test(new Callable<List<Operation>>() {
-            @Override
-            public List<Operation> call() throws Exception {
-                return dao.findAll();
-            }
-        }, expected, getClass());
+        dao.remove(OPERATION_1_ID);
+
+        assertEquals(0, dao.findAll()
+            .size());
     }
 
     @Test
-    public void testFindAllInSpace() throws Throwable {
-        assumeTrue(operation.equals(DaoOperation.FIND_ALL_IN_SPACE));
+    public void testRemoveExpiredInFinalState() {
+        Operation operation1 = createOperation("1").startedAt(ZonedDateTime.parse("2010-10-10T10:00:00.000Z[UTC]"))
+            .state(State.FINISHED);
+        Operation operation2 = createOperation("2").startedAt(ZonedDateTime.parse("2010-10-10T20:00:00.000Z[UTC]"));
+        Operation operation3 = createOperation("3").startedAt(ZonedDateTime.parse("2010-10-20T10:00:00.000Z[UTC]"))
+            .state(State.FINISHED);
+        Operation operation4 = createOperation("4").startedAt(ZonedDateTime.parse("2010-10-20T20:00:00.000Z[UTC]"));
+        addOperations(Arrays.asList(operation1, operation2, operation3, operation4));
 
-        TestUtil.test(() -> {
-            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID)
-                .build();
-            return dao.find(filter);
-        }, expected, getClass());
+        dao.removeExpiredInFinalState(parseDate("2010-10-20T15:00:00.000Z[UTC]"));
+        Set<Operation> result = asSet(dao.findAll());
+
+        Set<Operation> expectedResult = asSet(operation2, operation4);
+        assertEquals(expectedResult, result);
     }
 
     @Test
-    public void testFindLastOperationsInSpace() {
-        assumeTrue(operation.equals(DaoOperation.FIND_LAST_IN_SPACE));
+    public void testRemoveWithNonExistingOperation() {
+        Exception exception = assertThrows(NotFoundException.class, () -> dao.remove(OPERATION_1_ID));
 
-        TestUtil.test(() -> {
-            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID)
-                .maxResults(LAST_OPERATIONS_COUNT)
-                .orderByStartTime()
-                .descending()
-                .build();
-            return dao.find(filter);
-        }, expected, getClass());
+        String expectedExceptionMessage = MessageFormat.format(Messages.OPERATION_NOT_FOUND, OPERATION_1_ID);
+        assertEquals(expectedExceptionMessage, exception.getMessage());
     }
 
     @Test
-    public void testFindActiveOperationsInSpace() {
-        assumeTrue(operation.equals(DaoOperation.FIND_ACTIVE_IN_SPACE));
-
-        TestUtil.test(() -> {
-            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID)
-                .inNonFinalState()
-                .build();
-            return dao.find(filter);
-        }, expected, getClass());
+    public void testFindRequired() {
+        dao.add(OPERATION_1);
+        Operation retrievedOperation = dao.findRequired(OPERATION_1_ID);
+        assertEquals(OPERATION_1, retrievedOperation);
     }
 
     @Test
-    public void testFindFinishedOperationsInSpace() {
-        assumeTrue(operation.equals(DaoOperation.FIND_FINISHED_IN_SPACE));
+    public void testFindRequiredWithNonExistingOperation() {
+        Exception exception = assertThrows(NotFoundException.class, () -> dao.findRequired(OPERATION_1_ID));
 
-        TestUtil.test(() -> {
-            OperationFilter filter = new OperationFilter.Builder().spaceId(SPACE_ID)
-                .inFinalState()
-                .build();
-            return dao.find(filter);
-        }, expected, getClass());
+        String expectedExceptionMessage = MessageFormat.format(Messages.OPERATION_NOT_FOUND, OPERATION_1_ID);
+        assertEquals(expectedExceptionMessage, exception.getMessage());
+    }
+
+    @Test
+    public void testFindWithNonExistingOperation() {
+        assertNull(dao.find(OPERATION_1_ID));
+    }
+
+    @Test
+    public void testFilteringWithEndedBefore() {
+        Operation operation1 = createOperation("1").endedAt(ZonedDateTime.parse("2017-11-18T22:00:00.000Z[UTC]"));
+        Operation operation2 = createOperation("2").endedAt(ZonedDateTime.parse("2017-11-19T15:00:00.000Z[UTC]"));
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2);
+
+        OperationFilter filter = new OperationFilter.Builder().endedBefore(parseDate("2017-11-19T10:00:00.000Z[UTC]"))
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation1);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testFilteringWithEndedAfter() {
+        Operation operation1 = createOperation("1").endedAt(ZonedDateTime.parse("2017-11-18T22:00:00.000Z[UTC]"));
+        Operation operation2 = createOperation("2").endedAt(ZonedDateTime.parse("2017-11-19T15:00:00.000Z[UTC]"));
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2);
+
+        OperationFilter filter = new OperationFilter.Builder().endedAfter(parseDate("2017-11-19T10:00:00.000Z[UTC]"))
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation2);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testFilteringWithEndedBeforeAndEndedAfter() {
+        Operation operation1 = createOperation("1").endedAt(ZonedDateTime.parse("2017-11-18T22:00:00.000Z[UTC]"));
+        Operation operation2 = createOperation("2").endedAt(ZonedDateTime.parse("2017-11-19T15:00:00.000Z[UTC]"));
+        Operation operation3 = createOperation("3").endedAt(ZonedDateTime.parse("2017-11-19T19:00:00.000Z[UTC]"));
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2, operation3);
+
+        OperationFilter filter = new OperationFilter.Builder().endedAfter(parseDate("2017-11-19T10:00:00.000Z[UTC]"))
+            .endedBefore(parseDate("2017-11-19T19:00:00.000Z[UTC]"))
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation2);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testFilteringWithSpaceId() {
+        Operation operation1 = createOperation("1").spaceId("c65d042c-324f-4dc5-a925-9c806acafcfb");
+        Operation operation2 = createOperation("2").spaceId("9818394d-38d6-47a6-b080-1ba013a4932c");
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2);
+
+        OperationFilter filter = new OperationFilter.Builder().spaceId("c65d042c-324f-4dc5-a925-9c806acafcfb")
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation1);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testFilteringWithUsername() {
+        Operation operation1 = createOperation("1").user("nictas");
+        Operation operation2 = createOperation("2").user("doruug");
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2);
+
+        OperationFilter filter = new OperationFilter.Builder().user("nictas")
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation1);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testFilteringWithMtaId() {
+        Operation operation1 = createOperation("1").mtaId("anatz");
+        Operation operation2 = createOperation("2").mtaId("denip");
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2);
+
+        OperationFilter filter = new OperationFilter.Builder().mtaId("anatz")
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation1);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testFilteringOfNonFinalOperations() {
+        Operation operation1 = createOperation("1");
+        Operation operation2 = createOperation("2").state(State.ABORTED);
+        Operation operation3 = createOperation("3");
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2, operation3);
+
+        OperationFilter filter = new OperationFilter.Builder().inNonFinalState()
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation1, operation3);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testFilteringOfFinalOperations() {
+        Operation operation1 = createOperation("1").state(State.FINISHED);
+        Operation operation2 = createOperation("2");
+        Operation operation3 = createOperation("3").state(State.ABORTED);
+        Operation operation4 = createOperation("4").state(State.ABORTED);
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2, operation3, operation4);
+
+        OperationFilter filter = new OperationFilter.Builder().inFinalState()
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation1, operation3, operation4);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testLimitingNumberOfResults() {
+        Operation operation1 = createOperation("1");
+        Operation operation2 = createOperation("2");
+        Operation operation3 = createOperation("3");
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2, operation3);
+
+        OperationFilter filter = new OperationFilter.Builder().maxResults(2)
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation1, operation2);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testPaging() {
+        Operation operation1 = createOperation("1");
+        Operation operation2 = createOperation("2");
+        Operation operation3 = createOperation("3");
+        Operation operation4 = createOperation("4");
+        Operation operation5 = createOperation("5");
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2, operation3, operation4, operation5);
+
+        OperationFilter filter = new OperationFilter.Builder().maxResults(2)
+            .firstElement(2)
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation3, operation4);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testPagingWithIncompletePage() {
+        Operation operation1 = createOperation("1");
+        Operation operation2 = createOperation("2");
+        Operation operation3 = createOperation("3");
+        List<Operation> databaseContent = Arrays.asList(operation1, operation2, operation3);
+
+        OperationFilter filter = new OperationFilter.Builder().maxResults(2)
+            .firstElement(2)
+            .build();
+
+        List<Operation> expectedResult = Arrays.asList(operation3);
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    @Test
+    public void testPagingWhenFirstElementIsOutOfBounds() {
+        List<Operation> databaseContent = Collections.emptyList();
+
+        OperationFilter filter = new OperationFilter.Builder().maxResults(2)
+            .firstElement(2)
+            .build();
+
+        List<Operation> expectedResult = Collections.emptyList();
+        testFiltering(databaseContent, filter, expectedResult);
+    }
+
+    private void testFiltering(List<Operation> databaseContent, OperationFilter filter, List<Operation> expectedResult) {
+        addOperations(databaseContent);
+        List<Operation> result = dao.find(filter);
+        assertEquals(expectedResult, result);
+    }
+
+    private void addOperations(List<Operation> operations) {
+        for (Operation operation : operations) {
+            dao.add(operation);
+        }
+    }
+
+    private static OperationDao createDao() {
+        OperationDao dao = new OperationDao();
+        OperationDtoDao dtoDao = new OperationDtoDao();
+        dtoDao.emf = Persistence.createEntityManagerFactory("OperationManagement");
+        dao.dao = dtoDao;
+        dao.operationFactory = new OperationFactory();
+        return dao;
+    }
+
+    private static Operation createOperation(String id) {
+        return new Operation().processId(id)
+            .acquiredLock(false);
+    }
+
+    private static Date parseDate(String date) {
+        return Date.from(ZonedDateTime.parse(date)
+            .toInstant());
+    }
+
+    private static Set<Operation> asSet(Operation... operations) {
+        return asSet(Arrays.asList(operations));
+    }
+
+    private static Set<Operation> asSet(List<Operation> operations) {
+        return new HashSet<>(operations);
     }
 
 }

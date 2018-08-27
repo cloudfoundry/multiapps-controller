@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,13 +32,13 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveBuilder;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.GitRepoCloner;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.util.Configuration;
 
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
 @Component("processGitSourceStep")
@@ -57,7 +58,7 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
     private ApplicationConfiguration configuration;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.DOWNLOADING_DEPLOYABLE);
 
@@ -69,7 +70,8 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
             final String repoName = extractRepoName(gitUri, processId);
             final Path reposDir = Paths.get(REPOSITORY_DIRECTORY_NAME, repoName);
             Path gitConfigFilePath = generateGitConfigFilepath(processId);
-            if (!Files.exists(reposDir)) {
+            if (!reposDir.toFile()
+                .exists()) {
                 Files.createDirectories(reposDir);
             }
             Path mtarZip = null;
@@ -85,10 +87,12 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
             } finally {
                 try {
                     deleteTemporaryRepositoryDirectory(reposDir);
-                    if (Files.exists(gitConfigFilePath)) {
+                    if (gitConfigFilePath.toFile()
+                        .exists()) {
                         Files.delete(gitConfigFilePath);
                     }
-                    if (mtarZip != null && Files.exists(mtarZip)) {
+                    if (mtarZip != null && mtarZip.toFile()
+                        .exists()) {
                         FileUtils.deleteDirectory(mtarZip);
                     }
                 } catch (IOException e) {
@@ -125,7 +129,7 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
         return cloner;
     }
 
-    protected String getGitUri(ExecutionWrapper execution) throws SLException {
+    protected String getGitUri(ExecutionWrapper execution) {
         String gitUriParam = StepsUtil.getGitRepoUri(execution.getContext());
         try {
             return new URL(gitUriParam).toString();
@@ -135,7 +139,7 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
         }
     }
 
-    protected String buildUriFromRepositoryName(String gitUriParam, String gitServiceUrl) throws SLException {
+    protected String buildUriFromRepositoryName(String gitUriParam, String gitServiceUrl) {
         try {
             URIBuilder gitUriBuilder = new URIBuilder(gitServiceUrl);
             gitUriBuilder.setPath(PATH_SEPARATOR + gitUriParam);
@@ -157,7 +161,7 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
         return repoLocation.substring(repoLocation.lastIndexOf(PATH_SEPARATOR) + 1) + processId;
     }
 
-    private String getGitServiceUrl(ExecutionWrapper execution) throws SLException {
+    private String getGitServiceUrl(ExecutionWrapper execution) {
         if (!isClientExtensionsAvailable(execution)) {
             return null;
         }
@@ -165,17 +169,17 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
         return info.getServiceUrl(GIT_SERVICE_URL_KEY);
     }
 
-    private CloudInfoExtended getCloudInfoExtended(ExecutionWrapper execution) throws SLException {
+    private CloudInfoExtended getCloudInfoExtended(ExecutionWrapper execution) {
         return (CloudInfoExtended) execution.getControllerClient()
             .getCloudInfo();
     }
 
-    private boolean isClientExtensionsAvailable(ExecutionWrapper execution) throws SLException {
+    private boolean isClientExtensionsAvailable(ExecutionWrapper execution) {
         CloudControllerClient client = execution.getControllerClient();
         return client.getCloudInfo() instanceof CloudInfoExtended;
     }
 
-    protected Path zipRepoContent(final Path mtaPath) throws IOException, SLException {
+    protected Path zipRepoContent(final Path mtaPath) throws IOException {
         getStepLogger().info(Messages.COMPRESSING_MTA_CONTENT);
         getStepLogger().debug("Zipping content of repo dir" + mtaPath.toAbsolutePath());
         if (directoryContainsManifest(mtaPath)) {
@@ -187,7 +191,7 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
         }
     }
 
-    protected void uploadZipToDB(DelegateExecution context, final Path mtarZip) throws SLException, FileStorageException, IOException {
+    protected void uploadZipToDB(DelegateExecution context, final Path mtarZip) throws FileStorageException, IOException {
         InputStream mtarInputStream = null;
         getStepLogger().info(Messages.UPLOADING_MTAR);
         getStepLogger().debug("uploading file " + mtarZip.toAbsolutePath()
@@ -257,9 +261,11 @@ public class ProcessGitSourceStep extends SyncActivitiStep {
 
     private boolean directoryContainsManifest(Path mtaPath) {
         Path metaInfPath = mtaPath.resolve(META_INF_PATH);
-        Path manifestPath = metaInfPath.resolve(MANIFEST_PATH);
-        Path mtadPath = metaInfPath.resolve(MTAD_PATH);
-        return Files.exists(manifestPath) && Files.exists(mtadPath);
+        File manifestFile = metaInfPath.resolve(MANIFEST_PATH)
+            .toFile();
+        File mtadFile = metaInfPath.resolve(MTAD_PATH)
+            .toFile();
+        return manifestFile.exists() && mtadFile.exists();
     }
 
     private void deleteTemporaryRepositoryDirectory(Path clonedRepoDir) throws IOException {

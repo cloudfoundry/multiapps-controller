@@ -39,6 +39,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
@@ -47,9 +50,6 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
-import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("createOrUpdateServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -73,7 +73,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     protected ServiceUpdater serviceUpdater;
 
     @Override
-    protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         try {
             execution.getStepLogger()
                 .info(Messages.CREATING_OR_UPDATING_SERVICES);
@@ -111,7 +111,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     private Map<String, ServiceOperationType> createOrUpdateServices(ExecutionWrapper execution, CloudControllerClient client,
         List<CloudServiceExtended> services, Map<String, CloudService> existingServices, Map<String, List<ServiceKey>> serviceKeys,
-        Map<String, List<String>> defaultTags) throws SLException {
+        Map<String, List<String>> defaultTags) {
 
         Map<String, ServiceOperationType> triggeredOperations = new TreeMap<>();
         String spaceId = StepsUtil.getSpaceId(execution.getContext());
@@ -135,13 +135,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private void createOrUpdateServiceKeys(List<ServiceKey> serviceKeys, CloudServiceExtended service, CloudControllerClient client,
-        ExecutionWrapper execution) throws SLException {
-        // TODO: Do not use client extensions when the CF Java Client we use supports managing of
-        // service keys.
-        XsCloudControllerClient xsClient = execution.getXsControllerClient();
-        if (xsClient == null) {
-            return;
-        }
+        ExecutionWrapper execution) {
         // User provided services cannot have service keys.
         if (service.isUserProvided()) {
             return;
@@ -158,18 +152,18 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         List<ServiceKey> serviceKeysToDelete = getServiceKeysToDelete(serviceKeys, existingServiceKeys);
 
         if (canDeleteServiceKeys(execution.getContext())) {
-            deleteServiceKeys(xsClient, serviceKeysToDelete);
+            deleteServiceKeys(client, serviceKeysToDelete);
             // Recreate the service keys, which should be updated, as direct update is not supported
             // by the controller:
-            deleteServiceKeys(xsClient, serviceKeysToUpdate);
-            createServiceKeys(xsClient, serviceKeysToUpdate);
+            deleteServiceKeys(client, serviceKeysToUpdate);
+            createServiceKeys(client, serviceKeysToUpdate);
         } else {
             serviceKeysToDelete.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_DELETE_SERVICE_KEY, key.getName(), key.getService()
                 .getName()));
             serviceKeysToUpdate.forEach(key -> getStepLogger().warn(Messages.WILL_NOT_UPDATE_SERVICE_KEY, key.getName(), key.getService()
                 .getName()));
         }
-        createServiceKeys(xsClient, serviceKeysToCreate);
+        createServiceKeys(client, serviceKeysToCreate);
     }
 
     private boolean canDeleteServiceKeys(DelegateExecution context) {
@@ -219,24 +213,25 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return Objects.equals(key1.getParameters(), key2.getParameters()) && Objects.equals(key1.getName(), key2.getName());
     }
 
-    private void deleteServiceKeys(XsCloudControllerClient client, List<ServiceKey> serviceKeys) {
+    private void deleteServiceKeys(CloudControllerClient client, List<ServiceKey> serviceKeys) {
         serviceKeys.stream()
             .forEach(key -> deleteServiceKey(client, key));
     }
 
-    private void createServiceKeys(XsCloudControllerClient client, List<ServiceKey> serviceKeys) {
+    private void createServiceKeys(CloudControllerClient client, List<ServiceKey> serviceKeys) {
         serviceKeys.stream()
             .forEach(key -> createServiceKey(client, key));
     }
 
-    private void createServiceKey(XsCloudControllerClient client, ServiceKey key) {
+    private void createServiceKey(CloudControllerClient client, ServiceKey key) {
         getStepLogger().info(Messages.CREATING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
             .getName());
         client.createServiceKey(key.getService()
-            .getName(), key.getName(), JsonUtil.toJson(key.getParameters()));
+            .getName(), key.getName(), key.getParameters());
+        getStepLogger().info(Messages.CREATED_SERVICE_KEY, key.getName());
     }
 
-    private void deleteServiceKey(XsCloudControllerClient client, ServiceKey key) {
+    private void deleteServiceKey(CloudControllerClient client, ServiceKey key) {
         getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
             .getName());
         client.deleteServiceKey(key.getService()
@@ -244,7 +239,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private ServiceOperationType createOrUpdateService(ExecutionWrapper execution, CloudControllerClient client, String spaceId,
-        CloudServiceExtended service, CloudService existingService, List<String> defaultTags) throws SLException, FileStorageException {
+        CloudServiceExtended service, CloudService existingService, List<String> defaultTags) throws FileStorageException {
 
         // Set service parameters if a file containing their values exists:
         String fileName = StepsUtil.getResourceFileName(execution.getContext(), service.getResourceName());
@@ -360,7 +355,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         getStepLogger().debug(Messages.SERVICE_CREATED, service.getName());
     }
 
-    private void updateServiceTags(CloudControllerClient client, CloudServiceExtended service) throws SLException {
+    private void updateServiceTags(CloudControllerClient client, CloudServiceExtended service) {
         // TODO: Remove the service.isUserProvided() check when user provided services support tags.
         // See the following issue for more info:
         // https://www.pivotaltracker.com/n/projects/966314/stories/105674948
@@ -390,7 +385,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         return defaultTags;
     }
 
-    private void updateServiceCredentials(CloudControllerClient client, CloudServiceExtended service) throws SLException {
+    private void updateServiceCredentials(CloudControllerClient client, CloudServiceExtended service) {
         getStepLogger().info(Messages.UPDATING_SERVICE, service.getName());
         if (service.shouldIgnoreUpdateErrors()) {
             serviceUpdater.updateServiceParametersQuietly(client, service.getName(), service.getCredentials());
@@ -400,7 +395,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
         getStepLogger().debug(Messages.SERVICE_UPDATED, service.getName());
     }
 
-    private void deleteService(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service) throws SLException {
+    private void deleteService(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service) {
 
         List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(context);
         List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(context);
@@ -424,22 +419,19 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private void setServiceParameters(DelegateExecution context, CloudServiceExtended service, final String appArchiveId,
-        final String fileName) throws FileStorageException, SLException {
-        FileContentProcessor parametersFileProcessor = new FileContentProcessor() {
-            @Override
-            public void processFileContent(InputStream appArchiveStream) throws SLException {
-                try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
-                    mergeCredentials(service, is);
-                } catch (IOException e) {
-                    throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
-                }
+        final String fileName) throws FileStorageException {
+        FileContentProcessor parametersFileProcessor = appArchiveStream -> {
+            try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
+                mergeCredentials(service, is);
+            } catch (IOException e) {
+                throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
             }
         };
         fileService
             .processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId, parametersFileProcessor));
     }
 
-    private void mergeCredentials(CloudServiceExtended service, InputStream credentialsJson) throws SLException {
+    private void mergeCredentials(CloudServiceExtended service, InputStream credentialsJson) {
         Map<String, Object> existingCredentials = service.getCredentials();
         Map<String, Object> credentials = JsonUtil.convertJsonToMap(credentialsJson);
         if (existingCredentials == null) {
@@ -486,16 +478,16 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     private List<String> getBoundAppNames(CloudControllerClient client, List<CloudApplicationExtended> apps,
         List<CloudApplication> appsToUndeploy, List<CloudServiceBinding> bindings) {
         Set<String> appNames = apps.stream()
-            .map(app -> app.getName())
+            .map(CloudApplication::getName)
             .collect(Collectors.toSet());
         appNames.addAll(appsToUndeploy.stream()
-            .map(app -> app.getName())
+            .map(CloudApplication::getName)
             .collect(Collectors.toSet()));
 
         List<CloudApplication> existingApps = client.getApplications();
         return bindings.stream()
             .map(binding -> getApplication(existingApps, binding).getName())
-            .filter(boundApp -> appNames.contains(boundApp))
+            .filter(appNames::contains)
             .collect(Collectors.toList());
     }
 

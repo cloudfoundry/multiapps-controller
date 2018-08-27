@@ -19,7 +19,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
@@ -49,8 +48,8 @@ public class ApplicationEnvironmentCloudModelBuilder {
         this.deployId = deployId;
     }
 
-    public Map<Object, Object> build(Module module, List<String> descriptorDefinedUris, List<String> services, List<String> sharedServices)
-        throws ContentException {
+    public Map<Object, Object> build(Module module, List<String> descriptorDefinedUris, List<String> services,
+        List<String> sharedServices) {
         Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
         Map<String, Object> properties = propertiesAccessor.getProperties(module, specialModuleProperties);
         Map<String, Object> parameters = propertiesAccessor.getParameters(module, specialModuleProperties);
@@ -99,8 +98,8 @@ public class ApplicationEnvironmentCloudModelBuilder {
     protected void addProvidedDependenciesMetadata(Map<String, Object> env, Module module) {
         List<String> mtaModuleProvidedDependencies = module.getProvidedDependencies1_0()
             .stream()
-            .filter(providedDependency -> CloudModelBuilderUtil.isPublic(providedDependency))
-            .map(providedDependency -> providedDependency.getName())
+            .filter(CloudModelBuilderUtil::isPublic)
+            .map(ProvidedDependency::getName)
             .collect(Collectors.toList());
         env.put(Constants.ENV_MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES, mtaModuleProvidedDependencies);
     }
@@ -207,7 +206,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         if (!destinationGroups.isEmpty()) {
             addToGroups(groups, destinationGroups, subgroupName, properties);
         } else {
-            properties.forEach((key, value) -> env.put(key, value));
+            properties.forEach(env::put);
         }
     }
 

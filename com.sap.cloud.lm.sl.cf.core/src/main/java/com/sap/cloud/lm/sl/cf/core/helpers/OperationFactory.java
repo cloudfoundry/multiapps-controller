@@ -23,7 +23,6 @@ public class OperationFactory {
             .mtaId(dto.getMtaId())
             .user(dto.getUser())
             .acquiredLock(dto.hasAcquiredLock())
-            .cleanedUp(dto.isCleanedUp())
             .state(toState(dto.getFinalState()));
     }
 
@@ -37,8 +36,7 @@ public class OperationFactory {
         String user = operation.getUser();
         String state = toString(operation.getState());
         boolean acquiredLock = operation.hasAcquiredLock();
-        boolean cleanedUp = operation.isCleanedUp();
-        return new OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, cleanedUp, state);
+        return new OperationDto(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, state);
     }
 
     protected State toState(String operationState) {

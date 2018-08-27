@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.sap.cloud.lm.sl.cf</groupId>
         <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
-        <version>1.64.0-SNAPSHOT</version>
+        <version>1.65.0</version>
     </parent>
 
     <build>
@@ -161,8 +161,8 @@
             <artifactId>com.sap.cloud.lm.sl.mta</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.lm.sl</groupId>
-            <artifactId>com.sap.cloud.lm.sl.persistence</artifactId>
+            <groupId>com.sap.cloud.lm.sl.cf</groupId>
+            <artifactId>com.sap.cloud.lm.sl.cf.persistence</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.lm.sl.cf</groupId>

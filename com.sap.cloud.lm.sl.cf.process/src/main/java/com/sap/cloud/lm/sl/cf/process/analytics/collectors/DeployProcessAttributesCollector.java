@@ -10,13 +10,13 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.DeployProcessAttributes;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("deployProcessAttributesCollector")
 public class DeployProcessAttributesCollector extends AbstractCommonProcessAttributesCollector<DeployProcessAttributes> {
@@ -77,7 +77,7 @@ public class DeployProcessAttributesCollector extends AbstractCommonProcessAttri
         return context.getVariable(variableName) != null ? attributeValueSupplier.get() : null;
     }
 
-    public BigInteger getMtaSize(DelegateExecution context) throws SLException {
+    public BigInteger getMtaSize(DelegateExecution context) {
         String appArchiveId = (String) context.getVariable(Constants.PARAM_APP_ARCHIVE_ID);
         try {
             return computeMtaSize(appArchiveId, context);

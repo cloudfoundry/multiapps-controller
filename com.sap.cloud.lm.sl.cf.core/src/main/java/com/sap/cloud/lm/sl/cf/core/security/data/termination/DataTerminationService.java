@@ -57,12 +57,11 @@ public class DataTerminationService {
     }
 
     private void deleteUserOperationsOrphanData(String deleteEventSpaceId) {
-        OperationFilter operationFilter = new OperationFilter.Builder().isCleanedUp()
-            .spaceId(deleteEventSpaceId)
+        OperationFilter operationFilter = new OperationFilter.Builder().spaceId(deleteEventSpaceId)
             .build();
         List<Operation> operationsToBeDeleted = operationDao.find(operationFilter);
         List<String> result = operationsToBeDeleted.stream()
-            .map(cleanedUpOperation -> cleanedUpOperation.getProcessId())
+            .map(Operation::getProcessId)
             .collect(Collectors.toList());
         auditLogDeletion(operationsToBeDeleted);
         operationDao.removeAll(result);
@@ -106,8 +105,7 @@ public class DataTerminationService {
     private List<String> getDeleteSpaceEvents() {
         CloudControllerClientImpl cfClient = getCFClient();
         CFOptimizedEventGetter cfOptimizedEventGetter = new CFOptimizedEventGetter(cfClient);
-        List<String> events = cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeTwoDays());
-        return events;
+        return cfOptimizedEventGetter.findEvents(SPACE_DELETE_EVENT_TYPE, getDateBeforeTwoDays());
     }
 
     private String getDateBeforeTwoDays() {

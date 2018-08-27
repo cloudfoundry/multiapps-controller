@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,8 @@ import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
+import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -36,8 +39,6 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.persistence.util.Configuration;
-import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
 @Component
 public class ApplicationConfiguration {
@@ -712,7 +713,7 @@ public class ApplicationConfiguration {
         int defaultRouterPort = computeDefaultRouterPort();
         Map<String, Object> vcapApplication = getVcapApplication();
         List<String> uris = getApplicationUris(vcapApplication);
-        if (CommonUtil.isNullOrEmpty(uris)) {
+        if (CollectionUtils.isEmpty(uris)) {
             LOGGER.info(format(Messages.NO_APPLICATION_URIS_SPECIFIED, defaultRouterPort));
             return defaultRouterPort;
         }
@@ -742,7 +743,7 @@ public class ApplicationConfiguration {
     private String getDeployServiceUrlFromEnvironment() {
         Map<String, Object> vcapApplication = getVcapApplication();
         List<String> uris = getApplicationUris(vcapApplication);
-        if (!CommonUtil.isNullOrEmpty(uris)) {
+        if (!CollectionUtils.isEmpty(uris)) {
             return uris.get(0);
         }
         LOGGER.warn(Messages.DEPLOY_SERVICE_URL_NOT_SPECIFIED);
@@ -769,7 +770,7 @@ public class ApplicationConfiguration {
     private List<String> getApplicationUris(Map<String, Object> vcapApplication) {
         for (String urisKey : VCAP_APPLICATION_URIS_KEYS) {
             List<String> uris = CommonUtil.cast(vcapApplication.get(urisKey));
-            if (!CommonUtil.isNullOrEmpty(uris)) {
+            if (!CollectionUtils.isEmpty(uris)) {
                 return uris;
             }
         }
@@ -795,8 +796,7 @@ public class ApplicationConfiguration {
     }
 
     private String getGlobalAuditorPasswordFromEnvironment() {
-        String value = environment.getString(CFG_GLOBAL_AUDITOR_PASSWORD, DEFAULT_GLOBAL_AUDITOR_PASSWORD);
-        return value;
+        return environment.getString(CFG_GLOBAL_AUDITOR_PASSWORD, DEFAULT_GLOBAL_AUDITOR_PASSWORD);
     }
 
     private Integer getDbConnectionThreadsFromEnvironment() {

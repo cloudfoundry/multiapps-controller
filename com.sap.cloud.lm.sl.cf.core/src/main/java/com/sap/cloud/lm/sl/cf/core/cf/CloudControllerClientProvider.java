@@ -38,22 +38,22 @@ public class CloudControllerClientProvider {
     private Map<String, Pair<CloudControllerClient, TokenProvider>> clients = Collections
         .synchronizedMap(new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT));
 
-    public CloudControllerClient getControllerClient(String userName, String org, String space, String processId) throws SLException {
+    public CloudControllerClient getControllerClient(String userName, String org, String space, String processId) {
         Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, org, space, processId);
         return client._1;
     }
 
-    public CloudControllerClient getControllerClient(String userName, String spaceGuid, String processId) throws SLException {
+    public CloudControllerClient getControllerClient(String userName, String spaceGuid, String processId) {
         Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, spaceGuid, processId);
         return client._1;
     }
 
-    public CloudControllerClient getControllerClient(String userName, String spaceGuid) throws SLException {
+    public CloudControllerClient getControllerClient(String userName, String spaceGuid) {
         Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, spaceGuid);
         return client._1;
     }
 
-    public CloudControllerClient getControllerClient(String userName) throws SLException {
+    public CloudControllerClient getControllerClient(String userName) {
         Pair<CloudControllerClient, TokenProvider> client = createClientForToken(userName);
         return client._1;
     }
@@ -62,19 +62,19 @@ public class CloudControllerClientProvider {
         return portAllocatorFactory.createPortAllocator(client, domain);
     }
 
-    public void releaseClient(String userName, String org, String space) throws SLException {
+    public void releaseClient(String userName, String org, String space) {
         releaseClientFromCache(userName, org, space);
     }
-    
-    public void releaseClient(String userName, String spaceGuid) throws SLException {
+
+    public void releaseClient(String userName, String spaceGuid) {
         releaseClientFromCache(userName, spaceGuid);
     }
 
-    public OAuth2AccessToken getValidToken(String userName) throws SLException {
+    public OAuth2AccessToken getValidToken(String userName) {
         return getValidToken(userName, null, null);
     }
 
-    private OAuth2AccessToken getValidToken(String userName, String org, String space) throws SLException {
+    private OAuth2AccessToken getValidToken(String userName, String org, String space) {
         OAuth2AccessToken token = tokenService.getToken(userName);
         if (token == null) {
             throw new SLException(Messages.NO_VALID_TOKEN_FOUND, userName);
@@ -91,8 +91,7 @@ public class CloudControllerClientProvider {
         return token;
     }
 
-    private Pair<CloudControllerClient, TokenProvider> retrieveClientForToken(String userName, String org, String space, String processId)
-        throws SLException {
+    private Pair<CloudControllerClient, TokenProvider> retrieveClientForToken(String userName, String org, String space, String processId) {
         try {
             return getClientFromCache(userName, org, space, processId);
         } catch (CloudOperationException e) {
@@ -100,8 +99,7 @@ public class CloudControllerClientProvider {
         }
     }
 
-    private Pair<CloudControllerClient, TokenProvider> retrieveClientForToken(String userName, String spaceGuid, String processId)
-        throws SLException {
+    private Pair<CloudControllerClient, TokenProvider> retrieveClientForToken(String userName, String spaceGuid, String processId) {
         try {
             return getClientFromCache(userName, spaceGuid, processId);
         } catch (CloudOperationException e) {
@@ -109,7 +107,7 @@ public class CloudControllerClientProvider {
         }
     }
 
-    private Pair<CloudControllerClient, TokenProvider> retrieveClientForToken(String userName, String spaceGuid) throws SLException {
+    private Pair<CloudControllerClient, TokenProvider> retrieveClientForToken(String userName, String spaceGuid) {
         try {
             return getClientFromCache(userName, spaceGuid);
         } catch (CloudOperationException e) {
@@ -117,7 +115,7 @@ public class CloudControllerClientProvider {
         }
     }
 
-    private Pair<CloudControllerClient, TokenProvider> createClientForToken(String userName) throws SLException {
+    private Pair<CloudControllerClient, TokenProvider> createClientForToken(String userName) {
         try {
             return clientFactory.createClient(getValidToken(userName));
         } catch (CloudOperationException e) {
@@ -191,7 +189,7 @@ public class CloudControllerClientProvider {
     public void releaseClientFromCache(String userName, String org, String space) {
         clients.remove(getKey(userName, org, space));
     }
-    
+
     public void releaseClientFromCache(String userName, String spaceGuid) {
         clients.remove(getKey(userName, spaceGuid));
     }

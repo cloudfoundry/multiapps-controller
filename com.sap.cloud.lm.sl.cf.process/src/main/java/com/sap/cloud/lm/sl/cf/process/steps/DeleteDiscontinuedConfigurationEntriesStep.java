@@ -86,7 +86,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
 
     private List<Long> getEntryIds(List<ConfigurationEntry> configurationEntries) {
         return configurationEntries.stream()
-            .map(entry -> entry.getId())
+            .map(ConfigurationEntry::getId)
             .collect(Collectors.toList());
     }
 

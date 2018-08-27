@@ -18,13 +18,13 @@ public class MonitorAppDeploySubProcessExecution extends AbstractSubProcessMonit
     }
 
     @Override
-    protected AsyncExecutionState onError(DelegateExecution context, ErrorType errorType) throws MonitoringException {
+    protected AsyncExecutionState onError(DelegateExecution context, ErrorType errorType) {
         String subProcessId = StepsUtil.getSubProcessId(context);
         throw new MonitoringException(Messages.SUB_PROCESS_HAS_FAILED, subProcessId);
     }
 
     @Override
-    protected AsyncExecutionState onAbort(DelegateExecution context, ErrorType errorType) throws MonitoringException {
+    protected AsyncExecutionState onAbort(DelegateExecution context, ErrorType errorType) {
         String subProcessId = StepsUtil.getSubProcessId(context);
         throw new MonitoringException(Messages.SUB_PROCESS_HAS_BEEN_ABORTED, subProcessId);
     }

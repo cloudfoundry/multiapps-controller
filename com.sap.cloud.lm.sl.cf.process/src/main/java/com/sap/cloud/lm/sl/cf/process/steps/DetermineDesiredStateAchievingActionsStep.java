@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep {
 
-    protected Supplier<ApplicationStartupStateCalculator> appStateCalculatorSupplier = () -> new ApplicationStartupStateCalculator();
+    protected Supplier<ApplicationStartupStateCalculator> appStateCalculatorSupplier = ApplicationStartupStateCalculator::new;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper context) {

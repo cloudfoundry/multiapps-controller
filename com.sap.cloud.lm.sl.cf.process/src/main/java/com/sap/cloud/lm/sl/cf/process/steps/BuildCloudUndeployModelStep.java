@@ -21,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("buildCloudUndeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -33,7 +32,7 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
     private ConfigurationSubscriptionDao dao;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().info(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
         try {
             DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
@@ -50,7 +49,7 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
             getStepLogger().debug(Messages.MTA_MODULES, mtaModules);
 
             List<String> appNames = appsToDeploy.stream()
-                .map(app -> app.getName())
+                .map(CloudApplication::getName)
                 .collect(Collectors.toList());
 
             List<DeployedMtaModule> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames);

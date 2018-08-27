@@ -23,17 +23,17 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("updateAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UpdateAppStep extends CreateAppStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException, FileStorageException {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
         // Get the next cloud application from the context
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
@@ -127,7 +127,7 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     private boolean updateApplicationServices(CloudApplicationExtended app, CloudApplication existingApp, CloudControllerClient client,
-        ExecutionWrapper execution) throws SLException, FileStorageException {
+        ExecutionWrapper execution) throws FileStorageException {
         boolean hasUnboundServices = unbindNotRequiredServices(existingApp, app.getServices(), client);
         List<String> services = app.getServices();
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters(execution.getContext(), app);
@@ -166,7 +166,7 @@ public class UpdateAppStep extends CreateAppStep {
 
     private boolean updateServices(CloudApplicationExtended app, CloudApplication existingApp,
         Map<String, Map<String, Object>> bindingParameters, CloudControllerClient client, ExecutionWrapper execution,
-        Set<String> updatedServices, List<String> services) throws SLException {
+        Set<String> updatedServices, List<String> services) {
         boolean hasUpdatedService = false;
         List<String> existingAppServices = existingApp.getServices();
         for (String serviceName : services) {

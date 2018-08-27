@@ -24,7 +24,7 @@ public class FilePartsMerger implements Closeable {
         IOUtils.copy(filePartInputStream, fileOutputStream);
     }
 
-    public Path getMergedFilePath() throws IOException {
+    public Path getMergedFilePath() {
         return mergedFilePath;
     }
 

@@ -6,8 +6,6 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 
 public class DomainValidator implements ParameterValidator {
@@ -17,7 +15,7 @@ public class DomainValidator implements ParameterValidator {
     public static final int DOMAIN_MAX_LENGTH = 253;
 
     @Override
-    public String attemptToCorrect(Object domain) throws SLException {
+    public String attemptToCorrect(Object domain) {
         String result = (String) domain;
         result = NameUtil.getNameWithProperLength(result, DOMAIN_MAX_LENGTH);
         result = result.toLowerCase(Locale.US);
@@ -35,7 +33,8 @@ public class DomainValidator implements ParameterValidator {
         if (!(domain instanceof String)) {
             return false;
         }
-        return !CommonUtil.isEmpty(domain) && NameUtil.isValidName((String) domain, DOMAIN_PATTERN);
+        String domainString = (String) domain;
+        return !domainString.isEmpty() && NameUtil.isValidName(domainString, DOMAIN_PATTERN);
     }
 
     @Override

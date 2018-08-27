@@ -30,7 +30,7 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
         .detectAllDeployedComponents(deployedApps);
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.DETECTING_DEPLOYED_MTA);
 

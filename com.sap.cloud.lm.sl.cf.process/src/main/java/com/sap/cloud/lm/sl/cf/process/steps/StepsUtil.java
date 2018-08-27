@@ -51,6 +51,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.BinaryJson;
@@ -62,7 +63,6 @@ import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
 
 public class StepsUtil {
 
@@ -75,21 +75,21 @@ public class StepsUtil {
     }
 
     static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
-        StepLogger stepLogger) throws SLException {
+        StepLogger stepLogger) {
         String userName = determineCurrentUser(context, stepLogger);
         String spaceId = getSpaceId(context);
         return clientProvider.getControllerClient(userName, spaceId);
     }
 
     static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
-        StepLogger stepLogger, String org, String space) throws SLException {
+        StepLogger stepLogger, String org, String space) {
         // Determine the current user
         String userName = determineCurrentUser(context, stepLogger);
         return clientProvider.getControllerClient(userName, org, space, context.getProcessInstanceId());
     }
 
     static XsCloudControllerClient getXsControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
-        StepLogger stepLogger) throws SLException {
+        StepLogger stepLogger) {
         CloudControllerClient client = StepsUtil.getControllerClient(context, clientProvider, stepLogger);
         if (client instanceof XsCloudControllerClient) {
             return (XsCloudControllerClient) client;
@@ -98,7 +98,7 @@ public class StepsUtil {
     }
 
     static XsCloudControllerClient getXsControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
-        StepLogger stepLogger, String org, String space) throws SLException {
+        StepLogger stepLogger, String org, String space) {
         CloudControllerClient client = StepsUtil.getControllerClient(context, clientProvider, stepLogger, org, space);
         if (client instanceof XsCloudControllerClient) {
             return (XsCloudControllerClient) client;
@@ -106,7 +106,7 @@ public class StepsUtil {
         return null;
     }
 
-    public static String determineCurrentUser(DelegateExecution context, StepLogger stepLogger) throws SLException {
+    public static String determineCurrentUser(DelegateExecution context, StepLogger stepLogger) {
         String userId = Authentication.getAuthenticatedUserId();
         String previousUser = (String) context.getVariable(Constants.VAR_USER);
         // Determine the current user
@@ -158,7 +158,7 @@ public class StepsUtil {
         context.setVariable(getResourceFileNameVariable(resourceName), fileName);
     }
 
-    static InputStream getModuleContentAsStream(DelegateExecution context, String moduleName) throws SLException {
+    static InputStream getModuleContentAsStream(DelegateExecution context, String moduleName) {
         byte[] moduleContent = getModuleContent(context, moduleName);
         if (moduleContent == null) {
             throw new SLException(Messages.MODULE_CONTENT_NA, moduleName);
@@ -258,7 +258,7 @@ public class StepsUtil {
         return new HandlerFactory(majorSchemaVersion, minorSchemaVersion);
     }
 
-    public static String getRequiredStringParameter(DelegateExecution context, String variableName) throws SLException {
+    public static String getRequiredStringParameter(DelegateExecution context, String variableName) {
         String value = (String) context.getVariable(variableName);
         if (value == null || value.isEmpty()) {
             throw new SLException(Messages.REQUIRED_PARAMETER_IS_MISSING, variableName);
@@ -266,7 +266,7 @@ public class StepsUtil {
         return value;
     }
 
-    static void validateOrg(String org, DelegateExecution context) throws SLException {
+    static void validateOrg(String org, DelegateExecution context) {
         String urlOrg = getOrg(context);
         if (!urlOrg.equals(org)) {
             throw new SLException(Messages.TARGETED_ORG_DOES_NOT_MATCH_URL_ORG, org, urlOrg);
@@ -278,14 +278,14 @@ public class StepsUtil {
     }
 
     public static String getSpaceId(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID);
+        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID);
     }
 
     public static void setSpaceId(DelegateExecution context, String spaceId) {
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, spaceId);
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, spaceId);
     }
 
-    static void validateSpace(String space, DelegateExecution context) throws SLException {
+    static void validateSpace(String space, DelegateExecution context) {
         String urlSpace = getSpace(context);
         if (!urlSpace.equals(space)) {
             throw new SLException(Messages.TARGETED_SPACE_DOES_NOT_MATCH_URL_SPACE, space, urlSpace);
@@ -322,7 +322,7 @@ public class StepsUtil {
 
     static void setServicesToCreate(DelegateExecution context, List<CloudServiceExtended> services) {
         List<String> servicesAsStrings = services.stream()
-            .map(service -> JsonUtil.toJson(service))
+            .map(JsonUtil::toJson)
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_SERVICES_TO_CREATE, servicesAsStrings);
     }
@@ -337,7 +337,7 @@ public class StepsUtil {
 
     static void setServicesToBind(DelegateExecution context, List<CloudServiceExtended> services) {
         List<String> servicesAsStrings = services.stream()
-            .map(service -> JsonUtil.toJson(service))
+            .map(JsonUtil::toJson)
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_SERVICES_TO_BIND, servicesAsStrings);
     }
@@ -397,7 +397,7 @@ public class StepsUtil {
 
     public static void setAppsToDeploy(DelegateExecution context, List<CloudApplicationExtended> apps) {
         List<String> cloudApplicationsAsStrings = apps.stream()
-            .map(app -> JsonUtil.toJson(app))
+            .map(JsonUtil::toJson)
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
     }
@@ -628,12 +628,12 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES, replacementValuesJson);
     }
 
-    static Map<String, Object> getXsPlaceholderReplacementValues(DelegateExecution context) throws SLException {
+    static Map<String, Object> getXsPlaceholderReplacementValues(DelegateExecution context) {
         byte[] replacementValuesJson = (byte[]) context.getVariable(Constants.VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES);
         return JsonUtil.convertJsonToMap(new String(replacementValuesJson, StandardCharsets.UTF_8));
     }
 
-    static XsPlaceholderResolver getXsPlaceholderResolver(DelegateExecution context) throws SLException {
+    static XsPlaceholderResolver getXsPlaceholderResolver(DelegateExecution context) {
         Map<String, Object> replacementValues = getXsPlaceholderReplacementValues(context);
         XsPlaceholderResolver resolver = new XsPlaceholderResolver();
         resolver.setControllerEndpoint((String) replacementValues.get(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER));
@@ -747,13 +747,13 @@ public class StepsUtil {
         @SuppressWarnings("unchecked")
         Set<String> actionsAsStrings = (Set<String>) context.getVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE);
         return actionsAsStrings.stream()
-            .map(action -> ApplicationStateAction.valueOf(action))
+            .map(ApplicationStateAction::valueOf)
             .collect(Collectors.toSet());
     }
 
     static void setAppStateActionsToExecute(DelegateExecution context, Set<ApplicationStateAction> actions) {
         Set<String> actionsAsStrings = actions.stream()
-            .map(action -> action.toString())
+            .map(ApplicationStateAction::toString)
             .collect(Collectors.toSet());
         context.setVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE, actionsAsStrings);
     }
@@ -886,7 +886,7 @@ public class StepsUtil {
     }
 
     public static String getServiceId(DelegateExecution context) {
-        return (String) context.getVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID);
+        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID);
     }
 
     public static void incrementVariable(DelegateExecution context, String name) {
@@ -966,7 +966,7 @@ public class StepsUtil {
             stepLogger);
     }
 
-    static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context, StepLogger stepLogger) {
+    static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
         return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor());

@@ -14,8 +14,11 @@ Contains the domain model, persistence and other core services and utilities.
 ## com.sap.cloud.lm.sl.cf.client
 Extends the [Java Client Library for Cloud Foundry](https://github.com/SAP/cf-java-client-sap) with additional domain model objects and attributes, OAuth token providers and retrying functionality.  
 
+## com.sap.cloud.lm.sl.persistence
+Contains utilities for upload and processing of file artifacts. These are used for initial upload of the [MTA](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) archive and descriptors and their processing as part of the deployment.
+
 ## com.sap.cloud.lm.sl.cf.process
-Contains the concrete workflow definitions for MTA operations like deploy, undeploy, blue-green deploy, etc. These are modelled via [Activiti](https://activiti.org) BPMN process definitions. The process definitions have steps, where each step logic uses the `com.sap.cloud.lm.sl.cf.client` to call the Cloud Controller API from [Cloud Foundry](https://www.cloudfoundry.org/).
+Contains the concrete workflow definitions for MTA operations like deploy, undeploy, blue-green deploy, etc. These are modeled via [Activiti](https://activiti.org) BPMN process definitions. The process definitions have steps, where each step logic uses the `com.sap.cloud.lm.sl.cf.client` to call the Cloud Controller API from [Cloud Foundry](https://www.cloudfoundry.org/).
 
 ## com.sap.cloud.lm.sl.cf.web
 Contains REST API implementations for:
@@ -33,7 +36,7 @@ Env Variable Name | Sample Value | Description
 --- | --- | ---
 XS_TARGET_URL | http://api.bosh-lite.com | Cloud Foundry API URL.
 PLATFORMS_V2 | see [manifest.yml](https://github.com/SAP/cf-mta-deploy-service/blob/master/com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) | Contains the configuration of the MTA module and resource types. MTA module types are mapped to Cloud Foundry buildpacks and default application parameters, whereas MTA resource types are usually mapped to Cloud Foundry services with concrete service plans and parameters. This is for MTA spec v2.
-PLATFORMS_V3 | see [manifest.yml](https://github.com/SAP/cf-mta-deploy-service/blob/master/com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) | Same as PLATFORMS_V2, but this is for MTA spec v3.
+PLATFORMS_V3 | see [manifest.yml](https://github.com/cloudfoundry-incubator/multiapps-controller/blob/master/com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) | Same as PLATFORMS_V2, but this is for MTA spec v3.
 DB_TYPE | POSTGRESQL | The used persistence type. Currently only PostgreSQL is supported.
 SKIP_SSL_VALIDATION | true | Skips SSL certificate validation.
 
@@ -62,10 +65,10 @@ $ cf push -f target/manifests/manifest.yml
 ```
 After the push operation completes then the CF MTA deploy service should be up and running.
 ## Usage via CF MTA plugin
-In order to use the CF MTA deploy service you should install the [CF MTA plugin](https://github.com/SAP/cf-mta-plugin), so follow the instructions in the [Download and installation](https://github.com/SAP/cf-mta-plugin#download-and-installation) section there. For the set of supported operations and examples refer to the [Usage](https://github.com/SAP/cf-mta-plugin#usage) section. You could use a modified [spring-music](https://github.com/nvvalchev/spring-music) application, which is extended and adapted to the MTA model.
+In order to use the CF MTA deploy service you should install the [CF MTA plugin](https://github.com/cloudfoundry-incubator/multiapps-cli-plugin), so follow the instructions in the [Download and installation](https://github.com/cloudfoundry-incubator/multiapps-cli-plugin#download-and-installation) section there. For the set of supported operations and examples refer to the [Usage](https://github.com/cloudfoundry-incubator/multiapps-cli-plugin#usage) section. You could use a modified [spring-music](https://github.com/nvvalchev/spring-music) application, which is extended and adapted to the MTA model.
 
 # How to obtain support
-If you need any support, have any question or have found a bug, please report it in the [GitHub bug tracking system](https://github.com/SAP/cf-mta-deploy-service/issues). We shall get back to you.
+If you need any support, have any question or have found a bug, please report it in the [GitHub bug tracking system](https://github.com/cloudfoundry-incubator/multiapps-controller/issues). We shall get back to you.
 
 # Further reading
 Presentations, documents, and tutorials:
@@ -74,4 +77,4 @@ Presentations, documents, and tutorials:
 
 # License
 Copyright (c) 2017 SAP SE or an SAP affiliate company. All rights reserved.
-This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the [LICENSE](https://github.com/SAP/cf-mta-deploy-service/blob/master/LICENSE) file.
+This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the [LICENSE](https://github.com/cloudfoundry-incubator/multiapps-controller/blob/master/LICENSE) file.

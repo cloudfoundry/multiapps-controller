@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.StartingInfo;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
@@ -42,10 +41,6 @@ public interface XsCloudControllerClient extends CloudControllerClientSupporting
      */
     int reservePort(String domain);
 
-    ServiceKey createServiceKey(String serviceName, String serviceKey, String parameters);
-
-    void deleteServiceKey(String serviceName, String serviceKey);
-
     List<CloudServiceOfferingExtended> getExtendedServiceOfferings();
 
     void addRoute(String host, String domainName, String path);
@@ -60,7 +55,7 @@ public interface XsCloudControllerClient extends CloudControllerClientSupporting
      * @return the list of known tasks
      * @throws UnsupportedOperationException if the targeted controller does not support tasks
      */
-    List<CloudTask> getTasks(String appName) throws UnsupportedOperationException;
+    List<CloudTask> getTasks(String appName);
 
     /**
      * Run a one-off task on an app. Tasks are not supported on all versions of the controller, so check
@@ -72,7 +67,7 @@ public interface XsCloudControllerClient extends CloudControllerClientSupporting
      * @return the created task
      * @throws UnsupportedOperationException if the targeted controller does not support tasks
      */
-    CloudTask runTask(String appName, String taskName, String command) throws UnsupportedOperationException;
+    CloudTask runTask(String appName, String taskName, String command);
 
     /**
      * Run a one-off task on an app. Tasks are not supported on all versions of the controller, so check
@@ -85,8 +80,7 @@ public interface XsCloudControllerClient extends CloudControllerClientSupporting
      * @return the created task
      * @throws UnsupportedOperationException if the targeted controller does not support tasks
      */
-    CloudTask runTask(String appName, String taskName, String command, Map<String, String> environment)
-        throws UnsupportedOperationException;
+    CloudTask runTask(String appName, String taskName, String command, Map<String, String> environment);
 
     /**
      * Cancel the given task. Tasks are not supported on all versions of the controller, so check
@@ -95,7 +89,7 @@ public interface XsCloudControllerClient extends CloudControllerClientSupporting
      * @param taskId the GUID of the task to cancel
      * @return the cancelled task
      */
-    CloudTask cancelTask(UUID taskId) throws UnsupportedOperationException;
+    CloudTask cancelTask(UUID taskId);
 
     /**
      * Update the service plan for an existing service.

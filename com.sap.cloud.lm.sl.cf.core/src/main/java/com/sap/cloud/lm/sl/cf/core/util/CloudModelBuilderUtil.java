@@ -29,8 +29,7 @@ public class CloudModelBuilderUtil {
         return true;
     }
 
-    public static Target findTarget(DescriptorHandler handler, List<Target> targets, String targetName, Target defaultTarget)
-        throws ContentException {
+    public static Target findTarget(DescriptorHandler handler, List<Target> targets, String targetName, Target defaultTarget) {
         Target target = handler.findTarget(targets, targetName, defaultTarget);
         if (target == null) {
             throw new ContentException(Messages.UNKNOWN_TARGET, targetName);
@@ -38,7 +37,7 @@ public class CloudModelBuilderUtil {
         return target;
     }
 
-    public static Platform findPlatform(DescriptorHandler handler, List<Platform> platforms, Target target) throws ContentException {
+    public static Platform findPlatform(DescriptorHandler handler, List<Platform> platforms, Target target) {
         Platform platform = handler.findPlatform(platforms, target.getType());
         if (platform == null) {
             throw new ContentException(Messages.UNKNOWN_PLATFORM, target.getType(), target.getName());

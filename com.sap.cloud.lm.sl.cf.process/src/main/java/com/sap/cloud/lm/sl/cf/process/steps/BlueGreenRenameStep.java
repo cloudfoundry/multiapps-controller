@@ -16,10 +16,10 @@ public class BlueGreenRenameStep extends SyncActivitiStep {
 
     private static final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
 
-    protected Supplier<ApplicationColorDetector> colorDetectorSupplier = () -> new ApplicationColorDetector();
+    protected Supplier<ApplicationColorDetector> colorDetectorSupplier = ApplicationColorDetector::new;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
 

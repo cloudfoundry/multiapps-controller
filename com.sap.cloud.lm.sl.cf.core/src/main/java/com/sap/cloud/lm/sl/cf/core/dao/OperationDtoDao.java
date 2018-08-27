@@ -1,11 +1,13 @@
 package com.sap.cloud.lm.sl.cf.core.dao;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -31,7 +33,7 @@ public class OperationDtoDao {
     @Qualifier("operationEntityManagerFactory")
     EntityManagerFactory emf;
 
-    public void add(OperationDto operation) throws ConflictException {
+    public void add(OperationDto operation) {
         new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             if (existsInternal(manager, operation.getProcessId())) {
                 throw new ConflictException(Messages.OPERATION_ALREADY_EXISTS, operation.getProcessId());
@@ -49,7 +51,7 @@ public class OperationDtoDao {
         return manager.find(OperationDto.class, processId) != null;
     }
 
-    public void remove(String processId) throws NotFoundException {
+    public void remove(String processId) {
         new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             OperationDto dto = manager.find(OperationDto.class, processId);
             if (dto == null) {
@@ -60,11 +62,19 @@ public class OperationDtoDao {
         });
     }
 
+    public int removeExpiredInFinalState(Date expirationTime) {
+        return new TransactionalExecutor<Integer>(createEntityManager()).execute(manager -> {
+            return manager.createNamedQuery("remove_expired_in_final_state")
+                .setParameter("expirationTime", expirationTime, TemporalType.TIMESTAMP)
+                .executeUpdate();
+        });
+    }
+
     public OperationDto find(String processId) {
         return new Executor<OperationDto>(createEntityManager()).execute(manager -> manager.find(OperationDto.class, processId));
     }
 
-    public OperationDto findRequired(String processId) throws NotFoundException {
+    public OperationDto findRequired(String processId) {
         OperationDto dto = find(processId);
         if (dto == null) {
             throw new NotFoundException(Messages.OPERATION_NOT_FOUND, processId);
@@ -82,7 +92,7 @@ public class OperationDtoDao {
             .getResultList());
     }
 
-    public void merge(OperationDto operation) throws NotFoundException {
+    public void merge(OperationDto operation) {
         new TransactionalExecutor<Void>(createEntityManager()).execute(manager -> {
             OperationDto dto = manager.find(OperationDto.class, operation.getProcessId());
             if (dto == null) {
@@ -110,6 +120,9 @@ public class OperationDtoDao {
         if (operationFilter.getMaxResults() != null) {
             typedQuery.setMaxResults(operationFilter.getMaxResults());
         }
+        if (operationFilter.getFirstElement() != null) {
+            typedQuery.setFirstResult(operationFilter.getFirstElement());
+        }
         return typedQuery;
     }
 
@@ -133,33 +146,24 @@ public class OperationDtoDao {
             predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
                 .isNotNull());
         }
-        if (operationFilter.hasNotAcquiredLock()) {
+        if (operationFilter.isWithoutAcquiredLock()) {
             predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.ACQUIRED_LOCK), false));
         }
-        if (operationFilter.hasAcquiredLock()) {
+        if (operationFilter.isWithAcquiredLock()) {
             predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.ACQUIRED_LOCK), true));
-        }
-        if (operationFilter.isCleanedUp()) {
-            predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.CLEANED_UP), true));
-        }
-        if (operationFilter.isNotCleanedUp()) {
-            predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.CLEANED_UP), false));
         }
         if (operationFilter.getStates() != null) {
             predicates.add(root.get(OperationDto.AttributeNames.FINAL_STATE)
                 .in(toStrings(operationFilter.getStates())));
         }
-        if (operationFilter.getStartTimeUpperBound() != null) {
-            predicates
-                .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.STARTED_AT), operationFilter.getStartTimeUpperBound()));
+        if (operationFilter.getStartedBefore() != null) {
+            predicates.add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.STARTED_AT), operationFilter.getStartedBefore()));
         }
-        if (operationFilter.getEndTimeUpperBound() != null) {
-            predicates
-                .add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndTimeUpperBound()));
+        if (operationFilter.getEndedBefore() != null) {
+            predicates.add(criteriaBuilder.lessThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndedBefore()));
         }
-        if (operationFilter.getEndTimeLowerBound() != null) {
-            predicates
-                .add(criteriaBuilder.greaterThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndTimeLowerBound()));
+        if (operationFilter.getEndedAfter() != null) {
+            predicates.add(criteriaBuilder.greaterThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndedAfter()));
         }
 
         return predicates.toArray(new Predicate[0]);
@@ -176,7 +180,7 @@ public class OperationDtoDao {
 
     private Object toStrings(List<State> states) {
         return states.stream()
-            .map(state -> state.toString())
+            .map(State::toString)
             .collect(Collectors.toList());
     }
 

@@ -7,7 +7,6 @@ import java.util.TreeMap;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
@@ -23,8 +22,7 @@ public class ParametersValidatorHelper {
         this.doNotCorrect = doNotCorrect;
     }
 
-    public Map<String, Object> validate(String prefix, Object container, Class<?> containerClass, Map<String, Object> parameters)
-        throws SLException {
+    public Map<String, Object> validate(String prefix, Object container, Class<?> containerClass, Map<String, Object> parameters) {
         Map<String, Object> validParameters = new TreeMap<>();
         for (ParameterValidator validator : parameterValidators) {
             if (!validator.getContainerType()
@@ -41,7 +39,7 @@ public class ParametersValidatorHelper {
         return MapUtil.merge(parameters, validParameters);
     }
 
-    private Object validate(Object container, String parameterName, Object parameter, ParameterValidator validator) throws SLException {
+    private Object validate(Object container, String parameterName, Object parameter, ParameterValidator validator) {
         if ((parameter instanceof String) && containsXsaPlaceholders((String) parameter)) {
             return parameter;
         } else if (!validator.isValid(container, parameter)) {
@@ -55,8 +53,7 @@ public class ParametersValidatorHelper {
         return parameter.matches(PARAMETER_CONTAINING_XSA_PLACEHOLDER_PATTERN);
     }
 
-    private Object attemptToCorrect(Object container, String parameterName, Object parameter, ParameterValidator validator)
-        throws SLException {
+    private Object attemptToCorrect(Object container, String parameterName, Object parameter, ParameterValidator validator) {
         if (!validator.canCorrect() || doNotCorrect) {
             throw new ContentException(Messages.CANNOT_CORRECT_PARAMETER, parameterName);
         }

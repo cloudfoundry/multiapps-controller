@@ -1,12 +1,12 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
-import static com.sap.cloud.lm.sl.common.util.CommonUtil.repeat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,7 +25,7 @@ public class NameUtilTest {
 
     @Test
     public void testIsValidXsAppNameWhenNamesAreInvalid() {
-        String longName = repeat("f", NameRequirements.XS_APP_NAME_MAX_LENGTH + 1);
+        String longName = StringUtils.repeat("f", NameRequirements.XS_APP_NAME_MAX_LENGTH + 1);
 
         testIsValidName(Arrays.asList("sap_system", "sap_system_1", "foo&&bar", "foo bar", longName), NameRequirements.XS_APP_NAME_PATTERN,
             false);
@@ -38,7 +38,7 @@ public class NameUtilTest {
 
     @Test
     public void testIsValidContainerNameWhenNamesAreInvalid() {
-        String longName = repeat("F", NameRequirements.CONTAINER_NAME_MAX_LENGTH + 1);
+        String longName = StringUtils.repeat("F", NameRequirements.CONTAINER_NAME_MAX_LENGTH + 1);
 
         testIsValidName(Arrays.asList("foo", "FOO BAR", "1-FOO", "FOO_&_BAR", "_FOO", " ", longName),
             NameRequirements.CONTAINER_NAME_PATTERN, false);

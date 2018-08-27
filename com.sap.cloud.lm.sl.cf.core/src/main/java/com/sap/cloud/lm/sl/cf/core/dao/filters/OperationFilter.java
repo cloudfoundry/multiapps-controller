@@ -4,14 +4,17 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 public class OperationFilter {
 
-    private Date startTimeUpperBound;
-    private Date endTimeUpperBound;
-    private Date endTimeLowerBound;
+    private Date startedBefore;
+    private Date endedBefore;
+    private Date endedAfter;
     private String spaceId;
     private String mtaId;
     private String user;
@@ -19,18 +22,17 @@ public class OperationFilter {
     private boolean inFinalState;
     private boolean withoutAcquiredLock;
     private boolean withAcquiredLock;
-    private boolean isCleanedUp;
-    private boolean isNotCleanedUp;
     private List<State> states;
 
     private String orderAttribute;
     private OrderDirection orderDirection;
+    private Integer firstElement;
     private Integer maxResults;
 
     protected OperationFilter(Builder builder) {
-        this.startTimeUpperBound = builder.startTimeUpperBound;
-        this.endTimeUpperBound = builder.endTimeUpperBound;
-        this.endTimeLowerBound = builder.endTimeLowerBound;
+        this.startedBefore = builder.startedBefore;
+        this.endedBefore = builder.endedBefore;
+        this.endedAfter = builder.endedAfter;
         this.spaceId = builder.spaceId;
         this.mtaId = builder.mtaId;
         this.user = builder.user;
@@ -38,24 +40,23 @@ public class OperationFilter {
         this.inFinalState = builder.inFinalState;
         this.withoutAcquiredLock = builder.withoutAcquiredLock;
         this.withAcquiredLock = builder.withAcquiredLock;
-        this.isCleanedUp = builder.isCleanedUp;
-        this.isNotCleanedUp = builder.isNotCleanedUp;
         this.orderAttribute = builder.orderAttribute;
         this.orderDirection = builder.orderDirection;
+        this.firstElement = builder.firstElement;
         this.maxResults = builder.maxResults;
         this.states = builder.states;
     }
 
-    public Date getStartTimeUpperBound() {
-        return startTimeUpperBound;
+    public Date getStartedBefore() {
+        return startedBefore;
     }
 
-    public Date getEndTimeUpperBound() {
-        return endTimeUpperBound;
+    public Date getEndedBefore() {
+        return endedBefore;
     }
 
-    public Date getEndTimeLowerBound() {
-        return endTimeLowerBound;
+    public Date getEndedAfter() {
+        return endedAfter;
     }
 
     public String getSpaceId() {
@@ -78,28 +79,16 @@ public class OperationFilter {
         return inFinalState;
     }
 
-    public boolean hasNotAcquiredLock() {
+    public boolean isWithoutAcquiredLock() {
         return withoutAcquiredLock;
     }
 
-    public boolean hasAcquiredLock() {
+    public boolean isWithAcquiredLock() {
         return withAcquiredLock;
-    }
-
-    public boolean isCleanedUp() {
-        return isCleanedUp;
-    }
-
-    public boolean isNotCleanedUp() {
-        return isNotCleanedUp;
     }
 
     public List<State> getStates() {
         return states;
-    }
-
-    public Integer getMaxResults() {
-        return maxResults;
     }
 
     public String getOrderAttribute() {
@@ -110,11 +99,29 @@ public class OperationFilter {
         return orderDirection;
     }
 
+    public Integer getFirstElement() {
+        return firstElement;
+    }
+
+    public Integer getMaxResults() {
+        return maxResults;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return EqualsBuilder.reflectionEquals(this, object);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
     public static class Builder {
 
-        private Date startTimeUpperBound;
-        private Date endTimeUpperBound;
-        private Date endTimeLowerBound;
+        private Date startedBefore;
+        private Date endedBefore;
+        private Date endedAfter;
         private String spaceId;
         private String mtaId;
         private String user;
@@ -122,26 +129,25 @@ public class OperationFilter {
         private boolean inNonFinalState;
         private boolean withoutAcquiredLock;
         private boolean withAcquiredLock;
-        private boolean isCleanedUp;
-        private boolean isNotCleanedUp;
         private List<State> states;
 
         private String orderAttribute;
         private OrderDirection orderDirection = OrderDirection.ASCENDING;
+        private Integer firstElement;
         private Integer maxResults;
 
-        public Builder startedBefore(Date startTimeUpperBound) {
-            this.startTimeUpperBound = startTimeUpperBound;
+        public Builder startedBefore(Date startedBefore) {
+            this.startedBefore = startedBefore;
             return this;
         }
 
-        public Builder endedBefore(Date endTimeUpperBound) {
-            this.endTimeUpperBound = endTimeUpperBound;
+        public Builder endedBefore(Date endedBefore) {
+            this.endedBefore = endedBefore;
             return this;
         }
 
-        public Builder endedAfter(Date endTimeLowerBound) {
-            this.endTimeLowerBound = endTimeLowerBound;
+        public Builder endedAfter(Date endedAfter) {
+            this.endedAfter = endedAfter;
             return this;
         }
 
@@ -180,16 +186,6 @@ public class OperationFilter {
             return this;
         }
 
-        public Builder isCleanedUp() {
-            this.isCleanedUp = true;
-            return this;
-        }
-
-        public Builder isNotCleanedUp() {
-            this.isNotCleanedUp = true;
-            return this;
-        }
-
         public Builder state(State state) {
             this.states = Arrays.asList(state);
             return this;
@@ -205,6 +201,11 @@ public class OperationFilter {
             return this;
         }
 
+        public Builder orderByProcessId() {
+            this.orderAttribute = OperationDto.AttributeNames.PROCESS_ID;
+            return this;
+        }
+
         public Builder orderByStartTime() {
             this.orderAttribute = OperationDto.AttributeNames.STARTED_AT;
             return this;
@@ -212,6 +213,11 @@ public class OperationFilter {
 
         public Builder orderByEndTime() {
             this.orderAttribute = OperationDto.AttributeNames.ENDED_AT;
+            return this;
+        }
+
+        public Builder firstElement(Integer firstElement) {
+            this.firstElement = firstElement;
             return this;
         }
 

@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.dao;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,8 +12,6 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
 import com.sap.cloud.lm.sl.cf.core.helpers.OperationFactory;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Component
 public class OperationDao {
@@ -22,19 +21,23 @@ public class OperationDao {
     @Inject
     OperationFactory operationFactory;
 
-    public void add(Operation operation) throws ConflictException {
+    public void add(Operation operation) {
         OperationDto dto = operationFactory.toPersistenceDto(operation);
         dao.add(dto);
     }
 
-    public void remove(String processId) throws NotFoundException {
+    public void remove(String processId) {
         dao.remove(processId);
     }
 
-    public void removeAll(List<String> processIds) throws NotFoundException {
+    public void removeAll(List<String> processIds) {
         for (String processId : processIds) {
             dao.remove(processId);
         }
+    }
+
+    public int removeExpiredInFinalState(Date expirationTime) {
+        return dao.removeExpiredInFinalState(expirationTime);
     }
 
     public Operation find(String processId) {
@@ -45,7 +48,7 @@ public class OperationDao {
         return operationFactory.fromPersistenceDto(dto);
     }
 
-    public Operation findRequired(String processId) throws NotFoundException {
+    public Operation findRequired(String processId) {
         OperationDto dto = dao.findRequired(processId);
         return operationFactory.fromPersistenceDto(dto);
     }
@@ -60,7 +63,7 @@ public class OperationDao {
         return toOperations(dtos);
     }
 
-    public void merge(Operation operation) throws NotFoundException {
+    public void merge(Operation operation) {
         OperationDto dto = operationFactory.toPersistenceDto(operation);
         dao.merge(dto);
     }

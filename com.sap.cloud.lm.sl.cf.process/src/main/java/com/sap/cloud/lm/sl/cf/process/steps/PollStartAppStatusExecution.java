@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.InstanceInfo;
 import org.cloudfoundry.client.lib.domain.InstanceState;
@@ -23,7 +24,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 public class PollStartAppStatusExecution implements AsyncExecution {
 
@@ -42,7 +42,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     @Override
-    public AsyncExecutionState execute(ExecutionWrapper execution) throws SLException {
+    public AsyncExecutionState execute(ExecutionWrapper execution) {
         CloudApplication app = getAppToPoll(execution.getContext());
         CloudControllerClient client = execution.getControllerClient();
 
@@ -125,9 +125,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                 execution.getStepLogger()
                     .info(Messages.APP_STARTED, app.getName());
             } else {
-                String urls = CommonUtil.toCommaDelimitedString(uris, getProtocolPrefix());
+                List<String> urls = toUrls(uris);
                 execution.getStepLogger()
-                    .info(Messages.APP_STARTED_URLS, app.getName(), urls);
+                    .info(Messages.APP_STARTED_URLS, app.getName(), String.join(",", urls));
             }
             return AsyncExecutionState.FINISHED;
         }
@@ -167,8 +167,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         }
 
         // Print message
-        String message = format(Messages.X_OF_Y_INSTANCES_RUNNING, runningInstances, expectedInstances,
-            CommonUtil.toCommaDelimitedString(stateStrings, ""));
+        String message = format(Messages.X_OF_Y_INSTANCES_RUNNING, runningInstances, expectedInstances, String.join(",", stateStrings));
         execution.getStepLogger()
             .info(message);
     }
@@ -187,6 +186,13 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             }
         }
         return count;
+    }
+
+    private List<String> toUrls(List<String> uris) {
+        String protocolPrefix = getProtocolPrefix();
+        return uris.stream()
+            .map(uri -> protocolPrefix + uri)
+            .collect(Collectors.toList());
     }
 
     private String getProtocolPrefix() {

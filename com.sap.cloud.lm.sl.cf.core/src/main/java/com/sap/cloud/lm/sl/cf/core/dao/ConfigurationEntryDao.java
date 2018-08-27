@@ -13,8 +13,6 @@ import com.sap.cloud.lm.sl.cf.core.filters.VersionFilter;
 import com.sap.cloud.lm.sl.cf.core.filters.VisibilityFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
-import com.sap.cloud.lm.sl.common.ConflictException;
-import com.sap.cloud.lm.sl.common.NotFoundException;
 
 @Component
 public class ConfigurationEntryDao {
@@ -44,16 +42,16 @@ public class ConfigurationEntryDao {
 
     private List<ConfigurationEntry> toConfigurationEntries(List<ConfigurationEntryDto> dtos) {
         return dtos.stream()
-            .map(dto -> dto.toConfigurationEntry())
+            .map(ConfigurationEntryDto::toConfigurationEntry)
             .collect(Collectors.toList());
     }
 
-    public ConfigurationEntry update(long id, ConfigurationEntry entry) throws ConflictException, NotFoundException {
+    public ConfigurationEntry update(long id, ConfigurationEntry entry) {
         return dao.update(id, new ConfigurationEntryDto(entry))
             .toConfigurationEntry();
     }
 
-    public ConfigurationEntry find(long id) throws NotFoundException {
+    public ConfigurationEntry find(long id) {
         return dao.find(id)
             .toConfigurationEntry();
     }
@@ -62,7 +60,7 @@ public class ConfigurationEntryDao {
         return toConfigurationEntries(dao.find(spaceGuid));
     }
 
-    public void remove(long id) throws NotFoundException {
+    public void remove(long id) {
         dao.remove(id);
     }
 
@@ -73,7 +71,7 @@ public class ConfigurationEntryDao {
         return configurationEntries;
     }
 
-    public ConfigurationEntry add(ConfigurationEntry entry) throws ConflictException {
+    public ConfigurationEntry add(ConfigurationEntry entry) {
         return dao.add(new ConfigurationEntryDto(entry))
             .toConfigurationEntry();
     }

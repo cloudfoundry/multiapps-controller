@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    logicalFilePath="com/sap/cloud/lm/sl/persistence/db/changelog/db-changelog-add_process_log_table.xml"
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+    <changeSet author="i031908" id="add_process_log_table">
+
+        <createTable tableName="process_log">
+            <column name="file_id" type="CHAR(36)">
+                <constraints primaryKey="true" primaryKeyName="log_file_id_pk" nullable="false" />
+            </column>
+            <column name="content" type="BLOB">
+                <constraints nullable="false" />
+            </column>
+            <column name="digest" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="digest_algorithm" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="modified" type="TIMESTAMP" />
+            <column name="space" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="namespace" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="file_size" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <addUniqueConstraint columnNames="space, namespace, file_name"
+            constraintName="unq_process_log" tableName="process_log" />
+    </changeSet>
+
+</databaseChangeLog>

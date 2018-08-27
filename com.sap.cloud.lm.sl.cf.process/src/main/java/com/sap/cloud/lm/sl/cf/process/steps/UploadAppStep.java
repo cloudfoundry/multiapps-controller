@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -14,9 +13,9 @@ import javax.inject.Inject;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.commons.io.FileUtils;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -29,13 +28,13 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveExtractor;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("uploadAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -47,7 +46,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     protected ApplicationConfiguration configuration;
 
     @Override
-    public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException, SLException {
+    public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {
@@ -74,7 +73,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private String asyncUploadFiles(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, String appArchiveId,
-        String fileName) throws FileStorageException, SLException {
+        String fileName) throws FileStorageException {
         final StringBuilder uploadTokenBuilder = new StringBuilder();
         final DelegateExecution context = execution.getContext();
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
@@ -83,7 +82,7 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
                 long maxSize = configuration.getMaxResourceFileSize();
                 try {
                     filePath = extractFromMtar(appArchiveStream, fileName, maxSize);
-                    upload(execution, client, app, filePath, fileName, uploadTokenBuilder);
+                    upload(execution, client, app, filePath, uploadTokenBuilder);
                 } catch (IOException e) {
                     cleanUp(filePath);
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
@@ -96,13 +95,13 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
         return uploadTokenBuilder.toString();
     }
 
-    protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) throws SLException {
+    protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) {
         ApplicationArchiveExtractor appExtractor = new ApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, getStepLogger());
         return appExtractor.extract();
     }
 
-    private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath, String fileName,
-        final StringBuilder uploadTokenBuilder) throws IOException, CloudOperationException {
+    private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath,
+        final StringBuilder uploadTokenBuilder) throws IOException {
         detectApplicationFileDigestChanges(execution, app, filePath.toFile(), client);
         String uploadToken = client.asyncUploadApplication(app.getName(), filePath.toFile(),
             getMonitorUploadStatusCallback(app, filePath.toFile()));
@@ -143,13 +142,17 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
     }
 
     private void cleanUp(Path filePath) {
-        if (filePath == null || !Files.exists(filePath)) {
+        if (filePath == null) {
+            return;
+        }
+        File file = filePath.toFile();
+        if (!file.exists()) {
             return;
         }
 
         try {
             getStepLogger().debug(Messages.DELETING_TEMP_FILE, filePath);
-            FileUtils.forceDelete(filePath.toFile());
+            FileUtils.forceDelete(file);
         } catch (IOException e) {
             getStepLogger().warn(Messages.ERROR_DELETING_APP_TEMP_FILE, filePath.toAbsolutePath());
         }

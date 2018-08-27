@@ -98,9 +98,7 @@ public class ConfigurationEntriesUtil {
         }
 
         String[] orgAndSpace = targetSpace.split("\\s+");
-        CloudTarget cloudTarget = new CloudTarget(orgAndSpace[0], orgAndSpace[1]);
-
-        return cloudTarget;
+        return new CloudTarget(orgAndSpace[0], orgAndSpace[1]);
     }
 
     public static CloudTarget splitTargetSpaceValue(String value) {

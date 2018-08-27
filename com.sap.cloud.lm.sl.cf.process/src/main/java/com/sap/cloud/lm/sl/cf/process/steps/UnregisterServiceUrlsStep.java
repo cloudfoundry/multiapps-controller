@@ -53,7 +53,7 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
 
     private List<String> getServiceNames(List<ServiceUrl> serviceUrls) {
         return serviceUrls.stream()
-            .map(serviceUrl -> serviceUrl.getServiceName())
+            .map(ServiceUrl::getServiceName)
             .collect(Collectors.toList());
     }
 

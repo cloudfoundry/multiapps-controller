@@ -27,15 +27,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
+import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.cf.web.api.FilesApiService;
 import com.sap.cloud.lm.sl.cf.web.api.model.FileMetadata;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.util.Configuration;
-import com.sap.cloud.lm.sl.persistence.util.DefaultConfiguration;
 
 @RequestScoped
 @Component
@@ -54,7 +54,7 @@ public class FilesApiServiceImpl implements FilesApiService {
         try {
             List<FileEntry> entries = fileService.listFiles(spaceGuid, null);
             List<FileMetadata> files = entries.stream()
-                .map(entry -> parseFileEntry(entry))
+                .map(this::parseFileEntry)
                 .collect(Collectors.toList());
             return Response.ok()
                 .entity(files)
@@ -84,7 +84,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     }
 
     private List<FileEntry> uploadFiles(HttpServletRequest request, String spaceGuid)
-        throws FileUploadException, IOException, FileStorageException, SLException {
+        throws FileUploadException, IOException, FileStorageException {
         ServletFileUpload upload = getFileUploadServlet();
         long maxUploadSize = getConfiguration().getMaxUploadSize();
         upload.setSizeMax(maxUploadSize);

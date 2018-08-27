@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -19,8 +20,6 @@ import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMap
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component
 public class OperationsHelper {
@@ -39,8 +38,7 @@ public class OperationsHelper {
     public List<Operation> findOperations(OperationFilter operationFilter, List<State> statusList) {
         List<Operation> operations = dao.find(operationFilter);
         addOngoingOperationsState(operations);
-        List<Operation> result = filterBasedOnStates(operations, statusList);
-        return result;
+        return filterBasedOnStates(operations, statusList);
     }
 
     public String getProcessDefinitionKey(Operation operation) {
@@ -61,11 +59,11 @@ public class OperationsHelper {
         }
     }
 
-    public void addState(Operation ongoingOperation) throws SLException {
+    public void addState(Operation ongoingOperation) {
         ongoingOperation.setState(getOngoingOperationState(ongoingOperation));
     }
 
-    protected State getOngoingOperationState(Operation ongoingOperation) throws SLException {
+    protected State getOngoingOperationState(Operation ongoingOperation) {
         if (ongoingOperation.getState() != null) {
             return ongoingOperation.getState();
         }
@@ -79,14 +77,14 @@ public class OperationsHelper {
         return state;
     }
 
-    public State computeState(Operation ongoingOperation) throws SLException {
+    public State computeState(Operation ongoingOperation) {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
             ongoingOperation.getProcessId()));
         return activitiFacade.getOngoingOperationState(ongoingOperation);
     }
 
     private List<Operation> filterBasedOnStates(List<Operation> operations, List<State> statusList) {
-        if (CommonUtil.isNullOrEmpty(statusList)) {
+        if (CollectionUtils.isEmpty(statusList)) {
             return operations;
         }
         return operations.stream()

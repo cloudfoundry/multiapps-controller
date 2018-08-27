@@ -37,7 +37,7 @@ public class ServiceBrokersGetter extends CustomControllerClient {
 
     private List<CloudServiceBrokerExtended> toCloudServiceBrokers(List<Map<String, Object>> resources) {
         return resources.stream()
-            .map(resource -> toCloudServiceBroker(resource))
+            .map(this::toCloudServiceBroker)
             .collect(Collectors.toList());
     }
 

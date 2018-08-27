@@ -10,13 +10,13 @@ import org.activiti.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.message.Constants;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 public abstract class AbstractProcessExecutionListener implements ExecutionListener {
 
@@ -74,12 +74,9 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     protected void writeLogs(DelegateExecution context) throws IOException, FileStorageException {
-        getProcessLoggerProviderFactory().flush(context, getLogDir());
+        getProcessLoggerProviderFactory().flush(context);
     }
 
-    protected static String getLogDir() {
-        return ProcessLoggerProviderFactory.LOG_DIR;
-    }
 
     protected StepLogger getStepLogger() {
         if (stepLogger == null) {

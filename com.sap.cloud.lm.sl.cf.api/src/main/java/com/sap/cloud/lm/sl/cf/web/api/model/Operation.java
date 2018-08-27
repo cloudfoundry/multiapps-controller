@@ -30,7 +30,6 @@ public class Operation implements AuditableConfiguration {
     private String mtaId = null;
     private String user = null;
     private Boolean acquiredLock = null;
-    private Boolean cleanedUp = null;
     private State state = null;
     private List<Message> messages = new ArrayList<>();
     private Map<String, Object> parameters = new HashMap<>();
@@ -173,23 +172,6 @@ public class Operation implements AuditableConfiguration {
 
     /**
      **/
-    public Operation cleanedUp(Boolean cleanedUp) {
-        this.cleanedUp = cleanedUp;
-        return this;
-    }
-
-    @ApiModelProperty(value = "")
-    @JsonProperty("cleanedUp")
-    public Boolean isCleanedUp() {
-        return cleanedUp;
-    }
-
-    public void setCleanedUp(Boolean cleanedUp) {
-        this.cleanedUp = cleanedUp;
-    }
-
-    /**
-     **/
     public Operation state(State state) {
         this.state = state;
         return this;
@@ -251,15 +233,13 @@ public class Operation implements AuditableConfiguration {
         return Objects.equals(processId, operation.processId) && Objects.equals(processType, operation.processType)
             && Objects.equals(startedAt, operation.startedAt) && Objects.equals(endedAt, operation.endedAt)
             && Objects.equals(spaceId, operation.spaceId) && Objects.equals(mtaId, operation.mtaId) && Objects.equals(user, operation.user)
-            && Objects.equals(acquiredLock, operation.acquiredLock) && Objects.equals(cleanedUp, operation.cleanedUp)
-            && Objects.equals(state, operation.state) && Objects.equals(messages, operation.messages)
-            && Objects.equals(parameters, operation.parameters);
+            && Objects.equals(acquiredLock, operation.acquiredLock) && Objects.equals(state, operation.state)
+            && Objects.equals(messages, operation.messages) && Objects.equals(parameters, operation.parameters);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, cleanedUp, state, messages,
-            parameters);
+        return Objects.hash(processId, processType, startedAt, endedAt, spaceId, mtaId, user, acquiredLock, state, messages, parameters);
     }
 
     @Override
@@ -267,18 +247,39 @@ public class Operation implements AuditableConfiguration {
         StringBuilder sb = new StringBuilder();
         sb.append("class Operation {\n");
 
-        sb.append("    processId: ").append(toIndentedString(processId)).append("\n");
-        sb.append("    processType: ").append(toIndentedString(processType)).append("\n");
-        sb.append("    startedAt: ").append(toIndentedString(startedAt)).append("\n");
-        sb.append("    endedAt: ").append(toIndentedString(endedAt)).append("\n");
-        sb.append("    spaceId: ").append(toIndentedString(spaceId)).append("\n");
-        sb.append("    mtaId: ").append(toIndentedString(mtaId)).append("\n");
-        sb.append("    user: ").append(toIndentedString(user)).append("\n");
-        sb.append("    acquiredLock: ").append(toIndentedString(acquiredLock)).append("\n");
-        sb.append("    cleanedUp: ").append(toIndentedString(cleanedUp)).append("\n");
-        sb.append("    state: ").append(toIndentedString(state)).append("\n");
-        sb.append("    messages: ").append(toIndentedString(messages)).append("\n");
-        sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
+        sb.append("    processId: ")
+            .append(toIndentedString(processId))
+            .append("\n");
+        sb.append("    processType: ")
+            .append(toIndentedString(processType))
+            .append("\n");
+        sb.append("    startedAt: ")
+            .append(toIndentedString(startedAt))
+            .append("\n");
+        sb.append("    endedAt: ")
+            .append(toIndentedString(endedAt))
+            .append("\n");
+        sb.append("    spaceId: ")
+            .append(toIndentedString(spaceId))
+            .append("\n");
+        sb.append("    mtaId: ")
+            .append(toIndentedString(mtaId))
+            .append("\n");
+        sb.append("    user: ")
+            .append(toIndentedString(user))
+            .append("\n");
+        sb.append("    acquiredLock: ")
+            .append(toIndentedString(acquiredLock))
+            .append("\n");
+        sb.append("    state: ")
+            .append(toIndentedString(state))
+            .append("\n");
+        sb.append("    messages: ")
+            .append(toIndentedString(messages))
+            .append("\n");
+        sb.append("    parameters: ")
+            .append(toIndentedString(parameters))
+            .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -290,7 +291,8 @@ public class Operation implements AuditableConfiguration {
         if (o == null) {
             return "null";
         }
-        return o.toString().replace("\n", "\n    ");
+        return o.toString()
+            .replace("\n", "\n    ");
     }
 
     @Override

@@ -13,7 +13,7 @@
     <tx:annotation-driven transaction-manager="transactionManager" />
 
     <beans profile="defaultdb">
-        <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.persistence.dialects.DefaultDataSourceDialect" />
+        <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.cf.persistence.dialects.DefaultDataSourceDialect" />
 
         <bean id="openJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
             <property name="showSql" value="false" />
@@ -27,7 +27,7 @@
     </beans>
 
     <beans profile="hana">
-        <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.persistence.dialects.DefaultDataSourceDialect" />
+        <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.cf.persistence.dialects.DefaultDataSourceDialect" />
 
         <bean id="openJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
             <property name="showSql" value="false" />
@@ -46,7 +46,7 @@
     </beans>
 
     <beans profile="postgresql">
-        <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.persistence.dialects.PostgreSQLDataSourceDialect" />
+        <bean id="dataSourceDialect" class="com.sap.cloud.lm.sl.cf.persistence.dialects.PostgreSQLDataSourceDialect" />
 
         <bean id="openJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
             <property name="showSql" value="false" />
@@ -65,9 +65,9 @@
             </property>
         </bean>
 
-        <bean id="indexProcessIdsOfProgressMessagesChange" class="com.sap.cloud.lm.sl.persistence.changes.IndexProcessIdsOfProgressMessagesPostgreSQLChange" />
+        <bean id="indexProcessIdsOfProgressMessagesChange" class="com.sap.cloud.lm.sl.cf.persistence.changes.IndexProcessIdsOfProgressMessagesPostgreSQLChange" />
         
-        <bean id="indexSpaceOfLmSlPersistenceChange" class="com.sap.cloud.lm.sl.persistence.changes.IndexSpaceOfLmSlPersistenceFilePostgreSQLChange" />
+        <bean id="indexSpaceOfLmSlPersistenceChange" class="com.sap.cloud.lm.sl.cf.persistence.changes.IndexSpaceOfLmSlPersistenceFilePostgreSQLChange" />
         
         <bean id="indexSpaceIdOfOperationChange" class="com.sap.cloud.lm.sl.cf.core.changes.IndexSpaceIdOfOperationPostgreSQLChange" />
         
@@ -80,7 +80,7 @@
             <property name="configuration" ref="applicationConfiguration" />
         </bean>
 
-        <bean id="dataSourceWithDialect" class="com.sap.cloud.lm.sl.persistence.DataSourceWithDialect">
+        <bean id="dataSourceWithDialect" class="com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect">
             <constructor-arg name="dataSource" ref="dataSource" />
             <constructor-arg name="dataSourceDialect" ref="dataSourceDialect" />
         </bean>
@@ -115,7 +115,7 @@
         </bean>
 
         <bean id="persistenceChangelog" parent="liquibaseTemplate">
-            <property name="changeLog" value="classpath:/com/sap/cloud/lm/sl/persistence/db/changelog/db-changelog.xml" />
+            <property name="changeLog" value="classpath:/com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog.xml" />
         </bean>
 
         <bean id="coreChangelog" parent="liquibaseTemplate">

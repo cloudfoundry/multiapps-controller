@@ -13,10 +13,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
-import com.sap.cloud.lm.sl.persistence.services.AbstractFileService;
 
 @RunWith(Parameterized.class)
 public class EndProcessListenerTest {
@@ -94,7 +94,7 @@ public class EndProcessListenerTest {
     }
 
     private void prepareContext() {
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, archiveIds);
         context.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, extensionDescriptorIds);
         context.setVariable(Constants.PARAM_KEEP_FILES, keepFiles);

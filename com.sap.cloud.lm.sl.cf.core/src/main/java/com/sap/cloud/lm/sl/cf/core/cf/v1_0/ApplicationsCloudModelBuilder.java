@@ -30,7 +30,6 @@ import com.sap.cloud.lm.sl.cf.core.parser.TaskParametersParser;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.builders.v1_0.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
@@ -99,8 +98,7 @@ public class ApplicationsCloudModelBuilder {
             propertiesAccessor, deployId);
     }
 
-    public List<CloudApplicationExtended> build(Set<String> mtaModulesInArchive, Set<String> allMtaModules, Set<String> deployedModules)
-        throws SLException {
+    public List<CloudApplicationExtended> build(Set<String> mtaModulesInArchive, Set<String> allMtaModules, Set<String> deployedModules) {
         List<CloudApplicationExtended> apps = new ArrayList<>();
         SortedSet<String> unresolvedMtaModules = new TreeSet<>(allMtaModules);
         initializeModulesDependecyTypes(deploymentDescriptor);
@@ -147,7 +145,7 @@ public class ApplicationsCloudModelBuilder {
             .getOrDefault(SupportedParameters.DEPENDENCY_TYPE, DEPENDECY_TYPE_SOFT);
     }
 
-    protected CloudApplicationExtended getApplication(Module module) throws SLException {
+    protected CloudApplicationExtended getApplication(Module module) {
         DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
         List<Map<String, Object>> propertiesList = propertiesChainBuilder.buildModuleChain(module.getName());
         Staging staging = parseParameters(propertiesList, new StagingParametersParser());
@@ -194,7 +192,7 @@ public class ApplicationsCloudModelBuilder {
         return getApplicationServices(module, this::onlySharedServicesRule);
     }
 
-    protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) throws SLException {
+    protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) {
         List<String> services = new ArrayList<>();
         for (String dependencyName : module.getRequiredDependencies1_0()) {
             ResourceAndResourceType resourceAndResourceType = getApplicationService(dependencyName);

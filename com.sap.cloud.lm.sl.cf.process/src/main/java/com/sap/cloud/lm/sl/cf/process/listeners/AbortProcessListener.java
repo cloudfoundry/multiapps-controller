@@ -14,8 +14,8 @@ import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.impl.event.logger.handler.ProcessInstanceEndedEventHandler;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -25,6 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.adapters.ActivitiEventToDelegateExecutionAdapter;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
@@ -35,11 +36,8 @@ import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
-import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Runnable;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("abortProcessListener")
 public class AbortProcessListener implements ActivitiEventListener, Serializable {
@@ -111,14 +109,14 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         return event.getProcessInstanceId();
     }
 
-    protected void setOperationInAbortedState(String processInstanceId) throws NotFoundException {
+    protected void setOperationInAbortedState(String processInstanceId) {
         Operation operation = getOperationDao().findRequired(processInstanceId);
         operation.setState(State.ABORTED);
         operation.setEndedAt(ZonedDateTime.now());
         getOperationDao().merge(operation);
     }
 
-    protected void deleteAllocatedRoutes(HistoryService historyService, String processInstanceId) throws SLException {
+    protected void deleteAllocatedRoutes(HistoryService historyService, String processInstanceId) {
         HistoricVariableInstance allocatedPortsInstance = getHistoricVarInstanceValue(historyService, processInstanceId,
             Constants.VAR_ALLOCATED_PORTS);
         if (allocatedPortsInstance == null) {
@@ -141,7 +139,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         }
     }
 
-    protected CloudControllerClient getCloudFoundryClient(HistoryService historyService, String processInstanceId) throws SLException {
+    protected CloudControllerClient getCloudFoundryClient(HistoryService historyService, String processInstanceId) {
         String user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER).getValue();
         String organization = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_ORG).getValue();
         String space = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_SPACE).getValue();
@@ -159,7 +157,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
             Constants.PARAM_APP_ARCHIVE_ID);
 
         String spaceId = (String) getHistoricVarInstanceValue(historyService, processInstanceId,
-            com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
+            com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
         FileSweeper fileSweeper = new FileSweeper(spaceId, getBeanProvider().getFileService());
         fileSweeper.sweep(extensionDescriptorFileIds);

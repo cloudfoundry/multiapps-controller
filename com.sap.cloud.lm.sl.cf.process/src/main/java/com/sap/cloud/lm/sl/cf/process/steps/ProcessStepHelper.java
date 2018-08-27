@@ -11,15 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage;
-import com.sap.cloud.lm.sl.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.persistence.services.ProcessLoggerProviderFactory;
-import com.sap.cloud.lm.sl.persistence.services.ProgressMessageService;
 
 public class ProcessStepHelper {
 
@@ -47,7 +47,7 @@ public class ProcessStepHelper {
         processLoggerProviderFactory.removeAll();
         // Write the log messages:
         try {
-            processLoggerProviderFactory.append(context, ProcessLoggerProviderFactory.LOG_DIR);
+            processLoggerProviderFactory.append(context);
         } catch (IOException | FileStorageException e) {
             LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, e.getMessage()), e);
         }
@@ -55,7 +55,7 @@ public class ProcessStepHelper {
         context.setVariable(Constants.VAR_STEP_EXECUTION, state.toString());
     }
 
-    void preExecuteStep(DelegateExecution context, StepPhase initialPhase) throws SLException {
+    void preExecuteStep(DelegateExecution context, StepPhase initialPhase) {
         init(context, initialPhase);
 
         context.setVariable(Constants.TASK_ID, taskId);
@@ -101,7 +101,7 @@ public class ProcessStepHelper {
         return taskIndex;
     }
 
-    private int getLastTaskIndex(DelegateExecution context) throws SLException {
+    private int getLastTaskIndex(DelegateExecution context) {
         String taskId = context.getCurrentActivityId();
         String lastTaskExecutionId = progressMessageService.findLastTaskExecutionId(getCorrelationId(context), taskId);
         if (lastTaskExecutionId == null) {
@@ -169,7 +169,7 @@ public class ProcessStepHelper {
                 .getName());
     }
 
-    public void failStepIfProcessIsAborted(DelegateExecution context) throws SLException {
+    public void failStepIfProcessIsAborted(DelegateExecution context) {
         Boolean processAborted = (Boolean) context.getVariable(Constants.PROCESS_ABORTED);
         if (processAborted != null && processAborted) {
             throw new SLException(Messages.PROCESS_WAS_ABORTED);

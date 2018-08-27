@@ -13,19 +13,19 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileContentProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("processMtaExtensionDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().info(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
         List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(execution.getContext());
         try {
@@ -41,7 +41,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
         return StepPhase.DONE;
     }
 
-    private List<String> getExtensionDescriptors(String spaceId, List<String> fileIds) throws SLException {
+    private List<String> getExtensionDescriptors(String spaceId, List<String> fileIds) {
         try {
             final List<String> extensionDescriptorStrings = new ArrayList<>();
 

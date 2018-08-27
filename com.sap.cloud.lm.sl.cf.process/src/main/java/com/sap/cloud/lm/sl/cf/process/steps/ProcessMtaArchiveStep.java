@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
@@ -21,9 +24,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.parsers.v1_0.DeploymentDescriptorParser;
 import com.sap.cloud.lm.sl.mta.util.YamlUtil;
-import com.sap.cloud.lm.sl.persistence.processors.DefaultFileDownloadProcessor;
-import com.sap.cloud.lm.sl.persistence.processors.FileDownloadProcessor;
-import com.sap.cloud.lm.sl.persistence.services.FileStorageException;
 
 @Component("processMtaArchiveStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -38,7 +38,7 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
         operationDao);
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.PROCESSING_MTA_ARCHIVE);
 

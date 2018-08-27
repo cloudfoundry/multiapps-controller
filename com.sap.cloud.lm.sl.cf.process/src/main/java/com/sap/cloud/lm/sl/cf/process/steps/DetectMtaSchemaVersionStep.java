@@ -18,10 +18,10 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DetectMtaSchemaVersionStep extends SyncActivitiStep {
 
-    protected Supplier<MtaSchemaVersionDetector> detectorSupplier = () -> new MtaSchemaVersionDetector();
+    protected Supplier<MtaSchemaVersionDetector> detectorSupplier = MtaSchemaVersionDetector::new;
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().info(Messages.DETECTING_MTA_MAJOR_SCHEMA_VERSION);
         try {
             List<String> extensionDescriptorStrings = StepsUtil.getExtensionDescriptorStrings(execution.getContext());

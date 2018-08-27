@@ -16,7 +16,6 @@ import javax.net.ssl.SSLHandshakeException;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Repository;
@@ -58,7 +57,7 @@ public class GitRepoCloner {
         this.refName = refName;
     }
 
-    public void cloneRepo(final String gitUri, final Path repoDir) throws InvalidRemoteException, GitAPIException, IOException {
+    public void cloneRepo(final String gitUri, final Path repoDir) throws GitAPIException, IOException {
         if (Files.exists(repoDir)) {
             LOGGER.debug("Deleting left-over repo dir" + repoDir.toAbsolutePath()
                 .toString());
@@ -66,7 +65,7 @@ public class GitRepoCloner {
         }
 
         configureGitSslValidation();
-        if (shoudlUseToken(gitServiceUrlString, gitUri)) {
+        if (shouldUseToken(gitServiceUrlString, gitUri)) {
             cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, token));
         }
         if (refName != null && !refName.isEmpty()) {
@@ -91,7 +90,7 @@ public class GitRepoCloner {
         }
     }
 
-    private boolean shoudlUseToken(String gitServiceUrlString, String gitRepoUri) throws SLException {
+    private boolean shouldUseToken(String gitServiceUrlString, String gitRepoUri) {
         if (gitServiceUrlString == null || gitRepoUri == null) {
             return false;
         }
@@ -110,7 +109,7 @@ public class GitRepoCloner {
 
     }
 
-    protected void configureGitSslValidation() throws SLException, IOException {
+    protected void configureGitSslValidation() throws IOException {
         if (!skipSslValidation) {
             return;
         }

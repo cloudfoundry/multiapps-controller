@@ -6,7 +6,6 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
 
 public class HostValidator implements ParameterValidator {
@@ -16,7 +15,7 @@ public class HostValidator implements ParameterValidator {
     public static final int HOST_MAX_LENGTH = 63;
 
     @Override
-    public String attemptToCorrect(Object host) throws SLException {
+    public String attemptToCorrect(Object host) {
         if (!(host instanceof String)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_HOST, host);
         }
@@ -37,7 +36,8 @@ public class HostValidator implements ParameterValidator {
         if (!(host instanceof String)) {
             return false;
         }
-        return !CommonUtil.isEmpty(host) && NameUtil.isValidName((String) host, HOST_PATTERN);
+        String hostString = (String) host;
+        return !hostString.isEmpty() && NameUtil.isValidName(hostString, HOST_PATTERN);
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.resolvers.v2_0;
 import java.util.List;
 import java.util.Map;
 
-import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
@@ -20,7 +19,7 @@ public class PartialModulePropertiesReferenceResolver extends ModulePropertiesRe
     }
 
     @Override
-    protected Map<String, Object> resolve(Map<String, Object> parameters) throws ContentException {
+    protected Map<String, Object> resolve(Map<String, Object> parameters) {
         return new PartialPropertiesResolver(parameters, this, patternToMatch, prefix, dependenciesToIgnore).resolve();
     }
 

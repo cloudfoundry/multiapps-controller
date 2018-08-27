@@ -17,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
@@ -101,7 +100,7 @@ public class SystemParametersBuilder {
         this.timestampSupplier = timestampSupplier;
     }
 
-    public SystemParameters build(DeploymentDescriptor descriptor) throws SLException {
+    public SystemParameters build(DeploymentDescriptor descriptor) {
         Map<String, Map<String, Object>> moduleParameters = new HashMap<>();
         for (Module module : descriptor.getModules1_0()) {
             moduleParameters.put(module.getName(), getModuleParameters(module, descriptor.getId()));
@@ -136,7 +135,7 @@ public class SystemParametersBuilder {
         return systemParameters;
     }
 
-    private Map<String, Object> getModuleParameters(Module module, String mtaId) throws SLException {
+    private Map<String, Object> getModuleParameters(Module module, String mtaId) {
         Map<String, Object> moduleSystemParameters = new HashMap<>();
 
         Map<String, Object> moduleParameters = propertiesAccessor.getParameters(module);
@@ -229,7 +228,7 @@ public class SystemParametersBuilder {
         return uri;
     }
 
-    private Map<String, Object> getResourceParameters(Resource resource, String mtaId) throws SLException {
+    private Map<String, Object> getResourceParameters(Resource resource, String mtaId) {
         Map<String, Object> resourceSystemParameters = new HashMap<>();
 
         String serviceName = NameUtil.getServiceName(resource.getName(), mtaId, useNamespaces, useNamespacesForServices);
@@ -277,7 +276,7 @@ public class SystemParametersBuilder {
         return deployedMta == null ? null : deployedMta.findDeployedModule(moduleName);
     }
 
-    private String getDefaultHost(String moduleName) throws SLException {
+    private String getDefaultHost(String moduleName) {
         String host = (targetName + " " + moduleName).replaceAll("\\s", "-")
             .toLowerCase();
         if (!HOST_VALIDATOR.isValid(host)) {

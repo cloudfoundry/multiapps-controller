@@ -65,7 +65,7 @@ public class MtaConfigurationPurger {
 
     private Set<String> getNames(List<CloudApplication> apps) {
         return apps.stream()
-            .map(app -> app.getName())
+            .map(CloudApplication::getName)
             .collect(Collectors.toSet());
     }
 

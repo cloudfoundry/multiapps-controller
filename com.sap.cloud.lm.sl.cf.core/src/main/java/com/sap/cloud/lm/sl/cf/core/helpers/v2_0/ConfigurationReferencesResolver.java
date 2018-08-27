@@ -15,7 +15,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.expander.PropertiesExpander;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.PropertiesContainer;
 import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
@@ -32,12 +31,11 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     }
 
     @Override
-    protected void updateReferencesToResolvedResources(com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor descriptor)
-        throws ContentException {
+    protected void updateReferencesToResolvedResources(com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor descriptor) {
         updateReferencesToResolvedResources((DeploymentDescriptor) descriptor);
     }
 
-    protected void updateReferencesToResolvedResources(DeploymentDescriptor descriptor) throws ContentException {
+    protected void updateReferencesToResolvedResources(DeploymentDescriptor descriptor) {
         for (Module module : descriptor.getModules2_0()) {
             module.setRequiredDependencies2_0(getUpdatedRequiredDependencies(descriptor, module));
 
@@ -54,12 +52,11 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     protected List<String> getNames(List<RequiredDependency> dependencies) {
         return dependencies.stream()
-            .map(dependency -> dependency.getName())
+            .map(RequiredDependency::getName)
             .collect(Collectors.toList());
     }
 
-    protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Module module)
-        throws ContentException {
+    protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Module module) {
         List<RequiredDependency> requiredDependencies = new ArrayList<>();
         for (RequiredDependency dependency : module.getRequiredDependencies2_0()) {
             requiredDependencies.addAll(expandRequiredDependencyIfNecessary(descriptor, module, dependency));
@@ -79,7 +76,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     }
 
     protected List<RequiredDependency> expandRequiredDependencyIfNecessary(DeploymentDescriptor descriptor,
-        PropertiesContainer dependencyOwner, RequiredDependency dependency) throws ContentException {
+        PropertiesContainer dependencyOwner, RequiredDependency dependency) {
         ResolvedConfigurationReference resolvedReference = resolvedReferences.get(dependency.getName());
 
         if (!refersToResolvedResource(dependency)) {

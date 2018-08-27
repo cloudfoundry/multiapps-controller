@@ -12,6 +12,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,6 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.NamedQueries;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component
 public class ConfigurationSubscriptionDtoDao {
@@ -51,7 +51,7 @@ public class ConfigurationSubscriptionDtoDao {
                 .getResultList());
     }
 
-    public ConfigurationSubscriptionDto find(long id) throws NotFoundException {
+    public ConfigurationSubscriptionDto find(long id) {
         return new Executor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
             ConfigurationSubscriptionDto subscription = findInternal(id, manager);
             if (subscription == null) {
@@ -73,7 +73,7 @@ public class ConfigurationSubscriptionDtoDao {
         return query.getResultList();
     }
 
-    public ConfigurationSubscriptionDto add(ConfigurationSubscriptionDto subscription) throws ConflictException {
+    public ConfigurationSubscriptionDto add(ConfigurationSubscriptionDto subscription) {
         try {
             return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
                 manager.persist(subscription);
@@ -85,7 +85,7 @@ public class ConfigurationSubscriptionDtoDao {
         }
     }
 
-    public ConfigurationSubscriptionDto update(long id, ConfigurationSubscriptionDto delta) throws ConflictException, NotFoundException {
+    public ConfigurationSubscriptionDto update(long id, ConfigurationSubscriptionDto delta) {
         try {
             return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
                 ConfigurationSubscriptionDto existingSubscription = findInternal(id, manager);
@@ -103,7 +103,7 @@ public class ConfigurationSubscriptionDtoDao {
         }
     }
 
-    public ConfigurationSubscriptionDto remove(long id) throws NotFoundException {
+    public ConfigurationSubscriptionDto remove(long id) {
         return new TransactionalExecutor<ConfigurationSubscriptionDto>(createEntityManager()).execute(manager -> {
             ConfigurationSubscriptionDto subscription = findInternal(id, manager);
             if (subscription == null) {
@@ -155,13 +155,13 @@ public class ConfigurationSubscriptionDtoDao {
 
     private ConfigurationSubscriptionDto merge(ConfigurationSubscriptionDto existingSubscription, ConfigurationSubscriptionDto delta) {
         long id = existingSubscription.getId();
-        String mtaId = CommonUtil.merge(existingSubscription.getMtaId(), delta.getMtaId(), null);
-        String appName = CommonUtil.merge(existingSubscription.getAppName(), delta.getAppName(), null);
-        String spaceId = CommonUtil.merge(existingSubscription.getSpaceId(), delta.getSpaceId(), null);
-        String filter = CommonUtil.merge(existingSubscription.getFilter(), delta.getFilter(), null);
-        String moduleContent = CommonUtil.merge(existingSubscription.getModuleContent(), delta.getModuleContent(), null);
-        String resourceProperties = CommonUtil.merge(existingSubscription.getResourceProperties(), delta.getResourceProperties(), null);
-        String resourceName = CommonUtil.merge(existingSubscription.getResourceName(), delta.getResourceName(), null);
+        String mtaId = ObjectUtils.firstNonNull(delta.getMtaId(), existingSubscription.getMtaId());
+        String appName = ObjectUtils.firstNonNull(delta.getAppName(), existingSubscription.getAppName());
+        String spaceId = ObjectUtils.firstNonNull(delta.getSpaceId(), existingSubscription.getSpaceId());
+        String filter = ObjectUtils.firstNonNull(delta.getFilter(), existingSubscription.getFilter());
+        String moduleContent = ObjectUtils.firstNonNull(delta.getModuleContent(), existingSubscription.getModuleContent());
+        String resourceProperties = ObjectUtils.firstNonNull(delta.getResourceProperties(), existingSubscription.getResourceProperties());
+        String resourceName = ObjectUtils.firstNonNull(delta.getResourceName(), existingSubscription.getResourceName());
         return new ConfigurationSubscriptionDto(id, mtaId, spaceId, appName, filter, moduleContent, resourceName, resourceProperties);
     }
 

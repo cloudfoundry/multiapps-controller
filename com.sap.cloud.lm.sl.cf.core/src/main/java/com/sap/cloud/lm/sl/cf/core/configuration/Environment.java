@@ -3,9 +3,8 @@ package com.sap.cloud.lm.sl.cf.core.configuration;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component
 public class Environment {
@@ -90,7 +89,7 @@ public class Environment {
     }
 
     public boolean hasVariable(String name) {
-        return !CommonUtil.isNullOrEmpty(getString(name));
+        return !StringUtils.isEmpty(getString(name));
     }
 
 }

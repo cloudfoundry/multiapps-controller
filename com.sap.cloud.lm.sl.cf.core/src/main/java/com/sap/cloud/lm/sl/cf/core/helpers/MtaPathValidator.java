@@ -9,8 +9,7 @@ import com.sap.cloud.lm.sl.common.ContentException;
 
 public class MtaPathValidator {
 
-    public static void validatePath(String path) throws ContentException {
-
+    public static void validatePath(String path) {
         if (!path.equals(FilenameUtils.separatorsToUnix(path))) {
             throw new ContentException(Messages.PATH_MUST_NOT_CONTAIN_WINDOWS_SEPARATORS, path);
         }

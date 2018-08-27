@@ -12,7 +12,7 @@ public class VersionXmlAdapter extends XmlAdapter<String, Version> {
     }
 
     @Override
-    public Version unmarshal(String versionString) throws IllegalArgumentException {
+    public Version unmarshal(String versionString) {
         return Version.parseVersion(versionString);
     }
 

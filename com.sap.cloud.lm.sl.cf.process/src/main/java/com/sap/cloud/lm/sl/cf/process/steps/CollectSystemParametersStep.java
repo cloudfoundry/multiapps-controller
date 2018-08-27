@@ -49,15 +49,15 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
     @Inject
     private ApplicationConfiguration configuration;
 
-    protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = () -> new CredentialsGenerator();
+    protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()
         .getTime());
 
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         return executeStepInternal(execution, false);
     }
 
-    protected StepPhase executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoute) throws SLException {
+    protected StepPhase executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoute) {
         getStepLogger().info(Messages.COLLECTING_SYSTEM_PARAMETERS);
         PortAllocator portAllocator = null;
         try {
@@ -142,12 +142,11 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
 
         boolean areXsPlaceholdersSupported = configuration.areXsPlaceholdersSupported();
 
-        SystemParametersBuilder systemParametersBuilder = new SystemParametersBuilder(platformName, StepsUtil.getOrg(context),
+        return new SystemParametersBuilder(platformName, StepsUtil.getOrg(context),
             StepsUtil.getSpace(context), user, defaultDomainName, configuration.getPlatformType(), targetUrl, authorizationEndpoint,
             deployServiceUrl, routerPort, portBasedRouting, reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices,
             deployedMta, credentialsGeneratorSupplier.get(), majorSchemaVersion, areXsPlaceholdersSupported, xsPlaceholderResolver,
             timestampSupplier);
-        return systemParametersBuilder;
     }
 
     private Map<String, Object> buildXsPlaceholderReplacementValues(String defaultDomain, String authorizationEndpoint,

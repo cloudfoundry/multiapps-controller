@@ -30,7 +30,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
     protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws SLException {
+    protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().info(Messages.BUILDING_CLOUD_MODEL);
             DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
@@ -74,7 +74,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
 
             // Build a list of services for creation and save them in the context:
             List<CloudServiceExtended> servicesToCreate = allServices.stream()
-                .filter(service -> service.isManaged())
+                .filter(CloudServiceExtended::isManaged)
                 .collect(Collectors.toList());
             getStepLogger().debug(Messages.SERVICES_TO_CREATE, secureSerializer.toJson(servicesToCreate));
             StepsUtil.setServicesToCreate(execution.getContext(), servicesToCreate);
@@ -96,7 +96,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
     }
 
     protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getServiceKeysCloudModelBuilder(context, getStepLogger());
+        return StepsUtil.getServiceKeysCloudModelBuilder(context);
     }
 
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {

@@ -83,7 +83,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncActiviti
 
     private void prepareContext() {
         context.setVariable(Constants.VAR_SPACE, stepInput.space);
-        context.setVariable(com.sap.cloud.lm.sl.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, stepInput.spaceId);
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, stepInput.spaceId);
         context.setVariable(Constants.VAR_ORG, stepInput.org);
         context.setVariable(Constants.PARAM_MTA_ID, stepInput.mtaId);
         Mockito.when(context.getProcessInstanceId())

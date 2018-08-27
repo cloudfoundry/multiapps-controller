@@ -28,7 +28,6 @@ import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.security.AuthorizationChecker;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.common.SLException;
 
 @RequestScoped
 @Component
@@ -66,7 +65,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         return new DeployedComponentsDetector().detectAllDeployedComponents(applications);
     }
 
-    private CloudControllerClient getCloudFoundryClient(String spaceGuid) throws SLException {
+    private CloudControllerClient getCloudFoundryClient(String spaceGuid) {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         return clientProvider.getControllerClient(userInfo.getName(), spaceGuid);
     }

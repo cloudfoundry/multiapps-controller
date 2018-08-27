@@ -37,8 +37,7 @@ public class ProcessConflictPreventerTest {
                 .processType(ProcessType.DEPLOY)
                 .spaceId(testSpaceId)
                 .mtaId(testMtaId)
-                .acquiredLock(false)
-                .cleanedUp(false);
+                .acquiredLock(false);
             OperationFilter expectedFilter = new OperationFilter.Builder().mtaId(testMtaId)
                 .spaceId(testSpaceId)
                 .withAcquiredLock()
@@ -67,8 +66,7 @@ public class ProcessConflictPreventerTest {
         Operation operation = new Operation().processId(testProcessId)
             .processType(ProcessType.DEPLOY)
             .mtaId(testMtaId)
-            .acquiredLock(false)
-            .cleanedUp(false);
+            .acquiredLock(false);
         when(daoMock.findRequired(testProcessId)).thenReturn(operation);
         return daoMock;
     }
