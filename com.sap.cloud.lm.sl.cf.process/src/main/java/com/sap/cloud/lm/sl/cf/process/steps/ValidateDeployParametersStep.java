@@ -191,9 +191,10 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
 
     private FileEntry findFile(DelegateExecution context, String fileId) {
         try {
-            FileEntry fileEntry = fileService.getFile(StepsUtil.getSpaceId(context), fileId);
+            String space = StepsUtil.getSpaceId(context);
+            FileEntry fileEntry = fileService.getFile(space, fileId);
             if (fileEntry == null) {
-                throw new SLException(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0, fileId);
+                throw new SLException(Messages.ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1, fileId, space);
             }
             return fileEntry;
         } catch (FileStorageException e) {

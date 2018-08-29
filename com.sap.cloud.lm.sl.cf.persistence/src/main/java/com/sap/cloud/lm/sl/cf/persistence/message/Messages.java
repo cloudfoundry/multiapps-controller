@@ -41,6 +41,8 @@ public final class Messages {
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
 
     // INFO log messages:
+    public static final String STORING_FILE_TO_PATH = "Storing file to path \"{0}\"...";
+    public static final String STORED_FILE = "Stored file \"{0}\": {1}";
     public static final String SCANNING_FILE = "Scanning file \"{0}\"...";
     public static final String SCANNING_FILE_SUCCESS = "File \"{0}\" is not infected";
     public static final String FAILED_TO_DELETE_FILE = "Failed to delete file {0}";
