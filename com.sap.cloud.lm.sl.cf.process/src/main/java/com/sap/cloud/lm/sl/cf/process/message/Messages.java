@@ -27,7 +27,7 @@ public class Messages {
     public static final String TARGETED_SPACE_DOES_NOT_MATCH_URL_SPACE = "Deploy target space \"{0}\" does not match the space \"{1}\" specified in the URL";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
     public static final String ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2 = "The value \"{0}\" of parameter \"{1}\" is not valid, valid values are: {2}";
-    public static final String ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0 = "There is no file associated with the specified file id \"{0}\"";
+    public static final String ERROR_NO_FILE_ASSOCIATED_WITH_THE_SPECIFIED_FILE_ID_0_IN_SPACE_1 = "There is no file associated with the specified file id \"{0}\" in space \"{1}\"";
     public static final String UNKNOWN_SERVICE_ID = "Unknown service id \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_NAME = "Missing service broker name for application \"{0}\"";
     public static final String MISSING_SERVICE_BROKER_USERNAME = "Missing service broker username for application \"{0}\"";

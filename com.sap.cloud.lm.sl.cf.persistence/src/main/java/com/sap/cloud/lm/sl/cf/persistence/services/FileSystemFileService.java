@@ -55,9 +55,12 @@ public class FileSystemFileService extends AbstractFileService {
         try {
             Path filesDirectory = getFilesDirectory(fileEntry.getSpace());
             Path newFilePath = Paths.get(filesDirectory.toString(), fileEntry.getId());
+            LOGGER.info(MessageFormat.format(Messages.STORING_FILE_TO_PATH, newFilePath));
             Files.copy(inputStream, newFilePath, StandardCopyOption.REPLACE_EXISTING);
-            return newFilePath.toFile()
+            boolean stored = newFilePath.toFile()
                 .exists();// squid:S3725 - java 8 Files.exists() has poor performance
+            LOGGER.info(MessageFormat.format(Messages.STORED_FILE, newFilePath, stored));
+            return stored;
         } catch (IOException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
