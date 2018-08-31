@@ -2,12 +2,14 @@ package com.sap.cloud.lm.sl.cf.persistence.services;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,16 +133,32 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     }
 
     public void appendLog(String space, String namespace, String logName, String logDir) throws IOException, FileStorageException {
-        File logFile = getFile(namespace, logName, logDir);
-        // we have no concerns of DOS attack, the files are coming from our system
-
-        InputStream in = null;
         try {
-            in = new FileInputStream(logFile);
-            appendLog(space, namespace, logName, in);
-        } finally {
-            IOUtils.closeQuietly(in);
+            getSqlExecutor().executeInSingleTransaction(new StatementExecutor<Void>() {
+                @Override
+                public Void execute(Connection connection) throws SQLException {
+                    File logFile = getFile(namespace, logName, logDir);
+                    // we have no concerns of DOS attack, the files are coming from our system
+
+                    InputStream in = null;
+                    try {
+                        in = new FileInputStream(logFile);
+                        appendLog(space, namespace, logName, in);
+                    } catch (FileNotFoundException e) {
+                        throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, getFileName(namespace, logName)));
+                    } catch (FileStorageException e) {
+                        throw new SQLException(e);
+                    } finally {
+                        IOUtils.closeQuietly(in);
+                    }
+                    return null;
+                }
+
+            });
+        } catch (SQLException e) {
+            throw new FileStorageException(e.getMessage(), e);
         }
+        
     }
 
     private void appendLog(final String space, final String namespace, final String logName, final InputStream in)
