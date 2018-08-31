@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet author="sap" id="update_trigger_for_lm_sl_persistance_file_process_log_cf">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql" />
+        </preConditions>
+        <sql>
+            CREATE OR REPLACE FUNCTION delete_from_system_table_function() RETURNS trigger AS $$
+            BEGIN
+              PERFORM lo_unlink(OLD.content); return NULL;
+            EXCEPTION
+              WHEN undefined_object THEN RAISE NOTICE 'Referenced large object could not be deleted - it does not exist' ; return NULL;
+            END;
+            $$ LANGUAGE 'plpgsql' STABLE;
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>
