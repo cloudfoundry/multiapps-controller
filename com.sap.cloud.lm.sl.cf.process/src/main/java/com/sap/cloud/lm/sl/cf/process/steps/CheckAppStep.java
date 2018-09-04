@@ -21,7 +21,7 @@ public class CheckAppStep extends SyncActivitiStep {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
 
         try {
-            getStepLogger().info(Messages.CHECKING_APP, app.getName());
+            getStepLogger().debug(Messages.CHECKING_APP, app.getName());
 
             CloudControllerClient client = execution.getControllerClient();
 
@@ -30,9 +30,9 @@ public class CheckAppStep extends SyncActivitiStep {
             StepsUtil.setExistingApp(execution.getContext(), existingApp);
 
             if (existingApp == null) {
-                getStepLogger().info(Messages.APP_DOES_NOT_EXIST, app.getName());
+                getStepLogger().debug(Messages.APP_DOES_NOT_EXIST, app.getName());
             } else {
-                getStepLogger().info(Messages.APP_EXISTS, app.getName());
+                getStepLogger().debug(Messages.APP_EXISTS, app.getName());
             }
 
             return StepPhase.DONE;

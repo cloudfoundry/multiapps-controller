@@ -30,7 +30,7 @@ public class DeleteServicesStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.DELETING_SERVICES);
+            getStepLogger().debug(Messages.DELETING_SERVICES);
 
             CloudControllerClient client = execution.getControllerClient();
 

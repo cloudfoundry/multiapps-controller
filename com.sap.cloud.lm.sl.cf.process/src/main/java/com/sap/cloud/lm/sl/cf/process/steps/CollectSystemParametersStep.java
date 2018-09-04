@@ -58,7 +58,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
     }
 
     protected StepPhase executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoute) {
-        getStepLogger().info(Messages.COLLECTING_SYSTEM_PARAMETERS);
+        getStepLogger().debug(Messages.COLLECTING_SYSTEM_PARAMETERS);
         PortAllocator portAllocator = null;
         try {
 
@@ -174,7 +174,7 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         getStepLogger().debug(Messages.VERSION_RULE, versionRule);
 
         Version mtaVersion = Version.parseVersion(descriptor.getVersion());
-        getStepLogger().info(Messages.NEW_MTA_VERSION, mtaVersion);
+        getStepLogger().info(Messages.DETECTED_NEW_MTA_VERSION, mtaVersion);
         DeploymentType deploymentType = getDeploymentType(deployedMta, mtaVersion);
         if (versionRule.allows(deploymentType)) {
             getStepLogger().debug(Messages.MTA_VERSION_ACCEPTED);
