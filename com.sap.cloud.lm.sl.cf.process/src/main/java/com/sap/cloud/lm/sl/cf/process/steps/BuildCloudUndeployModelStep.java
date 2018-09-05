@@ -33,7 +33,7 @@ public class BuildCloudUndeployModelStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().info(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
+        getStepLogger().debug(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
         try {
             DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
             if (deployedMta == null) {

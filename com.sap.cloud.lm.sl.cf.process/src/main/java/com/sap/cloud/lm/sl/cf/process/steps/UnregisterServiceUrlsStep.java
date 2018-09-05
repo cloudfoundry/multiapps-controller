@@ -26,7 +26,7 @@ public class UnregisterServiceUrlsStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.UNREGISTERING_SERVICE_URLS);
+            getStepLogger().debug(Messages.UNREGISTERING_SERVICE_URLS);
 
             XsCloudControllerClient xsClient = execution.getXsControllerClient();
             if (xsClient == null) {

@@ -177,17 +177,17 @@ public class UploadAppStep extends TimeoutAsyncActivitiStep {
 
         @Override
         public void onMatchedFileNames(Set<String> matchedFileNames) {
-            getStepLogger().info("Matched files count: {0}", matchedFileNames.size());
+            getStepLogger().debug(Messages.MATCHED_FILES_COUNT_0, matchedFileNames.size());
         }
 
         @Override
         public void onProcessMatchedResources(int length) {
-            getStepLogger().info("Matched resources processed, total size is {0}", length);
+            getStepLogger().debug(Messages.MATCHED_RESROUCES_PROCESSED_TOTAL_SIZE_0, length);
         }
 
         @Override
         public boolean onProgress(String status) {
-            getStepLogger().info(Messages.UPLOAD_STATUS_0, status);
+            getStepLogger().debug(Messages.UPLOAD_STATUS_0, status);
             if (status.equals(FINISHED_STATUS)) {
                 cleanUp(file.toPath());
             }

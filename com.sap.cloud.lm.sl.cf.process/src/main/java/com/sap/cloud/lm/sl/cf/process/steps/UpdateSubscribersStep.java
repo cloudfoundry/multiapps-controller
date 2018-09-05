@@ -5,6 +5,7 @@ import static com.sap.cloud.lm.sl.common.util.JsonUtil.convertJsonToMap;
 import static com.sap.cloud.lm.sl.common.util.JsonUtil.toJson;
 import static com.sap.cloud.lm.sl.common.util.ListUtil.merge;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -106,7 +107,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.UPDATING_SUBSCRIBERS);
+            getStepLogger().debug(Messages.UPDATING_SUBSCRIBERS);
             List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(),
                 activitiFacade);
             List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(execution.getContext(), activitiFacade);

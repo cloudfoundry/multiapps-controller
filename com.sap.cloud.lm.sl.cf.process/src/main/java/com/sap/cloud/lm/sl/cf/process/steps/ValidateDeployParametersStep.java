@@ -40,7 +40,7 @@ public class ValidateDeployParametersStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.VALIDATING_PARAMETERS);
+            getStepLogger().debug(Messages.VALIDATING_PARAMETERS);
 
             validateParameters(execution.getContext());
 

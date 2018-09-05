@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().info(Messages.DELETING_PUBLISHED_DEPENDENCIES);
+        getStepLogger().debug(Messages.DELETING_PUBLISHED_DEPENDENCIES);
         String mtaId = (String) execution.getContext()
             .getVariable(Constants.PARAM_MTA_ID);
         String org = StepsUtil.getOrg(execution.getContext());
@@ -46,6 +47,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, newTarget, oldTarget, publishedConfigurationEntries);
         for (ConfigurationEntry entry : entriesToDelete) {
             try {
+                getStepLogger().info(MessageFormat.format(Messages.DELETING_DISCONTINUED_DEPENDENCY_0, entry.getProviderId()));
                 configurationEntryDao.remove(entry.getId());
             } catch (NotFoundException e) {
                 getStepLogger().warn(Messages.COULD_NOT_DELETE_PROVIDED_DEPENDENCY, entry.getProviderId());

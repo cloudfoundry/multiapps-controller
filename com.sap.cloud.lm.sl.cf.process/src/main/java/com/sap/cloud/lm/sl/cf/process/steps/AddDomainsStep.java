@@ -29,7 +29,7 @@ public class AddDomainsStep extends SyncActivitiStep {
                 return StepPhase.DONE;
             }
 
-            getStepLogger().info(Messages.ADDING_DOMAINS);
+            getStepLogger().debug(Messages.ADDING_DOMAINS);
 
             List<CloudDomain> existingDomains = client.getDomains();
             List<String> existingDomainNames = getDomainNames(existingDomains);

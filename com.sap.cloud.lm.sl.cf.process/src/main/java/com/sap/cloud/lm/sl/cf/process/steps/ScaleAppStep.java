@@ -22,7 +22,7 @@ public class ScaleAppStep extends SyncActivitiStep {
         CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
 
         try {
-            getStepLogger().info(Messages.SCALING_APP, app.getName());
+            getStepLogger().debug(Messages.SCALING_APP, app.getName());
 
             CloudControllerClient client = execution.getControllerClient();
 
@@ -30,7 +30,7 @@ public class ScaleAppStep extends SyncActivitiStep {
             Integer instances = (app.getInstances() != 0) ? app.getInstances() : null;
 
             if (instances != null && (existingApp == null || !instances.equals(existingApp.getInstances()))) {
-                getStepLogger().debug("Updating instances of application \"{0}\"", appName);
+                getStepLogger().info(Messages.SCALING_APP_0_TO_X_INSTANCES, appName, instances);
                 client.updateApplicationInstances(appName, instances);
             }
 

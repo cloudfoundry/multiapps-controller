@@ -26,7 +26,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().info(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
+        getStepLogger().debug(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
         List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(execution.getContext());
         try {
             String spaceId = StepsUtil.getSpaceId(execution.getContext());

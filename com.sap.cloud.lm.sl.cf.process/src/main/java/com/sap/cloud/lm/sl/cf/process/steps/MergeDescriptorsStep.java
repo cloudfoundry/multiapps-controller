@@ -24,7 +24,7 @@ public class MergeDescriptorsStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().info(Messages.MERGING_DESCRIPTORS);
+        getStepLogger().debug(Messages.MERGING_DESCRIPTORS);
         try {
             String deploymentDescriptorString = StepsUtil.getDeploymentDescriptorString(execution.getContext());
             List<String> extensionDescriptorStrings = StepsUtil.getExtensionDescriptorStrings(execution.getContext());

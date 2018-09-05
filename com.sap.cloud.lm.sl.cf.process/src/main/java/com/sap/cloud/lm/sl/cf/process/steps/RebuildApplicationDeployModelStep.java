@@ -32,7 +32,7 @@ public class RebuildApplicationDeployModelStep extends SyncActivitiStep {
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         try {
             CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
-            getStepLogger().info(Messages.BUILDING_CLOUD_APP_MODEL, app.getName());
+            getStepLogger().debug(Messages.BUILDING_CLOUD_APP_MODEL, app.getName());
 
             DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
             List<DeployedMtaModule> deployedModules = (deployedMta != null) ? deployedMta.getModules() : Collections.emptyList();

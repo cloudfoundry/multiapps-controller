@@ -29,7 +29,7 @@ public class DeleteServiceBrokersStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.DELETING_SERVICE_BROKERS);
+            getStepLogger().debug(Messages.DELETING_SERVICE_BROKERS);
 
             List<CloudApplication> appsToUndeploy = StepsUtil.getAppsToUndeploy(execution.getContext());
             CloudControllerClient client = execution.getControllerClient();

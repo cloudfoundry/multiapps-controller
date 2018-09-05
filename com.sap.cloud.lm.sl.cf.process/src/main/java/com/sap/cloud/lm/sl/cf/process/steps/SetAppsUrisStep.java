@@ -12,7 +12,7 @@ public abstract class SetAppsUrisStep extends SyncActivitiStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
-        getStepLogger().info(getStartProgressMessage());
+        getStepLogger().debug(getStartProgressMessage());
 
         List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(execution.getContext());
         for (CloudApplicationExtended app : apps) {

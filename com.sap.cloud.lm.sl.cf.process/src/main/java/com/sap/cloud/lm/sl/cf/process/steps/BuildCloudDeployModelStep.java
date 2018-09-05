@@ -32,7 +32,7 @@ public class BuildCloudDeployModelStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.BUILDING_CLOUD_MODEL);
+            getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
             DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
 
             // Get module sets:
