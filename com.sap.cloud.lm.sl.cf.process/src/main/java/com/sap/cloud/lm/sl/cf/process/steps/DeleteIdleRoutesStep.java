@@ -30,7 +30,7 @@ public class DeleteIdleRoutesStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.DELETING_IDLE_URIS);
+            getStepLogger().debug(Messages.DELETING_IDLE_URIS);
             CloudControllerClient client = execution.getControllerClient();
             boolean portBasedRouting = (boolean) execution.getContext()
                 .getVariable(Constants.VAR_PORT_BASED_ROUTING);

@@ -91,7 +91,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
             int crashedInstances = getInstanceCount(instances, InstanceState.CRASHED);
             int startingInstances = getInstanceCount(instances, InstanceState.STARTING);
 
-            showInstancesStatus(execution, instances, runningInstances, expectedInstances);
+            showInstancesStatus(execution, appName, instances, runningInstances, expectedInstances);
 
             if (runningInstances == expectedInstances) {
                 return StartupStatus.STARTED;
@@ -141,7 +141,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         return null;
     }
 
-    private void showInstancesStatus(ExecutionWrapper execution, List<InstanceInfo> instances, int runningInstances,
+    private void showInstancesStatus(ExecutionWrapper execution, String appName, List<InstanceInfo> instances, int runningInstances,
         int expectedInstances) {
 
         // Determine state counts
@@ -165,9 +165,9 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         }
 
         // Print message
-        String message = format(Messages.X_OF_Y_INSTANCES_RUNNING, runningInstances, expectedInstances, String.join(",", stateStrings));
+        String message = format(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances, String.join(",", stateStrings));
         execution.getStepLogger()
-            .info(message);
+            .debug(message);
     }
 
     private static List<InstanceInfo> getApplicationInstances(CloudControllerClient client, CloudApplication app) {

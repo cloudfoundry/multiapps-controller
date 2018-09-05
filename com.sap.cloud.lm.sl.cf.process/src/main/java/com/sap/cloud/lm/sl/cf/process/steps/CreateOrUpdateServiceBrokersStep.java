@@ -46,7 +46,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.CREATING_SERVICE_BROKERS);
+            getStepLogger().debug(Messages.CREATING_SERVICE_BROKERS);
 
             CloudControllerClient client = execution.getControllerClient();
             List<CloudServiceBrokerExtended> existingServiceBrokers = serviceBrokersGetter.getServiceBrokers(client);

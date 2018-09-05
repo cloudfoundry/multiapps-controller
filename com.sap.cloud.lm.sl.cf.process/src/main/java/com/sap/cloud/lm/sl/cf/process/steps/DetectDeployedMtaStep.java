@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.function.Function;
 
@@ -32,7 +33,7 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.DETECTING_DEPLOYED_MTA);
+            getStepLogger().debug(Messages.DETECTING_DEPLOYED_MTA);
 
             CloudControllerClient client = execution.getControllerClient();
 
@@ -47,7 +48,7 @@ public class DetectDeployedMtaStep extends SyncActivitiStep {
                 getStepLogger().info(Messages.NO_DEPLOYED_MTA_DETECTED);
             } else {
                 getStepLogger().debug(Messages.DEPLOYED_MTA, JsonUtil.toJson(deployedMta, true));
-                getStepLogger().info(Messages.DEPLOYED_MTA_DETECTED);
+                getStepLogger().info(MessageFormat.format(Messages.DEPLOYED_MTA_DETECTED_WITH_VERSION, deployedMta.getMetadata().getId(), deployedMta.getMetadata().getVersion()));
             }
             StepsUtil.setDeployedMta(execution.getContext(), deployedMta);
             getStepLogger().debug(Messages.DEPLOYED_APPS, secureSerializer.toJson(deployedApps));

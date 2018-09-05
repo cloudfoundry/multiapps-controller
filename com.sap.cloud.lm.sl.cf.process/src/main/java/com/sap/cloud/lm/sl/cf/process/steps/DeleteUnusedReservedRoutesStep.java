@@ -26,7 +26,7 @@ public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.DELETING_UNUSED_RESERVED_ROUTES);
+            getStepLogger().debug(Messages.DELETING_UNUSED_RESERVED_ROUTES);
             boolean portBasedRouting = StepsUtil.getVariableOrDefault(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
 
             List<CloudApplicationExtended> apps = StepsUtil.getAppsToDeploy(execution.getContext());

@@ -66,7 +66,7 @@ public class CreateAppStep extends SyncActivitiStep {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {
-            getStepLogger().info(Messages.CREATING_APP, app.getName());
+            getStepLogger().info(Messages.CREATING_APP_FROM_MODULE, app.getName(), app.getModuleName());
 
             CloudControllerClient client = execution.getControllerClient();
 

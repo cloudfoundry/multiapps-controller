@@ -178,7 +178,7 @@ public class PollServiceOperationsExecution implements AsyncExecution {
     private void reportIndividualServiceState(ExecutionWrapper execution, CloudServiceExtended service, ServiceOperation lastOperation) {
         if (lastOperation.getState() == ServiceOperationState.SUCCEEDED) {
             execution.getStepLogger()
-                .info(getSuccessMessage(service, lastOperation.getType()));
+                .debug(getSuccessMessage(service, lastOperation.getType()));
             return;
         }
 
