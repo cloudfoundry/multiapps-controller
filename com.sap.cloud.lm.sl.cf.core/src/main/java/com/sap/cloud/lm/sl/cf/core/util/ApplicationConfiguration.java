@@ -93,6 +93,7 @@ public class ApplicationConfiguration {
     static final String CFG_AUDIT_LOG_CLIENT_MAX_THREADS = "AUDIT_LOG_CLIENT_MAX_THREADS";
     static final String CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = "AUDIT_LOG_CLIENT_QUEUE_CAPACITY";
     static final String CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE = "AUDIT_LOG_CLIENT_KEEP_ALIVE";
+    static final String CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = "FSS_CACHE_UPDATE_TIMEOUT_MINUTES";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -140,6 +141,7 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS = 8;
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = 8;
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE = 60;
+    public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
 
     // Type names
     private static final Map<String, PlatformType> TYPE_NAMES = createTypeNames();
@@ -191,6 +193,7 @@ public class ApplicationConfiguration {
     private Integer auditLogClientMaxThreads;
     private Integer auditLogClientQueueCapacity;
     private Integer auditLogClientKeepAlive;
+    private Integer fssCacheUpdateTimeoutMinutes;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -237,6 +240,7 @@ public class ApplicationConfiguration {
         getAuditLogClientMaxThreads();
         getAuditLogClientQueueCapacity();
         getAuditLogClientKeepAlive();
+        getFssCacheUpdateTimeoutMinutes();
     }
 
     protected AuditLoggingFacade getAuditLoggingFacade() {
@@ -558,6 +562,13 @@ public class ApplicationConfiguration {
             auditLogClientKeepAlive = getAuditLogClientKeepAliveFromEnvironment();
         }
         return auditLogClientKeepAlive;
+    }
+
+    public Integer getFssCacheUpdateTimeoutMinutes() {
+        if (fssCacheUpdateTimeoutMinutes == null) {
+            fssCacheUpdateTimeoutMinutes = getFssCacheUpdateTimeoutMinutesFromEnvironment();
+        }
+        return fssCacheUpdateTimeoutMinutes;
     }
 
     private PlatformType getPlatformTypeFromEnvironment() {
@@ -939,6 +950,12 @@ public class ApplicationConfiguration {
         }
         LOGGER.info(format(Messages.ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT, name, defaultValue));
         return defaultValue;
+    }
+
+    private Integer getFssCacheUpdateTimeoutMinutesFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES, DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES);
+        LOGGER.info(format(Messages.FSS_CACHE_UPDATE_TIMEOUT, value));
+        return value;
     }
 
     private static URL url(String s) {

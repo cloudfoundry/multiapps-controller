@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.monitoring;
 
+import java.nio.file.Paths;
+
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -7,21 +9,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.persistence.services.FileSystemFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileService;
 
 @Component
 public class Metrics implements MetricsMBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Metrics.class);
 
-
     private ApplicationConfiguration appConfigurations;
 
     private FileSystemFileService fileSystemService;
 
+    private FssMonitor fssMonitor;
+
     @Inject
-    public Metrics(ApplicationConfiguration appConfigurations, FileSystemFileService fss) {
+    public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor, FileSystemFileService fss) {
         this.appConfigurations = appConfigurations;
+        this.fssMonitor = fssMonitor;
         this.fileSystemService = fss;
         if (fss == null) {
             LOGGER.info("No metrics for file system service will be collected - no such service found.");
@@ -46,11 +50,15 @@ public class Metrics implements MetricsMBean {
             LOGGER.debug("Not collecting metrics for FSS on path: {}", getFssStoragePath());
             return 0d;
         }
-        return FssMonitor.instance.calculateUsedSpace(fileSystemService.getStoragePath());
+        return fssMonitor.calculateUsedSpace(fileSystemService.getStoragePath());
     }
 
     @Override
     public double getUsedContainerSpace() {
-        return FssMonitor.instance.calculateUsedSpace(".");
+        String workDir = System.getProperty("user.dir");
+        String parentDir = Paths.get(workDir)
+            .getParent()
+            .toString();
+        return fssMonitor.calculateUsedSpace(parentDir);
     }
 }

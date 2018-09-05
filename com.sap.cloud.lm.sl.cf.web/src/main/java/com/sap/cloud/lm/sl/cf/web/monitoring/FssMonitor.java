@@ -6,30 +6,38 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalTime;
 import java.util.Hashtable;
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
+import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+
+@Component
 public class FssMonitor {
     private static final String KILOBYTE_UNIT = "K";
     private static final String MEGABYTE_UNIT = "M";
     private static final String GIGABYTE_UNIT = "G";
-    private static Map<String, Double> usedSpace = new Hashtable<>(1);
-    private static Map<String, LocalTime> updateTimes = new Hashtable<>(1);
-    private static final int UPDATE_TIMEOUT_MINUTES = 30;
+    private static final String OUTPUT_DELIMITER = "[^0-9.,$s]";
     private static final long DETECTION_TIMEOUT_SECONDS = 30l;
-    private static final String OUTPUT_DELIMITER = "\\D";
     private static final Logger LOGGER = LoggerFactory.getLogger(FssMonitor.class);
 
-    private FssMonitor() {
+    Map<String, Double> usedSpace = new Hashtable<>(1);
+    Map<String, LocalTime> updateTimes = new Hashtable<>(1);
 
+    private Integer updateTimeoutMinutes;
+
+    @Inject
+    public FssMonitor(ApplicationConfiguration appConfigurations) {
+        this.updateTimeoutMinutes = appConfigurations.getFssCacheUpdateTimeoutMinutes();
     }
-
-    public static final FssMonitor instance = new FssMonitor();
 
     public double calculateUsedSpace(String path) {
         if (!updateTimes.containsKey(path)) {
@@ -41,17 +49,18 @@ public class FssMonitor {
         return getUsedSpace(path);
     }
 
-    private boolean isCacheValid(String path) {
+    // using package-private modifier for testing
+    boolean isCacheValid(String path) {
         LocalTime lastChecked = updateTimes.get(path);
         LocalTime invalidateDeadline = LocalTime.now()
-            .minusMinutes(UPDATE_TIMEOUT_MINUTES);
-        return invalidateDeadline.isAfter(lastChecked);
+            .minusMinutes(updateTimeoutMinutes);
+        return invalidateDeadline.isBefore(lastChecked);
     }
 
     private double getUsedSpace(String path) {
         String command = MessageFormatter.format("du -sh -- {}", path)
             .getMessage();
-        ProcessBuilder builder = new ProcessBuilder(command);
+        ProcessBuilder builder = new ProcessBuilder("sh", "-c", command);
         builder.redirectErrorStream(true);
         try {
             Process process = builder.start();
@@ -60,25 +69,26 @@ public class FssMonitor {
                 throw new IOException("Free space detection process failed to finish on time");// misuse?
             }
             if (process.exitValue() != 0) {
-                throw new IOException("Free space detection command {1} failed with exit code: {2}");// misuse?
+                throw new IOException(
+                    String.format("Free space detection command {%s} failed with exit code: {%d}", command, process.exitValue()));
             }
-            return parseProcessOutput(process.getInputStream());
+            double parsedUsedSpace = parseProcessOutput(process.getInputStream());
+            updateTimes.put(path, LocalTime.now());
+            usedSpace.put(path, parsedUsedSpace);
+            return parsedUsedSpace;
         } catch (IOException | InterruptedException e) {
             Thread.currentThread()
                 .interrupt();
             LOGGER.warn("Cannot detect remaining space on file system service.", e);
-            return Double.MAX_VALUE;// TODO what would a runtime exception result in here?
+            return 0d;
         }
     }
 
-    // TODO - unit test this
-    //@formatter:off
-    //parses e.g. '625M    /vcap/data/some/path/here/'
-    //parses e.g. '2.5G    /vcap/data/some/path/here/'
-    //@formatter:on
-    private double parseProcessOutput(InputStream inputStream) throws IOException {
+    // using package-private modifier for testing
+    double parseProcessOutput(InputStream inputStream) throws IOException {
+        String resultLine = "";
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            String resultLine = reader.readLine();
+            resultLine = reader.readLine();
             @SuppressWarnings("resource") // no need to close the scanner of a string
             Scanner scanner = new Scanner(resultLine);
             scanner.useDelimiter(OUTPUT_DELIMITER); // non-digit to parse the leading digits
@@ -95,7 +105,8 @@ public class FssMonitor {
                 default:
                     return value;
             }
-        } catch (IOException e) {
+        } catch (IOException | InputMismatchException e) {
+            LOGGER.debug("Log process output: {}", resultLine);
             throw new IOException("Failed to parse space detection process output:", e);
         }
     }

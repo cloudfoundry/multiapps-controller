@@ -196,4 +196,8 @@ public class FileSystemFileService extends AbstractFileService {
         }
     }
 
+    public String getStoragePath() {
+        return storagePath;
+    }
+
 }

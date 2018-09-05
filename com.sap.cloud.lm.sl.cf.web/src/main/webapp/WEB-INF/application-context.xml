@@ -51,7 +51,7 @@
         <bean id="operationsApiServiceImpl" class="com.sap.cloud.lm.sl.cf.web.api.impl.OperationsApiServiceImpl" />
 
         <bean id="spaceGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter" />
-        
+
         <bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
             <property name="beans">
                 <map>
@@ -59,6 +59,7 @@
                 </map>
             </property>
         </bean>
+
         <bean id="metricsBean" class="com.sap.cloud.lm.sl.cf.web.monitoring.Metrics"/>
     </beans>
 </beans>
