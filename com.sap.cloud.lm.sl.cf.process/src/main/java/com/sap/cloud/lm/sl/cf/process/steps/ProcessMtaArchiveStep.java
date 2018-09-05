@@ -40,7 +40,7 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.PROCESSING_MTA_ARCHIVE);
+            getStepLogger().debug(Messages.PROCESSING_MTA_ARCHIVE);
 
             String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
             processApplicationArchive(execution.getContext(), appArchiveId);

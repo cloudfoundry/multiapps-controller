@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -24,7 +25,7 @@ public class CreateSubscriptionsStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.CREATING_SUBSCRIPTIONS);
+            getStepLogger().debug(Messages.CREATING_SUBSCRIPTIONS);
 
             List<ConfigurationSubscription> subscriptions = StepsUtil.getSubscriptionsToCreate(execution.getContext());
 
@@ -60,11 +61,22 @@ public class CreateSubscriptionsStep extends SyncActivitiStep {
     }
 
     protected void createSubscription(ConfigurationSubscription subscription) {
+        infoSubscriptionCreation(subscription);
         ConfigurationSubscription existingSubscription = detectSubscription(subscription);
         if (existingSubscription != null) {
             dao.update(existingSubscription.getId(), subscription);
-        } else {
-            dao.add(subscription);
+            return;
+        }
+        dao.add(subscription);
+    }
+    
+    private void infoSubscriptionCreation(ConfigurationSubscription subscription) {
+        if (subscription.getModuleDto() != null && subscription.getResourceDto() != null) {
+            getStepLogger().info(MessageFormat.format(Messages.CREATING_SUBSCRIPTION_FROM_0_MODULE_TO_1_RESOURCE,
+                subscription.getModuleDto()
+                    .getName(),
+                subscription.getResourceDto()
+                    .getName()));
         }
     }
 

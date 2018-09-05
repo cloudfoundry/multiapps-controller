@@ -21,7 +21,7 @@ public class BlueGreenRenameStep extends SyncActivitiStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
-            getStepLogger().info(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
+            getStepLogger().debug(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
 
             DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext());
             DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());

@@ -34,7 +34,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
                     return AsyncExecutionState.ERROR;
                 case FINISHED:
                     execution.getStepLogger()
-                        .info(Messages.APP_UPLOADED, app.getName());
+                        .debug(Messages.APP_UPLOADED, app.getName());
                     return AsyncExecutionState.FINISHED;
                 case RUNNING:
                     return AsyncExecutionState.RUNNING;

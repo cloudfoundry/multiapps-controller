@@ -76,7 +76,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) {
         try {
             execution.getStepLogger()
-                .info(Messages.CREATING_OR_UPDATING_SERVICES);
+                .debug(Messages.CREATING_OR_UPDATING_SERVICES);
 
             CloudControllerClient client = execution.getControllerClient();
             Map<String, List<String>> defaultTags = computeDefaultTags(client);
@@ -228,7 +228,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             .getName());
         client.createServiceKey(key.getService()
             .getName(), key.getName(), key.getParameters());
-        getStepLogger().info(Messages.CREATED_SERVICE_KEY, key.getName());
+        getStepLogger().debug(Messages.CREATED_SERVICE_KEY, key.getName());
     }
 
     private void deleteServiceKey(CloudControllerClient client, ServiceKey key) {
@@ -345,7 +345,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
     }
 
     private void createService(DelegateExecution context, CloudControllerClient client, CloudServiceExtended service) {
-        getStepLogger().info(Messages.CREATING_SERVICE, service.getName());
+        getStepLogger().info(Messages.CREATING_SERVICE_FROM_MTA_RESOURCE, service.getName(), service.getResourceName());
         if (service.isUserProvided()) {
             client.createUserProvidedService(service, service.getCredentials());
         } else {

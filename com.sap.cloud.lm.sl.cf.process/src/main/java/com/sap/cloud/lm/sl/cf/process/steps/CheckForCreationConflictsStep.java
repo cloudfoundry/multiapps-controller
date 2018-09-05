@@ -42,7 +42,7 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
         List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(execution.getContext());
         try {
-            getStepLogger().info(Messages.VALIDATING_SERVICES);
+            getStepLogger().debug(Messages.VALIDATING_SERVICES);
             CloudControllerClient client = execution.getControllerClient();
             validateServicesToCreate(client, execution.getContext(), deployedMta, deployedApps);
             getStepLogger().debug(Messages.SERVICES_VALIDATED);
@@ -56,7 +56,7 @@ public class CheckForCreationConflictsStep extends SyncActivitiStep {
         }
 
         try {
-            getStepLogger().info(Messages.VALIDATING_APPLICATIONS);
+            getStepLogger().debug(Messages.VALIDATING_APPLICATIONS);
             validateApplicationsToDeploy(execution.getContext(), deployedMta, deployedApps);
             getStepLogger().debug(Messages.APPLICATIONS_VALIDATED);
         } catch (CloudOperationException coe) {

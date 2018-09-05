@@ -18,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -33,7 +34,7 @@ public class PublishConfigurationEntriesStep extends SyncActivitiStep {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
 
         try {
-            getStepLogger().info(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES, app.getName()));
+            getStepLogger().debug(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES, app.getName()));
 
             List<ConfigurationEntry> entriesToPublish = StepsUtil.getConfigurationEntriesToPublish(execution.getContext());
 
@@ -66,11 +67,18 @@ public class PublishConfigurationEntriesStep extends SyncActivitiStep {
     }
 
     private ConfigurationEntry publishConfigurationEntry(ConfigurationEntry entry) {
+        infoConfigurationPublishment(entry);
         ConfigurationEntry currentEntry = getExistingEntry(entry);
         if (currentEntry == null) {
             return configurationEntryDao.add(entry);
         } else {
             return configurationEntryDao.update(currentEntry.getId(), entry);
+        }
+    }
+
+    private void infoConfigurationPublishment(ConfigurationEntry entry) {
+        if(!CommonUtil.isNullOrEmpty(entry.getContent())) {
+            getStepLogger().info(MessageFormat.format(Messages.PUBLISHING_PUBLIC_PROVIDED_DEPENDENCY, entry.getProviderId()));
         }
     }
 
