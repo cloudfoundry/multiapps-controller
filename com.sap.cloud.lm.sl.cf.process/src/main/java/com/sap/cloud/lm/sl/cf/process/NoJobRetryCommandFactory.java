@@ -1,42 +1,44 @@
 package com.sap.cloud.lm.sl.cf.process;
 
-import org.activiti.engine.impl.cfg.TransactionContext;
-import org.activiti.engine.impl.cfg.TransactionListener;
-import org.activiti.engine.impl.cfg.TransactionState;
-import org.activiti.engine.impl.context.Context;
-import org.activiti.engine.impl.interceptor.Command;
-import org.activiti.engine.impl.interceptor.CommandContext;
-import org.activiti.engine.impl.jobexecutor.FailedJobCommandFactory;
-import org.activiti.engine.impl.jobexecutor.JobExecutor;
-import org.activiti.engine.impl.persistence.entity.JobEntity;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.flowable.common.engine.impl.interceptor.Command;
+import org.flowable.common.engine.impl.interceptor.CommandContext;
+import org.flowable.engine.impl.jobexecutor.DefaultFailedJobCommandFactory;
+import org.flowable.job.service.impl.persistence.entity.JobEntity;
+import org.flowable.job.service.impl.util.CommandContextUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Sets number of retries on failed Activiti job. By default Activiti will retry failed jobs three times. Responsible also for set of
  * exception and stack trace if availalble.
  */
-public class NoJobRetryCommandFactory implements FailedJobCommandFactory {
+public class NoJobRetryCommandFactory extends DefaultFailedJobCommandFactory {
+
+    protected static final Logger LOGGER = LoggerFactory.getLogger(NoJobRetryCommandFactory.class);
 
     @Override
     public Command<Object> getCommand(String jobId, Throwable exception) {
-        return new NoJobRetryCommand(jobId, exception);
+        return new NoJobRetryCommand(jobId, exception, super.getCommand(jobId, exception));
     }
 
-    private static class NoJobRetryCommand implements Command<Object> {
+    public static class NoJobRetryCommand implements Command<Object> {
 
         private static final int NO_RETRIES = 0;
         private String jobId;
         private Throwable exception;
+        private Command<Object> delegate;
 
-        public NoJobRetryCommand(String jobId, Throwable exception) {
+        public NoJobRetryCommand(String jobId, Throwable exception, Command<Object> delegate) {
             this.jobId = jobId;
             this.exception = exception;
+            this.delegate = delegate;
         }
 
         @Override
         public Object execute(CommandContext commandContext) {
-            JobEntity job = Context.getCommandContext()
-                .getJobEntityManager()
+            JobEntity job = CommandContextUtil.getJobServiceConfiguration(commandContext)
+                .getJobService()
                 .findJobById(jobId);
             job.setRetries(NO_RETRIES);
             job.setLockOwner(null);
@@ -47,34 +49,12 @@ public class NoJobRetryCommandFactory implements FailedJobCommandFactory {
                 job.setExceptionStacktrace(getExceptionStacktrace());
             }
 
-            addTransactionListener(commandContext);
-            return null;
+            return delegate.execute(commandContext);
         }
 
         private String getExceptionStacktrace() {
             return ExceptionUtils.getStackTrace(exception);
         }
 
-        /*
-         * In version 5.16.0 of activiti-engine, the class MessageAddedNotification is renamed to JobAddedNotification. This leads to class
-         * not def found exceptions when adopting version > 5.16.0 of the activiti engine along with the common project. This commit
-         * replaces the use of the MessageAddedNotification with an anonymous class instead to achieve compatibility between the different
-         * versions.
-         */
-
-        private void addTransactionListener(CommandContext commandContext) {
-
-            final JobExecutor jobExecutor = Context.getProcessEngineConfiguration()
-                .getJobExecutor();
-            TransactionContext transactionContext = commandContext.getTransactionContext();
-            transactionContext.addTransactionListener(TransactionState.COMMITTED, new TransactionListener() {
-
-                @Override
-                public void execute(CommandContext commandContext) {
-                    jobExecutor.jobWasAdded();
-
-                }
-            });
-        }
     }
 }

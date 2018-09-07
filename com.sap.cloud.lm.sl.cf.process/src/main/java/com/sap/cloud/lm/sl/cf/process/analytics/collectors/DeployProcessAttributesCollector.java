@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;

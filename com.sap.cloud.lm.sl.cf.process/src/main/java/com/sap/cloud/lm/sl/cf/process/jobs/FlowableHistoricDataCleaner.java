@@ -7,9 +7,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.history.HistoricProcessInstance;
-import org.activiti.engine.history.HistoricProcessInstanceQuery;
+import org.flowable.engine.HistoryService;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.history.HistoricProcessInstanceQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -19,20 +19,20 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component
 @Order(20)
-public class ActivitiHistoricDataCleaner implements Cleaner {
+public class FlowableHistoricDataCleaner implements Cleaner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActivitiHistoricDataCleaner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowableHistoricDataCleaner.class);
     private static final int PAGE_SIZE = 100;
 
     private final HistoryService historyService;
     private final int pageSize;
 
     @Inject
-    public ActivitiHistoricDataCleaner(HistoryService historyService) {
+    public FlowableHistoricDataCleaner(HistoryService historyService) {
         this(historyService, PAGE_SIZE);
     }
 
-    public ActivitiHistoricDataCleaner(HistoryService historyService, int pageSize) {
+    public FlowableHistoricDataCleaner(HistoryService historyService, int pageSize) {
         this.historyService = historyService;
         this.pageSize = pageSize;
     }

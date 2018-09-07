@@ -4,10 +4,10 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.runtime.ProcessInstance;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.runtime.ProcessInstance;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -16,7 +16,7 @@ public abstract class AbstractSubProcessStarterStep extends AsyncActivitiStep {
     private static final int DEFAULT_ITERATION_INDEX = 0;
 
     @Inject
-    private ActivitiFacade actvitiFacade;
+    private FlowableFacade actvitiFacade;
 
     @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {

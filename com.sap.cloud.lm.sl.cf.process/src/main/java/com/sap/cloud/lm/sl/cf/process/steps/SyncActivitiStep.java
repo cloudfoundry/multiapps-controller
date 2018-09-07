@@ -3,8 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -37,7 +37,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
     private StepLogger stepLogger;
 
     @Override
-    public void execute(DelegateExecution context) throws Exception {
+    public void execute(DelegateExecution context) {
         initializeStepLogger(context);
         stepLogger.logActivitiTask();
         ExecutionWrapper executionWrapper = createExecutionWrapper(context);
@@ -66,10 +66,10 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
         return new ExecutionWrapper(context, stepLogger, clientProvider, processLoggerProviderFactory);
     }
 
-    private void handleException(DelegateExecution context, Throwable t) throws Exception {
+    private void handleException(DelegateExecution context, Throwable t) {
         t = getWithProperMessage(t);
         getStepHelper().logException(context, t);
-        throw t instanceof Exception ? (Exception) t : new Exception(t);
+        throw t instanceof RuntimeException ? (RuntimeException) t : new RuntimeException(t);
     }
 
     protected void postExecuteStep(DelegateExecution context, StepPhase stepState) {

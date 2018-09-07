@@ -2,20 +2,20 @@ package com.sap.cloud.lm.sl.cf.core.activiti;
 
 import java.util.Locale;
 
-public class ActivitiActionFactory {
+public class FlowableActionFactory {
 
     public static final String ACTION_ID_RETRY = "retry";
     public static final String ACTION_ID_ABORT = "abort";
     public static final String ACTION_ID_RESUME = "resume";
 
-    public static ActivitiAction getAction(String actionId, ActivitiFacade activitiFacade, String userId) {
+    public static FlowableAction getAction(String actionId, FlowableFacade flowableFacade, String userId) {
         switch (actionId.toLowerCase(Locale.ROOT)) {
             case ACTION_ID_ABORT:
-                return new AbortActivitiAction(activitiFacade, userId);
+                return new AbortFlowableAction(flowableFacade, userId);
             case ACTION_ID_RETRY:
-                return new RetryActivitiAction(activitiFacade, userId);
+                return new RetryFlowableAction(flowableFacade, userId);
             case ACTION_ID_RESUME:
-                return new ResumeActivitiAction(activitiFacade, userId);
+                return new ResumeFlowableAction(flowableFacade, userId);
             default:
                 return null;
         }

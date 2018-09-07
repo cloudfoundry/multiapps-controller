@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -31,7 +31,7 @@ public class OperationsHelper {
     private ProcessTypeToOperationMetadataMapper metadataMapper;
 
     @Inject
-    private ActivitiFacade activitiFacade;
+    private FlowableFacade activitiFacade;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
 
@@ -80,7 +80,7 @@ public class OperationsHelper {
     public State computeState(Operation ongoingOperation) {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
             ongoingOperation.getProcessId()));
-        return activitiFacade.getOngoingOperationState(ongoingOperation);
+        return activitiFacade.getProcessInstanceState(ongoingOperation.getProcessId());
     }
 
     private List<Operation> filterBasedOnStates(List<Operation> operations, List<State> statusList) {

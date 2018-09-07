@@ -13,14 +13,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.activiti.engine.ActivitiOptimisticLockingException;
+import org.flowable.common.engine.api.FlowableOptimisticLockingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -38,7 +38,7 @@ public class OperationsCleanerTest {
     @Mock
     private OperationDao dao;
     @Mock
-    private ActivitiFacade activitiFacade;
+    private FlowableFacade flowableFacade;
     @InjectMocks
     private OperationsCleaner cleaner;
 
@@ -59,8 +59,8 @@ public class OperationsCleanerTest {
         when(dao.find(createExpectedFilterForPage(0))).thenReturn(operationsList);
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(activitiFacade).deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
-        verify(activitiFacade).deleteProcessInstance(any(), eq(OPERATION_ID_2), any());
+        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
+        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_2), any());
     }
 
     @Test
@@ -72,12 +72,12 @@ public class OperationsCleanerTest {
         List<Operation> operationsList = Arrays.asList(operation1, operation2);
 
         when(dao.find(createExpectedFilterForPage(0))).thenReturn(operationsList);
-        doThrow(new ActivitiOptimisticLockingException("I'm an exception")).when(activitiFacade)
+        doThrow(new FlowableOptimisticLockingException("I'm an exception")).when(flowableFacade)
             .deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(activitiFacade).deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
-        verify(activitiFacade).deleteProcessInstance(any(), eq(OPERATION_ID_2), any());
+        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
+        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_2), any());
     }
 
     @Test
@@ -95,9 +95,9 @@ public class OperationsCleanerTest {
         when(dao.find(createExpectedFilterForPage(1))).thenReturn(operationsPage2);
 
         cleaner.execute(EXPIRATION_TIME);
-        verify(activitiFacade).deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
-        verify(activitiFacade).deleteProcessInstance(any(), eq(OPERATION_ID_2), any());
-        verify(activitiFacade).deleteProcessInstance(any(), eq(OPERATION_ID_3), any());
+        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_1), any());
+        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_2), any());
+        verify(flowableFacade).deleteProcessInstance(any(), eq(OPERATION_ID_3), any());
     }
 
     @Test

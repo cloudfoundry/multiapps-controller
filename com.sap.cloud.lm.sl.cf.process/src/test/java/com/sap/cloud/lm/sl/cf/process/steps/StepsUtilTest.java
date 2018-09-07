@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;

@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;

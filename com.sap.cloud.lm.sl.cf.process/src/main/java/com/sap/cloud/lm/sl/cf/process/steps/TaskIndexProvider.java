@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 
 public interface TaskIndexProvider {
 

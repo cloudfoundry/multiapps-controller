@@ -1,11 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public abstract class TimeoutSubProcessMonitorExecution extends AbstractSubProcessMonitorExecution {
 
-    public TimeoutSubProcessMonitorExecution(ActivitiFacade activitiFacade) {
+    public TimeoutSubProcessMonitorExecution(FlowableFacade activitiFacade) {
         super(activitiFacade);
     }
 

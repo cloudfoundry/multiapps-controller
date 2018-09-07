@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiAction;
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableAction;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableActionFactory;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -28,13 +28,13 @@ public class OperationsCleaner implements Cleaner {
     private static final int DEFAULT_PAGE_SIZE = 100;
 
     private final OperationDao dao;
-    private final ActivitiFacade activitiFacade;
+    private final FlowableFacade flowableFacade;
     private int pageSize = DEFAULT_PAGE_SIZE;
 
     @Inject
-    public OperationsCleaner(OperationDao dao, ActivitiFacade activitiFacade) {
+    public OperationsCleaner(OperationDao dao, FlowableFacade activitiFacade) {
         this.dao = dao;
-        this.activitiFacade = activitiFacade;
+        this.flowableFacade = activitiFacade;
     }
 
     public OperationsCleaner withPageSize(int pageSize) {
@@ -90,7 +90,7 @@ public class OperationsCleaner implements Cleaner {
     }
 
     private void abort(Operation operation) {
-        ActivitiAction abortAction = ActivitiActionFactory.getAction(ActivitiActionFactory.ACTION_ID_ABORT, activitiFacade, null);
+        FlowableAction abortAction = FlowableActionFactory.getAction(FlowableActionFactory.ACTION_ID_ABORT, flowableFacade, null);
         String processId = operation.getProcessId();
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.ABORTING_OPERATION_0, processId));
         abortAction.executeAction(processId);

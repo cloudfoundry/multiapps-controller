@@ -13,8 +13,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.activiti</groupId>
-            <artifactId>activiti-engine</artifactId>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-engine</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.lm.sl</groupId>

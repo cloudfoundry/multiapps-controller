@@ -6,7 +6,7 @@ import java.time.ZonedDateTime;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
