@@ -8,9 +8,9 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 
 import org.flowable.engine.HistoryService;
+import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.history.HistoricProcessInstance;
-import org.flowable.engine.impl.context.Context;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -35,6 +35,9 @@ public class AnalyticsCollector {
 
     @Inject
     private ProcessTypeParser processTypeParser;
+
+    @Inject
+    private ProcessEngineConfiguration processEngineConfiguration;
 
     Supplier<Long> endTimeSupplier = System::currentTimeMillis;
     Supplier<ZoneId> timeZoneSupplier = ZoneId::systemDefault;
@@ -70,8 +73,7 @@ public class AnalyticsCollector {
     }
 
     public long getStartTime(DelegateExecution context, String processId) {
-        HistoryService historyService = Context.getProcessEngineConfiguration()
-            .getHistoryService();
+        HistoryService historyService = processEngineConfiguration.getHistoryService();
         HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
             .processInstanceId(processId)
             .singleResult();

@@ -6,8 +6,8 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.impl.context.Context;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.job.api.DeadLetterJobQuery;
 import org.flowable.job.api.Job;
@@ -34,15 +34,18 @@ public class ProcessStepHelper {
     private ProcessLoggerProviderFactory processLoggerProviderFactory;
     private TaskIndexProvider taskIndexProvider;
 
+    private ProcessEngineConfiguration processEngineConfiguration;
+
     String taskId;
     String taskIndex;
     private boolean isInError;
 
     public ProcessStepHelper(ProgressMessageService progressMessageService, ProcessLoggerProviderFactory processLoggerProviderFactory,
-        TaskIndexProvider stepIndexProvider) {
+        TaskIndexProvider stepIndexProvider, ProcessEngineConfiguration processEngineConfigurationSupplier) {
         this.progressMessageService = progressMessageService;
         this.processLoggerProviderFactory = processLoggerProviderFactory;
         this.taskIndexProvider = stepIndexProvider;
+        this.processEngineConfiguration = processEngineConfigurationSupplier;
     }
 
     protected void postExecuteStep(DelegateExecution context, StepPhase state) {
@@ -84,8 +87,7 @@ public class ProcessStepHelper {
     }
 
     List<Job> getDeadLetterJob(DelegateExecution context) {
-        DeadLetterJobQuery jobQuery = Context.getProcessEngineConfiguration()
-            .getManagementService()
+        DeadLetterJobQuery jobQuery = processEngineConfiguration.getManagementService()
             .createDeadLetterJobQuery();
         if (jobQuery == null) {
             return null;
@@ -164,8 +166,7 @@ public class ProcessStepHelper {
     // This method is needed because sometimes the DelegateExecution::getCurrentActivityId returns null
     // Check the issue: https://github.com/flowable/flowable-engine/issues/1280
     private String getCurrentActivityId(DelegateExecution context) {
-        List<Execution> processExecutions = Context.getProcessEngineConfiguration()
-            .getRuntimeService()
+        List<Execution> processExecutions = processEngineConfiguration.getRuntimeService()
             .createExecutionQuery()
             .processInstanceId(context.getProcessInstanceId())
             .list();
