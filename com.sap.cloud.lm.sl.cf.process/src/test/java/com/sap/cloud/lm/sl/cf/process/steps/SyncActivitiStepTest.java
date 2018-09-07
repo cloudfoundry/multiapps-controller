@@ -3,8 +3,18 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.flowable.engine.ManagementService;
+import org.flowable.engine.ProcessEngineConfiguration;
+import org.flowable.engine.RuntimeService;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.runtime.Execution;
+import org.flowable.engine.runtime.ExecutionQuery;
+import org.flowable.job.api.DeadLetterJobQuery;
 import org.junit.Before;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -25,8 +35,6 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
-
-import static org.mockito.Mockito.when;
 
 public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
 
@@ -59,6 +67,8 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     protected FlowableFacade activitiFacade;
     @Mock
     protected ApplicationConfiguration configuration;
+    @Mock
+    protected ProcessEngineConfiguration processEngineConfiguration;
 
     protected ExecutionWrapper execution;
     @InjectMocks
@@ -79,6 +89,42 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
         when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
         context.setVariable("correlationId", getCorrelationId());
         prepareExecution();
+        prepareProcessEngineConfiguration();
+    }
+
+    private void prepareProcessEngineConfiguration() {
+        ExecutionQuery mockExecutionQuery = createExecutionQueryMock();
+        mockExecutionQuery(mockExecutionQuery);
+        DeadLetterJobQuery mockDeadLetterJobQuery = createDeadLetterJobQueryMock();
+        mockManagementService(mockDeadLetterJobQuery);
+    }
+
+    private void mockManagementService(DeadLetterJobQuery mockDeadLetterJobQuery) {
+        ManagementService mockManagementService = Mockito.mock(ManagementService.class);
+        when(mockManagementService.createDeadLetterJobQuery()).thenReturn(mockDeadLetterJobQuery);
+        when(processEngineConfiguration.getManagementService()).thenReturn(mockManagementService);
+    }
+
+    private DeadLetterJobQuery createDeadLetterJobQueryMock() {
+        DeadLetterJobQuery mockDeadLetterJobQuery = Mockito.mock(DeadLetterJobQuery.class);
+        when(mockDeadLetterJobQuery.processInstanceId(Mockito.anyString())).thenReturn(mockDeadLetterJobQuery);
+        when(mockDeadLetterJobQuery.list()).thenReturn(Collections.emptyList());
+        return mockDeadLetterJobQuery;
+    }
+
+    private void mockExecutionQuery(ExecutionQuery mockExecutionQuery) {
+        Execution mockExecution = Mockito.mock(Execution.class);
+        when(mockExecution.getActivityId()).thenReturn("1");
+        when(mockExecutionQuery.list()).thenReturn(Arrays.asList(mockExecution));
+        when(mockExecutionQuery.processInstanceId(Mockito.anyString())).thenReturn(mockExecutionQuery);
+    }
+
+    private ExecutionQuery createExecutionQueryMock() {
+        RuntimeService mockRuntimeService = Mockito.mock(RuntimeService.class);
+        when(processEngineConfiguration.getRuntimeService()).thenReturn(mockRuntimeService);
+        ExecutionQuery mockExecutionQuery = Mockito.mock(ExecutionQuery.class);
+        when(mockRuntimeService.createExecutionQuery()).thenReturn(mockExecutionQuery);
+        return mockExecutionQuery;
     }
 
     private void prepareExecution() {

@@ -12,12 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.flowable.engine.HistoryService;
-import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.history.HistoricProcessInstanceQuery;
-import org.flowable.engine.impl.context.Context;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -71,6 +69,9 @@ public class AnalyticsCollectorTest {
     @Mock
     private ProcessTypeParser processTypeParser;
 
+    @Mock
+    private ProcessEngineConfiguration processEngineConfiguration;
+
     @InjectMocks
     protected AnalyticsCollector collector;
 
@@ -89,10 +90,8 @@ public class AnalyticsCollectorTest {
         HistoricProcessInstanceQuery query = Mockito.mock(HistoricProcessInstanceQuery.class);
         HistoryService service = Mockito.mock(HistoryService.class);
         when(service.createHistoricProcessInstanceQuery()).thenReturn(query);
-        when(query.processInstanceId(PROCESS_ID)).thenReturn(query);
-        // TODO: fix this
-        ProcessEngineConfiguration services = Context.getProcessEngineConfiguration();
-        when(services.getHistoryService()).thenReturn(service);
+        when(query.processInstanceId(Mockito.anyString())).thenReturn(query);
+        when(processEngineConfiguration.getHistoryService()).thenReturn(service);
         HistoricProcessInstance processInstance = Mockito.mock(HistoricProcessInstance.class);
         when(processInstance.getStartTime()).thenReturn(new Date(0));
         when(query.singleResult()).thenReturn(processInstance);

@@ -12,6 +12,7 @@ import org.flowable.bpmn.model.FlowElement;
 import org.flowable.bpmn.model.FlowableListener;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.variable.api.persistence.entity.VariableInstance;
+import org.mockito.Mockito;
 
 public class MockDelegateExecution implements DelegateExecution {
 
@@ -363,8 +364,10 @@ public class MockDelegateExecution implements DelegateExecution {
 
     @Override
     public FlowElement getCurrentFlowElement() {
-
-        return null;
+        FlowElement mockFlowElement = Mockito.mock(FlowElement.class);
+        Mockito.when(mockFlowElement.getName())
+            .thenReturn("Default Name");
+        return mockFlowElement;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
@@ -33,6 +34,8 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
     @Inject
     @Named("fileService")
     protected AbstractFileService fileService;
+    @Inject
+    private ProcessEngineConfiguration processEngineConfiguration;
     protected ProcessStepHelper stepHelper;
     private StepLogger stepLogger;
 
@@ -104,7 +107,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
 
     protected ProcessStepHelper getStepHelper() {
         if (stepHelper == null) {
-            stepHelper = new ProcessStepHelper(getProgressMessageService(), getProcessLoggerProvider(), this);
+            stepHelper = new ProcessStepHelper(getProgressMessageService(), getProcessLoggerProvider(), this, processEngineConfiguration);
         }
         return stepHelper;
     }
