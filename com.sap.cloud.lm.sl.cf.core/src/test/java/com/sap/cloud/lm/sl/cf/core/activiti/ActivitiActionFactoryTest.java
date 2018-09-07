@@ -12,27 +12,27 @@ public class ActivitiActionFactoryTest {
     private static final String USER_ID = "test-user";
     private static final String ABORT_ACTION_ID = "abort";
     @Mock
-    ActivitiFacade facade;
+    FlowableFacade facade;
 
     @Test
     public void testAbortAction() {
-        testAction(ABORT_ACTION_ID, AbortActivitiAction.class);
+        testAction(ABORT_ACTION_ID, AbortFlowableAction.class);
     }
 
     @Test
     public void testRetryAction() {
-        testAction(RETRY_ACTION_ID, RetryActivitiAction.class);
+        testAction(RETRY_ACTION_ID, RetryFlowableAction.class);
     }
 
     @Test
     public void testResumeAction() {
-        testAction(RESUME_ACTION_ID, ResumeActivitiAction.class);
+        testAction(RESUME_ACTION_ID, ResumeFlowableAction.class);
     }
 
-    private void testAction(String actionId, Class<? extends ActivitiAction> actionClass) {
-        ActivitiAction action = ActivitiActionFactory.getAction(actionId, facade, USER_ID);
+    private void testAction(String actionId, Class<? extends FlowableAction> actionClass) {
+        FlowableAction action = FlowableActionFactory.getAction(actionId, facade, USER_ID);
         assertEquals(action.getClass(), actionClass);
-        action = ActivitiActionFactory.getAction(actionId.toUpperCase(), facade, USER_ID);
+        action = FlowableActionFactory.getAction(actionId.toUpperCase(), facade, USER_ID);
         assertEquals(action.getClass(), actionClass);
     }
 }

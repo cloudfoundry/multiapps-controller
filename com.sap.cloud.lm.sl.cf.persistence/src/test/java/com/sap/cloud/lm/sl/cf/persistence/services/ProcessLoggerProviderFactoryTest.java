@@ -4,6 +4,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -18,9 +22,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.activiti.engine.delegate.DelegateExecution;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,11 +34,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory.ThreadLocalLogProvider;
-
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class ProcessLoggerProviderFactoryTest {
 

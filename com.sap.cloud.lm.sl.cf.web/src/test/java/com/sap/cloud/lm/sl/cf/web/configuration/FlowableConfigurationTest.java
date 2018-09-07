@@ -14,7 +14,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
-public class ActivitiConfigurationTest {
+public class FlowableConfigurationTest {
 
     private static final String APP_ID = "foo";
     private static final int APP_INSTANCE_INDEX = 1;
@@ -22,12 +22,12 @@ public class ActivitiConfigurationTest {
 
     @Mock
     private ApplicationConfiguration applicationConfiguration;
-    private ActivitiConfiguration activitiConfiguration = new ActivitiConfiguration();
+    private FlowableConfiguration flowableConfiguration = new FlowableConfiguration();
 
     @BeforeEach
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        activitiConfiguration.randomIdGenerator = () -> RANDOM_ID;
+        flowableConfiguration.randomIdGenerator = () -> RANDOM_ID;
     }
 
     @ParameterizedTest
@@ -38,7 +38,7 @@ public class ActivitiConfigurationTest {
         Mockito.when(applicationConfiguration.getApplicationId())
             .thenReturn(applicationId);
 
-        String jobExecutorId = activitiConfiguration.jobExecutorId(applicationConfiguration);
+        String jobExecutorId = flowableConfiguration.jobExecutorId(applicationConfiguration);
 
         assertEquals(expectedJobExecutorId, jobExecutorId);
     }

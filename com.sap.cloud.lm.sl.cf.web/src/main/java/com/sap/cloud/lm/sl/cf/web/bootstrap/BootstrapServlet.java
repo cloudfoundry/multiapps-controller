@@ -11,7 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.sql.DataSource;
 
-import org.activiti.engine.ProcessEngine;
+import org.flowable.engine.ProcessEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +71,7 @@ public class BootstrapServlet extends HttpServlet {
             initExtras();
             executeAsyncDatabaseChanges();
             processEngine.getProcessEngineConfiguration()
-                .getJobExecutor()
+                .getAsyncExecutor()
                 .start();
             LOGGER.info(Messages.ALM_SERVICE_ENV_INITIALIZED);
         } catch (Exception e) {

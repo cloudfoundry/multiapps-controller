@@ -2,17 +2,18 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.event.ActivitiEvent;
-import org.activiti.engine.delegate.event.ActivitiEventListener;
+import org.flowable.common.engine.api.delegate.event.AbstractFlowableEventListener;
+import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
+import org.flowable.common.engine.api.delegate.event.FlowableEvent;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
-import com.sap.cloud.lm.sl.cf.process.util.ActivitiExceptionEventHandler;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
+import com.sap.cloud.lm.sl.cf.process.util.FlowableExceptionEventHandler;
 
 @Component("errorProcessListener")
-public class ErrorProcessListener implements ActivitiEventListener {
+public class ErrorProcessListener extends AbstractFlowableEventListener {
 
     @Inject
     protected CloudControllerClientProvider clientProvider;
@@ -21,17 +22,19 @@ public class ErrorProcessListener implements ActivitiEventListener {
     private ProgressMessageService progressMessageService;
 
     @Override
-    public boolean isFailOnException() {
-        return false;
+    public void onEvent(FlowableEvent event) {
+        FlowableExceptionEventHandler handler = new FlowableExceptionEventHandler(progressMessageService);
+        handler.handle(event);
+
+        if (event instanceof FlowableEngineEvent) {
+            ClientReleaser clientReleaser = new ClientReleaser((FlowableEngineEvent) event, clientProvider);
+            clientReleaser.releaseClient();
+        }
     }
 
     @Override
-    public void onEvent(ActivitiEvent event) {
-        ActivitiExceptionEventHandler handler = new ActivitiExceptionEventHandler(progressMessageService);
-        handler.handle(event);
-
-        ClientReleaser clientReleaser = new ClientReleaser(event, clientProvider);
-        clientReleaser.releaseClient();
+    public boolean isFailOnException() {
+        return false;
     }
 
 }

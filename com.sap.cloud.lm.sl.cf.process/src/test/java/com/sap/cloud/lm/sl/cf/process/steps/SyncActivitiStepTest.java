@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
@@ -56,7 +56,7 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     @Mock
     protected CloudControllerClientProvider clientProvider;
     @Mock
-    protected ActivitiFacade activitiFacade;
+    protected FlowableFacade activitiFacade;
     @Mock
     protected ApplicationConfiguration configuration;
 

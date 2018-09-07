@@ -7,9 +7,10 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.history.HistoricProcessInstance;
+import org.flowable.engine.HistoryService;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.impl.context.Context;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -69,7 +70,7 @@ public class AnalyticsCollector {
     }
 
     public long getStartTime(DelegateExecution context, String processId) {
-        HistoryService historyService = context.getEngineServices()
+        HistoryService historyService = Context.getProcessEngineConfiguration()
             .getHistoryService();
         HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
             .processInstanceId(processId)

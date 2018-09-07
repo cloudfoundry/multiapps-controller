@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.activiti.engine.history.HistoricVariableInstance;
+import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

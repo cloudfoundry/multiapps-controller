@@ -5,8 +5,8 @@ import java.text.MessageFormat;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.ExecutionListener;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.ExecutionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     private StepLogger stepLogger;
 
     @Override
-    public void notify(DelegateExecution context) throws Exception {
+    public void notify(DelegateExecution context) {
         try {
             this.stepLogger = createStepLogger(context);
             String correlationId = StepsUtil.getCorrelationId(context);
@@ -91,7 +91,6 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     protected void writeLogs(DelegateExecution context) throws IOException, FileStorageException {
         getProcessLoggerProviderFactory().flush(context);
     }
-
 
     protected StepLogger getStepLogger() {
         if (stepLogger == null) {

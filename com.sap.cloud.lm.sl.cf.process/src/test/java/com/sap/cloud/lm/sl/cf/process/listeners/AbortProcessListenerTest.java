@@ -6,11 +6,11 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.history.HistoricVariableInstance;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
+import org.flowable.engine.HistoryService;
+import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

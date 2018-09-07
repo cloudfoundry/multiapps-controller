@@ -10,7 +10,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -29,7 +29,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
     private ConfigurationEntryDao configurationEntryDao;
 
     @Inject
-    private ActivitiFacade activitiFacade;
+    private FlowableFacade activitiFacade;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

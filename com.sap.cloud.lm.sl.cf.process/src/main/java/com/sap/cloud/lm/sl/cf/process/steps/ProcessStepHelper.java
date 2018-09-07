@@ -3,10 +3,14 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.runtime.Job;
-import org.activiti.engine.runtime.JobQuery;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.impl.context.Context;
+import org.flowable.engine.runtime.Execution;
+import org.flowable.job.api.DeadLetterJobQuery;
+import org.flowable.job.api.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +46,8 @@ public class ProcessStepHelper {
     }
 
     protected void postExecuteStep(DelegateExecution context, StepPhase state) {
-        logDebug(context, MessageFormat.format(Messages.STEP_FINISHED, context.getCurrentActivityName()));
+        logDebug(context, MessageFormat.format(Messages.STEP_FINISHED, context.getCurrentFlowElement()
+            .getName()));
 
         processLoggerProviderFactory.removeAll();
         // Write the log messages:
@@ -74,23 +79,19 @@ public class ProcessStepHelper {
     }
 
     private boolean isInError(DelegateExecution context) {
-        Job job = getJob(context);
-        if (job == null) {
-            return false;
-        }
-        String exceptionMessage = job.getExceptionMessage();
-        return exceptionMessage != null && !exceptionMessage.isEmpty();
+        List<Job> deadLetterJobs = getDeadLetterJob(context);
+        return !deadLetterJobs.isEmpty();
     }
 
-    Job getJob(DelegateExecution context) {
-        JobQuery jobQuery = context.getEngineServices()
+    List<Job> getDeadLetterJob(DelegateExecution context) {
+        DeadLetterJobQuery jobQuery = Context.getProcessEngineConfiguration()
             .getManagementService()
-            .createJobQuery();
+            .createDeadLetterJobQuery();
         if (jobQuery == null) {
             return null;
         }
         return jobQuery.processInstanceId(context.getProcessInstanceId())
-            .singleResult();
+            .list();
     }
 
     private int computeTaskIndex(DelegateExecution context, StepPhase initialPhase, boolean isInError) {
@@ -151,12 +152,32 @@ public class ProcessStepHelper {
 
     public void storeExceptionInProgressMessageService(DelegateExecution context, Throwable t) {
         try {
-            ProgressMessage msg = new ProgressMessage(getCorrelationId(context), taskId, taskIndex, ProgressMessageType.ERROR,
-                MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()), new Timestamp(System.currentTimeMillis()));
+            ProgressMessage msg = new ProgressMessage(getCorrelationId(context), getCurrentActivityId(context), taskIndex,
+                ProgressMessageType.ERROR, MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()),
+                new Timestamp(System.currentTimeMillis()));
             progressMessageService.add(msg);
         } catch (SLException e) {
             getLogger(context).error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
         }
+    }
+
+    // This method is needed because sometimes the DelegateExecution::getCurrentActivityId returns null
+    // Check the issue: https://github.com/flowable/flowable-engine/issues/1280
+    private String getCurrentActivityId(DelegateExecution context) {
+        List<Execution> processExecutions = Context.getProcessEngineConfiguration()
+            .getRuntimeService()
+            .createExecutionQuery()
+            .processInstanceId(context.getProcessInstanceId())
+            .list();
+        List<Execution> processExecutionsWithActivityIds = processExecutions.stream()
+            .filter(e -> e.getActivityId() != null)
+            .collect(Collectors.toList());
+        if (processExecutionsWithActivityIds.isEmpty()) {
+            // if this happen then there is a really big problem with Flowable :)
+            throw new SLException("There are no executions for process with id: " + context.getProcessInstanceId());
+        }
+        return processExecutionsWithActivityIds.get(0)
+            .getActivityId();
     }
 
     private void logDebug(DelegateExecution context, String message) {

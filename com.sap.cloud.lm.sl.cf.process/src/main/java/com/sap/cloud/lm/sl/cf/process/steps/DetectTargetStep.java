@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -17,8 +17,8 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
-import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;

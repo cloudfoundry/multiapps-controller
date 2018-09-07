@@ -5,13 +5,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class StartAppDeploySubProcessStep extends AbstractSubProcessStarterStep {
 
     @Inject
-    private ActivitiFacade actvitiFacade;
+    private FlowableFacade actvitiFacade;
 
     protected String getIterationVariableName() {
         return Constants.VAR_APP_TO_DEPLOY;

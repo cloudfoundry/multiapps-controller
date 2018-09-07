@@ -250,7 +250,7 @@
         <omgdi:waypoint x="701.0" y="117.0"></omgdi:waypoint>
         <omgdi:waypoint x="750.0" y="118.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="42.0" width="83.0" x="685.0" y="79.0"></omgdc:Bounds>
+          <omgdc:Bounds height="39.0" width="83.0" x="685.0" y="79.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="appExistsFlow" id="BPMNEdge_appExistsFlow">
@@ -258,7 +258,7 @@
         <omgdi:waypoint x="680.0" y="227.0"></omgdi:waypoint>
         <omgdi:waypoint x="750.0" y="227.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="42.0" width="51.0" x="687.0" y="208.0"></omgdc:Bounds>
+          <omgdc:Bounds height="13.0" width="51.0" x="687.0" y="208.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
@@ -328,7 +328,7 @@
         <omgdi:waypoint x="303.0" y="1158.0"></omgdi:waypoint>
         <omgdi:waypoint x="396.0" y="1158.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="42.0" width="100.0" x="302.0" y="1163.0"></omgdc:Bounds>
+          <omgdc:Bounds height="39.0" width="100.0" x="302.0" y="1163.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="platformDoesNotSupportTasks" id="BPMNEdge_platformDoesNotSupportTasks">
@@ -336,7 +336,7 @@
         <omgdi:waypoint x="282.0" y="1303.0"></omgdi:waypoint>
         <omgdi:waypoint x="1098.0" y="1303.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="42.0" width="100.0" x="304.0" y="1282.0"></omgdc:Bounds>
+          <omgdc:Bounds height="39.0" width="100.0" x="304.0" y="1282.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
@@ -411,7 +411,7 @@
         <omgdi:waypoint x="1339.0" y="328.0"></omgdi:waypoint>
         <omgdi:waypoint x="1317.0" y="329.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="42.0" width="100.0" x="824.0" y="16.0"></omgdc:Bounds>
+          <omgdc:Bounds height="39.0" width="100.0" x="824.0" y="16.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="rebuildAppEnvFlow" id="BPMNEdge_rebuildAppEnvFlow">

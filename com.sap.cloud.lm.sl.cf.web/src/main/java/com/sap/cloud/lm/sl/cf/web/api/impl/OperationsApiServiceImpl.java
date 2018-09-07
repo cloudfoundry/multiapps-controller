@@ -15,17 +15,17 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
-import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.collections.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiAction;
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiActionFactory;
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableAction;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableActionFactory;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
@@ -64,7 +64,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     @Inject
     private ProcessLogsPersistenceService logsService;
     @Inject
-    private ActivitiFacade activitiFacade;
+    private FlowableFacade flowableFacade;
     @Inject
     private OperationsHelper operationsHelper;
     @Inject
@@ -89,7 +89,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
     public Response executeOperationAction(String operationId, String actionId, SecurityContext securityContext, String spaceGuid) {
         Operation operation = dao.findRequired(operationId);
         List<String> availableOperations = getAvailableActions(operation);
-        ActivitiAction action = ActivitiActionFactory.getAction(actionId, activitiFacade, getAuthenticatedUser(securityContext));
+        FlowableAction action = FlowableActionFactory.getAction(actionId, flowableFacade, getAuthenticatedUser(securityContext));
         if (!availableOperations.contains(actionId)) {
             return Response.status(Status.BAD_REQUEST)
                 .entity("Action " + actionId + " cannot be executed over operation " + operationId)
@@ -146,7 +146,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         addDefaultParameters(operation, predefinedParameters);
         addParameterValues(operation, predefinedParameters);
         ensureRequiredParametersSet(operation, predefinedParameters);
-        ProcessInstance processInstance = activitiFacade.startProcess(userId, processDefinitionKey, operation.getParameters());
+        ProcessInstance processInstance = flowableFacade.startProcess(userId, processDefinitionKey, operation.getParameters());
         AuditLoggingProvider.getFacade()
             .logConfigCreate(operation);
         return Response.accepted()
@@ -222,11 +222,11 @@ public class OperationsApiServiceImpl implements OperationsApiService {
             case ABORTED:
                 return Collections.emptyList();
             case ERROR:
-                return new ArrayList<>(Arrays.asList(ActivitiActionFactory.ACTION_ID_ABORT, ActivitiActionFactory.ACTION_ID_RETRY));
+                return new ArrayList<>(Arrays.asList(FlowableActionFactory.ACTION_ID_ABORT, FlowableActionFactory.ACTION_ID_RETRY));
             case RUNNING:
-                return new ArrayList<>(Arrays.asList(ActivitiActionFactory.ACTION_ID_ABORT));
+                return new ArrayList<>(Arrays.asList(FlowableActionFactory.ACTION_ID_ABORT));
             case ACTION_REQUIRED:
-                return new ArrayList<>(Arrays.asList(ActivitiActionFactory.ACTION_ID_ABORT, ActivitiActionFactory.ACTION_ID_RESUME));
+                return new ArrayList<>(Arrays.asList(FlowableActionFactory.ACTION_ID_ABORT, FlowableActionFactory.ACTION_ID_RESUME));
         }
         throw new IllegalStateException("State " + operationState.value() + " not recognised!");
     }

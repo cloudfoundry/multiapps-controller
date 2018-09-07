@@ -7,7 +7,7 @@ import java.util.TreeMap;
 import javax.inject.Inject;
 import javax.xml.bind.Marshaller;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 

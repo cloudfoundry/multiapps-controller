@@ -7,15 +7,19 @@ import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
 
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.event.ActivitiEvent;
-import org.activiti.engine.delegate.event.ActivitiEventListener;
-import org.activiti.engine.history.HistoricVariableInstance;
-import org.activiti.engine.impl.event.logger.handler.ProcessInstanceEndedEventHandler;
-import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.flowable.common.engine.api.delegate.event.AbstractFlowableEventListener;
+import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
+import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
+import org.flowable.common.engine.api.delegate.event.FlowableEntityEvent;
+import org.flowable.common.engine.api.delegate.event.FlowableEvent;
+import org.flowable.engine.HistoryService;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.event.FlowableProcessEngineEvent;
+import org.flowable.engine.impl.context.Context;
+import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
+import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -40,9 +44,9 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Runnable;
 
 @Component("abortProcessListener")
-public class AbortProcessListener implements ActivitiEventListener, Serializable {
+public class AbortProcessListener extends AbstractFlowableEventListener implements Serializable {
 
-    private static final long serialVersionUID = -7665948468083310385L;
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortProcessListener.class);
 
@@ -69,36 +73,38 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
     }
 
     @Override
-    public void onEvent(ActivitiEvent event) {
+    public void onEvent(FlowableEvent event) {
         if (!isEventValid(event)) {
             return;
         }
 
-        String processInstanceId = event.getProcessInstanceId();
-        String correlationId = getCorrelationId(event);
+        FlowableEngineEvent engineEvent = (FlowableEngineEvent) event;
+
+        String processInstanceId = engineEvent.getProcessInstanceId();
+        String correlationId = getCorrelationId(engineEvent);
 
         new SafeExecutor().executeSafely(() -> new ProcessConflictPreventer(getOperationDao()).attemptToReleaseLock(correlationId));
 
         new SafeExecutor().executeSafely(() -> setOperationInAbortedState(correlationId));
 
-        HistoryService historyService = event.getEngineServices()
+        HistoryService historyService = Context.getProcessEngineConfiguration()
             .getHistoryService();
 
         new SafeExecutor().executeSafely(() -> deleteAllocatedRoutes(historyService, processInstanceId));
         new SafeExecutor().executeSafely(() -> deleteDeploymentFiles(historyService, processInstanceId));
 
-        new SafeExecutor().executeSafely(() -> new ClientReleaser(event, getClientProvider()).releaseClient());
+        new SafeExecutor().executeSafely(() -> new ClientReleaser(engineEvent, getClientProvider()).releaseClient());
 
         new SafeExecutor().executeSafely(() -> {
             if (configuration.shouldGatherUsageStatistics()) {
-                sendStatistics(event);
+                sendStatistics(engineEvent);
             }
         });
 
     }
 
-    private String getCorrelationId(ActivitiEvent event) {
-        HistoricVariableInstance correlationId = getHistoricVarInstanceValue(event.getEngineServices()
+    private String getCorrelationId(FlowableEngineEvent event) {
+        HistoricVariableInstance correlationId = getHistoricVarInstanceValue(Context.getProcessEngineConfiguration()
             .getHistoryService(), event.getProcessInstanceId(), Constants.VAR_CORRELATION_ID);
         if (correlationId != null) {
             return (String) correlationId.getValue();
@@ -164,7 +170,7 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         fileSweeper.sweep(appArchiveFileIds);
     }
 
-    protected void sendStatistics(ActivitiEvent event) {
+    protected void sendStatistics(FlowableEngineEvent event) {
         DelegateExecution context = new ActivitiEventToDelegateExecutionAdapter(event);
         RestTemplate restTemplate = new RestTemplate();
         AnalyticsData collectedData = dataSender.collectAnalyticsData(context, State.ABORTED);
@@ -198,18 +204,28 @@ public class AbortProcessListener implements ActivitiEventListener, Serializable
         return beanProvider;
     }
 
-    /*
-     * This is a workaround for a bug in the activiti engine. If the event listener is configured for ENTITY_DELETED event on entity type
-     * "process-instance", the event listener is also triggered for entity type "execution". In activiti engine version 5.16.0 the timer
-     * behavior was changed to start an Execution process, which, after the execution of the timer, is deleted. This leads to the triggering
-     * of this event listener. The workaround implemented is to check whether there is a delete reason specified, as the deletion for the
-     * Execution process for the timer doesn't specify a reason.
-     */
-    private boolean isEventValid(ActivitiEvent event) {
-        ProcessInstanceEndedEventHandler eventHandler = new ProcessInstanceEndedEventHandler();
-        eventHandler.setEvent(event);
-        ExecutionEntity entity = eventHandler.getEntityFromEvent();
-        return entity.getDeleteReason() != null;
+    private boolean isEventValid(FlowableEvent event) {
+        if (!(event instanceof FlowableProcessEngineEvent)) {
+            return false;
+        }
+        FlowableProcessEngineEvent processEngineEvent = (FlowableProcessEngineEvent) event;
+        if (FlowableEngineEventType.PROCESS_CANCELLED.equals(processEngineEvent.getType())) {
+            return true;
+        }
+        if (FlowableEngineEventType.ENTITY_DELETED.equals(processEngineEvent.getType()) && hasCorrectEntityType(processEngineEvent)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean hasCorrectEntityType(FlowableProcessEngineEvent processEngineEvent) {
+        FlowableEntityEvent flowableEntityEvent = (FlowableEntityEvent) processEngineEvent;
+        if (!(flowableEntityEvent.getEntity() instanceof ExecutionEntity)) {
+            return false;
+        }
+
+        ExecutionEntity executionEntity = (ExecutionEntity) flowableEntityEvent.getEntity();
+        return executionEntity.isProcessInstanceType() && Constants.PROCESS_ABORTED.equals(executionEntity.getDeleteReason());
     }
 
     private class SafeExecutor {

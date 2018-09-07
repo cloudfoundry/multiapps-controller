@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;

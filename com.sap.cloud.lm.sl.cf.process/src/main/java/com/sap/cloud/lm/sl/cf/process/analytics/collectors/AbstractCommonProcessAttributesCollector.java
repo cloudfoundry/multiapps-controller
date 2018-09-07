@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.analytics.collectors;
 
 import java.util.function.Supplier;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AbstractCommonProcessAttributes;

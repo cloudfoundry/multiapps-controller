@@ -3,9 +3,9 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.Arrays;
 import java.util.List;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
@@ -13,7 +13,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 public class MonitorAppDeploySubProcessExecution extends AbstractSubProcessMonitorExecution {
 
-    public MonitorAppDeploySubProcessExecution(ActivitiFacade activitiFacade) {
+    public MonitorAppDeploySubProcessExecution(FlowableFacade activitiFacade) {
         super(activitiFacade);
     }
 

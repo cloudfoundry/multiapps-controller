@@ -10,14 +10,16 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.impl.jobexecutor.DefaultJobExecutor;
-import org.activiti.engine.impl.jobexecutor.FailedJobCommandFactory;
-import org.activiti.engine.impl.jobexecutor.JobExecutor;
-import org.activiti.spring.ProcessEngineFactoryBean;
-import org.activiti.spring.SpringProcessEngineConfiguration;
+import org.activiti.compatibility.spring.SpringFlowable5CompatibilityHandlerFactory;
+import org.flowable.engine.HistoryService;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.compatibility.Flowable5CompatibilityHandlerFactory;
+import org.flowable.job.service.impl.asyncexecutor.AsyncExecutor;
+import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
+import org.flowable.job.service.impl.asyncexecutor.FailedJobCommandFactory;
+import org.flowable.spring.ProcessEngineFactoryBean;
+import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +33,7 @@ import com.sap.cloud.lm.sl.cf.process.AbortFailedProcessCommandFactory;
 
 @Configuration
 @Profile("cf")
-public class ActivitiConfiguration {
+public class FlowableConfiguration {
 
     private static final String DATABASE_SCHEMA_UPDATE = "true";
 
@@ -42,7 +44,7 @@ public class ActivitiConfiguration {
     private static final String JOB_EXECUTOR_ID_TEMPLATE = "ds-%s/%d/%s";
 
     @Value("classpath*:/com/sap/cloud/lm/sl/cf/process/*.bpmn")
-    private Resource[] activitiResources;
+    private Resource[] flowableResources;
     protected Supplier<String> randomIdGenerator = () -> UUID.randomUUID()
         .toString();
 
@@ -59,25 +61,33 @@ public class ActivitiConfiguration {
     @Inject
     @Bean
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
-        JobExecutor jobExecutor) {
+        AsyncExecutor jobExecutor, Flowable5CompatibilityHandlerFactory flowable5CompatibilityHandlerFactory) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
         processEngineConfiguration.setDatabaseSchemaUpdate(DATABASE_SCHEMA_UPDATE);
         processEngineConfiguration.setDataSource(dataSource);
         processEngineConfiguration.setTransactionManager(transactionManager);
 
-        processEngineConfiguration.setDeploymentResources(getActivitiResources());
+        processEngineConfiguration.setDeploymentResources(getFlowableResources());
         processEngineConfiguration.setFailedJobCommandFactory(getFailedJobCommandFactory());
-        processEngineConfiguration.setJobExecutor(jobExecutor);
+        processEngineConfiguration.setAsyncExecutor(jobExecutor);
+        processEngineConfiguration.setAsyncExecutorNumberOfRetries(0);
+        processEngineConfiguration.setFlowable5CompatibilityEnabled(true);
+        processEngineConfiguration.setFlowable5CompatibilityHandlerFactory(flowable5CompatibilityHandlerFactory);
         return processEngineConfiguration;
     }
 
-    private Resource[] getActivitiResources() {
-        return getActivitiResourcesAsList().toArray(new Resource[0]);
+    @Bean
+    public Flowable5CompatibilityHandlerFactory flowableCompatibilityFactory() {
+        return new SpringFlowable5CompatibilityHandlerFactory();
     }
 
-    protected List<Resource> getActivitiResourcesAsList() {
+    private Resource[] getFlowableResources() {
+        return getFlowableResourcesAsList().toArray(new Resource[0]);
+    }
+
+    protected List<Resource> getFlowableResourcesAsList() {
         List<Resource> resources = new ArrayList<>();
-        resources.addAll(Arrays.asList(activitiResources));
+        resources.addAll(Arrays.asList(flowableResources));
         return resources;
     }
 
@@ -88,15 +98,15 @@ public class ActivitiConfiguration {
 
     @Inject
     @Bean
-    public JobExecutor jobExecutor(String jobExecutorId) {
-        DefaultJobExecutor jobExecutor = new DefaultJobExecutor();
+    public AsyncExecutor jobExecutor(String jobExecutorId) {
+        DefaultAsyncJobExecutor jobExecutor = new DefaultAsyncJobExecutor();
         scale(jobExecutor);
-        jobExecutor.setLockTimeInMillis(JOB_EXECUTOR_LOCK_TIME_IN_MILLIS);
+        jobExecutor.setAsyncJobLockTimeInMillis(JOB_EXECUTOR_LOCK_TIME_IN_MILLIS);
         jobExecutor.setLockOwner(jobExecutorId);
         return jobExecutor;
     }
 
-    protected void scale(DefaultJobExecutor jobExecutor) {
+    protected void scale(DefaultAsyncJobExecutor jobExecutor) {
         jobExecutor.setQueueSize(JOB_EXECUTOR_QUEUE_SIZE);
         jobExecutor.setCorePoolSize(JOB_EXECUTOR_CORE_POOL_SIZE);
         jobExecutor.setMaxPoolSize(JOB_EXECUTOR_MAX_POOL_SIZE);

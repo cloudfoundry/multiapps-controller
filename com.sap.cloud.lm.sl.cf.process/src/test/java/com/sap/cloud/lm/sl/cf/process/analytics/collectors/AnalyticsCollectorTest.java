@@ -11,11 +11,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.activiti.engine.EngineServices;
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.history.HistoricProcessInstance;
-import org.activiti.engine.history.HistoricProcessInstanceQuery;
+import org.flowable.engine.HistoryService;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.ProcessEngineConfiguration;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.history.HistoricProcessInstanceQuery;
+import org.flowable.engine.impl.context.Context;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -30,9 +32,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.analytics.collectors.AnalyticsCollector;
-import com.sap.cloud.lm.sl.cf.process.analytics.collectors.DeployProcessAttributesCollector;
-import com.sap.cloud.lm.sl.cf.process.analytics.collectors.UndeployProcessAttributesCollector;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
@@ -91,7 +90,8 @@ public class AnalyticsCollectorTest {
         HistoryService service = Mockito.mock(HistoryService.class);
         when(service.createHistoricProcessInstanceQuery()).thenReturn(query);
         when(query.processInstanceId(PROCESS_ID)).thenReturn(query);
-        EngineServices services = context.getEngineServices();
+        // TODO: fix this
+        ProcessEngineConfiguration services = Context.getProcessEngineConfiguration();
         when(services.getHistoryService()).thenReturn(service);
         HistoricProcessInstance processInstance = Mockito.mock(HistoricProcessInstance.class);
         when(processInstance.getStartTime()).thenReturn(new Date(0));

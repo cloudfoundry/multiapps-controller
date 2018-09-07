@@ -11,17 +11,17 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.activiti.engine.ActivitiObjectNotFoundException;
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.history.HistoricProcessInstance;
-import org.activiti.engine.history.HistoricProcessInstanceQuery;
+import org.flowable.common.engine.api.FlowableObjectNotFoundException;
+import org.flowable.engine.HistoryService;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.history.HistoricProcessInstanceQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ActivitiHistoricDataCleanerTest {
+public class FlowableHistoricDataCleanerTest {
 
     private static final Date EXPIRATION_TIME = new Date(5000);
     private static final String OPERATION_ID_1 = "1";
@@ -31,12 +31,12 @@ public class ActivitiHistoricDataCleanerTest {
 
     @Mock
     private HistoryService historyService;
-    private ActivitiHistoricDataCleaner cleaner;
+    private FlowableHistoricDataCleaner cleaner;
 
     @BeforeEach
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        this.cleaner = new ActivitiHistoricDataCleaner(historyService, PAGE_SIZE);
+        this.cleaner = new FlowableHistoricDataCleaner(historyService, PAGE_SIZE);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class ActivitiHistoricDataCleanerTest {
 
         HistoricProcessInstanceQuery query = mockHistoricProcessInstanceQueryWithPages(Arrays.asList(page1, page2));
         when(historyService.createHistoricProcessInstanceQuery()).thenReturn(query);
-        doThrow(new ActivitiObjectNotFoundException("Oops! Someone was faster than you!")).when(historyService)
+        doThrow(new FlowableObjectNotFoundException("Oops! Someone was faster than you!")).when(historyService)
             .deleteHistoricProcessInstance(OPERATION_ID_1);
 
         cleaner.execute(EXPIRATION_TIME);

@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;

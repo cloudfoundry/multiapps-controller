@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;

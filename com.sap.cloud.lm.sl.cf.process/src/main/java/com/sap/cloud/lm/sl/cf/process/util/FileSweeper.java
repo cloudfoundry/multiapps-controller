@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import org.activiti.engine.history.HistoricVariableInstance;
+import org.flowable.variable.api.history.HistoricVariableInstance;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;

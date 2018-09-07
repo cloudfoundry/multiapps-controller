@@ -1,26 +1,29 @@
 package com.sap.cloud.lm.sl.cf.process.analytics.adapters;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.activiti.engine.EngineServices;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.event.ActivitiEvent;
-import org.activiti.engine.history.HistoricVariableInstance;
-import org.activiti.engine.impl.persistence.entity.VariableInstance;
+import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.FlowableListener;
+import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.impl.context.Context;
+import org.flowable.variable.api.history.HistoricVariableInstance;
+import org.flowable.variable.api.persistence.entity.VariableInstance;
 
 public class ActivitiEventToDelegateExecutionAdapter implements DelegateExecution {
 
-    private ActivitiEvent event;
+    private FlowableEngineEvent event;
 
-    public ActivitiEventToDelegateExecutionAdapter(ActivitiEvent event) {
+    public ActivitiEventToDelegateExecutionAdapter(FlowableEngineEvent event) {
         this.event = event;
     }
 
     @Override
     public Object getVariable(String variableName) {
-        HistoricVariableInstance result = event.getEngineServices()
+        HistoricVariableInstance result = Context.getProcessEngineConfiguration()
             .getHistoryService()
             .createHistoricVariableInstanceQuery()
             .processInstanceId(getProcessInstanceId())
@@ -35,16 +38,6 @@ public class ActivitiEventToDelegateExecutionAdapter implements DelegateExecutio
     @Override
     public String getProcessInstanceId() {
         return event.getProcessInstanceId();
-    }
-
-    @Override
-    public EngineServices getEngineServices() {
-        return event.getEngineServices();
-    }
-
-    @Override
-    public void createVariableLocal(String arg0, Object arg1) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -238,17 +231,7 @@ public class ActivitiEventToDelegateExecutionAdapter implements DelegateExecutio
     }
 
     @Override
-    public String getBusinessKey() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getCurrentActivityId() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getCurrentActivityName() {
         throw new UnsupportedOperationException();
     }
 
@@ -264,11 +247,6 @@ public class ActivitiEventToDelegateExecutionAdapter implements DelegateExecutio
 
     @Override
     public String getParentId() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getProcessBusinessKey() {
         throw new UnsupportedOperationException();
     }
 
@@ -289,6 +267,166 @@ public class ActivitiEventToDelegateExecutionAdapter implements DelegateExecutio
 
     @Override
     public Object getVariable(String arg0, boolean arg1) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object getTransientVariable(String arg0) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object getTransientVariableLocal(String arg0) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<String, Object> getTransientVariables() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<String, Object> getTransientVariablesLocal() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeTransientVariable(String arg0) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeTransientVariableLocal(String arg0) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeTransientVariables() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeTransientVariablesLocal() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setTransientVariable(String arg0, Object arg1) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setTransientVariableLocal(String arg0, Object arg1) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setTransientVariables(Map<String, Object> arg0) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setTransientVariablesLocal(Map<String, Object> arg0) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getRootProcessInstanceId() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setEventName(String eventName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getProcessInstanceBusinessKey() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FlowElement getCurrentFlowElement() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setCurrentFlowElement(FlowElement flowElement) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FlowableListener getCurrentFlowableListener() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setCurrentFlowableListener(FlowableListener currentListener) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DelegateExecution getParent() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<? extends DelegateExecution> getExecutions() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setActive(boolean isActive) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isActive() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isEnded() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setConcurrent(boolean isConcurrent) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isConcurrent() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isProcessInstanceType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void inactivate() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isScope() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setScope(boolean isScope) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isMultiInstanceRoot() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setMultiInstanceRoot(boolean isMultiInstanceRoot) {
         throw new UnsupportedOperationException();
     }
 }

@@ -11,6 +11,8 @@ public class Messages {
     // Warn messages
 
     public static final String RETRYING_PROCESS_ABORT = "Abort of process \"{0}\" failed due to an optimistic locking exception. Retrying abort...";
+    public static final String ERROR_REMOVING_HISTORIC_PROCESS_INSTANCE_WITH_ID_0 = "Error removing historic process instance with id {0}";
+    public static final String ERROR_REMOVING_PROCESS_INSTANCE_WITH_ID_0 = "Error removing process instance with id {0}";
 
     // Debug messages
 

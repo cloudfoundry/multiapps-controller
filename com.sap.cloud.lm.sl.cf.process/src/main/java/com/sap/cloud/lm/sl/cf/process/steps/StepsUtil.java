@@ -14,15 +14,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.history.HistoricVariableInstance;
-import org.activiti.engine.impl.identity.Authentication;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.flowable.common.engine.impl.identity.Authentication;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -34,7 +34,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
-import com.sap.cloud.lm.sl.cf.core.activiti.ActivitiFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
@@ -534,8 +534,8 @@ public class StepsUtil {
         return Arrays.asList(JsonUtil.getFromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
     }
 
-    static List<ConfigurationEntry> getDeletedEntriesFromProcess(ActivitiFacade activitiFacade, String processInstanceId) {
-        HistoricVariableInstance deletedEntries = activitiFacade.getHistoricVariableInstance(processInstanceId,
+    static List<ConfigurationEntry> getDeletedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {
+        HistoricVariableInstance deletedEntries = flowableFacade.getHistoricVariableInstance(processInstanceId,
             Constants.VAR_DELETED_ENTRIES);
         if (deletedEntries == null) {
             return Collections.emptyList();
@@ -544,7 +544,7 @@ public class StepsUtil {
         return Arrays.asList(JsonUtil.getFromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
     }
 
-    static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(DelegateExecution context, ActivitiFacade activitiFacade) {
+    static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(DelegateExecution context, FlowableFacade activitiFacade) {
         List<ConfigurationEntry> configurationEntries = new ArrayList<>(
             StepsUtil.getDeletedEntriesFromProcess(activitiFacade, StepsUtil.getCorrelationId(context)));
         List<String> subProcessIds = activitiFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(context));
@@ -568,7 +568,7 @@ public class StepsUtil {
         return Arrays.asList(publishedEntriesArray);
     }
 
-    static List<ConfigurationEntry> getPublishedEntriesFromProcess(ActivitiFacade activitiFacade, String processInstanceId) {
+    static List<ConfigurationEntry> getPublishedEntriesFromProcess(FlowableFacade activitiFacade, String processInstanceId) {
         HistoricVariableInstance publishedEntries = activitiFacade.getHistoricVariableInstance(processInstanceId,
             Constants.VAR_PUBLISHED_ENTRIES);
         if (publishedEntries == null) {
@@ -578,7 +578,7 @@ public class StepsUtil {
         return Arrays.asList(JsonUtil.getFromBinaryJson(binaryJson, ConfigurationEntry[].class));
     }
 
-    static List<ConfigurationEntry> getPublishedEntriesFromSubProcesses(DelegateExecution context, ActivitiFacade activitiFacade) {
+    static List<ConfigurationEntry> getPublishedEntriesFromSubProcesses(DelegateExecution context, FlowableFacade activitiFacade) {
         List<ConfigurationEntry> result = new ArrayList<>();
         List<String> subProcessIds = activitiFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(context));
         for (String subProcessId : subProcessIds) {
@@ -985,23 +985,11 @@ public class StepsUtil {
     }
 
     static String getGitRepoRef(DelegateExecution context) {
-        Object gitRepoConfigObject = context.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
-        if (gitRepoConfigObject == null) {
-            return (String) context.getVariable(Constants.PARAM_GIT_REF);
-        }
-        @SuppressWarnings("unchecked")
-        Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
-        return gitRepoConfigMap.get(Constants.PARAM_GIT_REF);
+        return (String) context.getVariable(Constants.PARAM_GIT_REF);
     }
 
     static String getGitRepoUri(DelegateExecution context) {
-        Object gitRepoConfigObject = context.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
-        if (gitRepoConfigObject == null) {
-            return (String) context.getVariable(Constants.PARAM_GIT_URI);
-        }
-        @SuppressWarnings("unchecked")
-        Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
-        return gitRepoConfigMap.get(Constants.PARAM_GIT_URI);
+        return (String) context.getVariable(Constants.PARAM_GIT_URI);
     }
 
     static void setUseIdleUris(DelegateExecution context, boolean state) {

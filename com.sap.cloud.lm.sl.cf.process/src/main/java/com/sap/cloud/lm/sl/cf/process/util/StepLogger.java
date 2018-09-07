@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.util;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 
-import org.activiti.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
