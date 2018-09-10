@@ -112,9 +112,7 @@ public class FileSystemFileService extends AbstractFileService {
 
     private Path getFilesDirectory(String space) throws IOException {
         Path filesPerSpaceDirectory = getFilesPerSpaceDirectory(space);
-        if (!filesPerSpaceDirectory.toFile().exists()) { // squid:S3725 - java 8 Files.exists() has poor performance
-            Files.createDirectories(filesPerSpaceDirectory);
-        }
+        Files.createDirectories(filesPerSpaceDirectory);
         return filesPerSpaceDirectory;
     }
 
@@ -190,7 +188,8 @@ public class FileSystemFileService extends AbstractFileService {
     private boolean hasContent(FileEntry entry) throws FileStorageException {
         try {
             Path filePath = getFilePath(entry);
-            return filePath.toFile().exists();// squid:S3725 - java 8 Files.exists() has poor performance
+            return filePath.toFile()
+                .exists();// squid:S3725 - java 8 Files.exists() has poor performance
         } catch (IOException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
