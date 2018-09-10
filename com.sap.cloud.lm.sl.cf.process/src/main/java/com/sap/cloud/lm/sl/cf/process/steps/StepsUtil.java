@@ -844,7 +844,7 @@ public class StepsUtil {
         return (String) context.getVariable(Constants.TASK_INDEX);
     }
 
-    static ErrorType getErrorType(DelegateExecution context) {
+    public static ErrorType getErrorType(DelegateExecution context) {
         String errorType = (String) context.getVariable(Constants.VAR_ERROR_TYPE);
         return errorType == null ? null : ErrorType.valueOf(errorType);
     }
@@ -861,7 +861,7 @@ public class StepsUtil {
         return stepPhase == null ? StepPhase.EXECUTE : StepPhase.valueOf(stepPhase);
     }
 
-    static void setStepPhase(DelegateExecution context, StepPhase stepPhase) {
+    public static void setStepPhase(DelegateExecution context, StepPhase stepPhase) {
         if (stepPhase == null) {
             return;
         }
