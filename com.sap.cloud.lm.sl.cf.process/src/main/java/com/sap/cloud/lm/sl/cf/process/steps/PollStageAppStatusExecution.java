@@ -83,7 +83,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
                     // TODO delete filtering when parallel app push is implemented
                     stagingLogs = new XMLValueFilter(stagingLogs).getFiltered();
                     execution.getStepLogger()
-                        .info(stagingLogs);
+                        .debug(stagingLogs);
                     offset += stagingLogs.length();
                     execution.getContext()
                         .setVariable(Constants.VAR_OFFSET, offset);
