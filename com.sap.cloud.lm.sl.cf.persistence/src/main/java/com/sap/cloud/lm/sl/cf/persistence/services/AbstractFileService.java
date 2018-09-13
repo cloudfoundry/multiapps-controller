@@ -46,11 +46,11 @@ public abstract class AbstractFileService {
     private static final String DELETE_FILE_BY_ID = "DELETE FROM %s WHERE FILE_ID=? AND SPACE=?";
     private static final String DELETE_FILES_BY_NAMESPACE = "DELETE FROM %s WHERE NAMESPACE=? AND SPACE=?";
     private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String DELETE_FILES_BY_MODIFICATION_TIME = "DELETE FROM %s WHERE MODIFIED<?";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFileService.class);
+    private static final String DELETE_FILES_MODIFIED_BEFORE = "DELETE FROM %s WHERE MODIFIED<?";
 
     protected static final String DEFAULT_TABLE_NAME = "LM_SL_PERSISTENCE_FILE";
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final String tableName;
     private final DataSourceWithDialect dataSourceWithDialect;
@@ -134,8 +134,8 @@ public abstract class AbstractFileService {
             scanUpload(fileUpload);
         }
         FileEntry fileEntry = createFileEntry(space, namespace, name, fileUpload);
-        logFileEntry(fileEntry);
         storeFile(fileEntry, fileUpload);
+        logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
         return fileEntry;
     }
 
@@ -144,11 +144,11 @@ public abstract class AbstractFileService {
             throw new FileStorageException(Messages.NO_VIRUS_SCANNER_CONFIGURED);
         }
         try {
-            LOGGER.info(MessageFormat.format(Messages.SCANNING_FILE, file.getFile()));
+            logger.info(MessageFormat.format(Messages.SCANNING_FILE, file.getFile()));
             virusScanner.scanFile(file.getFile());
-            LOGGER.info(MessageFormat.format(Messages.SCANNING_FILE_SUCCESS, file.getFile()));
+            logger.info(MessageFormat.format(Messages.SCANNING_FILE_SUCCESS, file.getFile()));
         } catch (VirusScannerException e) {
-            LOGGER.error(MessageFormat.format(Messages.DELETING_LOCAL_FILE_BECAUSE_OF_INFECTION, file.getFile()));
+            logger.error(MessageFormat.format(Messages.DELETING_LOCAL_FILE_BECAUSE_OF_INFECTION, file.getFile()));
             FileUploader.removeFile(file);
             throw e;
         }
@@ -230,7 +230,10 @@ public abstract class AbstractFileService {
                         statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_NAMESPACE));
                         statement.setString(1, namespace);
                         statement.setString(2, space);
-                        return statement.executeUpdate();
+                        int deletedFiles = statement.executeUpdate();
+                        logger.debug(
+                            MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2, deletedFiles, space, namespace));
+                        return deletedFiles;
                     } finally {
                         JdbcUtil.closeQuietly(statement);
                     }
@@ -241,16 +244,18 @@ public abstract class AbstractFileService {
         }
     }
 
-    public int deleteByModificationTime(Date modificationTime) throws FileStorageException {
+    public int deleteModifiedBefore(Date modificationTime) throws FileStorageException {
         try {
             return getSqlExecutor().execute(new StatementExecutor<Integer>() {
                 @Override
                 public Integer execute(Connection connection) throws SQLException {
                     PreparedStatement statement = null;
                     try {
-                        statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_MODIFICATION_TIME));
+                        statement = connection.prepareStatement(getQuery(DELETE_FILES_MODIFIED_BEFORE));
                         statement.setTimestamp(1, new java.sql.Timestamp(modificationTime.getTime()));
-                        return statement.executeUpdate();
+                        int deletedFiles = statement.executeUpdate();
+                        logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
+                        return deletedFiles;
                     } finally {
                         JdbcUtil.closeQuietly(statement);
                     }
@@ -261,24 +266,26 @@ public abstract class AbstractFileService {
         }
     }
 
-    public int deleteFile(final String space, final String id) throws FileStorageException {
+    public boolean deleteFile(final String space, final String id) throws FileStorageException {
         deleteFileContent(space, id);
         return deleteFileAttributes(space, id);
     }
 
     protected abstract void deleteFileContent(String space, String id) throws FileStorageException;
 
-    public int deleteFileAttributes(final String space, final String id) throws FileStorageException {
+    protected boolean deleteFileAttributes(final String space, final String id) throws FileStorageException {
         try {
-            return getSqlExecutor().execute(new StatementExecutor<Integer>() {
+            return getSqlExecutor().execute(new StatementExecutor<Boolean>() {
                 @Override
-                public Integer execute(Connection connection) throws SQLException {
+                public Boolean execute(Connection connection) throws SQLException {
                     PreparedStatement statement = null;
                     try {
                         statement = connection.prepareStatement(getQuery(DELETE_FILE_BY_ID));
                         statement.setString(1, id);
                         statement.setString(2, space);
-                        return statement.executeUpdate();
+                        int deletedRows = statement.executeUpdate();
+                        logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_ID_1_AND_SPACE_2, deletedRows, id, space));
+                        return deletedRows > 0;
                     } finally {
                         JdbcUtil.closeQuietly(statement);
                     }
@@ -343,9 +350,7 @@ public abstract class AbstractFileService {
                         statement.setString(2, space);
                         resultSet = statement.executeQuery();
                         if (resultSet.next()) {
-                            FileEntry fileEntry = getFileEntry(resultSet);
-                            logFileEntry(fileEntry);
-                            return fileEntry;
+                            return getFileEntry(resultSet);
                         }
                         return null;
                     } finally {
@@ -358,10 +363,6 @@ public abstract class AbstractFileService {
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
-    }
-
-    protected void logFileEntry(FileEntry fileEntry) {
-        LOGGER.info("{} : founded", fileEntry);
     }
 
     private FileEntry getFileEntry(ResultSet resultSet) throws SQLException {

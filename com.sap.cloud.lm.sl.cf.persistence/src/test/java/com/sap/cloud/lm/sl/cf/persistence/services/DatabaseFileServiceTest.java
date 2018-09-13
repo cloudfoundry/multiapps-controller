@@ -226,7 +226,7 @@ public class DatabaseFileServiceTest {
         setMofidicationDate(fileEntryToDelete1, pastMoment);
         setMofidicationDate(fileEntryToDelete2, pastMoment);
 
-        int deletedFiles = fileService.deleteByModificationTime(new Date(currentMillis - oldFilesTtl));
+        int deletedFiles = fileService.deleteModifiedBefore(new Date(currentMillis - oldFilesTtl));
 
         assertNotNull(fileService.getFile(MY_SPACE_ID, fileEntryToRemain1.getId()));
         assertNotNull(fileService.getFile(MY_SPACE_2_ID, fileEntryToRemain2.getId()));

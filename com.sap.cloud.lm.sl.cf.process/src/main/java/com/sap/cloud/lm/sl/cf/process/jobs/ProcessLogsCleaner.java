@@ -33,7 +33,7 @@ public class ProcessLogsCleaner implements Cleaner {
     public void execute(Date expirationTime) {
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_PROCESS_LOGS_MODIFIED_BEFORE_0, expirationTime));
         try {
-            int deletedProcessLogs = processLogsPersistenceService.deleteByModificationTime(expirationTime);
+            int deletedProcessLogs = processLogsPersistenceService.deleteModifiedBefore(expirationTime);
             LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_PROCESS_LOGS_0, deletedProcessLogs));
         } catch (FileStorageException e) {
             throw new SLException(e, Messages.COULD_NOT_DELETE_PROCESS_LOGS_MODIFIED_BEFORE_0, expirationTime);

@@ -30,7 +30,7 @@ public class FilesCleanerTest {
     @Test
     public void testExecute() throws FileStorageException {
         cleaner.execute(EXPIRATION_TIME);
-        verify(fileService).deleteByModificationTime(EXPIRATION_TIME);
+        verify(fileService).deleteModifiedBefore(EXPIRATION_TIME);
     }
 
 }
