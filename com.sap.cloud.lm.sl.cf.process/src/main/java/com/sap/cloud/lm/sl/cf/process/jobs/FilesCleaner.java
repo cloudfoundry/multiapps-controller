@@ -33,7 +33,7 @@ public class FilesCleaner implements Cleaner {
     public void execute(Date expirationTime) {
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.DELETING_FILES_MODIFIED_BEFORE_0, expirationTime));
         try {
-            int removedOldFilesCount = fileService.deleteByModificationTime(expirationTime);
+            int removedOldFilesCount = fileService.deleteModifiedBefore(expirationTime);
             LOGGER.info(CleanUpJob.LOG_MARKER, format(Messages.DELETED_FILES_0, removedOldFilesCount));
         } catch (FileStorageException e) {
             throw new SLException(e, Messages.COULD_NOT_DELETE_FILES_MODIFIED_BEFORE_0, expirationTime);

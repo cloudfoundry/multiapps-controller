@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileVisitResult;
@@ -17,8 +18,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
@@ -26,8 +25,6 @@ import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 
 public class FileSystemFileService extends AbstractFileService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemFileService.class);
 
     private static final String DEFAULT_FILES_STORAGE_PATH = "files";
 
@@ -55,9 +52,13 @@ public class FileSystemFileService extends AbstractFileService {
         try {
             Path filesDirectory = getFilesDirectory(fileEntry.getSpace());
             Path newFilePath = Paths.get(filesDirectory.toString(), fileEntry.getId());
+            logger.trace(MessageFormat.format(Messages.STORING_FILE_TO_PATH_0, newFilePath));
             Files.copy(inputStream, newFilePath, StandardCopyOption.REPLACE_EXISTING);
-            return newFilePath.toFile()
-                .exists();// squid:S3725 - java 8 Files.exists() has poor performance
+            File newFile = newFilePath.toFile();
+            boolean storedSuccessfully = newFile.exists();
+            logger.debug(
+                MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2, newFile, newFile.length(), storedSuccessfully));
+            return storedSuccessfully;
         } catch (IOException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
@@ -68,7 +69,7 @@ public class FileSystemFileService extends AbstractFileService {
         try {
             Path filesDirectory = getFilesDirectory(space);
             Path filePath = Paths.get(filesDirectory.toString(), id);
-            LOGGER.info(MessageFormat.format(Messages.DELETING_FILE_WITH_PATH, filePath.toString()));
+            logger.debug(MessageFormat.format(Messages.DELETING_FILE_WITH_PATH_0, filePath.toString()));
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_DELETING_FILE_WITH_ID, id), e);
@@ -85,7 +86,7 @@ public class FileSystemFileService extends AbstractFileService {
         InputStream fileContentStream = null;
         try {
             Path filePathLocation = getFilePath(fileDownloadProcessor.getFileEntry());
-            LOGGER.info("FilePath of processed FileContent:{}", filePathLocation);
+            logger.trace(MessageFormat.format(Messages.PROCESSING_FILE_0, filePathLocation));
             fileContentStream = Files.newInputStream(filePathLocation);
             fileDownloadProcessor.processContent(fileContentStream);
         } catch (Exception e) {
@@ -116,9 +117,8 @@ public class FileSystemFileService extends AbstractFileService {
     }
 
     @Override
-    public int deleteByModificationTime(Date modificationTime) throws FileStorageException {
-        int deletedFileAttributes = super.deleteByModificationTime(modificationTime);
-        LOGGER.debug(MessageFormat.format(Messages.DELETED_FILE_ATTRIBUTES_COUNT, deletedFileAttributes));
+    public int deleteModifiedBefore(Date modificationTime) throws FileStorageException {
+        super.deleteModifiedBefore(modificationTime);
 
         AtomicInteger deletedFiles = new AtomicInteger();
         final FileTime modificationTimeUpperBound = FileTime.fromMillis(modificationTime.getTime());
@@ -130,9 +130,9 @@ public class FileSystemFileService extends AbstractFileService {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     if (attrs.lastModifiedTime()
                         .compareTo(modificationTimeUpperBound) < 0) {
-                        LOGGER.info(MessageFormat.format(Messages.DELETING_FILE_WITH_PATH, file.toString()));
+                        logger.trace(MessageFormat.format(Messages.DELETING_FILE_WITH_PATH_0, file.toString()));
                         boolean deleted = Files.deleteIfExists(file);
-                        LOGGER.info(MessageFormat.format(Messages.DELETED_FILE_WITH_PATH, file.toString(), deleted));
+                        logger.debug(MessageFormat.format(Messages.DELETED_FILE_0_SUCCESSFULLY_1, file.toString(), deleted));
                         if (deleted) {
                             deletedFiles.incrementAndGet();
                         }

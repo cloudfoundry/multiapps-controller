@@ -118,8 +118,8 @@ public class FileSystemFileServiceTest extends DatabaseFileServiceTest {
         FileEntry addedFile = fileService.addFile(spaceId, namespace, testFilePath.toFile()
             .getName(), new DefaultFileUploadProcessor(false), testFilePath.toFile());
 
-        int deletionResult = fileService.deleteFile(spaceId, addedFile.getId());
-        Assert.assertEquals(1, deletionResult);
+        boolean wasDeleted = fileService.deleteFile(spaceId, addedFile.getId());
+        Assert.assertTrue(wasDeleted);
     }
 
     @Test
@@ -206,7 +206,7 @@ public class FileSystemFileServiceTest extends DatabaseFileServiceTest {
         Path oldNonDeployerFile = Files.createFile(Paths.get(temporaryStorageLocation.toString(), "random"));
         Files.setLastModifiedTime(oldNonDeployerFile, FileTime.fromMillis(pastMoment));
 
-        int deletedFiles = fileService.deleteByModificationTime(new Date(currentMillis - oldFilesTtl));
+        int deletedFiles = fileService.deleteModifiedBefore(new Date(currentMillis - oldFilesTtl));
 
         assertFileExists(true, fileEntryToRemain1);
         assertFileExists(true, fileEntryToRemain2);
