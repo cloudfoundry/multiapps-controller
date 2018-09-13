@@ -98,12 +98,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     public boolean deleteLog(String space, String namespace, String logName) throws FileStorageException {
         String fileId = findFileId(space, namespace, logName);
-        return deleteLog(space, fileId);
-    }
-
-    public boolean deleteLog(String space, String fileId) throws FileStorageException {
-        int rowsDeleted = deleteFile(space, fileId);
-        return rowsDeleted > 0;
+        return deleteFile(space, fileId);
     }
 
     public String findFileId(String namespace, String fileName) throws FileStorageException {
@@ -158,7 +153,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
-        
+
     }
 
     private void appendLog(final String space, final String namespace, final String logName, final InputStream in)
@@ -205,11 +200,6 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         // DatabaseFileService, for example). There is no alternative implementation of ProcessLogsPersistenceService, so there shouldn't be
         // any files without content.
         return 0;
-    }
-
-    @Override
-    protected void logFileEntry(FileEntry fileEntry) {
-        // Do not log MAIN_LOG file entry
     }
 
 }

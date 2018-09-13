@@ -30,7 +30,7 @@ public class ProcessLogsCleanerTest {
     @Test
     public void testExecute() throws FileStorageException {
         cleaner.execute(EXPIRATION_TIME);
-        verify(processLogsPersistenceService).deleteByModificationTime(EXPIRATION_TIME);
+        verify(processLogsPersistenceService).deleteModifiedBefore(EXPIRATION_TIME);
     }
 
 }

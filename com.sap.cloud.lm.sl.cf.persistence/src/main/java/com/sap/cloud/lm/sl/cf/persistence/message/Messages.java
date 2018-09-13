@@ -41,8 +41,7 @@ public final class Messages {
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
 
     // INFO log messages:
-    public static final String STORING_FILE_TO_PATH = "Storing file to path \"{0}\"...";
-    public static final String STORED_FILE = "Stored file \"{0}\": {1}";
+
     public static final String SCANNING_FILE = "Scanning file \"{0}\"...";
     public static final String SCANNING_FILE_SUCCESS = "File \"{0}\" is not infected";
     public static final String FAILED_TO_DELETE_FILE = "Failed to delete file {0}";
@@ -51,13 +50,20 @@ public final class Messages {
     public static final String INDEX_CREATED = "Index created.";
 
     // DEBUG log messages:
-    public static final String DELETING_FILE_WITH_PATH = "Deleting file with path {0}...";
-    public static final String DELETED_FILE_WITH_PATH = "Deleted file with path {0}: {1}";
+    public static final String DELETING_FILE_WITH_PATH_0 = "Deleting file with path \"{0}\"...";
+    public static final String DELETED_FILE_0_SUCCESSFULLY_1 = "Deleted file with path \"{0}\": {1}";
     public static final String CREATING_LOGGER = "Creating logger \"{0}\"...";
     public static final String CREATING_APPENDER = "Creating appender for logger \"{0}\"...";
     public static final String REMOVING_ALL_LOGGERS_FOR_PROCESS = "Removing loggers {1} for process \"{0}\"...";
     public static final String REMOVING_ALL_APPENDERS_FROM_LOGGER = "Removing all appenders from logger \"{0}\"...";
-    public static final String DELETED_FILE_ATTRIBUTES_COUNT = "Count of deleted files attributes: {0}";
+    public static final String STORING_FILE_TO_PATH_0 = "Storing file to path \"{0}\"...";
+    public static final String STORED_FILE_0 = "Stored file: \"{0}\"";
+    public static final String STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2 = "Stored file \"{0}\" with size {1}: {2}";
+    public static final String DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2 = "Deleted {0} files with space \"{1}\" and namespace \"{2}\".";
+    public static final String DELETED_0_FILES_MODIFIED_BEFORE_1 = "Deleted {0} files modified before \"{1}\".";
+    public static final String DELETED_0_FILES_WITH_ID_1_AND_SPACE_2 = "Deleted {0} files with ID \"{1}\" and space \"{2}\".";
+    public static final String DELETED_0_FILES_WITHOUT_CONTENT = "Deleted {0} files without content.";
+    public static final String PROCESSING_FILE_0 = "Processing file \"{0}\"...";
 
     protected Messages() {
     }

@@ -9,9 +9,6 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
@@ -28,8 +25,6 @@ public class DatabaseFileService extends AbstractFileService {
     private static final String INSERT_FILE_CONTENT = "UPDATE %s SET CONTENT=? WHERE FILE_ID=?";
     private static final String SELECT_FILE_CONTENT_BY_ID = "SELECT FILE_ID, SPACE, CONTENT FROM %s WHERE FILE_ID=? AND SPACE=?";
     private static final String DELETE_FILES_WITHOUT_CONTENT = "DELETE FROM %s WHERE CONTENT IS NULL";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseFileService.class);
 
     public DatabaseFileService(DataSourceWithDialect dataSourceWithDialect) {
         this(DEFAULT_TABLE_NAME, dataSourceWithDialect);
@@ -51,7 +46,6 @@ public class DatabaseFileService extends AbstractFileService {
                     }
                     return storeFileContent(connection, fileEntry, inputStream);
                 }
-
             });
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
@@ -116,12 +110,11 @@ public class DatabaseFileService extends AbstractFileService {
                 try {
                     fileStream.close();
                 } catch (IOException e) {
-                    LOGGER.error(Messages.UPLOAD_STREAM_FAILED_TO_CLOSE, e);
+                    logger.error(Messages.UPLOAD_STREAM_FAILED_TO_CLOSE, e);
                 }
             }
         }
     }
-
 
     @Override
     protected void deleteFileContent(String space, String id) throws FileStorageException {
@@ -151,7 +144,11 @@ public class DatabaseFileService extends AbstractFileService {
                     PreparedStatement statement = null;
                     try {
                         statement = connection.prepareStatement(getQuery(DELETE_FILES_WITHOUT_CONTENT));
-                        return statement.executeUpdate();
+                        int deletedFiles = statement.executeUpdate();
+                        if (deletedFiles > 0) {
+                            logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITHOUT_CONTENT, deletedFiles));
+                        }
+                        return deletedFiles;
                     } finally {
                         JdbcUtil.closeQuietly(statement);
                     }
@@ -162,5 +159,5 @@ public class DatabaseFileService extends AbstractFileService {
             throw new FileStorageException(e.getMessage(), e);
         }
     }
-
+    
 }
