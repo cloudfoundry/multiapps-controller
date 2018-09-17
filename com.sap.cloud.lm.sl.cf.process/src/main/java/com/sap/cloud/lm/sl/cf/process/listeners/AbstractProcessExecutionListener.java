@@ -15,6 +15,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -37,6 +38,20 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     public void notify(DelegateExecution context) throws Exception {
         try {
             this.stepLogger = createStepLogger(context);
+            String correlationId = StepsUtil.getCorrelationId(context);
+            if (correlationId == null) {
+                correlationId = context.getProcessInstanceId();
+                context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.VAR_CORRELATION_ID, correlationId);
+            }
+
+            correlationId = StepsUtil.getCorrelationId(context);
+            String processInstanceId = context.getProcessInstanceId();
+
+            // Check if this is subprocess
+            if (!processInstanceId.equals(correlationId)) {
+                return;
+            }
+
             notifyInternal(context);
         } catch (Exception e) {
             logException(context, e, Messages.EXECUTION_OF_PROCESS_LISTENER_HAS_FAILED);
