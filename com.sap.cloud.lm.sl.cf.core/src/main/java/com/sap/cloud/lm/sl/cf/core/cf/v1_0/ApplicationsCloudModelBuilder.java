@@ -31,11 +31,13 @@ import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
+import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.builders.v1_0.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
+import com.sap.cloud.lm.sl.mta.model.v1_0.ProvidedDependency;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
@@ -255,7 +257,11 @@ public class ApplicationsCloudModelBuilder {
     }
 
     protected Resource getResource(String dependencyName) {
-        return handler.findDependency(deploymentDescriptor, dependencyName)._1;
+        Pair<Resource, ProvidedDependency> dependency = handler.findDependency(deploymentDescriptor, dependencyName);
+        if(dependency != null) {
+            return dependency._1;
+        }
+        return null;
     }
 
     protected List<CloudTask> getTasks(List<Map<String, Object>> propertiesList) {

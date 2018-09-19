@@ -69,7 +69,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         for (RequiredDependency dependency : module.getRequiredDependencies3_1()) {
             ServiceKeyToInject serviceKey = getServiceKeyToInject(dependency);
             if(isActiveServiceKey(serviceKey)) {
-                ListUtil.addNonNull(serviceKeysToInject, serviceKey);
+                serviceKeysToInject.add(serviceKey);
             }
         }
         return serviceKeysToInject;
@@ -81,6 +81,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
             if(resource != null) {
                 return isActive(resource);
             }
+            return true;
         }
         return false;
     }
