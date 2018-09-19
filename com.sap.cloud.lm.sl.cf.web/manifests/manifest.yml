@@ -14,7 +14,7 @@ applications:
   env:
     VERSION: ${project.version}
     XS_TYPE: CF
-    XS_TARGET_URL: https://api.cf.sap.hana.ondemand.com
+    XS_TARGET_URL: 
     DB_TYPE: POSTGRESQL
     CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
     PLATFORMS: >
@@ -39,24 +39,11 @@ applications:
             { "name": "dotnet_core", "parameters": { "buildpack": "dotnet_core_buildpack" }}
           ],
           "resource-types": [
-            { "name": "mongodb", "parameters": { "service": "mongodb", "service-plan": "v3.0-dev", "type": "managed-service" }},
-            { "name": "postgresql", "parameters": { "service": "postgresql", "service-plan": "v9.4-dev", "type": "managed-service" }},
-            { "name": "rabbitmq", "parameters": { "service": "rabbitmq", "service-plan": "v3.6-dev", "type": "managed-service" }},
-            { "name": "redis", "parameters": { "service": "redis", "service-plan": "v3.0-dev", "type": "managed-service" }},
-            { "name": "influxdb", "parameters": { "service": "influxdb", "service-plan": "v0.13-container", "type": "managed-service" }},
             { "name": "org.cloudfoundry.user-provided-service", "parameters": { "type": "user-provided-service" }},
             { "name": "org.cloudfoundry.managed-service", "parameters": { "type": "managed-service" }},
             { "name": "org.cloudfoundry.existing-service", "parameters": { "type": "existing-service" }},
             { "name": "org.cloudfoundry.existing-service-key", "parameters": { "type": "existing-service-key" }},
-            { "name": "mta-provided", "parameters": { "type": "mta-provides-dependency" }},
-            { "name": "configuration", "parameters": { "type": "configuration" }},
-            { "name": "autoscaler", "parameters": { "service": "autoscaler", "service-plan": "lite", "type": "managed-service" }},
-            { "name": "application-logs", "parameters": { "service": "application-logs", "service-plan": "lite", "type": "managed-service" }},
-            { "name": "connectivity", "parameters": { "service": "connectivity", "service-plan": "lite", "type": "managed-service" }},
-            { "name": "feature-flags", "parameters": { "service": "feature-flags", "service-plan": "trial", "type": "managed-service" }},
-            { "name": "metering", "parameters": { "service": "metering", "service-plan": "standard", "type": "managed-service" }},
-            { "name": "ml-foundation-services", "parameters": { "service": "ml-foundation-services", "service-plan": "lite", "type": "managed-service" }},
-            { "name": "objectstore", "parameters": { "service": "objectstore", "service-plan": "s3-standard", "type": "managed-service" }}
+            { "name": "configuration", "parameters": { "type": "configuration" }}
           ]
         }
       ]
