@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
@@ -44,10 +43,6 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     @Override
     protected void notifyInternal(DelegateExecution context) {
         String correlationId = StepsUtil.getCorrelationId(context);
-        if (correlationId == null) {
-            correlationId = context.getProcessInstanceId();
-            context.setVariable(Constants.VAR_CORRELATION_ID, correlationId);
-        }
         ProcessType processType = processTypeParser.getProcessType(context);
 
         if (operationDao.find(correlationId) == null) {
