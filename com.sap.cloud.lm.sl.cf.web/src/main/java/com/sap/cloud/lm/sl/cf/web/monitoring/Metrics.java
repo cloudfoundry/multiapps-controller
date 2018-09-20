@@ -45,16 +45,16 @@ public class Metrics implements MetricsMBean {
     }
 
     @Override
-    public double getUsedFssSpace() {
+    public long getUsedFssSpace() {
         if (!shouldCollectCentralServiceMetrics() || getFssStoragePath().isEmpty()) {
             LOGGER.debug("Not collecting metrics for FSS on path: {}", getFssStoragePath());
-            return 0d;
+            return 0L;
         }
         return fssMonitor.calculateUsedSpace(fileSystemService.getStoragePath());
     }
 
     @Override
-    public double getUsedContainerSpace() {
+    public long getUsedContainerSpace() {
         String workDir = System.getProperty("user.dir");
         String parentDir = Paths.get(workDir)
             .getParent()
