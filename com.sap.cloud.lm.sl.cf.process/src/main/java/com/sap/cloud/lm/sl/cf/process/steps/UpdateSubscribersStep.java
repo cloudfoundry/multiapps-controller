@@ -5,7 +5,6 @@ import static com.sap.cloud.lm.sl.common.util.JsonUtil.convertJsonToMap;
 import static com.sap.cloud.lm.sl.common.util.JsonUtil.toJson;
 import static com.sap.cloud.lm.sl.common.util.ListUtil.merge;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -121,7 +120,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
                 ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace, spaceGetter);
                 Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientHelper, subscription.getSpaceId());
                 if (orgAndSpace == null) {
-                    logger.warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
+                    getStepLogger().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());
                     continue;
                 }
                 CloudApplication updatedApplication = updateSubscriber(execution, orgAndSpace, subscription);
