@@ -1,28 +1,22 @@
 package com.sap.cloud.lm.sl.cf.web.monitoring;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 import java.time.LocalTime;
 import java.util.Hashtable;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 @Component
 public class FssMonitor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FssMonitor.class);
 
-    Map<String, Long> usedSpaceMap = new Hashtable<>(1);
-    Map<String, LocalTime> updateTimesMap = new Hashtable<>(1);
+    Map<File, Long> usedSpaceMap = new Hashtable<>(1);
+    Map<File, LocalTime> updateTimesMap = new Hashtable<>(1);
 
     private Integer updateTimeoutMinutes;
 
@@ -32,35 +26,27 @@ public class FssMonitor {
     }
 
     public long calculateUsedSpace(String path) {
-        if (!updateTimesMap.containsKey(path)) {
-            return getUsedSpace(path);
+        File filePath = new File(path);
+        if (!updateTimesMap.containsKey(filePath)) {
+            return getUsedSpace(filePath);
         }
-        if (isCacheValid(path)) {
-            return usedSpaceMap.get(path);
+        if (isCacheValid(filePath)) {
+            return usedSpaceMap.get(filePath);
         }
-        return getUsedSpace(path);
+        return getUsedSpace(filePath);
     }
 
-    private boolean isCacheValid(String path) {
-        LocalTime lastChecked = updateTimesMap.get(path);
+    private boolean isCacheValid(File filePath) {
+        LocalTime lastChecked = updateTimesMap.get(filePath);
         LocalTime invalidateDeadline = LocalTime.now()
             .minusMinutes(updateTimeoutMinutes);
         return invalidateDeadline.isBefore(lastChecked);
     }
 
-    private long getUsedSpace(String path) {
-        updateTimesMap.put(path, LocalTime.now());
-        long usedSpace = 0L;
-        try {
-            Path filePath = Paths.get(path);
-            usedSpace = Files.walk(filePath)
-                .mapToLong(p -> p.toFile()
-                    .length())
-                .sum();
-        } catch (IOException | InvalidPathException e) {
-            LOGGER.warn("Cannot detect remaining space on file system service.", e);
-        }
-        usedSpaceMap.put(path, usedSpace);
+    private long getUsedSpace(File filePath) {
+        updateTimesMap.put(filePath, LocalTime.now());
+        long usedSpace = FileUtils.sizeOf(filePath);
+        usedSpaceMap.put(filePath, usedSpace);
         return usedSpace;
     }
 }
