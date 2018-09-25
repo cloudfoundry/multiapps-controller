@@ -2,12 +2,14 @@ package com.sap.cloud.lm.sl.cf.web.monitoring;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalTime;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,30 +45,25 @@ class FssMonitorTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testGetUsedSpace(String path, LocalTime lastCheck, long cachedValue, long expectedResult) {
+    public void testGetUsedSpace(File path, LocalTime lastCheck, long cachedValue, long expectedResult) {
         fssMonitor.updateTimesMap.put(path, lastCheck);
         fssMonitor.usedSpaceMap.put(path, cachedValue);
-        long actualResult = fssMonitor.calculateUsedSpace(path);
+        long actualResult = fssMonitor.calculateUsedSpace(path.getAbsolutePath());
         assertEquals(expectedResult, actualResult);
     }
 
     public static Stream<Arguments> testGetUsedSpace() throws IOException {
         return Stream.of(
         // @formatter:off
-            Arguments.of(tempDir.toString(), LocalTime.now(), 10, 10),
-            Arguments.of(tempDir.toString(), LocalTime.now().minusMinutes(10), 200, 200),
-            Arguments.of(tempDir.toString(), LocalTime.now().minusMinutes(50), 0, getSizeOfDir(tempDir)),
-            Arguments.of("?!TEST", LocalTime.now().minusMinutes(50), 0, 0)
+            Arguments.of(tempDir.toFile(), LocalTime.now(), 10, 10),
+            Arguments.of(tempDir.toFile(), LocalTime.now().minusMinutes(10), 200, 200),
+            Arguments.of(tempDir.toFile(), LocalTime.now().minusMinutes(50), 0, getSizeOfDir(tempDir))
         // @formatter:on
         );
     }
 
-    private static long getSizeOfDir(Path path) throws IOException {
-        long sizeOfDir = Files.walk(path)
-            .mapToLong(p -> p.toFile()
-                .length())
-            .sum();
-        return sizeOfDir;
+    private static long getSizeOfDir(Path filePath) throws IOException {
+        return FileUtils.sizeOf(filePath.toFile());
     }
 
 }
