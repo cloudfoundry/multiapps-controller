@@ -985,11 +985,23 @@ public class StepsUtil {
     }
 
     static String getGitRepoRef(DelegateExecution context) {
-        return (String) context.getVariable(Constants.PARAM_GIT_REF);
+        Object gitRepoConfigObject = context.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
+        if (gitRepoConfigObject == null) {
+            return (String) context.getVariable(Constants.PARAM_GIT_REF);
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
+        return gitRepoConfigMap.get(Constants.PARAM_GIT_REF);
     }
 
     static String getGitRepoUri(DelegateExecution context) {
-        return (String) context.getVariable(Constants.PARAM_GIT_URI);
+        Object gitRepoConfigObject = context.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
+        if (gitRepoConfigObject == null) {
+            return (String) context.getVariable(Constants.PARAM_GIT_URI);
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
+        return gitRepoConfigMap.get(Constants.PARAM_GIT_URI);
     }
 
     static void setUseIdleUris(DelegateExecution context, boolean state) {
