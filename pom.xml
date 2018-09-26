@@ -68,7 +68,7 @@
         <semver4j.version>2.1.0</semver4j.version>
         <jgit.version>4.0.1.201506240215-r</jgit.version>
         <swagger.version>1.5.16</swagger.version>
-        <com.sap.cloud.lm.sl.open.version>1.63.0</com.sap.cloud.lm.sl.open.version>
+        <com.sap.cloud.lm.sl.open.version>1.63.2</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
         <module>com.sap.cloud.lm.sl.cf.client</module>
