@@ -8,10 +8,10 @@ about: MultiApps Controller issue template for bugs and feature requests
 Describe your issue here.
 
 # Your environment
-•	MultiApps Controller version
-•	MultiApps CF CLI Plugin version (if applicable)
-•	which CF vendor is used
-•	which backing service is used
+*	MultiApps Controller version
+*	MultiApps CF CLI Plugin version (if applicable)
+*	which CF vendor is used
+*	which backing service is used
 
 # Steps to reproduce
 Tell us how to reproduce this issue.
