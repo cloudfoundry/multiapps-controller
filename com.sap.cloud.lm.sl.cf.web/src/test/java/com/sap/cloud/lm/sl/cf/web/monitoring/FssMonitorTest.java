@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -45,7 +45,7 @@ class FssMonitorTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testGetUsedSpace(File path, LocalTime lastCheck, long cachedValue, long expectedResult) {
+    public void testGetUsedSpace(File path, LocalDateTime lastCheck, long cachedValue, long expectedResult) {
         fssMonitor.updateTimesMap.put(path, lastCheck);
         fssMonitor.usedSpaceMap.put(path, cachedValue);
         long actualResult = fssMonitor.calculateUsedSpace(path.getAbsolutePath());
@@ -55,9 +55,9 @@ class FssMonitorTest {
     public static Stream<Arguments> testGetUsedSpace() throws IOException {
         return Stream.of(
         // @formatter:off
-            Arguments.of(tempDir.toFile(), LocalTime.now(), 10, 10),
-            Arguments.of(tempDir.toFile(), LocalTime.now().minusMinutes(10), 200, 200),
-            Arguments.of(tempDir.toFile(), LocalTime.now().minusMinutes(50), 0, getSizeOfDir(tempDir))
+            Arguments.of(tempDir.toFile(), LocalDateTime.now(), 10, 10),
+            Arguments.of(tempDir.toFile(), LocalDateTime.now().minusMinutes(10), 200, 200),
+            Arguments.of(tempDir.toFile(), LocalDateTime.now().minusMinutes(50), 0, getSizeOfDir(tempDir))
         // @formatter:on
         );
     }

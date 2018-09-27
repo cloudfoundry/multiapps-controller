@@ -1,13 +1,15 @@
 package com.sap.cloud.lm.sl.cf.web.monitoring;
 
 import java.io.File;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Hashtable;
 import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -16,7 +18,8 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 public class FssMonitor {
 
     Map<File, Long> usedSpaceMap = new Hashtable<>(1);
-    Map<File, LocalTime> updateTimesMap = new Hashtable<>(1);
+    Map<File, LocalDateTime> updateTimesMap = new Hashtable<>(1);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FssMonitor.class);
 
     private Integer updateTimeoutMinutes;
 
@@ -37,16 +40,19 @@ public class FssMonitor {
     }
 
     private boolean isCacheValid(File filePath) {
-        LocalTime lastChecked = updateTimesMap.get(filePath);
-        LocalTime invalidateDeadline = LocalTime.now()
+        LocalDateTime lastChecked = updateTimesMap.get(filePath);
+        LocalDateTime invalidateDeadline = LocalDateTime.now()
             .minusMinutes(updateTimeoutMinutes);
         return invalidateDeadline.isBefore(lastChecked);
     }
 
-    private long getUsedSpace(File filePath) {
-        updateTimesMap.put(filePath, LocalTime.now());
-        long usedSpace = FileUtils.sizeOf(filePath);
-        usedSpaceMap.put(filePath, usedSpace);
+    private long getUsedSpace(File path) {
+        final long startTime = System.currentTimeMillis();
+        LOGGER.debug("Calculating space for path {}.", path);
+        updateTimesMap.put(path, LocalDateTime.now());
+        long usedSpace = FileUtils.sizeOf(path);
+        usedSpaceMap.put(path, usedSpace);
+        LOGGER.info("Calculated space for path {} : {} bytes in {} ms", path, usedSpace, System.currentTimeMillis() - startTime);
         return usedSpace;
     }
 }
