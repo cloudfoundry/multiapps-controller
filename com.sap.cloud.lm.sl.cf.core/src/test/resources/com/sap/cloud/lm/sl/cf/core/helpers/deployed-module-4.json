@@ -1,7 +1,0 @@
-{
-  "moduleName": "foo",
-  "uris": [ "localhost:50100" ],
-  "deployAttributes": {
-    "descriptor-defined-uris": [ "localhost:50100", "localhost:50200" ]
-  }
-}

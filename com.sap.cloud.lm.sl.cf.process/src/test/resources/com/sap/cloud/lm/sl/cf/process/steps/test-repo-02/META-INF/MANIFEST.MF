@@ -1,3 +1,0 @@
-Name: a/
-MTA-Module: a
-Content-Type: text/directory

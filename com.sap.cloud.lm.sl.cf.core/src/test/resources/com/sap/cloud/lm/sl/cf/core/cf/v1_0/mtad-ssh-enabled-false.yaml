@@ -1,9 +1,0 @@
-_schema-version: "1.0.0"
-ID: test
-version: 0.1.0
-
-modules:
-  - name: foo
-    type: foo
-    properties:
-      enable-ssh: false

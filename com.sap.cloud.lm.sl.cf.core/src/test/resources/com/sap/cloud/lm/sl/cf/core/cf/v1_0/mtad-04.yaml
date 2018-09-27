@@ -1,9 +1,0 @@
-ID: com.sap.sample.mta
-version: 0.1.0
-
-modules:
-  - name: module-1
-    type: java.tomee
-    properties:
-      service-broker-user: JUSJ@UOf35K&Q9CY
-      service-broker-password: 4d@U$mIb8j9FLwL&

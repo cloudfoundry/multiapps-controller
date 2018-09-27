@@ -1,6 +1,0 @@
-{
-  "auth_password": "some-password",
-  "auth_username": "some-username",
-  "broker_url": "foo.cfapps.sap.hana.ondemand.com",
-  "name": "foo"
-}
