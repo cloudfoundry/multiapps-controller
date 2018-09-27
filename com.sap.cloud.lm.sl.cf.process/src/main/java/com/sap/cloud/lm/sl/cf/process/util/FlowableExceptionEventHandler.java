@@ -57,8 +57,6 @@ public class FlowableExceptionEventHandler {
 
     private void tryToPreserveFlowableException(FlowableEvent event, String flowableExceptionMessage) {
         FlowableEngineEvent flowableEngineEvent = (FlowableEngineEvent) event;
-        LOGGER.info(
-            MessageFormat.format("The FlowableExceptionEventHandler for process with id {0}", flowableEngineEvent.getProcessInstanceId()));
 
         String taskId = getCurrentTaskId(flowableEngineEvent);
         String taskIndex = getVariable(flowableEngineEvent, Constants.TASK_INDEX);
