@@ -1,7 +1,0 @@
-{
-  "name": "foo",
-  "instances": 3,
-  "runningInstances": 3,
-  "state": "STOPPED",
-  "env":[]
-}

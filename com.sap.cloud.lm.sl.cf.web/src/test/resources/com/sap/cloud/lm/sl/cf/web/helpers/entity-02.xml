@@ -1,6 +1,0 @@
-<model xmlns="http://www.sap.com/lm/sl/wrong">
-  <property-1>property-1-value</property-1>
-  <property-2>property-2-value</property-2>
-  <property-3>1000</property-3>
-  <property-4>true</property-4>
-</model>

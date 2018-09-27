@@ -1,9 +1,0 @@
-{
-  "providerNid": "n-2",
-  "providerId": "id-2",
-  "providerVersion": "2.0.0",
-  "targetSpace": {
-      "space": "space-2",
-      "org": "org-2"
-   }
-}

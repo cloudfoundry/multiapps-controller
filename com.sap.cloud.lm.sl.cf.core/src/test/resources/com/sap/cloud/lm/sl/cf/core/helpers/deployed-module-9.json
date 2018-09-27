@@ -1,7 +1,0 @@
-{
-  "moduleName": "foo",
-  "uris": [ "host1.localhost", "host2.localhost", "host3.localhost", "host4.localhost" ],
-  "deployAttributes": {
-    "descriptor-defined-uris": [ "host1.{xsa-placeholder-domain-default}", "host2.{xsa-placeholder-domain-default}" ]
-  }
-}

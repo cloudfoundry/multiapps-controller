@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<FindBugsFilter>
-    <Match>
-        <Class name="com.sap.cloud.lm.sl.cf.core.dto.persistence.ConfigurationSubscriptionDto" />
-        <Bug code="UwF" />
-    </Match>
-</FindBugsFilter>
