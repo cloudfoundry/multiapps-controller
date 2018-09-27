@@ -29,8 +29,9 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 @Component
 public class FlowableFacade {
 
-    private static final int DEFAULT_JOB_RETRIES = 0;
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowableFacade.class);
+
+    private static final int DEFAULT_JOB_RETRIES = 0;
     private static final int DEFAULT_ABORT_TIMEOUT_MS = 30000;
 
     private final ProcessEngine processEngine;

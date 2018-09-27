@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.runtime.Execution;
-import org.flowable.job.api.DeadLetterJobQuery;
-import org.flowable.job.api.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +36,6 @@ public class ProcessStepHelper {
 
     String taskId;
     String taskIndex;
-    private boolean isInError;
 
     public ProcessStepHelper(ProgressMessageService progressMessageService, ProcessLoggerProviderFactory processLoggerProviderFactory,
         TaskIndexProvider stepIndexProvider, ProcessEngineConfiguration processEngineConfigurationSupplier) {
@@ -69,37 +66,19 @@ public class ProcessStepHelper {
         context.setVariable(Constants.TASK_ID, taskId);
         context.setVariable(Constants.TASK_INDEX, taskIndex);
 
-        if (isInError) {
-            deletePreviousExecutionData(context);
-        }
+        deletePreviousExecutionData(context);
         logTaskStartup(context);
     }
 
     private void init(DelegateExecution context, StepPhase initialPhase) {
-        this.isInError = isInError(context);
         this.taskId = context.getCurrentActivityId();
-        this.taskIndex = Integer.toString(computeTaskIndex(context, initialPhase, isInError));
+        this.taskIndex = Integer.toString(computeTaskIndex(context, initialPhase));
     }
 
-    private boolean isInError(DelegateExecution context) {
-        List<Job> deadLetterJobs = getDeadLetterJob(context);
-        return !deadLetterJobs.isEmpty();
-    }
-
-    List<Job> getDeadLetterJob(DelegateExecution context) {
-        DeadLetterJobQuery jobQuery = processEngineConfiguration.getManagementService()
-            .createDeadLetterJobQuery();
-        if (jobQuery == null) {
-            return null;
-        }
-        return jobQuery.processInstanceId(context.getProcessInstanceId())
-            .list();
-    }
-
-    private int computeTaskIndex(DelegateExecution context, StepPhase initialPhase, boolean isInError) {
+    private int computeTaskIndex(DelegateExecution context, StepPhase initialPhase) {
         int taskIndex = getLastTaskIndex(context);
-        if (!isInError && !initialPhase.equals(StepPhase.RETRY) && !initialPhase.equals(StepPhase.POLL)) {
-            return ++taskIndex;
+        if (!initialPhase.equals(StepPhase.RETRY) && !initialPhase.equals(StepPhase.POLL)) {
+            return taskIndex + 1;
         }
         return taskIndex;
     }

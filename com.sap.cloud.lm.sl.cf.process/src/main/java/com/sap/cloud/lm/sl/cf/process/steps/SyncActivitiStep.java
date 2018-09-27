@@ -54,6 +54,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
             }
             getStepHelper().failStepIfProcessIsAborted(context);
         } catch (Throwable t) {
+            stepPhase = StepPhase.RETRY;
             handleException(context, t);
         } finally {
             StepsUtil.setStepPhase(context, stepPhase);
