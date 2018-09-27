@@ -104,11 +104,6 @@ public class ProcessStepHelper {
 
     protected void deletePreviousExecutionData(DelegateExecution context) {
         progressMessageService.removeByProcessIdTaskIdAndTaskExecutionId(getCorrelationId(context), taskId, taskIndex);
-        if (context.hasVariable(Constants.RETRY_TASK_ID)) {
-            String retryTaskId = (String) context.getVariable(Constants.RETRY_TASK_ID);
-            progressMessageService.removeByProcessIdTaskIdAndTaskExecutionId(getCorrelationId(context), retryTaskId, taskIndex);
-            context.removeVariable(Constants.RETRY_TASK_ID);
-        }
         String processId = context.getProcessInstanceId();
         ErrorType errorType = StepsUtil.getErrorType(context);
         if (errorType == null) {
