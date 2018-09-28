@@ -18,4 +18,8 @@ public class Messages {
 
     public static final String SETTING_VARIABLE = "Setting variable \"{0}\" to \"{1}\"...";
     public static final String SET_SUCCESSFULLY = "Variable \"{0}\" set successfully";
+
+    // ERROR log messages:
+
+    public static final String ERROR_DELETING_PROGRESS_MESSAGE = "Error deleting progress message";
 }

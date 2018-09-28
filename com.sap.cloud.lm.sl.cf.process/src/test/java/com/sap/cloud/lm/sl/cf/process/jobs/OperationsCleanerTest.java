@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -20,7 +21,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.sap.cloud.lm.sl.cf.core.activiti.AbortProcessAction;
 import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.ProcessActionRegistry;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -39,6 +42,8 @@ public class OperationsCleanerTest {
     private OperationDao dao;
     @Mock
     private FlowableFacade flowableFacade;
+    @Mock
+    private ProcessActionRegistry registry;
     @InjectMocks
     private OperationsCleaner cleaner;
 
@@ -46,6 +51,7 @@ public class OperationsCleanerTest {
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
         cleaner.withPageSize(PAGE_SIZE);
+        when(registry.getAction("abort")).thenReturn(new AbortProcessAction(flowableFacade, Collections.emptyList()));
     }
 
     @Test
