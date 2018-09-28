@@ -66,8 +66,19 @@ public class ProcessStepHelper {
         context.setVariable(Constants.TASK_ID, taskId);
         context.setVariable(Constants.TASK_INDEX, taskIndex);
 
-        deletePreviousExecutionData(context);
+        deletePreviousErrorType(context);
+
         logTaskStartup(context);
+    }
+
+    protected void deletePreviousErrorType(DelegateExecution context) {
+        String processId = context.getProcessInstanceId();
+        ErrorType errorType = StepsUtil.getErrorType(context);
+        if (errorType == null) {
+            return;
+        }
+        LOGGER.debug(MessageFormat.format(Messages.DELETING_ERROR_TYPE_O_FOR_PROCESS_1, errorType, processId));
+        context.removeVariable(Constants.VAR_ERROR_TYPE);
     }
 
     private void init(DelegateExecution context, StepPhase initialPhase) {
@@ -100,17 +111,6 @@ public class ProcessStepHelper {
         String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getId());
         progressMessageService.add(new ProgressMessage(getCorrelationId(context), taskId, taskIndex, ProgressMessageType.TASK_STARTUP,
             message, new Timestamp(System.currentTimeMillis())));
-    }
-
-    protected void deletePreviousExecutionData(DelegateExecution context) {
-        progressMessageService.removeByProcessIdTaskIdAndTaskExecutionId(getCorrelationId(context), taskId, taskIndex);
-        String processId = context.getProcessInstanceId();
-        ErrorType errorType = StepsUtil.getErrorType(context);
-        if (errorType == null) {
-            return;
-        }
-        LOGGER.debug(MessageFormat.format(Messages.DELETING_ERROR_TYPE_O_FOR_PROCESS_1, errorType, processId));
-        context.removeVariable(Constants.VAR_ERROR_TYPE);
     }
 
     protected void logException(DelegateExecution context, Throwable t) {
