@@ -12,11 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.FlowableAction;
-import com.sap.cloud.lm.sl.cf.core.activiti.FlowableActionFactory;
+import com.sap.cloud.lm.sl.cf.core.activiti.AbortProcessAction;
 import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.core.activiti.ProcessAction;
+import com.sap.cloud.lm.sl.cf.core.activiti.ProcessActionRegistry;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
@@ -29,12 +31,17 @@ public class OperationsCleaner implements Cleaner {
 
     private final OperationDao dao;
     private final FlowableFacade flowableFacade;
+    private final ProgressMessageService progressMessageService;
+    private final ProcessActionRegistry processActionRegistry;
     private int pageSize = DEFAULT_PAGE_SIZE;
 
     @Inject
-    public OperationsCleaner(OperationDao dao, FlowableFacade activitiFacade) {
+    public OperationsCleaner(OperationDao dao, FlowableFacade activitiFacade, ProgressMessageService progressMessageService,
+        ProcessActionRegistry processActionregistry) {
         this.dao = dao;
         this.flowableFacade = activitiFacade;
+        this.progressMessageService = progressMessageService;
+        this.processActionRegistry = processActionregistry;
     }
 
     public OperationsCleaner withPageSize(int pageSize) {
@@ -90,10 +97,10 @@ public class OperationsCleaner implements Cleaner {
     }
 
     private void abort(Operation operation) {
-        FlowableAction abortAction = FlowableActionFactory.getAction(FlowableActionFactory.ACTION_ID_ABORT, flowableFacade, null);
+        ProcessAction abortAction = processActionRegistry.getAction(AbortProcessAction.ACTION_ID_ABORT);
         String processId = operation.getProcessId();
         LOGGER.debug(CleanUpJob.LOG_MARKER, format(Messages.ABORTING_OPERATION_0, processId));
-        abortAction.executeAction(processId);
+        abortAction.execute(null, processId);
     }
 
 }

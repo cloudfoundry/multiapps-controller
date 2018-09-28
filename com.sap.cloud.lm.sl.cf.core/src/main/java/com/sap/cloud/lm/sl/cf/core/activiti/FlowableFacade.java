@@ -297,16 +297,23 @@ public class FlowableFacade {
     }
 
     public List<Execution> findExecutionsAtReceiveTask(String processInstanceId) {
+        List<Execution> allProcessExecutions = getProcessExecutions(processInstanceId);
+
+        return allProcessExecutions.stream()
+            .filter(execution -> !findCurrentActivitiesAtReceiveTask(execution).isEmpty())
+            .collect(Collectors.toList());
+
+    }
+
+    public List<Execution> getProcessExecutions(String processInstanceId) {
         List<Execution> allProcessExecutions = processEngine.getRuntimeService()
             .createExecutionQuery()
             .rootProcessInstanceId(processInstanceId)
             .list();
 
         return allProcessExecutions.stream()
-            .filter(execution -> execution.getActivityId() != null)
-            .filter(execution -> !findCurrentActivitiesAtReceiveTask(execution).isEmpty())
+            .filter(e -> e.getActivityId() != null)
             .collect(Collectors.toList());
-
     }
 
     private List<HistoricActivityInstance> findCurrentActivitiesAtReceiveTask(Execution execution) {
