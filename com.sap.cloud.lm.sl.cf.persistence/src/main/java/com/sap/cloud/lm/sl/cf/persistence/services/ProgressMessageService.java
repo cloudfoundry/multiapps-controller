@@ -37,6 +37,7 @@ public class ProgressMessageService {
     private static final String INSERT_MESSAGE = "INSERT INTO %s (ID, PROCESS_ID, TASK_ID, TASK_EXECUTION_ID, TYPE, TEXT, TIMESTAMP) VALUES(%s, ?, ?, ?, ?, ?, ?)";
     private static final String DELETE_MESSAGES_BY_PROCESS_AND_TASK_ID = "DELETE FROM %s WHERE PROCESS_ID=? AND TASK_ID=? AND TASK_EXECUTION_ID=?";
     private static final String DELETE_MESSAGES_BY_PROCESS_ID = "DELETE FROM %s WHERE PROCESS_ID=?";
+    private static final String DELETE_MESSAGES_BY_PROCESS_ID_AND_TASK_ID = "DELETE FROM %s WHERE PROCESS_ID=? AND TASK_ID=?";
     private static final String DELETE_MESSAGES_OLDER_THAN = "DELETE FROM %s WHERE TIMESTAMP < ?";
     private static final String UPDATE_MESSAGE_BY_ID = "UPDATE %s SET TEXT=?, TIMESTAMP=? WHERE ID=?";
 
@@ -171,6 +172,27 @@ public class ProgressMessageService {
             });
         } catch (SQLException e) {
             throw new SLException(e, Messages.ERROR_DELETING_MESSAGES_OLDER_THAN, timestamp);
+        }
+    }
+
+    public int removeByProcessInstanceIdAndTaskId(final String processId, String taskId) {
+        try {
+            return getSqlExecutor().execute(new StatementExecutor<Integer>() {
+                @Override
+                public Integer execute(Connection connection) throws SQLException {
+                    PreparedStatement statement = null;
+                    try {
+                        statement = connection.prepareStatement(getQuery(DELETE_MESSAGES_BY_PROCESS_ID_AND_TASK_ID, tableName));
+                        statement.setString(1, processId);
+                        statement.setString(2, taskId);
+                        return statement.executeUpdate();
+                    } finally {
+                        JdbcUtil.closeQuietly(statement);
+                    }
+                }
+            });
+        } catch (SQLException e) {
+            throw new SLException(e, Messages.ERROR_DELETING_MESSAGES_FOR_PROCESS_ID_AND_TASK_ID, processId, taskId);
         }
     }
 
