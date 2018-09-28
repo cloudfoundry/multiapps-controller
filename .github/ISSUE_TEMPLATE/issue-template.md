@@ -4,24 +4,20 @@ about: MultiApps Controller issue template for bugs and feature requests
 
 ---
 
-### Summary
-Describe your issue here.
+### Description
+Describe your issue here. What is the expected behavior? What is the actual behavior?
 
 ### Your environment
 *	MultiApps Controller version - 
-*	MultiApps CF CLI Plugin version - <!-- if applicable -->
+*	MultiApps CF CLI Plugin version - <!-- delete if not applicable -->
 *	which CF vendor is used - 
-*	which backing service is used -
+*	which backing services are used - <!-- e.g. database service -->
 
 ### Steps to reproduce
 Tell us how to reproduce this issue.
 Create [GIST(s)](https://gist.github.com/) which is copy of your deployment and extension descriptor and link here (if applicable)
 
-### Expected behaviour
-Tell us what should happen
-
-### Actual behaviour
-Tell us what happens instead.
+### Additional information
 
 If you operate your own MultiApps Controller, provide all application logs. Create a [GIST(s)](https://gist.github.com/) which contains the logs. Please refrain of copying full logs here because it will make the issue hard to read.
 
