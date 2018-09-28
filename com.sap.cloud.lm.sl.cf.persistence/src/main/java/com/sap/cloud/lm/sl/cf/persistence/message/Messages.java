@@ -14,6 +14,7 @@ public final class Messages {
     public static final String ERROR_DELETING_MESSAGES_WITH_PROCESS_ID = "Error deleting messages with process ID \"{0}\"";
     public static final String ERROR_DELETING_MESSAGES_WITH_PROCESS_ID_TASK_ID_AND_TASK_EXECUTION_ID = "Error deleting messages with process ID \"{0}\", task ID \"{1}\" and task execution ID \"{2}\"";
     public static final String ERROR_DELETING_MESSAGES_OLDER_THAN = "Error deleting messages older than \"{0}\"";
+    public static final String ERROR_DELETING_MESSAGES_FOR_PROCESS_ID_AND_TASK_ID = "Error deleting messages for process ID \"{0}\" and task ID \"{1}\"";
     public static final String ERROR_GETTING_ALL_MESSAGES = "Error getting all messages";
     public static final String ERROR_GETTING_MESSAGES_WITH_PROCESS_ID = "Error getting messages with process ID \"{0}\"";
     public static final String ERROR_GETTING_MESSAGES_WITH_PROCESS_ID_TASK_ID_AND_TASK_EXECUTION_ID = "Error getting messages with process ID \"{0}\", task ID \"{1}\" and task execution ID \"{2}\"";
