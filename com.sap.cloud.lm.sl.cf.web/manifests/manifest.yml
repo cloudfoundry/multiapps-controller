@@ -48,10 +48,4 @@ applications:
         }
       ]
     PLATFORMS_V3: *V2_LIKE_PLATFORMS
-    TARGETS: >
-      []
-    TARGETS_V2: >
-      []
-    TARGETS_V3: >
-      []
     SKIP_SSL_VALIDATION: true
