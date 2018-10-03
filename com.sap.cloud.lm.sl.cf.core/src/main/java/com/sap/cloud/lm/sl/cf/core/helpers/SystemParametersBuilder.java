@@ -59,17 +59,6 @@ public class SystemParametersBuilder {
     private final PropertiesAccessor propertiesAccessor;
     private final Supplier<String> timestampSupplier;
 
-    // constructor is used by DEVX
-    public SystemParametersBuilder(String platformName, String organization, String space, String user, String defaultDomain,
-        PlatformType xsType, URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting,
-        boolean reserveTemporaryRoutes, PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices,
-        DeployedMta deployedMta, int majorSchemaVersion, boolean areXsPlaceholdersSupported, XsPlaceholderResolver xsPlaceholderResolver,
-        Supplier<String> timestampSupplier) {
-        this(platformName, organization, space, user, defaultDomain, xsType, targetUrl, authorizationEndpoint, deployServiceUrl, routerPort,
-            portBasedRouting, reserveTemporaryRoutes, portAllocator, useNamespaces, useNamespacesForServices, deployedMta,
-            new CredentialsGenerator(), majorSchemaVersion, areXsPlaceholdersSupported, xsPlaceholderResolver, timestampSupplier);
-    }
-
     public SystemParametersBuilder(String platformName, String organization, String space, String user, String defaultDomain,
         PlatformType xsType, URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting,
         boolean reserveTemporaryRoutes, PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices,
