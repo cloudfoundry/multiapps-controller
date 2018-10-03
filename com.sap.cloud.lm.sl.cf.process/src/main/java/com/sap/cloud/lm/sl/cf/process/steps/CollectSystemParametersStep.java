@@ -25,7 +25,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
-import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -138,14 +137,13 @@ public class CollectSystemParametersStep extends SyncActivitiStep {
         Map<String, Object> xsPlaceholderReplacementValues = buildXsPlaceholderReplacementValues(defaultDomainName, authorizationEndpoint,
             deployServiceUrl, routerPort, targetUrl.toString(), targetUrl.getProtocol());
         StepsUtil.setXsPlaceholderReplacementValues(context, xsPlaceholderReplacementValues);
-        XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(context);
 
         boolean areXsPlaceholdersSupported = configuration.areXsPlaceholdersSupported();
 
         return new SystemParametersBuilder(platformName, StepsUtil.getOrg(context), StepsUtil.getSpace(context), user, defaultDomainName,
             configuration.getPlatformType(), targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting,
             reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices, deployedMta, credentialsGeneratorSupplier.get(),
-            majorSchemaVersion, areXsPlaceholdersSupported, xsPlaceholderResolver, timestampSupplier);
+            majorSchemaVersion, areXsPlaceholdersSupported, timestampSupplier);
     }
 
     private Map<String, Object> buildXsPlaceholderReplacementValues(String defaultDomain, String authorizationEndpoint,

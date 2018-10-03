@@ -15,7 +15,6 @@ public class Constants {
     public static final String ATTR_COPYRIGHT = "copyright";
 
     // Deploy attributes:
-    public static final String ATTR_DESCRIPTOR_DEFINED_URIS = "descriptor-defined-uris";
     public static final String ATTR_APP_CONTENT_DIGEST = "app-content-digest";
 
     // Metadata environment variables:

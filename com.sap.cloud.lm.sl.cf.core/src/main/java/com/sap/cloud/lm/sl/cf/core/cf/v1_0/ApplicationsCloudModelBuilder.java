@@ -16,7 +16,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.helpers.UrisClassifier;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -146,7 +145,6 @@ public class ApplicationsCloudModelBuilder {
     }
 
     protected CloudApplicationExtended getApplication(Module module) {
-        DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
         List<Map<String, Object>> propertiesList = propertiesChainBuilder.buildModuleChain(module.getName());
         Staging staging = parseParameters(propertiesList, new StagingParametersParser());
         int diskQuota = parseParameters(propertiesList, new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0"));
@@ -156,14 +154,12 @@ public class ApplicationsCloudModelBuilder {
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, propertiesList);
         List<String> resolvedUris = xsPlaceholderResolver.resolve(uris);
         List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);
-        List<String> customUris = new UrisClassifier(xsPlaceholderResolver).getCustomUris(deployedModule);
-        List<String> fullResolvedUris = ListUtil.merge(resolvedUris, customUris);
         List<String> allServices = getAllApplicationServices(module);
         List<ServiceKeyToInject> serviceKeysToInject = getServicesKeysToInject(module);
-        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, uris, getApplicationServices(module),
+        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, getApplicationServices(module),
             getSharedApplicationServices(module));
         List<CloudTask> tasks = getTasks(propertiesList);
-        return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, fullResolvedUris,
+        return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
             resolvedIdleUris, allServices, serviceKeysToInject, env, tasks);
     }
 

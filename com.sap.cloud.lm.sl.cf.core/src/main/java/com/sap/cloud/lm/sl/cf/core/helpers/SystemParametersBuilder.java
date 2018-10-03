@@ -2,9 +2,10 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
@@ -55,7 +56,6 @@ public class SystemParametersBuilder {
     private final DeployedMta deployedMta;
     private final boolean reserveTemporaryRoutes;
     private final boolean areXsPlaceholdersSupported;
-    private final XsPlaceholderResolver xsPlaceholderResolver;
     private final PropertiesAccessor propertiesAccessor;
     private final Supplier<String> timestampSupplier;
 
@@ -63,7 +63,7 @@ public class SystemParametersBuilder {
         PlatformType xsType, URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting,
         boolean reserveTemporaryRoutes, PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices,
         DeployedMta deployedMta, CredentialsGenerator credentialsGenerator, int majorSchemaVersion, boolean areXsPlaceholdersSupported,
-        XsPlaceholderResolver xsPlaceholderResolver, Supplier<String> timestampSupplier) {
+        Supplier<String> timestampSupplier) {
         this.targetName = platformName;
         this.organization = organization;
         this.space = space;
@@ -82,7 +82,6 @@ public class SystemParametersBuilder {
         this.credentialsGenerator = credentialsGenerator;
         this.reserveTemporaryRoutes = reserveTemporaryRoutes;
         this.areXsPlaceholdersSupported = areXsPlaceholdersSupported;
-        this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.propertiesAccessor = new HandlerFactory(majorSchemaVersion).getPropertiesAccessor();
         this.timestampSupplier = timestampSupplier;
     }
@@ -239,11 +238,11 @@ public class SystemParametersBuilder {
 
     private Integer getDefaultPort(String moduleName, Map<String, Object> moduleParameters) {
         DeployedMtaModule deployedModule = getDeployedModule(moduleName);
-        List<String> descriptorDefinedUris = new UrisClassifier(xsPlaceholderResolver).getDescriptorDefinedUris(deployedModule);
-        if (descriptorDefinedUris.isEmpty()) {
+        if (deployedModule == null || CollectionUtils.isEmpty(deployedModule.getUris())) {
             return allocatePort(moduleParameters);
         }
-        return UriUtil.getPort(descriptorDefinedUris.get(0));
+        return UriUtil.getPort(deployedModule.getUris()
+            .get(0));
     }
 
     private int allocatePort(Map<String, Object> moduleParameters) {
