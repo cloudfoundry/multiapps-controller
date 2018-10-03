@@ -10,7 +10,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"i027947-webide.cfapps.neo.ondemand.com\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.devx.webide\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"webide\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"webide\"]",

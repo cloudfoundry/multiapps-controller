@@ -10,7 +10,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[],\"execute-app\":false}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"execute-app\":false}",
       "MTA_METADATA={\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"java-hello-world-db\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java-hello-world-db\"]",
@@ -44,7 +44,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"sofd60245639a:52001\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"java-hello-world-backend\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java\",\"java-hello-world-backend\"]",
@@ -77,7 +77,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"java-hello-world.sofd60245639a\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"java-hello-world\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java-hello-world\"]",

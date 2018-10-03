@@ -23,12 +23,10 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceAndResourceType;
 import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
-import com.sap.cloud.lm.sl.cf.core.helpers.UrisClassifier;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.parser.MemoryParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.StagingParametersParser;
@@ -93,7 +91,6 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
 
     @Override
     protected CloudApplicationExtended getApplication(com.sap.cloud.lm.sl.mta.model.v1_0.Module module) {
-        DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
         warnAboutUnsupportedParameters(parametersList);
         Staging staging = parseParameters(parametersList, new StagingParametersParser());
@@ -104,17 +101,15 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
         List<String> resolvedUris = xsPlaceholderResolver.resolve(uris);
         List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);
-        List<String> customUris = new UrisClassifier(xsPlaceholderResolver).getCustomUris(deployedModule);
-        List<String> fullResolvedUris = ListUtil.merge(resolvedUris, customUris);
         List<String> services = getAllApplicationServices(module);
         List<ServiceKeyToInject> serviceKeys = getServicesKeysToInject(module);
-        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, uris, getApplicationServices(module),
+        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, getApplicationServices(module),
             getSharedApplicationServices(module));
         List<CloudTask> tasks = getTasks(parametersList);
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters((Module) module);
         List<ApplicationPort> applicationPorts = getApplicationPorts((Module) module, parametersList);
         List<String> applicationDomains = getApplicationDomains((Module) module, parametersList);
-        return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, fullResolvedUris,
+        return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
             resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains);
     }
 
