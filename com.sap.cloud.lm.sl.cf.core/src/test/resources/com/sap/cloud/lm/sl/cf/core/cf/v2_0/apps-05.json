@@ -13,7 +13,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-1.sofd60245639a\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-1\"]",
@@ -46,7 +46,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"module-2.sofd60245639a\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"module-2\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-2\"]",

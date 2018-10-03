@@ -15,7 +15,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"sofd60245639a:53030\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "DI_FS_ROOT=/usr/sap/xs2work",
       "JAVA_OPTS=-Daccess.logging.enabled=false -Dhttp.port=$VCAP_APP_PORT -Djava.io.tmpdir=$TMPDIR",
       "JBP_CONFIG_SAPJVM_MEMORY_SIZES=metaspace:128m..",
@@ -59,7 +59,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"sofd60245639a:53031\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "DI_URL=http://sofd60245639a:53030",
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
@@ -101,7 +101,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"sofd60245639a:53033\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "DI_URL=http://sofd60245639a:53030",
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",

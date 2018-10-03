@@ -6,7 +6,7 @@
     "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"pricing-db.cfapps.neo.ondemand.com\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"pricing-db\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"price-optimization\"]",
@@ -34,7 +34,7 @@
     "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"api.bestprice.sap.com\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"pricing\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"internal-odata\"]",
@@ -68,7 +68,7 @@
     "serviceKeysToInject": [],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"descriptor-defined-uris\":[\"www.bestprice.sap.com\"]}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"web-server\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
