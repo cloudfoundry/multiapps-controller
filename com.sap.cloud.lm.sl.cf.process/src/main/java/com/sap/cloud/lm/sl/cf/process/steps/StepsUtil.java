@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -688,11 +687,11 @@ public class StepsUtil {
     }
 
     static String getDeploymentDescriptorString(DelegateExecution context) {
-        return new String((byte[]) context.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR_STRING), Charset.forName("UTF-8"));
+        return new String((byte[]) context.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR_STRING), StandardCharsets.UTF_8);
     }
 
     static void setDeploymentDescriptorString(DelegateExecution context, String descriptor) {
-        context.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR_STRING, descriptor.getBytes(Charset.forName("UTF-8")));
+        context.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR_STRING, descriptor.getBytes(StandardCharsets.UTF_8));
     }
 
     static List<String> getExtensionDescriptorStrings(DelegateExecution context) {
