@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
@@ -48,8 +47,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         this.deployId = deployId;
     }
 
-    public Map<Object, Object> build(Module module, List<String> descriptorDefinedUris, List<String> services,
-        List<String> sharedServices) {
+    public Map<Object, Object> build(Module module, List<String> services, List<String> sharedServices) {
         Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
         Map<String, Object> properties = propertiesAccessor.getProperties(module, specialModuleProperties);
         Map<String, Object> parameters = propertiesAccessor.getParameters(module, specialModuleProperties);
@@ -58,7 +56,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         addMetadata(env, module);
         addServices(env, services);
         addSharedServices(env, sharedServices);
-        addAttributes(env, descriptorDefinedUris, parameters);
+        addAttributes(env, parameters);
         addProperties(env, properties);
         addDependencies(env, module);
         return MapUtil.unmodifiable(new MapToEnvironmentConverter(configuration.isPrettyPrinting()).asEnv(env));
@@ -112,12 +110,11 @@ public class ApplicationEnvironmentCloudModelBuilder {
         env.put(Constants.ENV_MTA_SHARED_SERVICES, sharedServices);
     }
 
-    protected void addAttributes(Map<String, Object> env, List<String> descriptorDefinedUris, Map<String, Object> properties) {
+    protected void addAttributes(Map<String, Object> env, Map<String, Object> properties) {
         Map<String, Object> attributes = new TreeMap<>(properties);
         attributes.keySet()
             .retainAll(SupportedParameters.APP_ATTRIBUTES);
         resolveUrlsInAppAttributes(attributes);
-        addDescriptorDefinedUris(attributes, descriptorDefinedUris);
         if (!attributes.isEmpty()) {
             env.put(Constants.ENV_DEPLOY_ATTRIBUTES, attributes);
         }
@@ -125,11 +122,6 @@ public class ApplicationEnvironmentCloudModelBuilder {
         if (checkDeployId != null && checkDeployId) {
             env.put(Constants.ENV_DEPLOY_ID, deployId);
         }
-    }
-
-    private void addDescriptorDefinedUris(Map<String, Object> attributes, List<String> descriptorDefinedUris) {
-        Set<String> sortedDescriptorDefinedUris = new TreeSet<>(descriptorDefinedUris);
-        attributes.put(Constants.ATTR_DESCRIPTOR_DEFINED_URIS, sortedDescriptorDefinedUris);
     }
 
     private void resolveUrlsInAppAttributes(Map<String, Object> properties) {

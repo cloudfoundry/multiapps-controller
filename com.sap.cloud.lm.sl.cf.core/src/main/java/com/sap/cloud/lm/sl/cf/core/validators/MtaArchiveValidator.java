@@ -196,7 +196,7 @@ public class MtaArchiveValidator {
         // Create system parameters builder
         SystemParametersBuilder parametersBuilder = new SystemParametersBuilder(target.getName(), organization, space, userName,
             defaultDomain, xsType, targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting, true, portAllocator,
-            false, false, deployedMta, schemaVersion.getMajor(), xsPlaceholdersSupported, null, () -> "0");
+            false, false, deployedMta, schemaVersion.getMajor(), xsPlaceholdersSupported, () -> "0");
 
         // Create and initialize cloud model helper
         MtaDescriptorMerger descriptorMerger = new MtaDescriptorMerger(handlerFactory, platform, target);

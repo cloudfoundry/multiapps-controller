@@ -15,7 +15,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [],\n  \"execute-app\": false\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"execute-app\": false\n}",
       "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-db\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world-db\"\n]",
@@ -49,7 +49,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:55001\"\n  ]\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
       "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world-backend\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs\",\n  \"xsjs-hello-world-backend\"\n]",
@@ -86,7 +86,7 @@
     ],
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\",\n  \"descriptor-defined-uris\": [\n    \"{xsa-placeholder-protocol}://{xsa-placeholder-domain-default}:55000\"\n  ]\n}",
+      "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
       "MTA_METADATA\u003d{\n  \"id\": \"com.sap.xs2.samples.xsjshelloworld\",\n  \"version\": \"0.1.0\"\n}",
       "MTA_MODULE_METADATA\u003d{\n  \"name\": \"xsjs-hello-world\"\n}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world\"\n]",
