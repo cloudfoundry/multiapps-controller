@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "com.sap.test",
+  "version": "1.0",
+  "modules1": [],
+  "resources1": [
+    {
+      "name": "baz",
+      "groups": [],
+      "properties": {
+        "test": "test"
+      }
+    }
+  ],
+  "properties": {}
+}

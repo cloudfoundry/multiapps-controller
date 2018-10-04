@@ -7,11 +7,11 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.model.ModuleSerializer
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.ProvidedDependencySerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.RequiredDependencySerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.ResourceSerializer;
-import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v3_1.Module;
-import com.sap.cloud.lm.sl.mta.model.v3_1.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.v3_1.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v3_1.Resource;
+import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v3.Module;
+import com.sap.cloud.lm.sl.mta.model.v3.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.v3.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.v3.Resource;
 
 public class SecureSerializationFacade {
 

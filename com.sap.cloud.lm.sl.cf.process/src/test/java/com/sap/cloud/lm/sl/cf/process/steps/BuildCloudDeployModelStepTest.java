@@ -25,21 +25,21 @@ import org.mockito.Mock;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ApplicationsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ConfigurationEntriesCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.DomainsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServiceKeysCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ServicesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1.ConfigurationEntriesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1.DomainsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 @RunWith(Parameterized.class)
 public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildCloudDeployModelStep> {
@@ -47,7 +47,6 @@ public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildClo
     private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 1;
-    private static final Integer MTA_MINOR_SCHEMA_VERSION = 0;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("build-cloud-model.yaml",
         BuildCloudDeployModelStepTest.class);
@@ -160,7 +159,6 @@ public class BuildCloudDeployModelStepTest extends SyncActivitiStepTest<BuildClo
 
     protected void prepareContext() throws Exception {
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
-        context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, MTA_MINOR_SCHEMA_VERSION);
 
         StepsUtil.setSystemParameters(context, EMPTY_SYSTEM_PARAMETERS);
         StepsUtil.setMtaModules(context, Collections.emptySet());

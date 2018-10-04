@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.v2.DeployTargetDto;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Target;
+import com.sap.cloud.lm.sl.mta.model.v2.Target;
 
 @Component("deployTargetDaoV2")
 public class DeployTargetDao extends com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao<Target, DeployTargetDto> {

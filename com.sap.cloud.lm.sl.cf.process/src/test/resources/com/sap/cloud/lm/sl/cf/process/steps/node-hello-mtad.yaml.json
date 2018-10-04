@@ -2,30 +2,30 @@
   "schemaVersion": "1.0.0",
   "id": "com.sap.xs2.samples.helloworld",
   "version": "0.1.0",
-  "modules1_0": [
+  "modules1": [
     {
       "name": "node-hello-world",
       "type": "javascript.nodejs",
       "properties": {
         "port": 50050
       },
-      "requiredDependencies1_0": [
+      "requiredDependencies1": [
         "uaa",
         "nodejs",
         "ui5"
       ],
-      "providedDependencies1_0": []
+      "providedDependencies1": []
     },
     {
       "name": "node-hello-world-backend",
       "type": "javascript.nodejs",
       "properties": {},
-      "requiredDependencies1_0": [
+      "requiredDependencies1": [
         "uaa",
         "db",
         "nodejs-hdi-container"
       ],
-      "providedDependencies1_0": [
+      "providedDependencies1": [
         {
           "name": "nodejs",
           "groups": [
@@ -41,10 +41,10 @@
       "name": "node-hello-world-db",
       "type": "com.sap.xs.hdi",
       "properties": {},
-      "requiredDependencies1_0": [
+      "requiredDependencies1": [
         "nodejs-hdi-container"
       ],
-      "providedDependencies1_0": [
+      "providedDependencies1": [
         {
           "name": "db",
           "groups": [],
@@ -53,7 +53,7 @@
       ]
     }
   ],
-  "resources1_0": [
+  "resources1": [
     {
       "name": "nodejs-hdi-container",
       "type": "com.sap.xs.hdi-container",

@@ -11,7 +11,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
+import com.sap.cloud.lm.sl.mta.model.v1.Module;
 
 @RunWith(Parameterized.class)
 public class DomainValidatorTest {

@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
-import com.sap.cloud.lm.sl.mta.model.v3_1.Target;
+import com.sap.cloud.lm.sl.mta.model.v3.Target;
 
 @XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)
 @XmlRootElement(name = "deployTargets")

@@ -10,14 +10,14 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
+import com.sap.cloud.lm.sl.cf.core.cf.v1.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolverInvoker;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ResourceTypeFinder;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.UserProvidedResourceResolver;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1.ResourceTypeFinder;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -26,9 +26,9 @@ import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class ProcessDescriptorStep extends SyncActivitiStep {
 

@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public abstract class DeployTargetDao<Tgt extends Target, Dto extends DeployTargetDto<Tgt>> {
 

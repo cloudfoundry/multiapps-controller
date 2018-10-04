@@ -14,7 +14,7 @@ public class DeployTargetDtoTest extends com.sap.cloud.lm.sl.cf.core.dto.seriali
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                "platform-properties-v3_1.json", "platform-properties-v3_1.xml",
+                "platform-properties-v3.json", "platform-properties-v3.xml",
             },
 // @formatter:on
         });

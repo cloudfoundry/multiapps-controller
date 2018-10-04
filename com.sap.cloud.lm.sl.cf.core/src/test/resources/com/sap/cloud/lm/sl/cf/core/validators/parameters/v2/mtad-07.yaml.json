@@ -1,0 +1,25 @@
+{
+  "modules2": [
+    {
+      "requiredDependencies2": [],
+      "providedDependencies2": [
+        {
+          "isPublic": true,
+          "name": "foo",
+          "properties": {
+            "port": -1
+          }
+        }
+      ],
+      "parameters": {},
+      "name": "foo",
+      "type": "foo",
+      "properties": {}
+    }
+  ],
+  "resources2": [],
+  "parameters": {},
+  "schemaVersion": "2.0.0",
+  "id": "com.sap.test",
+  "version": "1.0"
+}

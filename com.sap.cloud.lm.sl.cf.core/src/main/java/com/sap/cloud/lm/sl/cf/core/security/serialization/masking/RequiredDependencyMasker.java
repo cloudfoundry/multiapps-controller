@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.security.serialization.masking;
 
-import com.sap.cloud.lm.sl.mta.model.v3_1.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.v3.RequiredDependency;
 
 public class RequiredDependencyMasker extends AbstractMasker<RequiredDependency> {
 

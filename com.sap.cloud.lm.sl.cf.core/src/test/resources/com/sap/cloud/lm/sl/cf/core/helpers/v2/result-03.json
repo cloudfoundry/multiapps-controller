@@ -1,0 +1,25 @@
+{
+  "modules2": [
+    {
+      "requiredDependencies2": [],
+      "providedDependencies2": [
+        {
+          "isPublic": true,
+          "name": "framework",
+          "properties": {}
+        }
+      ],
+      "parameters": {},
+      "name": "framework",
+      "type": "javascript.nodejs",
+      "properties": {
+        "plugins": []
+      }
+    }
+  ],
+  "resources2": [],
+  "parameters": {},
+  "schemaVersion": "2.0.0",
+  "id": "mta-1",
+  "version": "1.0.0"
+}

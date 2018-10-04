@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "com.sap.test",
+  "version": "1.0",
+  "modules1": [
+    {
+      "name": "foo",
+      "type": "foo",
+      "properties": {
+        "host": "com-sap-test-foo"
+      },
+      "requiredDependencies1": [],
+      "providedDependencies1": []
+    },
+    {
+      "name": "bar",
+      "type": "bar",
+      "properties": {
+        "domain": "com.sap.test.foo"
+      },
+      "requiredDependencies1": [],
+      "providedDependencies1": []
+    }
+  ],
+  "resources1": [
+    {
+      "name": "baz",
+      "groups": [],
+      "properties": {
+        "host": ".com.sap.test.foo"
+      }
+    }
+  ],
+  "properties": {}
+}

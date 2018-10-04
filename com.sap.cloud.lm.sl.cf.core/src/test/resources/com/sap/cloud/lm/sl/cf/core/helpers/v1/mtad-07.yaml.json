@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "com.sap.sample.mta",
+  "version": "0.1.0",
+  "modules1": [
+    {
+      "name": "module-1",
+      "type": "java.tomee",
+      "properties": {
+        "create-user-provided-service": true,
+        "user-provided-service-name": "test",
+        "user-provided-service-config": {
+          "user": "test-user",
+          "password": "test-pass",
+          "url": "test-url"
+        }
+      },
+      "requiredDependencies1": [
+        "test"
+      ],
+      "providedDependencies1": []
+    },
+    {
+      "name": "module-2",
+      "type": "java.tomee",
+      "properties": {},
+      "requiredDependencies1": [],
+      "providedDependencies1": []
+    }
+  ],
+  "resources1": [
+    {
+      "name": "test",
+      "groups": [],
+      "properties": {
+        "config": {
+          "user": "test-user",
+          "password": "test-pass",
+          "url": "test-url"
+        }
+      }
+    }
+  ],
+  "properties": {}
+}

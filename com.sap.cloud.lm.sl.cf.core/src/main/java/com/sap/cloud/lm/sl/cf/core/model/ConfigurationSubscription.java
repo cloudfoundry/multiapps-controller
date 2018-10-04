@@ -20,10 +20,10 @@ import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.mta.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
-import com.sap.cloud.lm.sl.mta.model.v2_0.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.v1.Module;
+import com.sap.cloud.lm.sl.mta.model.v1.Resource;
+import com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
 
 @XmlRootElement(name = "configuration-subscription")
 @XmlAccessorType(value = XmlAccessType.FIELD)
@@ -98,8 +98,8 @@ public class ConfigurationSubscription implements AuditableConfiguration {
         Resource resource, int majorSchemaVersion) {
         switch (majorSchemaVersion) {
             case 2:
-                ResourceDto resourceDto = ResourceDto.from2((com.sap.cloud.lm.sl.mta.model.v2_0.Resource) resource);
-                ModuleDto moduleDto = ModuleDto.from2((com.sap.cloud.lm.sl.mta.model.v2_0.Module) module);
+                ResourceDto resourceDto = ResourceDto.from2((com.sap.cloud.lm.sl.mta.model.v2.Resource) resource);
+                ModuleDto moduleDto = ModuleDto.from2((com.sap.cloud.lm.sl.mta.model.v2.Module) module);
                 return new ConfigurationSubscription(00, mtaId, spaceId, appName, filter, moduleDto, resourceDto);
             default:
                 throw new UnsupportedOperationException(format(Messages.UNSUPPORTED_VERSION, majorSchemaVersion));
@@ -154,9 +154,9 @@ public class ConfigurationSubscription implements AuditableConfiguration {
             return requiredDependencies;
         }
 
-        public static ModuleDto from2(com.sap.cloud.lm.sl.mta.model.v2_0.Module module) {
-            return new ModuleDto(module.getName(), module.getProperties(), fromProvidedDependencies2(module.getProvidedDependencies2_0()),
-                fromRequiredDependencies2(module.getRequiredDependencies2_0()));
+        public static ModuleDto from2(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
+            return new ModuleDto(module.getName(), module.getProperties(), fromProvidedDependencies2(module.getProvidedDependencies2()),
+                fromRequiredDependencies2(module.getRequiredDependencies2()));
         }
 
         private static List<ProvidedDependencyDto> fromProvidedDependencies2(List<ProvidedDependency> providedDependencies) {
@@ -202,7 +202,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
             return properties;
         }
 
-        public static ResourceDto from2(com.sap.cloud.lm.sl.mta.model.v2_0.Resource resource) {
+        public static ResourceDto from2(com.sap.cloud.lm.sl.mta.model.v2.Resource resource) {
             return new ResourceDto(resource.getName(), resource.getProperties());
         }
 
@@ -245,7 +245,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
             return properties;
         }
 
-        public static RequiredDependencyDto from2(com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency requiredDependency) {
+        public static RequiredDependencyDto from2(com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency requiredDependency) {
             return new RequiredDependencyDto(requiredDependency.getName(), requiredDependency.getList(),
                 requiredDependency.getProperties());
         }
@@ -281,7 +281,7 @@ public class ConfigurationSubscription implements AuditableConfiguration {
             return properties;
         }
 
-        public static ProvidedDependencyDto from2(com.sap.cloud.lm.sl.mta.model.v2_0.ProvidedDependency providedDependency) {
+        public static ProvidedDependencyDto from2(com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency providedDependency) {
             return new ProvidedDependencyDto(providedDependency.getName(), providedDependency.getProperties());
         }
 

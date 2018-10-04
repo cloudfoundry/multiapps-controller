@@ -1,7 +1,7 @@
 {
-  "modules3_1": [
+  "modules3": [
     {
-      "requiredDependencies3_1": [
+      "requiredDependencies3": [
         {
           "propertiesMetadata": {
             "metadata": {
@@ -26,8 +26,9 @@
           }
         }
       ],
-      "providedDependencies3_1": [
+      "providedDependencies3": [
         {
+          "parameters": {},
           "propertiesMetadata": {
             "metadata": {
               "providedDependency-property": {
@@ -35,7 +36,6 @@
               }
             }
           },
-          "parameters": {},
           "isPublic": false,
           "name": "test-dependency",
           "properties": {
@@ -67,9 +67,9 @@
       }
     }
   ],
-  "resources3_1": [
+  "resources3": [
     {
-      "active": true,
+      "isActive": false,
       "propertiesMetadata": {
         "metadata": {
           "resource-property": {
@@ -84,6 +84,7 @@
           }
         }
       },
+      "requiredDependencies3": [],
       "isOptional": false,
       "parameters": {
         "resource-parameter": "********"

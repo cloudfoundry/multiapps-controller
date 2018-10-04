@@ -9,7 +9,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -20,9 +20,9 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1.Module;
+import com.sap.cloud.lm.sl.mta.model.v1.Resource;
 
 public class SystemParametersBuilder {
 
@@ -88,12 +88,12 @@ public class SystemParametersBuilder {
 
     public SystemParameters build(DeploymentDescriptor descriptor) {
         Map<String, Map<String, Object>> moduleParameters = new HashMap<>();
-        for (Module module : descriptor.getModules1_0()) {
+        for (Module module : descriptor.getModules1()) {
             moduleParameters.put(module.getName(), getModuleParameters(module, descriptor.getId()));
         }
 
         Map<String, Map<String, Object>> resourceParameters = new HashMap<>();
-        for (Resource resource : descriptor.getResources1_0()) {
+        for (Resource resource : descriptor.getResources1()) {
             resourceParameters.put(resource.getName(), getResourceParameters(resource, descriptor.getId()));
         }
         return new SystemParameters(getGeneralParameters(), moduleParameters, resourceParameters,

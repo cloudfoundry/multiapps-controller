@@ -2,7 +2,7 @@
   "_schema-version": "3.1.0",
   "ID": "com.sap.mta.sample.v2",
   "version": "1.2.1-beta+20150403144937853",
-  "modules3_1": [
+  "modules3": [
   	{
 	  "name": "test-module",
 	  "type": "test-type",
@@ -12,7 +12,7 @@
 	  "parameters": {
 	  	"module-parameter": "parameter-1-val"
 	  },
-	  "requiredDependencies3_1": [
+	  "requiredDependencies3": [
   	{
 	  "name": "test-dependency",
 	  "type": "test-type",
@@ -38,7 +38,7 @@
 	  }
 	}
   ],
-	  "providedDependencies3_1": [
+	  "providedDependencies3": [
   	{
 	  "name": "test-dependency",
 	  "type": "test-type",
@@ -70,7 +70,7 @@
 	  }
 	}
   ],
-  "resources3_1": [
+  "resources3": [
   	{
 	  "name": "test-resource",
 	  "type": "test-type",
