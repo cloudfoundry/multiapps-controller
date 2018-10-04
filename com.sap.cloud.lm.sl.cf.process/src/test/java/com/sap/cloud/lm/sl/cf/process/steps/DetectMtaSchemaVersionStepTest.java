@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
 import static java.text.MessageFormat.format;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -20,12 +21,16 @@ import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.handlers.MtaSchemaVersionDetector;
+import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
 import com.sap.cloud.lm.sl.mta.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.Version;
+import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class DetectMtaSchemaVersionStepTest extends SyncActivitiStepTest<DetectMtaSchemaVersionStep> {
+
+    private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("build-cloud-model.yaml",
+        DetectMtaSchemaVersionStepTest.class);
 
     @Parameters
     public static Collection<Object[]> getParameters() {
@@ -64,7 +69,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncActivitiStepTest<DetectM
     }
 
     @Mock
-    public MtaSchemaVersionDetector versionDetector;
+    public SchemaVersionDetector versionDetector;
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -84,8 +89,8 @@ public class DetectMtaSchemaVersionStepTest extends SyncActivitiStepTest<DetectM
     public void setUp() throws Exception {
         step.detectorSupplier = () -> versionDetector;
 
-        StepsUtil.setExtensionDescriptorStrings(context, Collections.emptyList());
-        StepsUtil.setDeploymentDescriptorString(context, "");
+        StepsUtil.setUnresolvedDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        StepsUtil.setExtensionDescriptorChain(context, Collections.emptyList());
     }
 
     @Test

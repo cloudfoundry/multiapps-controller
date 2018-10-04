@@ -22,8 +22,8 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
-import com.sap.cloud.lm.sl.mta.parsers.v1_0.DeploymentDescriptorParser;
-import com.sap.cloud.lm.sl.mta.util.YamlUtil;
+import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
+import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 
 @Component("processMtaArchiveStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -60,9 +60,10 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
     private void processApplicationArchive(final DelegateExecution context, String appArchiveId) throws FileStorageException {
         FileDownloadProcessor deploymentDescriptorProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId,
             appArchiveStream -> {
-                // Set deployment descriptor string in the context
                 String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
-                StepsUtil.setDeploymentDescriptorString(context, descriptorString);
+                DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
+                DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
+                StepsUtil.setUnresolvedDeploymentDescriptor(context, deploymentDescriptor);
             });
         fileService.processFileContent(deploymentDescriptorProcessor);
 
@@ -94,17 +95,16 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
         fileService.processFileContent(manifestProcessor);
     }
 
+    protected MtaArchiveHelper getHelper(Manifest manifest) {
+        return new MtaArchiveHelper(manifest);
+    }
+
     private void setMtaIdForProcess(DelegateExecution context) {
-        String descriptorString = StepsUtil.getDeploymentDescriptorString(context);
-        Map<String, Object> descriptorMap = YamlUtil.convertYamlToMap(descriptorString);
-        String mtaId = (String) descriptorMap.get(DeploymentDescriptorParser.ID);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
+        String mtaId = deploymentDescriptor.getId();
         context.setVariable(Constants.PARAM_MTA_ID, mtaId);
         conflictPreventerSupplier.apply(operationDao)
             .attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(context), StepsUtil.getCorrelationId(context));
-    }
-
-    protected MtaArchiveHelper getHelper(Manifest manifest) {
-        return new MtaArchiveHelper(manifest);
     }
 
 }

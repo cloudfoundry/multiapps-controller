@@ -6,19 +6,8 @@ modules:
   - name: node-hello-world
     type: javascript.nodejs
     path: web/
-    requires:
-      - name: nodejs-uaa
-      - name: nodejs
-        group: destinations
-        properties:
-          name: nodejs
-          url: ~{url}
-      - name: ui5
-        group: destinations
-        properties:
-          name: ui5
-          url: ~{url}
-    parameters:
+    requires: [nodejs-uaa, nodejs, ui]
+    properties:
       host: ${user}-node-hello-world
     
   - name: node-hello-world-backend
@@ -28,18 +17,14 @@ modules:
       - name: nodejs
         properties:
           url: "http://${default-uri}"
-    requires:
-      - name: nodejs-uaa
-      - name: nodejs-hdi-container
-      - name: node-hello-world-db
-    parameters:
+    requires: [nodejs-uaa, nodejs-hdi-container, node-hello-world-db]
+    properties:
       host: ${user}-node-hello-world-backend
 
   - name: node-hello-world-db
     type: com.sap.xs.hdi
     path: db/
-    requires:
-      - name: nodejs-hdi-container
+    requires: [nodejs-hdi-container]
 
 resources:
   - name: nodejs-hdi-container
@@ -47,7 +32,7 @@ resources:
     
   - name: nodejs-uaa
     type: com.sap.xs.uaa
-    parameters:
+    properties:
       config_path: xs-security.json
     
   - name: ui5

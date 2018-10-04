@@ -58,6 +58,7 @@
     }
   ],
   "parameters": {},
+  "schemaVersion": "2.0.0",
   "id": "com.sap.example.mta",
   "version": "1.0.0"
 }

@@ -51,6 +51,7 @@
   ],
   "resources2_0": [],
   "parameters": {},
+  "schemaVersion": "2.0.0",
   "id": "com.sap.mta.test",
   "version": "1.0.0"
 }

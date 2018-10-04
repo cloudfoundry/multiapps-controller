@@ -1,101 +1,104 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
+import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.mta.builders.ExtensionDescriptorChainBuilder;
+import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
+import com.sap.cloud.lm.sl.mta.model.v1_0.ExtensionDescriptor;
 
-@RunWith(Parameterized.class)
 public class ProcessMtaExtensionDescriptorsStepTest extends SyncActivitiStepTest<ProcessMtaExtensionDescriptorsStep> {
 
-    private static final String SPACE_ID = "0";
+    private static final String SPACE_ID = "foo";
 
-    private final List<String> descriptorFileLocations;
+    @Test
+    public void testExecute() throws FileStorageException {
+        final String extensionDescriptorString1 = "abc";
+        final String extensionDescriptorString2 = "def";
+        final ExtensionDescriptor extensionDescriptor1 = StepsTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
+        final ExtensionDescriptor extensionDescriptor2 = StepsTestUtil.loadExtensionDescriptor("config-02.mtaext", getClass());
+        final List<ExtensionDescriptor> extensionDescriptorChain = Arrays.asList(extensionDescriptor1, extensionDescriptor2);
 
-    public ProcessMtaExtensionDescriptorsStepTest(List<String> descriptorFileLocations) {
-        this.descriptorFileLocations = descriptorFileLocations;
-    }
+        prepare(Arrays.asList(extensionDescriptorString1, extensionDescriptorString2));
+        DescriptorParserFacade descriptorParserFacade = Mockito.mock(DescriptorParserFacade.class);
+        Mockito.when(descriptorParserFacade.parseExtensionDescriptor(Mockito.<InputStream> any()))
+            .thenReturn(extensionDescriptor1, extensionDescriptor2);
 
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-            // (0) Two extension descriptors to process:
-            {
-                Arrays.asList("config-01.mtaext", "config-02.mtaext"),
-            },
-            // (1) No  extension descriptors to process:
-            {
-                Collections.emptyList(),
-            },
-// @formatter:on
-        });
-    }
+        ExtensionDescriptorChainBuilder extensionDescriptorChainBuilder = Mockito.mock(ExtensionDescriptorChainBuilder.class);
+        Mockito.when(extensionDescriptorChainBuilder.build(Mockito.any(), Mockito.eq(extensionDescriptorChain)))
+            .thenReturn(extensionDescriptorChain);
 
-    @Before
-    public void setUp() throws Exception {
-        prepareContext();
-        prepareFileService();
-    }
+        step.descriptorParserFacade = descriptorParserFacade;
+        step.extensionDescriptorChainBuilder = extensionDescriptorChainBuilder;
 
-    private void prepareContext() {
-        List<String> fileIds = new ArrayList<>();
-        for (int i = 0; i < descriptorFileLocations.size(); i++) {
-            fileIds.add(Integer.toString(i));
-        }
-        context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIds));
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
-    }
+        step.execute(context);
 
-    private void prepareFileService() throws Exception {
-        doAnswer(new Answer<Void>() {
+        List<ExtensionDescriptor> actualExtensionDescriptorChain = StepsUtil.getExtensionDescriptorChain(context);
+        String expectedJson = JsonUtil.toJson(extensionDescriptorChain, true);
+        String actualJson = JsonUtil.toJson(actualExtensionDescriptorChain, true);
 
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Exception {
-                FileDownloadProcessor contentProcessor = (FileDownloadProcessor) invocation.getArguments()[0];
-                int fileId = Integer.parseInt(contentProcessor.getFileEntry()
-                    .getId());
-
-                contentProcessor.processContent(getClass().getResourceAsStream(descriptorFileLocations.get(fileId)));
-                return null;
-            }
-
-        }).when(fileService)
-            .processFileContent(any());
-    }
-
-    private void validateOutput() throws Exception {
-        List<String> expected = new ArrayList<>();
-        for (String extensionDescriptorFileLocation : descriptorFileLocations) {
-            expected.add(IOUtils.toString(getClass().getResourceAsStream(extensionDescriptorFileLocation)));
-        }
-        List<String> actual = StepsUtil.getArrayVariableAsList(context,
-            com.sap.cloud.lm.sl.cf.process.Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS);
-        assertEquals(expected, actual);
+        assertEquals(expectedJson, actualJson);
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testExecuteWithNoExtensionDescriptors() throws FileStorageException {
+        prepare(Collections.emptyList());
+
         step.execute(context);
 
-        assertStepFinishedSuccessfully();
+        List<ExtensionDescriptor> extensionDescriptorChain = StepsUtil.getExtensionDescriptorChain(context);
+        assertTrue(extensionDescriptorChain.isEmpty());
+    }
 
-        validateOutput();
+    private void prepare(List<String> extensionDescriptors) throws FileStorageException {
+        Map<String, String> fileIdToExtensionDescriptor = generateIds(extensionDescriptors);
+
+        context.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIdToExtensionDescriptor.keySet()));
+        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
+        StepsUtil.setUnresolvedDeploymentDescriptor(context, StepsTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
+
+        prepareFileService(fileIdToExtensionDescriptor);
+    }
+
+    private void prepareFileService(Map<String, String> fileIdToExtensionDescriptor) throws FileStorageException {
+        Mockito.doAnswer((invocation) -> {
+            FileDownloadProcessor contentProcessor = (FileDownloadProcessor) invocation.getArguments()[0];
+            String fileId = contentProcessor.getFileEntry()
+                .getId();
+            String fileContent = fileIdToExtensionDescriptor.get(fileId);
+
+            contentProcessor.processContent(IOUtils.toInputStream(fileContent, StandardCharsets.UTF_8));
+            return null;
+        })
+            .when(fileService)
+            .processFileContent(Mockito.any());
+    }
+
+    private Map<String, String> generateIds(List<String> extensionDescriptors) {
+        return extensionDescriptors.stream()
+            .collect(Collectors.toMap(extensionDescriptor -> generateRandomId(), extensionDescriptor -> extensionDescriptor));
+    }
+
+    private String generateRandomId() {
+        return UUID.randomUUID()
+            .toString();
     }
 
     @Override
