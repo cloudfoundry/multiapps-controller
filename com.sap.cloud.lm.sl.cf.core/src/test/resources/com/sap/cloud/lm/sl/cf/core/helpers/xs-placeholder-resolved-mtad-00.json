@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "id": "com.sap.sample.mta",
   "version": "1.0.0",
-  "modules1_0": [
+  "modules1": [
     {
       "name": "foo",
       "type": "foo",
@@ -13,18 +13,18 @@
         "port": 52002,
         "property": "{xsa-placeholder-domain-default}.foo"
       },
-      "requiredDependencies1_0": [
+      "requiredDependencies1": [
         "bar",
         "baz"
       ],
-      "providedDependencies1_0": []
+      "providedDependencies1": []
     },
     {
       "name": "bar",
       "type": "bar",
       "properties": {},
-      "requiredDependencies1_0": [],
-      "providedDependencies1_0": [
+      "requiredDependencies1": [],
+      "providedDependencies1": [
         {
           "name": "bar",
           "groups": [],
@@ -44,7 +44,7 @@
       ]
     }
   ],
-  "resources1_0": [
+  "resources1": [
     {
       "name": "qux",
       "type": "qux",

@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
 @Component("processMtaArchiveStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

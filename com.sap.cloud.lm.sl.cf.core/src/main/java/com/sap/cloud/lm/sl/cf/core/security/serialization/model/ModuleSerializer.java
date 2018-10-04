@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.security.serialization.model;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureJsonSerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializerConfiguration;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.masking.ModuleMasker;
-import com.sap.cloud.lm.sl.mta.model.v3_1.Module;
+import com.sap.cloud.lm.sl.mta.model.v3.Module;
 
 public class ModuleSerializer extends SecureJsonSerializer {
 

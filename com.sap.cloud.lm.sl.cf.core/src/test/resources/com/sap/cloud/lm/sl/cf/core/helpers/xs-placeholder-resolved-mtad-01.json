@@ -1,7 +1,7 @@
 {
-  "modules2_0": [
+  "modules2": [
     {
-      "requiredDependencies2_0": [
+      "requiredDependencies2": [
         {
           "name": "bar",
           "properties": {
@@ -25,7 +25,7 @@
           }
         }
       ],
-      "providedDependencies2_0": [
+      "providedDependencies2": [
         {
           "isPublic": true,
           "name": "foo",
@@ -50,8 +50,8 @@
       }
     },
     {
-      "requiredDependencies2_0": [],
-      "providedDependencies2_0": [
+      "requiredDependencies2": [],
+      "providedDependencies2": [
         {
           "isPublic": true,
           "name": "bar",
@@ -75,7 +75,7 @@
       "properties": {}
     }
   ],
-  "resources2_0": [
+  "resources2": [
     {
       "parameters": {
         "service-name": "http.qux",

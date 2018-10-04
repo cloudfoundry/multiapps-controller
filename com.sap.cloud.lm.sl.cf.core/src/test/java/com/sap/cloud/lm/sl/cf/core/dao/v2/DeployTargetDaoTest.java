@@ -6,8 +6,8 @@ import java.util.Arrays;
 
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.mta.handlers.v2_0.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Target;
+import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.model.v2.Target;
 
 public class DeployTargetDaoTest extends com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDaoTest {
 

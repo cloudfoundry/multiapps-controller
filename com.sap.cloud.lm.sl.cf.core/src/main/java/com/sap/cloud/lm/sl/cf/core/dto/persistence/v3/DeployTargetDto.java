@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata.SequenceNames;
 import com.sap.cloud.lm.sl.common.util.XmlUtil;
-import com.sap.cloud.lm.sl.mta.model.v3_1.Target;
+import com.sap.cloud.lm.sl.mta.model.v3.Target;
 
 @Entity(name = "DeployTarget3")
 @Access(AccessType.FIELD)

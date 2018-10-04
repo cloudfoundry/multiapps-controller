@@ -19,9 +19,9 @@ import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.common.model.xml.Wrapper;
-import com.sap.cloud.lm.sl.mta.model.v3_1.TargetModuleType;
-import com.sap.cloud.lm.sl.mta.model.v3_1.TargetResourceType;
-import com.sap.cloud.lm.sl.mta.model.v3_1.Target;
+import com.sap.cloud.lm.sl.mta.model.v3.TargetModuleType;
+import com.sap.cloud.lm.sl.mta.model.v3.TargetResourceType;
+import com.sap.cloud.lm.sl.mta.model.v3.Target;
 
 @XmlRootElement(name = "deployTarget")
 @XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.FIELD)
@@ -78,9 +78,9 @@ public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.serializati
         this.parameters = target.getObject()
             .getParameters();
         this.moduleTypes = MT_ADAPTER.marshal(target.getObject()
-            .getModuleTypes3_1());
+            .getModuleTypes3());
         this.resourceTypes = RT_ADAPTER.marshal(target.getObject()
-            .getResourceTypes3_1());
+            .getResourceTypes3());
     }
 
     @Override
@@ -90,8 +90,8 @@ public class DeployTargetDto extends com.sap.cloud.lm.sl.cf.core.dto.serializati
         result.setType(type);
         result.setDescription(description);
         result.setParameters(parameters);
-        result.setModuleTypes3_1(MT_ADAPTER.unmarshal(moduleTypes));
-        result.setResourceTypes3_1(RT_ADAPTER.unmarshal(resourceTypes));
+        result.setModuleTypes3(MT_ADAPTER.unmarshal(moduleTypes));
+        result.setResourceTypes3(RT_ADAPTER.unmarshal(resourceTypes));
         return new PersistentObject<>(id, result.build());
     }
 }

@@ -28,9 +28,9 @@ import com.sap.cloud.lm.sl.cf.persistence.changes.AsyncChange;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler;
+import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class BootstrapServlet extends HttpServlet {
 
@@ -103,9 +103,9 @@ public class BootstrapServlet extends HttpServlet {
     }
 
     private void addDeployTargets() {
-        addDeployTargets(deployTargetDaoV1, new com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser(), 1);
-        addDeployTargets(deployTargetDaoV2, new com.sap.cloud.lm.sl.mta.handlers.v2_0.ConfigurationParser(), 2);
-        addDeployTargets(deployTargetDaoV3, new com.sap.cloud.lm.sl.mta.handlers.v3_1.ConfigurationParser(), 3);
+        addDeployTargets(deployTargetDaoV1, new com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser(), 1);
+        addDeployTargets(deployTargetDaoV2, new com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser(), 2);
+        addDeployTargets(deployTargetDaoV3, new com.sap.cloud.lm.sl.mta.handlers.v3.ConfigurationParser(), 3);
     }
 
     private void addDeployTargets(DeployTargetDao dao, ConfigurationParser parser, int majorVersion) {

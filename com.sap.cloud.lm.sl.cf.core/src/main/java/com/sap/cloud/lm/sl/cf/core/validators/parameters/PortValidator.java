@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
+import com.sap.cloud.lm.sl.mta.model.v1.Module;
 
 public class PortValidator implements ParameterValidator {
 

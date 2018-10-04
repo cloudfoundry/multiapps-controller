@@ -9,9 +9,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
+import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.message.Messages;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class XsPlaceholderResolverInvokerTest {
@@ -67,9 +67,9 @@ public class XsPlaceholderResolverInvokerTest {
     private DescriptorParser getDescriptorParser() {
         switch (schemaVersion) {
             case 2:
-                return new com.sap.cloud.lm.sl.mta.handlers.v2_0.DescriptorParser();
+                return new com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser();
             case 1:
-                return new com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser();
+                return new com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser();
             default:
                 throw new UnsupportedOperationException(MessageFormat.format(Messages.UNSUPPORTED_VERSION, schemaVersion));
         }

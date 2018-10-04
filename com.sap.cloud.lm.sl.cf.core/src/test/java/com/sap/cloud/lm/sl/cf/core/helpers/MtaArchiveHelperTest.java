@@ -18,8 +18,8 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class MtaArchiveHelperTest {
@@ -87,23 +87,23 @@ public class MtaArchiveHelperTest {
     }
 
     private Set<String> getModulesNamesFromDescriptor() {
-        return descriptor.getModules1_0()
+        return descriptor.getModules1()
             .stream()
             .map(m -> m.getName())
             .collect(Collectors.toSet());
     }
 
     private Set<String> getResourcesNamesFromDescriptor() {
-        return descriptor.getResources1_0()
+        return descriptor.getResources1()
             .stream()
             .map(r -> r.getName())
             .collect(Collectors.toSet());
     }
 
     private Set<String> getRequiredDependenciesNamesFromDescriptor() {
-        return descriptor.getModules1_0()
+        return descriptor.getModules1()
             .stream()
-            .map(m -> m.getRequiredDependencies1_0())
+            .map(m -> m.getRequiredDependencies1())
             .flatMap(d -> d.stream())
             .collect(Collectors.toSet());
     }

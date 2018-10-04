@@ -9,7 +9,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
-import com.sap.cloud.lm.sl.mta.model.v1_0.TargetModuleType;
+import com.sap.cloud.lm.sl.mta.model.v1.TargetModuleType;
 
 public class DeployTargetModuleTypeDto {
 

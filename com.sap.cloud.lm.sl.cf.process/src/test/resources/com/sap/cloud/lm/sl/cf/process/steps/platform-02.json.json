@@ -3,8 +3,8 @@
     "org": "initial",
     "space": "initial"
   },
-  "platformModuleTypes2_0": [],
-  "platformResourceTypes2_0": [],
+  "platformModuleTypes2": [],
+  "platformResourceTypes2": [],
   "name": "ZE_PLATFORM",
   "type": "XS2"
 }

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "mta-1",
+  "version": "1.0.0",
+  "modules1": [
+    {
+      "name": "module-1",
+      "type": "javascript.nodejs",
+      "properties": {},
+      "requiredDependencies1": [
+        "module-2",
+        "resource-2"
+      ],
+      "providedDependencies1": []
+    },
+    {
+      "name": "module-2",
+      "type": "javascript.nodejs",
+      "properties": {},
+      "requiredDependencies1": [
+        "resource-1",
+        "resource-2"
+      ],
+      "providedDependencies1": []
+    }
+  ],
+  "resources1": [
+    {
+      "name": "resource-1",
+      "type": "org.cloudfoundry.user-provided-service",
+      "groups": [],
+      "properties": {
+        "foo": "foo",
+        "bar": "bar"
+      }
+    },
+    {
+      "name": "resource-2",
+      "groups": [],
+      "properties": {
+        "bar": "qux",
+        "baz": "baz",
+        "foo": "foo"
+      }
+    }
+  ],
+  "properties": {
+    "test": "test"
+  }
+}

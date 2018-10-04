@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
 import com.sap.cloud.lm.sl.mta.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.Version;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class DetectMtaSchemaVersionStepTest extends SyncActivitiStepTest<DetectMtaSchemaVersionStep> {
@@ -38,31 +38,31 @@ public class DetectMtaSchemaVersionStepTest extends SyncActivitiStepTest<DetectM
 // @formatter:off
             // Supported version:
             {
-                "1.0.0", 1, 0, null,
+                "1.0.0", 1, null,
             },
             // Supported version:
             {
-                "2.0.0", 2, 0, null,
+                "2.0.0", 2, null,
             },
             // Supported version:
             {
-                "2.1.0", 2, 1, null,
+                "2.1.0", 2, null,
             },
             // Supported version:
             {
-                "2", 2, 2, null,
+                "2", 2, null,
             },
             // Supported version:
             {
-                "2.1", 2, 1, null,
+                "2.1", 2, null,
             },
             // Supported version:
             {
-                "3", 3, 1, null,
+                "3", 3, null,
             },
             // Unsupported version:
             {
-                "0.1.0", 0, 1, format(Messages.UNSUPPORTED_VERSION, "0.1.0"),
+                "0.1.0", 0, format(Messages.UNSUPPORTED_VERSION, "0.1.0"),
             },
 // @formatter:on
         });
@@ -75,13 +75,11 @@ public class DetectMtaSchemaVersionStepTest extends SyncActivitiStepTest<DetectM
 
     private String schemaVersion;
     private int expectedMajor;
-    private int expectedMinor;
     private String expectedExceptionMessage;
 
-    public DetectMtaSchemaVersionStepTest(String schemaVersion, int expectedMajor, int expectedMinor, String expectedExceptionMessage) {
+    public DetectMtaSchemaVersionStepTest(String schemaVersion, int expectedMajor, String expectedExceptionMessage) {
         this.schemaVersion = schemaVersion;
         this.expectedMajor = expectedMajor;
-        this.expectedMinor = expectedMinor;
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
 
@@ -105,7 +103,6 @@ public class DetectMtaSchemaVersionStepTest extends SyncActivitiStepTest<DetectM
         assertStepFinishedSuccessfully();
 
         assertEquals(expectedMajor, context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION));
-        assertEquals(expectedMinor, context.getVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION));
     }
 
     @Test

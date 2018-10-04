@@ -55,7 +55,6 @@ public class Constants {
     public static final String VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR = "mtaUnresolvedDeploymentDescriptor";
     public static final String VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN = "mtaExtensionDescriptorChain";
     public static final String VAR_MTA_MAJOR_SCHEMA_VERSION = "mtaMajorSchemaVersion";
-    public static final String VAR_MTA_MINOR_SCHEMA_VERSION = "mtaMinorSchemaVersion";
     public static final String VAR_MTA_MODULE_CONTENT_PREFIX = "mtaModuleContent_";
     public static final String VAR_MTA_MODULE_FILE_NAME_PREFIX = "mtaModuleFileName_";
     public static final String VAR_MTA_REQUIRES_FILE_NAME_PREFIX = "mtaRequiresFileName_";

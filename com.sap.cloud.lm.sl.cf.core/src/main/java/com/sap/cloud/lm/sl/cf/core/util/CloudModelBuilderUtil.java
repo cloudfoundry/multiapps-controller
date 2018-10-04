@@ -5,26 +5,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.sap.cloud.lm.sl.cf.core.cf.v1_0.ResourceType;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.cf.v1.ResourceType;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.parser.ParametersParser;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Module;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1_0.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Resource;
-import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1.Module;
+import com.sap.cloud.lm.sl.mta.model.v1.Platform;
+import com.sap.cloud.lm.sl.mta.model.v1.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.v1.Resource;
+import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class CloudModelBuilderUtil {
 
     public static boolean isPublic(ProvidedDependency dependency) {
-        if (dependency instanceof com.sap.cloud.lm.sl.mta.model.v2_0.ProvidedDependency) {
-            return ((com.sap.cloud.lm.sl.mta.model.v2_0.ProvidedDependency) dependency).isPublic();
+        if (dependency instanceof com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency) {
+            return ((com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency) dependency).isPublic();
         }
         return true;
     }
@@ -72,8 +72,8 @@ public class CloudModelBuilderUtil {
     }
     
     public static boolean isActive(Resource resource) {
-        com.sap.cloud.lm.sl.mta.model.v3_1.Resource resourceV3 = (com.sap.cloud.lm.sl.mta.model.v3_1.Resource) resource;
-        return resourceV3.getActive();
+        com.sap.cloud.lm.sl.mta.model.v3.Resource resourceV3 = (com.sap.cloud.lm.sl.mta.model.v3.Resource) resource;
+        return resourceV3.isActive();
     }
 
     public static boolean isServiceKey(Resource resource, PropertiesAccessor propertiesAccessor) {
@@ -100,7 +100,7 @@ public class CloudModelBuilderUtil {
 
     public static Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor) {
         Set<String> deployedModuleNames = new TreeSet<>();
-        for (Module mtaModule : deploymentDescriptor.getModules1_0()) {
+        for (Module mtaModule : deploymentDescriptor.getModules1()) {
             deployedModuleNames.add(mtaModule.getName());
         }
         return deployedModuleNames;

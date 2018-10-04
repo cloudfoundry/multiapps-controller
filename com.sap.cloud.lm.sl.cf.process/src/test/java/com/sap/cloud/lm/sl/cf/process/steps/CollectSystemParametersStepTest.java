@@ -40,7 +40,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class CollectSystemParametersStepTest extends SyncActivitiStepTest<CollectSystemParametersStep> {
@@ -67,13 +67,12 @@ public class CollectSystemParametersStepTest extends SyncActivitiStepTest<Collec
         public String org;
         public String space;
         public int majorMtaSchemaVersion;
-        public int minorMtaSchemaVersion;
         public PlatformType xsType;
         public boolean areXsPlaceholdersSupported;
 
         public StepInput(String deploymentDescriptorLocation, String authorizationEndpoint, String deployServiceUrl, String defaultDomain,
             boolean portBasedRouting, boolean useNamespaces, boolean useNamespacesForServices, String user, String platformName, String org,
-            String space, int majorMtaSchemaVersion, int minorMtaSchemaVersion, String deployedMtaLocation, PlatformType xsType,
+            String space, int majorMtaSchemaVersion, String deployedMtaLocation, PlatformType xsType,
             boolean areXsPlaceholdersSupported) {
             this.deploymentDescriptorLocation = deploymentDescriptorLocation;
             this.authorizationEndpoint = authorizationEndpoint;
@@ -88,7 +87,6 @@ public class CollectSystemParametersStepTest extends SyncActivitiStepTest<Collec
             this.org = org;
             this.space = space;
             this.majorMtaSchemaVersion = majorMtaSchemaVersion;
-            this.minorMtaSchemaVersion = minorMtaSchemaVersion;
             this.xsType = xsType;
             this.areXsPlaceholdersSupported = areXsPlaceholdersSupported;
         }
@@ -114,37 +112,37 @@ public class CollectSystemParametersStepTest extends SyncActivitiStepTest<Collec
 // @formatter:off
             // (0) Should not use namespaces for applications and services:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, false), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-02.json", null),
             },
             // (1) Should use namespaces for applications and services:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, false), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-01.json", null),
             },
             // (2) There are deployed MTAs:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, 0, "deployed-mta-01.json", PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, "deployed-mta-01.json", PlatformType.XS2, false), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-04.json", null),
             },
             // (3) Host based routing:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, false), 
                 new StepOutput(null, "R:system-parameters-03.json", null),
             },
             // (4) The version of the MTA is lower than the version of the previously deployed MTA:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, 0, "deployed-mta-02.json", PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, "deployed-mta-02.json", PlatformType.XS2, false), 
                 new StepOutput(Collections.emptySet(), "R:system-parameters-04.json", Messages.HIGHER_VERSION_ALREADY_DEPLOYED),
             },
             // (5) Should not use namespaces for applications and services (platform type  is  CF):
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, 0, null, PlatformType.CF , false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.CF , false), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-07.json", null),
             },
             // (6) Should not use namespaces for applications and services (XS placeholders are supported):
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, 0, null, PlatformType.XS2, true ), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, true ), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-06.json", null),
             },
 // @formatter:on
@@ -182,7 +180,7 @@ public class CollectSystemParametersStepTest extends SyncActivitiStepTest<Collec
     private void loadParameters() throws Exception {
         String deploymentDescriptorString = TestUtil.getResourceAsString(input.deploymentDescriptorLocation, getClass());
 
-        descriptor = new HandlerFactory(input.majorMtaSchemaVersion, input.minorMtaSchemaVersion).getDescriptorParser()
+        descriptor = new HandlerFactory(input.majorMtaSchemaVersion).getDescriptorParser()
             .parseDeploymentDescriptorYaml(deploymentDescriptorString);
         if (input.deployedMtaLocation != null) {
             String deployedMtaString = TestUtil.getResourceAsString(input.deployedMtaLocation, getClass());
@@ -204,7 +202,6 @@ public class CollectSystemParametersStepTest extends SyncActivitiStepTest<Collec
         context.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, input.useNamespacesForServices);
         context.setVariable(Constants.PARAM_USE_NAMESPACES, input.useNamespaces);
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, input.majorMtaSchemaVersion);
-        context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, input.minorMtaSchemaVersion);
 
         StepsUtil.setUnresolvedDeploymentDescriptor(context, descriptor);
         context.setVariable(Constants.PARAM_TARGET_NAME, input.platformName);

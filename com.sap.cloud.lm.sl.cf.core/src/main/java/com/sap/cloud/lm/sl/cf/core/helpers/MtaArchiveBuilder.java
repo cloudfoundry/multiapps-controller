@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
-import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
@@ -33,10 +32,10 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
 import com.sap.cloud.lm.sl.mta.model.Version;
-import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
-import com.sap.cloud.lm.sl.mta.model.v2_0.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v2_0.Resource;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class MtaArchiveBuilder {
@@ -77,14 +76,13 @@ public class MtaArchiveBuilder {
         deploymentDescriptorFile = findDeploymenDescriptor(mtaDirectory);
         String deploymentDescriptorString = readDeploymentDescriptor(deploymentDescriptorFile);
 
-        com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor deploymentDescriptor = new DescriptorParserFacade()
+        com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor deploymentDescriptor = new DescriptorParserFacade()
             .parseDeploymentDescriptor(deploymentDescriptorString);
         Version schemaVersion = new SchemaVersionDetector().detect(deploymentDescriptor, Collections.emptyList());
-        HandlerFactory handlerFactory = new HandlerFactory(schemaVersion.getMajor(), schemaVersion.getMinor());
 
-        if (handlerFactory.getMajorVersion() < 2) {
+        if (schemaVersion.getMajor() < 2) {
             throw new ContentException(Messages.THE_DEPLOYMENT_DESCRIPTOR_0_SPECIFIES_NOT_SUPPORTED_MTA_VERSION_1,
-                deploymentDescriptorFile.toAbsolutePath(), handlerFactory.getMajorVersion());
+                deploymentDescriptorFile.toAbsolutePath(), schemaVersion.getMajor());
         }
 
         return (DeploymentDescriptor) deploymentDescriptor;
@@ -134,7 +132,7 @@ public class MtaArchiveBuilder {
     }
 
     private void prepareModules() {
-        Map<String, List<Module>> modulesMap = createModulesMap(deploymentDescriptor.getModules2_0());
+        Map<String, List<Module>> modulesMap = createModulesMap(deploymentDescriptor.getModules2());
         for (Map.Entry<String, List<Module>> entry : modulesMap.entrySet()) {
             prepareModuleEntries(entry.getKey(), entry.getValue());
             prepareDependencies(entry.getValue());
@@ -161,7 +159,7 @@ public class MtaArchiveBuilder {
     }
 
     private void prepareResourceEntries(DeploymentDescriptor deploymentDescriptor) {
-        for (Resource resource : deploymentDescriptor.getResources2_0()) {
+        for (Resource resource : deploymentDescriptor.getResources2()) {
             String resourceConfigPath = (String) resource.getParameters()
                 .get(SupportedParameters.SERVICE_CONFIG_PATH);
             if (resourceConfigPath != null) {
@@ -185,7 +183,7 @@ public class MtaArchiveBuilder {
     }
 
     private void prepareModuleDependencies(Module module) {
-        for (RequiredDependency requiredDependency : module.getRequiredDependencies2_0()) {
+        for (RequiredDependency requiredDependency : module.getRequiredDependencies2()) {
             String requiredDependencyConfigPath = (String) requiredDependency.getParameters()
                 .get(SupportedParameters.SERVICE_BINDING_CONFIG_PATH);
             if (requiredDependencyConfigPath != null) {

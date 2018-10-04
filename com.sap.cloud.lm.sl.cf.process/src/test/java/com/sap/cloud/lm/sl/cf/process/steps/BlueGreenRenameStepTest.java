@@ -20,7 +20,6 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class BlueGreenRenameStepTest extends SyncActivitiStepTest<BlueGreenRenameStep> {
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 1;
-    private static final Integer MTA_MINOR_SCHEMA_VERSION = 1;
 
     @Mock
     private ApplicationColorDetector applicationColorDetector;
@@ -36,7 +35,6 @@ public class BlueGreenRenameStepTest extends SyncActivitiStepTest<BlueGreenRenam
             JsonUtil.fromJson(TestUtil.getResourceAsString("deployed-mta-01.json", getClass()), DeployedMta.class));
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
-        context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, MTA_MINOR_SCHEMA_VERSION);
 
         StepsUtil.setUnresolvedDeploymentDescriptor(context,
             loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));

@@ -4,13 +4,13 @@ import java.util.function.Supplier;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorDetector;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1_0.ApplicationColorAppender;
+import com.sap.cloud.lm.sl.cf.core.helpers.v1.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
 public class BlueGreenRenameStep extends SyncActivitiStep {
 

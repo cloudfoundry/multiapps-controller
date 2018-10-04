@@ -1,6 +1,6 @@
 {
   "parameters": {},
-  "moduleTypes2_0": [
+  "moduleTypes2": [
     {
       "parameters": {},
       "name": "javascript.nodejs",
@@ -34,7 +34,7 @@
       "properties": {}
     }
   ],
-  "resourceTypes2_0": [
+  "resourceTypes2": [
     {
       "parameters": {
         "service": "hana",

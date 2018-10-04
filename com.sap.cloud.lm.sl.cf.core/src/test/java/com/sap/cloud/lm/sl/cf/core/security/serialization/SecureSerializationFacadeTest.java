@@ -12,7 +12,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class SecureSerializationFacadeTest {

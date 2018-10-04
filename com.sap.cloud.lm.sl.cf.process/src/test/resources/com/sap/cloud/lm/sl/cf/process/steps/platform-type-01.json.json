@@ -1,7 +1,7 @@
 {
   "name": "XS2",
   "properties": {},
-  "moduleTypes1_0": [
+  "moduleTypes1": [
     {
       "name": "javascript.nodejs",
       "properties": {}
@@ -31,7 +31,7 @@
       }
     }
   ],
-  "resourceTypes1_0": [
+  "resourceTypes1": [
     {
       "name": "com.sap.xs.hdi-container",
       "properties": {
