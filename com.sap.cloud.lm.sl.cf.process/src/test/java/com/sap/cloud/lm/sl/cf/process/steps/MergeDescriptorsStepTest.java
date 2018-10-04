@@ -3,6 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatforms;
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadTargets;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -18,17 +20,19 @@ import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
+import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
 public class MergeDescriptorsStepTest extends SyncActivitiStepTest<MergeDescriptorsStep> {
 
     private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
-    private static final DescriptorParser DESCRIPTOR_PARSER = new DescriptorParser();
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 1;
     private static final Integer MTA_MINOR_SCHEMA_VERSION = 0;
+
+    private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
+        MergeDescriptorsStepTest.class);
 
     private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json", MergeDescriptorsStepTest.class)
         .get(0);
@@ -55,8 +59,8 @@ public class MergeDescriptorsStepTest extends SyncActivitiStepTest<MergeDescript
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
         context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, MTA_MINOR_SCHEMA_VERSION);
 
-        StepsUtil.setExtensionDescriptorStrings(context, Collections.emptyList());
-        StepsUtil.setDeploymentDescriptorString(context, "");
+        StepsUtil.setUnresolvedDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        StepsUtil.setExtensionDescriptorChain(context, Collections.emptyList());
 
         StepsUtil.setAsBinaryJson(context, Constants.VAR_PLATFORM, PLATFORM);
         StepsUtil.setAsBinaryJson(context, Constants.VAR_TARGET, TARGET);
@@ -64,8 +68,7 @@ public class MergeDescriptorsStepTest extends SyncActivitiStepTest<MergeDescript
 
     @Test
     public void testExecute1() throws Exception {
-        when(merger.merge("", Collections.emptyList()))
-            .thenReturn(loadDeploymentDescriptor(DESCRIPTOR_PARSER, "node-hello-mtad.yaml", getClass()));
+        when(merger.merge(any(), eq(Collections.emptyList()))).thenReturn(DEPLOYMENT_DESCRIPTOR);
 
         step.execute(context);
 
@@ -80,7 +83,7 @@ public class MergeDescriptorsStepTest extends SyncActivitiStepTest<MergeDescript
 
     @Test(expected = SLException.class)
     public void testExecute2() throws Exception {
-        when(merger.merge("", Collections.emptyList())).thenThrow(new ContentException("Error!"));
+        when(merger.merge(any(), eq(Collections.emptyList()))).thenThrow(new ContentException("Error!"));
 
         step.execute(context);
     }

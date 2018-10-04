@@ -84,7 +84,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     // or change this to "3" and verify that everything is
     // working...
     private static final int MAJOR_SCHEMA_VERSION = 2;
-
+    private static final String SCHEMA_VERSION = "2.1.0";
+    
     private static final String DUMMY_VERSION = "1.0.0";
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
@@ -318,6 +319,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
         moduleMap.put(ModuleParser.REQUIRES, convertJsonToList(toJson(moduleDto.getRequiredDependencies())));
 
         Map<String, Object> dummyDescriptorMap = new TreeMap<>();
+        dummyDescriptorMap.put(DeploymentDescriptorParser.SCHEMA_VERSION, SCHEMA_VERSION);
         dummyDescriptorMap.put(DeploymentDescriptorParser.ID, subscription.getMtaId());
         dummyDescriptorMap.put(DeploymentDescriptorParser.MODULES, Arrays.asList(moduleMap));
         dummyDescriptorMap.put(DeploymentDescriptorParser.VERSION, DUMMY_VERSION);

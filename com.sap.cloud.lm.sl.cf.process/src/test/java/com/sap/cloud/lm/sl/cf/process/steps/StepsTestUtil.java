@@ -14,9 +14,10 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1_0.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
@@ -25,28 +26,38 @@ public class StepsTestUtil {
     private static final String COULD_NOT_LOAD_PLATFORM_TYPES = "Could not load test platform types: {0}";
     private static final String COULD_NOT_LOAD_PLATFORMS = "Could not load test platforms: {0}";
     private static final String COULD_NOT_LOAD_DEPLOYMENT_DESCRIPTOR = "Could not load test deployment descriptor: {0}";
+    private static final DescriptorParserFacade DESCRIPTOR_PARSER_FACADE = new DescriptorParserFacade();
 
-    public static List<Platform> loadPlatforms(ConfigurationParser parser, String location, Class<?> testClass) {
+    public static List<Platform> loadPlatforms(ConfigurationParser parser, String filePath, Class<?> testClass) {
         try {
-            return parser.parsePlatformsJson(TestUtil.getResourceAsString(location, testClass));
+            return parser.parsePlatformsJson(TestUtil.getResourceAsString(filePath, testClass));
         } catch (Exception e) {
             fail(format(COULD_NOT_LOAD_PLATFORM_TYPES, e.getMessage()));
             return null;
         }
     }
 
-    public static DeploymentDescriptor loadDeploymentDescriptor(DescriptorParser parser, String location, Class<?> testClass) {
+    public static DeploymentDescriptor loadDeploymentDescriptor(String filePath, Class<?> testClass) {
         try {
-            return parser.parseDeploymentDescriptorYaml(TestUtil.getResourceAsString(location, testClass));
+            return DESCRIPTOR_PARSER_FACADE.parseDeploymentDescriptor(TestUtil.getResourceAsString(filePath, testClass));
         } catch (Exception e) {
             fail(format(COULD_NOT_LOAD_DEPLOYMENT_DESCRIPTOR, e.getMessage()));
             return null;
         }
     }
 
-    public static List<Target> loadTargets(ConfigurationParser parser, String location, Class<?> testClass) {
+    public static ExtensionDescriptor loadExtensionDescriptor(String filePath, Class<?> testClass) {
         try {
-            return parser.parseTargetsJson(TestUtil.getResourceAsString(location, testClass));
+            return DESCRIPTOR_PARSER_FACADE.parseExtensionDescriptor(TestUtil.getResourceAsString(filePath, testClass));
+        } catch (Exception e) {
+            fail(format(COULD_NOT_LOAD_DEPLOYMENT_DESCRIPTOR, e.getMessage()));
+            return null;
+        }
+    }
+
+    public static List<Target> loadTargets(ConfigurationParser parser, String filePath, Class<?> testClass) {
+        try {
+            return parser.parseTargetsJson(TestUtil.getResourceAsString(filePath, testClass));
         } catch (Exception e) {
             fail(format(COULD_NOT_LOAD_PLATFORMS, e.getMessage()));
             return null;

@@ -28,9 +28,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.handlers.MtaSchemaVersionDetector;
 import com.sap.cloud.lm.sl.mta.handlers.v1_0.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
@@ -42,12 +40,11 @@ public class ProcessDescriptorStepTest extends SyncActivitiStepTest<ProcessDescr
     private static final String ORG_NAME = "initial";
 
     private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
-    private static final DescriptorParser DESCRIPTOR_PARSER = new DescriptorParser();
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 1;
     private static final Integer MTA_MINOR_SCHEMA_VERSION = 0;
 
-    private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor(DESCRIPTOR_PARSER, "node-hello-mtad.yaml",
+    private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
         ProcessDescriptorStepTest.class);
     private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json", ProcessDescriptorStepTest.class)
         .get(0);
@@ -67,8 +64,6 @@ public class ProcessDescriptorStepTest extends SyncActivitiStepTest<ProcessDescr
     private MtaDescriptorPropertiesResolver resolver;
     @Mock
     private SpaceGetter spaceGetter;
-    @Mock
-    private MtaSchemaVersionDetector versionDetector;
 
     @Before
     public void setUp() throws Exception {

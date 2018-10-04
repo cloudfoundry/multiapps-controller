@@ -1,38 +1,49 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.mta.builders.ExtensionDescriptorChainBuilder;
+import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
+import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1_0.ExtensionDescriptor;
 
 @Component("processMtaExtensionDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
 
+    protected SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
+    protected DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
+    protected ExtensionDescriptorChainBuilder extensionDescriptorChainBuilder = new ExtensionDescriptorChainBuilder(false);
+
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
+        DelegateExecution context = execution.getContext();
         getStepLogger().debug(Messages.PROCESSING_MTA_EXTENSION_DESCRIPTORS);
-        List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(execution.getContext());
+        List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(context);
         try {
-            String spaceId = StepsUtil.getSpaceId(execution.getContext());
+            String spaceId = StepsUtil.getSpaceId(context);
+            DeploymentDescriptor deploymentDescriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
 
-            StepsUtil.setArrayVariableFromCollection(execution.getContext(), Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS,
-                getExtensionDescriptors(spaceId, extensionDescriptorFileIds));
+            List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(spaceId, extensionDescriptorFileIds);
+            List<ExtensionDescriptor> extensionDescriptorChain = extensionDescriptorChainBuilder.build(deploymentDescriptor,
+                extensionDescriptors);
+
+            StepsUtil.setExtensionDescriptorChain(context, extensionDescriptorChain);
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS);
             throw e;
@@ -41,33 +52,31 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncActivitiStep {
         return StepPhase.DONE;
     }
 
-    private List<String> getExtensionDescriptors(String spaceId, List<String> fileIds) {
-        try {
-            final List<String> extensionDescriptorStrings = new ArrayList<>();
-
-            FileContentProcessor extensionDescriptorProcessor = new FileContentProcessor() {
-                @Override
-                public void processFileContent(InputStream is) throws IOException {
-                    extensionDescriptorStrings.add(IOUtils.toString(is));
-                }
-            };
-            for (String extensionDescriptorFileId : fileIds) {
-                fileService
-                    .processFileContent(new DefaultFileDownloadProcessor(spaceId, extensionDescriptorFileId, extensionDescriptorProcessor));
-            }
-            getStepLogger().debug(Messages.EXTENSION_DESCRIPTOR, extensionDescriptorStrings);
-            return extensionDescriptorStrings;
-        } catch (FileStorageException e) {
-            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_EXTENSION_DESCRIPTOR);
-        }
-    }
-
     private List<String> getExtensionDescriptorFileIds(DelegateExecution context) {
         String parameter = (String) context.getVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID);
         if (parameter == null || parameter.isEmpty()) {
             return Collections.emptyList();
         }
         return Arrays.asList(parameter.split(","));
+    }
+
+    private List<ExtensionDescriptor> parseExtensionDescriptors(String spaceId, List<String> fileIds) {
+        try {
+            List<ExtensionDescriptor> extensionDescriptors = new ArrayList<>();
+
+            FileContentProcessor extensionDescriptorProcessor = (extensionDescriptorStream) -> {
+                ExtensionDescriptor extensionDescriptor = descriptorParserFacade.parseExtensionDescriptor(extensionDescriptorStream);
+                extensionDescriptors.add(extensionDescriptor);
+            };
+            for (String extensionDescriptorFileId : fileIds) {
+                fileService
+                    .processFileContent(new DefaultFileDownloadProcessor(spaceId, extensionDescriptorFileId, extensionDescriptorProcessor));
+            }
+            getStepLogger().debug(Messages.EXTENSION_DESCRIPTORS, secureSerializationFacade.toJson(extensionDescriptors));
+            return extensionDescriptors;
+        } catch (FileStorageException e) {
+            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_EXTENSION_DESCRIPTOR);
+        }
     }
 
 }

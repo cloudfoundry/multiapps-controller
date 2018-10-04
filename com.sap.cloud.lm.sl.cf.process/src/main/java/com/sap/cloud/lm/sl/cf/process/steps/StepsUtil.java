@@ -58,10 +58,13 @@ import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1_0.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
+import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
 public class StepsUtil {
 
@@ -644,62 +647,60 @@ public class StepsUtil {
         return resolver;
     }
 
-    public static DeploymentDescriptor getDeploymentDescriptor(DelegateExecution context) {
-        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR);
-        return parseDeploymentDescriptor(context, binaryJson);
-    }
-
     public static DeploymentDescriptor getUnresolvedDeploymentDescriptor(DelegateExecution context) {
-        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR);
-        return parseDeploymentDescriptor(context, binaryJson);
+        byte[] binaryYaml = (byte[]) context.getVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR);
+        String yaml = new String(binaryYaml, StandardCharsets.UTF_8);
+        return parseDeploymentDescriptor(yaml);
     }
 
-    private static DeploymentDescriptor parseDeploymentDescriptor(DelegateExecution context, byte[] binaryJson) {
-        int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
-        int minorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION);
-        switch (majorSchemaVersion) {
-            case 1:
-                return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor.class);
-            case 2:
-                return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor.class);
-            case 3:
-                switch (minorSchemaVersion) {
-                    case 0:
-                        return getBinaryJsonForMtaModel().unmarshal(binaryJson,
-                            com.sap.cloud.lm.sl.mta.model.v3_0.DeploymentDescriptor.class);
-                    case 1:
-                        return getBinaryJsonForMtaModel().unmarshal(binaryJson,
-                            com.sap.cloud.lm.sl.mta.model.v3_1.DeploymentDescriptor.class);
-                    default:
-                        return null;
-                }
-            default:
-                return null;
-        }
+    public static DeploymentDescriptor getDeploymentDescriptor(DelegateExecution context) {
+        byte[] binaryYaml = (byte[]) context.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR);
+        String yaml = new String(binaryYaml, StandardCharsets.UTF_8);
+        return parseDeploymentDescriptor(yaml);
     }
 
-    public static void setUnresolvedDeploymentDescriptor(DelegateExecution context, DeploymentDescriptor descriptor) {
-        context.setVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR, getBinaryJsonForMtaModel().marshal(descriptor));
+    private static DeploymentDescriptor parseDeploymentDescriptor(String yaml) {
+        DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
+        return descriptorParserFacade.parseDeploymentDescriptor(yaml);
     }
 
-    static void setDeploymentDescriptor(DelegateExecution context, DeploymentDescriptor descriptor) {
-        context.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, getBinaryJsonForMtaModel().marshal(descriptor));
+    @SuppressWarnings("unchecked")
+    public static List<ExtensionDescriptor> getExtensionDescriptorChain(DelegateExecution context) {
+        List<byte[]> binaryYamlList = (List<byte[]>) context.getVariable(Constants.VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN);
+        List<String> yamlList = binaryYamlList.stream()
+            .map(binaryYaml -> new String(binaryYaml, StandardCharsets.UTF_8))
+            .collect(Collectors.toList());
+        return parseExtensionDescriptors(yamlList);
     }
 
-    static String getDeploymentDescriptorString(DelegateExecution context) {
-        return new String((byte[]) context.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR_STRING), StandardCharsets.UTF_8);
+    private static List<ExtensionDescriptor> parseExtensionDescriptors(List<String> yamlList) {
+        DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
+        return yamlList.stream()
+            .map(descriptorParserFacade::parseExtensionDescriptor)
+            .collect(Collectors.toList());
     }
 
-    static void setDeploymentDescriptorString(DelegateExecution context, String descriptor) {
-        context.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR_STRING, descriptor.getBytes(StandardCharsets.UTF_8));
+    public static void setUnresolvedDeploymentDescriptor(DelegateExecution context, DeploymentDescriptor unresolvedDeploymentDescriptor) {
+        context.setVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(unresolvedDeploymentDescriptor));
     }
 
-    static List<String> getExtensionDescriptorStrings(DelegateExecution context) {
-        return getArrayVariableAsList(context, Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS);
+    static void setDeploymentDescriptor(DelegateExecution context, DeploymentDescriptor deploymentDescriptor) {
+        context.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(deploymentDescriptor));
     }
 
-    static void setExtensionDescriptorStrings(DelegateExecution context, List<String> descriptors) {
-        setArrayVariableFromCollection(context, Constants.VAR_MTA_EXTENSION_DESCRIPTOR_STRINGS, descriptors);
+    static void setExtensionDescriptorChain(DelegateExecution context, List<ExtensionDescriptor> extensionDescriptors) {
+        context.setVariable(Constants.VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN, toBinaryYamlList(extensionDescriptors));
+    }
+
+    private static List<byte[]> toBinaryYamlList(List<?> objects) {
+        return objects.stream()
+            .map(StepsUtil::toBinaryYaml)
+            .collect(Collectors.toList());
+    }
+
+    private static byte[] toBinaryYaml(Object object) {
+        String yaml = YamlUtil.convertToYaml(object);
+        return yaml.getBytes(StandardCharsets.UTF_8);
     }
 
     static SystemParameters getSystemParameters(DelegateExecution context) {

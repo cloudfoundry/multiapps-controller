@@ -11,6 +11,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v1_0.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1_0.Target;
 
@@ -26,16 +27,16 @@ public class MergeDescriptorsStep extends SyncActivitiStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.MERGING_DESCRIPTORS);
         try {
-            String deploymentDescriptorString = StepsUtil.getDeploymentDescriptorString(execution.getContext());
-            List<String> extensionDescriptorStrings = StepsUtil.getExtensionDescriptorStrings(execution.getContext());
+            DeploymentDescriptor deploymentDescriptor = StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext());
+            List<ExtensionDescriptor> extensionDescriptors = StepsUtil.getExtensionDescriptorChain(execution.getContext());
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
 
             Target target = StepsUtil.getTarget(execution.getContext());
             Platform platform = StepsUtil.getPlatform(execution.getContext());
 
-            DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform, target).merge(deploymentDescriptorString,
-                extensionDescriptorStrings);
+            DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform, target).merge(deploymentDescriptor,
+                extensionDescriptors);
 
             StepsUtil.setUnresolvedDeploymentDescriptor(execution.getContext(), descriptor);
         } catch (SLException e) {

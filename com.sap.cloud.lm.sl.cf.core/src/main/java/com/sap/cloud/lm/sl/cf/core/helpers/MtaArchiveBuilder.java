@@ -30,7 +30,8 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.handlers.MtaSchemaVersionDetector;
+import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
+import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.v2_0.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
@@ -76,7 +77,9 @@ public class MtaArchiveBuilder {
         deploymentDescriptorFile = findDeploymenDescriptor(mtaDirectory);
         String deploymentDescriptorString = readDeploymentDescriptor(deploymentDescriptorFile);
 
-        Version schemaVersion = new MtaSchemaVersionDetector().detect(deploymentDescriptorString, Collections.emptyList());
+        com.sap.cloud.lm.sl.mta.model.v1_0.DeploymentDescriptor deploymentDescriptor = new DescriptorParserFacade()
+            .parseDeploymentDescriptor(deploymentDescriptorString);
+        Version schemaVersion = new SchemaVersionDetector().detect(deploymentDescriptor, Collections.emptyList());
         HandlerFactory handlerFactory = new HandlerFactory(schemaVersion.getMajor(), schemaVersion.getMinor());
 
         if (handlerFactory.getMajorVersion() < 2) {
@@ -84,8 +87,7 @@ public class MtaArchiveBuilder {
                 deploymentDescriptorFile.toAbsolutePath(), handlerFactory.getMajorVersion());
         }
 
-        return (DeploymentDescriptor) handlerFactory.getDescriptorParser()
-            .parseDeploymentDescriptorYaml(deploymentDescriptorString);
+        return (DeploymentDescriptor) deploymentDescriptor;
     }
 
     public Path buildMtaArchive() {

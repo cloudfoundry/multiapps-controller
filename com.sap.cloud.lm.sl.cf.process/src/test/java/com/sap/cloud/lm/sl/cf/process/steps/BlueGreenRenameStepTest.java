@@ -16,11 +16,8 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.handlers.v1_0.DescriptorParser;
 
 public class BlueGreenRenameStepTest extends SyncActivitiStepTest<BlueGreenRenameStep> {
-
-    private static final DescriptorParser DESCRIPTOR_PARSER = new DescriptorParser();
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 1;
     private static final Integer MTA_MINOR_SCHEMA_VERSION = 1;
@@ -42,7 +39,7 @@ public class BlueGreenRenameStepTest extends SyncActivitiStepTest<BlueGreenRenam
         context.setVariable(Constants.VAR_MTA_MINOR_SCHEMA_VERSION, MTA_MINOR_SCHEMA_VERSION);
 
         StepsUtil.setUnresolvedDeploymentDescriptor(context,
-            loadDeploymentDescriptor(DESCRIPTOR_PARSER, "node-hello-mtad.yaml", getClass()));
+            loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
     }
 
     // Test what happens when there are 0 color(s) deployed:
