@@ -140,6 +140,8 @@ public class Constants {
     public static final String VAR_STEP_PHASE = "stepPhase";
     public static final String VAR_APP_CONTENT_CHANGED = "appContentChanged";
     public static final String VAR_STEP_START_TIME = "stepStartTime_";
+    public static final String VAR_DEPLOYED_MTA_COLOR = "deployedMtaColor";
+    public static final String VAR_MTA_COLOR = "mtaColor";
 
     public static final String TOOL_TYPE = "tool_type";
     public static final String FEEDBACK_MAIL = "feedback_form";

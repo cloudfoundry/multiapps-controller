@@ -57,6 +57,8 @@ public class XsPlaceholderResolverInvoker extends Visitor implements SimplePrope
         Map<String, Object> parameters = propertiesAccessor.getParameters(propertiesContainer, supportedParameters);
         Map<String, Object> properties = propertiesAccessor.getProperties(propertiesContainer);
         Map<String, Object> resolvedParameters = (Map<String, Object>) new VisitableObject(parameters).accept(this);
+        // Parameters are merged into properties, because v1 of the MTA spec does not have parameters.
+        // TODO Parameters should not be merged into properties, for bigger versions than v1 of the MTA spec, because they have parameters.
         propertiesAccessor.setParameters(propertiesContainer, MapUtil.merge(properties, resolvedParameters));
     }
 

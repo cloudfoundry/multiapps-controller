@@ -32,7 +32,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class ProcessDescriptorStep extends SyncActivitiStep {
 
-    private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
+    protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;
@@ -89,6 +89,7 @@ public class ProcessDescriptorStep extends SyncActivitiStep {
             List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
             StepsUtil.setSubscriptionsToCreate(execution.getContext(), subscriptions);
             XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(execution.getContext());
+
             resolveXsPlaceholders(descriptor, xsPlaceholderResolver, handlerFactory.getMajorVersion());
 
             StepsUtil.setDeploymentDescriptor(execution.getContext(), descriptor);
