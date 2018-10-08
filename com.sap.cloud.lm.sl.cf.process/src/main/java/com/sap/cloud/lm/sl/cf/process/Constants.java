@@ -80,6 +80,9 @@ public class Constants {
     public static final String VAR_SERVICE_KEYS_TO_CREATE = "serviceKeysToCreate";
     public static final String VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT = "serviceKeysCredentialsToInject";
     public static final String VAR_APPS_TO_DEPLOY = "appsToDeploy";
+    public static final String VAR_DEPLOYMENT_MODE = "deploymentMode";
+    public static final String VAR_ITERATED_APPS_IN_PARALLEL = "iteratedAppsInParallel";
+    public static final String VAR_APPS_TO_ITERATE_IN_PARALLEL = "appsToIterateInParallel";
     public static final String VAR_UPDATED_SUBSCRIBERS = "updatedSubscribers";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS = "updatedServiceBrokerSubscribers";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = "updatedServiceBrokerSubscribersCount";

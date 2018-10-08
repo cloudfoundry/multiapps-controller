@@ -34,6 +34,7 @@ public class SupportedParameters {
     public static final String GENERATED_PASSWORD = "generated-password";
     public static final String DEFAULT_IDLE_DOMAIN = "default-idle-domain";
     public static final String TIMESTAMP = "timestamp";
+    public static final String ENABLE_PARALLEL_DEPLOYMENTS = "enable-parallel-deployments";
 
     // Module / module type parameters:
     public static final String APP_NAME = "app-name";

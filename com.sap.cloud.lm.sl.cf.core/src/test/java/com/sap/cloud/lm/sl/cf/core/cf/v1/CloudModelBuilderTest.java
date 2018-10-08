@@ -146,18 +146,8 @@ public class CloudModelBuilderTest {
                 new Expectation[] {
                     new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1.json"),
-                    new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-backend, java-hello-world-db]") } },
-            // (07) Patch MTA (module is in archive, but not intended for platform):
-            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
-                false, false,
-                new String[] { "java-hello-world", }, // mtaArchiveModules
-                new String[] {}, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation[] {
-                    new Expectation("[]"), // domains
-                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1.json"),
-                    new Expectation(Expectation.Type.EXCEPTION, "MTA module \"java-hello-world\" is part of MTA archive, but is not intended for deployment") } },
-            // (08)
+                    new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-db, java-hello-world-backend]") } },
+            // (07)
             { "/mta/shine/mtad.yaml", "/mta/shine/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaArchiveModules
@@ -167,7 +157,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/shine/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/shine/apps.json"), } },
-            // (09)
+            // (08)
             { "/mta/sample/mtad.yaml", "/mta/sample/config1.mtaext", "/mta/sample/platform-types.json", "/mta/sample/targets.json", null,
                 false, false,
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
@@ -177,7 +167,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[bestprice.sap.com]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/sample/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/sample/apps.json"), } },
-            // (10)
+            // (09)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
@@ -187,7 +177,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/apps2.json"), } },
-            // (11)
+            // (10)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
@@ -197,7 +187,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps2.json"), } },
-            // (12)
+            // (11)
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
@@ -207,7 +197,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/apps.json"), } },
-            // (13)
+            // (12)
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
@@ -217,7 +207,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps.json"), } },
-            // (14)
+            // (13)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config2.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
@@ -227,7 +217,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps2.json"), } },
-            // (15) Unknown typed resource properties:
+            // (14) Unknown typed resource properties:
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config2.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
@@ -237,7 +227,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps.json"), } },
-            // (16) Custom application names are used:
+            // (15) Custom application names are used:
             {
                 "mtad-01.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
@@ -249,7 +239,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-01.json"), }
             },
-            // (17) Custom application names are used:
+            // (16) Custom application names are used:
             {
                 "mtad-01.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 true, true,
@@ -261,7 +251,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-02.json"), }
             },
-            // (18) Temporary URIs are used:
+            // (17) Temporary URIs are used:
             {
                 "mtad-03.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
@@ -273,7 +263,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-04.json"), }
             },
-            // (19) Some env values have HTML symbols embedded in them:
+            // (18) Some env values have HTML symbols embedded in them:
             {
                 "mtad-04.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
@@ -285,7 +275,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-05.json"), }
             },
-            // (20) Resource service-name definition in extension descriptor:
+            // (19) Resource service-name definition in extension descriptor:
             { 
                 "mtad-05.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 true, true,
@@ -297,7 +287,7 @@ public class CloudModelBuilderTest {
                     new Expectation(Expectation.Type.RESOURCE, "services-02.json"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-06.json"), }
             },
-            // (21) Test support for one-off tasks:
+            // (20) Test support for one-off tasks:
             { 
                 "mtad-06.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
@@ -309,7 +299,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-07.json"), }
             },
-            // (22) Test inject service keys in application environment
+            // (21) Test inject service keys in application environment
             { 
                 "mtad-11.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
@@ -321,7 +311,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-08.json"), }
             },
-            // (23) With 'health-check-type' set to 'port':
+            // (22) With 'health-check-type' set to 'port':
             { 
                 "mtad-health-check-type-port.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
@@ -333,7 +323,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-port.json"), }
             },
-            // (24) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
+            // (23) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
             { 
                 "mtad-health-check-type-http-with-endpoint.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
@@ -345,7 +335,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-http-with-endpoint.json"), }
             },
-            // (25) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
+            // (24) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
             { 
                 "mtad-health-check-type-http-without-endpoint.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
@@ -357,7 +347,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-http-without-endpoint.json"), }
             },
-            // (26) With 'enable-ssh' set to true:
+            // (25) With 'enable-ssh' set to true: 
             {
                 "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
@@ -369,7 +359,7 @@ public class CloudModelBuilderTest {
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-ssh-enabled-true.json"), }
             },
-            // (27) With 'enable-ssh' set to false:
+            // (26) With 'enable-ssh' set to false: 
             {
                 "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,

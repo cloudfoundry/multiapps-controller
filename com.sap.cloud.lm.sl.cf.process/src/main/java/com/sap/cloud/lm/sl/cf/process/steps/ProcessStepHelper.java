@@ -166,7 +166,8 @@ public class ProcessStepHelper {
     }
 
     public void failStepIfProcessIsAborted(DelegateExecution context) {
-        Boolean processAborted = (Boolean) context.getVariable(Constants.PROCESS_ABORTED);
+        Boolean processAborted = (Boolean) processEngineConfiguration.getRuntimeService()
+            .getVariable(StepsUtil.getCorrelationId(context), Constants.PROCESS_ABORTED);
         if (processAborted != null && processAborted) {
             throw new SLException(Messages.PROCESS_WAS_ABORTED);
         }

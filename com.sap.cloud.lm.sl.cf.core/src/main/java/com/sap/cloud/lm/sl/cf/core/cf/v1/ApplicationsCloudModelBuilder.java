@@ -6,16 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.client.lib.domain.Staging;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
+import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
@@ -41,8 +42,8 @@ import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class ApplicationsCloudModelBuilder {
 
-    public static final String DEPENDECY_TYPE_SOFT = "soft";
-    public static final String DEPENDECY_TYPE_HARD = "hard";
+    public static final String DEPENDENCY_TYPE_SOFT = "soft";
+    public static final String DEPENDENCY_TYPE_HARD = "hard";
 
     private static final int MTA_MAJOR_VERSION = 1;
 
@@ -99,29 +100,53 @@ public class ApplicationsCloudModelBuilder {
     }
 
     public List<CloudApplicationExtended> build(Set<String> mtaModulesInArchive, Set<String> allMtaModules, Set<String> deployedModules) {
-        List<CloudApplicationExtended> apps = new ArrayList<>();
-        SortedSet<String> unresolvedMtaModules = new TreeSet<>(allMtaModules);
         initializeModulesDependecyTypes(deploymentDescriptor);
-        for (Module module : handler.getSortedModules(deploymentDescriptor, SupportedParameters.DEPENDENCY_TYPE, DEPENDECY_TYPE_HARD)) {
-            if (!mtaModulesInArchive.contains(module.getName()) || module.getType() == null) {
-                if (deployedModules.contains(module.getName())) {
-                    printMTAModuleNotFoundWarning(module.getName());
-                }
-                continue;
-            }
-
-            if (allMtaModules.contains(module.getName())) {
-                CollectionUtils.addIgnoreNull(apps, getApplication(module));
-                unresolvedMtaModules.remove(module.getName());
-            } else {
-                throw new ContentException(Messages.ARCHIVE_MODULE_NOT_INTENDED_FOR_DEPLOYMENT, module.getName());
-            }
-        }
-        unresolvedMtaModules.removeAll(deployedModules);
-        if (!unresolvedMtaModules.isEmpty()) {
-            throw new ContentException(Messages.UNRESOLVED_MTA_MODULES, unresolvedMtaModules);
+        List<CloudApplicationExtended> apps = resolveModules(mtaModulesInArchive, deployedModules);
+        Set<String> unresolvedModules = getUnresolvedModules(apps, deployedModules, allMtaModules);
+        if (!unresolvedModules.isEmpty()) {
+            throw new ContentException(Messages.UNRESOLVED_MTA_MODULES, unresolvedModules);
         }
         return apps;
+    }
+
+    private List<CloudApplicationExtended> resolveModules(Set<String> mtaModulesInArchive, Set<String> deployedModules) {
+        return handler
+            .getModulesForDeployment(deploymentDescriptor, SupportedParameters.ENABLE_PARALLEL_DEPLOYMENTS,
+                SupportedParameters.DEPENDENCY_TYPE, DEPENDENCY_TYPE_HARD)
+            .stream()
+            .filter(module -> shouldDeployModule(module, mtaModulesInArchive, deployedModules))
+            .map(this::getApplication)
+            .collect(Collectors.toList());
+    }
+
+    private boolean shouldDeployModule(Module module, Set<String> mtaModulesInArchive, Set<String> deployedModules) {
+        if (!isModulePresentInArchive(module, mtaModulesInArchive) || module.getType() == null) {
+            if (isModuleDeployed(module, deployedModules)) {
+                printMTAModuleNotFoundWarning(module.getName());
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isModulePresentInArchive(Module module, Set<String> modulesInArchive) {
+        return modulesInArchive.contains(module.getName());
+    }
+
+    private boolean isModuleDeployed(Module module, Set<String> deployedModules) {
+        return deployedModules.contains(module.getName());
+    }
+
+    private Set<String> getUnresolvedModules(List<CloudApplicationExtended> apps, Set<String> deployedModules, Set<String> allMtaModules) {
+        Set<String> resolvedModules = apps.stream()
+            .map(CloudApplicationExtended::getModuleName)
+            .collect(Collectors.toSet());
+        return SetUtils.difference(allMtaModules, SetUtils.union(resolvedModules, deployedModules))
+            .toSet();
+    }
+
+    public DeploymentMode getDeploymentMode() {
+        return DeploymentMode.SEQUENTIAL;
     }
 
     private void printMTAModuleNotFoundWarning(String moduleName) {
@@ -141,7 +166,7 @@ public class ApplicationsCloudModelBuilder {
 
     protected String getDependencyType(Module module) {
         return (String) propertiesAccessor.getParameters(module)
-            .getOrDefault(SupportedParameters.DEPENDENCY_TYPE, DEPENDECY_TYPE_SOFT);
+            .getOrDefault(SupportedParameters.DEPENDENCY_TYPE, DEPENDENCY_TYPE_SOFT);
     }
 
     protected CloudApplicationExtended getApplication(Module module) {

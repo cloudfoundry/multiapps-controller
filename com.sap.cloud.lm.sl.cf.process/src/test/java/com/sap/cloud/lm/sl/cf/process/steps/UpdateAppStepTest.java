@@ -353,7 +353,7 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
 
         CloudApplicationExtended toCloudApp() {
             CloudApplicationExtended cloudApp = new CloudApplicationExtended(name, command, buildpackUrl, memory, instances, uris, services,
-                AppState.STARTED, Collections.emptyList(), Collections.emptyList());
+                AppState.STARTED, Collections.emptyList(), Collections.emptyList(), Collections.emptySet());
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
             cloudApp.setStaging(new Staging.StagingBuilder().command(command)
