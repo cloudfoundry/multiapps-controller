@@ -34,6 +34,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
@@ -405,6 +406,35 @@ public class StepsUtil {
             .map(JsonUtil::toJson)
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static List<CloudApplicationExtended> getIteratedAppsInParallel(DelegateExecution context) {
+        List<String> appsIteratedInParallel = (List<String>) context.getVariable(Constants.VAR_ITERATED_APPS_IN_PARALLEL);
+        if (appsIteratedInParallel == null) {
+            return Collections.emptyList();
+        }
+        return appsIteratedInParallel.stream()
+            .map(app -> (CloudApplicationExtended) JsonUtil.fromJson(app, CloudApplicationExtended.class))
+            .collect(Collectors.toList());
+    }
+
+    public static void setIteratedAppsInParallel(DelegateExecution context, List<CloudApplicationExtended> apps) {
+        List<String> cloudApplicationsAsStrings = apps.stream()
+            .map(JsonUtil::toJson)
+            .collect(Collectors.toList());
+        context.setVariable(Constants.VAR_ITERATED_APPS_IN_PARALLEL, cloudApplicationsAsStrings);
+    }
+
+    public static void setAppsToIterateInParallel(DelegateExecution context, List<CloudApplicationExtended> apps) {
+        List<String> cloudApplicationsAsStrings = apps.stream()
+            .map(JsonUtil::toJson)
+            .collect(Collectors.toList());
+        context.setVariable(Constants.VAR_APPS_TO_ITERATE_IN_PARALLEL, cloudApplicationsAsStrings);
+    }
+
+    public static void setDeploymentMode(DelegateExecution context, DeploymentMode deploymentMode) {
+        context.setVariable(Constants.VAR_DEPLOYMENT_MODE, deploymentMode);
     }
 
     static void setServiceKeysCredentialsToInject(DelegateExecution context,

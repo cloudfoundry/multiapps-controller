@@ -332,6 +332,8 @@ public class Messages {
     public static final String SERVICE_BINDINGS_EXISTS = "Service bindings \"{0}\" exists";
     public static final String PREPARING_APPS_DEPLOYMENT = "Preparing applications deployment...";
     public static final String APPS_DEPLOYMENT_PREPARED = "Applications deployment prepared";
+    public static final String COMPUTING_NEXT_APPS_FOR_PARALLEL_ITERATION = "Computing applications for next parallel iteration...";
+    public static final String COMPUTED_NEXT_APPS_FOR_PARALLEL_ITERATION = "Computed applications for next parallel iteration: {0}";
     public static final String CHECKING_APP = "Checking application \"{0}\"...";
     public static final String CHECKING_APP_STATUS = "Checking status of application \"{0}\"...";
     public static final String APP_EXISTS = "Application \"{0}\" exists";

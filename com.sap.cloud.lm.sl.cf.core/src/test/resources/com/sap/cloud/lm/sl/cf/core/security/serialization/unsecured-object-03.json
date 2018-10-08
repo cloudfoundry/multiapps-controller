@@ -9,6 +9,7 @@
 	  "properties": {
 	  	"test-1": "test-1-val"
 	  },
+	  "deployedAfter": [],
 	  "parameters": {},
 	  "requiredDependencies3": [],
 	  "providedDependencies3": [],

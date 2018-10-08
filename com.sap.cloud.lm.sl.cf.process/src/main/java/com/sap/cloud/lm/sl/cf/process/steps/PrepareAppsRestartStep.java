@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.util.Collections;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,8 @@ public class PrepareAppsRestartStep extends PrepareAppsDeploymentStep {
             .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
         StepsUtil.setUseIdleUris(execution.getContext(), false);
         StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), false);
+        
+        StepsUtil.setIteratedAppsInParallel(execution.getContext(), Collections.emptyList());
 
         return StepPhase.DONE;
     }

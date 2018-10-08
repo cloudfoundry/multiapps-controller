@@ -1,14 +1,19 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v3;
 
 import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.isActive;
+import static com.sap.cloud.lm.sl.common.util.CommonUtil.cast;
+import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
+import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ResourceAndResourceType;
@@ -25,25 +30,41 @@ import com.sap.cloud.lm.sl.mta.model.v3.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder {
-    
+
     private static final int MTA_MAJOR_VERSION = 3;
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
         super(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId);
     }
-    
+
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
         UserMessageLogger userMessageLogger) {
         super(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, userMessageLogger);
     }
-    
+
+    @Override
+    public DeploymentMode getDeploymentMode() {
+        DeploymentDescriptor descriptorV3 = cast(deploymentDescriptor);
+        boolean parallelDeploymentsEnabled = (Boolean) descriptorV3.getParameters()
+            .getOrDefault(SupportedParameters.ENABLE_PARALLEL_DEPLOYMENTS, false);
+        return parallelDeploymentsEnabled ? DeploymentMode.PARALLEL : DeploymentMode.SEQUENTIAL;
+    }
+
     @Override
     protected HandlerFactory createHandlerFactory() {
         return new HandlerFactory(MTA_MAJOR_VERSION);
     }
     
+    @Override
+    protected CloudApplicationExtended getApplication(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
+        CloudApplicationExtended app = super.getApplication(module);
+        List<String> deployedAfter = emptyIfNull(((Module) module).getDeployedAfter());
+        app.setDeployedAfter(new HashSet<>(deployedAfter));
+        return app;
+    }
+
     @Override
     protected List<String> getAllApplicationServices(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
         return getApplicationServices((Module) module, this::onlyActiveServicesRule);

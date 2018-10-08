@@ -60,6 +60,7 @@
           }
         }
       },
+      "deployedAfter": [],
       "parameters": {
         "module-parameter": "********"
       },

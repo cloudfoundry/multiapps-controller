@@ -24,7 +24,6 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.persistence.message.Constants;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component
 public class FlowableFacade {
@@ -74,11 +73,7 @@ public class FlowableFacade {
             return State.RUNNING;
         }
 
-        if (!isProcessInRunningState(processInstanceId)) {
-            return State.FINISHED;
-        }
-
-        throw new IllegalStateException("Could not determine process state");
+        return State.FINISHED;
     }
 
     private boolean isProcessInRunningState(String processId) {
@@ -125,7 +120,19 @@ public class FlowableFacade {
             .createHistoricProcessInstanceQuery()
             .processInstanceId(processId)
             .singleResult();
-        return historicProcessInstance != null ? !CommonUtil.isNullOrEmpty(historicProcessInstance.getDeleteReason()) : false;
+        return historicProcessInstance != null && processHierarchyHasDeleteReason(historicProcessInstance);
+    }
+
+    private boolean processHierarchyHasDeleteReason(HistoricProcessInstance historicProcessInstance) {
+        if(historicProcessInstance.getDeleteReason() != null) {
+            return true;
+        }
+        
+        List<HistoricProcessInstance> children = processEngine.getHistoryService()
+            .createHistoricProcessInstanceQuery()
+            .superProcessInstanceId(historicProcessInstance.getId())
+            .list();
+        return children.stream().anyMatch(this::processHierarchyHasDeleteReason);
     }
 
     private boolean hasDeadLetterJobs(String processId) {
@@ -134,11 +141,10 @@ public class FlowableFacade {
 
     private List<Job> getDeadLetterJobsInSubProcesses(String processId) {
         List<String> subProcessIds = getHistoricSubProcessIds(processId);
-        List<Job> deadLetterJobs = subProcessIds.stream()
-            .map(subProcessId -> getDeadLetterJobs(subProcessId))
+        return subProcessIds.stream()
+            .map(this::getDeadLetterJobs)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
-        return deadLetterJobs;
     }
 
     private List<Job> getDeadLetterJobs(String processId) {

@@ -13,6 +13,7 @@
       "parametersMetadata": {
         "metadata": {}
       },
+      "deployedAfter": [],
       "parameters": {},
       "name": "test-module",
       "type": "test-type",
