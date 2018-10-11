@@ -1,12 +1,14 @@
 [
   {
     "moduleName": "m2",
-    "idleUris": [],
+    "idleUris": [
+      "https://sofd60245639a:55003"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [
       {
-        "port": 55001,
+        "port": 55003,
         "portType": "HTTP"
       }
     ],
@@ -19,8 +21,8 @@
       "BUILDPACK\u003d",
       "COMMAND\u003d",
       "DEFAULT_DOMAIN\u003dsofd60245639a",
-      "DEFAULT_HOST\u003dinitial-initial-m2",
-      "DEFAULT_URI\u003dsofd60245639a:55001",
+      "DEFAULT_HOST\u003dinitial-initial-m2-idle",
+      "DEFAULT_URI\u003dsofd60245639a:55003",
       "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
       "DISK_QUOTA\u003d1G",
       "DOMAIN\u003dsofd60245639a",
@@ -48,19 +50,21 @@
     ],
     "staging": {},
     "uris": [
-      "https://sofd60245639a:55001"
+      "https://sofd60245639a:55003"
     ],
     "meta": {},
     "name": "m2"
   },
   {
     "moduleName": "m1",
-    "idleUris": [],
+    "idleUris": [
+      "https://sofd60245639a:55001"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [
       {
-        "port": 55000,
+        "port": 55001,
         "portType": "HTTP"
       }
     ],
@@ -73,9 +77,9 @@
       "BUILDPACK\u003d",
       "COMMAND\u003d",
       "DEFAULT_DOMAIN\u003dsofd60245639a",
-      "DEFAULT_HOST\u003dinitial-initial-m1",
-      "DEFAULT_URI\u003dsofd60245639a:55000",
-      "DEFAULT_URL\u003dhttps://sofd60245639a:55000",
+      "DEFAULT_HOST\u003dinitial-initial-m1-idle",
+      "DEFAULT_URI\u003dsofd60245639a:55001",
+      "DEFAULT_URL\u003dhttps://sofd60245639a:55001",
       "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
       "DEPLOY_TARGET\u003dinitial initial",
       "DISK_QUOTA\u003d-1",
@@ -95,7 +99,7 @@
       "XS_API_URL\u003dhttps://localhost:9999",
       "XS_AUTH_URL\u003dhttps://localhost:9998",
       "XS_TYPE\u003dXS2",
-      "destinations\u003d[\n  {\n    \"name\": \"m2\",\n    \"url\": \"http://sofd60245639a:55001\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"url\": \"https://sapui5.hana.ondemand.com\"\n  }\n]"
+      "destinations\u003d[\n  {\n    \"name\": \"m2\",\n    \"url\": \"http://sofd60245639a:55003\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"url\": \"https://sapui5.hana.ondemand.com\"\n  }\n]"
     ],
     "instances": 0,
     "memory": 128,
@@ -105,7 +109,7 @@
     ],
     "staging": {},
     "uris": [
-      "https://sofd60245639a:55000"
+      "https://sofd60245639a:55001"
     ],
     "meta": {},
     "name": "m1"

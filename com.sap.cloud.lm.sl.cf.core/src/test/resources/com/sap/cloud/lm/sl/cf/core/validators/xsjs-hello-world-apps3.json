@@ -6,7 +6,7 @@
     "serviceKeysToInject": [],
     "applicationPorts": [
       {
-        "port": 55002,
+        "port": 55005,
         "portType": "HTTP"
       }
     ],
@@ -35,7 +35,9 @@
   },
   {
     "moduleName": "xsjs-hello-world-backend",
-    "idleUris": [],
+    "idleUris": [
+      "{xsa-placeholder-protocol}://sofd60245639a:55003"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [
@@ -77,12 +79,14 @@
   },
   {
     "moduleName": "xsjs-hello-world",
-    "idleUris": [],
+    "idleUris": [
+      "{xsa-placeholder-protocol}://sofd60245639a:55001"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [
       {
-        "port": 55000,
+        "port": 55001,
         "portType": "HTTP"
       }
     ],
@@ -107,7 +111,7 @@
     ],
     "staging": {},
     "uris": [
-      "{xsa-placeholder-protocol}://sofd60245639a:55000"
+      "{xsa-placeholder-protocol}://sofd60245639a:55001"
     ],
     "meta": {},
     "name": "xsjs-hello-world"
