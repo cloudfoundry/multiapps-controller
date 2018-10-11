@@ -24,12 +24,12 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
             // (0) Should not use namespaces for applications and services:
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-02.json", null),
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3, 4, 5, 6)), "R:system-parameters-08.json", null),
             },
             // (1) Should use namespaces for applications and services:
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-01.json", null),
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3, 4 ,5 ,6)), "R:system-parameters-09.json", null),
             },
             // (2) There are deployed MTAs:
             {
@@ -39,11 +39,11 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
             // (3) Host based routing:
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, false), 
-                new StepOutput(null, "R:system-parameters-03.json", null),            },
+                new StepOutput(null, "R:system-parameters-10.json", null),            },
             // (4) Should not use namespaces for applications and services (XS placeholders are supported):
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, true ), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-06.json", null),
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3, 4, 5, 6)), "R:system-parameters-11.json", null),
             },
             // (5) The version of the MTA is lower than the version of the previously deployed MTA:
             {
