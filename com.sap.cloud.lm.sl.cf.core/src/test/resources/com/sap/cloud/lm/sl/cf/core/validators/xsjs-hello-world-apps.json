@@ -6,7 +6,7 @@
     "serviceKeysToInject": [],
     "applicationPorts": [
       {
-        "port": 55002,
+        "port": 55005,
         "portType": "HTTP"
       }
     ],
@@ -35,12 +35,14 @@
   },
   {
     "moduleName": "xsjs-hello-world-backend",
-    "idleUris": [],
+    "idleUris": [
+      "{xsa-placeholder-protocol}://sofd60245639a:55003"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [
       {
-        "port": 55001,
+        "port": 55003,
         "portType": "HTTP"
       }
     ],
@@ -65,19 +67,21 @@
     ],
     "staging": {},
     "uris": [
-      "{xsa-placeholder-protocol}://sofd60245639a:55001"
+      "{xsa-placeholder-protocol}://sofd60245639a:55003"
     ],
     "meta": {},
     "name": "xsjs-hello-world-backend"
   },
   {
     "moduleName": "xsjs-hello-world",
-    "idleUris": [],
+    "idleUris": [
+      "{xsa-placeholder-protocol}://sofd60245639a:55001"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [
       {
-        "port": 55000,
+        "port": 55001,
         "portType": "HTTP"
       }
     ],
@@ -92,7 +96,7 @@
       "MTA_MODULE_PROVIDED_DEPENDENCIES\u003d[\n  \"xsjs-hello-world\"\n]",
       "MTA_SERVICES\u003d[]",
       "MTA_SHARED_SERVICES\u003d[]",
-      "destinations\u003d[\n  {\n    \"name\": \"xsjs\",\n    \"url\": \"http://{xsa-placeholder-domain-default}:55001\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"proxyHost\": \"proxy.example.com\",\n    \"proxyPort\": \"8080\",\n    \"url\": \"https://sapui5.netweaver.ondemand.com\"\n  }\n]"
+      "destinations\u003d[\n  {\n    \"name\": \"xsjs\",\n    \"url\": \"http://{xsa-placeholder-domain-default}:55003\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"proxyHost\": \"proxy.example.com\",\n    \"proxyPort\": \"8080\",\n    \"url\": \"https://sapui5.netweaver.ondemand.com\"\n  }\n]"
     ],
     "instances": 0,
     "memory": 128,
@@ -102,7 +106,7 @@
     ],
     "staging": {},
     "uris": [
-      "{xsa-placeholder-protocol}://sofd60245639a:55000"
+      "{xsa-placeholder-protocol}://sofd60245639a:55001"
     ],
     "meta": {},
     "name": "xsjs-hello-world"

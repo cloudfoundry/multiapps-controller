@@ -1,7 +1,9 @@
 [
   {
     "moduleName": "m2",
-    "idleUris": [],
+    "idleUris": [
+      "cf-trial-m2-idle.cfapps.neo.ondemand.com"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [],
@@ -14,8 +16,8 @@
       "BUILDPACK\u003d",
       "COMMAND\u003d",
       "DEFAULT_DOMAIN\u003dcfapps.neo.ondemand.com",
-      "DEFAULT_HOST\u003dcf-trial-m2",
-      "DEFAULT_URI\u003di027947-m2.cfapps.neo.ondemand.com",
+      "DEFAULT_HOST\u003dcf-trial-m2-idle",
+      "DEFAULT_URI\u003dcf-trial-m2-idle.cfapps.neo.ondemand.com",
       "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
       "DISK_QUOTA\u003d1G",
       "DOMAIN\u003dcfapps.neo.ondemand.com",
@@ -50,7 +52,9 @@
   },
   {
     "moduleName": "m1",
-    "idleUris": [],
+    "idleUris": [
+      "cf-trial-m1-idle.cfapps.neo.ondemand.com"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [],
@@ -63,9 +67,9 @@
       "BUILDPACK\u003d",
       "COMMAND\u003d",
       "DEFAULT_DOMAIN\u003dcfapps.neo.ondemand.com",
-      "DEFAULT_HOST\u003dcf-trial-m1",
-      "DEFAULT_URI\u003di027947-m1.cfapps.neo.ondemand.com",
-      "DEFAULT_URL\u003dhttps://i027947-m1.cfapps.neo.ondemand.com",
+      "DEFAULT_HOST\u003dcf-trial-m1-idle",
+      "DEFAULT_URI\u003dcf-trial-m1-idle.cfapps.neo.ondemand.com",
+      "DEFAULT_URL\u003dhttps://cf-trial-m1-idle.cfapps.neo.ondemand.com",
       "DEPLOY_ATTRIBUTES\u003d{\n  \"dependency-type\": \"soft\"\n}",
       "DEPLOY_TARGET\u003dCF-TRIAL",
       "DISK_QUOTA\u003d-1",
@@ -85,7 +89,7 @@
       "XS_API_URL\u003dhttps://api.cf.neo.ondemand.com",
       "XS_AUTH_URL\u003dhttps://api.cf.neo.ondemand.com/uaa",
       "XS_TYPE\u003dCF",
-      "destinations\u003d[\n  {\n    \"name\": \"m2\",\n    \"url\": \"http://i027947-m2.cfapps.neo.ondemand.com\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"url\": \"https://sapui5.hana.ondemand.com\"\n  }\n]"
+      "destinations\u003d[\n  {\n    \"name\": \"m2\",\n    \"url\": \"http://cf-trial-m2-idle.cfapps.neo.ondemand.com\"\n  },\n  {\n    \"name\": \"ui5\",\n    \"url\": \"https://sapui5.hana.ondemand.com\"\n  }\n]"
     ],
     "instances": 0,
     "memory": 128,
