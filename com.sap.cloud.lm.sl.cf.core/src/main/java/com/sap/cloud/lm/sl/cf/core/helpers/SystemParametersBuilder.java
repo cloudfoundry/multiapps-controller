@@ -277,7 +277,7 @@ public class SystemParametersBuilder {
     }
 
     private boolean shouldReserveTemporaryRoutes() {
-        return reserveTemporaryRoutes && deployedMta != null;
+        return reserveTemporaryRoutes;
     }
 
     private String getDeployServiceUrl() {
