@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -319,9 +320,10 @@ public class StepsUtil {
     @SuppressWarnings("unchecked")
     public static List<CloudServiceExtended> getServicesToCreate(DelegateExecution context) {
         List<String> services = (List<String>) context.getVariable(Constants.VAR_SERVICES_TO_CREATE);
-        return services.stream()
-            .map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class))
-            .collect(Collectors.toList());
+        return services == null ? Collections.emptyList()
+            : services.stream()
+                .map(service -> (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class))
+                .collect(Collectors.toList());
     }
 
     static void setServicesToCreate(DelegateExecution context, List<CloudServiceExtended> services) {
@@ -479,7 +481,8 @@ public class StepsUtil {
     }
 
     public static List<String> getServicesToDelete(DelegateExecution context) {
-        return getArrayVariableAsList(context, Constants.VAR_SERVICES_TO_DELETE);
+        List<String> arrayVariableAsList = getArrayVariableAsList(context, Constants.VAR_SERVICES_TO_DELETE);
+        return arrayVariableAsList != null ? arrayVariableAsList : Collections.emptyList();
     }
 
     public static void setServicesToDelete(DelegateExecution context, List<String> services) {
@@ -1037,4 +1040,19 @@ public class StepsUtil {
     public static boolean getSkipUpdateConfigurationEntries(DelegateExecution context) {
         return (boolean) context.getVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES);
     }
+
+    public static void setServicesGuids(DelegateExecution context, Map<String, String> serviceGuids) {
+        context.setVariable(Constants.VAR_SERVICES_GUIDS, JsonUtil.getAsBinaryJson(serviceGuids));
+    }
+
+    public static Map<String, String> getServicesGuids(DelegateExecution context) {
+        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_SERVICES_GUIDS);
+        if (binaryJson == null) {
+            return Collections.emptyMap();
+        }
+        String jsonString = new String(binaryJson, StandardCharsets.UTF_8);
+        return JsonUtil.fromJson(jsonString, new TypeToken<Map<String, String>>() {
+        }.getType());
+    }
+
 }

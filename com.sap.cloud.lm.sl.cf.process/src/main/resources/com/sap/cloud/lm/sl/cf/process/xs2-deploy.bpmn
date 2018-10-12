@@ -23,8 +23,6 @@
     <serviceTask id="processArchiveTask" name="Process Archive" activiti:async="true" activiti:delegateExpression="${processMtaArchiveStep}"></serviceTask>
     <sequenceFlow id="flow16" sourceRef="deleteUnusedReservedRoutesTask" targetRef="createOrUpdateServicesTask"></sequenceFlow>
     <sequenceFlow id="flow12" sourceRef="buildDeployModelTask" targetRef="buildUndeployModelTask"></sequenceFlow>
-    <sequenceFlow id="flow43" sourceRef="deleteServicesTask" targetRef="createOrUpdateServiceBrokersTask"></sequenceFlow>
-    <serviceTask id="deleteServicesTask" name="Delete Services" activiti:async="true" activiti:delegateExpression="${deleteServicesStep}"></serviceTask>
     <exclusiveGateway id="shouldDeleteDiscontinuedServicesGateway" name="Should Delete Discontinued Services" default="deleteDiscontinuedServicesFlow"></exclusiveGateway>
     <sequenceFlow id="doNotDeleteDiscontinuedServicesFlow" name="Don't delete services" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="createOrUpdateServiceBrokersTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServices == false)}]]></conditionExpression>
@@ -60,7 +58,6 @@
     <serviceTask id="buildUndeployModelTask" name="Build Undeploy Model" activiti:async="true" activiti:delegateExpression="${buildCloudUndeployModelStep}"></serviceTask>
     <serviceTask id="detectDeployedMtaTask" name="Detect Deployed MTA" activiti:async="true" activiti:delegateExpression="${detectDeployedMtaStep}"></serviceTask>
     <sequenceFlow id="flow8" sourceRef="detectDeployedMtaTask" targetRef="collectSystemParametersTask"></sequenceFlow>
-    <sequenceFlow id="deleteDiscontinuedServicesFlow" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="deleteServicesTask"></sequenceFlow>
     <serviceTask id="deleteUnusedReservedRoutesTask" name="Delete Unused Reserved Routes" activiti:async="true" activiti:delegateExpression="${deleteUnusedReservedRoutesStep}"></serviceTask>
     <serviceTask id="createSubscriptionsTask" name="Create Subscriptions" activiti:async="true" activiti:delegateExpression="${createSubscriptionsStep}"></serviceTask>
     <sequenceFlow id="flow14" sourceRef="addDomainsTask" targetRef="deleteUnusedReservedRoutesTask"></sequenceFlow>
@@ -140,6 +137,9 @@
     </callActivity>
     <sequenceFlow id="flow118" sourceRef="prepareAppsDeploymentTask" targetRef="deployAppCallActivity"></sequenceFlow>
     <sequenceFlow id="flow119" sourceRef="deployAppCallActivity" targetRef="createSubscriptionsTask"></sequenceFlow>
+    <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" activiti:async="true" calledElement="deleteServicesSubProcess" activiti:inheritVariables="true"></callActivity>
+    <sequenceFlow id="deleteDiscontinuedServicesFlow" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="deleteServicesCallActivity"></sequenceFlow>
+    <sequenceFlow id="flow121" sourceRef="deleteServicesCallActivity" targetRef="createOrUpdateServiceBrokersTask"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-deploy">
     <bpmndi:BPMNPlane bpmnElement="xs2-deploy" id="BPMNPlane_xs2-deploy">
@@ -164,9 +164,6 @@
       <bpmndi:BPMNShape bpmnElement="processArchiveTask" id="BPMNShape_processArchiveTask">
         <omgdc:Bounds height="65.0" width="105.0" x="756.0" y="28.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="deleteServicesTask" id="BPMNShape_deleteServicesTask">
-        <omgdc:Bounds height="61.0" width="106.0" x="936.0" y="592.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="shouldDeleteDiscontinuedServicesGateway" id="BPMNShape_shouldDeleteDiscontinuedServicesGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="1105.0" y="603.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -180,7 +177,7 @@
         <omgdc:Bounds height="61.0" width="105.0" x="1389.0" y="476.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="createOrUpdateServiceBrokersTask" id="BPMNShape_createOrUpdateServiceBrokersTask">
-        <omgdc:Bounds height="61.0" width="105.0" x="775.0" y="592.0"></omgdc:Bounds>
+        <omgdc:Bounds height="61.0" width="105.0" x="756.0" y="592.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="deleteServiceBrokersTask" id="BPMNShape_deleteServiceBrokersTask">
         <omgdc:Bounds height="61.0" width="106.0" x="522.0" y="592.0"></omgdc:Bounds>
@@ -284,6 +281,9 @@
       <bpmndi:BPMNShape bpmnElement="deployAppCallActivity" id="BPMNShape_deployAppCallActivity">
         <omgdc:Bounds height="62.0" width="105.0" x="431.0" y="219.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="deleteServicesCallActivity" id="BPMNShape_deleteServicesCallActivity">
+        <omgdc:Bounds height="61.0" width="105.0" x="918.0" y="592.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
         <omgdi:waypoint x="1033.0" y="249.0"></omgdi:waypoint>
         <omgdi:waypoint x="963.0" y="249.0"></omgdi:waypoint>
@@ -296,15 +296,11 @@
         <omgdi:waypoint x="886.0" y="141.0"></omgdi:waypoint>
         <omgdi:waypoint x="861.0" y="141.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
-        <omgdi:waypoint x="936.0" y="622.0"></omgdi:waypoint>
-        <omgdi:waypoint x="880.0" y="622.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="doNotDeleteDiscontinuedServicesFlow" id="BPMNEdge_doNotDeleteDiscontinuedServicesFlow">
         <omgdi:waypoint x="1125.0" y="643.0"></omgdi:waypoint>
         <omgdi:waypoint x="1124.0" y="682.0"></omgdi:waypoint>
         <omgdi:waypoint x="826.0" y="682.0"></omgdi:waypoint>
-        <omgdi:waypoint x="827.0" y="653.0"></omgdi:waypoint>
+        <omgdi:waypoint x="808.0" y="653.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
           <omgdc:Bounds height="39.0" width="100.0" x="1056.0" y="651.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
@@ -322,7 +318,7 @@
         <omgdi:waypoint x="485.0" y="622.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow44" id="BPMNEdge_flow44">
-        <omgdi:waypoint x="775.0" y="622.0"></omgdi:waypoint>
+        <omgdi:waypoint x="756.0" y="622.0"></omgdi:waypoint>
         <omgdi:waypoint x="718.0" y="622.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deleteDiscontinuedServiceBrokersFlow" id="BPMNEdge_deleteDiscontinuedServiceBrokersFlow">
@@ -371,10 +367,6 @@
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
         <omgdi:waypoint x="1307.0" y="141.0"></omgdi:waypoint>
         <omgdi:waypoint x="1281.0" y="141.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="deleteDiscontinuedServicesFlow" id="BPMNEdge_deleteDiscontinuedServicesFlow">
-        <omgdi:waypoint x="1105.0" y="623.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1042.0" y="622.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
         <omgdi:waypoint x="1307.0" y="248.0"></omgdi:waypoint>
@@ -538,6 +530,14 @@
         <omgdi:waypoint x="483.0" y="281.0"></omgdi:waypoint>
         <omgdi:waypoint x="483.0" y="400.0"></omgdi:waypoint>
         <omgdi:waypoint x="793.0" y="400.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="deleteDiscontinuedServicesFlow" id="BPMNEdge_deleteDiscontinuedServicesFlow">
+        <omgdi:waypoint x="1105.0" y="623.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1023.0" y="622.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow121" id="BPMNEdge_flow121">
+        <omgdi:waypoint x="918.0" y="622.0"></omgdi:waypoint>
+        <omgdi:waypoint x="861.0" y="622.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

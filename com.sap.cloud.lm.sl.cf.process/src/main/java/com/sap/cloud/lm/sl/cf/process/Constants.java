@@ -99,6 +99,7 @@ public class Constants {
     public static final String VAR_APPS_TO_RESTART_COUNT = "appsToRestartCount";
     public static final String VAR_APPS_TO_UNDEPLOY = "appsToUndeploy";
     public static final String VAR_SERVICES_TO_DELETE = "servicesToDelete";
+    public static final String VAR_SERVICES_GUIDS = "servicesGuids";
     public static final String VAR_SERVICE_URLS_TO_REGISTER = "serviceUrlsToRegister";
     public static final String VAR_SERVICE_BROKERS_TO_CREATE = "serviceBrokersToCreate";
     public static final String VAR_SUBSCRIPTIONS_TO_CREATE = "subscriptionsToCreate";

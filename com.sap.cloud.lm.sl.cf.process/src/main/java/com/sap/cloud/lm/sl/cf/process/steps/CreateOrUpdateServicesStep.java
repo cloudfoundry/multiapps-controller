@@ -33,6 +33,7 @@ import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
@@ -64,6 +65,9 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     @Inject
     private ServiceInstanceGetter serviceInstanceGetter;
+    
+    @Inject
+    private EventsGetter eventsGetter;
 
     @Inject
     private ApplicationConfiguration configuration;
@@ -467,7 +471,7 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
             CloudServiceExtended serviceExtended = (CloudServiceExtended) service;
             return serviceExtended.getTags();
         }
-        Map<String, Object> serviceInstance = serviceInstanceGetter.getServiceInstance(client, service.getName(), spaceId);
+        Map<String, Object> serviceInstance = serviceInstanceGetter.getServiceInstanceEntity(client, service.getName(), spaceId);
         return CommonUtil.cast(serviceInstance.get("tags"));
     }
 
@@ -511,6 +515,6 @@ public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollServiceOperationsExecution(serviceInstanceGetter));
+        return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(serviceInstanceGetter));
     }
 }

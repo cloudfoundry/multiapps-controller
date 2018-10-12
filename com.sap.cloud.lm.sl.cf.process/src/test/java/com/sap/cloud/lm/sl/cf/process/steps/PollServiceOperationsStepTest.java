@@ -5,7 +5,10 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -101,6 +104,8 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         prepareServiceInstanceGetter();
         StepsUtil.setServicesToCreate(context, input.services);
+        StepsUtil.setServicesToDelete(context, Collections.emptyList());
+        StepsUtil.setServicesGuids(context, Collections.emptyMap());
         StepsUtil.setTriggeredServiceOperations(context, input.triggeredServiceOperations);
         if (expectedExceptionMessage != null) {
             exception.expectMessage(expectedExceptionMessage);
@@ -112,7 +117,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     @SuppressWarnings("unchecked")
     private void prepareServiceInstanceGetter() {
         for (Entry<String, Object> response : input.serviceInstanceResponse.entrySet()) {
-            Mockito.when(serviceInstanceGetter.getServiceInstance(client, response.getKey(), TEST_SPACE_ID))
+            Mockito.when(serviceInstanceGetter.getServiceInstanceEntity(client, response.getKey(), TEST_SPACE_ID))
                 .thenReturn((Map<String, Object>) response.getValue());
         }
     }
