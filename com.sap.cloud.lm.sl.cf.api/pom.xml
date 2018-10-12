@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.sap.cloud.lm.sl.cf</groupId>
         <artifactId>com.sap.cloud.lm.sl.cf.parent</artifactId>
-        <version>1.67.0</version>
+        <version>1.67.1</version>
     </parent>
 
     <dependencies>
