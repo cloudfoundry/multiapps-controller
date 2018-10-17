@@ -10,22 +10,19 @@
           "moduleName": "foo",
           "appName": "foo-blue",
           "services": [],
-          "providedDependencyNames": [],
-          "deployAttributes": {}
+          "providedDependencyNames": []
         },
         {
           "moduleName": "bar",
           "appName": "bar-blue",
           "services": [],
-          "providedDependencyNames": [],
-          "deployAttributes": {}
+          "providedDependencyNames": []
         },
         {
           "moduleName": "foo",
           "appName": "foo-green",
           "services": [],
-          "providedDependencyNames": [],
-          "deployAttributes": {}
+          "providedDependencyNames": []
         }
       ],
       "services": []

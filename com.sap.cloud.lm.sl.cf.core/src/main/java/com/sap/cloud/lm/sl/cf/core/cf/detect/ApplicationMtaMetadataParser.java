@@ -36,12 +36,11 @@ public class ApplicationMtaMetadataParser {
         List<String> sharedServices = parseSharedServices(appEnv);
         String moduleName = parseModuleName(appEnv);
         List<String> providedDependencyNames = parseProvidedDependencyNames(app.getName(), appEnv);
-        Map<String, Object> deployAttributes = parseDeployAttributes(appEnv);
 
-        if (mtaMetadata == null && services == null && moduleName == null && providedDependencyNames == null && deployAttributes == null) {
+        if (mtaMetadata == null && services == null && moduleName == null && providedDependencyNames == null) {
             return null;
         }
-        return new ApplicationMtaMetadata(mtaMetadata, services, sharedServices, moduleName, providedDependencyNames, deployAttributes);
+        return new ApplicationMtaMetadata(mtaMetadata, services, sharedServices, moduleName, providedDependencyNames);
     }
 
     private static DeployedMtaMetadata parseMtaMetadata(Map<String, String> appEnv) {
@@ -95,14 +94,6 @@ public class ApplicationMtaMetadataParser {
             LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PARSE_PROVIDED_DEPENDENCY_NAMES_1_OF_APP_0, appName, envValue), e);
             return null;
         }
-    }
-
-    private static Map<String, Object> parseDeployAttributes(Map<String, String> appEnv) {
-        String envValue = appEnv.get(Constants.ENV_DEPLOY_ATTRIBUTES);
-        if (envValue == null) {
-            return null;
-        }
-        return JsonUtil.convertJsonToMap(envValue);
     }
 
 }

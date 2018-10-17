@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class DeployedMtaModule {
 
@@ -12,21 +11,19 @@ public class DeployedMtaModule {
     private Date updatedOn;
     private List<String> services;
     private List<String> providedDependencyNames;
-    private Map<String, Object> deployAttributes;
     private List<String> uris;
 
     public DeployedMtaModule() {
     }
 
     public DeployedMtaModule(String moduleName, String appName, Date createdOn, Date updatedOn, List<String> services,
-        List<String> providedDependencyNames, Map<String, Object> deployAttributes, List<String> uris) {
+        List<String> providedDependencyNames, List<String> uris) {
         this.moduleName = moduleName;
         this.appName = appName;
         this.createdOn = createdOn;
         this.updatedOn = updatedOn;
         this.services = services;
         this.providedDependencyNames = providedDependencyNames;
-        this.deployAttributes = deployAttributes;
         this.uris = uris;
     }
 
@@ -52,10 +49,6 @@ public class DeployedMtaModule {
 
     public List<String> getProvidedDependencyNames() {
         return providedDependencyNames;
-    }
-
-    public Map<String, Object> getDeployAttributes() {
-        return deployAttributes;
     }
 
     public List<String> getUris() {
@@ -84,10 +77,6 @@ public class DeployedMtaModule {
 
     public void setProvidedDependencyNames(List<String> providedDependencyNames) {
         this.providedDependencyNames = providedDependencyNames;
-    }
-
-    public void setDeployAttributes(Map<String, Object> deployAttributes) {
-        this.deployAttributes = deployAttributes;
     }
 
     public void setUris(List<String> uris) {

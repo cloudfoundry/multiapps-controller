@@ -2,9 +2,7 @@ package com.sap.cloud.lm.sl.cf.web.api.model;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,7 +18,6 @@ public class Module {
     private List<String> providedDendencyNames = new ArrayList<>();
     private List<String> services = new ArrayList<>();
     private List<String> uris = new ArrayList<>();
-    private Map<String, Object> deployAttributes = new HashMap<>();
 
     /**
      **/
@@ -141,23 +138,6 @@ public class Module {
         this.uris = uris;
     }
 
-    /**
-     **/
-    public Module deployAttributes(Map<String, Object> deployAttributes) {
-        this.deployAttributes = deployAttributes;
-        return this;
-    }
-
-    @ApiModelProperty(value = "")
-    @JsonProperty("deployAttributes")
-    public Map<String, Object> getDeployAttributes() {
-        return deployAttributes;
-    }
-
-    public void setDeployAttributes(Map<String, Object> deployAttributes) {
-        this.deployAttributes = deployAttributes;
-    }
-
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -170,12 +150,12 @@ public class Module {
         return Objects.equals(moduleName, module.moduleName) && Objects.equals(appName, module.appName)
             && Objects.equals(createdOn, module.createdOn) && Objects.equals(updatedOn, module.updatedOn)
             && Objects.equals(providedDendencyNames, module.providedDendencyNames) && Objects.equals(services, module.services)
-            && Objects.equals(uris, module.uris) && Objects.equals(deployAttributes, module.deployAttributes);
+            && Objects.equals(uris, module.uris);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(moduleName, appName, createdOn, updatedOn, providedDendencyNames, services, uris, deployAttributes);
+        return Objects.hash(moduleName, appName, createdOn, updatedOn, providedDendencyNames, services, uris);
     }
 
     @Override
@@ -183,14 +163,27 @@ public class Module {
         StringBuilder sb = new StringBuilder();
         sb.append("class Module {\n");
 
-        sb.append("    moduleName: ").append(toIndentedString(moduleName)).append("\n");
-        sb.append("    appName: ").append(toIndentedString(appName)).append("\n");
-        sb.append("    createdOn: ").append(toIndentedString(createdOn)).append("\n");
-        sb.append("    updatedOn: ").append(toIndentedString(updatedOn)).append("\n");
-        sb.append("    providedDendencyNames: ").append(toIndentedString(providedDendencyNames)).append("\n");
-        sb.append("    services: ").append(toIndentedString(services)).append("\n");
-        sb.append("    uris: ").append(toIndentedString(uris)).append("\n");
-        sb.append("    deployAttributes: ").append(toIndentedString(deployAttributes)).append("\n");
+        sb.append("    moduleName: ")
+            .append(toIndentedString(moduleName))
+            .append("\n");
+        sb.append("    appName: ")
+            .append(toIndentedString(appName))
+            .append("\n");
+        sb.append("    createdOn: ")
+            .append(toIndentedString(createdOn))
+            .append("\n");
+        sb.append("    updatedOn: ")
+            .append(toIndentedString(updatedOn))
+            .append("\n");
+        sb.append("    providedDendencyNames: ")
+            .append(toIndentedString(providedDendencyNames))
+            .append("\n");
+        sb.append("    services: ")
+            .append(toIndentedString(services))
+            .append("\n");
+        sb.append("    uris: ")
+            .append(toIndentedString(uris))
+            .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -202,6 +195,7 @@ public class Module {
         if (o == null) {
             return "null";
         }
-        return o.toString().replace("\n", "\n    ");
+        return o.toString()
+            .replace("\n", "\n    ");
     }
 }

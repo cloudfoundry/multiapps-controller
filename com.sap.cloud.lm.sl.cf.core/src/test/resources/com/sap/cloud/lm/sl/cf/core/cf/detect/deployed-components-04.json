@@ -10,15 +10,13 @@
           "moduleName": "mta-application-1",
           "appName": "namespace.mta-application-1",
           "services": [],
-          "providedDependencyNames": [],
-          "deployAttributes": {}
+          "providedDependencyNames": []
         },
         {
           "moduleName": "mta-application-2",
           "appName": "namespace.mta-application-2",
           "services": [],
-          "providedDependencyNames": [],
-          "deployAttributes": {}
+          "providedDependencyNames": []
         }
       ],
       "services": []

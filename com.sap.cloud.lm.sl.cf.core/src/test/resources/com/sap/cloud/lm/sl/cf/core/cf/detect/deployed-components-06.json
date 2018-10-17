@@ -13,15 +13,13 @@
           "providedDependencyNames": [
             "mta-provided-dependency-1",
             "mta-provided-dependency-2"
-          ],
-          "deployAttributes": {}
+          ]
         },
         {
           "moduleName": "mta-application-2",
           "appName": "namespace.mta-application-2",
           "services": [],
-          "providedDependencyNames": [],
-          "deployAttributes": {}
+          "providedDependencyNames": []
         }
       ],
       "services": []

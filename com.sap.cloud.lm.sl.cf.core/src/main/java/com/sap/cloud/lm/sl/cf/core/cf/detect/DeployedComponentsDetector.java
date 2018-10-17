@@ -42,9 +42,7 @@ public class DeployedComponentsDetector {
                     ? appMetadata.getProvidedDependencyNames()
                     : new ArrayList<>();
                 List<String> appServices = (appMetadata.getServices() != null) ? appMetadata.getServices() : new ArrayList<>();
-                Map<String, Object> deployAttributes = (appMetadata.getDeployAttributes() != null) ? appMetadata.getDeployAttributes()
-                    : new HashMap<>();
-
+                
                 DeployedMtaMetadata mtaMetadata = appMetadata.getMtaMetadata();
 
                 List<DeployedMtaModule> modules = modulesMap.getOrDefault(mtaMetadata, new ArrayList<>());
@@ -53,7 +51,7 @@ public class DeployedComponentsDetector {
                 Date updatedOn = app.getMeta()
                     .getUpdated();
                 DeployedMtaModule module = new DeployedMtaModule(moduleName, appName, createdOn, updatedOn, appServices,
-                    providedDependencies, deployAttributes, app.getUris());
+                    providedDependencies, app.getUris());
                 modules.add(module);
                 modulesMap.put(mtaMetadata, modules);
 
