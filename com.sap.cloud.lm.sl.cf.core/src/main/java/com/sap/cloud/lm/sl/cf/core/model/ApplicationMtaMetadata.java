@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.model;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * MTA metadata information associated with an application;
@@ -13,16 +12,14 @@ public class ApplicationMtaMetadata {
     private final List<String> sharedServices;
     private final String moduleName;
     private final List<String> providedDependencyNames;
-    private final Map<String, Object> deployAttributes;
 
     public ApplicationMtaMetadata(DeployedMtaMetadata mtaMetadata, List<String> services, List<String> sharedServices, String moduleName,
-        List<String> providedDependencyNames, Map<String, Object> deployAttributes) {
+        List<String> providedDependencyNames) {
         this.mtaMetadata = mtaMetadata;
         this.services = services;
         this.sharedServices = sharedServices;
         this.moduleName = moduleName;
         this.providedDependencyNames = providedDependencyNames;
-        this.deployAttributes = deployAttributes;
     }
 
     public DeployedMtaMetadata getMtaMetadata() {
@@ -43,10 +40,6 @@ public class ApplicationMtaMetadata {
 
     public List<String> getProvidedDependencyNames() {
         return providedDependencyNames;
-    }
-
-    public Map<String, Object> getDeployAttributes() {
-        return deployAttributes;
     }
 
 }

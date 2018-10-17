@@ -180,7 +180,7 @@ public class CheckForCreationConflictsStepTest extends SyncActivitiStepTest<Chec
 
     private List<DeployedMtaModule> simpleAppListToModuleList(List<SimpleApplication> simpleApps) {
         List<DeployedMtaModule> modulesList = new ArrayList<>();
-        simpleApps.forEach(app -> modulesList.add(new DeployedMtaModule(app.name, app.name, null, null, null, null, null, null)));
+        simpleApps.forEach(app -> modulesList.add(new DeployedMtaModule(app.name, app.name, null, null, null, null, null)));
         return modulesList;
     }
 

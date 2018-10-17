@@ -99,7 +99,6 @@ public class MtasApiServiceImpl implements MtasApiService {
     private Module getModule(DeployedMtaModule module) {
         Module result = new Module();
         result.setAppName(module.getAppName());
-        result.setDeployAttributes(module.getDeployAttributes());
         result.setModuleName(module.getModuleName());
         result.setProvidedDendencyNames(module.getProvidedDependencyNames());
         result.setUris(module.getUris());
