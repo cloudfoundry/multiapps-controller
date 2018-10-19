@@ -8,6 +8,11 @@
     "domains": [
       "cfapps.neo.ondemand.com"
     ],
+    "restartParameters": {
+      "vcap-services": true,
+      "user-provided": true,
+      "vcap-application": true
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"check-deploy-id\":true,\"dependency-type\":\"soft\",\"execute-app\":true,\"failure-marker\":\"STDERR:Deployment failed\",\"stop-app\":true,\"success-marker\":\"STDOUT:Deployment done\"}",
@@ -40,6 +45,11 @@
     "domains": [
       "cfapps.neo.ondemand.com"
     ],
+    "restartParameters": {
+      "vcap-services": true,
+      "user-provided": true,
+      "vcap-application": true
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
@@ -75,6 +85,11 @@
     "domains": [
       "cfapps.neo.ondemand.com"
     ],
+    "restartParameters": {
+      "vcap-services": true,
+      "user-provided": true,
+      "vcap-application": true
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",

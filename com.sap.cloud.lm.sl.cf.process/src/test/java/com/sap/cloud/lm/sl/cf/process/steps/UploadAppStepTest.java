@@ -149,7 +149,7 @@ public class UploadAppStepTest {
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             StepsUtil.setModuleFileName(context, APP_NAME, APP_FILE);
-            StepsUtil.setAppPropertiesChanged(context, false);
+            StepsUtil.setVcapAppPropertiesChanged(context, false);
         }
 
         public void prepareClients() throws Exception {

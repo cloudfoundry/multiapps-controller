@@ -713,12 +713,28 @@ public class StepsUtil {
         setAsBinaryJson(context, Constants.VAR_SYSTEM_PARAMETERS, systemParameters);
     }
 
-    static void setAppPropertiesChanged(DelegateExecution context, boolean state) {
-        context.setVariable(Constants.VAR_APP_PROPERTIES_CHANGED, state);
+    static void setVcapAppPropertiesChanged(DelegateExecution context, boolean state) {
+        context.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, state);
     }
 
-    static boolean getAppPropertiesChanged(DelegateExecution context) {
-        return (boolean) context.getVariable(Constants.VAR_APP_PROPERTIES_CHANGED);
+    static boolean getVcapAppPropertiesChanged(DelegateExecution context) {
+        return (boolean) context.getVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED);
+    }
+
+    static void setVcapServicesPropertiesChanged(DelegateExecution context, boolean state) {
+        context.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, state);
+    }
+
+    static boolean getVcapServicesPropertiesChanged(DelegateExecution context) {
+        return (boolean) context.getVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED);
+    }
+
+    static void setUserPropertiesChanged(DelegateExecution context, boolean state) {
+        context.setVariable(Constants.VAR_USER_PROPERTIES_CHANGED, state);
+    }
+
+    static boolean getUserPropertiesChanged(DelegateExecution context) {
+        return (boolean) context.getVariable(Constants.VAR_USER_PROPERTIES_CHANGED);
     }
 
     static CloudApplicationExtended getApp(DelegateExecution context) {

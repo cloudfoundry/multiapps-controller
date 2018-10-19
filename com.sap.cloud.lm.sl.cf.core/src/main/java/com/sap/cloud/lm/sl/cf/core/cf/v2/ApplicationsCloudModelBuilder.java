@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import org.apache.commons.collections.MapUtils;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,14 +110,16 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters((Module) module);
         List<ApplicationPort> applicationPorts = getApplicationPorts((Module) module, parametersList);
         List<String> applicationDomains = getApplicationDomains((Module) module, parametersList);
+        Map<String, Boolean> restartParameters = getRestartParameters((Module) module);
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
-            resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains);
+            resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains,
+            restartParameters);
     }
 
     protected CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota, int memory,
         int instances, List<String> uris, List<String> idleUris, List<String> services, List<ServiceKeyToInject> serviceKeys,
         Map<Object, Object> env, Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks,
-        List<ApplicationPort> applicationPorts, List<String> applicationDomains) {
+        List<ApplicationPort> applicationPorts, List<String> applicationDomains, Map<String, Boolean> restartParameters) {
         CloudApplicationExtended app = super.createCloudApplication(name, moduleName, staging, diskQuota, memory, instances, uris, idleUris,
             services, serviceKeys, env, tasks);
         if (bindingParameters != null) {
@@ -124,6 +127,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         }
         app.setApplicationPorts(applicationPorts);
         app.setDomains(applicationDomains);
+        app.setRestartParameters(restartParameters);
         return app;
     }
 
@@ -247,6 +251,36 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     protected List<String> getApplicationDomains(Module module, List<Map<String, Object>> parametersList) {
         List<String> applicationDomains = urisCloudModelBuilder.getApplicationDomains(module, parametersList);
         return xsPlaceholderResolver.resolve(applicationDomains);
+    }
+
+    protected Map<String, Boolean> getRestartParameters(Module module) {
+        Map<String, Boolean> restartParameters = new HashMap<>();
+        Map<String, Boolean> restartParametersFromDescriptor = getRestartParametersFromDescriptor(module);
+        if (restartParametersFromDescriptor == null) {
+            setRestartParameters(restartParameters, true, true, true);
+            return restartParameters;
+        }
+        boolean shouldRestartOnVcapAppChange = restartParametersFromDescriptor.getOrDefault(SupportedParameters.VCAP_APPLICATION_ENV, true);
+        boolean shouldRestartOnVcapServicesChange = restartParametersFromDescriptor.getOrDefault(SupportedParameters.VCAP_SERVICES_ENV,
+            true);
+        boolean shouldRestartOnUserProvidedChange = restartParametersFromDescriptor.getOrDefault(SupportedParameters.USER_PROVIDED_ENV,
+            true);
+
+        setRestartParameters(restartParameters, shouldRestartOnVcapAppChange, shouldRestartOnVcapServicesChange,
+            shouldRestartOnUserProvidedChange);
+        return restartParameters;
+    }
+
+    private void setRestartParameters(Map<String, Boolean> restartParameters, boolean shouldRestartOnVcapAppChange,
+        boolean shouldRestartOnVcapServicesChange, boolean shouldRestartOnUserProvidedChange) {
+        restartParameters.put(SupportedParameters.VCAP_APPLICATION_ENV, shouldRestartOnVcapAppChange);
+        restartParameters.put(SupportedParameters.VCAP_SERVICES_ENV, shouldRestartOnVcapServicesChange);
+        restartParameters.put(SupportedParameters.USER_PROVIDED_ENV, shouldRestartOnUserProvidedChange);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Boolean> getRestartParametersFromDescriptor(Module module) {
+        return MapUtils.getMap(module.getParameters(), SupportedParameters.RESTART_ON_ENV_CHANGE);
     }
 
     private ApplicationPortType getType(Map<String, Object> moduleParameters) {

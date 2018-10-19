@@ -54,6 +54,8 @@ public class UpdateAppStep extends CreateAppStep {
             Map<String, String> env = app.getEnvAsMap();
 
             boolean appPropertiesChanged = false;
+            boolean servicesPropertiesChanged = false;
+            boolean userPropertiesChanged = false;
 
             // Update the application
             if (hasChanged(staging, existingApp.getStaging())) {
@@ -80,14 +82,14 @@ public class UpdateAppStep extends CreateAppStep {
                 client.updateApplicationUris(appName, uris);
                 appPropertiesChanged = true;
             }
-            appPropertiesChanged = updateApplicationServices(app, existingApp, client, execution) || appPropertiesChanged;
+            servicesPropertiesChanged = updateApplicationServices(app, existingApp, client, execution);
             injectServiceKeysCredentialsInAppEnv(execution.getContext(), client, app, env);
             updateAppDigest(env, existingApp.getEnvAsMap());
             if (!env.equals(existingApp.getEnvAsMap())) {
                 getStepLogger().debug("Updating env of application \"{0}\"", appName);
                 getStepLogger().debug("Updated env: {0}", JsonUtil.toJson(env, true));
                 client.updateApplicationEnv(appName, env);
-                appPropertiesChanged = true;
+                userPropertiesChanged = true;
             }
 
             if (!appPropertiesChanged) {
@@ -96,7 +98,9 @@ public class UpdateAppStep extends CreateAppStep {
                 getStepLogger().debug(Messages.APP_UPDATED, app.getName());
             }
 
-            StepsUtil.setAppPropertiesChanged(execution.getContext(), appPropertiesChanged);
+            StepsUtil.setVcapAppPropertiesChanged(execution.getContext(), appPropertiesChanged);
+            StepsUtil.setVcapServicesPropertiesChanged(execution.getContext(), servicesPropertiesChanged);
+            StepsUtil.setUserPropertiesChanged(execution.getContext(), userPropertiesChanged);
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);

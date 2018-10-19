@@ -350,7 +350,18 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {
                     "[\"bestprice.sap.com\"]", // domains
                     "R:/mta/sample/services-shared.json",
-                    "R:/mta/sample/apps-v2-shared.json", } },
+                    "R:/mta/sample/apps-v2-shared.json", } 
+            },
+            // (33) Do not restart on env change - bg-deploy
+            { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", 
+                false, false, 
+                new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
+                new String[] { "module-1", "module-2", "module-3" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] {
+                    "[]", "[]", "R:apps-with-restart-parameters-false.json" // services
+                }
+            },
 // @formatter:on
         });
     }
@@ -392,9 +403,8 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
     @Override
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, CloudModelConfiguration configuration) {
-        deploymentDescriptor = new DescriptorReferenceResolver(
-            (com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder())
-                .resolve();
+        deploymentDescriptor = new DescriptorReferenceResolver((com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor,
+            new ResolverBuilder(), new ResolverBuilder()).resolve();
         return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder(
             (com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor, configuration, null, systemParameters,
             xsPlaceholderResolver, DEPLOY_ID);

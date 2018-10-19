@@ -24,6 +24,11 @@
     "domains": [
       "sofd60245639a"
     ],
+    "restartParameters": {
+      "vcap-services": true,
+      "user-provided": true,
+      "vcap-application": true
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"no-start\":true}",
@@ -53,6 +58,11 @@
     "domains": [
       "sofd60245639a"
     ],
+    "restartParameters": {
+      "vcap-services": true,
+      "user-provided": true,
+      "vcap-application": true
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
@@ -82,6 +92,11 @@
     "domains": [
       "sofd60245639a"
     ],
+    "restartParameters": {
+      "vcap-services": true,
+      "user-provided": true,
+      "vcap-application": true
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
@@ -111,6 +126,11 @@
     "domains": [
       "sofd60245639a"
     ],
+    "restartParameters": {
+      "vcap-services": true,
+      "user-provided": true,
+      "vcap-application": true
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"no-start\":false}",

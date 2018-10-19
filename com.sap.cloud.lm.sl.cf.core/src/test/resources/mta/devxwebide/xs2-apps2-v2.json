@@ -1,13 +1,9 @@
 [
   {
-    "moduleName": "foo",
+    "moduleName": "webide",
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
-    "applicationPorts": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
     "restartParameters": {
       "vcap-services": true,
       "user-provided": true,
@@ -16,24 +12,24 @@
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.xs2.test\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"foo\"}",
+      "MTA_METADATA={\"id\":\"com.sap.devx.webide\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"webide\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
       "MTA_SERVICES=[]",
       "MTA_SHARED_SERVICES=[]",
-      "TARGET_RUNTIME=tomee"
+      "destinations=[{\"name\":\"sapui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://sofd60245639a:53030\"}]"
     ],
     "instances": 0,
-    "memory": 0,
+    "memory": 128,
     "runningInstances": 0,
-    "services": [],
-    "staging": {
-      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
-    },
+    "services": [
+      "uaa"
+    ],
+    "staging": {},
     "uris": [
-      "foo.cfapps.neo.ondemand.com"
+      "sofd60245639a:53035"
     ],
     "meta": {},
-    "name": "foo"
+    "name": "webide"
   }
 ]

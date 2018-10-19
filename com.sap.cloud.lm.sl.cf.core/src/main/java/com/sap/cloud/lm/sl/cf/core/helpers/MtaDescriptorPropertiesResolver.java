@@ -25,6 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ModuleSystemParameterCopier;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.RestartOnEnvChangeValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v3.VisibilityValidator;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -67,7 +68,7 @@ public class MtaDescriptorPropertiesResolver {
     public List<ParameterValidator> getValidatorsList() {
         return Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(),
             new ModuleSystemParameterCopier(SupportedParameters.APP_NAME, systemParameters), new TasksValidator(),
-            new VisibilityValidator());
+            new VisibilityValidator(), new RestartOnEnvChangeValidator());
     }
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {

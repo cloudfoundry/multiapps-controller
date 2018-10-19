@@ -1,0 +1,46 @@
+package com.sap.cloud.lm.sl.cf.core.validators.parameters;
+
+import java.util.Map;
+
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
+import com.sap.cloud.lm.sl.mta.model.v1.Module;
+
+public class RestartOnEnvChangeValidator implements ParameterValidator {
+
+    @Override
+    public boolean isValid(Object restartConfigs) {
+        if (!(restartConfigs instanceof Map)) {
+            return false;
+        }
+        Map<String, Object> configs = CommonUtil.cast(restartConfigs);
+        if (configs.containsKey(SupportedParameters.VCAP_APPLICATION_ENV)
+            && !isValidBooleanParameter(configs.get(SupportedParameters.VCAP_APPLICATION_ENV))) {
+            return false;
+        }
+        if (configs.containsKey(SupportedParameters.VCAP_SERVICES_ENV)
+            && !isValidBooleanParameter(configs.get(SupportedParameters.VCAP_SERVICES_ENV))) {
+            return false;
+        }
+        if (configs.containsKey(SupportedParameters.USER_PROVIDED_ENV)
+            && !isValidBooleanParameter(configs.get(SupportedParameters.USER_PROVIDED_ENV))) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isValidBooleanParameter(Object parameter) {
+        return parameter instanceof Boolean;
+    }
+
+    @Override
+    public Class<?> getContainerType() {
+        return Module.class;
+    }
+
+    @Override
+    public String getParameterName() {
+        return SupportedParameters.RESTART_ON_ENV_CHANGE;
+    }
+
+}
