@@ -20,6 +20,7 @@ public class CloudApplicationExtended extends CloudApplication {
     private List<ServiceKeyToInject> serviceKeysToInject;
     private List<ApplicationPort> applicationPorts;
     private List<String> domains;
+    private Map<String, Boolean> restartParameters;
 
     public CloudApplicationExtended(Meta meta, String name) {
         super(meta, name);
@@ -94,5 +95,13 @@ public class CloudApplicationExtended extends CloudApplication {
 
     public void setDomains(List<String> domains) {
         this.domains = domains;
+    }
+
+    public Map<String, Boolean> getRestartParameters() {
+        return restartParameters;
+    }
+
+    public void setRestartParameters(Map<String, Boolean> restartParameters) {
+        this.restartParameters = restartParameters;
     }
 }

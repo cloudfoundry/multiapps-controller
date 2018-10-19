@@ -11,17 +11,16 @@
     "restartParameters": {
       "vcap-services": true,
       "user-provided": true,
-      "vcap-application": true
+      "vcap-application": false
     },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-1\"]",
       "MTA_SERVICES=[]",
-      "MTA_SHARED_SERVICES=[]",
-      "TARGET_RUNTIME=tomee"
+      "MTA_SHARED_SERVICES=[]"
     ],
     "instances": 0,
     "memory": 0,
@@ -29,10 +28,10 @@
     "services": [],
     "staging": {},
     "uris": [
-      "test-host.sofd60245639a/test"
+      "module-1.sofd60245639a"
     ],
     "meta": {},
-    "name": "com.sap.sample.mta.application-1"
+    "name": "module-1"
   },
   {
     "moduleName": "module-2",
@@ -51,12 +50,11 @@
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"module-2\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-2\"]",
       "MTA_SERVICES=[]",
-      "MTA_SHARED_SERVICES=[]",
-      "TARGET_RUNTIME=tomee"
+      "MTA_SHARED_SERVICES=[]"
     ],
     "instances": 0,
     "memory": 0,
@@ -67,6 +65,40 @@
       "module-2.sofd60245639a"
     ],
     "meta": {},
-    "name": "com.sap.sample.mta.application-2"
+    "name": "module-2"
+  },
+  {
+    "moduleName": "module-3",
+    "idleUris": [],
+    "tasks": [],
+    "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "sofd60245639a"
+    ],
+    "restartParameters": {
+      "vcap-services": false,
+      "user-provided": false,
+      "vcap-application": false
+    },
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"module-3\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-3\"]",
+      "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]"
+    ],
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "services": [],
+    "staging": {},
+    "uris": [
+      "module-3.sofd60245639a"
+    ],
+    "meta": {},
+    "name": "module-3"
   }
 ]

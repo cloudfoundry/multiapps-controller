@@ -78,6 +78,10 @@ public class SupportedParameters {
     public static final String USER_PROVIDED_SERVICE_CONFIG = "user-provided-service-config";
     public static final String DEPENDENCY_TYPE = "dependency-type";
     public static final String TASKS = "tasks";
+    public static final String RESTART_ON_ENV_CHANGE = "restart-on-env-change";
+    public static final String VCAP_APPLICATION_ENV = "vcap-application";
+    public static final String VCAP_SERVICES_ENV = "vcap-services";
+    public static final String USER_PROVIDED_ENV = "user-provided";
 
     public static final String EXECUTE_APP = "execute-app";
     public static final String SUCCESS_MARKER = "success-marker";
@@ -148,7 +152,8 @@ public class SupportedParameters {
     public static final Set<String> APP_PROPS = Collections
         .unmodifiableSet(new HashSet<>(Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN, DOMAINS, PORT, PORTS, COMMAND, BUILDPACK,
             HEALTH_CHECK_TYPE, HEALTH_CHECK_HTTP_ENDPOINT, ENABLE_SSH, STACK, HEALTH_CHECK_TIMEOUT, IDLE_HOST, MEMORY, INSTANCES,
-            NO_HOSTNAME, NO_ROUTE, IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS)));
+            NO_HOSTNAME, NO_ROUTE, IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS, RESTART_ON_ENV_CHANGE,
+            VCAP_APPLICATION_ENV, VCAP_SERVICES_ENV, USER_PROVIDED_ENV)));
 
     public static final Set<String> SERVICE_PROPS = Collections
         .unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE, SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER,

@@ -1,0 +1,28 @@
+_schema-version: "2.0.0"
+ID: com.sap.sample.mta
+version: 1.0.0
+
+modules:
+  - name: module-1
+    type: javascript.nodejs
+    parameters:
+      restart-on-env-change:
+        vcap-application: false
+        vcap-services: true
+        user-provided: true
+  - name: module-2
+    type: javascript.nodejs
+    parameters:
+      restart-on-env-change:
+        vcap-application: true
+        vcap-services: true
+        user-provided: true
+    
+  - name: module-3
+    type: javascript.nodejs
+    parameters:
+      restart-on-env-change:
+        vcap-application: false
+        vcap-services: false
+        user-provided: false
+      

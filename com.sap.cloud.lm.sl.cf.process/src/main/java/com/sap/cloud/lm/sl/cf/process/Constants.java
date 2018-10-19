@@ -116,7 +116,9 @@ public class Constants {
     public static final String VAR_DELETED_ENTRIES = "deletedEntries";
     public static final String VAR_HAS_APP_CHANGED = "hasAppChanged";
     public static final String VAR_HAS_APP_CONTENT_CHANGED = "hasAppContentChanged";
-    public static final String VAR_APP_PROPERTIES_CHANGED = "appPropertiesChanged";
+    public static final String VAR_VCAP_APP_PROPERTIES_CHANGED = "vcapAppPropertiesChanged";
+    public static final String VAR_VCAP_SERVICES_PROPERTIES_CHANGED = "vcapServicesPropertiesChanged";
+    public static final String VAR_USER_PROPERTIES_CHANGED = "vcapUserPropertiesChanged";
     public static final String VAR_TRIGGERED_SERVICE_OPERATIONS = "triggeredServiceOperations";
     public static final String VAR_CORRELATION_ID = "correlationId";
     public static final String VAR_APP_TO_DEPLOY = "appToDeploy";

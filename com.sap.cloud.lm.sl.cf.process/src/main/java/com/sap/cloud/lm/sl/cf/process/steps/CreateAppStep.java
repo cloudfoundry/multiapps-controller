@@ -103,7 +103,9 @@ public class CreateAppStep extends SyncActivitiStep {
                 }
             }
 
-            StepsUtil.setAppPropertiesChanged(execution.getContext(), true);
+            StepsUtil.setVcapAppPropertiesChanged(execution.getContext(), true);
+            StepsUtil.setVcapServicesPropertiesChanged(execution.getContext(), true);
+            StepsUtil.setUserPropertiesChanged(execution.getContext(), true);
 
             getStepLogger().debug(Messages.APP_CREATED, app.getName());
             return StepPhase.DONE;
