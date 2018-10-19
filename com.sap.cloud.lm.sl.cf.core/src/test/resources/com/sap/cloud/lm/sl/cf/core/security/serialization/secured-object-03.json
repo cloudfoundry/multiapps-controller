@@ -10,6 +10,9 @@
           }
         }
       },
+      "parametersMetadata": {
+        "metadata": {}
+      },
       "parameters": {},
       "name": "test-module",
       "type": "test-type",

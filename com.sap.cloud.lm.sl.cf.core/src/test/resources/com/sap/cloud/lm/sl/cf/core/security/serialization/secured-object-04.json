@@ -36,6 +36,9 @@
               }
             }
           },
+          "parametersMetadata": {
+            "metadata": {}
+          },
           "isPublic": false,
           "name": "test-dependency",
           "properties": {
