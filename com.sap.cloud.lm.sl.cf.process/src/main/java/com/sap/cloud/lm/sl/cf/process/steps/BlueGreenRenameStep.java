@@ -2,6 +2,11 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.function.Supplier;
 
+import javax.inject.Named;
+
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ApplicationColorAppender;
@@ -12,6 +17,8 @@ import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
+@Named("blueGreenRenameStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BlueGreenRenameStep extends SyncActivitiStep {
 
     private static final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
