@@ -35,6 +35,5 @@
         file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-index_process_ids_of_progress_messages.xml" />
     <include
         file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-index_space_lm_sl_persistence_file.xml" />
-    <include
-        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-update_trigger_for_lm_sl_persistance_file_process_log_failsafe_cf.xml" />
+
 </databaseChangeLog>
