@@ -72,7 +72,9 @@ public final class Messages {
     public static final String CANNOT_SUBMIT_TASK = "Couldn't submit auditlogging task for execution in the executor service";
     public static final String CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN = "Service \"{0}\" could not be created because none of the service offering(s) \"{1}\" match with existing service offerings or provide service plan \"{2}\"";
     public static final String CANT_CREATE_SERVICE = "Service \"{0}\" could not be created because all attempt(s) to use service offerings \"{1}\" failed";
-    public static final String COULD_NOT_PARSE_MTA_METADATA_FOR_APP_0 = "Could not parse MTA metadata for application \"{0}\"";
+    public static final String CANT_PARSE_MTA_METADATA_FOR_APP_0 = "Cannot parse MTA metadata for application \"{0}\". This indicates that MTA reserved variables in the application''s environment were modified manually. Either revert the changes or delete the application.";
+    public static final String MTA_METADATA_FOR_APP_0_IS_INCOMPLETE = "MTA metadata for application \"{0}\" is incomplete";
+    public static final String ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1 = "The environment of application \"{0}\" contains an invalid value for \"{0}\"";
 
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";

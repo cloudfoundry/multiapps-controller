@@ -32,7 +32,11 @@
         "MTA_SERVICES": [
           "service-1",
           "service-2"
-        ]
+        ],
+        "MTA_MODULE_METADATA": {
+          "name": "application-1"
+        },
+        "MTA_MODULE_PROVIDED_DEPENDENCIES": []
       }
     },
     {
@@ -47,7 +51,11 @@
         },
         "MTA_SERVICES": [
           "service-1"
-        ]
+        ],
+        "MTA_MODULE_METADATA": {
+          "name": "application-2"
+        },
+        "MTA_MODULE_PROVIDED_DEPENDENCIES": []
       }
     },
     {
@@ -63,7 +71,11 @@
         "MTA_SERVICES": [
           "service-1",
           "service-2"
-        ]
+        ],
+        "MTA_MODULE_METADATA": {
+          "name": "application-3"
+        },
+        "MTA_MODULE_PROVIDED_DEPENDENCIES": []
       }
     },
     {
@@ -78,7 +90,11 @@
         },
         "MTA_SERVICES": [
           "service-3"
-        ]
+        ],
+        "MTA_MODULE_METADATA": {
+          "name": "application-4"
+        },
+        "MTA_MODULE_PROVIDED_DEPENDENCIES": []
       }
     }
   ]

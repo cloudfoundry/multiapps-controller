@@ -27,7 +27,11 @@
           "version": "1.0.0"
         },
         "MTA_SERVICES": [
-        ]
+        ],
+        "MTA_MODULE_METADATA": {
+          "name": "application-1"
+        },
+        "MTA_MODULE_PROVIDED_DEPENDENCIES": []
       }
     },
     {
@@ -41,7 +45,11 @@
           "version": "1.0.0"
         },
         "MTA_SERVICES": [
-        ]
+        ],
+        "MTA_MODULE_METADATA": {
+          "name": "application-2"
+        },
+        "MTA_MODULE_PROVIDED_DEPENDENCIES": []
       }
     }
   ]

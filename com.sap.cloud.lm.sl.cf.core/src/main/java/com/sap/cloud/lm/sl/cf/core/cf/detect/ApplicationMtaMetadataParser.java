@@ -1,8 +1,11 @@
 package com.sap.cloud.lm.sl.cf.core.cf.detect;
 
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.slf4j.Logger;
@@ -25,34 +28,44 @@ public class ApplicationMtaMetadataParser {
         try {
             return attemptToParseAppMetadata(app);
         } catch (ParsingException e) {
-            throw new ParsingException(e, Messages.COULD_NOT_PARSE_MTA_METADATA_FOR_APP_0, app.getName());
+            throw new ParsingException(e, Messages.CANT_PARSE_MTA_METADATA_FOR_APP_0, app.getName());
         }
     }
 
     private static ApplicationMtaMetadata attemptToParseAppMetadata(CloudApplication app) {
         Map<String, String> appEnv = app.getEnvAsMap();
-        DeployedMtaMetadata mtaMetadata = parseMtaMetadata(appEnv);
+        DeployedMtaMetadata mtaMetadata = parseMtaMetadata(app, appEnv);
         List<String> services = parseServices(appEnv);
         List<String> sharedServices = parseSharedServices(appEnv);
-        String moduleName = parseModuleName(appEnv);
+        String moduleName = parseModuleName(app, appEnv);
         List<String> providedDependencyNames = parseProvidedDependencyNames(app.getName(), appEnv);
 
-        if (mtaMetadata == null && services == null && moduleName == null && providedDependencyNames == null) {
+        if (Stream.of(mtaMetadata, services, moduleName, providedDependencyNames, sharedServices)
+            .allMatch(Objects::isNull)) {
             return null;
+        }
+        if (Stream.of(mtaMetadata, services, moduleName, providedDependencyNames)
+            .anyMatch(Objects::isNull)) {
+            throw new ParsingException(Messages.MTA_METADATA_FOR_APP_0_IS_INCOMPLETE, app.getName());
         }
         return new ApplicationMtaMetadata(mtaMetadata, services, sharedServices, moduleName, providedDependencyNames);
     }
 
-    private static DeployedMtaMetadata parseMtaMetadata(Map<String, String> appEnv) {
+    private static DeployedMtaMetadata parseMtaMetadata(CloudApplication app, Map<String, String> appEnv) {
         String envValue = appEnv.get(Constants.ENV_MTA_METADATA);
         if (envValue == null) {
             return null;
         }
-        Map<String, Object> mtaPropsMap = JsonUtil.convertJsonToMap(envValue);
-        String id = (String) mtaPropsMap.get(Constants.ATTR_ID);
-        String versionString = (String) mtaPropsMap.get(Constants.ATTR_VERSION);
-        Version version = Version.parseVersion(versionString);
-        return new DeployedMtaMetadata(id, version);
+        Map<String, Object> mtaMetadata = JsonUtil.convertJsonToMap(envValue);
+        return buildMtaMetadata(app, mtaMetadata);
+    }
+
+    private static DeployedMtaMetadata buildMtaMetadata(CloudApplication app, Map<String, Object> mtaMetadata) {
+        String exceptionMessage = MessageFormat.format(Messages.ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1, app.getName(),
+            Constants.ENV_MTA_METADATA);
+        String id = (String) getRequired(mtaMetadata, Constants.ATTR_ID, exceptionMessage);
+        String version = (String) getRequired(mtaMetadata, Constants.ATTR_VERSION, exceptionMessage);
+        return new DeployedMtaMetadata(id, Version.parseVersion(version));
     }
 
     private static List<String> parseServices(Map<String, String> appEnv) {
@@ -73,13 +86,14 @@ public class ApplicationMtaMetadataParser {
         }.getType());
     }
 
-    private static String parseModuleName(Map<String, String> appEnv) {
+    private static String parseModuleName(CloudApplication app, Map<String, String> appEnv) {
         String envValue = appEnv.get(Constants.ENV_MTA_MODULE_METADATA);
         if (envValue == null) {
             return null;
         }
-        Map<String, Object> mtaPropsMap = JsonUtil.convertJsonToMap(envValue);
-        return (String) mtaPropsMap.get(Constants.ATTR_NAME);
+        Map<String, Object> mtaModuleMetadata = JsonUtil.convertJsonToMap(envValue);
+        return (String) getRequired(mtaModuleMetadata, Constants.ATTR_NAME,
+            MessageFormat.format(Messages.ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1, app.getName(), Constants.ENV_MTA_MODULE_METADATA));
     }
 
     private static List<String> parseProvidedDependencyNames(String appName, Map<String, String> appEnv) {
@@ -92,8 +106,16 @@ public class ApplicationMtaMetadataParser {
             }.getType());
         } catch (ParsingException e) {
             LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PARSE_PROVIDED_DEPENDENCY_NAMES_1_OF_APP_0, appName, envValue), e);
-            return null;
+            return Collections.emptyList();
         }
+    }
+
+    private static <K, V> V getRequired(Map<K, V> map, K key, String exceptionMessage) {
+        V value = map.get(key);
+        if (value == null) {
+            throw new ParsingException(exceptionMessage);
+        }
+        return value;
     }
 
 }
