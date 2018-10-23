@@ -45,6 +45,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
+import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -176,10 +177,28 @@ public class StepsUtil {
         context.setVariable(getModuleContentVariable(moduleName), moduleContent);
     }
 
+    public static ApplicationColor getDeployedMtaColor(DelegateExecution context) {
+        String deployedMtaColor = (String) context.getVariable(Constants.VAR_DEPLOYED_MTA_COLOR);
+        return (deployedMtaColor == null) ? null : ApplicationColor.valueOf(deployedMtaColor);
+    }
+
+    public static void setDeployedMtaColor(DelegateExecution context, ApplicationColor deployedMtaColor) {
+        context.setVariable(Constants.VAR_DEPLOYED_MTA_COLOR, (deployedMtaColor == null) ? null : deployedMtaColor.toString());
+    }
+
+    public static ApplicationColor getMtaColor(DelegateExecution context) {
+        String mtaColor = (String) context.getVariable(Constants.VAR_MTA_COLOR);
+        return (mtaColor == null) ? null : ApplicationColor.valueOf(mtaColor);
+    }
+
+    public static void setMtaColor(DelegateExecution context, ApplicationColor mtaColor) {
+        context.setVariable(Constants.VAR_MTA_COLOR, (mtaColor == null) ? null : mtaColor.toString());
+    }
+
     private static String getModuleContentVariable(String moduleName) {
         return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + moduleName;
     }
-
+    
     private static String getModuleFileNameVariable(String moduleName) {
         return Constants.VAR_MTA_MODULE_FILE_NAME_PREFIX + moduleName;
     }
@@ -667,7 +686,7 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(unresolvedDeploymentDescriptor));
     }
 
-    static void setDeploymentDescriptor(DelegateExecution context, DeploymentDescriptor deploymentDescriptor) {
+    public static void setDeploymentDescriptor(DelegateExecution context, DeploymentDescriptor deploymentDescriptor) {
         context.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(deploymentDescriptor));
     }
 

@@ -34,9 +34,6 @@
 
         <bean id="serviceUpdater" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater" />
 
-        <bean id="blueGreenRenameStep" class="com.sap.cloud.lm.sl.cf.process.steps.BlueGreenRenameStep"
-            scope="prototype" />
-
         <bean id="buildCloudDeployModelStep" class="com.sap.cloud.lm.sl.cf.process.steps.BuildCloudDeployModelStep"
             scope="prototype" />
 

@@ -2,6 +2,11 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.function.Supplier;
 
+import javax.inject.Named;
+
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ApplicationColorAppender;
@@ -12,6 +17,8 @@ import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
+@Named("blueGreenRenameStep")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BlueGreenRenameStep extends SyncActivitiStep {
 
     private static final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
@@ -34,8 +41,6 @@ public class BlueGreenRenameStep extends SyncActivitiStep {
                 if (deployedMtaColor != null) {
                     getStepLogger().info(Messages.DEPLOYED_MTA_COLOR, deployedMtaColor);
                     mtaColor = deployedMtaColor.getAlternativeColor();
-                    execution.getContext()
-                        .setVariable("deployedMtaColor", deployedMtaColor);
                 } else {
                     mtaColor = DEFAULT_MTA_COLOR;
                 }
@@ -47,12 +52,13 @@ public class BlueGreenRenameStep extends SyncActivitiStep {
                 getStepLogger().info(Messages.ASSUMED_LIVE_AND_IDLE_COLORS, liveMtaColor, idleMtaColor);
                 mtaColor = idleMtaColor;
             }
+
+            StepsUtil.setDeployedMtaColor(execution.getContext(), deployedMtaColor);
+            StepsUtil.setMtaColor(execution.getContext(), mtaColor);
+
             getStepLogger().info(Messages.NEW_MTA_COLOR, mtaColor);
 
             visit(execution, descriptor, mtaColor, deployedMtaColor);
-
-            execution.getContext()
-                .setVariable("mtaColor", mtaColor);
 
             return StepPhase.DONE;
         } catch (SLException e) {
