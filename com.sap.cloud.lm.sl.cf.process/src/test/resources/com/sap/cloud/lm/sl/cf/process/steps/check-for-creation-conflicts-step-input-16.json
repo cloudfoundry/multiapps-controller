@@ -28,7 +28,11 @@
         "MTA_SERVICES": [
           "service-1"
         ],
-		"MTA_SHARED_SERVICES": []
+		"MTA_SHARED_SERVICES": [],
+        "MTA_MODULE_METADATA": {
+          "name": "application-1"
+        },
+        "MTA_MODULE_PROVIDED_DEPENDENCIES": []
       }
     }
   ]

@@ -2,42 +2,37 @@
   "mtas": [
     {
       "metadata": {
-        "id": "test-mta-id",
+        "id": "quux",
         "version": "0.1.0"
       },
       "modules": [
         {
-          "moduleName": "mta-application-1",
-          "appName": "namespace.mta-application-1",
-          "services": [
-            "service-1",
-            "service-2",
-            "service-3"
-          ],
+          "moduleName": "mta-module-1",
+          "appName": "mta-application-1",
+          "services": [],
           "providedDependencyNames": [
             "mta-provided-dependency-1",
             "mta-provided-dependency-2"
           ]
         },
         {
-          "moduleName": "mta-application-2",
-          "appName": "namespace.mta-application-2",
+          "moduleName": "mta-module-2",
+          "appName": "mta-application-2",
           "services": [
-            "service-1"
+            "service-1",
+            "service-2"
           ],
           "providedDependencyNames": []
         }
       ],
       "services": [
         "service-1",
-        "service-2",
-        "service-3"
+        "service-2"
       ]
     }
   ],
   "standaloneApps": [
     "standalone-application-1",
-    "standalone-application-2",
-    "standalone-application-3"
+    "standalone-application-2"
   ]
 }

@@ -2,31 +2,37 @@
   "mtas": [
     {
       "metadata": {
-        "id": "com.sap.example.mta",
+        "id": "quux",
         "version": "0.0.0-unknown"
       },
       "modules": [
         {
-          "moduleName": "foo",
-          "appName": "foo-blue",
+          "moduleName": "mta-module",
+          "appName": "mta-application-blue",
           "services": [],
-          "providedDependencyNames": []
+          "providedDependencyNames": [
+            "mta-provided-dependency-1",
+            "mta-provided-dependency-2"
+          ]
         },
         {
-          "moduleName": "bar",
-          "appName": "bar-blue",
-          "services": [],
-          "providedDependencyNames": []
-        },
-        {
-          "moduleName": "foo",
-          "appName": "foo-green",
-          "services": [],
+          "moduleName": "mta-module",
+          "appName": "mta-application-green",
+          "services": [
+            "service-1",
+            "service-2"
+          ],
           "providedDependencyNames": []
         }
       ],
-      "services": []
+      "services": [
+        "service-1",
+        "service-2"
+      ]
     }
   ],
-  "standaloneApps": []
+  "standaloneApps": [
+    "standalone-application-1",
+    "standalone-application-2"
+  ]
 }

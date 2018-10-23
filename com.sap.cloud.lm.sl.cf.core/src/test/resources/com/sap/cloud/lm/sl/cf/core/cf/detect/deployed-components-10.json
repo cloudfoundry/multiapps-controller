@@ -3,17 +3,14 @@
     {
       "metadata": {
         "id": "quux",
-        "version": "0.0.0-unknown"
+        "version": "0.1.0"
       },
       "modules": [
         {
           "moduleName": "mta-module-1",
           "appName": "mta-application-1",
           "services": [],
-          "providedDependencyNames": [
-            "mta-provided-dependency-1",
-            "mta-provided-dependency-2"
-          ]
+          "providedDependencyNames": []
         },
         {
           "moduleName": "mta-module-2",
