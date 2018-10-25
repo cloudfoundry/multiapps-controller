@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -50,6 +51,7 @@ public class FlowableConfiguration {
 
     @Inject
     @Bean
+    @DependsOn ("coreChangelog")
     public ProcessEngine processEngine(ApplicationContext applicationContext, SpringProcessEngineConfiguration processEngineConfiguration)
         throws Exception {
         ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
@@ -60,6 +62,7 @@ public class FlowableConfiguration {
 
     @Inject
     @Bean
+    @DependsOn ("coreChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
         AsyncExecutor jobExecutor, Flowable5CompatibilityHandlerFactory flowable5CompatibilityHandlerFactory) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
@@ -77,6 +80,7 @@ public class FlowableConfiguration {
     }
 
     @Bean
+    @DependsOn ("coreChangelog")
     public Flowable5CompatibilityHandlerFactory flowableCompatibilityFactory() {
         return new SpringFlowable5CompatibilityHandlerFactory();
     }
