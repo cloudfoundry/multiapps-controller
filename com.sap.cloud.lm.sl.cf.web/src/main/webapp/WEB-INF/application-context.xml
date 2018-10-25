@@ -49,14 +49,37 @@
 
         <bean id="spaceGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter" />
 
-        <bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+        <bean id="customMetricsJmxExporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
             <property name="beans">
                 <map>
-                    <entry key="com.sap.cloud.lm.sl.cf.web.monitoring:type=Metrics,name=MetricsMBean" value-ref="metricsBean" />
+                     <entry key="com.sap.cloud.lm.sl.cf.web.monitoring:type=Metrics,name=MetricsMBean" value-ref="metricsBean" />
                 </map>
             </property>
         </bean>
-
+        
         <bean id="metricsBean" class="com.sap.cloud.lm.sl.cf.web.monitoring.Metrics"/>
+        
+        <bean id="jdbcPoolJmxExporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+            <property name="beans">
+                <map>
+                 <entry key="dataSource:name=DataSource" value-ref="dataSource" />
+                </map>
+            </property>
+            <property name="assembler">
+                <bean class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
+                    <property name="managedMethods">
+                       <list>
+                           <value>getNumActive</value>
+                           <value>getMaxActive</value>
+                           <value>getNumIdle</value>
+                           <value>getMaxIdle</value>
+                           <value>getMaxWait</value>
+                           <value>getInitialSize</value>
+                       </list>
+                   </property>
+                  </bean>
+            </property>
+        </bean>
+        
     </beans>
 </beans>
