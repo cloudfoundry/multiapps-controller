@@ -8,7 +8,6 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.DeployTargetFactory;
@@ -41,7 +40,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-v2.json"), } },
             // (01)
@@ -51,7 +49,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/xs2-services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/xs2-apps-v2.json"), } },
             // (02) Full MTA with namespaces:
@@ -61,7 +58,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-ns.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-ns-v2.json"), } },
             // (03) Full MTA with namespaces (w/o services):
@@ -71,7 +67,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-ns2-v2.json"), } },
             // (04) Patch MTA (resolved inter-module dependencies):
@@ -81,7 +76,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch1.json"), } },
             // (05) Patch MTA with namespaces (resolved inter-module dependencies):
@@ -91,7 +85,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1-ns.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch1-ns.json"), } },
             // (06) Patch MTA (unresolved inter-module dependencies):
@@ -101,7 +94,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", }, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1.json"),
                     new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-db, java-hello-world-backend]") } },
             // (07)
@@ -111,7 +103,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/shine/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/shine/apps-v2.json"), } },
             // (08)
@@ -121,7 +112,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[bestprice.sap.com]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/sample/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/sample/apps-v2.json"), } },
             // (09)
@@ -131,7 +121,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/apps.json"), } },
             // (10)
@@ -141,7 +130,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps.json"), } },
             // (11)
@@ -151,7 +139,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/apps-v2.json"), } },
             // (12)
@@ -161,7 +148,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps-v2.json"), } },
             // (13)
@@ -171,7 +157,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps.json"), } },
             // (14) Unknown typed resource parameters:
@@ -181,7 +166,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-services.json"),
                     new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps-v2.json"), } },
             // (15) Service binding parameters in requires dependency:
@@ -191,7 +175,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-01.json"), } },
             // (16) Service binding parameters in requires dependency:
@@ -201,7 +184,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "foo", }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"), // domains
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.EXCEPTION, "Invalid type for key \"foo#bar#config\", expected \"Map\" but got \"String\""), } },
             // (17) Custom application names are used:
@@ -212,7 +194,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"),
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-02.json"), }
             },
@@ -225,7 +206,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {}, // deployedApps
                 new Expectation[] {
                     new Expectation("[]"),
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-03.json"), }
             },
             // (19) Temporary URIs are used:
@@ -236,7 +216,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"),
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-05.json"), }
             },
@@ -249,7 +228,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {}, // deployedApps
                 new Expectation[] {
                     new Expectation("[]"),
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-06.json"), }
             },
             // (21) Use partial plugin:
@@ -261,7 +239,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {}, // deployedApps
                 new Expectation[] {
                     new Expectation("[]"),
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-07.json"), }
             },
             // (22) Overwrite service-name resource property in ext. descriptor:
@@ -272,7 +249,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "module-1" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "services-03.json"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-08.json"), }
             },
@@ -285,7 +261,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {}, // deployedApps
                 new Expectation[] {
                     new Expectation("[]"),
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-09.json"), }
             },
             // (24) With 'health-check-type' set to 'port':
@@ -296,7 +271,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"),
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-port.json"), }
             },
@@ -309,7 +283,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {}, // deployedApps
                 new Expectation[] {
                     new Expectation("[]"),
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-http-with-endpoint.json"), }
             },
             // (26) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
@@ -320,7 +293,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"),
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-http-without-endpoint.json"), }
             },
@@ -333,7 +305,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {}, // deployedApps
                 new Expectation[] {
                     new Expectation("[]"),
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-10.json"), }
             },
             // (28) With 'enable-ssh' set to true: 
@@ -344,7 +315,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"),
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-ssh-enabled-true.json"), }
             },
@@ -357,7 +327,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {}, // deployedApps
                 new Expectation[] {
                     new Expectation("[]"),
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-ssh-enabled-false.json"), }
             },
             // (30) With TCPS routes
@@ -368,7 +337,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "module-1", "module-2", "module-3" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[test-domain, test-domain-2]"),
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-tcp-routes.json"), }
             },
@@ -379,9 +347,8 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[bestprice.sap.com]"), // domains
                     new Expectation(Expectation.Type.RESOURCE, "/mta/sample/services-shared.json"),
-                    new Expectation(Expectation.Type.RESOURCE, "/mta/sample/apps-v2-shared.json"), } 
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/sample/apps-v2-shared.json"), }
             },
             // (32) Do not restart on env change - bg-deploy
             { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
@@ -390,7 +357,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "module-1", "module-2", "module-3" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"),
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "apps-with-restart-parameters-false.json") // services
                 }
@@ -404,7 +370,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {}, // deployedApps
                 new Expectation[] {
                     new Expectation("[]"),
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps.json"), }
             },
             // (35) With 'keep-existing-routes' set to true and no deployed module:
@@ -416,7 +381,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"),
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps.json"), }
             },
@@ -430,7 +394,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {}, // deployedApps
                 new Expectation[] {
                     new Expectation("[]"),
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps.json"), }
             },
             // (37) With 'keep-existing-routes' set to true and an already deployed module:
@@ -442,7 +405,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation[] {
-                    new Expectation("[]"),
                     new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps-with-existing-routes.json"), }
             },
@@ -456,9 +418,41 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] {}, // deployedApps
                 new Expectation[] {
                     new Expectation("[]"),
-                    new Expectation("[]"),
                     new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps-with-existing-routes.json"), }
             },
+            // (39) With new parameter - 'route'
+            {
+                "mtad-12.yaml", "config-01.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
+                false, false,
+                new String[] { "foo", }, // mtaArchiveModules
+                new String[] { "foo", }, // mtaModules
+                new String[] {}, // deployedApps
+                new Expectation[] {
+                    new Expectation("[]"), //services
+                    new Expectation(Expectation.Type.RESOURCE, "apps-12.json"),  //applications
+             } },
+            // (40) With new parameter - 'routes'
+            {
+                "mtad-13.yaml", "config-01.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
+                false, false,
+                new String[] { "foo", }, // mtaArchiveModules
+                new String[] { "foo", }, // mtaModules
+                new String[] {}, // deployedApps
+                new Expectation[] {
+                    new Expectation("[]"), //services
+                    new Expectation(Expectation.Type.RESOURCE, "apps-13.json"),  //applications
+             } },
+            // (41) With parameter - 'route', using tcp
+            {
+                "mtad-14.yaml", "config-01.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
+                false, false,
+                new String[] { "foo", }, // mtaArchiveModules
+                new String[] { "foo", }, // mtaModules
+                new String[] {}, // deployedApps
+                new Expectation[] {
+                    new Expectation("[]"), //services
+                    new Expectation(Expectation.Type.RESOURCE, "apps-14.json"),  //applications
+             } },
 // @formatter:on
         });
     }
@@ -506,13 +500,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
         return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder(
             (com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor, configuration, deployedMta, systemParameters,
             xsPlaceholderResolver, DEPLOY_ID);
-    }
-
-    @Override
-    protected DomainsCloudModelBuilder getDomainsBuilder(DeploymentDescriptor deploymentDescriptor, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver) {
-        return new com.sap.cloud.lm.sl.cf.core.cf.v2.DomainsCloudModelBuilder(systemParameters, xsPlaceholderResolver,
-            (com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor);
     }
 
     @Override

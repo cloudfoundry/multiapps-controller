@@ -30,6 +30,9 @@ public final class Messages {
     public static final String UNKNOWN_PLATFORM = "Unknown platform \"{0}\" for target \"{1}\"";
     public static final String COULD_NOT_CREATE_VALID_DOMAIN = "Could not create a valid domain from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_HOST = "Could not create a valid host from \"{0}\"";
+    public static final String COULD_NOT_CREATE_VALID_PORT = "Could not create a valid port from \"{0}\"";
+    public static final String COULD_NOT_CREATE_VALID_ROUTE = "Could not create a valid route from \"{0}\"";
+    public static final String COULD_NOT_CREATE_VALID_ROUTE_NESTED_EXCEPTION = "Invalid route \"{0}\" : {1}";
     public static final String COULD_NOT_CREATE_VALID_VISIBILITY_PARAMETER = "Could not create a valid visibility parameter from \"{0}\"";
     public static final String CANNOT_CORRECT_PARAMETER = "Value for parameter \"{0}\" is not valid and cannot be corrected";
     public static final String DEPLOY_TARGET_ALREADY_EXISTS = "Deploy target with name \"{0}\" already exists";
