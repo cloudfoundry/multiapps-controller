@@ -9,19 +9,13 @@ import com.google.gson.stream.JsonWriter;
 public class ProcessTypeJsonAdapter extends TypeAdapter<ProcessType> {
 
     @Override
-    public void write(JsonWriter out, ProcessType type) throws IOException {
-        if (type == null) {
-            out.nullValue();
-        } else {
-            out.value(type.toString());
-        }
+    public ProcessType read(JsonReader in) throws IOException {
+        return ProcessType.fromString(in.nextString());
     }
 
     @Override
-    public ProcessType read(JsonReader in) throws IOException {
-        if (!in.hasNext()) {
-            return null;
-        }
-        return ProcessType.fromString(in.nextString());
+    public void write(JsonWriter out, ProcessType type) throws IOException {
+        out.value(type.toString());
     }
+
 }

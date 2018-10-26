@@ -10,20 +10,13 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 public class VersionJsonAdapter extends TypeAdapter<Version> {
 
     @Override
-    public void write(JsonWriter out, Version version) throws IOException {
-        if (version == null) {
-            out.nullValue();
-        } else {
-            out.value(version.toString());
-        }
+    public Version read(JsonReader in) throws IOException {
+        return Version.parseVersion(in.nextString());
     }
 
     @Override
-    public Version read(JsonReader in) throws IOException {
-        if (!in.hasNext()) {
-            return null;
-        }
-        return Version.parseVersion(in.nextString());
+    public void write(JsonWriter out, Version version) throws IOException {
+        out.value(version.toString());
     }
 
 }
