@@ -73,19 +73,16 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
     }
 
     private ActionCalculator getActionsCalculator(DelegateExecution context) {
-        boolean hasAppChanged = determineHasAppChanged(context);
-        boolean shouldRestartOnEnvChange = determineAppRestart(context);
-        return hasAppChanged || shouldRestartOnEnvChange ? new ChangedApplicationActionCalcultor()
-            : new UnchangedApplicationActionCalculator();
-    }
-
-    protected boolean determineHasAppChanged(DelegateExecution context) {
-        String appContentChangedString = StepsUtil.getVariableOrDefault(context, Constants.VAR_APP_CONTENT_CHANGED,
-            Boolean.toString(false));
-        return Boolean.valueOf(appContentChangedString);
+        boolean shouldRestartApp = determineAppRestart(context);
+        return shouldRestartApp ? new ChangedApplicationActionCalcultor() : new UnchangedApplicationActionCalculator();
     }
 
     private boolean determineAppRestart(DelegateExecution context) {
+        String appContentChangedString = StepsUtil.getVariableOrDefault(context, Constants.VAR_APP_CONTENT_CHANGED,
+            Boolean.toString(false));
+        if (Boolean.valueOf(appContentChangedString)) {
+            return true;
+        }
         boolean appPropertiesChanged = StepsUtil.getVcapAppPropertiesChanged(context);
         boolean servicesPropertiesChanged = StepsUtil.getVcapServicesPropertiesChanged(context);
         boolean userPropertiesChanged = StepsUtil.getUserPropertiesChanged(context);
