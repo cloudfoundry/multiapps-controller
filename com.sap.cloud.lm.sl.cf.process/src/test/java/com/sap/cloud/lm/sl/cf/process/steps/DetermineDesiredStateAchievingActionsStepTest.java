@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -148,7 +147,7 @@ public class DetermineDesiredStateAchievingActionsStepTest extends SyncActivitiS
 
     @Before
     public void setUp() {
-        context.setVariable(Constants.VAR_HAS_APP_CHANGED, Boolean.toString(hasAppChanged));
+        context.setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(hasAppChanged));
         context.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, hasAppPropertiesChanged);
         context.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, hasServicesPropertiesChanged);
         context.setVariable(Constants.VAR_USER_PROPERTIES_CHANGED, hasUserPropertiesChanged);
@@ -172,14 +171,7 @@ public class DetermineDesiredStateAchievingActionsStepTest extends SyncActivitiS
 
     @Override
     protected DetermineDesiredStateAchievingActionsStep createStep() {
-        return new DetermineDesiredStateAchievingActionsStepMock();
-    }
-
-    private class DetermineDesiredStateAchievingActionsStepMock extends DetermineDesiredStateAchievingActionsStep {
-        @Override
-        protected boolean determineHasAppChanged(DelegateExecution context) {
-            return hasAppChanged;
-        }
+        return new DetermineDesiredStateAchievingActionsStep();
     }
 
 }
