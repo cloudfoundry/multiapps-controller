@@ -9,9 +9,9 @@
       "sofd60245639a"
     ],
     "restartParameters": {
-      "vcap-services": true,
-      "user-provided": true,
-      "vcap-application": false
+      "shouldRestartOnVcapAppChange": false,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
     },
     "diskQuota": 0,
     "env": [
@@ -43,9 +43,9 @@
       "sofd60245639a"
     ],
     "restartParameters": {
-      "vcap-services": true,
-      "user-provided": true,
-      "vcap-application": true
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
     },
     "diskQuota": 0,
     "env": [
@@ -77,9 +77,9 @@
       "sofd60245639a"
     ],
     "restartParameters": {
-      "vcap-services": false,
-      "user-provided": false,
-      "vcap-application": false
+      "shouldRestartOnVcapAppChange": false,
+      "shouldRestartOnVcapServicesChange": false,
+      "shouldRestartOnUserProvidedChange": false
     },
     "diskQuota": 0,
     "env": [
