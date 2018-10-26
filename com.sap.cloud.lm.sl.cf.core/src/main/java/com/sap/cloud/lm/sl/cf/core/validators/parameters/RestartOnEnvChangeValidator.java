@@ -9,21 +9,21 @@ import com.sap.cloud.lm.sl.mta.model.v1.Module;
 public class RestartOnEnvChangeValidator implements ParameterValidator {
 
     @Override
-    public boolean isValid(Object restartConfigs) {
-        if (!(restartConfigs instanceof Map)) {
+    public boolean isValid(Object restartParameters) {
+        if (!(restartParameters instanceof Map)) {
             return false;
         }
-        Map<String, Object> configs = CommonUtil.cast(restartConfigs);
-        if (configs.containsKey(SupportedParameters.VCAP_APPLICATION_ENV)
-            && !isValidBooleanParameter(configs.get(SupportedParameters.VCAP_APPLICATION_ENV))) {
+        Map<String, Object> parameters = CommonUtil.cast(restartParameters);
+        if (parameters.containsKey(SupportedParameters.VCAP_APPLICATION_ENV)
+            && !isValidBooleanParameter(parameters.get(SupportedParameters.VCAP_APPLICATION_ENV))) {
             return false;
         }
-        if (configs.containsKey(SupportedParameters.VCAP_SERVICES_ENV)
-            && !isValidBooleanParameter(configs.get(SupportedParameters.VCAP_SERVICES_ENV))) {
+        if (parameters.containsKey(SupportedParameters.VCAP_SERVICES_ENV)
+            && !isValidBooleanParameter(parameters.get(SupportedParameters.VCAP_SERVICES_ENV))) {
             return false;
         }
-        if (configs.containsKey(SupportedParameters.USER_PROVIDED_ENV)
-            && !isValidBooleanParameter(configs.get(SupportedParameters.USER_PROVIDED_ENV))) {
+        if (parameters.containsKey(SupportedParameters.USER_PROVIDED_ENV)
+            && !isValidBooleanParameter(parameters.get(SupportedParameters.USER_PROVIDED_ENV))) {
             return false;
         }
         return true;

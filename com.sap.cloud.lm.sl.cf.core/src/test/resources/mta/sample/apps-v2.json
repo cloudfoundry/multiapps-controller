@@ -9,9 +9,9 @@
       "cfapps.neo.ondemand.com"
     ],
     "restartParameters": {
-      "vcap-services": true,
-      "user-provided": true,
-      "vcap-application": true
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
     },
     "diskQuota": 0,
     "env": [
@@ -46,9 +46,9 @@
       "bestprice.sap.com"
     ],
     "restartParameters": {
-      "vcap-services": true,
-      "user-provided": true,
-      "vcap-application": true
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
     },
     "diskQuota": 0,
     "env": [
@@ -89,9 +89,9 @@
       "bestprice.sap.com"
     ],
     "restartParameters": {
-      "vcap-services": true,
-      "user-provided": true,
-      "vcap-application": true
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
     },
     "diskQuota": 0,
     "env": [

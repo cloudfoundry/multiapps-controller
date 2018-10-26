@@ -7,10 +7,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.flowable.engine.delegate.DelegateExecution;
@@ -22,10 +20,10 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.RestartParameters;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupState;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupStateCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
-import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -128,7 +126,7 @@ public class DetermineDesiredStateAchievingActionsStepTest extends SyncActivitiS
     private final boolean hasUserPropertiesChanged;
     private final Set<ApplicationStateAction> expectedAppStateActions;
 
-    private Map<String, Boolean> appRestartParameters;
+    private RestartParameters appRestartParameters;
 
     @Mock
     private ApplicationStartupStateCalculator appStateCalculator;
@@ -138,21 +136,14 @@ public class DetermineDesiredStateAchievingActionsStepTest extends SyncActivitiS
         boolean hasAppChanged, boolean hasAppPropertiesChanged, boolean hasServicesPropertiesChanged, boolean hasUserPropertiesChanged,
         Set<ApplicationStateAction> expectedAppStateActions) {
         this.currentAppState = currentAppState;
-        initRestartParametersMap(shouldRestartOnVcapAppChange, shouldRestartOnVcapServicesChange, shouldRestartOnUserProvidedChange);
+        this.appRestartParameters = new RestartParameters(shouldRestartOnVcapAppChange, shouldRestartOnVcapServicesChange,
+            shouldRestartOnUserProvidedChange);
         this.desiredAppState = desiredAppState;
         this.hasAppChanged = hasAppChanged;
         this.hasAppPropertiesChanged = hasAppPropertiesChanged;
         this.hasServicesPropertiesChanged = hasServicesPropertiesChanged;
         this.hasUserPropertiesChanged = hasUserPropertiesChanged;
         this.expectedAppStateActions = expectedAppStateActions;
-    }
-
-    private void initRestartParametersMap(boolean shouldRestartOnVcapAppChange, boolean shouldRestartOnVcapServicesChange,
-        boolean shouldRestartOnUserProvidedChange) {
-        appRestartParameters = new HashMap<>();
-        appRestartParameters.put(SupportedParameters.VCAP_APPLICATION_ENV, shouldRestartOnVcapAppChange);
-        appRestartParameters.put(SupportedParameters.VCAP_SERVICES_ENV, shouldRestartOnVcapServicesChange);
-        appRestartParameters.put(SupportedParameters.USER_PROVIDED_ENV, shouldRestartOnUserProvidedChange);
     }
 
     @Before

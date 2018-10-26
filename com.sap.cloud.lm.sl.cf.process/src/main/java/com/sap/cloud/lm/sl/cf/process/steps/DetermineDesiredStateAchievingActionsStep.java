@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -14,13 +13,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.RestartParameters;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ActionCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupState;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupStateCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ChangedApplicationActionCalcultor;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.UnchangedApplicationActionCalculator;
-import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -92,15 +91,15 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncActivitiStep 
         boolean userPropertiesChanged = StepsUtil.getUserPropertiesChanged(context);
 
         CloudApplicationExtended app = StepsUtil.getApp(context);
-        Map<String, Boolean> appRestartParameters = app.getRestartParameters();
+        RestartParameters restartParameters = app.getRestartParameters();
 
-        if (appRestartParameters.get(SupportedParameters.VCAP_APPLICATION_ENV) && appPropertiesChanged) {
+        if (restartParameters.getShouldRestartOnVcapAppChange() && appPropertiesChanged) {
             return true;
         }
-        if (appRestartParameters.get(SupportedParameters.VCAP_SERVICES_ENV) && servicesPropertiesChanged) {
+        if (restartParameters.getShouldRestartOnVcapServicesChange() && servicesPropertiesChanged) {
             return true;
         }
-        if (appRestartParameters.get(SupportedParameters.USER_PROVIDED_ENV) && userPropertiesChanged) {
+        if (restartParameters.getShouldRestartOnUserProvidedChange() && userPropertiesChanged) {
             return true;
         }
         return false;
