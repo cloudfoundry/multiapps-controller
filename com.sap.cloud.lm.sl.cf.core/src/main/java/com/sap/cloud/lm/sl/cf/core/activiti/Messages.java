@@ -7,6 +7,7 @@ public class Messages {
     public static final String ABORT_OPERATION_TIMED_OUT = "Abort operation timed out";
     public static final String ACTIVITI_JOB_RETRY_FAILED = "Activiti job retry failed";
     public static final String PROCESS_STEP_NOT_REACHED_BEFORE_TIMEOUT = "Step \"{0}\" of process \"{1}\" not reached before timeout";
+    public static final String NO_VALUE_GIVEN_FOR_REQUIRED_PARAMETERS = "No value given for one or more required parameters";
 
     // Warn messages
 
