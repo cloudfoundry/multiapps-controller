@@ -10,6 +10,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.Staging;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -110,7 +111,7 @@ public class ApplicationsCloudModelBuilder {
             }
 
             if (allMtaModules.contains(module.getName())) {
-                ListUtil.addNonNull(apps, getApplication(module));
+                CollectionUtils.addIgnoreNull(apps, getApplication(module));
                 unresolvedMtaModules.remove(module.getName());
             } else {
                 throw new ContentException(Messages.ARCHIVE_MODULE_NOT_INTENDED_FOR_DEPLOYMENT, module.getName());
@@ -193,7 +194,7 @@ public class ApplicationsCloudModelBuilder {
         for (String dependencyName : module.getRequiredDependencies1()) {
             ResourceAndResourceType resourceAndResourceType = getApplicationService(dependencyName);
             if (resourceAndResourceType != null && filterRule.test(resourceAndResourceType)) {
-                ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(resourceAndResourceType.getResource(),
+                CollectionUtils.addIgnoreNull(services, cloudServiceNameMapper.mapServiceName(resourceAndResourceType.getResource(),
                     resourceAndResourceType.getResourceType()));
             }
         }
@@ -234,7 +235,7 @@ public class ApplicationsCloudModelBuilder {
         List<ServiceKeyToInject> serviceKeysToInject = new ArrayList<>();
         for (String dependencyName : module.getRequiredDependencies1()) {
             ServiceKeyToInject serviceKeyToInject = getServiceKeyToInject(dependencyName);
-            ListUtil.addNonNull(serviceKeysToInject, serviceKeyToInject);
+            CollectionUtils.addIgnoreNull(serviceKeysToInject, serviceKeyToInject);
         }
         return serviceKeysToInject;
     }

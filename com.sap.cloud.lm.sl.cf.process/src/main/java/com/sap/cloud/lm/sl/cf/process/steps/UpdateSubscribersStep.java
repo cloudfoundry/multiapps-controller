@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static com.sap.cloud.lm.sl.common.util.JsonUtil.convertJsonToList;
 import static com.sap.cloud.lm.sl.common.util.JsonUtil.convertJsonToMap;
 import static com.sap.cloud.lm.sl.common.util.JsonUtil.toJson;
-import static com.sap.cloud.lm.sl.common.util.ListUtil.merge;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -111,7 +111,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
             List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(),
                 activitiFacade);
             List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(execution.getContext(), activitiFacade);
-            List<ConfigurationEntry> updatedEntries = merge(publishedEntries, deletedEntries);
+            List<ConfigurationEntry> updatedEntries = ListUtils.union(publishedEntries, deletedEntries);
 
             CloudControllerClient clientForCurrentSpace = execution.getControllerClient();
 

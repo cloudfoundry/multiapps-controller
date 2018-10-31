@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -20,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 
 @Component("deleteDiscontinuedConfigurationEntriesForAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -79,7 +79,7 @@ public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivi
          * during redeploy (update) of the MTA that provided them.
          */
         List<ConfigurationEntry> entriesWithOldTargetFormat = getEntries(mtaId, mtaVersion, oldTarget);
-        List<ConfigurationEntry> allEntriesForCurrentMta = ListUtil.merge(entriesWithNewTargetFormat, entriesWithOldTargetFormat);
+        List<ConfigurationEntry> allEntriesForCurrentMta = ListUtils.union(entriesWithNewTargetFormat, entriesWithOldTargetFormat);
         List<ConfigurationEntry> entriesForCurrentModule = getConfigurationEntriesWithProviderIds(allEntriesForCurrentMta,
             getProviderIds(mtaId, providedDependencyNames));
         return getEntriesNotUpdatedByThisProcess(entriesForCurrentModule, publishedEntries);

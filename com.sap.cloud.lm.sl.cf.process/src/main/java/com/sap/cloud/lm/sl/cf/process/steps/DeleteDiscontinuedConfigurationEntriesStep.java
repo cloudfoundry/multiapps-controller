@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 
 @Component("deleteDiscontinuedConfigurationEntriesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -71,7 +71,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
          * during redeploy (update) of the MTA that provided them.
          */
         List<ConfigurationEntry> entriesWithOldTargetFormat = getEntriesToDelete(mtaId, oldTarget, publishedEntries);
-        return ListUtil.merge(entriesWithNewTargetFormat, entriesWithOldTargetFormat);
+        return ListUtils.union(entriesWithNewTargetFormat, entriesWithOldTargetFormat);
     }
 
     private List<ConfigurationEntry> getEntriesToDelete(String mtaId, CloudTarget target, List<ConfigurationEntry> publishedEntries) {
