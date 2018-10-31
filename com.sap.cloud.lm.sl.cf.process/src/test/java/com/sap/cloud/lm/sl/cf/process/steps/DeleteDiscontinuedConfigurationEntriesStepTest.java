@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +25,6 @@ import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -122,8 +122,8 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncActiviti
 
     private List<ConfigurationEntry> getEntriesToDelete() {
         List<ConfigurationEntry> result = new ArrayList<>();
-        for (Long id : (stepInput.idsOfExpectedEntriesToDelete)) {
-            ListUtil.addNonNull(result, findEntry(stepInput.allEntriesForMtaWithNewTarget, id));
+        for (Long id : stepInput.idsOfExpectedEntriesToDelete) {
+            CollectionUtils.addIgnoreNull(result, findEntry(stepInput.allEntriesForMtaWithNewTarget, id));
         }
         return result;
     }

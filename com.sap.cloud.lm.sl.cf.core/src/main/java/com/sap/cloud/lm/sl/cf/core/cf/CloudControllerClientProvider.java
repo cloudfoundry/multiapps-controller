@@ -4,15 +4,16 @@ import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.Map;
 
-import org.apache.commons.collections.map.ReferenceMap;
-import org.cloudfoundry.client.lib.CloudOperationException;
+import org.apache.commons.collections4.map.ReferenceMap;
+import org.apache.commons.collections4.map.AbstractReferenceMap.ReferenceStrength;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.TokenProvider;
+import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.service.TokenService;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorFactory;
@@ -34,9 +35,8 @@ public class CloudControllerClientProvider {
 
     // Cached clients. These are stored in memory-sensitive cache, i.e. no OutOfMemory error would
     // occur before GC tries to release the not-used clients.
-    @SuppressWarnings("unchecked")
     private Map<String, Pair<CloudControllerClient, TokenProvider>> clients = Collections
-        .synchronizedMap(new ReferenceMap(ReferenceMap.HARD, ReferenceMap.SOFT));
+        .synchronizedMap(new ReferenceMap<>(ReferenceStrength.HARD, ReferenceStrength.SOFT));
 
     public CloudControllerClient getControllerClient(String userName, String org, String space, String processId) {
         Pair<CloudControllerClient, TokenProvider> client = retrieveClientForToken(userName, org, space, processId);

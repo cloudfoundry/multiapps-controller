@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,7 +193,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         for (RequiredDependency dependency : module.getRequiredDependencies2()) {
             ResourceAndResourceType pair = getApplicationService(dependency.getName());
             if (pair != null && filterRule.test(pair)) {
-                ListUtil.addNonNull(services, cloudServiceNameMapper.mapServiceName(pair.getResource(), pair.getResourceType()));
+                CollectionUtils.addIgnoreNull(services, cloudServiceNameMapper.mapServiceName(pair.getResource(), pair.getResourceType()));
             }
         }
         return ListUtil.removeDuplicates(services);
@@ -217,7 +218,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         List<ServiceKeyToInject> serviceKeysToInject = new ArrayList<>();
         for (RequiredDependency dependency : module.getRequiredDependencies2()) {
             ServiceKeyToInject serviceKey = getServiceKeyToInject(dependency);
-            ListUtil.addNonNull(serviceKeysToInject, serviceKey);
+            CollectionUtils.addIgnoreNull(serviceKeysToInject, serviceKey);
         }
         return serviceKeysToInject;
     }

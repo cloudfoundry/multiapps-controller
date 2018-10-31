@@ -5,12 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.resolvers.v2.PartialDescriptorReferenceResolver;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
@@ -33,7 +34,8 @@ public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.cor
         for (com.sap.cloud.lm.sl.mta.model.v2.Module module : descriptor.getModules2()) {
             for (RequiredDependency dependency : module.getRequiredDependencies2()) {
                 if (shouldCreateSubscription(dependency)) {
-                    ListUtil.addNonNull(result, createSubscription(spaceId, descriptor.getId(), module, dependency, resolvedResources));
+                    CollectionUtils.addIgnoreNull(result,
+                        createSubscription(spaceId, descriptor.getId(), module, dependency, resolvedResources));
                 }
             }
         }

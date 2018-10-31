@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,6 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Resource;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
@@ -52,7 +52,7 @@ public class ServicesCloudModelBuilder {
         List<CloudServiceExtended> services = new ArrayList<>();
         for (Resource resource : deploymentDescriptor.getResources1()) {
             if (isService(resource, propertiesAccessor)) {
-                ListUtil.addNonNull(services, getService(resource));
+                CollectionUtils.addIgnoreNull(services, getService(resource));
             }
         }
         return services;

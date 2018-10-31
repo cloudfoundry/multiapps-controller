@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
@@ -15,7 +17,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.Resource;
 import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
@@ -68,7 +69,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         for (RequiredDependency dependency : module.getRequiredDependencies3()) {
             ServiceKeyToInject serviceKey = getServiceKeyToInject(dependency);
             if(isActiveServiceKey(serviceKey)) {
-                ListUtil.addNonNull(serviceKeysToInject, serviceKey);
+                CollectionUtils.addIgnoreNull(serviceKeysToInject, serviceKey);
             }
         }
         return serviceKeysToInject;
