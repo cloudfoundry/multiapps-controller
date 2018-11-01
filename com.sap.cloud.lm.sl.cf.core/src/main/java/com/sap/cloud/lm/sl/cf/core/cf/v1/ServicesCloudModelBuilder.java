@@ -18,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.SpecialResourceTypesRequiredParametersUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
@@ -42,9 +43,7 @@ public class ServicesCloudModelBuilder {
 
     public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
         CloudModelConfiguration configuration, UserMessageLogger userMessageLogger) {
-        this.propertiesAccessor = propertiesAccessor;
-        this.deploymentDescriptor = deploymentDescriptor;
-        this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
+        this(deploymentDescriptor, propertiesAccessor, configuration);
         this.userMessageLogger = userMessageLogger;
     }
 
@@ -90,6 +89,7 @@ public class ServicesCloudModelBuilder {
     @SuppressWarnings("unchecked")
     protected CloudServiceExtended createManagedService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors,
         Map<String, Object> parameters) {
+        SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(ResourceType.MANAGED_SERVICE, parameters);
         String label = (String) parameters.get(SupportedParameters.SERVICE);
         List<String> alternativeLabels = (List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
             Collections.emptyList());
@@ -106,6 +106,7 @@ public class ServicesCloudModelBuilder {
 
     protected CloudServiceExtended createUserProvidedService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors,
         Map<String, Object> parameters) {
+        SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(ResourceType.USER_PROVIDED_SERVICE, parameters);
         Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
         boolean isShared = (boolean) parameters.getOrDefault(SupportedParameters.SHARED, false);
         String label = (String) parameters.get(SupportedParameters.SERVICE);
