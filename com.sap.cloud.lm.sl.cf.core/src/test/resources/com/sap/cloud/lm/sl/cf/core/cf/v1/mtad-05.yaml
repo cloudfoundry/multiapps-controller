@@ -23,12 +23,16 @@ resources:
     type: org.cloudfoundry.user-provided-service
     properties:
       service-name:
+      config:
   - name: user-provided-service
     type: org.cloudfoundry.user-provided-service
     properties:
       service-name:
+      config:
   - name: user-provider-resource-named-service
     type: org.cloudfoundry.user-provided-service
+    properties:
+      config:
   - name: rs
     type: com.sap.xs.uaa-space
     properties:

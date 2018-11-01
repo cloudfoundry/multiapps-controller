@@ -60,12 +60,6 @@ public class ApplicationsCloudModelBuilder {
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
-        this(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, null);
-    }
-
-    public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
-        UserMessageLogger userMessageLogger) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.propertiesChainBuilder = createPropertiesChainBuilder(deploymentDescriptor);
@@ -79,6 +73,12 @@ public class ApplicationsCloudModelBuilder {
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployedMta = deployedMta;
+    }
+
+    public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
+        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
+        UserMessageLogger userMessageLogger) {
+        this(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId);
         this.userMessageLogger = userMessageLogger;
     }
 
