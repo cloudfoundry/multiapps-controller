@@ -169,7 +169,8 @@ public class Messages {
     public static final String ERROR_DURING_CLEAN_UP_0 = "Error during clean-up: {0}";
     public static final String COULD_NOT_DELETE_HISTORIC_PROCESS_0 = "Could not delete historic process \"{0}\"";
     public static final String COULD_NOT_ABORT_OPERATION_0 = "Could not abort operation \"{0}\"";
-
+    public static final String DETECTED_LEFTOVER_SERVICES = "Detected leftover services after undeploying application";
+    
     // INFO log messages
     public static final String MTA_NOT_FOUND = "An MTA with id \"{0}\" does not exist";
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";

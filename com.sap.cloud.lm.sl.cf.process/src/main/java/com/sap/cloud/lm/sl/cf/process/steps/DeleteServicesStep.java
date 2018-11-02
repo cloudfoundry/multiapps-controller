@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -34,9 +35,14 @@ public class DeleteServicesStep extends SyncActivitiStep {
 
             CloudControllerClient client = execution.getControllerClient();
 
+            boolean deleteServicesFlag = (boolean) execution.getContext()
+                .getVariable(Constants.PARAM_DELETE_SERVICES);
             List<String> servicesToDelete = StepsUtil.getServicesToDelete(execution.getContext());
+            if (!deleteServicesFlag) {
+                getStepLogger().warn(Messages.LEFTOVER_SERVICES);
+                return StepPhase.DONE;
+            }
             deleteServices(client, servicesToDelete);
-
             getStepLogger().debug(Messages.SERVICES_DELETED);
             return StepPhase.DONE;
         } catch (SLException e) {
