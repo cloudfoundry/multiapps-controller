@@ -9,9 +9,11 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
+import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
+import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -63,15 +65,33 @@ public class DeleteServicesStep extends SyncActivitiStep {
 
     private void attemptToDeleteService(CloudControllerClient client, CloudServiceInstance serviceInstance, String serviceName) {
         List<CloudServiceBinding> bindings = serviceInstance.getBindings();
+        List<CloudApplication> applications = client.getApplications();
+
         if (!CollectionUtils.isEmpty(bindings)) {
             logBindings(bindings);
-            getStepLogger().info(Messages.SERVICE_HAS_BINDINGS_AND_CANNOT_BE_DELETED, serviceName);
-            return;
+            for (CloudApplication application : applications) {
+                unbindServiceFromApplication(client, application, serviceName);
+            }
+        }
+
+        List<ServiceKey> serviceKeys = client.getServiceKeys(serviceName);
+        for (ServiceKey serviceKey : serviceKeys) {
+            deleteServiceKeyFromService(client, serviceName, serviceKey);
         }
 
         getStepLogger().info(Messages.DELETING_SERVICE, serviceName);
         client.deleteService(serviceName);
         getStepLogger().debug(Messages.SERVICE_DELETED, serviceName);
+    }
+
+    private void deleteServiceKeyFromService(CloudControllerClient client, String serviceName, ServiceKey serviceKey) {
+        getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, serviceKey, serviceName);
+        client.deleteServiceKey(serviceName, serviceKey.getName());
+    }
+
+    private void unbindServiceFromApplication(CloudControllerClient client, CloudApplication application, String serviceName) {
+        getStepLogger().info(Messages.UNBINDING_APP_FROM_SERVICE, application.getName(), serviceName);
+        client.unbindService(application.getName(), serviceName);
     }
 
     private void processException(Exception e, CloudServiceInstance serviceInstance, String serviceName) {
