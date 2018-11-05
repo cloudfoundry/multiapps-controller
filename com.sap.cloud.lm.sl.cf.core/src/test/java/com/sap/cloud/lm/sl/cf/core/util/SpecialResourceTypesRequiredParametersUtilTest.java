@@ -10,13 +10,14 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1.ResourceType;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 class SpecialResourceTypesRequiredParametersUtilTest {
+    private String testServiceName = "testService";
 
     @Test
     void checkRequiredParametersForManagedServiceWithNoParameters() {
         Map<String, Object> dummyParameters = new HashMap<>();
         ResourceType resourceType = ResourceType.MANAGED_SERVICE;
         Assertions.assertThrows(ContentException.class,
-            () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(resourceType, dummyParameters));
+            () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
      @Test
     void checkRequiredParametersForManagedServiceWithMissingParameter() {
@@ -24,7 +25,7 @@ class SpecialResourceTypesRequiredParametersUtilTest {
         dummyParameters.put("service", new Object());
         ResourceType resourceType = ResourceType.MANAGED_SERVICE;
         Assertions.assertThrows(ContentException.class,
-            () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(resourceType, dummyParameters));
+            () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
     
     @Test
@@ -33,14 +34,14 @@ class SpecialResourceTypesRequiredParametersUtilTest {
         dummyParameters.put("service", new Object());
         dummyParameters.put("service-plan", new Object());
         ResourceType resourceType = ResourceType.MANAGED_SERVICE;
-        Assertions.assertDoesNotThrow(() -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(resourceType, dummyParameters));
+        Assertions.assertDoesNotThrow(() -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
      @Test
     void checkRequiredParametersForUserProvidedServiceWithNoParameters() {
         Map<String, Object> dummyParameters = new HashMap<>();
         ResourceType resourceType = ResourceType.USER_PROVIDED_SERVICE;
         Assertions.assertThrows(ContentException.class,
-            () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(resourceType, dummyParameters));
+            () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
     
     @Test
@@ -48,7 +49,7 @@ class SpecialResourceTypesRequiredParametersUtilTest {
         Map<String, Object> dummyParameters = new HashMap<>();
         dummyParameters.put("config", new Object());
         ResourceType resourceType = ResourceType.USER_PROVIDED_SERVICE;
-        Assertions.assertDoesNotThrow(() -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(resourceType, dummyParameters));
+        Assertions.assertDoesNotThrow(() -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
     
     @Test
@@ -56,7 +57,7 @@ class SpecialResourceTypesRequiredParametersUtilTest {
         Map<String, Object> dummyParameters = new HashMap<>();
         ResourceType resourceType = ResourceType.EXISTING_SERVICE;
         Assertions
-            .assertDoesNotThrow(() -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(resourceType, dummyParameters));
+            .assertDoesNotThrow(() -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
 
 }
