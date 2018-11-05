@@ -76,6 +76,8 @@ public final class Messages {
     public static final String MTA_METADATA_FOR_APP_0_IS_INCOMPLETE = "MTA metadata for application \"{0}\" is incomplete";
     public static final String ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1 = "The environment of application \"{0}\" contains an invalid value for \"{0}\"";
     public static final String COULD_NOT_DELETE_SPACE_LEFTOVERS = "Could not delete space leftovers";
+    public static final String SERVICE_MISSING_REQUIRED_PARAMETER = "Service \"{0}\" has missing required parameter: {1}";
+    
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
     public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\", using default \"{1}\"";

@@ -89,7 +89,7 @@ public class ServicesCloudModelBuilder {
     @SuppressWarnings("unchecked")
     protected CloudServiceExtended createManagedService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors,
         Map<String, Object> parameters) {
-        SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(ResourceType.MANAGED_SERVICE, parameters);
+        SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.MANAGED_SERVICE, parameters);
         String label = (String) parameters.get(SupportedParameters.SERVICE);
         List<String> alternativeLabels = (List<String>) parameters.getOrDefault(SupportedParameters.SERVICE_ALTERNATIVES,
             Collections.emptyList());
@@ -106,7 +106,7 @@ public class ServicesCloudModelBuilder {
 
     protected CloudServiceExtended createUserProvidedService(String serviceName, boolean isOptional, boolean shouldIgnoreUpdateErrors,
         Map<String, Object> parameters) {
-        SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(ResourceType.USER_PROVIDED_SERVICE, parameters);
+        SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(serviceName, ResourceType.USER_PROVIDED_SERVICE, parameters);
         Map<String, Object> credentials = getServiceParameters(serviceName, parameters);
         boolean isShared = (boolean) parameters.getOrDefault(SupportedParameters.SHARED, false);
         String label = (String) parameters.get(SupportedParameters.SERVICE);

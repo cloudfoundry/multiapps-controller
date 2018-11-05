@@ -40,4 +40,5 @@ public enum ResourceType {
     public Set<String> getRequiredParameters() {
         return requiredParameters;
     }
+    
 }
