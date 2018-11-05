@@ -16,7 +16,11 @@ public class ZonedDateTimeJsonAdapter extends TypeAdapter<ZonedDateTime> {
 
     @Override
     public void write(JsonWriter out, ZonedDateTime zonedDateTime) throws IOException {
-        out.value(Operation.DATE_TIME_FORMATTER.format(zonedDateTime));
+        if(zonedDateTime != null) {
+            out.value(Operation.DATE_TIME_FORMATTER.format(zonedDateTime));            
+        } else {
+            out.value(Constants.NULL_STRING_VALUE);
+        }
     }
 
 }

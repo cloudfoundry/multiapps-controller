@@ -15,7 +15,11 @@ public class ProcessTypeJsonAdapter extends TypeAdapter<ProcessType> {
 
     @Override
     public void write(JsonWriter out, ProcessType type) throws IOException {
-        out.value(type.toString());
+        if (type != null) {
+            out.value(type.toString());
+        } else {
+            out.value(Constants.NULL_STRING_VALUE);
+        }
     }
 
 }

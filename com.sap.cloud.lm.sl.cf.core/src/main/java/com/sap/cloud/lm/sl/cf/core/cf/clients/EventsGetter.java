@@ -20,6 +20,10 @@ public class EventsGetter extends CustomControllerClient {
 
     private static final String GUID = "guid";
     private static final String EVENTS_URL = "/v2/events?q=actee:{guid}&order-by:timestamp&order-direction=desc";
+    
+    private static final String USER_PROVIDED_SERVICE_EVENT_TYPE_DELETE = "audit.user_provided_service_instance.delete";
+    private static final String SERVICE_EVENT_TYPE_DELETE = "audit.service_instance.delete";
+    
     private CloudEntityResourceMapper resourceMapper = new CloudEntityResourceMapper();
 
     @Inject
@@ -53,4 +57,8 @@ public class EventsGetter extends CustomControllerClient {
         return events.isEmpty() ? null : events.get(0);
     }
 
+    public boolean isDeleteEvent(String eventType) {
+        return SERVICE_EVENT_TYPE_DELETE.equalsIgnoreCase(eventType)
+            || USER_PROVIDED_SERVICE_EVENT_TYPE_DELETE.equalsIgnoreCase(eventType);
+    }
 }

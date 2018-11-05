@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -12,25 +11,16 @@ import org.cloudfoundry.client.lib.domain.CloudEvent;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 public class PollServiceDeleteOperationsExecution extends PollServiceOperationsExecution implements AsyncExecution {
 
-    private static final String SERVICE_EVENT_TYPE_DELETE = "audit.service_instance.delete";
-
     private EventsGetter eventsGetter;
 
-    private ServiceGetter serviceGetter;
-
-    public PollServiceDeleteOperationsExecution(ServiceGetter serviceGetter, EventsGetter eventsGetter) {
+    public PollServiceDeleteOperationsExecution(EventsGetter eventsGetter) {
         this.eventsGetter = eventsGetter;
-        this.serviceGetter = serviceGetter;
     }
 
     @Override
@@ -66,6 +56,6 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
 
     private boolean isServiceDeleted(ExecutionWrapper execution, UUID uuid) {
         CloudEvent serviceEvent = eventsGetter.getLastEvent(uuid, execution.getControllerClient());
-        return serviceEvent != null && SERVICE_EVENT_TYPE_DELETE.equals(serviceEvent.getType());
+        return serviceEvent != null && eventsGetter.isDeleteEvent(serviceEvent.getType());
     }
 }

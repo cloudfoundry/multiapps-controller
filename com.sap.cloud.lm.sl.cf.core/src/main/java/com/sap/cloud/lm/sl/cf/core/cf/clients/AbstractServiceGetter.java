@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +8,6 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -23,7 +23,7 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
     public Map<String, Object> getServiceInstanceEntity(CloudControllerClient client, String serviceName, String spaceId) {
         Map<String, Object> serviceInstance = new CustomControllerClientErrorHandler()
             .handleErrorsOrReturnResult(() -> attemptToGetServiceInstance(client, serviceName, spaceId));
-        return serviceInstance != null ? (Map<String, Object>) serviceInstance.get("entity") : null;
+        return serviceInstance != null ? (Map<String, Object>) serviceInstance.get("entity") : Collections.emptyMap();
     }
 
     public Map<String, Object> getServiceInstance(CloudControllerClient client, String serviceName, String spaceId) {

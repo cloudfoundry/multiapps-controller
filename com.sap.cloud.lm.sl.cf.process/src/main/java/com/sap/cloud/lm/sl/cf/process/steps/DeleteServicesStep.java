@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -25,10 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -56,12 +53,14 @@ public class DeleteServicesStep extends AsyncActivitiStep {
             CloudControllerClient client = execution.getControllerClient();
 
             List<String> servicesToDelete = StepsUtil.getServicesToDelete(execution.getContext());
-            
+
             XsCloudControllerClient xsClient = execution.getXsControllerClient();
             if (xsClient == null) {
-                getServicesGuids(servicesToDelete, execution);
+                Map<String, String> serviceGuids = getServicesGuids(servicesToDelete, execution);
+                validateGuidMapping(servicesToDelete, serviceGuids);
+                StepsUtil.setServicesGuids(execution.getContext(), serviceGuids);
             }
-            
+
             Map<String, ServiceOperationType> triggeredServiceOperations = deleteServices(client, servicesToDelete);
 
             execution.getStepLogger()
@@ -76,13 +75,7 @@ public class DeleteServicesStep extends AsyncActivitiStep {
         }
     }
 
-    private void getServicesGuids(List<String> servicesToDeleteNames, ExecutionWrapper execution) {
-        Map<String, String> serviceGuids = getServiceGuids(servicesToDeleteNames, execution);
-        validateGuidMapping(servicesToDeleteNames, serviceGuids, execution);
-        StepsUtil.setServicesGuids(execution.getContext(), serviceGuids);
-    }
-
-    private Map<String, String> getServiceGuids(List<String> services, ExecutionWrapper execution) {
+    private Map<String, String> getServicesGuids(List<String> services, ExecutionWrapper execution) {
         String spaceId = StepsUtil.getSpaceId(execution.getContext());
         CloudControllerClient client = execution.getControllerClient();
 
@@ -92,18 +85,13 @@ public class DeleteServicesStep extends AsyncActivitiStep {
             .collect(Collectors.toMap(this::getNameFromInstance, this::getGuidFromInstance));
     }
 
-    private void validateGuidMapping(List<String> servicesToDelete, Map<String, String> serviceGuids, ExecutionWrapper execution) {
-        servicesToDelete.stream()
+    private void validateGuidMapping(List<String> servicesToDelete, Map<String, String> serviceGuids) {
+        List<String> servicesWithoutGuid = servicesToDelete.stream()
             .filter(name -> serviceGuids.get(name) == null)
-            .forEach(invalidEntry -> execution.getStepLogger()
-                .error(Messages.ERROR_MAPPING_SERVICE_NAME_TO_GUID, invalidEntry));
+            .collect(Collectors.toList());
 
-        Optional<String> firstServiceWithoutGuid = servicesToDelete.stream()
-            .filter(name -> serviceGuids.get(name) == null)
-            .findFirst();
-
-        if (firstServiceWithoutGuid.isPresent()) {
-            throw new SLException(Messages.ERROR_MAPPING_SERVICE_NAMES_TO_GUIDS);
+        if (!servicesWithoutGuid.isEmpty()) {
+            throw new SLException(Messages.ERROR_MAPPING_SERVICE_NAMES_TO_GUIDS, String.join(",", servicesWithoutGuid));
         }
     }
 
@@ -207,7 +195,7 @@ public class DeleteServicesStep extends AsyncActivitiStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollServiceDeleteOperationsExecution(serviceGetter, eventsGetter));
+        return Arrays.asList(new PollServiceDeleteOperationsExecution(eventsGetter)); 
     }
 
 }

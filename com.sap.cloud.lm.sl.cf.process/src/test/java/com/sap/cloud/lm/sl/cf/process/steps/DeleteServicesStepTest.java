@@ -198,6 +198,7 @@ public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesS
                 Mockito.when(eventsGetter.getLastEvent(UUID.fromString(service.guid), client))
                     .thenReturn(deleteEvent);
             });
+        Mockito.when(eventsGetter.isDeleteEvent(SERVICE_EVENT_TYPE_DELETE)).thenCallRealMethod();
     }
 
     @SuppressWarnings("unchecked")
