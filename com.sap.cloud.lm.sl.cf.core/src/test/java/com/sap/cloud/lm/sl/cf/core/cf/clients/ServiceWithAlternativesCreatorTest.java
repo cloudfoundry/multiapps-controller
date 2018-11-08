@@ -14,8 +14,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -31,7 +34,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private static final String CREATE_SERVICE_URL = "/v2/service_instances?accepts_incomplete=true";
     private static final String SPACE_ID = "TEST_SPACE";
 
-    @Parameters
+    @Parameters(name="{0}")
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
@@ -73,7 +76,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
             },
             // (9) Service has defined alternatives and one of them is used, because creating with the default offering fails:
             {
-                "service-10.json",  null, null
+                "service-10.json",  "Service \"foo\" could not be created because all attempt(s) to use service offerings \"[postgresql, postgresql-trial]\" failed", SLException.class
             },
             // (10) Service has defined alternatives, but none of them exist:
             {
@@ -132,12 +135,13 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     }
 
     private void setUpServiceRequests() {
+        Mockito.reset(getMockedRestTemplate());
         for (Exchange exchange : input.expectedExchanges) {
             if (exchange.responseCode == 201) {
                 continue;
             }
             HttpStatus httpStatusCode = HttpStatus.valueOf(exchange.responseCode);
-            Mockito.when(getMockedRestTemplate().postForObject(getControllerUrl() + CREATE_SERVICE_URL, exchange.requestBody, String.class))
+            Mockito.when(getMockedRestTemplate().exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL), Matchers.eq(HttpMethod.POST), Matchers.any(), Matchers.eq(String.class)))
                 .thenThrow(new CloudOperationException(httpStatusCode));
         }
     }
@@ -159,7 +163,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private void validateRestCall() {
         for (Exchange exchange : input.expectedExchanges) {
             Mockito.verify(getMockedRestTemplate())
-                .postForObject(getControllerUrl() + CREATE_SERVICE_URL, exchange.requestBody, String.class);
+                .exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL), Matchers.eq(HttpMethod.POST), Matchers.any(), Matchers.eq(String.class));
         }
     }
 

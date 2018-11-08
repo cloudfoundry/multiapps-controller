@@ -1,0 +1,13 @@
+{
+	"service": {
+		"name": "service-1",
+		"plan": "plan-1",
+		"tags": []
+	},
+	"existingService": {
+		"name": "service-1",
+		"plan": "plan-3",
+		"tags": []
+	},
+	"shouldUpdateServicePlan": true
+}

@@ -1,0 +1,20 @@
+{
+	"service": {
+		"name": "service-1",
+		"label": "uaa",
+		"plan": "test",
+		"tags": [
+			"test-tag-1",
+			"test-tag-2"
+		]
+	},
+	"existingService": {
+		"name": "service-1",
+		"label": "uaa",
+		"plan": "test",
+		"tags": [
+			"test-tag-1"
+		]
+	},
+	"shouldUpdateServiceTags": true
+}

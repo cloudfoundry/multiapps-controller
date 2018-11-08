@@ -1,0 +1,29 @@
+{
+	"service": {
+		"name": "service-1",
+		"label": "hana",
+		"plan": "hdishared",
+		"tags": []
+	},
+	"existingServiceKeys": [
+		{
+			"name": "key-1",
+			"parameters": {
+				"name": "old-value"
+			}
+		}
+	],
+	"serviceKeysToCreate": [
+		{
+			"name": "key-1",
+			"parameters": {
+				"name": "new-value"
+			},
+			"guid": "key-1",
+			"service": {
+				"name": "service-1"
+			}
+		}
+	],
+	"shouldUpdateServiceKeys": true
+}

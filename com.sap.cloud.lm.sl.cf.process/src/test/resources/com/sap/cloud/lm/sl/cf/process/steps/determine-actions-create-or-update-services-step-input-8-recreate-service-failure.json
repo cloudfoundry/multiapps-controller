@@ -1,0 +1,19 @@
+{
+	"service": {
+		"name": "service-1",
+		"label": "label-1",
+		"plan": "plan-3",
+		"tags": []
+	},
+	"existingService": {
+		"name": "service-1",
+		"label": "label-1-old",
+		"plan": "plan-3",
+		"tags": [],
+		"lastOperation": {
+			"type": "CREATE",
+			"state": "FAILED"
+		}
+	},
+	"shouldRecreateService": true
+}

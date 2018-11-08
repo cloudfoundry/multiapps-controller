@@ -1,0 +1,52 @@
+{
+	"service": {
+		"name": "service-1",
+		"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602",
+		"plan": "plan-1",
+		"tags": []
+	},
+	"existingService": {
+		"name": "service-1",
+		"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602",
+		"plan": "plan-3",
+		"tags": []
+	},
+	"stepPhaseResults": {
+		"stepExecution": {
+			"serviceInstanceResponse": {
+				"service-1": {
+					"metadata": {
+						"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602"
+					},
+					"entity": {
+						"name": "service-1",
+						"last_operation": {
+							"type": "update",
+							"state": "in progress"
+						}
+					}
+				}
+			},
+			"expextedStepPhase": "POLL"
+		},
+		"polling": {
+			"serviceInstanceResponse": {
+				"serviceInstanceResponse": {
+					"service-1": {
+						"metadata": {
+							"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602"
+						},
+						"entity": {
+							"name": "service-1",
+							"last_operation": {
+								"type": "update",
+								"state": "succeeded"
+							}
+						}
+					}
+				}
+			},
+			"expextedStepPhase": "DONE"
+		}
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"service": {
+		"name": "service-1",
+		"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602"
+	},
+	"stepPhaseResults": {
+		"stepExecution": {
+			"serviceInstanceResponse": {
+				"service-1": {
+					"metadata": {
+						"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602"
+					},
+					"entity": {
+						"name": "service-1",
+						"last_operation": {
+							"type": "create",
+							"state": "does not matter"
+						}
+					}
+				}
+			},
+			"expextedStepPhase": "DONE"
+		}
+	}
+}

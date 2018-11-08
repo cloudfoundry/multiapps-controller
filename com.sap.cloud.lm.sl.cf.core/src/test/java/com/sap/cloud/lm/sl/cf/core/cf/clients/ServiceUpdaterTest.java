@@ -12,9 +12,13 @@ import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
+import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
+import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class ServiceUpdaterTest extends CloudServiceOperatorTest {
@@ -41,23 +45,20 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
 
     @Test
     public void testUpdateServicePlan1() throws MalformedURLException {
-        // Given:
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
             .thenReturn(EXISTING_SERVICE);
 
-        // When:
         serviceUpdater.updateServicePlan(client, EXISTING_SERVICE_NAME, "v3.0-small");
 
-        // Then:
         validatePlanUpdate("8e886beb-85cb-4455-9474-b6dfda36ffeb");
     }
 
+    @SuppressWarnings("unchecked")
     private void validatePlanUpdate(String servicePlanGuid) throws MalformedURLException {
-        Map<String, Object> serviceRequest = MapUtil.asMap("service_plan_guid", servicePlanGuid);
         String updateServicePlanUrl = getUpdateServicePlanUrl();
-        Mockito.verify(getMockedRestTemplate())
-            .put(updateServicePlanUrl, serviceRequest);
+        Mockito.verify(getMockedRestTemplate()).exchange(Matchers.eq(updateServicePlanUrl), Matchers.any(HttpMethod.class), Matchers.any(),
+            Matchers.any(Class.class));
     }
 
     private String getUpdateServicePlanUrl() {
@@ -87,8 +88,8 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
         // Given:
         CloudControllerClient client = getMockedClient();
         Mockito.when(client.getService(EXISTING_SERVICE_NAME))
-            .thenThrow(
-                new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(), "Service \"foo\" was not found!"));
+            .thenThrow(new CloudOperationException(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND.getReasonPhrase(),
+                "Service \"foo\" was not found!"));
 
         try {
             // When:

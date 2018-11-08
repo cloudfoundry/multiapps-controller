@@ -79,6 +79,11 @@ public class Constants {
     public static final String VAR_CUSTOM_DOMAINS = "customDomains";
     public static final String VAR_DEPLOYED_APPS = "deployedApps";
     public static final String VAR_SERVICES_TO_CREATE = "servicesToCreate";
+    public static final String VAR_SERVICE_TO_PROCESS = "serviceToProcess";
+    public static final String VAR_SERVICE_TO_PROCESS_NAME = "serviceToProcessName";
+    public static final String VAR_IS_SERVICE_UPDATED = "isServiceUpdated";
+    public static final String VAR_IS_SERVICE_UPDATED_VAR_PREFIX = "IS_SERVICE_UPDATED_";
+    public static final String VAR_SERVICE_ACTIONS_TO_EXCECUTE = "serviceActionsToExecute";
     public static final String VAR_SERVICES_TO_BIND = "servicesToBind";
     public static final String VAR_SERVICE_KEYS_TO_CREATE = "serviceKeysToCreate";
     public static final String VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT = "serviceKeysCredentialsToInject";

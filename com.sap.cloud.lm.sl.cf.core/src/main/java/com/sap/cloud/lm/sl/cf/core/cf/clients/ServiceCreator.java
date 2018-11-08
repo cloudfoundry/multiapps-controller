@@ -9,10 +9,14 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 
 public class ServiceCreator extends CloudServiceOperator {
 
@@ -23,11 +27,11 @@ public class ServiceCreator extends CloudServiceOperator {
         super(restTemplateFactory);
     }
 
-    public void createService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
-        new CustomControllerClientErrorHandler().handleErrors(() -> attemptToCreateService(client, service, spaceId));
+    public MethodExecution<String> createService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
+        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToCreateService(client, service, spaceId));
     }
 
-    private void attemptToCreateService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
+    private MethodExecution<String> attemptToCreateService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
         assertServiceAttributes(service);
 
         RestTemplate restTemplate = getRestTemplate(client);
@@ -36,7 +40,10 @@ public class ServiceCreator extends CloudServiceOperator {
         CloudServicePlan cloudServicePlan = findPlanForService(client, service);
 
         Map<String, Object> serviceRequest = createServiceRequest(service, spaceId, cloudServicePlan);
-        restTemplate.postForObject(getUrl(cloudControllerUrl, CREATE_SERVICE_URL_ACCEPTS_INCOMPLETE_TRUE), serviceRequest, String.class);
+        String url = getUrl(cloudControllerUrl, CREATE_SERVICE_URL_ACCEPTS_INCOMPLETE_TRUE);
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(serviceRequest);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+        return MethodExecution.fromResponseEntity(response);
     }
 
     private Map<String, Object> createServiceRequest(CloudServiceExtended service, String spaceId, CloudServicePlan cloudServicePlan) {

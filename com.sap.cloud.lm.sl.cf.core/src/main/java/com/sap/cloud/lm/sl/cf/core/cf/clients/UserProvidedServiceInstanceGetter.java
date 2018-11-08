@@ -1,8 +1,12 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.Constants;
+
 @Component("userProvidedServiceInstanceGetter")
+@Profile("cf")
 public class UserProvidedServiceInstanceGetter extends AbstractServiceGetter {
 
     public UserProvidedServiceInstanceGetter(RestTemplateFactory restTemplateFactory) {
@@ -16,4 +20,13 @@ public class UserProvidedServiceInstanceGetter extends AbstractServiceGetter {
         return SERVICE_INSTANCES_URL;
     }
 
+    @Override
+    protected Object getResourcesName() {
+        return Constants.SERVICE_INSTANCE_RESPONSE_RESOURCES;
+    }
+
+    @Override
+    protected Object getEntityName() {
+        return Constants.SERVICE_INSTANCE_RESPONSE_ENTITY;
+    }
 }
