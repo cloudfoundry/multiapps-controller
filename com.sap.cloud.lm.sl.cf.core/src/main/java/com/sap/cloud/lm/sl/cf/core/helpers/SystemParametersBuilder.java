@@ -238,11 +238,16 @@ public class SystemParametersBuilder {
 
     private Integer getDefaultPort(String moduleName, Map<String, Object> moduleParameters) {
         DeployedMtaModule deployedModule = getDeployedModule(moduleName);
-        if (deployedModule == null || CollectionUtils.isEmpty(deployedModule.getUris())) {
-            return allocatePort(moduleParameters);
+
+        if (deployedModule != null && !CollectionUtils.isEmpty(deployedModule.getUris())) {
+            Integer usedPort = UriUtil.getPort(deployedModule.getUris()
+                .get(0));
+            if (usedPort != null) {
+                return usedPort;
+            }
         }
-        return UriUtil.getPort(deployedModule.getUris()
-            .get(0));
+
+        return allocatePort(moduleParameters);
     }
 
     private int allocatePort(Map<String, Object> moduleParameters) {
