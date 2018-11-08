@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
@@ -57,6 +58,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ModuleToDeploy;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.BinaryJson;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -1103,9 +1105,57 @@ public class StepsUtil {
     }
 
     public static boolean shouldDeleteServices(DelegateExecution context) {
-        boolean deleteServicesFlag = (boolean) context.getVariable(Constants.PARAM_DELETE_SERVICES);
+        Object variable = context.getVariable(Constants.PARAM_DELETE_SERVICES);
+        if (variable != null) {
+            return (boolean) variable;
+        }
 
-        return deleteServicesFlag;
+        return false;
+    }
+
+    public static CloudServiceExtended getServiceToProcess(DelegateExecution context) {
+        String service = (String) context.getVariable(Constants.VAR_SERVICE_TO_PROCESS);
+        if (StringUtils.isEmpty(service)) {
+            return null;
+        }
+        return (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class);
+    }
+
+    public static void setServiceActionsToExecute(List<ServiceAction> actions, DelegateExecution context) {
+        List<String> actionsStrings = actions.stream()
+            .map(e -> e.toString())
+            .collect(Collectors.toList());
+        context.setVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE, actionsStrings);
+    }
+
+    public static List<ServiceAction> getServiceActionsToExecute(DelegateExecution execution) {
+        List<String> actionsStrings = (List<String>) execution.getVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE);
+        List<ServiceAction> actions = actionsStrings.stream()
+            .map(e -> ServiceAction.valueOf(e))
+            .collect(Collectors.toList());
+        return actions;
+    }
+
+    public static void isServiceUpdated(boolean isUpdated, DelegateExecution context) {
+        context.setVariable(Constants.VAR_IS_SERVICE_UPDATED, isUpdated);
+    }
+
+    public static boolean getIsServiceUpdated(DelegateExecution context) {
+        Object variable = context.getVariable(Constants.VAR_IS_SERVICE_UPDATED);
+        return variable == null ? false : (boolean) variable;
+    }
+
+    public static void setServiceToProcessName(String name, DelegateExecution context) {
+        context.setVariable(Constants.VAR_SERVICE_TO_PROCESS_NAME, name);
+    }
+
+    public static String getServiceToProcessName(DelegateExecution context) {
+        return (String) context.getVariable(Constants.VAR_SERVICE_TO_PROCESS_NAME);
+    }
+
+    public static boolean getIsServiceUpdatedExportedVariable(String serviceName, DelegateExecution context) {
+        Object variable = context.getVariable(Constants.VAR_IS_SERVICE_UPDATED_VAR_PREFIX + serviceName);
+        return variable == null ? false : (boolean) variable;
     }
 
     public static List<String> getModulesForDeployment(DelegateExecution context) {

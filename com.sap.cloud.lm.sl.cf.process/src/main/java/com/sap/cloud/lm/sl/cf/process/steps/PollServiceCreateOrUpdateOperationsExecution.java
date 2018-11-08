@@ -8,7 +8,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
@@ -24,9 +24,9 @@ public class PollServiceCreateOrUpdateOperationsExecution extends PollServiceOpe
     private static final String SERVICE_OPERATION_DESCRIPTION = "description";
 
     private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
-    private ServiceInstanceGetter serviceInstanceGetter;
+    private ServiceGetter serviceInstanceGetter;
 
-    public PollServiceCreateOrUpdateOperationsExecution(ServiceInstanceGetter serviceInstanceGetter) {
+    public PollServiceCreateOrUpdateOperationsExecution(ServiceGetter serviceInstanceGetter) {
         this.serviceInstanceGetter = serviceInstanceGetter;
     }
 

@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
+import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class PollServiceOperationsStepTest extends AsyncStepOperationTest<CreateOrUpdateServicesStep> {
+public class PollServiceOperationsStepTest extends AsyncStepOperationTest<CreateServiceStep> {
 
     private static final String TEST_SPACE_ID = "test";
 
@@ -89,7 +89,7 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     }
 
     @Mock
-    private ServiceInstanceGetter serviceInstanceGetter;
+    private ServiceGetter serviceInstanceGetter;
     @Mock
     protected CloudControllerClient client;
     @Rule
@@ -133,8 +133,8 @@ public class PollServiceOperationsStepTest extends AsyncStepOperationTest<Create
     }
 
     @Override
-    protected CreateOrUpdateServicesStep createStep() {
-        return new CreateOrUpdateServicesStep();
+    protected CreateServiceStep createStep() {
+        return new CreateServiceStep();
     }
 
     @Override

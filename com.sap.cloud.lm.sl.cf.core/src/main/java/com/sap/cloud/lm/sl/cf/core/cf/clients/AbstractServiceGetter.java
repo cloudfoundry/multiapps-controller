@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.util.Assert;
 
@@ -23,7 +24,7 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
     public Map<String, Object> getServiceInstanceEntity(CloudControllerClient client, String serviceName, String spaceId) {
         Map<String, Object> serviceInstance = new CustomControllerClientErrorHandler()
             .handleErrorsOrReturnResult(() -> attemptToGetServiceInstance(client, serviceName, spaceId));
-        return serviceInstance != null ? (Map<String, Object>) serviceInstance.get("entity") : Collections.emptyMap();
+        return serviceInstance != null ? (Map<String, Object>) serviceInstance.get(getEntityName()) : Collections.emptyMap();
     }
 
     public Map<String, Object> getServiceInstance(CloudControllerClient client, String serviceName, String spaceId) {
@@ -60,7 +61,7 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
     private Map<String, Object> getCloudServiceInstance(Map<String, Object> serviceInstancesResponse) {
         validateServiceInstanceResponse(serviceInstancesResponse);
         List<Map<String, Object>> cloudServiceInstanceResources = getResourcesFromResponse(serviceInstancesResponse);
-        if (!cloudServiceInstanceResources.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(cloudServiceInstanceResources)) {
             return cloudServiceInstanceResources.get(0);
         }
         return null;
@@ -68,14 +69,18 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
 
     private void validateServiceInstanceResponse(Map<String, Object> serviceInstancesResponse) {
         List<Map<String, Object>> resources = getResourcesFromResponse(serviceInstancesResponse);
-        Assert.notNull(resources, "The response of finding a service instance should contain a 'resources' element");
-        Assert.isTrue(resources.size() <= 1, "The response of finding a service instance should not have more than one resource element");
+        Assert.notNull(serviceInstancesResponse.containsKey(getResourcesName()), "The response of finding a service instance should contain a '"+getResourcesName()+"' element");
+        Assert.isTrue(resources == null || resources.size() <= 1, "The response of finding a service instance should not have more than one resource element");
     }
 
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> getResourcesFromResponse(Map<String, Object> serviceInstancesResponse) {
-        return (List<Map<String, Object>>) serviceInstancesResponse.get("resources");
+        return (List<Map<String, Object>>) serviceInstancesResponse.get(getResourcesName());
     }
+
+    protected abstract Object getResourcesName();
+
+    protected abstract Object getEntityName();
 
     public abstract String getServiceInstanceURL();
 }

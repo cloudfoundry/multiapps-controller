@@ -135,8 +135,7 @@ public class UpdateAppStep extends CreateAppStep {
         boolean hasUnboundServices = unbindNotRequiredServices(existingApp, app.getServices(), client);
         List<String> services = app.getServices();
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters(execution.getContext(), app);
-        Set<String> updatedServices = getUpdatedServices(execution.getContext());
-        boolean hasUpdatedServices = updateServices(app, existingApp, bindingParameters, client, execution, updatedServices, services);
+        boolean hasUpdatedServices = updateServices(app, existingApp, bindingParameters, client, execution, services);
         return hasUnboundServices || hasUpdatedServices;
     }
 
@@ -156,26 +155,13 @@ public class UpdateAppStep extends CreateAppStep {
         client.unbindService(appName, serviceName);
     }
 
-    private Set<String> getUpdatedServices(DelegateExecution context) {
-        Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(context);
-        Set<String> updatedServices = new HashSet<>();
-        for (String serviceName : triggeredServiceOperations.keySet()) {
-            if (triggeredServiceOperations.get(serviceName) == ServiceOperationType.UPDATE) {
-                updatedServices.add(serviceName);
-            }
-        }
-        getStepLogger().debug(Messages.UPDATED_SERVICES, updatedServices);
-        return updatedServices;
-    }
-
     private boolean updateServices(CloudApplicationExtended app, CloudApplication existingApp,
-        Map<String, Map<String, Object>> bindingParameters, CloudControllerClient client, ExecutionWrapper execution,
-        Set<String> updatedServices, List<String> services) {
+        Map<String, Map<String, Object>> bindingParameters, CloudControllerClient client, ExecutionWrapper execution, List<String> services) {
         boolean hasUpdatedService = false;
         List<String> existingAppServices = existingApp.getServices();
         for (String serviceName : services) {
             Map<String, Object> bindingParametersForCurrentService = getBindingParametersForService(serviceName, bindingParameters);
-            if (updatedServices.contains(serviceName)) {
+            if (isServiceUpdated(serviceName, execution)) {
                 hasUpdatedService = true;
             }
             if (!existingAppServices.contains(serviceName)) {
@@ -201,6 +187,10 @@ public class UpdateAppStep extends CreateAppStep {
             getStepLogger().info(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, serviceName, app.getName());
         }
         return hasUpdatedService;
+    }
+
+    private boolean isServiceUpdated(String serviceName, ExecutionWrapper execution) {
+        return StepsUtil.getIsServiceUpdatedExportedVariable(serviceName, execution.getContext());
     }
 
     protected CloudServiceBinding getServiceBindingsForApplication(CloudApplication existingApp,
@@ -236,7 +226,8 @@ public class UpdateAppStep extends CreateAppStep {
 
     private boolean isDockerInfoModified(DockerInfo existingDockerInfo, DockerInfo newDockerInfo) {
 
-        return existingDockerInfo != null && newDockerInfo != null && !existingDockerInfo.getImage().equals(newDockerInfo.getImage());
+        return existingDockerInfo != null && newDockerInfo != null && !existingDockerInfo.getImage()
+            .equals(newDockerInfo.getImage());
     }
 
     private boolean hasChanged(List<String> uris, List<String> existingUris) {

@@ -1,0 +1,10 @@
+{
+	"service": {
+		"name": "service-1",
+		"tags": []
+	},
+	"existingService": {
+		"name": "service-1",
+		"tags": []
+	}
+}

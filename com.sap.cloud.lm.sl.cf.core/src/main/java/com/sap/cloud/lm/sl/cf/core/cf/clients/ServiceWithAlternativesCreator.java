@@ -13,14 +13,15 @@ import javax.inject.Inject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudServicePlan;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -35,10 +36,9 @@ public class ServiceWithAlternativesCreator {
         this.userMessageLogger = userMessageLogger;
     }
 
-    public void createService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
+    public MethodExecution<String> createService(CloudControllerClient client, CloudServiceExtended service, String spaceId) {
         if (CollectionUtils.isEmpty(service.getAlternativeLabels())) {
-            serviceCreator.createService(client, service, spaceId);
-            return;
+            return serviceCreator.createService(client, service, spaceId);
         }
         userMessageLogger.debug("Service \"{0}\" has defined service offering alternatives \"{1}\" for default service offering \"{2}\"",
             service.getName(), service.getAlternativeLabels(), service.getLabel());
@@ -56,7 +56,7 @@ public class ServiceWithAlternativesCreator {
                 service.getPlan());
         }
 
-        attemptToFindServiceOfferingAndCreateService(client, service, spaceId, validServiceOfferings);
+        return attemptToFindServiceOfferingAndCreateService(client, service, spaceId, validServiceOfferings);
     }
 
     private List<CloudServicePlan> retrievePlanListFromServicePlan(CloudServiceExtended service, List<CloudServicePlan>... listOfPlans) {
@@ -106,13 +106,12 @@ public class ServiceWithAlternativesCreator {
         return validServiceOfferings;
     }
 
-    private void attemptToFindServiceOfferingAndCreateService(CloudControllerClient client, CloudServiceExtended service, String spaceId,
-        List<String> validServiceOfferings) {
+    private MethodExecution<String> attemptToFindServiceOfferingAndCreateService(CloudControllerClient client, CloudServiceExtended service,
+        String spaceId, List<String> validServiceOfferings) {
         for (String validServiceOffering : validServiceOfferings) {
             try {
                 service.setLabel(validServiceOffering);
-                serviceCreator.createService(client, service, spaceId);
-                return;
+                return serviceCreator.createService(client, service, spaceId);
             } catch (CloudOperationException e) {
                 if (!shouldIgnoreException(e)) {
                     throw e;

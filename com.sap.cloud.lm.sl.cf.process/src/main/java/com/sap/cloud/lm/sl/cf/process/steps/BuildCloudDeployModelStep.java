@@ -115,7 +115,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
             // Needed by CreateOrUpdateServicesStep, as it is used as an iteration variable:
             execution.getContext()
-                .setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, 0);
+                .setVariable(Constants.VAR_SERVICES_TO_CREATE_COUNT, servicesToCreate.size());
 
             getStepLogger().debug(Messages.CLOUD_MODEL_BUILT);
             return StepPhase.DONE;

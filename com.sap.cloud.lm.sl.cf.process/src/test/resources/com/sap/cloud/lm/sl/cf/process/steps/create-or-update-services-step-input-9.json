@@ -13,20 +13,6 @@
       "tags":[]
     }
   ],
-  "applications": [
-    {
-      "name": "application-1",
-      "boundServices": [
-        "service-1"
-      ]
-    },
-    {
-      "name": "application-2",
-      "boundServices": [
-        "service-2"
-      ]
-    }
-  ],
   "existingServices": [
     {
       "name": "service-1",
@@ -39,20 +25,6 @@
       "label": "uaa",
       "plan": "test",
       "tags":[]
-    }
-  ],
-  "existingApplications": [
-    {
-      "name": "application-3",
-      "boundServices": [
-        "service-1"
-      ]
-    },
-    {
-      "name": "application-4",
-      "boundServices": [
-        "service-2"
-      ]
     }
   ],
   "defaultTags": {

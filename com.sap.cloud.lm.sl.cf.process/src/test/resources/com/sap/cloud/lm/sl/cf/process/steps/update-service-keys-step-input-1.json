@@ -1,0 +1,63 @@
+{
+	"service": {
+		"name": "service-1",
+		"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602",
+		"plan": "plan-3",
+		"tags": []
+	},
+	"existingService": {
+		"name": "service-1",
+		"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602",
+		"plan": "plan-3",
+		"tags": []
+	},
+	"existingServiceKeys": [
+		{
+			"name": "key-1",
+			"parameters": {
+				"name": "old-value"
+			}
+		}
+	],
+	"serviceKeysToCreate": [
+		{
+			"name": "key-1",
+			"parameters": {
+				
+			},
+			"guid": "key-1",
+			"service": {
+				"name": "service-1"
+			}
+		},
+		{
+			"name": "key-2",
+			"parameters": {
+				
+			},
+			"guid": "key-2",
+			"service": {
+				"name": "service-1"
+			}
+		}
+	],
+	"stepPhaseResults": {
+		"stepExecution": {
+			"serviceInstanceResponse": {
+				"service-1": {
+					"metadata": {
+						"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602"
+					},
+					"entity": {
+						"name": "service-1",
+						"last_operation": {
+							"type": "update",
+							"state": "in progress"
+						}
+					}
+				}
+			},
+			"expextedStepPhase": "DONE"
+		}
+	}
+}
