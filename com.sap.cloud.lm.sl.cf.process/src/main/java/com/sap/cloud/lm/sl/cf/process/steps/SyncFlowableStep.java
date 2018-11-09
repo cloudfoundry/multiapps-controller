@@ -13,7 +13,8 @@ import org.slf4j.MDC;
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -28,21 +29,22 @@ public abstract class SyncFlowableStep implements TaskIndexProvider, JavaDelegat
     @Inject
     private StepLogger.Factory stepLoggerFactory;
     @Inject
-    private ProcessLoggerProviderFactory processLoggerProviderFactory;
-    @Inject
     private ProgressMessageService progressMessageService;
     @Inject
     @Named("fileService")
     protected AbstractFileService fileService;
     @Inject
     private ProcessEngineConfiguration processEngineConfiguration;
+    @Inject
+    private ProcessLoggerProvider processLoggerProvider;
+    @Inject
+    private ProcessLogsPersister processLogsPersister;
     protected ProcessStepHelper stepHelper;
     private StepLogger stepLogger;
 
     @Override
     public void execute(DelegateExecution context) {
         initializeStepLogger(context);
-        stepLogger.logFlowableTask();
         ExecutionWrapper executionWrapper = createExecutionWrapper(context);
         StepPhase stepPhase = getInitialStepPhase(executionWrapper);
         try {
@@ -67,7 +69,7 @@ public abstract class SyncFlowableStep implements TaskIndexProvider, JavaDelegat
     }
 
     protected ExecutionWrapper createExecutionWrapper(DelegateExecution context) {
-        return new ExecutionWrapper(context, stepLogger, clientProvider, processLoggerProviderFactory);
+        return new ExecutionWrapper(context, stepLogger, clientProvider);
     }
 
     private void handleException(DelegateExecution context, Throwable t) {
@@ -95,7 +97,7 @@ public abstract class SyncFlowableStep implements TaskIndexProvider, JavaDelegat
     }
 
     protected void initializeStepLogger(DelegateExecution context) {
-        stepLogger = stepLoggerFactory.create(context, progressMessageService, processLoggerProviderFactory, logger);
+        stepLogger = stepLoggerFactory.create(context, progressMessageService, processLoggerProvider, logger);
     }
 
     protected Throwable getWithProperMessage(Throwable t) {
@@ -108,17 +110,18 @@ public abstract class SyncFlowableStep implements TaskIndexProvider, JavaDelegat
 
     protected ProcessStepHelper getStepHelper() {
         if (stepHelper == null) {
-            stepHelper = new ProcessStepHelper(getProgressMessageService(), getProcessLoggerProvider(), this, processEngineConfiguration);
+            stepHelper = new ProcessStepHelper(getProgressMessageService(), getStepLogger(), this, getProcessLogsPersister(),
+                processEngineConfiguration);
         }
         return stepHelper;
     }
 
-    protected ProcessLoggerProviderFactory getProcessLoggerProvider() {
-        return processLoggerProviderFactory;
-    }
-
     protected ProgressMessageService getProgressMessageService() {
         return progressMessageService;
+    }
+
+    protected ProcessLogsPersister getProcessLogsPersister() {
+        return processLogsPersister;
     }
 
     @Override

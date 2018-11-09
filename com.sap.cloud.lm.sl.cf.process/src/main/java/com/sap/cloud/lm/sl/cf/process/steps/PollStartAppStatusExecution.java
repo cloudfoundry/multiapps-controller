@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -32,8 +33,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         STARTING, STARTED, CRASHED, FLAPPING
     }
 
-    protected RecentLogsRetriever recentLogsRetriever;
-    protected ApplicationConfiguration configuration;
+    private RecentLogsRetriever recentLogsRetriever;
+    private ApplicationConfiguration configuration;
 
     public PollStartAppStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationConfiguration configuration) {
         this.recentLogsRetriever = recentLogsRetriever;
@@ -50,8 +51,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                 .debug(Messages.CHECKING_APP_STATUS, app.getName());
 
             StartupStatus status = getStartupStatus(execution, client, app.getName());
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-                execution.getProcessLoggerProviderFactory());
+            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger().getProcessLoggerProvider();
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
             return checkStartupStatus(execution, app, status);
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);

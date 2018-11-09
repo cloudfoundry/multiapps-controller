@@ -23,6 +23,8 @@ import org.mockito.Spy;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
@@ -59,8 +61,12 @@ public class StartProcessListenerTest {
     private StepLogger stepLogger;
     @Mock
     private ProcessTypeParser processTypeParser;
+    @Mock
+    private ProcessLogsPersistenceService processLogsPersistenceService;
     @Spy
     private ProcessTypeToOperationMetadataMapper processTypeToServiceMetadataMapper = new ProcessTypeToOperationMetadataMapper();
+    @Spy
+    private ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
     @Mock
     private ApplicationConfiguration configuration;
 
@@ -98,6 +104,7 @@ public class StartProcessListenerTest {
         prepareContext();
         Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(stepLogger);
+        Mockito.doNothing().when(processLogsPersister).persistLogs(Mockito.any());
     }
 
     @Test

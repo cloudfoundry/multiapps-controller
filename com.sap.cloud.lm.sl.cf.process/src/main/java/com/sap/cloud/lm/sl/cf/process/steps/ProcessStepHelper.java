@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.List;
@@ -15,11 +14,12 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -29,34 +29,30 @@ public class ProcessStepHelper {
     private static final String CORRELATION_ID = "correlationId";
 
     private ProgressMessageService progressMessageService;
-    private ProcessLoggerProviderFactory processLoggerProviderFactory;
     private TaskIndexProvider taskIndexProvider;
+    private ProcessLogsPersister processLogsPersister;
+    private StepLogger stepLogger;
 
     private ProcessEngineConfiguration processEngineConfiguration;
 
     String taskId;
     String taskIndex;
 
-    public ProcessStepHelper(ProgressMessageService progressMessageService, ProcessLoggerProviderFactory processLoggerProviderFactory,
-        TaskIndexProvider stepIndexProvider, ProcessEngineConfiguration processEngineConfigurationSupplier) {
+    public ProcessStepHelper(ProgressMessageService progressMessageService,
+        StepLogger stepLogger, TaskIndexProvider stepIndexProvider, ProcessLogsPersister processLogsPersister,
+        ProcessEngineConfiguration processEngineConfigurationSupplier) {
         this.progressMessageService = progressMessageService;
-        this.processLoggerProviderFactory = processLoggerProviderFactory;
+        this.stepLogger = stepLogger;
         this.taskIndexProvider = stepIndexProvider;
+        this.processLogsPersister = processLogsPersister;
         this.processEngineConfiguration = processEngineConfigurationSupplier;
     }
 
     protected void postExecuteStep(DelegateExecution context, StepPhase state) {
-        logDebug(context, MessageFormat.format(Messages.STEP_FINISHED, context.getCurrentFlowElement()
+        logDebug(MessageFormat.format(Messages.STEP_FINISHED, context.getCurrentFlowElement()
             .getName()));
 
-        processLoggerProviderFactory.removeAll();
-        // Write the log messages:
-        try {
-            processLoggerProviderFactory.append(context);
-        } catch (IOException | FileStorageException e) {
-            LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, e.getMessage()), e);
-        }
-
+        processLogsPersister.persistLogs(context);
         context.setVariable(Constants.VAR_STEP_EXECUTION, state.toString());
     }
 
@@ -108,6 +104,7 @@ public class ProcessStepHelper {
     }
 
     private void logTaskStartup(DelegateExecution context) {
+        stepLogger.logFlowableTask();
         String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getId());
         progressMessageService.add(new ProgressMessage(getCorrelationId(context), taskId, taskIndex, ProgressMessageType.TASK_STARTUP,
             message, new Timestamp(System.currentTimeMillis())));
@@ -115,7 +112,7 @@ public class ProcessStepHelper {
 
     protected void logException(DelegateExecution context, Throwable t) {
         LOGGER.error(Messages.EXCEPTION_CAUGHT, t);
-        getLogger(context).error(Messages.EXCEPTION_CAUGHT, t);
+        getProcessLogger().error(Messages.EXCEPTION_CAUGHT, t);
 
         storeExceptionInProgressMessageService(context, t);
 
@@ -133,7 +130,7 @@ public class ProcessStepHelper {
                 new Timestamp(System.currentTimeMillis()));
             progressMessageService.add(msg);
         } catch (SLException e) {
-            getLogger(context).error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
+            getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);
         }
     }
 
@@ -155,14 +152,12 @@ public class ProcessStepHelper {
             .getActivityId();
     }
 
-    private void logDebug(DelegateExecution context, String message) {
-        getLogger(context).debug(message);
+    private void logDebug(String message) {
+        getProcessLogger().debug(message);
     }
 
-    org.apache.log4j.Logger getLogger(DelegateExecution context) {
-        return processLoggerProviderFactory.getDefaultLoggerProvider()
-            .getLogger(getCorrelationId(context), this.getClass()
-                .getName());
+    private ProcessLogger getProcessLogger() {
+        return stepLogger.getProcessLogger();
     }
 
     public void failStepIfProcessIsAborted(DelegateExecution context) {

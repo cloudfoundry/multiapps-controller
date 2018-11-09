@@ -5,21 +5,17 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 
 public class ExecutionWrapper {
     private DelegateExecution context;
     private StepLogger stepLogger;
     private CloudControllerClientProvider clientProvider;
-    private ProcessLoggerProviderFactory processLoggerProviderFactory;
 
-    public ExecutionWrapper(DelegateExecution context, StepLogger stepLogger, CloudControllerClientProvider clientProvider,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
+    public ExecutionWrapper(DelegateExecution context, StepLogger stepLogger, CloudControllerClientProvider clientProvider) {
         this.context = context;
         this.stepLogger = stepLogger;
         this.clientProvider = clientProvider;
-        this.processLoggerProviderFactory = processLoggerProviderFactory;
     }
 
     public DelegateExecution getContext() {
@@ -44,10 +40,6 @@ public class ExecutionWrapper {
 
     public XsCloudControllerClient getXsControllerClient(String org, String space) {
         return StepsUtil.getXsControllerClient(context, clientProvider, stepLogger, org, space);
-    }
-
-    public ProcessLoggerProviderFactory getProcessLoggerProviderFactory() {
-        return processLoggerProviderFactory;
     }
 
 }

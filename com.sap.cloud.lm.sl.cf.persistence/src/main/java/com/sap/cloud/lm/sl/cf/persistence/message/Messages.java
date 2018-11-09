@@ -41,6 +41,7 @@ public final class Messages {
     public static final String COULD_NOT_CLOSE_STATEMENT = "Could not close statement.";
     public static final String COULD_NOT_CLOSE_CONNECTION = "Could not close connection.";
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
+    public static final String COULD_NOT_PERSIST_LOGS_FILE = "Could not persist logs file: {0}";
 
     // INFO log messages:
 
