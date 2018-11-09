@@ -32,8 +32,8 @@
         <commons-logging.version>1.2</commons-logging.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
         <commons-collections4.version>4.2</commons-collections4.version>
-        <httpclient.version>4.5.4</httpclient.version>
-        <httpcore.version>4.4.8</httpcore.version>
+        <httpclient.version>4.5.6</httpclient.version>
+        <httpcore.version>4.4.10</httpcore.version>
         <jersey.version>2.23.2</jersey.version>
         <hk2.version>2.4.0-b10</hk2.version>
         <javassist.version>3.19.0-GA</javassist.version>
