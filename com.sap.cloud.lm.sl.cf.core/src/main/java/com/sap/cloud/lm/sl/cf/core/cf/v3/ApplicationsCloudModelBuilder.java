@@ -56,7 +56,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     protected HandlerFactory createHandlerFactory() {
         return new HandlerFactory(MTA_MAJOR_VERSION);
     }
-    
+
     @Override
     protected CloudApplicationExtended getApplication(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
         CloudApplicationExtended app = super.getApplication(module);
@@ -69,46 +69,49 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     protected List<String> getAllApplicationServices(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
         return getApplicationServices((Module) module, this::onlyActiveServicesRule);
     }
-    
+
     @Override
     protected List<String> getApplicationServices(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
-        return getApplicationServices(module, resourceAndType -> filterExistingServicesRule(resourceAndType) && onlyActiveServicesRule(resourceAndType));
+        return getApplicationServices(module,
+            resourceAndType -> filterExistingServicesRule(resourceAndType) && onlyActiveServicesRule(resourceAndType));
     }
-    
+
     @Override
     protected List<String> getSharedApplicationServices(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
-        return getApplicationServices(module, resourceAndType -> onlySharedServicesRule(resourceAndType) && onlyActiveServicesRule(resourceAndType));
+        return getApplicationServices(module,
+            resourceAndType -> onlySharedServicesRule(resourceAndType) && onlyActiveServicesRule(resourceAndType));
     }
-    
+
     @Override
     protected List<ServiceKeyToInject> getServicesKeysToInject(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
         return getServicesKeysToInject((Module) module);
     }
-    
+
     protected List<ServiceKeyToInject> getServicesKeysToInject(Module module) {
         List<ServiceKeyToInject> serviceKeysToInject = new ArrayList<>();
         for (RequiredDependency dependency : module.getRequiredDependencies3()) {
             ServiceKeyToInject serviceKey = getServiceKeyToInject(dependency);
-            if(isActiveServiceKey(serviceKey)) {
+            if (isActiveServiceKey(serviceKey)) {
                 CollectionUtils.addIgnoreNull(serviceKeysToInject, serviceKey);
             }
         }
         return serviceKeysToInject;
     }
-    
+
     private boolean isActiveServiceKey(ServiceKeyToInject serviceKeyToInject) {
-        if(serviceKeyToInject != null) {
+        if (serviceKeyToInject != null) {
             Resource resource = getResource(serviceKeyToInject.getServiceName());
-            if(resource != null) {
+            if (resource != null) {
                 return isActive(resource);
             }
         }
         return false;
     }
-    
+
     protected ServiceKeyToInject getServiceKeyToInject(RequiredDependency dependency) {
         com.sap.cloud.lm.sl.mta.model.v3.Resource resource = (com.sap.cloud.lm.sl.mta.model.v3.Resource) getResource(dependency.getName());
-        if (resource != null && CloudModelBuilderUtil.isServiceKey(resource, propertiesAccessor) && CloudModelBuilderUtil.isActive(resource)) {
+        if (resource != null && CloudModelBuilderUtil.isServiceKey(resource, propertiesAccessor)
+            && CloudModelBuilderUtil.isActive(resource)) {
             Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
             String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
             String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
@@ -118,7 +121,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         }
         return null;
     }
-    
+
     private boolean onlyActiveServicesRule(ResourceAndResourceType resourceAndResourceType) {
         return isActive(resourceAndResourceType.getResource());
     }

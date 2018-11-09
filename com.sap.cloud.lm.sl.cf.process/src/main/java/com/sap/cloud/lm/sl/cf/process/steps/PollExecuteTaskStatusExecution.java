@@ -16,6 +16,7 @@ import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -94,8 +95,8 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
         private void saveAppLogs() {
             CloudControllerClient client = execution.getControllerClient();
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-                execution.getProcessLoggerProviderFactory());
+            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger().getProcessLoggerProvider();
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
         }
 
         private AsyncExecutionState handleCurrentState(CloudTask.State currentState) {

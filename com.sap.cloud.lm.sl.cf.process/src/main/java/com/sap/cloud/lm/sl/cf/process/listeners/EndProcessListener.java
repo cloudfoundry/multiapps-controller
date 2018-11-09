@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
@@ -48,11 +47,6 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
 
     @Inject
     private ApplicationConfiguration configuration;
-
-    @Override
-    protected void writeLogs(DelegateExecution context) throws IOException, FileStorageException {
-        processLoggerProviderFactory.append(context);
-    }
 
     @Override
     protected void notifyInternal(DelegateExecution context) throws FileStorageException {

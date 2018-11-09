@@ -7,9 +7,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationLog.MessageType;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -37,7 +38,7 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
     private static final String DEFAULT_SUCCESS_MARKER = "STDOUT:SUCCESS";
     private static final String DEFAULT_FAILURE_MARKER = "STDERR:FAILURE";
 
-    protected RecentLogsRetriever recentLogsRetriever;
+    private RecentLogsRetriever recentLogsRetriever;
 
     public PollExecuteAppStatusExecution(RecentLogsRetriever recentLogsRetriever) {
         this.recentLogsRetriever = recentLogsRetriever;
@@ -55,8 +56,8 @@ public class PollExecuteAppStatusExecution implements AsyncExecution {
             CloudControllerClient client = execution.getControllerClient();
             ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
             Pair<AppExecutionStatus, String> status = getAppExecutionStatus(execution.getContext(), client, appAttributes, app);
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-                execution.getProcessLoggerProviderFactory());
+            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger().getProcessLoggerProvider();
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
             return checkAppExecutionStatus(execution, client, app, appAttributes, status);
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);

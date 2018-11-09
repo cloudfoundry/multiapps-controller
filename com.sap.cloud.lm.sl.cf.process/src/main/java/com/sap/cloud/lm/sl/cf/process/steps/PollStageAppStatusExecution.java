@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.XMLValueFilter;
@@ -40,8 +41,8 @@ public class PollStageAppStatusExecution implements AsyncExecution {
                 .debug(Messages.CHECKING_APP_STATUS, app.getName());
 
             Pair<PackageState, String> state = getStagingState(execution, client, app);
-            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER,
-                execution.getProcessLoggerProviderFactory());
+            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger().getProcessLoggerProvider();
+            StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
             if (!state._1.equals(PackageState.STAGED)) {
                 return checkStagingState(execution, app, state);
             }

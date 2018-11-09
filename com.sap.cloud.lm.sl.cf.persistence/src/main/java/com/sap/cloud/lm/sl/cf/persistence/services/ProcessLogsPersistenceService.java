@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
@@ -26,17 +28,13 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 public class ProcessLogsPersistenceService extends DatabaseFileService {
 
-    private static final String LOG_FILE_EXTENSION = ".log";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessLogsPersistenceService.class);
+
+    private static final String DIGEST_METHOD = "MD5";
     private static final String TABLE_NAME = "process_log";
-    private static final String DEFAULT_SPACE = "DEFAULT";
-    private static final String DELETE_CONTENT_BY_NAMESPACE = "DELETE FROM %s WHERE NAMESPACE=?";
 
     public ProcessLogsPersistenceService(DataSourceWithDialect dataSourceWithDialect) {
         super(TABLE_NAME, dataSourceWithDialect);
-    }
-
-    public List<String> getLogNames(String namespace) throws FileStorageException {
-        return getLogNames(DEFAULT_SPACE, namespace);
     }
 
     public List<String> getLogNames(String space, String namespace) throws FileStorageException {
@@ -46,10 +44,6 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
             result.add(logFile.getName());
         }
         return result;
-    }
-
-    public String getLogContent(String namespace, String logName) throws FileStorageException {
-        return getLogContent(DEFAULT_SPACE, namespace, logName);
     }
 
     public String getLogContent(String space, String namespace, String logName) throws FileStorageException {
@@ -66,46 +60,12 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         return builder.toString();
     }
 
-    public static File getFile(String logId, String name, String logDir) {
-        return new java.io.File(logDir, getFileName(logId, name));
-    }
-
-    public void saveLog(String namespace, String logName, String logDir) throws IOException, FileStorageException {
-        saveLog(DEFAULT_SPACE, namespace, logName, logDir);
-    }
-
-    public void saveLog(String space, String namespace, String logName, String logDir) throws IOException, FileStorageException {
-        File logFile = getFile(namespace, logName, logDir);
-        // we have no concerns of DOS attack, the files are coming from our system
-
-        InputStream in = null;
-        try {
-            in = new FileInputStream(logFile);
-            saveLog(space, namespace, logName, in);
-        } finally {
-            IOUtils.closeQuietly(in);
-        }
-    }
-
-    public void saveLog(String space, String namespace, String logName, InputStream in) throws FileStorageException {
-        String fileId = findFileId(space, namespace, logName);
-        if (fileId != null) {
-            deleteFile(space, fileId);
-        }
-
-        addFile(space, namespace, logName, new DefaultFileUploadProcessor(false), in);
-    }
-
     public boolean deleteLog(String space, String namespace, String logName) throws FileStorageException {
         String fileId = findFileId(space, namespace, logName);
         return deleteFile(space, fileId);
     }
 
-    public String findFileId(String namespace, String fileName) throws FileStorageException {
-        return findFileId(DEFAULT_SPACE, namespace, fileName);
-    }
-
-    public String findFileId(String space, String namespace, String fileName) throws FileStorageException {
+    private String findFileId(String space, String namespace, String fileName) throws FileStorageException {
         List<FileEntry> listFiles = listFiles(space, namespace);
         for (FileEntry fileEntry : listFiles) {
             if (fileEntry.getName()
@@ -116,44 +76,12 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         return null;
     }
 
-    private static String getFileName(String logId, String name) {
-        return new StringBuilder(logId).append(".")
-            .append(name)
-            .append(LOG_FILE_EXTENSION)
-            .toString();
-    }
-
-    public void appendLog(String namespace, String logName, String logDir) throws IOException, FileStorageException {
-        appendLog(DEFAULT_SPACE, namespace, logName, logDir);
-    }
-
-    public void appendLog(String space, String namespace, String logName, String logDir) throws IOException, FileStorageException {
+    public void appendLog(String space, String namespace, File localLog, String remoteLogName) {
         try {
-            getSqlExecutor().executeInSingleTransaction(new StatementExecutor<Void>() {
-                @Override
-                public Void execute(Connection connection) throws SQLException {
-                    File logFile = getFile(namespace, logName, logDir);
-                    // we have no concerns of DOS attack, the files are coming from our system
-
-                    InputStream in = null;
-                    try {
-                        in = new FileInputStream(logFile);
-                        appendLog(space, namespace, logName, in);
-                    } catch (FileNotFoundException e) {
-                        throw new SQLException(MessageFormat.format(Messages.FILE_NOT_FOUND, getFileName(namespace, logName)));
-                    } catch (FileStorageException e) {
-                        throw new SQLException(e);
-                    } finally {
-                        IOUtils.closeQuietly(in);
-                    }
-                    return null;
-                }
-
-            });
-        } catch (SQLException e) {
-            throw new FileStorageException(e.getMessage(), e);
+            appendLog(space, namespace, remoteLogName, localLog);
+        } catch (FileStorageException e) {
+            LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, localLog.getName()));
         }
-
     }
 
     private void appendLog(final String space, final String namespace, final String logName, final InputStream in)

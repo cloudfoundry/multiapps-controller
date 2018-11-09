@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage;
 import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
@@ -22,18 +23,16 @@ import com.sap.cloud.lm.sl.common.SLException;
  */
 public class StepLogger implements UserMessageLogger {
 
-    public static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
-
     protected DelegateExecution context;
     protected ProgressMessageService progressMessageService;
-    protected ProcessLoggerProviderFactory processLoggerProviderFactory;
+    protected ProcessLoggerProvider processLoggerProvider;
     protected Logger simpleStepLogger;
 
-    public StepLogger(DelegateExecution context, ProgressMessageService progressMessageService,
-        ProcessLoggerProviderFactory processLoggerProviderFactory, Logger simpleStepLogger) {
+    public StepLogger(DelegateExecution context, ProgressMessageService progressMessageService, ProcessLoggerProvider processLoggerProvider,
+        Logger simpleStepLogger) {
         this.context = context;
         this.progressMessageService = progressMessageService;
-        this.processLoggerProviderFactory = processLoggerProviderFactory;
+        this.processLoggerProvider = processLoggerProvider;
         this.simpleStepLogger = simpleStepLogger;
     }
 
@@ -162,9 +161,12 @@ public class StepLogger implements UserMessageLogger {
         }
     }
 
-    private org.apache.log4j.Logger getProcessLogger() {
-        return processLoggerProviderFactory.getDefaultLoggerProvider()
-            .getLogger(StepsUtil.getCorrelationId(context), PARENT_LOGGER);
+    public ProcessLogger getProcessLogger() {
+        return processLoggerProvider.getLogger(context);
+    }
+
+    public ProcessLoggerProvider getProcessLoggerProvider() {
+        return processLoggerProvider;
     }
 
     private static String getPrefix(Logger logger) {
@@ -172,12 +174,16 @@ public class StepLogger implements UserMessageLogger {
         return "[" + name.substring(name.lastIndexOf('.') + 1) + "] ";
     }
 
+    protected DelegateExecution getContext() {
+        return context;
+    }
+
     @Component
     public static class Factory {
 
         public StepLogger create(DelegateExecution context, ProgressMessageService progressMessageService,
-            ProcessLoggerProviderFactory processLoggerProviderFactory, Logger logger) {
-            return new StepLogger(context, progressMessageService, processLoggerProviderFactory, logger);
+            ProcessLoggerProvider processLoggerProvider, Logger logger) {
+            return new StepLogger(context, progressMessageService, processLoggerProvider, logger);
         }
 
     }

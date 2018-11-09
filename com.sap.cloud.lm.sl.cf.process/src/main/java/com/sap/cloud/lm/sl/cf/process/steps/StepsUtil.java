@@ -52,7 +52,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.BinaryJson;
@@ -70,12 +70,9 @@ import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
 public class StepsUtil {
 
-    private static final String PARENT_LOGGER = "com.sap.cloud.lm.sl.xs2";
-
     private static org.apache.log4j.Logger getAppLogger(DelegateExecution context, String appName,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        return processLoggerProviderFactory.getLoggerProvider(appName)
-            .getLogger(getCorrelationId(context), PARENT_LOGGER, appName);
+        ProcessLoggerProvider processLoggerProvider) {
+        return processLoggerProvider.getLogger(context, appName);
     }
 
     static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
@@ -199,7 +196,7 @@ public class StepsUtil {
     private static String getModuleContentVariable(String moduleName) {
         return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + moduleName;
     }
-    
+
     private static String getModuleFileNameVariable(String moduleName) {
         return Constants.VAR_MTA_MODULE_FILE_NAME_PREFIX + moduleName;
     }
@@ -407,7 +404,7 @@ public class StepsUtil {
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static List<CloudApplicationExtended> getIteratedAppsInParallel(DelegateExecution context) {
         List<String> appsIteratedInParallel = (List<String>) context.getVariable(Constants.VAR_ITERATED_APPS_IN_PARALLEL);
@@ -821,16 +818,16 @@ public class StepsUtil {
     }
 
     static void saveAppLogs(DelegateExecution context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
-        CloudApplication app, Logger logger, ProcessLoggerProviderFactory processLoggerProviderFactory) {
+        CloudApplication app, Logger logger, ProcessLoggerProvider processLoggerProvider) {
         List<ApplicationLog> recentLogs = recentLogsRetriever.getRecentLogs(client, app.getName());
         if (recentLogs != null) {
-            recentLogs.forEach(log -> appLog(context, app.getName(), log.toString(), logger, processLoggerProviderFactory));
+            recentLogs.forEach(log -> appLog(context, app.getName(), log.toString(), logger, processLoggerProvider));
         }
     }
 
     static void appLog(DelegateExecution context, String appName, String message, Logger logger,
-        ProcessLoggerProviderFactory processLoggerProviderFactory) {
-        getAppLogger(context, appName, processLoggerProviderFactory).debug(getPrefix(logger) + "[" + appName + "] " + message);
+        ProcessLoggerProvider processLoggerProvider) {
+        getAppLogger(context, appName, processLoggerProvider).debug(getPrefix(logger) + "[" + appName + "] " + message);
     }
 
     static StartingInfo getStartingInfo(DelegateExecution context) {

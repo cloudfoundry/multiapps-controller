@@ -190,6 +190,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             getStepLogger().debug(Messages.UPLOAD_STATUS_0, status);
             if (status.equals(FINISHED_STATUS)) {
                 cleanUp(file.toPath());
+                getProcessLogsPersister().persistLogs(context);
             }
             return false;
         }

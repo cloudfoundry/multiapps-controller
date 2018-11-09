@@ -29,8 +29,10 @@ import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
+import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
@@ -45,16 +47,19 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected static final String SPACE_NAME = "space";
     protected static final String SPACE_GUID = "spaceGuid";
     protected String TEST_CORRELATION_ID = "test";
+    protected String TEST_TASK_ID = "testTask";
 
     protected DelegateExecution context = MockDelegateExecution.createSpyInstance();
-    @Spy
-    @InjectMocks
-    protected ProcessLoggerProviderFactory processLoggerProviderFactory = ProcessLoggerProviderFactory.getInstance();
     @Mock
     protected StepLogger.Factory stepLoggerFactory;
     protected StepLogger stepLogger;
     @Mock
     protected ProcessLogsPersistenceService processLogsPersistenceService;
+    @Spy
+    protected ProcessLoggerProvider processLoggerProvider = new ProcessLoggerProvider();
+    @Spy
+    @InjectMocks
+    protected ProcessLogsPersister processLogsPersister = new ProcessLogsPersister();
     @Mock
     protected ProgressMessageService progressMessageService;
     @Mock
@@ -77,9 +82,9 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected abstract T createStep();
 
     @Before
-    public void initMocks() {
+    public void initMocks() throws FileStorageException {
         MockitoAnnotations.initMocks(this);
-        this.stepLogger = Mockito.spy(new StepLogger(context, progressMessageService, processLoggerProviderFactory, LOGGER));
+        this.stepLogger = Mockito.spy(new StepLogger(context, progressMessageService, processLoggerProvider, LOGGER));
         when(stepLoggerFactory.create(any(), any(), any(), any())).thenReturn(stepLogger);
         context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_GUID);
@@ -88,6 +93,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
         when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
         context.setVariable("correlationId", getCorrelationId());
+        context.setVariable("__TASK_ID", getTaskId());
         prepareExecution();
         prepareProcessEngineConfiguration();
     }
@@ -143,4 +149,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         return TEST_CORRELATION_ID;
     }
 
+    private String getTaskId() {
+        return TEST_TASK_ID;
+    }
 }
