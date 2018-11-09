@@ -160,6 +160,7 @@ public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateO
 
     private void prepareContext() throws Exception {
         StepsUtil.setServicesToCreate(context, ListUtil.upcastUnmodifiable(stepInput.services));
+        StepsUtil.setServicesToDelete(context, Collections.emptyList());
         StepsUtil.setAppsToDeploy(context, toCloudApplications(stepInput.applications));
         StepsUtil.setAppsToUndeploy(context, ListUtil.upcastUnmodifiable(toCloudApplications(stepInput.discontinuedApplications)));
         StepsUtil.setServiceKeysToCreate(context, stepInput.getServiceKeysToCreate());

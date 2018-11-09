@@ -1,3 +1,35 @@
 {
-  "servicesToDelete": []
+	"servicesToDelete": [],
+	"stepPhaseResults": {
+		"stepExecution": {
+			"serviceInstanceResponse": {
+				"service-1": {
+				},
+				"service-2": {
+				}
+			},
+			"eventsResponse": {
+				"service-1": {
+				},
+				"service-2": {
+				}
+			},
+			"expextedStepPhase": "POLL"
+		},
+		"polling": {
+			"serviceInstanceResponse": {
+				"service-1": {
+				},
+				"service-2": {
+				}
+			},
+			"eventsResponse": {
+				"service-1": {
+				},
+				"service-2": {
+				}
+			},
+			"expextedStepPhase": "DONE"
+		}
+	}
 }
