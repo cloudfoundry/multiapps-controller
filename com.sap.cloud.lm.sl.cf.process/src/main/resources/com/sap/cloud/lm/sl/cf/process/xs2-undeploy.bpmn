@@ -2,7 +2,7 @@
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
   <process id="xs2-undeploy" name="XS2 Undeploy Activiti Process" isExecutable="true">
     <extensionElements>
-      <activiti:eventListener events="ENTITY_DELETED" entityType="process-instance" delegateExpression="${abortProcessListener}"></activiti:eventListener>
+      <activiti:eventListener events="PROCESS_CANCELLED" delegateExpression="${abortProcessListener}"></activiti:eventListener>
       <activiti:eventListener events="JOB_EXECUTION_FAILURE" delegateExpression="${errorProcessListener}"></activiti:eventListener>
     </extensionElements>
     <startEvent id="startEvent" name="Start" activiti:initiator="initiator">
