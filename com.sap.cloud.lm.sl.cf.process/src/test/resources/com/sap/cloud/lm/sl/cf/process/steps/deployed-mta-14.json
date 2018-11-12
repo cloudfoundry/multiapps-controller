@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "id": "mta-tcp",
+    "version": "0.1.0"
+  },
+  "modules": [
+    {
+      "moduleName": "module-1",
+      "appName": "module-1",
+      "services": [],
+      "providedDependencyNames": [],
+      "uris": ["tcp://my.domain.com:1234"]
+    },
+    {
+      "moduleName": "module-2",
+      "appName": "module-2",
+      "services": [],
+      "providedDependencyNames": [],
+      "uris": ["tcps://my.domain.com:5678"]
+    }
+  ],
+  "services": []
+}
