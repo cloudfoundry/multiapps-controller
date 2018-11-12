@@ -2,15 +2,15 @@ package com.sap.cloud.lm.sl.cf.process.util;
 
 import org.flowable.variable.api.history.HistoricVariableInstance;
 
-import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 
 public class FileSweeper {
 
     private final String spaceId;
-    private final AbstractFileService fileService;
+    private final FileService fileService;
 
-    public FileSweeper(String spaceId, AbstractFileService fileService) {
+    public FileSweeper(String spaceId, FileService fileService) {
         this.spaceId = spaceId;
         this.fileService = fileService;
     }

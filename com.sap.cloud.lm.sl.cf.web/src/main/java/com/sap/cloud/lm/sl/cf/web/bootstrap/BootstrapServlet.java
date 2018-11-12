@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -25,6 +26,8 @@ import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.changes.AsyncChange;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -57,6 +60,10 @@ public class BootstrapServlet extends HttpServlet {
     @Inject
     protected ApplicationConfiguration configuration;
 
+    @Inject
+    @Named("fileService")
+    protected FileService fileService;
+
     @Autowired(required = false)
     private List<AsyncChange> asyncChanges;
 
@@ -68,6 +75,7 @@ public class BootstrapServlet extends HttpServlet {
             configuration.load();
             initializeProviders();
             addDeployTargets();
+            initializeFileService();
             initExtras();
             executeAsyncDatabaseChanges();
             processEngine.getProcessEngineConfiguration()
@@ -77,6 +85,15 @@ public class BootstrapServlet extends HttpServlet {
         } catch (Exception e) {
             LOGGER.error("Initialization error", e);
             throw new ServletException(e);
+        }
+    }
+
+    protected void initializeFileService() {
+        try {
+            int deletedFiles = fileService.deleteFilesEntriesWithoutContent();
+            LOGGER.info(MessageFormat.format(Messages.FILE_SERVICE_DELETED_FILES, deletedFiles));
+        } catch (FileStorageException e) {
+            LOGGER.error(MessageFormat.format(Messages.FILE_SERVICE_CLEANUP_FAILED, e.getMessage()), e);
         }
     }
 

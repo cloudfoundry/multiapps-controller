@@ -34,7 +34,6 @@ import com.sap.cloud.lm.sl.common.util.TestDataSourceProvider;
 public class DatabaseFileServiceTest {
 
     private static final String UPDATE_MODIFICATION_TIME = "UPDATE {0} SET MODIFIED=? WHERE FILE_ID=?";
-    private static final String DEFAULT_TABLE_NAME = "LM_SL_PERSISTENCE_FILE";
 
     private static final String LIQUIBASE_CHANGELOG_LOCATION = "com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog.xml";
 
@@ -52,7 +51,7 @@ public class DatabaseFileServiceTest {
     private static final String PIC2_STORAGE_NAME = "pic2.jpeg";
     private static final String PERSONAL_NAMESPACE = "dido";
 
-    protected AbstractFileService fileService;
+    protected FileService fileService;
 
     private FileEntry storedFile;
 
@@ -69,8 +68,8 @@ public class DatabaseFileServiceTest {
         return new DataSourceWithDialect(TestDataSourceProvider.getDataSource(LIQUIBASE_CHANGELOG_LOCATION));
     }
 
-    protected AbstractFileService createFileService(DataSourceWithDialect dataSource) {
-        return new DatabaseFileService(dataSource);
+    protected FileService createFileService(DataSourceWithDialect dataSource) {
+        return new DatabaseFileService(FileService.DEFAULT_TABLE_NAME, dataSource);
     }
 
     @After
@@ -80,8 +79,8 @@ public class DatabaseFileServiceTest {
     }
 
     protected void sweepFiles() throws FileStorageException, Exception {
-        fileService.deleteAll(MY_SPACE_ID, SYSTEM_NAMESPACE);
-        fileService.deleteAll(MY_SPACE_ID, PERSONAL_NAMESPACE);
+        fileService.deleteBySpaceAndNamespace(MY_SPACE_ID, SYSTEM_NAMESPACE);
+        fileService.deleteBySpaceAndNamespace(MY_SPACE_ID, PERSONAL_NAMESPACE);
     }
 
     protected void tearDownConnection() throws Exception {
@@ -241,7 +240,7 @@ public class DatabaseFileServiceTest {
         try {
             statement = testDataSource.getDataSource()
                 .getConnection()
-                .prepareStatement(MessageFormat.format(UPDATE_MODIFICATION_TIME, DEFAULT_TABLE_NAME));
+                .prepareStatement(MessageFormat.format(UPDATE_MODIFICATION_TIME, FileService.DEFAULT_TABLE_NAME));
             statement.setTimestamp(1, new java.sql.Timestamp(modificationDate.getTime()));
             statement.setString(2, fileEntry.getId());
             statement.executeUpdate();

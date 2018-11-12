@@ -3,37 +3,42 @@ package com.sap.cloud.lm.sl.cf.web.configuration.bean.factory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.services.DatabaseFileService;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileStorage;
 
-public class FileServiceFactoryBean implements FactoryBean<AbstractFileService>, InitializingBean {
+public class FileServiceFactoryBean implements FactoryBean<FileService>, InitializingBean {
 
-    private DatabaseFileService databaseFileService;
-    private FileSystemFileService fileSystemFileService;
-    private AbstractFileService fileService;
+    private DataSourceWithDialect dataSourceWithDialect;
+    private FileSystemFileStorage fileSystemFileStorage;
+    private FileService fileService;
 
-    public void setDatabaseFileService(DatabaseFileService databaseFileService) {
-        this.databaseFileService = databaseFileService;
+    public void setDataSourceWithDialect(DataSourceWithDialect dataSourceWithDialect) {
+        this.dataSourceWithDialect = dataSourceWithDialect;
     }
 
-    public void setFileSystemFileService(FileSystemFileService fileSystemFileService) {
-        this.fileSystemFileService = fileSystemFileService;
+    public void setFileSystemFileStorage(FileSystemFileStorage fileSystemFileStorage) {
+        this.fileSystemFileStorage = fileSystemFileStorage;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.fileService = fileSystemFileService != null ? fileSystemFileService : databaseFileService;
+        if (fileSystemFileStorage != null) {
+            this.fileService = new FileService(dataSourceWithDialect, fileSystemFileStorage);
+        } else {
+            this.fileService = new DatabaseFileService(dataSourceWithDialect);
+        }
     }
 
     @Override
-    public AbstractFileService getObject() throws Exception {
+    public FileService getObject() throws Exception {
         return fileService;
     }
 
     @Override
     public Class<?> getObjectType() {
-        return AbstractFileService.class;
+        return FileService.class;
     }
 
     @Override

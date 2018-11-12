@@ -36,6 +36,7 @@ public final class Messages {
     public static final String NOT_AUTHORIZED_TO_PERFORM_OPERATIONS_IN_SPACE = "You are not authorized to perform operations in the space with id {0}. You need a SpaceDeveloper role to operate in the space";
     public static final String COULD_NOT_GET_FILES = "Could not get MTA files";
     public static final String COULD_NOT_UPLOAD_FILE = "Could not upload MTA file";
+    public static final String FILE_SERVICE_CLEANUP_FAILED = "FileService: Failed to delete files without content. Reason: \"{0}\"";
 
     // WARN log messages
 
@@ -49,8 +50,8 @@ public final class Messages {
     public static final String ASYNC_DATABASE_CHANGES_WILL_NOT_BE_EXECUTED_ON_THIS_INSTANCE = "Async database changes will not be executed on instance {0}.";
     public static final String TOKEN_LOADED_INTO_TOKEN_STORE = "Token with expiration time: {0} for user {1} has been loaded into token store";
     public static final String REGISTERED_0_AS_LIQUIBASE_LOCK_SERVICE = "Registered {0} as a Liquibase lock service.";
-    
-    
+    public static final String FILE_SERVICE_DELETED_FILES = "FileService: Deleted {0} files without content.";
+
     // WARN log messages
     public static final String FILE_SYSTEM_SERVICE_NAME_IS_NOT_SPECIFIED = "Failed to detect file service storage path, because the service name is not specified in the configuration files!";
     public static final String FAILED_TO_DETECT_FILE_SERVICE_STORAGE_PATH = "Failed to detect file service storage path for service \"{0}\"!";

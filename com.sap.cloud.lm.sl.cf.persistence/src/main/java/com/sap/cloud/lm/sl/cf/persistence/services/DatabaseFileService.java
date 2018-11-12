@@ -1,74 +1,75 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Date;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 
-/*
- * Provides functionality for uploading a file to the server and reading uploaded file contents
- *
- */
-public class DatabaseFileService extends AbstractFileService {
+public class DatabaseFileService extends FileService {
 
     public DatabaseFileService(DataSourceWithDialect dataSourceWithDialect) {
-        this(DEFAULT_TABLE_NAME, dataSourceWithDialect);
+        super(dataSourceWithDialect, null);
     }
 
-    protected DatabaseFileService(String tableName, DataSourceWithDialect dataSourceWithDialect) {
-        super(tableName, dataSourceWithDialect);
-    }
-
-    @Override
-    protected boolean storeFile(final FileEntry fileEntry, final InputStream inputStream) throws FileStorageException {
-        try {
-            getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileQuery(fileEntry, inputStream));
-            return true;
-        } catch (SQLException e) {
-            throw new FileStorageException(e.getMessage(), e);
-        }
+    public DatabaseFileService(String tableName, DataSourceWithDialect dataSourceWithDialect) {
+        super(tableName, dataSourceWithDialect, null);
     }
 
     @Override
     public void processFileContent(final FileDownloadProcessor fileDownloadProcessor) throws FileStorageException {
-        deleteFilesWithoutContent();
         try {
-            getSqlQueryExecutor().execute(getSqlFileQueryProvider().getProcessFileContentQuery(fileDownloadProcessor));
+            getSqlQueryExecutor().execute(getSqlFileQueryProvider().getProcessFileWithContentQuery(fileDownloadProcessor));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
     }
 
     @Override
-    public void deleteBySpace(String space) throws FileStorageException {
+    public int deleteBySpaceAndNamespace(final String space, final String namespace) throws FileStorageException {
+        return deleteFileAttributesBySpaceAndNamespace(space, namespace);
     }
 
     @Override
-    protected void deleteFileContent(String space, String id) throws FileStorageException {
-        /*
-         * The implementation of this method is empty because the content of the file is being deleted by the abstract file service using a
-         * DELETE query for the whole file record
-         */
+    public int deleteBySpace(final String space) throws FileStorageException {
+        return deleteFileAttributesBySpace(space);
     }
 
     @Override
-    public List<FileEntry> listFiles(String space, String namespace) throws FileStorageException {
-        deleteFilesWithoutContent();
-        return super.listFiles(space, namespace);
+    public int deleteModifiedBefore(Date modificationTime) throws FileStorageException {
+        return deleteFileAttributesModifiedBefore(modificationTime);
     }
 
     @Override
-    public FileEntry getFile(String space, String id) throws FileStorageException {
-        deleteFilesWithoutContent();
-        return super.getFile(space, id);
+    public boolean deleteFile(final String space, final String id) throws FileStorageException {
+        return deleteFileAttribute(space, id);
     }
 
-    protected int deleteFilesWithoutContent() throws FileStorageException {
+    @Override
+    public int deleteFilesEntriesWithoutContent() throws FileStorageException {
         try {
             return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteFilesWithoutContentQuery());
+        } catch (SQLException e) {
+            throw new FileStorageException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    protected void storeFile(FileEntry fileEntry, FileInfo fileinfo) throws FileStorageException {
+        try (InputStream fileStream = fileinfo.getInputStream()) {
+            storeFileWithContent(fileEntry, fileStream);
+        } catch (IOException e) {
+            logger.debug(e.getMessage(), e);
+        }
+    }
+
+    private boolean storeFileWithContent(FileEntry fileEntry, InputStream fileStream) throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileQuery(fileEntry, fileStream));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }

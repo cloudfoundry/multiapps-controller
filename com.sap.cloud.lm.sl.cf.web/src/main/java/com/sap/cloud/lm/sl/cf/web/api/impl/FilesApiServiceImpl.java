@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
@@ -45,7 +45,7 @@ public class FilesApiServiceImpl implements FilesApiService {
     // The @Named annotation is needed for the Jersey-Spring integration in order to identify which
     // FileService managed instance (FileService or ProgressMessageService) to inject.
     @Named("fileService")
-    private AbstractFileService fileService;
+    private FileService fileService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilesApiServiceImpl.class);
 

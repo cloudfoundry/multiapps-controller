@@ -86,7 +86,7 @@ public class FileSystemFileServiceTest extends DatabaseFileServiceTest {
     @Test
     public void testDeleteAllFiles() throws FileStorageException {
         try {
-            fileService.deleteAll(spaceId, namespace);
+            fileService.deleteBySpaceAndNamespace(spaceId, namespace);
         } catch (Exception e) {
             Assert.assertTrue(e instanceof UnsupportedOperationException);
         }
@@ -274,7 +274,11 @@ public class FileSystemFileServiceTest extends DatabaseFileServiceTest {
     }
 
     @Override
-    protected AbstractFileService createFileService(DataSourceWithDialect dataSource) {
-        return new FileSystemFileService(testDataSource, temporaryStorageLocation.toString());
+    protected FileService createFileService(DataSourceWithDialect dataSource) {
+        return new FileService(FileService.DEFAULT_TABLE_NAME, testDataSource, createFileSystemFileStorage());
+    }
+
+    private FileStorage createFileSystemFileStorage() {
+        return new FileSystemFileStorage(temporaryStorageLocation.toString());
     }
 }
