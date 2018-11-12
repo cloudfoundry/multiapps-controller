@@ -45,6 +45,7 @@ public class SupportedParameters {
     public static final String HOST = "host";
     public static final String PORT = "port";
     public static final String PORTS = "ports";
+    public static final String KEEP_EXISTING_ROUTES = "keep-existing-routes";
     public static final String TCP = "tcp";
     public static final String TCPS = "tcps";
     public static final String COMMAND = "command";
@@ -148,7 +149,7 @@ public class SupportedParameters {
     public static final Set<String> APP_PROPS = Collections
         .unmodifiableSet(new HashSet<>(Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN, DOMAINS, PORT, PORTS, COMMAND, BUILDPACK,
             HEALTH_CHECK_TYPE, HEALTH_CHECK_HTTP_ENDPOINT, ENABLE_SSH, STACK, HEALTH_CHECK_TIMEOUT, IDLE_HOST, MEMORY, INSTANCES,
-            NO_HOSTNAME, NO_ROUTE, IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS)));
+            NO_HOSTNAME, NO_ROUTE, IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS, KEEP_EXISTING_ROUTES)));
 
     public static final Set<String> SERVICE_PROPS = Collections
         .unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE, SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER,

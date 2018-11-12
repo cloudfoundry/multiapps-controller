@@ -27,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2_0.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.parser.MemoryParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.StagingParametersParser;
@@ -97,7 +98,8 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         int diskQuota = parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0"));
         int memory = parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.MEMORY, "0"));
         int instances = (Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0);
-        List<String> uris = urisCloudModelBuilder.getApplicationUris(module, parametersList);
+        DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
+        List<String> uris = urisCloudModelBuilder.getApplicationUris(module, parametersList, deployedModule);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
         List<String> resolvedUris = xsPlaceholderResolver.resolve(uris);
         List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);
