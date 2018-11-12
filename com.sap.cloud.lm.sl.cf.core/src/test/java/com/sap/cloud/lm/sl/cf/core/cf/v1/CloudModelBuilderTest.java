@@ -39,13 +39,17 @@ import com.sap.cloud.lm.sl.mta.model.v1.Module;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
-@RunWith(value = Parameterized.class)
+@RunWith(Parameterized.class)
 public class CloudModelBuilderTest {
 
     protected static final String DEFAULT_DOMAIN_CF = "cfapps.neo.ondemand.com";
     protected static final String DEFAULT_DOMAIN_XS = "sofd60245639a";
 
     protected static final String DEPLOY_ID = "123";
+
+    protected final DescriptorParser descriptorParser = getDescriptorParser();
+    protected final ConfigurationParser configurationParser = getConfigurationParser();
+    protected final DescriptorHandler descriptorHandler = getDescriptorHandler();
 
     protected final String deploymentDescriptorLocation;
     protected final String extensionDescriptorLocation;
@@ -356,49 +360,62 @@ public class CloudModelBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        DescriptorParser descriptorParser = getDescriptorParser();
-        ConfigurationParser configurationParser = getConfigurationParser();
-
-        InputStream deploymentDescriptorYaml = getClass().getResourceAsStream(deploymentDescriptorLocation);
-        DeploymentDescriptor deploymentDescriptor = descriptorParser.parseDeploymentDescriptorYaml(deploymentDescriptorYaml);
-
-        InputStream extensionDescriptorYaml = getClass().getResourceAsStream(extensionDescriptorLocation);
-        ExtensionDescriptor extensionDescriptor = descriptorParser.parseExtensionDescriptorYaml(extensionDescriptorYaml);
-
-        InputStream platformsJson = getClass().getResourceAsStream(platformsLocation);
-        List<Platform> platforms = configurationParser.parsePlatformsJson(platformsJson);
-
-        InputStream targetsJson = getClass().getResourceAsStream(targetsLocation);
-        List<Target> targets = configurationParser.parseTargetsJson(targetsJson);
-
-        DescriptorHandler handler = getDescriptorHandler();
-
-        String targetName = extensionDescriptor.getDeployTargets().get(0);
-        Target target = handler.findTarget(targets, targetName, null);
-        Platform platform = handler.findPlatform(platforms, target.getType());
+        DeploymentDescriptor deploymentDescriptor = loadDeploymentDescriptor();
+        ExtensionDescriptor extensionDescriptor = loadExtensionDescriptor();
+        Target target = loadTarget(extensionDescriptor);
+        Platform platform = loadPlatform(target);
 
         deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Arrays.asList(extensionDescriptor))._1;
         insertProperAppNames(deploymentDescriptor);
 
-        TargetMerger platformMerger = getTargetMerger(target, handler);
+        TargetMerger platformMerger = getTargetMerger(target, descriptorHandler);
         platformMerger.mergeInto(deploymentDescriptor);
 
-        PlatformMerger platformTypeMerger = getPlatformMerger(platform, handler);
+        PlatformMerger platformTypeMerger = getPlatformMerger(platform, descriptorHandler);
         platformTypeMerger.mergeInto(deploymentDescriptor);
 
-        String defaultDomain = getDefaultDomain(targetName);
+        String defaultDomain = getDefaultDomain(target.getName());
 
         SystemParameters systemParameters = createSystemParameters(deploymentDescriptor, defaultDomain);
         XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
         xsPlaceholderResolver.setDefaultDomain(defaultDomain);
+        CloudModelConfiguration configuration = createCloudModelConfiguration(defaultDomain);
+        appsBuilder = getApplicationsCloudModelBuilder(deploymentDescriptor, systemParameters, xsPlaceholderResolver, configuration);
+        domainsBuilder = getDomainsBuilder(deploymentDescriptor, systemParameters, xsPlaceholderResolver);
+        servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
+    }
+
+    private DeploymentDescriptor loadDeploymentDescriptor() {
+        InputStream deploymentDescriptorYaml = getClass().getResourceAsStream(deploymentDescriptorLocation);
+        return descriptorParser.parseDeploymentDescriptorYaml(deploymentDescriptorYaml);
+    }
+
+    private ExtensionDescriptor loadExtensionDescriptor() {
+        InputStream extensionDescriptorYaml = getClass().getResourceAsStream(extensionDescriptorLocation);
+        return descriptorParser.parseExtensionDescriptorYaml(extensionDescriptorYaml);
+    }
+
+    private Target loadTarget(ExtensionDescriptor extensionDescriptor) {
+        InputStream targetsJson = getClass().getResourceAsStream(targetsLocation);
+        List<Target> targets = configurationParser.parseTargetsJson(targetsJson);
+        String targetName = extensionDescriptor.getDeployTargets()
+            .get(0);
+        return descriptorHandler.findTarget(targets, targetName, null);
+    }
+
+    private Platform loadPlatform(Target target) {
+        InputStream platformsJson = getClass().getResourceAsStream(platformsLocation);
+        List<Platform> platforms = configurationParser.parsePlatformsJson(platformsJson);
+        return descriptorHandler.findPlatform(platforms, target.getType());
+    }
+
+    private CloudModelConfiguration createCloudModelConfiguration(String defaultDomain) {
         CloudModelConfiguration configuration = new CloudModelConfiguration();
         configuration.setPortBasedRouting(defaultDomain.equals(DEFAULT_DOMAIN_XS));
         configuration.setPrettyPrinting(false);
         configuration.setUseNamespaces(useNamespaces);
         configuration.setUseNamespacesForServices(useNamespacesForServices);
-        appsBuilder = getApplicationsCloudModelBuilder(deploymentDescriptor, systemParameters, xsPlaceholderResolver, configuration);
-        domainsBuilder = getDomainsBuilder(deploymentDescriptor, systemParameters, xsPlaceholderResolver);
-        servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
+        return configuration;
     }
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
