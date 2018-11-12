@@ -1,10 +1,8 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v3;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
@@ -15,9 +13,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v3.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v3.DeployTargetFactory;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
@@ -31,7 +27,6 @@ import com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger;
 import com.sap.cloud.lm.sl.mta.mergers.v2.TargetMerger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1.Target;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
@@ -41,10 +36,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
 
     @Mock
     private UserMessageLogger userMessageLogger;
-
-    private ApplicationsCloudModelBuilder appsBuilder;
-    private ServicesCloudModelBuilder servicesBuilder;
-    private DomainsCloudModelBuilder domainsBuilder;
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
         String targetsLocation, boolean useNamespaces, boolean useNamespacesForServices, String[] mtaArchiveModules, String[] mtaModules,
@@ -69,53 +60,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
             },
 // @formatter:on
         });
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        DescriptorParser descriptorParser = getDescriptorParser();
-        ConfigurationParser configurationParser = getConfigurationParser();
-
-        InputStream deploymentDescriptorYaml = getClass().getResourceAsStream(deploymentDescriptorLocation);
-        DeploymentDescriptor deploymentDescriptor = descriptorParser.parseDeploymentDescriptorYaml(deploymentDescriptorYaml);
-
-        InputStream extensionDescriptorYaml = getClass().getResourceAsStream(extensionDescriptorLocation);
-        ExtensionDescriptor extensionDescriptor = descriptorParser.parseExtensionDescriptorYaml(extensionDescriptorYaml);
-
-        InputStream platformsJson = getClass().getResourceAsStream(platformsLocation);
-        List<Platform> platforms = configurationParser.parsePlatformsJson(platformsJson);
-
-        InputStream targetsJson = getClass().getResourceAsStream(targetsLocation);
-        List<Target> targets = configurationParser.parseTargetsJson(targetsJson);
-
-        DescriptorHandler handler = getDescriptorHandler();
-
-        String targetName = extensionDescriptor.getDeployTargets().get(0);
-        Target target = handler.findTarget(targets, targetName, null);
-        Platform platform = handler.findPlatform(platforms, target.getType());
-
-        deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Arrays.asList(extensionDescriptor))._1;
-        insertProperAppNames(deploymentDescriptor);
-
-        TargetMerger platformMerger = getTargetMerger(target, handler);
-        platformMerger.mergeInto(deploymentDescriptor);
-
-        PlatformMerger platformTypeMerger = getPlatformMerger(platform, handler);
-        platformTypeMerger.mergeInto(deploymentDescriptor);
-
-        String defaultDomain = getDefaultDomain(targetName);
-
-        SystemParameters systemParameters = createSystemParameters(deploymentDescriptor, defaultDomain);
-        XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
-        xsPlaceholderResolver.setDefaultDomain(defaultDomain);
-        CloudModelConfiguration configuration = new CloudModelConfiguration();
-        configuration.setPortBasedRouting(defaultDomain.equals(DEFAULT_DOMAIN_XS));
-        configuration.setPrettyPrinting(false);
-        configuration.setUseNamespaces(useNamespaces);
-        configuration.setUseNamespacesForServices(useNamespacesForServices);
-        appsBuilder = getApplicationsCloudModelBuilder(deploymentDescriptor, systemParameters, xsPlaceholderResolver, configuration);
-        domainsBuilder = getDomainsBuilder(deploymentDescriptor, systemParameters, xsPlaceholderResolver);
-        servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
     }
 
     @Override
