@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "id": "foo.mtar",
+    "version": "1.0.0"
+  },
+  "modules": [
+    {
+      "moduleName": "bar",
+      "appName": "bar",
+      "uris": []
+    }
+  ]
+}
