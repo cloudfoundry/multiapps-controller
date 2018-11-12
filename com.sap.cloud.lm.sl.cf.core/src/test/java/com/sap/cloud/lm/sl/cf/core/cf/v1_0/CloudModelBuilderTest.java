@@ -58,9 +58,9 @@ public class CloudModelBuilderTest {
     protected final Set<String> deployedApps;
     protected final String[] expected;
 
-    private ApplicationsCloudModelBuilder appsBuilder;
-    private ServicesCloudModelBuilder servicesBuilder;
-    private DomainsCloudModelBuilder domainsBuilder;
+    protected ApplicationsCloudModelBuilder appsBuilder;
+    protected ServicesCloudModelBuilder servicesBuilder;
+    protected DomainsCloudModelBuilder domainsBuilder;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
