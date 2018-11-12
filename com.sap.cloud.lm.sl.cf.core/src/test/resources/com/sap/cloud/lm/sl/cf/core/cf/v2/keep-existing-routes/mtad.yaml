@@ -1,0 +1,12 @@
+_schema-version: 2
+ID: foo.mtar
+version: 1.0.0
+
+modules:
+  - name: foo
+    type: w/e
+    parameters:
+      keep-existing-routes: true
+
+  - name: bar
+    type: w/e
