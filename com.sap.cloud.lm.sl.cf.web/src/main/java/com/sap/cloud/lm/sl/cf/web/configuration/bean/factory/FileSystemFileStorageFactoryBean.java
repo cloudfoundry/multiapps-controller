@@ -11,45 +11,39 @@ import org.springframework.cloud.Cloud;
 import org.springframework.cloud.CloudException;
 import org.springframework.cloud.CloudFactory;
 
-import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileStorage;
 import com.sap.cloud.lm.sl.cf.web.configuration.service.FileSystemServiceInfo;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 
-public class FileSystemFileServiceFactoryBean implements FactoryBean<FileSystemFileService>, InitializingBean {
+public class FileSystemFileStorageFactoryBean implements FactoryBean<FileSystemFileStorage>, InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemFileServiceFactoryBean.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemFileStorageFactoryBean.class);
 
     private String serviceName;
-    private DataSourceWithDialect dataSourceWithDialect;
-    private FileSystemFileService fileSystemFileService;
+    private FileSystemFileStorage fileSystemFileStorage;
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
 
-    public void setDataSourceWithDialect(DataSourceWithDialect dataSourceWithDialect) {
-        this.dataSourceWithDialect = dataSourceWithDialect;
-    }
-
     @Override
     public void afterPropertiesSet() {
         String storagePath = getStoragePath(serviceName);
-        this.fileSystemFileService = createFileSystemFileService(storagePath);
+        this.fileSystemFileStorage = createFileSystemFileStorage(storagePath);
     }
 
-    private FileSystemFileService createFileSystemFileService(String storagePath) {
-        return storagePath == null ? null : new FileSystemFileService(dataSourceWithDialect, storagePath);
+    private FileSystemFileStorage createFileSystemFileStorage(String storagePath) {
+        return storagePath == null ? null : new FileSystemFileStorage(storagePath);
     }
 
     @Override
-    public FileSystemFileService getObject() {
-        return fileSystemFileService;
+    public FileSystemFileStorage getObject() {
+        return fileSystemFileStorage;
     }
 
     @Override
     public Class<?> getObjectType() {
-        return FileSystemFileService.class;
+        return FileSystemFileStorage.class;
     }
 
     @Override

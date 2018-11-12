@@ -12,7 +12,7 @@ import org.slf4j.MDC;
 
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
@@ -32,7 +32,7 @@ public abstract class SyncFlowableStep implements TaskIndexProvider, JavaDelegat
     private ProgressMessageService progressMessageService;
     @Inject
     @Named("fileService")
-    protected AbstractFileService fileService;
+    protected FileService fileService;
     @Inject
     private ProcessEngineConfiguration processEngineConfiguration;
     @Inject

@@ -28,7 +28,7 @@ import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService;
@@ -63,7 +63,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     @Mock
     protected ProgressMessageService progressMessageService;
     @Mock
-    protected AbstractFileService fileService;
+    protected FileService fileService;
     @Mock
     protected XsCloudControllerClient client;
     @Mock

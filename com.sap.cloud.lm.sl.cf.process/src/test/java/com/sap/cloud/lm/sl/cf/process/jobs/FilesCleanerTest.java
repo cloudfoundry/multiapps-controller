@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 
 public class FilesCleanerTest {
@@ -18,7 +18,7 @@ public class FilesCleanerTest {
     private static final Date EXPIRATION_TIME = new Date(5000);
 
     @Mock
-    private AbstractFileService fileService;
+    private FileService fileService;
     @InjectMocks
     private FilesCleaner cleaner;
 

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -22,10 +22,10 @@ public class FilesCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilesCleaner.class);
 
-    private final AbstractFileService fileService;
+    private final FileService fileService;
 
     @Inject
-    public FilesCleaner(AbstractFileService fileService) {
+    public FilesCleaner(FileService fileService) {
         this.fileService = fileService;
     }
 

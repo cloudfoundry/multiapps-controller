@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -31,7 +31,7 @@ public class EndProcessListenerTest {
     private DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
     @Mock
-    private AbstractFileService fileService;
+    private FileService fileService;
     @Mock
     private StepLogger.Factory stepLoggerFactory;
     @Mock

@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileService;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileSystemFileStorage;
 
 @Component
 public class Metrics implements MetricsMBean {
@@ -18,15 +18,15 @@ public class Metrics implements MetricsMBean {
 
     private ApplicationConfiguration appConfigurations;
 
-    private FileSystemFileService fileSystemService;
+    private FileSystemFileStorage fileSystemStorage;
 
     private FssMonitor fssMonitor;
 
     @Inject
-    public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor, FileSystemFileService fss) {
+    public Metrics(ApplicationConfiguration appConfigurations, FssMonitor fssMonitor, FileSystemFileStorage fss) {
         this.appConfigurations = appConfigurations;
         this.fssMonitor = fssMonitor;
-        this.fileSystemService = fss;
+        this.fileSystemStorage = fss;
         if (fss == null) {
             LOGGER.info("No metrics for file system service will be collected - no such service found.");
         }
@@ -34,10 +34,10 @@ public class Metrics implements MetricsMBean {
     }
 
     private String getFssStoragePath() {
-        if (fileSystemService == null) {
+        if (fileSystemStorage == null) {
             return "";
         }
-        return fileSystemService.getStoragePath();
+        return fileSystemStorage.getStoragePath();
     }
 
     private boolean shouldCollectCentralServiceMetrics() {
@@ -50,7 +50,7 @@ public class Metrics implements MetricsMBean {
             LOGGER.debug("Not collecting metrics for FSS on path: {}", getFssStoragePath());
             return 0L;
         }
-        return fssMonitor.calculateUsedSpace(fileSystemService.getStoragePath());
+        return fssMonitor.calculateUsedSpace(fileSystemStorage.getStoragePath());
     }
 
     @Override

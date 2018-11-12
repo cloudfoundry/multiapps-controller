@@ -166,13 +166,4 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
             throw new SLException(e, Messages.ERROR_DELETING_PROCESS_LOGS_WITH_NAMESPACE, namespace);
         }
     }
-
-    @Override
-    protected int deleteFilesWithoutContent() throws FileStorageException {
-        // Files without content should only exist when switching from one implementation to another (FileSystemFileService ->
-        // DatabaseFileService, for example). There is no alternative implementation of ProcessLogsPersistenceService, so there shouldn't be
-        // any files without content.
-        return 0;
-    }
-
 }

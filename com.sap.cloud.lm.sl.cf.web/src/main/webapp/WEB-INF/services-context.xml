@@ -5,18 +5,13 @@
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
 
-    <bean id="databaseFileService" class="com.sap.cloud.lm.sl.cf.persistence.services.DatabaseFileService">
-        <constructor-arg name="dataSourceWithDialect" ref="dataSourceWithDialect" />
-    </bean>
-
-    <bean id="fileSystemFileService" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.FileSystemFileServiceFactoryBean">
+    <bean id="fileSystemFileStorage" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.FileSystemFileStorageFactoryBean">
         <property name="serviceName" value="deploy-service-fss" />
-        <property name="dataSourceWithDialect" ref="dataSourceWithDialect" />
     </bean>
 
     <bean id="fileService" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.FileServiceFactoryBean">
-        <property name="databaseFileService" ref="databaseFileService" />
-        <property name="fileSystemFileService" ref="fileSystemFileService" />
+        <property name="dataSourceWithDialect" ref="dataSourceWithDialect" />
+        <property name="fileSystemFileStorage" ref="fileSystemFileStorage" />
     </bean>
 
     <bean id="processLogsPersistenceService"
