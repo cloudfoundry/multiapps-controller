@@ -1,0 +1,36 @@
+[
+  {
+    "moduleName": "foo",
+    "idleUris": [],
+    "tasks": [],
+    "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "sofd60245639a"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "MTA_METADATA={\"id\":\"foo.mtar\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"foo\"]",
+      "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]"
+    ],
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "services": [],
+    "staging": {},
+    "uris": [
+      "foo.sofd60245639a"
+    ],
+    "meta": {},
+    "name": "foo"
+  }
+]

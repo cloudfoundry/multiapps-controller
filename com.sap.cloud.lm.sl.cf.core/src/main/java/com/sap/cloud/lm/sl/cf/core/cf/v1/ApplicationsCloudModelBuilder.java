@@ -125,7 +125,6 @@ public class ApplicationsCloudModelBuilder {
     }
 
     private void printMTAModuleNotFoundWarning(String moduleName) {
-
         if (userMessageLogger != null) {
             userMessageLogger.warn(Messages.NOT_DESCRIBED_MODULE, moduleName);
         }
@@ -151,7 +150,8 @@ public class ApplicationsCloudModelBuilder {
         int diskQuota = parseParameters(propertiesList, new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0"));
         int memory = parseParameters(propertiesList, new MemoryParametersParser(SupportedParameters.MEMORY, "0"));
         int instances = (Integer) getPropertyValue(propertiesList, SupportedParameters.INSTANCES, 0);
-        List<String> uris = urisCloudModelBuilder.getApplicationUris(module, propertiesList);
+        DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
+        List<String> uris = urisCloudModelBuilder.getApplicationUris(module, propertiesList, deployedModule);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, propertiesList);
         List<String> resolvedUris = xsPlaceholderResolver.resolve(uris);
         List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);

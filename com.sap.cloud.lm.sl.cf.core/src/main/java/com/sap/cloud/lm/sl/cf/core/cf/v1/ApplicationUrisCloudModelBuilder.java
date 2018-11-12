@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v1;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -8,12 +9,15 @@ import org.apache.commons.collections4.MapUtils;
 
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters.RoutingParameterSet;
 import com.sap.cloud.lm.sl.cf.core.parser.IdleUriParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.UriParametersParser;
+import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.Module;
+import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class ApplicationUrisCloudModelBuilder {
 
@@ -35,8 +39,24 @@ public class ApplicationUrisCloudModelBuilder {
             .equals(platform);
     }
 
-    public List<String> getApplicationUris(Module module, List<Map<String, Object>> propertiesList) {
-        return getUriParametersParser(module).parse(propertiesList);
+    public List<String> getApplicationUris(Module module, List<Map<String, Object>> propertiesList, DeployedMtaModule deployedModule) {
+        List<String> uris = getUriParametersParser(module).parse(propertiesList);
+        if (shouldKeepExistingUris(propertiesList)) {
+            return appendExistingUris(uris, deployedModule);
+        }
+        return uris;
+    }
+
+    private boolean shouldKeepExistingUris(List<Map<String, Object>> propertiesList) {
+        return (boolean) PropertiesUtil.getPropertyValue(propertiesList, SupportedParameters.KEEP_EXISTING_ROUTES, false);
+    }
+
+    private List<String> appendExistingUris(List<String> uris, DeployedMtaModule deployedModule) {
+        List<String> result = new ArrayList<>(uris);
+        if (deployedModule != null) {
+            result.addAll(deployedModule.getUris());
+        }
+        return ListUtil.removeDuplicates(result);
     }
 
     public List<Integer> getApplicationPorts(Module module, List<Map<String, Object>> propertiesList) {

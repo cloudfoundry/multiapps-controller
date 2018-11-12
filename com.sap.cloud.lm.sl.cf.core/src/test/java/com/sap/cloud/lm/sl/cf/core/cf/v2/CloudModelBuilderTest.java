@@ -12,6 +12,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.DeployTargetFactory;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
@@ -33,7 +34,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
         return Arrays.asList(new Object[][] {
 // @formatter:off
             // (00) Full MTA:
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -43,7 +44,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/javahelloworld/services.json",
                     "R:/mta/javahelloworld/apps-v2.json", } },
             // (01)
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/xs2-config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/xs2-config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -53,7 +54,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/javahelloworld/xs2-services.json",
                     "R:/mta/javahelloworld/xs2-apps-v2.json", } },
             // (02) Full MTA with namespaces:
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 true, true,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -63,7 +64,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/javahelloworld/services-ns.json",
                     "R:/mta/javahelloworld/apps-ns-v2.json", } },
             // (03) Full MTA with namespaces (w/o services):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 true, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -73,7 +74,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/javahelloworld/services.json",
                     "R:/mta/javahelloworld/apps-ns2-v2.json", } },
             // (04) Patch MTA (resolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -83,7 +84,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/javahelloworld/services-patch1.json",
                     "R:/mta/javahelloworld/apps-patch1.json", } },
             // (05) Patch MTA with namespaces (resolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 true, true,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -93,7 +94,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/javahelloworld/services-patch1-ns.json",
                     "R:/mta/javahelloworld/apps-patch1-ns.json", } },
             // (06) Patch MTA (unresolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -103,7 +104,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/javahelloworld/services-patch1.json",
                     "E:Unresolved MTA modules [java-hello-world-backend, java-hello-world-db]", } },
             // (07) Patch MTA (module is in archive, but not intended for platform):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "java-hello-world", }, // mtaArchiveModules
                 new String[] {}, // mtaModules
@@ -113,7 +114,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 "R:/mta/javahelloworld/services-patch1.json",
                 "E:MTA module \"java-hello-world\" is part of MTA archive, but is not intended for deployment", } },
             // (08)
-            { "/mta/shine/mtad-v2.yaml", "/mta/shine/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/shine/mtad-v2.yaml", "/mta/shine/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaArchiveModules
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaModules
@@ -123,7 +124,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/shine/services.json",
                     "R:/mta/shine/apps-v2.json", } },
             // (09)
-            { "/mta/sample/mtad-v2.yaml", "/mta/sample/config1-v2.mtaext", "/mta/sample/platform-types-v2.json", "/mta/sample/targets-v2.json",
+            { "/mta/sample/mtad-v2.yaml", "/mta/sample/config1-v2.mtaext", "/mta/sample/platform-types-v2.json", "/mta/sample/targets-v2.json", null,
                 false, false,
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
@@ -133,7 +134,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/sample/services.json",
                     "R:/mta/sample/apps-v2.json", } },
             // (10)
-            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -143,7 +144,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/devxwebide/services.json",
                     "R:/mta/devxwebide/apps.json", } },
             // (11)
-            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/xs2-config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/xs2-config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -153,7 +154,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/devxwebide/services.json",
                     "R:/mta/devxwebide/xs2-apps.json", } },
             // (12)
-            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
@@ -163,7 +164,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/devxdi/services.json",
                     "R:/mta/devxdi/apps-v2.json", } },
             // (13)
-            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config1-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
@@ -173,7 +174,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/devxdi/xs2-services.json",
                     "R:/mta/devxdi/xs2-apps-v2.json", } },
             // (14)
-            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/xs2-config2-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/xs2-config2-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -183,7 +184,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/devxwebide/services.json",
                     "R:/mta/devxwebide/xs2-apps.json", } },
             // (15) Unknown typed resource parameters:
-            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config2-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config2-v2.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
@@ -193,7 +194,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/devxdi/xs2-services.json",
                     "R:/mta/devxdi/xs2-apps-v2.json", } },
             // (16) Service binding parameters in requires dependency:
-            { "mtad-01.yaml", "config-01.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "mtad-01.yaml", "config-01.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                         false, false,
                         new String[] { "foo", }, // mtaArchiveModules
                         new String[] { "foo", }, // mtaModules
@@ -203,7 +204,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                             "[]",
                             "R:apps-01.json", } },
             // (17) Service binding parameters in requires dependency:
-            { "mtad-02.yaml", "config-01.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+            { "mtad-02.yaml", "config-01.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                                 false, false,
                                 new String[] { "foo", }, // mtaArchiveModules
                                 new String[] { "foo", }, // mtaModules
@@ -214,7 +215,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                                     "E:Invalid type for key \"foo#bar#config\", expected \"Map\" but got \"String\"", } },
             // (18) Custom application names are used:
             {
-                "mtad-03.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-03.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
@@ -223,7 +224,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (19) Custom application names are used:
             {
-                "mtad-03.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-03.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 true, true,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
@@ -232,7 +233,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (20) Temporary URIs are used:
             {
-                "mtad-05.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-05.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
@@ -241,7 +242,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (21) Use list parameter:
             {
-                "mtad-06.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-06.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "framework" }, // mtaArchiveModules
                 new String[] { "framework" }, // mtaModules
@@ -250,7 +251,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (22) Use partial plugin:
             {
-                "mtad-07.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-07.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "framework" }, // mtaArchiveModules
                 new String[] { "framework" }, // mtaModules
@@ -259,7 +260,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (23) Overwrite service-name resource property in ext. descriptor:
             {
-                "mtad-08.yaml", "config-03.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-08.yaml", "config-03.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
@@ -268,7 +269,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (24) Test support for one-off tasks:
             {
-                "mtad-09.yaml", "config-03.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-09.yaml", "config-03.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaModules
@@ -277,7 +278,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (25) With 'health-check-type' set to 'port':
             { 
-                "mtad-health-check-type-port.yaml", "config-03.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-health-check-type-port.yaml", "config-03.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -286,7 +287,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (26) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
             { 
-                "mtad-health-check-type-http-with-endpoint.yaml", "config-03.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-health-check-type-http-with-endpoint.yaml", "config-03.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -295,7 +296,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (27) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
             { 
-                "mtad-health-check-type-http-without-endpoint.yaml", "config-03.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-health-check-type-http-without-endpoint.yaml", "config-03.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -304,7 +305,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (28) Test inject service keys:
             {
-                "mtad-10.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-10.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
@@ -313,7 +314,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (29) With 'enable-ssh' set to true: 
             {
-                "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -322,7 +323,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (30) With 'enable-ssh' set to false: 
             {
-                "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -331,7 +332,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
             },
             // (31) With TCPS routes
             {
-                "mtad-11.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",
+                "mtad-11.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
                 false, false,
                 new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2", "module-3" }, // mtaModules
@@ -339,7 +340,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new String[] { "[\"test-domain\",\"test-domain-2\"]", "[]", "R:apps-with-tcp-routes.json", }
             },
             // (32) Shared Managed Service
-            { "/mta/sample/mtad-v2-shared.yaml", "/mta/sample/config1-v2.mtaext", "/mta/sample/platform-types-v2.json", "/mta/sample/targets-v2.json",
+            { "/mta/sample/mtad-v2-shared.yaml", "/mta/sample/config1-v2.mtaext", "/mta/sample/platform-types-v2.json", "/mta/sample/targets-v2.json", null,
                 false, false,
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
@@ -350,7 +351,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "R:/mta/sample/apps-v2-shared.json", } 
             },
             // (33) Do not restart on env change - bg-deploy
-            { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", 
+            { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json",  null,
                 false, false, 
                 new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2", "module-3" }, // mtaModules
@@ -359,15 +360,64 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                     "[]", "[]", "R:apps-with-restart-parameters-false.json" // services
                 }
             },
+            // (34) With 'keep-existing-routes' set to true and no deployed MTA:
+            {
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
+                false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:keep-existing-routes/apps.json", }
+            },
+            // (35) With 'keep-existing-routes' set to true and no deployed module:
+            {
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", 
+                "keep-existing-routes/deployed-mta-without-foo-module.json",
+                false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:keep-existing-routes/apps.json", }
+            },
+            // (36) With 'keep-existing-routes' set to true and an already deployed module with no URIs:
+            {
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", 
+                "keep-existing-routes/deployed-mta-without-uris.json",
+                false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:keep-existing-routes/apps.json", }
+            },
+            // (37) With 'keep-existing-routes' set to true and an already deployed module:
+            {
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", 
+                "keep-existing-routes/deployed-mta.json",
+                false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:keep-existing-routes/apps-with-existing-routes.json", }
+            },
+            // (38) With global 'keep-existing-routes' set to true and an already deployed module:
+            {
+                "keep-existing-routes/mtad-with-global-parameter.yaml", "config-02.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", 
+                "keep-existing-routes/deployed-mta.json",
+                false, false,
+                new String[] { "foo" }, // mtaArchiveModules
+                new String[] { "foo" }, // mtaModules
+                new String[] {}, // deployedApps
+                new String[] { "[]", "[]", "R:keep-existing-routes/apps-with-existing-routes.json", }
+            },
 // @formatter:on
         });
     }
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-        String targetsLocation, boolean useNamespaces, boolean useNamespacesForServices, String[] mtaArchiveModules, String[] mtaModules,
-        String[] deployedApps, String[] expected) {
-        super(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, targetsLocation, useNamespaces,
-            useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expected);
+        String targetsLocation, String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices,
+        String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, String[] expected) {
+        super(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, targetsLocation, deployedMtaLocation,
+            useNamespaces, useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expected);
     }
 
     @Override
@@ -399,11 +449,12 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
 
     @Override
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, CloudModelConfiguration configuration) {
+        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
+        XsPlaceholderResolver xsPlaceholderResolver) {
         deploymentDescriptor = new DescriptorReferenceResolver((com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor,
             new ResolverBuilder(), new ResolverBuilder()).resolve();
         return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder(
-            (com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor, configuration, null, systemParameters,
+            (com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor, configuration, deployedMta, systemParameters,
             xsPlaceholderResolver, DEPLOY_ID);
     }
 
