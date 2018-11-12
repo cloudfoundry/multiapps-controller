@@ -3,8 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.cf.v2_0;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -28,7 +26,6 @@ import com.sap.cloud.lm.sl.mta.model.v2_0.Module;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2_0.DescriptorReferenceResolver;
 
-@RunWith(value = Parameterized.class)
 public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1_0.CloudModelBuilderTest {
 
     @Parameters
