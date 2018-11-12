@@ -145,6 +145,21 @@ public class CollectSystemParametersStepTest extends SyncActivitiStepTest<Collec
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, true ), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-06.json", null),
             },
+            // (7) Host based routing with TCP/TCPS
+            {
+                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 3, null, PlatformType.XS2, false), 
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2)), "R:system-parameters-12.json", null),
+            },
+            // (8) Host based routing with TCP/TCPS with existing apps with HTTP uris
+            {
+                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 3, "deployed-mta-13.json", PlatformType.XS2, false), 
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2)), "R:system-parameters-12.json", null),
+            },
+            // (9) Host based routing with TCP/TCPS with existing apps with TCP uris
+            {
+                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 3, "deployed-mta-14.json", PlatformType.XS2, false), 
+                new StepOutput(Collections.emptySet(), "R:system-parameters-13.json", null),
+            },
 // @formatter:on
         });
     }
@@ -241,7 +256,7 @@ public class CollectSystemParametersStepTest extends SyncActivitiStepTest<Collec
 
         assertStepFinishedSuccessfully();
 
-        if (input.portBasedRouting) {
+        if (output.allocatedPorts != null) {
             assertEquals(output.allocatedPorts, StepsUtil.getAllocatedPorts(context));
         }
 

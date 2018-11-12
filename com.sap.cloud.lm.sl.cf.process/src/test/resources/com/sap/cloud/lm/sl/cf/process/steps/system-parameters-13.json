@@ -1,0 +1,67 @@
+{
+  "moduleParameters": {
+    "module-1": {
+      "app-name": "mta-tcp.module-1",
+      "buildpack": "",
+      "command": "",
+      "default-host": "initial-initial-module-1",
+      "default-port": 1234,
+      "default-uri": "${domain}:${port}",
+      "default-url": "${protocol}://${default-uri}",
+      "disk-quota": -1,
+      "domain": "localhost",
+      "generated-password": "credential",
+      "generated-user": "credential",
+      "host": "initial-initial-module-1",
+      "instances": 1,
+      "memory": "256M",
+      "port": 1234,
+      "protocol": "tcp",
+      "service": "",
+      "service-plan": "",
+      "timestamp": "19700101"
+    },
+    "module-2": {
+      "app-name": "mta-tcp.module-2",
+      "buildpack": "",
+      "command": "",
+      "default-host": "initial-initial-module-2",
+      "default-port": 5678,
+      "default-uri": "${domain}:${port}",
+      "default-url": "${protocol}://${default-uri}",
+      "disk-quota": -1,
+      "domain": "localhost",
+      "generated-password": "credential",
+      "generated-user": "credential",
+      "host": "initial-initial-module-2",
+      "instances": 1,
+      "memory": "256M",
+      "port": 5678,
+      "protocol": "tcps",
+      "service": "",
+      "service-plan": "",
+      "timestamp": "19700101"
+    }
+  },
+  "generalParameters": {
+    "authorization-url": "https://localhost:30032/uaa-security",
+    "controller-url": "http://localhost:9999",
+    "default-domain": "localhost",
+    "deploy-target": "initial initial",
+    "org": "initial",
+    "space": "initial",
+    "user": "XSMASTER",
+    "xs-api-url": "http://localhost:9999",
+    "xs-auth-url": "https://localhost:30032/uaa-security",
+    "xs-type": "XS2"
+  },
+  "resourceParameters": {},
+  "singularPluralMapping": {
+    "domain": "domains",
+    "host": "hosts",
+    "idle-domain": "idle-domains",
+    "idle-host": "idle-hosts",
+    "idle-port": "idle-ports",
+    "port": "ports"
+  }
+}
