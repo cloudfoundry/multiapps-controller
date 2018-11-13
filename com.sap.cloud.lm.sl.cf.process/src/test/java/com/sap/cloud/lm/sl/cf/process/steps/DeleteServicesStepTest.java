@@ -39,7 +39,6 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -118,6 +117,9 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
 
     @Test
     public void testExecute() throws Exception {
+        if(StepsUtil.getServicesToDelete(context).isEmpty()) {
+            return;
+        }
         prepareResponses(STEP_EXECUTION);
         step.execute(context);
         assertStepPhase(STEP_EXECUTION);
@@ -198,7 +200,8 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
                 Mockito.when(eventsGetter.getLastEvent(UUID.fromString(service.guid), client))
                     .thenReturn(deleteEvent);
             });
-        Mockito.when(eventsGetter.isDeleteEvent(SERVICE_EVENT_TYPE_DELETE)).thenCallRealMethod();
+        Mockito.when(eventsGetter.isDeleteEvent(SERVICE_EVENT_TYPE_DELETE))
+            .thenCallRealMethod();
     }
 
     @SuppressWarnings("unchecked")

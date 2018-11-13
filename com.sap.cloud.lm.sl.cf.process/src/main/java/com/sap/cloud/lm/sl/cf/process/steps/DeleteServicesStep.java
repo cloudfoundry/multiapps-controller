@@ -54,6 +54,17 @@ public class DeleteServicesStep extends AsyncFlowableStep {
 
             List<String> servicesToDelete = StepsUtil.getServicesToDelete(execution.getContext());
 
+            if (servicesToDelete.isEmpty()) {
+                getStepLogger().debug(Messages.MISSING_SERVICES_TO_DELETE);
+                return StepPhase.DONE;
+            }
+
+            if (!StepsUtil.shouldDeleteServices(execution)) {
+                getStepLogger().warn(Messages.SKIP_SERVICES_DELETION);
+
+                return StepPhase.DONE;
+            }
+
             XsCloudControllerClient xsClient = execution.getXsControllerClient();
             if (xsClient == null) {
                 Map<String, String> serviceGuids = getServicesGuids(servicesToDelete, execution);
@@ -195,7 +206,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
-        return Arrays.asList(new PollServiceDeleteOperationsExecution(eventsGetter)); 
+        return Arrays.asList(new PollServiceDeleteOperationsExecution(eventsGetter));
     }
 
 }
