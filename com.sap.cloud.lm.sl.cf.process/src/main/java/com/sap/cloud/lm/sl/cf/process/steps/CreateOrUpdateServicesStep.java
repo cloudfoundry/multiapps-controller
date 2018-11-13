@@ -65,7 +65,7 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
 
     @Inject
     private ServiceInstanceGetter serviceInstanceGetter;
-    
+
     @Inject
     private EventsGetter eventsGetter;
 
@@ -488,18 +488,10 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
 
         List<CloudApplication> existingApps = client.getApplications();
         return bindings.stream()
-            .map(binding -> getApplication(existingApps, binding).getName())
+            .map(binding -> StepsUtil.getBoundApplication(existingApps, binding.getAppGuid())
+                .getName())
             .filter(appNames::contains)
             .collect(Collectors.toList());
-    }
-
-    private CloudApplication getApplication(List<CloudApplication> apps, CloudServiceBinding binding) {
-        return apps.stream()
-            .filter(app -> app.getMeta()
-                .getGuid()
-                .equals(binding.getAppGuid()))
-            .findFirst()
-            .get();
     }
 
     private enum ServiceAction {
