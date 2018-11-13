@@ -136,7 +136,6 @@ public class Messages {
     public static final String ERROR_DELETING_OPTIONAL_SERVICE = "Error deleting optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_MONITORING_CREATION_OF_SERVICES = "Error monitoring creation of services";
     public static final String ERROR_MAPPING_SERVICE_NAMES_TO_GUIDS = "Error mapping services \"{0}\" to guids";
-    
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service {0}";
@@ -171,6 +170,7 @@ public class Messages {
     public static final String ERROR_DURING_CLEAN_UP_0 = "Error during clean-up: {0}";
     public static final String COULD_NOT_DELETE_HISTORIC_PROCESS_0 = "Could not delete historic process \"{0}\"";
     public static final String COULD_NOT_ABORT_OPERATION_0 = "Could not abort operation \"{0}\"";
+    public static final String SKIP_SERVICES_DELETION = "Skipping deletion of services, because the command line option \"--delete-services\" is not specified.";
 
     // INFO log messages
     public static final String MTA_NOT_FOUND = "An MTA with id \"{0}\" does not exist";
@@ -466,5 +466,6 @@ public class Messages {
     public static final String REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE = "Removing expired tokens from the token store...";
     public static final String DELETING_DATA_FOR_NON_EXISTING_USERS = "Deleting data for no-longer existing users...";
     public static final String REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0 = "Registered cleaners in clean-up job: {0}";
+    public static final String MISSING_SERVICES_TO_DELETE = "Missing services to delete.";
 
 }
