@@ -9,15 +9,16 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
+import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
+import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -119,49 +120,49 @@ public class DeleteServicesStep extends AsyncFlowableStep {
     private Map<String, ServiceOperationType> deleteServices(CloudControllerClient client, List<String> serviceNames) {
         Map<String, ServiceOperationType> triggeredServiceOperations = new HashMap<>();
 
-        List<CloudServiceInstance> serviceInstances = getServiceInstances(serviceNames, client);
-        List<CloudServiceInstance> deletableServices = getDeletableServices(serviceInstances);
-
-        for (CloudServiceInstance instance : deletableServices) {
+        for (String serviceName : serviceNames) {
             try {
-                deleteService(client, instance.getService()
-                    .getName());
-                triggeredServiceOperations.put(instance.getService()
-                    .getName(), ServiceOperationType.DELETE);
+                prepareServicesToDelete(client, serviceName);
+                deleteService(client, serviceName);
+                triggeredServiceOperations.put(serviceName, ServiceOperationType.DELETE);
             } catch (CloudOperationException | CloudException e) {
-                processException(e, instance, instance.getService()
-                    .getName());
+                processException(e, client.getServiceInstance(serviceName), serviceName);
             }
         }
         return triggeredServiceOperations;
     }
 
-    private List<CloudServiceInstance> getServiceInstances(List<String> serviceNames, CloudControllerClient client) {
-        return serviceNames.parallelStream()
-            .map(client::getServiceInstance)
-            .collect(Collectors.toList());
+    private void prepareServicesToDelete(CloudControllerClient client, String serviceName) {
+        unbindService(client, serviceName);
+        deleteServiceKeys(client, serviceName);
     }
 
-    private List<CloudServiceInstance> getDeletableServices(List<CloudServiceInstance> serviceInstances) {
-        return serviceInstances.parallelStream()
-            .filter(serviceInstance -> validateServiceHasNoBindings(serviceInstance, serviceInstance.getName()))
-            .collect(Collectors.toList());
+    private void unbindService(CloudControllerClient client, String serviceName) {
+        CloudServiceInstance serviceInstance = client.getServiceInstance(serviceName);
+        List<CloudServiceBinding> bindings = serviceInstance.getBindings();
+        if (bindings.isEmpty()) {
+            return;
+        }
+        logBindings(bindings);
+        for (CloudServiceBinding binding : bindings) {
+            CloudApplication application = StepsUtil.getBoundApplication(client.getApplications(), binding.getAppGuid());
+            getStepLogger().info(Messages.UNBINDING_APP_FROM_SERVICE, application.getName(), serviceName);
+            client.unbindService(application.getName(), serviceName);
+        }
+    }
+
+    private void deleteServiceKeys(CloudControllerClient client, String serviceName) {
+        List<ServiceKey> serviceKeys = client.getServiceKeys(serviceName);
+        for (ServiceKey serviceKey : serviceKeys) {
+            getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, serviceKey.getName(), serviceName);
+            client.deleteServiceKey(serviceName, serviceKey.getName());
+        }
     }
 
     private void deleteService(CloudControllerClient client, String serviceName) {
         getStepLogger().info(Messages.DELETING_SERVICE, serviceName);
         client.deleteService(serviceName);
         getStepLogger().debug(Messages.SERVICE_DELETED, serviceName);
-    }
-
-    private boolean validateServiceHasNoBindings(CloudServiceInstance serviceInstance, String serviceName) {
-        List<CloudServiceBinding> bindings = serviceInstance.getBindings();
-        if (!CollectionUtils.isEmpty(bindings)) {
-            logBindings(bindings);
-            getStepLogger().info(Messages.SERVICE_HAS_BINDINGS_AND_CANNOT_BE_DELETED, serviceName);
-            return false;
-        }
-        return true;
     }
 
     private void processException(Exception e, CloudServiceInstance serviceInstance, String serviceName) {
