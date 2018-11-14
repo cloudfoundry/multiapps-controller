@@ -207,4 +207,10 @@
         </preConditions>
         <delete tableName="task_extension" />
     </changeSet>
+    <changeSet author="sap.com" id="delete_progress_message">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="progress_message" />
+        </preConditions>
+        <delete tableName="progress_message" />
+    </changeSet>
 </databaseChangeLog>
