@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
-import com.sap.cloud.lm.sl.cf.persistence.model.FileUpload;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
 
 public class FileUploader {
@@ -42,7 +42,7 @@ public class FileUploader {
      * @throws FileStorageException
      */
     @SuppressWarnings({ "unchecked" })
-    public static FileUpload uploadFile(InputStream is, @SuppressWarnings("rawtypes") FileUploadProcessor fileUploadProcessor)
+    public static FileInfo uploadFile(InputStream is, @SuppressWarnings("rawtypes") FileUploadProcessor fileUploadProcessor)
         throws FileStorageException {
         BigInteger size = BigInteger.valueOf(0);
         MessageDigest digest;
@@ -82,7 +82,7 @@ public class FileUploader {
             IOUtils.closeQuietly(outputFileStream);
         }
 
-        return new FileUpload(tempFile, size, getDigestString(digest.digest()), DIGEST_METHOD);
+        return new FileInfo(tempFile, size, getDigestString(digest.digest()), DIGEST_METHOD);
     }
 
     private static int getProcessingBufferSize(@SuppressWarnings("rawtypes") FileUploadProcessor fileUploadProcessor) {
@@ -97,7 +97,7 @@ public class FileUploader {
         return DatatypeConverter.printHexBinary(digest);
     }
 
-    public static void removeFile(FileUpload uploadedFile) {
+    public static void removeFile(FileInfo uploadedFile) {
         File file = uploadedFile.getFile();
         deleteFile(file);
     }

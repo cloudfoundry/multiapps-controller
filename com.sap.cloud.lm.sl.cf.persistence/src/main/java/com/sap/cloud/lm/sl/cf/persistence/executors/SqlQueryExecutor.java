@@ -1,26 +1,26 @@
-package com.sap.cloud.lm.sl.cf.persistence.services;
+package com.sap.cloud.lm.sl.cf.persistence.executors;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;
 import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 
-public class SqlExecutor {
+public class SqlQueryExecutor {
 
     private DataSource dataSource;
 
-    public SqlExecutor(DataSource dataSource) {
+    public SqlQueryExecutor(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public <T> T execute(StatementExecutor<T> statementExecutor) throws SQLException {
+    public <R> R executeWithAutoCommit(SqlQuery<R> sqlQuery) throws SQLException {
         Connection connection = dataSource.getConnection();
         try {
-            T result = statementExecutor.execute(connection);
-            JdbcUtil.commit(connection);
-            return result;
+            connection.setAutoCommit(true);
+            return sqlQuery.execute(connection);
         } catch (SQLException e) {
             JdbcUtil.rollback(connection);
             throw e;
@@ -29,11 +29,11 @@ public class SqlExecutor {
         }
     }
 
-    public <T> T executeInSingleTransaction(StatementExecutor<T> statementExecutor) throws SQLException {
+    public <R> R execute(SqlQuery<R> sqlQuery) throws SQLException {
         Connection connection = dataSource.getConnection();
         try {
             connection.setAutoCommit(false);
-            T result = statementExecutor.execute(connection);
+            R result = sqlQuery.execute(connection);
             JdbcUtil.commit(connection);
             return result;
         } catch (SQLException e) {
@@ -43,12 +43,6 @@ public class SqlExecutor {
             connection.setAutoCommit(true);
             JdbcUtil.closeQuietly(connection);
         }
-    }
-
-    public interface StatementExecutor<T> {
-
-        T execute(Connection connection) throws SQLException;
-
     }
 
 }

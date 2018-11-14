@@ -31,6 +31,8 @@ public final class Messages {
     public static final String ERROR_GETTING_FILES_MODIFIED_BEFORE = "Error getting files modified before {0}";
     public static final String ERROR_DELETING_PROCESS_LOGS_WITH_NAMESPACE = "Error deleting process logs with namespace \"{0}\"";
     public static final String ERROR_DELETING_DIRECTORY = "Error deleting directory \"{0}\"";
+    public static final String ERROR_STORING_LOG_FILE = "Error storing log file \"{0}\"";
+    public static final String ERROR_UPDATING_LOG_FILE = "Error updating log file \"{0}\"";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
@@ -61,7 +63,7 @@ public final class Messages {
     public static final String REMOVING_ALL_APPENDERS_FROM_LOGGER = "Removing all appenders from logger \"{0}\"...";
     public static final String STORING_FILE_TO_PATH_0 = "Storing file to path \"{0}\"...";
     public static final String STORED_FILE_0 = "Stored file: \"{0}\"";
-    public static final String STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2 = "Stored file \"{0}\" with size {1}: {2}";
+    public static final String STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2 = "Stored file \"{0}\" with size {1}";
     public static final String DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2 = "Deleted {0} files with space \"{1}\" and namespace \"{2}\".";
     public static final String DELETED_0_FILES_MODIFIED_BEFORE_1 = "Deleted {0} files modified before \"{1}\".";
     public static final String DELETED_0_FILES_WITH_ID_1_AND_SPACE_2 = "Deleted {0} files with ID \"{1}\" and space \"{2}\".";
