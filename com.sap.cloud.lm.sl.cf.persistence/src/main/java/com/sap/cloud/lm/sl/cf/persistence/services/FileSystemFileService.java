@@ -42,26 +42,25 @@ public class FileSystemFileService extends AbstractFileService {
 
     @Override
     protected boolean storeFile(FileEntry fileEntry, InputStream inputStream) throws FileStorageException {
-        boolean contentStoredSuccessfully = storeFileContent(fileEntry, inputStream);
-        if (!contentStoredSuccessfully) {
-            return false;
-        }
+        storeFileContent(fileEntry, inputStream);
         return storeFileAttributes(fileEntry);
     }
 
-    private boolean storeFileContent(FileEntry fileEntry, InputStream inputStream) throws FileStorageException {
+    private void storeFileContent(FileEntry fileEntry, InputStream inputStream) throws FileStorageException {
         try {
             Path filesDirectory = getFilesDirectory(fileEntry.getSpace());
             Path newFilePath = Paths.get(filesDirectory.toString(), fileEntry.getId());
             logger.trace(MessageFormat.format(Messages.STORING_FILE_TO_PATH_0, newFilePath));
             Files.copy(inputStream, newFilePath, StandardCopyOption.REPLACE_EXISTING);
             File newFile = newFilePath.toFile();
-            boolean storedSuccessfully = newFile.exists();
+            if (!newFile.exists()) {
+                throw new FileStorageException(
+                    MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(), fileEntry.getNamespace()));
+            }
             logger.debug(
-                MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2, newFile, newFile.length(), storedSuccessfully));
-            return storedSuccessfully;
+                MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2, newFile, newFile.length()));
         } catch (IOException e) {
-            throw new FileStorageException(e.getMessage(), e);
+            throw new FileStorageException(MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(), fileEntry.getNamespace()), e);
         }
     }
 
@@ -108,7 +107,7 @@ public class FileSystemFileService extends AbstractFileService {
     public int deleteAll(String space, String namespace) throws FileStorageException {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void deleteBySpace(String space) throws FileStorageException {
         File spaceDirectory = getSpaceDirectory(space).toFile();
@@ -208,7 +207,7 @@ public class FileSystemFileService extends AbstractFileService {
     public String getStoragePath() {
         return storagePath;
     }
-    
+
     private Path getSpaceDirectory(String space) {
         return Paths.get(storagePath, space);
     }

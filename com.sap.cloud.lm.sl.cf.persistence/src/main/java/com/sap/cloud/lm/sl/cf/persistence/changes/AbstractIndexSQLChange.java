@@ -10,9 +10,9 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sap.cloud.lm.sl.cf.persistence.executors.SqlQueryExecutor;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
-import com.sap.cloud.lm.sl.cf.persistence.services.SqlExecutor;
-import com.sap.cloud.lm.sl.cf.persistence.services.SqlExecutor.StatementExecutor;
+import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;
 import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 
 public abstract class AbstractIndexSQLChange implements AsyncChange {
@@ -21,24 +21,22 @@ public abstract class AbstractIndexSQLChange implements AsyncChange {
 
     @Override
     public void execute(DataSource dataSource) throws SQLException {
-        SqlExecutor executor = new SqlExecutor(dataSource);
-        executor.execute(new StatementExecutor<Void>() {
+        new SqlQueryExecutor(dataSource).executeWithAutoCommit(getIndexChangeQuery());
+    }
 
-            @Override
-            public Void execute(Connection connection) throws SQLException {
-                PreparedStatement statement = null;
-                try {
-                    LOGGER.info(MessageFormat.format(Messages.CREATING_INDEX_CONCURRENTLY, getIndexName()));
-                    statement = connection.prepareStatement(getQuery());
-                    statement.executeUpdate();
-                    LOGGER.info(Messages.INDEX_CREATED);
-                } finally {
-                    JdbcUtil.closeQuietly(statement);
-                }
-                return null;
+    private SqlQuery<Void> getIndexChangeQuery() {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            try {
+                LOGGER.info(MessageFormat.format(Messages.CREATING_INDEX_CONCURRENTLY, getIndexName()));
+                statement = connection.prepareStatement(getQuery());
+                statement.executeUpdate();
+                LOGGER.info(Messages.INDEX_CREATED);
+            } finally {
+                JdbcUtil.closeQuietly(statement);
             }
-
-        });
+            return null;
+        };
     }
 
     protected abstract String getQuery();

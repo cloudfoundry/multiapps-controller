@@ -104,7 +104,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         final StringBuilder uploadTokenBuilder) throws IOException {
         detectApplicationFileDigestChanges(execution, app, filePath.toFile(), client);
         String uploadToken = client.asyncUploadApplication(app.getName(), filePath.toFile(),
-            getMonitorUploadStatusCallback(app, filePath.toFile()));
+            getMonitorUploadStatusCallback(app, filePath.toFile(), execution.getContext()));
         uploadTokenBuilder.append(uploadToken);
     }
 
@@ -137,8 +137,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             .setVariable(Constants.VAR_APP_CONTENT_CHANGED, Boolean.toString(appContentChanged));
     }
 
-    MonitorUploadStatusCallback getMonitorUploadStatusCallback(CloudApplication app, File file) {
-        return new MonitorUploadStatusCallback(app, file);
+    MonitorUploadStatusCallback getMonitorUploadStatusCallback(CloudApplication app, File file, DelegateExecution context) {
+        return new MonitorUploadStatusCallback(app, file, context);
     }
 
     private void cleanUp(Path filePath) {
@@ -164,10 +164,12 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
         private final CloudApplication app;
         private final File file;
+        private final DelegateExecution context;
 
-        public MonitorUploadStatusCallback(CloudApplication app, File file) {
+        public MonitorUploadStatusCallback(CloudApplication app, File file, DelegateExecution context) {
             this.app = app;
             this.file = file;
+            this.context = context;
         }
 
         @Override

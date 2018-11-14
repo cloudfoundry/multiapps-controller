@@ -16,8 +16,8 @@ public class ProcessLogsPersister {
     public void persistLogs(DelegateExecution context) {
         for (ProcessLogger processLogger : processLoggerProvider.getExistingLoggers(getCorrelationId(context),
             context.getCurrentActivityId())) {
-            processLogger.persistLogs(processLogsPersistenceService);
-            processLogger.deleteLog();
+            processLogger.persistLogFile(processLogsPersistenceService);
+            processLogger.deleteLogFile();
             processLoggerProvider.remove(processLogger);
         }
     }

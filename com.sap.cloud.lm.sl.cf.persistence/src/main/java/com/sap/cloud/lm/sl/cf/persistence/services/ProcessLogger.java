@@ -67,13 +67,13 @@ public class ProcessLogger extends Logger {
         return activityId;
     }
 
-    public synchronized void persistLogs(ProcessLogsPersistenceService processLogsPersistenceService) {
+    public synchronized void persistLogFile(ProcessLogsPersistenceService processLogsPersistenceService) {
         if (log.exists()) {
             processLogsPersistenceService.appendLog(spaceId, processId, log, logName);
         }
     }
 
-    public synchronized void deleteLog() {
+    public synchronized void deleteLogFile() {
         FileUtils.deleteQuietly(log);
     }
 

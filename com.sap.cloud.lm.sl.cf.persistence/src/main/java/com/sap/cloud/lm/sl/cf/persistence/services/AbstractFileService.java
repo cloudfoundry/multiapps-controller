@@ -7,14 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -25,42 +20,35 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.dialects.DataSourceDialect;
+import com.sap.cloud.lm.sl.cf.persistence.executors.SqlQueryExecutor;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
-import com.sap.cloud.lm.sl.cf.persistence.model.FileUpload;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.security.VirusScanner;
 import com.sap.cloud.lm.sl.cf.persistence.security.VirusScannerException;
-import com.sap.cloud.lm.sl.cf.persistence.services.SqlExecutor.StatementExecutor;
-import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.DigestHelper;
 
 public abstract class AbstractFileService {
 
-    private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=?";
-    private static final String SELECT_FILES_BY_NAMESPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=?";
-    private static final String SELECT_FILES_BY_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE SPACE=?";
-    private static final String SELECT_FILE_BY_ID = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE FILE_ID=? AND SPACE=?";
-    private static final String DELETE_FILE_BY_ID = "DELETE FROM %s WHERE FILE_ID=? AND SPACE=?";
-    private static final String DELETE_FILES_BY_NAMESPACE = "DELETE FROM %s WHERE NAMESPACE=? AND SPACE=?";
-    private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String DELETE_FILES_MODIFIED_BEFORE = "DELETE FROM %s WHERE MODIFIED<?";
-
     protected static final String DEFAULT_TABLE_NAME = "LM_SL_PERSISTENCE_FILE";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private SqlFileQueryProvider sqlFileQueryProvider;
     private final String tableName;
     private final DataSourceWithDialect dataSourceWithDialect;
-    private final SqlExecutor sqlExecutor;
+    private final SqlQueryExecutor sqlQueryExecutor;
     private VirusScanner virusScanner;
 
     protected AbstractFileService(String tableName, DataSourceWithDialect dataSourceWithDialect) {
         this.tableName = tableName;
         this.dataSourceWithDialect = dataSourceWithDialect;
-        this.sqlExecutor = new SqlExecutor(dataSourceWithDialect.getDataSource());
+        this.sqlQueryExecutor = new SqlQueryExecutor(dataSourceWithDialect.getDataSource());
+        sqlFileQueryProvider = new SqlFileQueryProvider(tableName, dataSourceWithDialect.getDataSourceDialect(), logger);
     }
 
     public void setVirusScanner(VirusScanner virusScanner) {
@@ -92,7 +80,7 @@ public abstract class AbstractFileService {
         // and decorate the blob stream to calculate digest and size, but this will still require
         // two roundtrips to the database (insert of the content and then update with the digest and
         // size), which is probably inefficient
-        FileUpload fileUpload = null;
+        FileInfo fileUpload = null;
         try {
             fileUpload = FileUploader.uploadFile(is, fileUploadProcessor);
 
@@ -109,9 +97,9 @@ public abstract class AbstractFileService {
         FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileUploadProcessor, File existingFile)
         throws FileStorageException {
         try {
-            FileUpload fileUpload = createFileUpload(existingFile);
+            FileInfo fileInfo = createFileInfo(existingFile);
 
-            return addFile(space, namespace, name, fileUploadProcessor, fileUpload);
+            return addFile(space, namespace, name, fileUploadProcessor, fileInfo);
         } catch (NoSuchAlgorithmException e) {
             throw new SLException(Messages.ERROR_CALCULATING_FILE_DIGEST, existingFile.getName(), e);
         } catch (FileNotFoundException e) {
@@ -121,25 +109,25 @@ public abstract class AbstractFileService {
         }
     }
 
-    private FileUpload createFileUpload(File existingFile) throws NoSuchAlgorithmException, IOException {
-        return new FileUpload(existingFile, BigInteger.valueOf(existingFile.length()),
+    private FileInfo createFileInfo(File existingFile) throws NoSuchAlgorithmException, IOException {
+        return new FileInfo(existingFile, BigInteger.valueOf(existingFile.length()),
             DigestHelper.computeFileChecksum(existingFile.toPath(), FileUploader.DIGEST_METHOD), FileUploader.DIGEST_METHOD);
     }
 
     private FileEntry addFile(String space, String namespace, String name,
-        FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileUploadProcessor, FileUpload fileUpload)
+        FileUploadProcessor<? extends OutputStream, ? extends OutputStream> fileUploadProcessor, FileInfo fileInfo)
         throws FileStorageException {
 
         if (fileUploadProcessor.shouldScanFile()) {
-            scanUpload(fileUpload);
+            scan(fileInfo);
         }
-        FileEntry fileEntry = createFileEntry(space, namespace, name, fileUpload);
-        storeFile(fileEntry, fileUpload);
+        FileEntry fileEntry = createFileEntry(space, namespace, name, fileInfo);
+        storeFile(fileEntry, fileInfo);
         logger.debug(MessageFormat.format(Messages.STORED_FILE_0, fileEntry));
         return fileEntry;
     }
 
-    private void scanUpload(FileUpload file) throws FileStorageException {
+    protected void scan(FileInfo file) throws FileStorageException {
         if (virusScanner == null) {
             throw new FileStorageException(Messages.NO_VIRUS_SCANNER_CONFIGURED);
         }
@@ -154,15 +142,15 @@ public abstract class AbstractFileService {
         }
     }
 
-    private FileEntry createFileEntry(String space, String namespace, String name, FileUpload localFile) {
+    protected FileEntry createFileEntry(String space, String namespace, String name, FileInfo fileInfo) {
         FileEntry fileEntry = new FileEntry();
         fileEntry.setId(generateRandomId());
         fileEntry.setSpace(space);
         fileEntry.setName(name);
         fileEntry.setNamespace(namespace);
-        fileEntry.setSize(localFile.getSize());
-        fileEntry.setDigest(localFile.getDigest());
-        fileEntry.setDigestAlgorithm(localFile.getDigestAlgorithm());
+        fileEntry.setSize(fileInfo.getSize());
+        fileEntry.setDigest(fileInfo.getDigest());
+        fileEntry.setDigestAlgorithm(fileInfo.getDigestAlgorithm());
         fileEntry.setModified(new Timestamp(System.currentTimeMillis()));
         return fileEntry;
     }
@@ -172,12 +160,11 @@ public abstract class AbstractFileService {
             .toString();
     }
 
-    private void storeFile(FileEntry fileEntry, FileUpload fileUpload) throws FileStorageException {
+    private void storeFile(FileEntry fileEntry, FileInfo fileUpload) throws FileStorageException {
         InputStream fileStream = null;
         try {
             fileStream = fileUpload.getInputStream();
-            boolean storedSuccessfully = storeFile(fileEntry, fileStream);
-            if (!storedSuccessfully) {
+            if (!storeFile(fileEntry, fileStream)) {
                 throw new FileStorageException(
                     MessageFormat.format(Messages.FILE_UPLOAD_FAILED, fileEntry.getName(), fileEntry.getNamespace()));
             }
@@ -190,79 +177,25 @@ public abstract class AbstractFileService {
 
     protected boolean storeFileAttributes(final FileEntry fileEntry) throws FileStorageException {
         try {
-            return getSqlExecutor().execute(new StatementExecutor<Boolean>() {
-                @Override
-                public Boolean execute(Connection connection) throws SQLException {
-                    return storeFileAttributes(connection, fileEntry);
-                }
-            });
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileAttributesQuery(fileEntry));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
-        }
-    }
-
-    protected boolean storeFileAttributes(Connection connection, FileEntry fileEntry) throws SQLException {
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(getQuery(INSERT_FILE_ATTRIBUTES));
-            statement.setString(1, fileEntry.getId());
-            statement.setString(2, fileEntry.getSpace());
-            statement.setString(3, fileEntry.getName());
-            setOrNull(statement, 4, fileEntry.getNamespace());
-            getDataSourceDialect().setBigInteger(statement, 5, fileEntry.getSize());
-            statement.setString(6, fileEntry.getDigest());
-            statement.setString(7, fileEntry.getDigestAlgorithm());
-            statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
-                .getTime()));
-            return statement.executeUpdate() > 0;
-        } finally {
-            JdbcUtil.closeQuietly(statement);
         }
     }
 
     public int deleteAll(final String space, final String namespace) throws FileStorageException {
         try {
-            return getSqlExecutor().execute(new StatementExecutor<Integer>() {
-                @Override
-                public Integer execute(Connection connection) throws SQLException {
-                    PreparedStatement statement = null;
-                    try {
-                        statement = connection.prepareStatement(getQuery(DELETE_FILES_BY_NAMESPACE));
-                        statement.setString(1, namespace);
-                        statement.setString(2, space);
-                        int deletedFiles = statement.executeUpdate();
-                        logger.debug(
-                            MessageFormat.format(Messages.DELETED_0_FILES_WITH_SPACE_1_AND_NAMESPACE_2, deletedFiles, space, namespace));
-                        return deletedFiles;
-                    } finally {
-                        JdbcUtil.closeQuietly(statement);
-                    }
-                }
-            });
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteAllQuery(space, namespace));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
     }
-    
+
     public abstract void deleteBySpace(final String space) throws FileStorageException;
 
     public int deleteModifiedBefore(Date modificationTime) throws FileStorageException {
         try {
-            return getSqlExecutor().execute(new StatementExecutor<Integer>() {
-                @Override
-                public Integer execute(Connection connection) throws SQLException {
-                    PreparedStatement statement = null;
-                    try {
-                        statement = connection.prepareStatement(getQuery(DELETE_FILES_MODIFIED_BEFORE));
-                        statement.setTimestamp(1, new java.sql.Timestamp(modificationTime.getTime()));
-                        int deletedFiles = statement.executeUpdate();
-                        logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_MODIFIED_BEFORE_1, deletedFiles, modificationTime));
-                        return deletedFiles;
-                    } finally {
-                        JdbcUtil.closeQuietly(statement);
-                    }
-                }
-            });
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteModifiedBeforeQuery(modificationTime));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
@@ -277,22 +210,7 @@ public abstract class AbstractFileService {
 
     protected boolean deleteFileAttributes(final String space, final String id) throws FileStorageException {
         try {
-            return getSqlExecutor().execute(new StatementExecutor<Boolean>() {
-                @Override
-                public Boolean execute(Connection connection) throws SQLException {
-                    PreparedStatement statement = null;
-                    try {
-                        statement = connection.prepareStatement(getQuery(DELETE_FILE_BY_ID));
-                        statement.setString(1, id);
-                        statement.setString(2, space);
-                        int deletedRows = statement.executeUpdate();
-                        logger.debug(MessageFormat.format(Messages.DELETED_0_FILES_WITH_ID_1_AND_SPACE_2, deletedRows, id, space));
-                        return deletedRows > 0;
-                    } finally {
-                        JdbcUtil.closeQuietly(statement);
-                    }
-                }
-            });
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getDeleteFileAttributesQuery(space, id));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
         }
@@ -300,35 +218,7 @@ public abstract class AbstractFileService {
 
     public List<FileEntry> listFiles(final String space, final String namespace) throws FileStorageException {
         try {
-            return getSqlExecutor().execute(new StatementExecutor<List<FileEntry>>() {
-                @Override
-                public List<FileEntry> execute(Connection connection) throws SQLException {
-                    PreparedStatement statement = null;
-                    ResultSet resultSet = null;
-                    try {
-                        List<FileEntry> files = new ArrayList<>();
-                        if (space == null) {
-                            statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_NAMESPACE));
-                            statement.setString(1, namespace);
-                        } else if (namespace == null) {
-                            statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE));
-                            statement.setString(1, space);
-                        } else {
-                            statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_NAMESPACE_AND_SPACE));
-                            statement.setString(1, namespace);
-                            statement.setString(2, space);
-                        }
-                        resultSet = statement.executeQuery();
-                        while (resultSet.next()) {
-                            files.add(getFileEntry(resultSet));
-                        }
-                        return files;
-                    } finally {
-                        JdbcUtil.closeQuietly(resultSet);
-                        JdbcUtil.closeQuietly(statement);
-                    }
-                }
-            });
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesQuery(space, namespace));
         } catch (SQLException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_AND_NAMESPACE, space, namespace),
                 e);
@@ -341,50 +231,9 @@ public abstract class AbstractFileService {
 
     public FileEntry getFile(final String space, final String id) throws FileStorageException {
         try {
-            return getSqlExecutor().execute(new StatementExecutor<FileEntry>() {
-                @Override
-                public FileEntry execute(Connection connection) throws SQLException {
-                    PreparedStatement statement = null;
-                    ResultSet resultSet = null;
-                    try {
-                        statement = connection.prepareStatement(getQuery(SELECT_FILE_BY_ID));
-                        statement.setString(1, id);
-                        statement.setString(2, space);
-                        resultSet = statement.executeQuery();
-                        if (resultSet.next()) {
-                            return getFileEntry(resultSet);
-                        }
-                        return null;
-                    } finally {
-                        JdbcUtil.closeQuietly(resultSet);
-                        JdbcUtil.closeQuietly(statement);
-                    }
-                }
-
-            });
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getRetrieveFileQuery(space, id));
         } catch (SQLException e) {
             throw new FileStorageException(e.getMessage(), e);
-        }
-    }
-
-    private FileEntry getFileEntry(ResultSet resultSet) throws SQLException {
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setId(resultSet.getString(FileServiceColumnNames.FILE_ID));
-        fileEntry.setDigest(resultSet.getString(FileServiceColumnNames.DIGEST));
-        fileEntry.setSpace(resultSet.getString(FileServiceColumnNames.SPACE));
-        fileEntry.setName(resultSet.getString(FileServiceColumnNames.FILE_NAME));
-        fileEntry.setNamespace(resultSet.getString(FileServiceColumnNames.NAMESPACE));
-        fileEntry.setSize(getDataSourceDialect().getBigInteger(resultSet, FileServiceColumnNames.FILE_SIZE));
-        fileEntry.setDigestAlgorithm(resultSet.getString(FileServiceColumnNames.DIGEST_ALGORITHM));
-        fileEntry.setModified(resultSet.getDate(FileServiceColumnNames.MODIFIED));
-        return fileEntry;
-    }
-
-    protected void setOrNull(PreparedStatement statement, int position, String value) throws SQLException {
-        if (value == null) {
-            statement.setNull(position, Types.NULL);
-        } else {
-            statement.setString(position, value);
         }
     }
 
@@ -401,27 +250,20 @@ public abstract class AbstractFileService {
         return String.format(statementTemplate, tableName);
     }
 
+    protected DataSourceWithDialect getDataSourceWithDialect() {
+        return dataSourceWithDialect;
+    }
+
     protected DataSourceDialect getDataSourceDialect() {
         return dataSourceWithDialect.getDataSourceDialect();
     }
 
-    protected SqlExecutor getSqlExecutor() {
-        return sqlExecutor;
+    protected SqlQueryExecutor getSqlQueryExecutor() {
+        return sqlQueryExecutor;
     }
 
-    public static class FileServiceColumnNames {
-        public static final String CONTENT = "CONTENT";
-        public static final String MODIFIED = "MODIFIED";
-        public static final String DIGEST_ALGORITHM = "DIGEST_ALGORITHM";
-        public static final String FILE_SIZE = "FILE_SIZE";
-        public static final String NAMESPACE = "NAMESPACE";
-        public static final String SPACE = "SPACE";
-        public static final String FILE_NAME = "FILE_NAME";
-        public static final String DIGEST = "DIGEST";
-        public static final String FILE_ID = "FILE_ID";
-
-        protected FileServiceColumnNames() {
-        }
+    protected SqlFileQueryProvider getSqlFileQueryProvider() {
+        return sqlFileQueryProvider;
     }
 
 }

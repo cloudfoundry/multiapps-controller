@@ -8,13 +8,13 @@ import java.math.BigInteger;
 
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 
-public class FileUpload {
+public class FileInfo {
     private final BigInteger size;
     private final String digest;
     private final String digestAlgorithm;
     private final File file;
 
-    public FileUpload(File file, BigInteger size, String digest, String digestAlgorithm) {
+    public FileInfo(File file, BigInteger size, String digest, String digestAlgorithm) {
         super();
         this.file = file;
         this.size = size;
