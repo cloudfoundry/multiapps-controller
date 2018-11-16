@@ -119,8 +119,8 @@ public class AnalyticsCollectorTest {
         when(context.getVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER)).thenReturn(mockedListWithObjects(5));
         when(context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE)).thenReturn(mockedListWithObjects(1));
         when(context.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS))
-            .thenReturn(JsonUtil.getAsBinaryJson(TRIGGERED_SERVICE_OPERATIONS));
-        when(context.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.getAsBinaryJson(new Object()));
+            .thenReturn(JsonUtil.toBinaryJson(TRIGGERED_SERVICE_OPERATIONS));
+        when(context.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.toBinaryJson(new Object()));
 
         when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE)).thenReturn(mockedListWithObjects(2));
         when(context.getVariable(Constants.VAR_DELETED_ENTRIES)).thenReturn(mockedListWithObjects(1));
@@ -135,7 +135,7 @@ public class AnalyticsCollectorTest {
         for (int i = 0; i < size; i++) {
             list.add(new Object());
         }
-        return JsonUtil.getAsBinaryJson(list);
+        return JsonUtil.toBinaryJson(list);
     }
 
     private List<String> mockedListWithStrings(int size) {
@@ -151,7 +151,7 @@ public class AnalyticsCollectorTest {
         for (int i = 0; i < size; i++) {
             list.add(new String());
         }
-        return JsonUtil.getAsBinaryJson(list);
+        return JsonUtil.toBinaryJson(list);
     }
 
     @Test

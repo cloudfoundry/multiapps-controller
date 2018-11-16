@@ -348,7 +348,7 @@ public class StepsUtil {
     }
 
     static void setServicesToPoll(DelegateExecution context, List<CloudServiceExtended> servicesToPoll) {
-        context.setVariable(Constants.VAR_SERVICES_TO_POLL, JsonUtil.getAsBinaryJson(servicesToPoll));
+        context.setVariable(Constants.VAR_SERVICES_TO_POLL, JsonUtil.toBinaryJson(servicesToPoll));
     }
 
     static List<CloudServiceExtended> getServicesToPoll(DelegateExecution context) {
@@ -362,7 +362,7 @@ public class StepsUtil {
     }
 
     static void setTriggeredServiceOperations(DelegateExecution context, Map<String, ServiceOperationType> triggeredServiceOperations) {
-        context.setVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, JsonUtil.getAsBinaryJson(triggeredServiceOperations));
+        context.setVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, JsonUtil.toBinaryJson(triggeredServiceOperations));
     }
 
     public static Map<String, ServiceOperationType> getTriggeredServiceOperations(DelegateExecution context) {
@@ -379,17 +379,17 @@ public class StepsUtil {
     }
 
     static void setServiceKeysToCreate(DelegateExecution context, Map<String, List<ServiceKey>> serviceKeys) {
-        context.setVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE, JsonUtil.getAsBinaryJson(serviceKeys));
+        context.setVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE, JsonUtil.toBinaryJson(serviceKeys));
     }
 
     static List<CloudApplication> getDeployedApps(DelegateExecution context) {
-        CloudApplication[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_DEPLOYED_APPS),
+        CloudApplication[] apps = JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_DEPLOYED_APPS),
             CloudApplication[].class);
         return Arrays.asList(apps);
     }
 
     static void setDeployedApps(DelegateExecution context, List<CloudApplication> apps) {
-        context.setVariable(Constants.VAR_DEPLOYED_APPS, JsonUtil.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
+        context.setVariable(Constants.VAR_DEPLOYED_APPS, JsonUtil.toBinaryJson(apps.toArray(new CloudApplication[] {})));
     }
 
     @SuppressWarnings("unchecked")
@@ -409,7 +409,7 @@ public class StepsUtil {
 
     static void setServiceKeysCredentialsToInject(DelegateExecution context,
         Map<String, Map<String, String>> serviceKeysCredentialsToInject) {
-        byte[] serviceKeysToInjectByteArray = JsonUtil.getAsBinaryJson(serviceKeysCredentialsToInject);
+        byte[] serviceKeysToInjectByteArray = JsonUtil.toBinaryJson(serviceKeysCredentialsToInject);
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
 
@@ -420,17 +420,17 @@ public class StepsUtil {
     }
 
     public static List<CloudApplication> getUpdatedSubscribers(DelegateExecution context) {
-        CloudApplication[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_UPDATED_SUBSCRIBERS),
+        CloudApplication[] apps = JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_UPDATED_SUBSCRIBERS),
             CloudApplicationExtended[].class);
         return Arrays.asList(apps);
     }
 
     static void setUpdatedSubscribers(DelegateExecution context, List<CloudApplication> apps) {
-        context.setVariable(Constants.VAR_UPDATED_SUBSCRIBERS, JsonUtil.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
+        context.setVariable(Constants.VAR_UPDATED_SUBSCRIBERS, JsonUtil.toBinaryJson(apps.toArray(new CloudApplication[] {})));
     }
 
     public static List<CloudApplication> getServiceBrokerSubscribersToRestart(DelegateExecution context) {
-        CloudApplication[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS),
+        CloudApplication[] apps = JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS),
             CloudApplication[].class);
         return Arrays.asList(apps);
     }
@@ -443,28 +443,28 @@ public class StepsUtil {
 
     static void setUpdatedServiceBrokerSubscribers(DelegateExecution context, List<CloudApplication> apps) {
         context.setVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS,
-            JsonUtil.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
+            JsonUtil.toBinaryJson(apps.toArray(new CloudApplication[] {})));
     }
 
     static List<CloudTask> getTasksToExecute(DelegateExecution context) {
-        CloudTask[] tasks = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_TASKS_TO_EXECUTE), CloudTask[].class);
+        CloudTask[] tasks = JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_TASKS_TO_EXECUTE), CloudTask[].class);
         return Arrays.asList(tasks);
     }
 
     static void setTasksToExecute(DelegateExecution context, List<CloudTask> tasks) {
-        context.setVariable(Constants.VAR_TASKS_TO_EXECUTE, JsonUtil.getAsBinaryJson(tasks.toArray(new CloudTask[] {})));
+        context.setVariable(Constants.VAR_TASKS_TO_EXECUTE, JsonUtil.toBinaryJson(tasks.toArray(new CloudTask[] {})));
     }
 
     static CloudTask getStartedTask(DelegateExecution context) {
-        return JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_STARTED_TASK), CloudTask.class);
+        return JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_STARTED_TASK), CloudTask.class);
     }
 
     static void setStartedTask(DelegateExecution context, CloudTask task) {
-        context.setVariable(Constants.VAR_STARTED_TASK, JsonUtil.getAsBinaryJson(task));
+        context.setVariable(Constants.VAR_STARTED_TASK, JsonUtil.toBinaryJson(task));
     }
 
     public static List<CloudApplication> getAppsToUndeploy(DelegateExecution context) {
-        CloudApplication[] apps = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY),
+        CloudApplication[] apps = JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY),
             CloudApplication[].class);
         return Arrays.asList(apps);
     }
@@ -476,7 +476,7 @@ public class StepsUtil {
     }
 
     static void setAppsToUndeploy(DelegateExecution context, List<CloudApplication> apps) {
-        context.setVariable(Constants.VAR_APPS_TO_UNDEPLOY, JsonUtil.getAsBinaryJson(apps.toArray(new CloudApplication[] {})));
+        context.setVariable(Constants.VAR_APPS_TO_UNDEPLOY, JsonUtil.toBinaryJson(apps.toArray(new CloudApplication[] {})));
     }
 
     public static List<String> getServicesToDelete(DelegateExecution context) {
@@ -490,45 +490,45 @@ public class StepsUtil {
 
     public static List<ConfigurationSubscription> getSubscriptionsToDelete(DelegateExecution context) {
         ConfigurationSubscription[] subscriptionsArray = JsonUtil
-            .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE), ConfigurationSubscription[].class);
+            .fromBinaryJson((byte[]) context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE), ConfigurationSubscription[].class);
         return Arrays.asList(subscriptionsArray);
     }
 
     static void setSubscriptionsToDelete(DelegateExecution context, List<ConfigurationSubscription> subscriptions) {
-        byte[] subscriptionsByteArray = JsonUtil.getAsBinaryJson(subscriptions.toArray(new ConfigurationSubscription[] {}));
+        byte[] subscriptionsByteArray = JsonUtil.toBinaryJson(subscriptions.toArray(new ConfigurationSubscription[] {}));
         context.setVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE, subscriptionsByteArray);
     }
 
     public static List<ConfigurationSubscription> getSubscriptionsToCreate(DelegateExecution context) {
         ConfigurationSubscription[] subscriptionsArray = JsonUtil
-            .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE), ConfigurationSubscription[].class);
+            .fromBinaryJson((byte[]) context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE), ConfigurationSubscription[].class);
         return Arrays.asList(subscriptionsArray);
     }
 
     static void setSubscriptionsToCreate(DelegateExecution context, List<ConfigurationSubscription> subscriptions) {
-        byte[] subscriptionsByteArray = JsonUtil.getAsBinaryJson(subscriptions.toArray(new ConfigurationSubscription[] {}));
+        byte[] subscriptionsByteArray = JsonUtil.toBinaryJson(subscriptions.toArray(new ConfigurationSubscription[] {}));
         context.setVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE, subscriptionsByteArray);
     }
 
     static void setConfigurationEntriesToPublish(DelegateExecution context, List<ConfigurationEntry> configurationEntries) {
-        byte[] configurationEntriesByteArray = JsonUtil.getAsBinaryJson(configurationEntries.toArray(new ConfigurationEntry[] {}));
+        byte[] configurationEntriesByteArray = JsonUtil.toBinaryJson(configurationEntries.toArray(new ConfigurationEntry[] {}));
         context.setVariable(Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH, configurationEntriesByteArray);
     }
 
     static List<ConfigurationEntry> getConfigurationEntriesToPublish(DelegateExecution context) {
         ConfigurationEntry[] configurationEntriesArray = JsonUtil
-            .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH), ConfigurationEntry[].class);
+            .fromBinaryJson((byte[]) context.getVariable(Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH), ConfigurationEntry[].class);
         return Arrays.asList(configurationEntriesArray);
     }
 
     static void setServiceBrokersToCreate(DelegateExecution context, List<CloudServiceBrokerExtended> serviceBrokers) {
         context.setVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE,
-            JsonUtil.getAsBinaryJson(serviceBrokers.toArray(new CloudServiceBrokerExtended[] {})));
+            JsonUtil.toBinaryJson(serviceBrokers.toArray(new CloudServiceBrokerExtended[] {})));
     }
 
     public static List<CloudServiceBrokerExtended> getServiceBrokersToCreate(DelegateExecution context) {
         CloudServiceBrokerExtended[] serviceBrokers = JsonUtil
-            .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE), CloudServiceBrokerExtended[].class);
+            .fromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE), CloudServiceBrokerExtended[].class);
         return Arrays.asList(serviceBrokers);
     }
 
@@ -537,7 +537,7 @@ public class StepsUtil {
         if (deletedEntriesByteArray == null) {
             return Collections.emptyList();
         }
-        return Arrays.asList(JsonUtil.getFromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
+        return Arrays.asList(JsonUtil.fromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
     }
 
     static List<ConfigurationEntry> getDeletedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {
@@ -547,7 +547,7 @@ public class StepsUtil {
             return Collections.emptyList();
         }
         byte[] deletedEntriesByteArray = (byte[]) deletedEntries.getValue();
-        return Arrays.asList(JsonUtil.getFromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
+        return Arrays.asList(JsonUtil.fromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
     }
 
     static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(DelegateExecution context, FlowableFacade flowableFacade) {
@@ -564,13 +564,13 @@ public class StepsUtil {
         if (deletedEntries == null) {
             return;
         }
-        byte[] deletedEntriesByteArray = JsonUtil.getAsBinaryJson(deletedEntries.toArray(new ConfigurationEntry[] {}));
+        byte[] deletedEntriesByteArray = JsonUtil.toBinaryJson(deletedEntries.toArray(new ConfigurationEntry[] {}));
         context.setVariable(Constants.VAR_DELETED_ENTRIES, deletedEntriesByteArray);
     }
 
     public static List<ConfigurationEntry> getPublishedEntries(DelegateExecution context) {
         ConfigurationEntry[] publishedEntriesArray = JsonUtil
-            .getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_PUBLISHED_ENTRIES), ConfigurationEntry[].class);
+            .fromBinaryJson((byte[]) context.getVariable(Constants.VAR_PUBLISHED_ENTRIES), ConfigurationEntry[].class);
         return Arrays.asList(publishedEntriesArray);
     }
 
@@ -581,7 +581,7 @@ public class StepsUtil {
             return Collections.emptyList();
         }
         byte[] binaryJson = (byte[]) publishedEntries.getValue();
-        return Arrays.asList(JsonUtil.getFromBinaryJson(binaryJson, ConfigurationEntry[].class));
+        return Arrays.asList(JsonUtil.fromBinaryJson(binaryJson, ConfigurationEntry[].class));
     }
 
     static List<ConfigurationEntry> getPublishedEntriesFromSubProcesses(DelegateExecution context, FlowableFacade flowableFacade) {
@@ -594,43 +594,43 @@ public class StepsUtil {
     }
 
     static void setPublishedEntries(DelegateExecution context, List<ConfigurationEntry> publishedEntries) {
-        byte[] publishedEntriesByteArray = JsonUtil.getAsBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
+        byte[] publishedEntriesByteArray = JsonUtil.toBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
         context.setVariable(Constants.VAR_PUBLISHED_ENTRIES, publishedEntriesByteArray);
     }
 
     static void setServiceUrlsToRegister(DelegateExecution context, List<ServiceUrl> serviceUrls) {
-        context.setVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER, JsonUtil.getAsBinaryJson(serviceUrls.toArray(new ServiceUrl[] {})));
+        context.setVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER, JsonUtil.toBinaryJson(serviceUrls.toArray(new ServiceUrl[] {})));
     }
 
     public static List<ServiceUrl> getServiceUrlsToRegister(DelegateExecution context) {
-        ServiceUrl[] serviceUrls = JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER),
+        ServiceUrl[] serviceUrls = JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER),
             ServiceUrl[].class);
         return Arrays.asList(serviceUrls);
     }
 
     static void setDeployedMta(DelegateExecution context, DeployedMta deployedMta) {
-        byte[] binaryJson = deployedMta == null ? null : JsonUtil.getAsBinaryJson(deployedMta);
+        byte[] binaryJson = deployedMta == null ? null : JsonUtil.toBinaryJson(deployedMta);
         context.setVariable(Constants.VAR_DEPLOYED_MTA, binaryJson);
     }
 
     static DeployedMta getDeployedMta(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_DEPLOYED_MTA);
-        return binaryJson == null ? null : JsonUtil.getFromBinaryJson(binaryJson, DeployedMta.class);
+        return binaryJson == null ? null : JsonUtil.fromBinaryJson(binaryJson, DeployedMta.class);
     }
 
     static Set<Integer> getAllocatedPorts(DelegateExecution context) {
         byte[] allocatedPortsBytes = (byte[]) context.getVariable(Constants.VAR_ALLOCATED_PORTS);
-        Integer[] allocatedPorts = allocatedPortsBytes != null ? JsonUtil.getFromBinaryJson(allocatedPortsBytes, Integer[].class) : null;
+        Integer[] allocatedPorts = allocatedPortsBytes != null ? JsonUtil.fromBinaryJson(allocatedPortsBytes, Integer[].class) : null;
         return allocatedPorts != null ? Arrays.stream(allocatedPorts)
             .collect(Collectors.toSet()) : Collections.emptySet();
     }
 
     static void setAllocatedPorts(DelegateExecution context, Set<Integer> allocatedPorts) {
-        context.setVariable(Constants.VAR_ALLOCATED_PORTS, JsonUtil.getAsBinaryJson(allocatedPorts.toArray(new Integer[0])));
+        context.setVariable(Constants.VAR_ALLOCATED_PORTS, JsonUtil.toBinaryJson(allocatedPorts.toArray(new Integer[0])));
     }
 
     static void setXsPlaceholderReplacementValues(DelegateExecution context, Map<String, Object> replacementValues) {
-        byte[] replacementValuesJson = JsonUtil.getAsBinaryJson(replacementValues);
+        byte[] replacementValuesJson = JsonUtil.toBinaryJson(replacementValues);
         context.setVariable(Constants.VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES, replacementValuesJson);
     }
 
@@ -708,7 +708,7 @@ public class StepsUtil {
     }
 
     static SystemParameters getSystemParameters(DelegateExecution context) {
-        return JsonUtil.getFromBinaryJson((byte[]) context.getVariable(Constants.VAR_SYSTEM_PARAMETERS), SystemParameters.class);
+        return JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_SYSTEM_PARAMETERS), SystemParameters.class);
     }
 
     static void setSystemParameters(DelegateExecution context, SystemParameters systemParameters) {
@@ -755,11 +755,11 @@ public class StepsUtil {
 
     static CloudApplication getExistingApp(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_EXISTING_APP);
-        return (binaryJson != null) ? JsonUtil.getFromBinaryJson(binaryJson, CloudApplication.class) : null;
+        return (binaryJson != null) ? JsonUtil.fromBinaryJson(binaryJson, CloudApplication.class) : null;
     }
 
     static void setExistingApp(DelegateExecution context, CloudApplication app) {
-        byte[] binaryJson = (app != null) ? JsonUtil.getAsBinaryJson(app) : null;
+        byte[] binaryJson = (app != null) ? JsonUtil.toBinaryJson(app) : null;
         context.setVariable(Constants.VAR_EXISTING_APP, binaryJson);
     }
 
@@ -806,11 +806,11 @@ public class StepsUtil {
     static StartingInfo getStartingInfo(DelegateExecution context) {
         String className = (String) context.getVariable(Constants.VAR_STARTING_INFO_CLASSNAME);
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_STARTING_INFO);
-        return (binaryJson != null) ? JsonUtil.getFromBinaryJson(binaryJson, getStartingInfoClass(className)) : null;
+        return (binaryJson != null) ? JsonUtil.fromBinaryJson(binaryJson, getStartingInfoClass(className)) : null;
     }
 
     static void setStartingInfo(DelegateExecution context, StartingInfo startingInfo) {
-        byte[] binaryJson = (startingInfo != null) ? JsonUtil.getAsBinaryJson(startingInfo) : null;
+        byte[] binaryJson = (startingInfo != null) ? JsonUtil.toBinaryJson(startingInfo) : null;
         context.setVariable(Constants.VAR_STARTING_INFO, binaryJson);
         String className = (startingInfo != null) ? startingInfo.getClass()
             .getName() : StartingInfo.class.getName();
@@ -828,11 +828,11 @@ public class StepsUtil {
 
     static StreamingLogToken getStreamingLogsToken(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_STREAMING_LOGS_TOKEN);
-        return (binaryJson != null) ? JsonUtil.getFromBinaryJson(binaryJson, StreamingLogToken.class) : null;
+        return (binaryJson != null) ? JsonUtil.fromBinaryJson(binaryJson, StreamingLogToken.class) : null;
     }
 
     static void setStreamingLogsToken(DelegateExecution context, StreamingLogToken streamingLogToken) {
-        byte[] binaryJson = (streamingLogToken != null) ? JsonUtil.getAsBinaryJson(streamingLogToken) : null;
+        byte[] binaryJson = (streamingLogToken != null) ? JsonUtil.toBinaryJson(streamingLogToken) : null;
         context.setVariable(Constants.VAR_STREAMING_LOGS_TOKEN, binaryJson);
     }
 
@@ -915,7 +915,7 @@ public class StepsUtil {
     }
 
     public static void setArrayVariable(DelegateExecution context, String name, String[] array) {
-        context.setVariable(name, JsonUtil.getAsBinaryJson(array));
+        context.setVariable(name, JsonUtil.toBinaryJson(array));
     }
 
     public static void setArrayVariableFromCollection(DelegateExecution context, String name, Collection<String> collection) {
@@ -923,7 +923,7 @@ public class StepsUtil {
     }
 
     public static String[] getArrayVariable(DelegateExecution context, String name) {
-        return JsonUtil.getFromBinaryJson((byte[]) context.getVariable(name), String[].class);
+        return JsonUtil.fromBinaryJson((byte[]) context.getVariable(name), String[].class);
     }
 
     public static List<String> getArrayVariableAsList(DelegateExecution context, String name) {
@@ -935,7 +935,7 @@ public class StepsUtil {
     }
 
     public static void setAsBinaryJson(DelegateExecution context, String name, Object object) {
-        context.setVariable(name, JsonUtil.getAsBinaryJson(object));
+        context.setVariable(name, JsonUtil.toBinaryJson(object));
     }
 
     public static final String DEPLOY_ID_PREFIX = "deploy-";
@@ -1041,7 +1041,7 @@ public class StepsUtil {
     }
 
     public static void setServicesGuids(DelegateExecution context, Map<String, String> serviceGuids) {
-        context.setVariable(Constants.VAR_SERVICES_GUIDS, JsonUtil.getAsBinaryJson(serviceGuids));
+        context.setVariable(Constants.VAR_SERVICES_GUIDS, JsonUtil.toBinaryJson(serviceGuids));
     }
 
     public static Map<String, String> getServicesGuids(DelegateExecution context) {

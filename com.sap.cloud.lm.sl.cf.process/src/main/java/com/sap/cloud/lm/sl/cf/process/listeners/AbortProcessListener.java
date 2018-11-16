@@ -135,7 +135,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
             LOGGER.warn(Messages.COULD_NOT_COMPUTE_DEFAULT_DOMAIN);
             return;
         }
-        Integer[] allocatedPorts = JsonUtil.getFromBinaryJson((byte[]) allocatedPortsInstance.getValue(), Integer[].class);
+        Integer[] allocatedPorts = JsonUtil.fromBinaryJson((byte[]) allocatedPortsInstance.getValue(), Integer[].class);
         for (Integer port : allocatedPorts) {
             try {
                 client.deleteRoute(port.toString(), defaultDomain);
