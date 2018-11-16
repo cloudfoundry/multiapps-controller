@@ -548,26 +548,6 @@
                         <artifactId>commons-email</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
-                        <artifactId>flowable-dmn-model</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
-                        <artifactId>flowable-dmn-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
-                        <artifactId>flowable-cmmn-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
-                        <artifactId>flowable-form-model</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sap.hcp.oss.org.activiti</groupId>
-                        <artifactId>flowable-content</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>commons-codec</groupId>
                         <artifactId>commons-codec</artifactId>
                     </exclusion>
