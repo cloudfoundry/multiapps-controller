@@ -34,7 +34,7 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class CreateAppStepTest extends SyncActivitiStepTest<CreateAppStep> {
+public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
 
     private final StepInput stepInput;
     private final String expectedExceptionMessage;

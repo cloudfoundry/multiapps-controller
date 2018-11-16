@@ -37,7 +37,7 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class CreateOrUpdateServicesStepTest extends SyncActivitiStepTest<CreateOrUpdateServicesStep> {
+public class CreateOrUpdateServicesStepTest extends SyncFlowableStepTest<CreateOrUpdateServicesStep> {
 
     private static final String TEST_SPACE_ID = "test-space-id";
     private final StepInput stepInput;

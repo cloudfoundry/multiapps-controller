@@ -36,7 +36,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class CheckForCreationConflictsStepTest extends SyncActivitiStepTest<CheckForCreationConflictsStep> {
+public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<CheckForCreationConflictsStep> {
 
     private final StepInput stepInput;
     private final String expectedExceptionMessage;

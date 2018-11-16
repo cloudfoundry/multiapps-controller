@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.activiti;
+package com.sap.cloud.lm.sl.cf.core.flowable;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -19,8 +19,8 @@ public class ResumeProcessAction extends ProcessAction {
     public static final String ACTION_ID_RESUME = "resume";
 
     @Inject
-    public ResumeProcessAction(FlowableFacade activitiFacade, List<AdditionalProcessAction> additionalProcessActions) {
-        super(activitiFacade, additionalProcessActions);
+    public ResumeProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {
+        super(flowableFacade, additionalProcessActions);
     }
 
     @Override

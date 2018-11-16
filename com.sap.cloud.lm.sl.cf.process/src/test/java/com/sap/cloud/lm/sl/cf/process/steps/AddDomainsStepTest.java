@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @RunWith(Parameterized.class)
-public class AddDomainsStepTest extends SyncActivitiStepTest<AddDomainsStep> {
+public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
 
     private final List<String> existingDomains;
     private final List<String> customDomains;

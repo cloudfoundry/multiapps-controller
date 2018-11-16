@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class UnregisterServiceUrlsStepTest extends SyncActivitiStepTest<UnregisterServiceUrlsStep> {
+public class UnregisterServiceUrlsStepTest extends SyncFlowableStepTest<UnregisterServiceUrlsStep> {
 
     private final String inputLocation;
     private final String[] expectedUnregisteredServiceUrls;

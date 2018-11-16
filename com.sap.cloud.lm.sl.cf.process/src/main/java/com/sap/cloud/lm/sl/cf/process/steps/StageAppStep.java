@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("stageAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StageAppStep extends TimeoutAsyncActivitiStep {
+public class StageAppStep extends TimeoutAsyncFlowableStep {
 
     @Inject
     protected RecentLogsRetriever recentLogsRetriever;

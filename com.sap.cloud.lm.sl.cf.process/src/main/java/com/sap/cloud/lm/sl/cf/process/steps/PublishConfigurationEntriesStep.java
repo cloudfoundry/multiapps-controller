@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 @Component("publishProvidedDependenciesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PublishConfigurationEntriesStep extends SyncActivitiStep {
+public class PublishConfigurationEntriesStep extends SyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

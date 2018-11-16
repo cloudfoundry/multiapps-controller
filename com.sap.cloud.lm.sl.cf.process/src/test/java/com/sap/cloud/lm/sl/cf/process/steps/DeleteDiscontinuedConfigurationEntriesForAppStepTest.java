@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
 public class DeleteDiscontinuedConfigurationEntriesForAppStepTest
-    extends SyncActivitiStepTest<DeleteDiscontinuedConfigurationEntriesForAppStep> {
+    extends SyncFlowableStepTest<DeleteDiscontinuedConfigurationEntriesForAppStep> {
 
     @Mock
     private ConfigurationEntryDao dao;

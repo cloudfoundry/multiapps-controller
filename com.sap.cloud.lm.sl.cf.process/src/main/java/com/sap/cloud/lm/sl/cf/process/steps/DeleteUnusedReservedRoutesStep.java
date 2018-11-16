@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("deleteUnusedReservedRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteUnusedReservedRoutesStep extends SyncActivitiStep {
+public class DeleteUnusedReservedRoutesStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

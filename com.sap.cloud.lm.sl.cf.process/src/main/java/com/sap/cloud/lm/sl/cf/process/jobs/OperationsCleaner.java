@@ -12,13 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.AbortProcessAction;
-import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
-import com.sap.cloud.lm.sl.cf.core.activiti.ProcessAction;
-import com.sap.cloud.lm.sl.cf.core.activiti.ProcessActionRegistry;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
-import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.core.flowable.AbortProcessAction;
+import com.sap.cloud.lm.sl.cf.core.flowable.ProcessAction;
+import com.sap.cloud.lm.sl.cf.core.flowable.ProcessActionRegistry;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 
@@ -30,18 +28,13 @@ public class OperationsCleaner implements Cleaner {
     private static final int DEFAULT_PAGE_SIZE = 100;
 
     private final OperationDao dao;
-    private final FlowableFacade flowableFacade;
-    private final ProgressMessageService progressMessageService;
     private final ProcessActionRegistry processActionRegistry;
     private int pageSize = DEFAULT_PAGE_SIZE;
 
     @Inject
-    public OperationsCleaner(OperationDao dao, FlowableFacade activitiFacade, ProgressMessageService progressMessageService,
-        ProcessActionRegistry processActionregistry) {
+    public OperationsCleaner(OperationDao dao, ProcessActionRegistry processActionRegistry) {
         this.dao = dao;
-        this.flowableFacade = activitiFacade;
-        this.progressMessageService = progressMessageService;
-        this.processActionRegistry = processActionregistry;
+        this.processActionRegistry = processActionRegistry;
     }
 
     public OperationsCleaner withPageSize(int pageSize) {

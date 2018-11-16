@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("buildCloudUndeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class BuildCloudUndeployModelStep extends SyncActivitiStep {
+public class BuildCloudUndeployModelStep extends SyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

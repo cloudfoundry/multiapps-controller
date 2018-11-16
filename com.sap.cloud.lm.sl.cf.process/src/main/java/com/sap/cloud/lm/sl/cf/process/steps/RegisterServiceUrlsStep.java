@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("registerServiceUrlsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RegisterServiceUrlsStep extends SyncActivitiStep {
+public class RegisterServiceUrlsStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

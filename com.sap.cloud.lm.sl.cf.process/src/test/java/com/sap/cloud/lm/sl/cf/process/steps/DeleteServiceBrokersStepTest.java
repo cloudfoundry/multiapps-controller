@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class DeleteServiceBrokersStepTest extends SyncActivitiStepTest<DeleteServiceBrokersStep> {
+public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteServiceBrokersStep> {
 
     private final String inputLocation;
     private final String[] expectedDeletedBrokers;

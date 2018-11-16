@@ -24,8 +24,6 @@ public final class Messages {
     // ERROR log messages
     public static final String MTA_NOT_FOUND = "MTA with id \"{0}\" does not exist";
 
-    public static final String ERROR_INIT_ACTIVITI = "Error initializing Activiti engine";
-
     public static final String ERROR_STORING_OAUTH_TOKEN_IN_SECURE_STORE = "Error storing OAuth access token with id \"{0}\" in token store. Entry with this id already exists";
     public static final String ERROR_COMPRESSING_OAUTH_TOKEN = "Error compressing OAuth access token";
     public static final String ERROR_DECOMPRESSING_OAUTH_TOKEN = "Error decompressing OAuth access token";

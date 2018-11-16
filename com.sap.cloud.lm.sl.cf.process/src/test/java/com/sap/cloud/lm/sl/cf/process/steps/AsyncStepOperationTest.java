@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-public abstract class AsyncStepOperationTest<AsyncStep extends SyncActivitiStep> extends SyncActivitiStepTest<AsyncStep> {
+public abstract class AsyncStepOperationTest<AsyncStep extends SyncFlowableStep> extends SyncFlowableStepTest<AsyncStep> {
 
     protected abstract List<AsyncExecution> getAsyncOperations(ExecutionWrapper wrapper);
 

@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-public class RestartAppStepTest extends SyncActivitiStepTest<RestartAppStep> {
+public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     private static final String APP_NAME = "foo";
 

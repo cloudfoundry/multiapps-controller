@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
-public class MergeDescriptorsStepTest extends SyncActivitiStepTest<MergeDescriptorsStep> {
+public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep> {
 
     private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
 

@@ -12,7 +12,7 @@ import org.mockito.Mockito;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 
-public class PrepareToUndeployStepTest extends SyncActivitiStepTest<PrepareToUndeployStep> {
+public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUndeployStep> {
 
     private static final String MTA_ID = "com.sap.xs2.samples.helloworld";
 
@@ -21,7 +21,7 @@ public class PrepareToUndeployStepTest extends SyncActivitiStepTest<PrepareToUnd
         context.setVariable(Constants.PARAM_MTA_ID, MTA_ID);
 
         step.conflictPreventerSupplier = (dao) -> mock(ProcessConflictPreventer.class);
-        Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any()))
+        Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
             .thenReturn(Collections.emptyList());
     }
 
@@ -35,7 +35,7 @@ public class PrepareToUndeployStepTest extends SyncActivitiStepTest<PrepareToUnd
         assertEquals(Collections.emptyList(), StepsUtil.getAppsToDeploy(context));
         assertEquals(Collections.emptyList(), StepsUtil.getServiceBrokersToCreate(context));
         assertEquals(Collections.emptySet(), StepsUtil.getMtaModules(context));
-        assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(context, activitiFacade));
+        assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacadeFacade));
     }
 
     @Override

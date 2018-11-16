@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 @Component("validateDeployParametersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ValidateDeployParametersStep extends SyncActivitiStep {
+public class ValidateDeployParametersStep extends SyncFlowableStep {
 
     private static final String PART_POSTFIX = ".part.";
 

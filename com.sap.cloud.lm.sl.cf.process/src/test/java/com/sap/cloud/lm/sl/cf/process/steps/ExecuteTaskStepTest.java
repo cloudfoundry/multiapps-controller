@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
-public class ExecuteTaskStepTest extends SyncActivitiStepTest<ExecuteTaskStep> {
+public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
 
     private static final long DUMMY_TIME = 100;
 

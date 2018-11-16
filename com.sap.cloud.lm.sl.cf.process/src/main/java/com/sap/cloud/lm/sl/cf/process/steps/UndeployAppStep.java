@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("undeployAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UndeployAppStep extends SyncActivitiStep {
+public class UndeployAppStep extends SyncFlowableStep {
 
     @Inject
     private OneOffTasksSupportChecker oneOffTasksSupportChecker;

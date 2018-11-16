@@ -43,7 +43,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 // Should be executed before ValidateDeployParametersStep as the archive ID is determined during this step execution
 @Component("processGitSourceStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ProcessGitSourceStep extends SyncActivitiStep {
+public class ProcessGitSourceStep extends SyncFlowableStep {
 
     private static final String SKIP_SSL_GIT_CONFIG = ".skipSslGitConfig";
     private static final String PATH_SEPARATOR = "/";

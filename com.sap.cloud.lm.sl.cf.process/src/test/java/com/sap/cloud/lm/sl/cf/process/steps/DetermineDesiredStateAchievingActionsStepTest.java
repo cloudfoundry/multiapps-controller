@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @RunWith(Parameterized.class)
-public class DetermineDesiredStateAchievingActionsStepTest extends SyncActivitiStepTest<DetermineDesiredStateAchievingActionsStep> {
+public class DetermineDesiredStateAchievingActionsStepTest extends SyncFlowableStepTest<DetermineDesiredStateAchievingActionsStep> {
 
     @Parameters
     public static List<Object[]> getParameters() {

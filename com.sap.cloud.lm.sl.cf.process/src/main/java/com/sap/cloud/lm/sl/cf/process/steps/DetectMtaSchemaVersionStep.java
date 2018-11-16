@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.ExtensionDescriptor;
 
 @Component("detectMtaSchemaVersionStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetectMtaSchemaVersionStep extends SyncActivitiStep {
+public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
 
     protected Supplier<SchemaVersionDetector> detectorSupplier = SchemaVersionDetector::new;
 

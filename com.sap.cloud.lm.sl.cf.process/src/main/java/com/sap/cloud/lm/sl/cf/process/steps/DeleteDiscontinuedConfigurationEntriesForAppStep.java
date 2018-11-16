@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("deleteDiscontinuedConfigurationEntriesForAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncActivitiStep {
+public class DeleteDiscontinuedConfigurationEntriesForAppStep extends SyncFlowableStep {
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;

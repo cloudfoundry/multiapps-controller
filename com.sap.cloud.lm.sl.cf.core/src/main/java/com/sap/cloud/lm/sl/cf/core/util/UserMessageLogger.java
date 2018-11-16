@@ -2,7 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.util;
 
 public interface UserMessageLogger {
 
-    public void logActivitiTask();
+    public void logFlowableTask();
 
     public void infoWithoutProgressMessage(String pattern, Object... arguments);
 

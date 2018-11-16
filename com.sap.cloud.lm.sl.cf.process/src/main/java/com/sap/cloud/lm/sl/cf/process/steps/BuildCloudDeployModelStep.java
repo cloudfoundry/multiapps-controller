@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
-public class BuildCloudDeployModelStep extends SyncActivitiStep {
+public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

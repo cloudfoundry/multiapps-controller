@@ -32,7 +32,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 @Component("detectTargetStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetectTargetStep extends SyncActivitiStep {
+public class DetectTargetStep extends SyncFlowableStep {
 
     @Inject
     private com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDao deployTargetDaoV1;

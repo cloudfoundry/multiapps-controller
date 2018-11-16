@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("unregisterServiceUrlsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UnregisterServiceUrlsStep extends SyncActivitiStep {
+public class UnregisterServiceUrlsStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

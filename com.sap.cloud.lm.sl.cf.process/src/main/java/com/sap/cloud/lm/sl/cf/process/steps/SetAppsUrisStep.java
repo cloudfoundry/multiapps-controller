@@ -8,7 +8,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
-public abstract class SetAppsUrisStep extends SyncActivitiStep {
+public abstract class SetAppsUrisStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

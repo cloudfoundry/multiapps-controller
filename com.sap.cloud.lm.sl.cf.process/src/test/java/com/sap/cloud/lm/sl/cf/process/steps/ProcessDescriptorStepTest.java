@@ -34,7 +34,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
-public class ProcessDescriptorStepTest extends SyncActivitiStepTest<ProcessDescriptorStep> {
+public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorStep> {
 
     private static final String SPACE_NAME = "initial";
     private static final String ORG_NAME = "initial";

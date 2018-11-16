@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class PublishConfigurationEntriesStepTest extends SyncActivitiStepTest<PublishConfigurationEntriesStep> {
+public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<PublishConfigurationEntriesStep> {
 
     private static class StepInput {
 

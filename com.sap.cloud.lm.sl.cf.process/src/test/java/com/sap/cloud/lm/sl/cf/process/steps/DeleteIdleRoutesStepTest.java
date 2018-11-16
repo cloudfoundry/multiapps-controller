@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class DeleteIdleRoutesStepTest extends SyncActivitiStepTest<DeleteIdleRoutesStep> {
+public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRoutesStep> {
 
     private static class StepInput {
 

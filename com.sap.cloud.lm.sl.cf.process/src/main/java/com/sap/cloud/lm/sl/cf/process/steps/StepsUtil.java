@@ -33,7 +33,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
-import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
@@ -44,6 +43,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -550,12 +550,12 @@ public class StepsUtil {
         return Arrays.asList(JsonUtil.getFromBinaryJson(deletedEntriesByteArray, ConfigurationEntry[].class));
     }
 
-    static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(DelegateExecution context, FlowableFacade activitiFacade) {
+    static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(DelegateExecution context, FlowableFacade flowableFacade) {
         List<ConfigurationEntry> configurationEntries = new ArrayList<>(
-            StepsUtil.getDeletedEntriesFromProcess(activitiFacade, StepsUtil.getCorrelationId(context)));
-        List<String> subProcessIds = activitiFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(context));
+            StepsUtil.getDeletedEntriesFromProcess(flowableFacade, StepsUtil.getCorrelationId(context)));
+        List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(context));
         for (String subProcessId : subProcessIds) {
-            configurationEntries.addAll(getDeletedEntriesFromProcess(activitiFacade, subProcessId));
+            configurationEntries.addAll(getDeletedEntriesFromProcess(flowableFacade, subProcessId));
         }
         return configurationEntries;
     }
@@ -574,8 +574,8 @@ public class StepsUtil {
         return Arrays.asList(publishedEntriesArray);
     }
 
-    static List<ConfigurationEntry> getPublishedEntriesFromProcess(FlowableFacade activitiFacade, String processInstanceId) {
-        HistoricVariableInstance publishedEntries = activitiFacade.getHistoricVariableInstance(processInstanceId,
+    static List<ConfigurationEntry> getPublishedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {
+        HistoricVariableInstance publishedEntries = flowableFacade.getHistoricVariableInstance(processInstanceId,
             Constants.VAR_PUBLISHED_ENTRIES);
         if (publishedEntries == null) {
             return Collections.emptyList();
@@ -584,11 +584,11 @@ public class StepsUtil {
         return Arrays.asList(JsonUtil.getFromBinaryJson(binaryJson, ConfigurationEntry[].class));
     }
 
-    static List<ConfigurationEntry> getPublishedEntriesFromSubProcesses(DelegateExecution context, FlowableFacade activitiFacade) {
+    static List<ConfigurationEntry> getPublishedEntriesFromSubProcesses(DelegateExecution context, FlowableFacade flowableFacade) {
         List<ConfigurationEntry> result = new ArrayList<>();
-        List<String> subProcessIds = activitiFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(context));
+        List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(context));
         for (String subProcessId : subProcessIds) {
-            result.addAll(getPublishedEntriesFromProcess(activitiFacade, subProcessId));
+            result.addAll(getPublishedEntriesFromProcess(flowableFacade, subProcessId));
         }
         return result;
     }

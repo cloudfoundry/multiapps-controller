@@ -86,7 +86,7 @@ public class FlowableConfiguration {
     }
 
     protected FailedJobCommandFactory getFailedJobCommandFactory() {
-        // By default Activiti will retry failed jobs. Disable this behavior.
+        // By default Flowable will retry failed jobs. Disable this behavior.
         return new AbortFailedProcessCommandFactory();
     }
 

@@ -38,7 +38,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("uploadAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UploadAppStep extends TimeoutAsyncActivitiStep {
+public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     static final int DEFAULT_APP_UPLOAD_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(1);
 

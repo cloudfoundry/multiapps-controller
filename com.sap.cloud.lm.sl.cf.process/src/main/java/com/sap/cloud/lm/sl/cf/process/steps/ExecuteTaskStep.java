@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("executeTaskStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ExecuteTaskStep extends TimeoutAsyncActivitiStep {
+public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     protected Supplier<Long> currentTimeSupplier = System::currentTimeMillis;
 

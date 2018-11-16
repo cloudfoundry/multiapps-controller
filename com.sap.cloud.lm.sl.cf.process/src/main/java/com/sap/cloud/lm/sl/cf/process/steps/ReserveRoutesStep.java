@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("reserveRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ReserveRoutesStep extends SyncActivitiStep {
+public class ReserveRoutesStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {

@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 @Component("mergeDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MergeDescriptorsStep extends SyncActivitiStep {
+public class MergeDescriptorsStep extends SyncFlowableStep {
 
     protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform, Target target) {
         return new MtaDescriptorMerger(factory, platform, target, getStepLogger());

@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
-public class PrepareToExecuteTasksStepTest extends SyncActivitiStepTest<PrepareToExecuteTasksStep> {
+public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareToExecuteTasksStep> {
 
     @Override
     protected PrepareToExecuteTasksStep createStep() {

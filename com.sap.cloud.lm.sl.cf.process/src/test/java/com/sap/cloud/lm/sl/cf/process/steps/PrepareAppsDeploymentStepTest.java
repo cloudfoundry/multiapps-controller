@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @RunWith(Parameterized.class)
-public class PrepareAppsDeploymentStepTest extends SyncActivitiStepTest<PrepareAppsDeploymentStep> {
+public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareAppsDeploymentStep> {
 
     @Mock
     private ProcessTypeParser processTypeParser;

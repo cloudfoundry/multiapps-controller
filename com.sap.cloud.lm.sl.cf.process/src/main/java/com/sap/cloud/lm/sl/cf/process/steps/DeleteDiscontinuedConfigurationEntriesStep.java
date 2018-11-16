@@ -11,8 +11,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
@@ -23,13 +23,13 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("deleteDiscontinuedConfigurationEntriesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep {
+public class DeleteDiscontinuedConfigurationEntriesStep extends SyncFlowableStep {
 
     @Inject
     private ConfigurationEntryDao configurationEntryDao;
 
     @Inject
-    private FlowableFacade activitiFacade;
+    private FlowableFacade flowableFacade;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -42,7 +42,7 @@ public class DeleteDiscontinuedConfigurationEntriesStep extends SyncActivitiStep
         CloudTarget oldTarget = new CloudTarget(null, StepsUtil.getSpaceId(execution.getContext()));
 
         List<ConfigurationEntry> publishedConfigurationEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(),
-            activitiFacade);
+            flowableFacade);
 
         List<ConfigurationEntry> entriesToDelete = getEntriesToDelete(mtaId, newTarget, oldTarget, publishedConfigurationEntries);
         for (ConfigurationEntry entry : entriesToDelete) {

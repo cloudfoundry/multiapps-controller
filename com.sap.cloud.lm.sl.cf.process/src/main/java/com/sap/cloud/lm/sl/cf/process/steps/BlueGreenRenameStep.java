@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
 @Named("blueGreenRenameStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class BlueGreenRenameStep extends SyncActivitiStep {
+public class BlueGreenRenameStep extends SyncFlowableStep {
 
     private static final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
 

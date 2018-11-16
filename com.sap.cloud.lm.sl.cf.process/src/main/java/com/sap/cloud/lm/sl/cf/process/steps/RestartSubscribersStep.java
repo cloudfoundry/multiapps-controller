@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("restartSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RestartSubscribersStep extends SyncActivitiStep {
+public class RestartSubscribersStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {

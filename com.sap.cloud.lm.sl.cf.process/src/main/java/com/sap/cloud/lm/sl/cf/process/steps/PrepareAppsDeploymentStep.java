@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @Component("prepareAppsDeploymentStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareAppsDeploymentStep extends SyncActivitiStep {
+public class PrepareAppsDeploymentStep extends SyncFlowableStep {
 
     @Inject
     private ApplicationConfiguration configuration;

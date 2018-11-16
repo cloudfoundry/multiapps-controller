@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("prepareToUndeployStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToUndeployStep extends SyncActivitiStep {
+public class PrepareToUndeployStep extends SyncFlowableStep {
 
     @Inject
     private OperationDao operationDao;

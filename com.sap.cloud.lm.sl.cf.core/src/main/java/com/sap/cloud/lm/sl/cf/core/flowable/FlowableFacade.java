@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.activiti;
+package com.sap.cloud.lm.sl.cf.core.flowable;
 
 import static java.text.MessageFormat.format;
 
@@ -48,7 +48,7 @@ public class FlowableFacade {
             return processEngine.getRuntimeService()
                 .startProcessInstanceByKey(processDefinitionKey, variables);
         } finally {
-            // After the setAuthenticatedUserId() method is invoked, all Activiti service methods
+            // After the setAuthenticatedUserId() method is invoked, all Flowable service methods
             // executed within the current thread will have access to this userId. Just before
             // leaving the method, the userId is set to null, preventing other services from using
             // it unintentionally.
@@ -179,10 +179,10 @@ public class FlowableFacade {
     }
 
     private boolean isActive(String processId) {
-        return getHistoricActivitiInstance(processId, "endEvent") == null;
+        return getHistoricActivityInstance(processId, "endEvent") == null;
     }
 
-    private HistoricActivityInstance getHistoricActivitiInstance(String processId, String activityType) {
+    private HistoricActivityInstance getHistoricActivityInstance(String processId, String activityType) {
         return processEngine.getHistoryService()
             .createHistoricActivityInstanceQuery()
             .activityType(activityType)
