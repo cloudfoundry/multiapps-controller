@@ -54,7 +54,7 @@ import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 @Component("createOrUpdateServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateOrUpdateServicesStep extends AsyncActivitiStep {
+public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

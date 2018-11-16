@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.cf.process.exception.MonitoringException;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 @RunWith(Parameterized.class)
-public class AbstractProcessStepTest extends SyncActivitiStepTest<AbstractProcessStepTest.MockStep> {
+public class AbstractProcessStepTest extends SyncFlowableStepTest<AbstractProcessStepTest.MockStep> {
 
     private static final String PROCESS_ID = "1234";
 
@@ -59,7 +59,7 @@ public class AbstractProcessStepTest extends SyncActivitiStepTest<AbstractProces
         }
     }
 
-    public static class MockStep extends SyncActivitiStep {
+    public static class MockStep extends SyncFlowableStep {
 
         private Supplier<Exception> exceptionSupplier;
 

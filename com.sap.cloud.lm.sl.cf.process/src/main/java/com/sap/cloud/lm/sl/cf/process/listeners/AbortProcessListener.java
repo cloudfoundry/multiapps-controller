@@ -31,7 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.analytics.adapters.ActivitiEventToDelegateExecutionAdapter;
+import com.sap.cloud.lm.sl.cf.process.analytics.adapters.FlowableEngineEventToDelegateExecutionAdapter;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
@@ -171,7 +171,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
     }
 
     protected void sendStatistics(FlowableEngineEvent event) {
-        DelegateExecution context = new ActivitiEventToDelegateExecutionAdapter(event);
+        DelegateExecution context = new FlowableEngineEventToDelegateExecutionAdapter(event);
         RestTemplate restTemplate = new RestTemplate();
         AnalyticsData collectedData = dataSender.collectAnalyticsData(context, State.ABORTED);
         dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(context, collectedData));

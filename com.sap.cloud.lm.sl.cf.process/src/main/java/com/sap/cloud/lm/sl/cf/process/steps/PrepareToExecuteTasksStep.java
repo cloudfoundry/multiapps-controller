@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("prepareToExecuteTasksStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToExecuteTasksStep extends SyncActivitiStep {
+public class PrepareToExecuteTasksStep extends SyncFlowableStep {
 
     @Inject
     private ApplicationConfiguration configuration;

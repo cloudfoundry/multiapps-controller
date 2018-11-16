@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("restartAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RestartAppStep extends TimeoutAsyncActivitiStep {
+public class RestartAppStep extends TimeoutAsyncFlowableStep {
 
     @Autowired
     protected RecentLogsRetriever recentLogsRetriever;

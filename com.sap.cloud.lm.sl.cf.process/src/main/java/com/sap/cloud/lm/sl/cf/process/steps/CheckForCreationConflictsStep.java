@@ -35,7 +35,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("checkForCreationConflictsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CheckForCreationConflictsStep extends SyncActivitiStep {
+public class CheckForCreationConflictsStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {

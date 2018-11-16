@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
 @Component("processMtaArchiveStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class ProcessMtaArchiveStep extends SyncActivitiStep {
+public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
     @Inject
     private OperationDao operationDao;

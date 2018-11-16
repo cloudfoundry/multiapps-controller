@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
 @Component("rebuildApplicationDeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RebuildApplicationDeployModelStep extends SyncActivitiStep {
+public class RebuildApplicationDeployModelStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {

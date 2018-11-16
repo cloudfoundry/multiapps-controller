@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
-public class BlueGreenRenameStepTest extends SyncActivitiStepTest<BlueGreenRenameStep> {
+public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenameStep> {
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 1;
 

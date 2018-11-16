@@ -35,7 +35,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("deleteServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteServicesStep extends AsyncActivitiStep {
+public class DeleteServicesStep extends AsyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

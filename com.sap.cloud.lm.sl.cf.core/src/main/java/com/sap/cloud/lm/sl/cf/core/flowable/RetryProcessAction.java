@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.activiti;
+package com.sap.cloud.lm.sl.cf.core.flowable;
 
 import java.util.List;
 import java.util.ListIterator;
@@ -17,8 +17,8 @@ public class RetryProcessAction extends ProcessAction {
     public static final String ACTION_ID_RETRY = "retry";
 
     @Inject
-    public RetryProcessAction(FlowableFacade activitiFacade, List<AdditionalProcessAction> additionalProcessActions) {
-        super(activitiFacade, additionalProcessActions);
+    public RetryProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {
+        super(flowableFacade, additionalProcessActions);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class RetryProcessAction extends ProcessAction {
         } catch (RuntimeException e) {
             // Consider the retry as successful. The execution error could be later obtained through
             // the getError() method.
-            LOGGER.error(Messages.ACTIVITI_JOB_RETRY_FAILED, e);
+            LOGGER.error(Messages.FLOWABLE_JOB_RETRY_FAILED, e);
         }
     }
 

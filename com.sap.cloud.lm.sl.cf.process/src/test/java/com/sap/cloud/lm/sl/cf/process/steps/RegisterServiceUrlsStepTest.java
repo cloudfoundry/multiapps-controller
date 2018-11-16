@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class RegisterServiceUrlsStepTest extends SyncActivitiStepTest<RegisterServiceUrlsStep> {
+public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterServiceUrlsStep> {
 
     private final String expectedExceptionMessage;
     private final String inputLocation;

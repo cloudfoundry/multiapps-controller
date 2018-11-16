@@ -28,7 +28,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncActivitiStepTest<DeleteDiscontinuedConfigurationEntriesStep> {
+public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowableStepTest<DeleteDiscontinuedConfigurationEntriesStep> {
 
     @Mock
     private ConfigurationEntryDao configurationEntryDao;
@@ -88,15 +88,15 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncActiviti
         context.setVariable(Constants.PARAM_MTA_ID, stepInput.mtaId);
         Mockito.when(context.getProcessInstanceId())
             .thenReturn("process-instance-id");
-        Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any()))
+        Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
             .thenReturn(Arrays.asList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
-        Mockito.when(activitiFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
+        Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
             .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue())
             .thenReturn(getBytes(stepInput.publishedEntries));
         HistoricVariableInstance varInstanceMockDeletedEntries = Mockito.mock(HistoricVariableInstance.class);
-        Mockito.when(activitiFacade.getHistoricVariableInstance("process-instance-id", Constants.VAR_DELETED_ENTRIES))
+        Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("process-instance-id", Constants.VAR_DELETED_ENTRIES))
             .thenReturn(varInstanceMockDeletedEntries);
         Mockito.when(varInstanceMockDeletedEntries.getValue())
             .thenReturn(getBytes(getEntriesToDelete()));
@@ -113,7 +113,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncActiviti
         assertStepFinishedSuccessfully();
 
         assertEquals(toJson(getEntriesToDelete()),
-            toJson(StepsUtil.getDeletedEntriesFromProcess(activitiFacade, context.getProcessInstanceId())));
+            toJson(StepsUtil.getDeletedEntriesFromProcess(flowableFacadeFacade, context.getProcessInstanceId())));
 
         for (Long id : (stepInput.idsOfExpectedEntriesToDelete)) {
             verify(configurationEntryDao).remove(id);

@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("deleteSubscriptionsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteSubscriptionsStep extends SyncActivitiStep {
+public class DeleteSubscriptionsStep extends SyncFlowableStep {
 
     @Inject
     private ConfigurationSubscriptionDao dao;

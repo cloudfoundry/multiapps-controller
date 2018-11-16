@@ -280,7 +280,7 @@ public class Messages {
     public static final String CLIENT_SPACE = "Client space: {0}";
     public static final String CLIENT_ORG = "Client org: {0}";
     public static final String EXECUTING_TASK = "Executing task \"{0}\" of process \"{1}\"...";
-    public static final String RECEIVED_ACTIVITI_EVENT = "Received Activiti event of type \"{0}\" for process \"{1}\" with definition \"{2}\"";
+    public static final String RECEIVED_FLOWABLE_EVENT = "Received Flowable event of type \"{0}\" for process \"{1}\" with definition \"{2}\"";
     public static final String PREPARING_DEPLOY_PARAMETERS = "Preparing deploy parameters...";
     public static final String DEPLOY_PARAMETERS_PREPARED = "Parameters prepared";
     public static final String VALIDATING_PARAMETERS = "Validating parameters...";

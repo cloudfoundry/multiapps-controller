@@ -8,7 +8,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
-public abstract class TimeoutAsyncActivitiStep extends AsyncActivitiStep {
+public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
 
     @Override
     public StepPhase executeStep(ExecutionWrapper execution) throws Exception {

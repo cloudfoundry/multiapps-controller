@@ -142,7 +142,7 @@ public class CtsDeployMetadata {
 
     public static OperationMetadata getMetadata() {
         return OperationMetadata.builder()
-            .activitiDiagramId(Constants.CTS_DEPLOY_SERVICE_ID)
+            .diagramId(Constants.CTS_DEPLOY_SERVICE_ID)
             .versions(Constants.SERVICE_VERSION_1_0)
             .parameters(PARAMS)
             .build();

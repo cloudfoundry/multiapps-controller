@@ -37,7 +37,7 @@ public class StepLogger implements UserMessageLogger {
         this.simpleStepLogger = simpleStepLogger;
     }
 
-    public void logActivitiTask() {
+    public void logFlowableTask() {
         debug(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getId());
     }
 

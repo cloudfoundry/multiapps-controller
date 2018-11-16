@@ -13,7 +13,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("checkAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CheckAppStep extends SyncActivitiStep {
+public class CheckAppStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

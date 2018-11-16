@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @Component("prepareToRestartServiceBrokerSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToRestartServiceBrokerSubscribersStep extends SyncActivitiStep {
+public class PrepareToRestartServiceBrokerSubscribersStep extends SyncFlowableStep {
 
     @Inject
     private ApplicationConfiguration configuration;

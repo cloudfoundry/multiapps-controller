@@ -13,11 +13,11 @@ import org.flowable.engine.impl.context.Context;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.flowable.variable.api.persistence.entity.VariableInstance;
 
-public class ActivitiEventToDelegateExecutionAdapter implements DelegateExecution {
+public class FlowableEngineEventToDelegateExecutionAdapter implements DelegateExecution {
 
     private FlowableEngineEvent event;
 
-    public ActivitiEventToDelegateExecutionAdapter(FlowableEngineEvent event) {
+    public FlowableEngineEventToDelegateExecutionAdapter(FlowableEngineEvent event) {
         this.event = event;
     }
 

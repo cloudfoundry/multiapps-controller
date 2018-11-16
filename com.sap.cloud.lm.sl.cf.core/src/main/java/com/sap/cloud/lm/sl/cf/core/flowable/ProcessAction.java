@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.activiti;
+package com.sap.cloud.lm.sl.cf.core.flowable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,8 +12,8 @@ public abstract class ProcessAction {
     protected final List<AdditionalProcessAction> additionalProcessActions;
 
     @Inject
-    public ProcessAction(FlowableFacade activitiFacade, List<AdditionalProcessAction> additionalProcessActions) {
-        this.flowableFacade = activitiFacade;
+    public ProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {
+        this.flowableFacade = flowableFacade;
         this.additionalProcessActions = additionalProcessActions;
     }
 

@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class CreateSubscriptionsStepTest extends SyncActivitiStepTest<CreateSubscriptionsStep> {
+public class CreateSubscriptionsStepTest extends SyncFlowableStepTest<CreateSubscriptionsStep> {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

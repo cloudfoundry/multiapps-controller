@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.activiti;
+package com.sap.cloud.lm.sl.cf.core.flowable;
 
 import java.util.List;
 
@@ -11,8 +11,8 @@ public class StartProcessAction extends ResumeProcessAction {
     public static final String ACTION_ID_START = "start";
 
     @Inject
-    public StartProcessAction(FlowableFacade activitiFacade, List<AdditionalProcessAction> additionalProcessActions) {
-        super(activitiFacade, additionalProcessActions);
+    public StartProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {
+        super(flowableFacade, additionalProcessActions);
     }
 
     @Override

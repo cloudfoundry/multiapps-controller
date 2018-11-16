@@ -129,7 +129,7 @@ public class BlueGreenDeployMetadata {
     public static OperationMetadata getMetadata() {
         return OperationMetadata.builder()
             .parameters(PARAMS)
-            .activitiDiagramId(Constants.BLUE_GREEN_DEPLOY_SERVICE_ID)
+            .diagramId(Constants.BLUE_GREEN_DEPLOY_SERVICE_ID)
             .versions(Constants.SERVICE_VERSION_1_1, Constants.SERVICE_VERSION_1_2)
             .build();
     }

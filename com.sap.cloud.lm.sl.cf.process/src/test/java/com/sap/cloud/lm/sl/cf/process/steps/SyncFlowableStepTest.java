@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
-import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.AbstractFileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProviderFactory;
@@ -36,9 +36,9 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 
-public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
+public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SyncActivitiStepTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SyncFlowableStepTest.class);
 
     protected static final String USER_NAME = "dummy";
     protected static final String ORG_NAME = "org";
@@ -64,7 +64,7 @@ public abstract class SyncActivitiStepTest<T extends SyncActivitiStep> {
     @Mock
     protected CloudControllerClientProvider clientProvider;
     @Mock
-    protected FlowableFacade activitiFacade;
+    protected FlowableFacade flowableFacadeFacade;
     @Mock
     protected ApplicationConfiguration configuration;
     @Mock

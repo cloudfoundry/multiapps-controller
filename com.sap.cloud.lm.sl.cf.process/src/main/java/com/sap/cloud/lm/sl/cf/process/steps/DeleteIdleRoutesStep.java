@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("deleteIdleRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteIdleRoutesStep extends SyncActivitiStep {
+public class DeleteIdleRoutesStep extends SyncFlowableStep {
 
     @Inject
     private SpaceGetter spaceGetter;

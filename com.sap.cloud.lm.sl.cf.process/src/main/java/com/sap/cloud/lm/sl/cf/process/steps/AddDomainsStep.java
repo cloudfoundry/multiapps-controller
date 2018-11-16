@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("addDomainsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class AddDomainsStep extends SyncActivitiStep {
+public class AddDomainsStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

@@ -8,7 +8,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 
 @Component("incrementIndexStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class IncrementIndexStep extends SyncActivitiStep {
+public class IncrementIndexStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

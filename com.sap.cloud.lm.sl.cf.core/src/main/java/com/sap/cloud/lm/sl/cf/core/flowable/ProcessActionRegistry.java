@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.activiti;
+package com.sap.cloud.lm.sl.cf.core.flowable;
 
 import java.util.List;
 

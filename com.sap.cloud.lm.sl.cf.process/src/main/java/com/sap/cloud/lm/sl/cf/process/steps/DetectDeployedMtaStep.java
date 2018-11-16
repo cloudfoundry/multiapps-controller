@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("detectDeployedMtaStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DetectDeployedMtaStep extends SyncActivitiStep {
+public class DetectDeployedMtaStep extends SyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

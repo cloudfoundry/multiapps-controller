@@ -32,12 +32,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
+import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.DummyConfigurationFilterParser;
@@ -67,7 +67,7 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 @Component("updateSubscribersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UpdateSubscribersStep extends SyncActivitiStep {
+public class UpdateSubscribersStep extends SyncFlowableStep {
 
     /*
      * This schema version will be used only for the handling of the subscription entities and it should always be the same as the latest
@@ -98,7 +98,7 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
     @Inject
     private ConfigurationEntryDao entriesDao;
     @Inject
-    private FlowableFacade activitiFacade;
+    private FlowableFacade flowableFacade;
     @Inject
     private SpaceGetter spaceGetter;
     @Inject
@@ -109,8 +109,8 @@ public class UpdateSubscribersStep extends SyncActivitiStep {
         try {
             getStepLogger().debug(Messages.UPDATING_SUBSCRIBERS);
             List<ConfigurationEntry> publishedEntries = StepsUtil.getPublishedEntriesFromSubProcesses(execution.getContext(),
-                activitiFacade);
-            List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(execution.getContext(), activitiFacade);
+                flowableFacade);
+            List<ConfigurationEntry> deletedEntries = StepsUtil.getDeletedEntriesFromAllProcesses(execution.getContext(), flowableFacade);
             List<ConfigurationEntry> updatedEntries = ListUtils.union(publishedEntries, deletedEntries);
 
             CloudControllerClient clientForCurrentSpace = execution.getControllerClient();

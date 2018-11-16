@@ -14,7 +14,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("stopAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StopAppStep extends SyncActivitiStep {
+public class StopAppStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

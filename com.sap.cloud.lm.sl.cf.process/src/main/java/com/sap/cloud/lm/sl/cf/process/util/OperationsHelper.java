@@ -12,9 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.activiti.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
+import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.metadata.ProcessTypeToOperationMetadataMapper;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
@@ -31,7 +31,7 @@ public class OperationsHelper {
     private ProcessTypeToOperationMetadataMapper metadataMapper;
 
     @Inject
-    private FlowableFacade activitiFacade;
+    private FlowableFacade flowableFacade;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsHelper.class);
 
@@ -42,14 +42,14 @@ public class OperationsHelper {
     }
 
     public String getProcessDefinitionKey(Operation operation) {
-        return metadataMapper.getActivitiDiagramId(operation.getProcessType());
+        return metadataMapper.getDiagramId(operation.getProcessType());
     }
 
     public List<String> getAllProcessDefinitionKeys(Operation operation) {
         List<String> processDefinitionKeys = new ArrayList<>();
         ProcessType processType = operation.getProcessType();
-        processDefinitionKeys.add(metadataMapper.getActivitiDiagramId(processType));
-        processDefinitionKeys.addAll(metadataMapper.getPreviousActivitiDiagramIds(processType));
+        processDefinitionKeys.add(metadataMapper.getDiagramId(processType));
+        processDefinitionKeys.addAll(metadataMapper.getPreviousDiagramIds(processType));
         return processDefinitionKeys;
     }
 
@@ -80,7 +80,7 @@ public class OperationsHelper {
     public State computeState(Operation ongoingOperation) {
         LOGGER.debug(MessageFormat.format(Messages.COMPUTING_STATE_OF_OPERATION, ongoingOperation.getProcessType(),
             ongoingOperation.getProcessId()));
-        return activitiFacade.getProcessInstanceState(ongoingOperation.getProcessId());
+        return flowableFacade.getProcessInstanceState(ongoingOperation.getProcessId());
     }
 
     private List<Operation> filterBasedOnStates(List<Operation> operations, List<State> statusList) {

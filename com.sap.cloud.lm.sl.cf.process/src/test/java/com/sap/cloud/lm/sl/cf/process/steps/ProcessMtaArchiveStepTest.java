@@ -34,7 +34,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class ProcessMtaArchiveStepTest extends SyncActivitiStepTest<ProcessMtaArchiveStep> {
+public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveStep> {
 
     private static final String SPACE_ID = "0";
 

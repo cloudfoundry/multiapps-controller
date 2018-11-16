@@ -47,7 +47,7 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 public class UploadAppStepTest {
 
     @RunWith(Parameterized.class)
-    public static class UploadAppStepParameterizedTest extends SyncActivitiStepTest<UploadAppStep> {
+    public static class UploadAppStepParameterizedTest extends SyncFlowableStepTest<UploadAppStep> {
 
         private static final IOException IO_EXCEPTION = new IOException();
         private static final CloudOperationException CO_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
@@ -215,7 +215,7 @@ public class UploadAppStepTest {
 
     }
 
-    public static class UploadAppStepTimeoutTest extends SyncActivitiStepTest<UploadAppStep> {
+    public static class UploadAppStepTimeoutTest extends SyncFlowableStepTest<UploadAppStep> {
 
         private static final String APP_NAME = "sample-app-backend";
 

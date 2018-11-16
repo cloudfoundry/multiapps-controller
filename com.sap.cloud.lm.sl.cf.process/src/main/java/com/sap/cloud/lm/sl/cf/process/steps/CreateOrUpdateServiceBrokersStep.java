@@ -33,7 +33,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("createOrUpdateServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateOrUpdateServiceBrokersStep extends SyncActivitiStep {
+public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
 
     @Inject
     private ServiceBrokerCreator serviceBrokerCreator;

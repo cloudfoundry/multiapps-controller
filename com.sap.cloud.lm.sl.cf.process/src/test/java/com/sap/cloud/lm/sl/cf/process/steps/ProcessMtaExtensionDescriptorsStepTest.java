@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.mta.builders.ExtensionDescriptorChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.v1.ExtensionDescriptor;
 
-public class ProcessMtaExtensionDescriptorsStepTest extends SyncActivitiStepTest<ProcessMtaExtensionDescriptorsStep> {
+public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest<ProcessMtaExtensionDescriptorsStep> {
 
     private static final String SPACE_ID = "foo";
 

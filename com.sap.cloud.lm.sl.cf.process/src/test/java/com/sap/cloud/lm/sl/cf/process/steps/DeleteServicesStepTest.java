@@ -47,7 +47,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class DeleteServicesStepTest extends SyncActivitiStepTest<DeleteServicesStep> {
+public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesStep> {
 
     private static final String POLLING = "polling";
     private static final String STEP_EXECUTION = "stepExecution";

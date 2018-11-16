@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 
-public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegate {
+public abstract class SyncFlowableStep implements TaskIndexProvider, JavaDelegate {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -42,7 +42,7 @@ public abstract class SyncActivitiStep implements TaskIndexProvider, JavaDelegat
     @Override
     public void execute(DelegateExecution context) {
         initializeStepLogger(context);
-        stepLogger.logActivitiTask();
+        stepLogger.logFlowableTask();
         ExecutionWrapper executionWrapper = createExecutionWrapper(context);
         StepPhase stepPhase = getInitialStepPhase(executionWrapper);
         try {

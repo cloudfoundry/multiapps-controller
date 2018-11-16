@@ -10,11 +10,11 @@ import org.apache.commons.lang3.ObjectUtils;
 public class OperationMetadata {
 
     protected Set<ParameterMetadata> parameters;
-    protected String activitiDiagramId;
+    protected String diagramId;
     /**
      * Can be used to ensure backwards compatibility when trying to find processes started with an older version of the application.
      */
-    protected List<String> previousActivitiDiagramIds;
+    protected List<String> previousDiagramIds;
     protected List<String> versions;
 
     public static OperationMetadataBuilder builder() {
@@ -24,15 +24,15 @@ public class OperationMetadata {
     public static class OperationMetadataBuilder {
 
         protected Set<ParameterMetadata> parameters;
-        protected String activitiDiagramId;
-        protected List<String> previousActivitiDiagramIds;
+        protected String diagramId;
+        protected List<String> previousDiagramIds;
         protected List<String> versions;
 
         public OperationMetadata build() {
             OperationMetadata metadata = new OperationMetadata();
             metadata.parameters = parameters;
-            metadata.activitiDiagramId = activitiDiagramId;
-            metadata.previousActivitiDiagramIds = ObjectUtils.defaultIfNull(previousActivitiDiagramIds, Collections.<String> emptyList());
+            metadata.diagramId = diagramId;
+            metadata.previousDiagramIds = ObjectUtils.defaultIfNull(previousDiagramIds, Collections.<String> emptyList());
             metadata.versions = ObjectUtils.defaultIfNull(versions, Collections.<String> emptyList());
             return metadata;
         }
@@ -42,13 +42,13 @@ public class OperationMetadata {
             return this;
         }
 
-        public OperationMetadataBuilder activitiDiagramId(String activitiDiagramId) {
-            this.activitiDiagramId = activitiDiagramId;
+        public OperationMetadataBuilder diagramId(String diagramId) {
+            this.diagramId = diagramId;
             return this;
         }
 
-        public OperationMetadataBuilder previousActivitiDiagramIds(String... previousActivitiDiagramIds) {
-            this.previousActivitiDiagramIds = Arrays.asList(previousActivitiDiagramIds);
+        public OperationMetadataBuilder previousDiagramIds(String... previousDiagramIds) {
+            this.previousDiagramIds = Arrays.asList(previousDiagramIds);
             return this;
         }
 
@@ -63,12 +63,12 @@ public class OperationMetadata {
         return parameters;
     }
 
-    public String getActivitiDiagramId() {
-        return activitiDiagramId;
+    public String getDiagramId() {
+        return diagramId;
     }
 
-    public List<String> getPreviousActivitiDiagramIds() {
-        return previousActivitiDiagramIds;
+    public List<String> getPreviousDiagramIds() {
+        return previousDiagramIds;
     }
 
     public List<String> getVersions() {

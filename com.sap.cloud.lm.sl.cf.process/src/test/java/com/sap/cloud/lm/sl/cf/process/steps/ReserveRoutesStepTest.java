@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class ReserveRoutesStepTest extends SyncActivitiStepTest<ReserveRoutesStep> {
+public class ReserveRoutesStepTest extends SyncFlowableStepTest<ReserveRoutesStep> {
 
     private StepInput stepInput;
 

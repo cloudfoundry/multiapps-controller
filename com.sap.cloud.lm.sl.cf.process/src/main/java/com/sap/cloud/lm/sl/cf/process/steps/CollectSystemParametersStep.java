@@ -41,7 +41,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
 @Component("collectSystemParametersStep") // rename to collect system parameters and allocate ports?
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CollectSystemParametersStep extends SyncActivitiStep {
+public class CollectSystemParametersStep extends SyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

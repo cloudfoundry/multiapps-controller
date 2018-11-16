@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("deleteServiceBrokersStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class DeleteServiceBrokersStep extends SyncActivitiStep {
+public class DeleteServiceBrokersStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

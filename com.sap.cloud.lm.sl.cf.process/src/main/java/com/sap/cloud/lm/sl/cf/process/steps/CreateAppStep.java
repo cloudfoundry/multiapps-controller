@@ -47,7 +47,7 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 @Component("createAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class CreateAppStep extends SyncActivitiStep {
+public class CreateAppStep extends SyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

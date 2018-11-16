@@ -6,7 +6,7 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
-public abstract class AsyncActivitiStep extends SyncActivitiStep {
+public abstract class AsyncFlowableStep extends SyncFlowableStep {
 
     private static final Integer DEFAULT_STEP_EXECUTION_INDEX = 0;
 

@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 
 @RunWith(Parameterized.class)
-public class DetectTargetStepTest extends SyncActivitiStepTest<DetectTargetStep> {
+public class DetectTargetStepTest extends SyncFlowableStepTest<DetectTargetStep> {
 
     private static class StepInput {
 

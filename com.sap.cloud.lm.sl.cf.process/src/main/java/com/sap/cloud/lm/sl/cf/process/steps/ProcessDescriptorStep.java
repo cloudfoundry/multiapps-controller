@@ -30,7 +30,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
-public class ProcessDescriptorStep extends SyncActivitiStep {
+public class ProcessDescriptorStep extends SyncFlowableStep {
 
     protected SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 

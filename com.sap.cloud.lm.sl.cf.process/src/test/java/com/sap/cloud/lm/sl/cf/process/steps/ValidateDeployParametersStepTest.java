@@ -29,7 +29,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 
 @RunWith(Parameterized.class)
-public class ValidateDeployParametersStepTest extends SyncActivitiStepTest<ValidateDeployParametersStep> {
+public class ValidateDeployParametersStepTest extends SyncFlowableStepTest<ValidateDeployParametersStep> {
 
     private static final String MERGED_ARCHIVE_TEST_MTAR = "merged-archive-test.mtar";
     private static final String EXISTING_FILE_ID = "existingFileId";

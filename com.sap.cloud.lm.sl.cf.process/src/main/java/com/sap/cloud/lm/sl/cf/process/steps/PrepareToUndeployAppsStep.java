@@ -14,7 +14,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("prepareToUndeployAppsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class PrepareToUndeployAppsStep extends SyncActivitiStep {
+public class PrepareToUndeployAppsStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

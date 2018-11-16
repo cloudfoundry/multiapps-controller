@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.activiti;
+package com.sap.cloud.lm.sl.cf.core.flowable;
 
 import java.util.List;
 
@@ -13,8 +13,8 @@ public class AbortProcessAction extends ProcessAction {
     public static final String ACTION_ID_ABORT = "abort";
 
     @Inject
-    public AbortProcessAction(FlowableFacade activitiFacade, List<AdditionalProcessAction> additionalProcessActions) {
-        super(activitiFacade, additionalProcessActions);
+    public AbortProcessAction(FlowableFacade flowableFacade, List<AdditionalProcessAction> additionalProcessActions) {
+        super(flowableFacade, additionalProcessActions);
     }
 
     @Override

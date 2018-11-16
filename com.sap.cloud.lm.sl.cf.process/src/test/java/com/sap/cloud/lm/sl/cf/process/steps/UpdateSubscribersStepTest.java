@@ -46,7 +46,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscribersStep> {
+public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersStep> {
 
     private static final String NO_USER_ROLES_DEFINED_FOR_ORG_AND_SPACE = "No user roles defined for org [{0}] and space [{1}]";
     private static final String USER = "XSMASTER";
@@ -166,10 +166,10 @@ public class UpdateSubscribersStepTest extends SyncActivitiStepTest<UpdateSubscr
 
         context.setVariable(Constants.VAR_USER, USER);
         step.orgAndSpaceCalculator = (client, spaceId) -> new Pair<>(spaceId, spaceId);
-        Mockito.when(activitiFacade.getHistoricSubProcessIds(Mockito.any()))
+        Mockito.when(flowableFacadeFacade.getHistoricSubProcessIds(Mockito.any()))
             .thenReturn(Arrays.asList("test-subprocess-id"));
         HistoricVariableInstance varInstanceMock = Mockito.mock(HistoricVariableInstance.class);
-        Mockito.when(activitiFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
+        Mockito.when(flowableFacadeFacade.getHistoricVariableInstance("test-subprocess-id", Constants.VAR_PUBLISHED_ENTRIES))
             .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue())
             .thenReturn(getBytes(getPublishedEntries()));
