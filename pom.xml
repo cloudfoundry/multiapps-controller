@@ -564,21 +564,6 @@
             </dependency>
             <dependency>
                 <groupId>org.flowable</groupId>
-                <artifactId>flowable5-compatibility</artifactId>
-                <version>${flowable.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.flowable</groupId>
-                <artifactId>flowable5-spring</artifactId>
-                <version>${flowable.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.flowable</groupId>
-                <artifactId>flowable5-spring-compatibility</artifactId>
-                <version>${flowable.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.flowable</groupId>
                 <artifactId>flowable-bpmn-converter</artifactId>
                 <version>${flowable.version}</version>
             </dependency>

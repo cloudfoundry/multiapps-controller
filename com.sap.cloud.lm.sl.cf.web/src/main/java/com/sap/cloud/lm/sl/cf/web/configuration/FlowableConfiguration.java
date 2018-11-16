@@ -10,11 +10,9 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import org.activiti.compatibility.spring.SpringFlowable5CompatibilityHandlerFactory;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RuntimeService;
-import org.flowable.engine.compatibility.Flowable5CompatibilityHandlerFactory;
 import org.flowable.job.service.impl.asyncexecutor.AsyncExecutor;
 import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
 import org.flowable.job.service.impl.asyncexecutor.FailedJobCommandFactory;
@@ -64,7 +62,7 @@ public class FlowableConfiguration {
     @Bean
     @DependsOn ("coreChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
-        AsyncExecutor jobExecutor, Flowable5CompatibilityHandlerFactory flowable5CompatibilityHandlerFactory) {
+        AsyncExecutor jobExecutor) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
         processEngineConfiguration.setDatabaseSchemaUpdate(DATABASE_SCHEMA_UPDATE);
         processEngineConfiguration.setDataSource(dataSource);
@@ -74,15 +72,7 @@ public class FlowableConfiguration {
         processEngineConfiguration.setFailedJobCommandFactory(getFailedJobCommandFactory());
         processEngineConfiguration.setAsyncExecutor(jobExecutor);
         processEngineConfiguration.setAsyncExecutorNumberOfRetries(0);
-        processEngineConfiguration.setFlowable5CompatibilityEnabled(true);
-        processEngineConfiguration.setFlowable5CompatibilityHandlerFactory(flowable5CompatibilityHandlerFactory);
         return processEngineConfiguration;
-    }
-
-    @Bean
-    @DependsOn ("coreChangelog")
-    public Flowable5CompatibilityHandlerFactory flowableCompatibilityFactory() {
-        return new SpringFlowable5CompatibilityHandlerFactory();
     }
 
     private Resource[] getFlowableResources() {
