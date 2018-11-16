@@ -220,7 +220,7 @@ public class AbortProcessListenerTest {
                 String parameter) {
                 switch (parameter) {
                     case Constants.VAR_ALLOCATED_PORTS:
-                        return createInstanceMock(JsonUtil.getAsBinaryJson(allocatedPorts));
+                        return createInstanceMock(JsonUtil.toBinaryJson(allocatedPorts));
                     case Constants.VAR_USER:
                         return createInstanceMock(USER);
                     case Constants.VAR_SPACE:

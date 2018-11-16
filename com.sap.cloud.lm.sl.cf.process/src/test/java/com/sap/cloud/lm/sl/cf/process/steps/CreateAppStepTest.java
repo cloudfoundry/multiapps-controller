@@ -129,7 +129,7 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
         StepsUtil.setServicesToBind(context, mapToCloudServiceExtended());
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
         context.setVariable(Constants.VAR_APPS_INDEX, stepInput.applicationIndex);
-        byte[] serviceKeysToInjectByteArray = JsonUtil.getAsBinaryJson(new HashMap<>());
+        byte[] serviceKeysToInjectByteArray = JsonUtil.toBinaryJson(new HashMap<>());
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
 

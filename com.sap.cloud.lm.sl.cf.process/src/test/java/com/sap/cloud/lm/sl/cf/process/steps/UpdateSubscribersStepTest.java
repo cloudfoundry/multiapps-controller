@@ -176,7 +176,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     }
 
     private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {
-        return JsonUtil.getAsBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
+        return JsonUtil.toBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
     }
 
     private List<ConfigurationEntry> getDeletedEntries() {
