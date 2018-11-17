@@ -11,6 +11,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.model.v1.Module;
 
 @RunWith(Parameterized.class)
@@ -20,12 +21,12 @@ public class DomainValidatorTest {
 
     private boolean isValid;
     private String domain;
-    private String expected;
+    private Expectation expectation;
 
-    public DomainValidatorTest(String domain, boolean isValid, String expected) {
+    public DomainValidatorTest(String domain, boolean isValid, Expectation expectation) {
         this.isValid = isValid;
         this.domain = domain;
-        this.expected = expected;
+        this.expectation = expectation;
     }
 
     @Parameters
@@ -33,17 +34,17 @@ public class DomainValidatorTest {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             // (0)
-            { "TEST_TEST_TEST", false, "test-test-test", },
+            { "TEST_TEST_TEST", false, new Expectation("test-test-test"), },
             // (1)
-            { "test-test-test", true , "test-test-test", },
+            { "test-test-test", true , new Expectation("test-test-test"), },
             // (2)
-            { "test.test.test", true , "test.test.test", },
+            { "test.test.test", true , new Expectation("test.test.test"), },
             // (3)
-            { "---", false, "E:Could not create a valid domain from \"---\"", },
+            { "---", false, new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid domain from \"---\"") },
             // (4)
-            { "@12", false, "12", },
+            { "@12", false, new Expectation("12"), },
             // (5)
-            { "@@@", false, "E:Could not create a valid domain from \"@@@\"", },
+            { "@@@", false, new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid domain from \"@@@\"") },
 // @formatter:on
         });
     }
@@ -60,7 +61,7 @@ public class DomainValidatorTest {
 
     @Test
     public void testAttemptToCorrect() throws Exception {
-        TestUtil.test(() -> validator.attemptToCorrect(domain), expected, getClass(), false);
+        TestUtil.test(() -> validator.attemptToCorrect(domain), expectation, getClass());
     }
 
     @Test

@@ -16,12 +16,13 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 @RunWith(Parameterized.class)
 public class ApplicationEnvironmentUpdaterTest {
 
     private Input input;
-    private String expectedResult;
+    private Expectation expectation;
     private ApplicationEnvironmentUpdater applicationEnvironmentUpdater;
     private CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
 
@@ -30,19 +31,19 @@ public class ApplicationEnvironmentUpdaterTest {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                "application-env-updater-input-00.json", "R:application-env-updater-result-00.json"
+                "application-env-updater-input-00.json", new Expectation(Expectation.Type.RESOURCE, "application-env-updater-result-00.json"),
             }
             ,
             {
-                "application-env-updater-input-01.json", "R:application-env-updater-result-01.json"
+                "application-env-updater-input-01.json", new Expectation(Expectation.Type.RESOURCE, "application-env-updater-result-01.json"),
             }
 // @formatter:on
         });
     }
 
-    public ApplicationEnvironmentUpdaterTest(String input, String expectedResult) throws Exception {
+    public ApplicationEnvironmentUpdaterTest(String input, Expectation expectation) throws Exception {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, getClass()), Input.class);
-        this.expectedResult = expectedResult;
+        this.expectation = expectation;
     }
 
     @Before
@@ -57,7 +58,7 @@ public class ApplicationEnvironmentUpdaterTest {
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         Mockito.verify(client)
             .updateApplicationEnv(Mockito.eq(input.app.name), (Map<String, String>) captor.capture());
-        TestUtil.test(() -> captor.getValue(), expectedResult, getClass());
+        TestUtil.test(() -> captor.getValue(), expectation, getClass());
     }
 
     private static class Input {

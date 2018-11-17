@@ -7,6 +7,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.UserProvidedResourceResolver;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
@@ -20,20 +21,20 @@ public class UserProvidedResourceResolverTest extends com.sap.cloud.lm.sl.cf.cor
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                "mtad-09.yaml", "/mta/targets-v2.json", "/mta/platform-types-v2.json", "R:mtad-09.yaml.json",
+                "mtad-09.yaml", "/mta/targets-v2.json", "/mta/platform-types-v2.json", new Expectation(Expectation.Type.RESOURCE, "mtad-09.yaml.json"),
             },
             {
-                "mtad-10.yaml", "/mta/targets-v2.json", "/mta/platform-types-v2.json", "R:mtad-10.yaml.json",
+                "mtad-10.yaml", "/mta/targets-v2.json", "/mta/platform-types-v2.json", new Expectation(Expectation.Type.RESOURCE, "mtad-10.yaml.json"),
             },
             {
-                "mtad-11.yaml", "/mta/targets-v2.json", "/mta/platform-types-v2.json", "R:mtad-11.yaml.json",
+                "mtad-11.yaml", "/mta/targets-v2.json", "/mta/platform-types-v2.json", new Expectation(Expectation.Type.RESOURCE, "mtad-11.yaml.json"),
             },
 // @formatter:on
         });
     }
 
-    public UserProvidedResourceResolverTest(String descriptorLocation, String targetLocation, String platformLocation, String expected) {
-        super(descriptorLocation, targetLocation, platformLocation, expected);
+    public UserProvidedResourceResolverTest(String descriptorLocation, String targetLocation, String platformLocation, Expectation expectation) {
+        super(descriptorLocation, targetLocation, platformLocation, expectation);
     }
 
     @Override

@@ -7,9 +7,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
@@ -22,22 +22,22 @@ public class ApplicationColorAppenderTest {
 // @formatter:off
             // (0) No application name is specified:
             {
-                "mtad-01.yaml", "R:mtad-01.yaml.json",
+                "mtad-01.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-01.yaml.json"),
             },
             // (1) An application name is specified:
             {
-                "mtad-02.yaml", "R:mtad-02.yaml.json",
+                "mtad-02.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-02.yaml.json"),
             },
 // @formatter:on
         });
     }
 
     private String deploymentDescriptorString;
-    private String expected;
+    private Expectation expectation;
 
-    public ApplicationColorAppenderTest(String deploymentDescritorString, String expected) {
+    public ApplicationColorAppenderTest(String deploymentDescritorString, Expectation expectation) {
         this.deploymentDescriptorString = deploymentDescritorString;
-        this.expected = expected;
+        this.expectation = expectation;
     }
 
     @Test
@@ -50,7 +50,7 @@ public class ApplicationColorAppenderTest {
             descriptor.accept(getApplicationColorAppender(ApplicationColor.BLUE, ApplicationColor.GREEN));
             return descriptor;
 
-        }, expected, getClass());
+        }, expectation, getClass());
     }
 
     protected DescriptorParser getDescriptorParser() {

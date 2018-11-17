@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 public class ServiceBrokersGetterTest {
 
@@ -42,7 +43,7 @@ public class ServiceBrokersGetterTest {
 
     @Test
     public void testGetServiceBrokers() {
-        TestUtil.test(() -> serviceBrokersGetter.getServiceBrokers(client), "R:service-brokers.json", getClass());
+        TestUtil.test(() -> serviceBrokersGetter.getServiceBrokers(client), new Expectation(Expectation.Type.RESOURCE, "service-brokers.json"), getClass());
     }
 
 }

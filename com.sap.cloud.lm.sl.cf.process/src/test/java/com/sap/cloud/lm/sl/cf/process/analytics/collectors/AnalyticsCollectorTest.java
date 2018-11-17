@@ -35,6 +35,7 @@ import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 public class AnalyticsCollectorTest {
     protected static final String PROCESS_ID = "process-instance-id";
@@ -159,7 +160,7 @@ public class AnalyticsCollectorTest {
         when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.DEPLOY);
         TestUtil.test(() -> {
             return collector.collectAnalyticsData(context);
-        }, "R:AnalyticsDeploy.json", getClass());
+        }, new Expectation(Expectation.Type.RESOURCE, "AnalyticsDeploy.json"), getClass());
     }
 
     @Test
@@ -167,7 +168,7 @@ public class AnalyticsCollectorTest {
         when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.UNDEPLOY);
         TestUtil.test(() -> {
             return collector.collectAnalyticsData(context);
-        }, "R:AnalyticsUndeploy.json", getClass());
+        }, new Expectation(Expectation.Type.RESOURCE, "AnalyticsUndeploy.json"), getClass());
     }
 
 }

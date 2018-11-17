@@ -7,8 +7,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
@@ -22,9 +21,9 @@ public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.
     private static Platform platform;
     private static Target target;
 
-    public ConfigurationReferencesResolverTest(String descriptorLocation, String configurationEntriesLocation, String expectedDescriptor)
+    public ConfigurationReferencesResolverTest(String descriptorLocation, String configurationEntriesLocation, Expectation expectation)
         throws Exception {
-        super(descriptorLocation, configurationEntriesLocation, expectedDescriptor);
+        super(descriptorLocation, configurationEntriesLocation, expectation);
     }
 
     @Parameters
@@ -33,35 +32,35 @@ public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.
 // @formatter:off
             // (0) Reference to existing provided dependency:
             {
-                "mtad-03.yaml", "configuration-entries-01.json", "R:result-01.json",
+                "mtad-03.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.RESOURCE, "result-01.json"),
             },
             // (1) Use new syntax:
             {
-                "mtad-05.yaml", "configuration-entries-01.json", "R:result-01.json",
+                "mtad-05.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.RESOURCE, "result-01.json"),
             },
             // (2) Use new syntax when more than one configuration entries are available:
             {
-                "mtad-05.yaml", "configuration-entries-05.json", "E:Multiple configuration entries were found matching the filter specified in resource \"resource-2\"",
+                "mtad-05.yaml", "configuration-entries-05.json", new Expectation(Expectation.Type.EXCEPTION, "Multiple configuration entries were found matching the filter specified in resource \"resource-2\"")
             },
             // (3) Use new syntax when more than one configuration entries are available:
             {
-                "mtad-07.yaml", "configuration-entries-06.json", "R:result-02.json",
+                "mtad-07.yaml", "configuration-entries-06.json", new Expectation(Expectation.Type.RESOURCE, "result-02.json"),
             },
             // (4) Use new syntax when there is no configuration entry available:
             {
-                "mtad-05.yaml", "configuration-entries-04.json", "E:No configuration entries were found matching the filter specified in resource \"resource-2\"",
+                "mtad-05.yaml", "configuration-entries-04.json", new Expectation(Expectation.Type.EXCEPTION, "No configuration entries were found matching the filter specified in resource \"resource-2\"")
             },
             // (5) Use new syntax when there is no configuration entry available:
             {
-                "mtad-07.yaml", "configuration-entries-07.json", "R:result-03.json",
+                "mtad-07.yaml", "configuration-entries-07.json", new Expectation(Expectation.Type.RESOURCE, "result-03.json"),
             },
             // (6) Use new syntax (missing org parameter):
             {
-                "mtad-06.yaml", "configuration-entries-01.json", "E:Could not find required property \"org\"",
+                "mtad-06.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.EXCEPTION, "Could not find required property \"org\"")
             },
             // (7) Subscriptions should be created:
             {
-                "mtad-08.yaml", "configuration-entries-06.json", "R:result-04.json",
+                "mtad-08.yaml", "configuration-entries-06.json", new Expectation(Expectation.Type.RESOURCE, "result-04.json"),
             },
 // @formatter:on
         });

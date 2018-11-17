@@ -33,6 +33,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestCase;
 import com.sap.cloud.lm.sl.common.util.TestInput;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.common.util.TestUtil.JsonSerializationOptions;
 
 @RunWith(Enclosed.class)
@@ -58,59 +59,73 @@ public class ConfigurationSubscriptionDaoTest {
     // @formatter:off
                 // (00) Add non-existing subscription:
                 {
-                    new AddTest(new AddTestInput("configuration-subscription-04.json"), "R:configuration-subscription-04.json"),
+                    new AddTest(new AddTestInput("configuration-subscription-04.json"),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-04.json")),
                 },
                 // (01) Add subscription that violates the unique constraint:
                 {
-                    new AddTest(new AddTestInput("configuration-subscription-00.json"), "E:Configuration subscription for MTA \"com.sap.sample.mta.framework\", app \"framework\" and resource \"plugin\" already exists in space \"sap\""),
+                    new AddTest(new AddTestInput("configuration-subscription-00.json"),
+                        new Expectation(Expectation.Type.EXCEPTION, "Configuration subscription for MTA \"com.sap.sample.mta.framework\", app \"framework\" and resource \"plugin\" already exists in space \"sap\"")),
                 },
                 // (02) Add subscription that has null values:
                 {
-                    new AddTest(new AddTestInput("configuration-subscription-09.json"), "E:Configuration subscription's \"resource_name\" column value should not be null"),
+                    new AddTest(new AddTestInput("configuration-subscription-09.json"),
+                        new Expectation(Expectation.Type.EXCEPTION, "Configuration subscription's \"resource_name\" column value should not be null")),
                 },
                 // (03) Add subscription that has null values:
                 {
-                    new AddTest(new AddTestInput("configuration-subscription-08.json"), "E:Configuration subscription's \"module\" column value should not be null"),
+                    new AddTest(new AddTestInput("configuration-subscription-08.json"),
+                        new Expectation(Expectation.Type.EXCEPTION, "Configuration subscription's \"module\" column value should not be null")),
                 },
                 // (04) Add subscription that has null values:
                 {
-                    new AddTest(new AddTestInput("configuration-subscription-06.json"), "E:Configuration subscription's \"mta_id\" column value should not be null"),
+                    new AddTest(new AddTestInput("configuration-subscription-06.json"),
+                        new Expectation(Expectation.Type.EXCEPTION, "Configuration subscription's \"mta_id\" column value should not be null")),
                 },
                 // (05) Add subscription that has null values:
                 {
-                    new AddTest(new AddTestInput("configuration-subscription-05.json"), "E:Configuration subscription's \"filter\" column value should not be null"),
+                    new AddTest(new AddTestInput("configuration-subscription-05.json"),
+                        new Expectation(Expectation.Type.EXCEPTION, "Configuration subscription's \"filter\" column value should not be null")),
                 },
                 // (06) Add subscription that has null values:
                 {
-                    new AddTest(new AddTestInput("configuration-subscription-07.json"), "E:Configuration subscription's \"app_name\" column value should not be null"),
+                    new AddTest(new AddTestInput("configuration-subscription-07.json"),
+                        new Expectation(Expectation.Type.EXCEPTION, "Configuration subscription's \"app_name\" column value should not be null")),
                 },
                 // (07) Add subscription that has null values:
                 {
-                    new AddTest(new AddTestInput("configuration-subscription-10.json"), "E:Configuration subscription's \"space_id\" column value should not be null"),
+                    new AddTest(new AddTestInput("configuration-subscription-10.json"),
+                        new Expectation(Expectation.Type.EXCEPTION, "Configuration subscription's \"space_id\" column value should not be null")),
                 },
                 // (08) Delete exiting subscription:
                 {
-                    new RemoveTest(new RemoveTestInput("com.sap.sample.mta.framework", "framework", "sap", "plugin"), "R:configuration-subscription-00.json"),
+                    new RemoveTest(new RemoveTestInput("com.sap.sample.mta.framework", "framework", "sap", "plugin"),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-00.json")),
                 },
                 // (09) Find all subscriptions for certain entries:
                 {
-                    new FindAllTest(new FindAllTestInput("configuration-entries-00.json"),  "R:configuration-subscription-dao-test-output-00.json"),
+                    new FindAllTest(new FindAllTestInput("configuration-entries-00.json"),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-dao-test-output-00.json")),
                 },
                 // (10) Find all subscriptions for certain entries:
                 {
-                    new FindAllTest(new FindAllTestInput("configuration-entries-01.json"),  "R:configuration-subscription-dao-test-output-01.json"),
+                    new FindAllTest(new FindAllTestInput("configuration-entries-01.json"),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-dao-test-output-01.json")),
                 },
                 // (11) Update existing subscription:
                 {
-                    new UpdateTest(new UpdateTestInput("com.sap.sample.mta.framework", "framework", "sap", "plugin", "configuration-subscription-00-updated-01.json"), "E:Configuration subscription for MTA \"com.sap.sample.mta.test-1\", app \"test-1\" and resource \"test\" already exists in space \"sap\""),
+                    new UpdateTest(new UpdateTestInput("com.sap.sample.mta.framework", "framework", "sap", "plugin", "configuration-subscription-00-updated-01.json"),
+                        new Expectation(Expectation.Type.EXCEPTION, "Configuration subscription for MTA \"com.sap.sample.mta.test-1\", app \"test-1\" and resource \"test\" already exists in space \"sap\"")),
                 },
                 // (12) Update existing subscription:
                 {
-                    new UpdateTest(new UpdateTestInput("com.sap.sample.mta.framework", "framework", "sap", "plugin", "configuration-subscription-00-updated-00.json"), "R:configuration-subscription-00-updated-00.json"),
+                    new UpdateTest(new UpdateTestInput("com.sap.sample.mta.framework", "framework", "sap", "plugin", "configuration-subscription-00-updated-00.json"),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-00-updated-00.json")),
                 },
                 // (13) Find all subscriptions for current guid
                 {
-                    new FindAllGuidTest(new FindOneTestInput("", "", "fbd3dc79-1a54-4a70-8022-ab716643809b", ""), "R:configuration-subscription-dao-test-output-13.json"),
+                    new FindAllGuidTest(new FindOneTestInput("", "", "fbd3dc79-1a54-4a70-8022-ab716643809b", ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-dao-test-output-13.json")),
                 }
     // @formatter:on
             });
@@ -200,15 +215,15 @@ public class ConfigurationSubscriptionDaoTest {
 
         private static class RemoveTest extends TestCase<RemoveTestInput> {
 
-            public RemoveTest(RemoveTestInput input, String expected) {
-                super(input, expected);
+            public RemoveTest(RemoveTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             private ConfigurationSubscriptionDao dao = getDao();
 
             @Override
             protected void test() throws Exception {
-                TestUtil.test(() -> dao.remove(findOne(input, dao).getId()), expected, getClass(),
+                TestUtil.test(() -> dao.remove(findOne(input, dao).getId()), expectation, getClass(),
                     new JsonSerializationOptions(true, false));
             }
 
@@ -216,41 +231,41 @@ public class ConfigurationSubscriptionDaoTest {
 
         private static class FindAllTest extends TestCase<FindAllTestInput> {
 
-            public FindAllTest(FindAllTestInput input, String expected) {
-                super(input, expected);
+            public FindAllTest(FindAllTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             @Override
             protected void test() throws Exception {
-                TestUtil.test(() -> findAll(input, getDao()), expected, getClass(), new JsonSerializationOptions(true, false));
+                TestUtil.test(() -> findAll(input, getDao()), expectation, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
 
         private static class FindAllGuidTest extends TestCase<FindOneTestInput> {
 
-            public FindAllGuidTest(FindOneTestInput input, String expected) {
-                super(input, expected);
+            public FindAllGuidTest(FindOneTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             @Override
             protected void test() throws Exception {
-                TestUtil.test(() -> findAll(input.spaceId, getDao()), expected, getClass(), new JsonSerializationOptions(true, false));
+                TestUtil.test(() -> findAll(input.spaceId, getDao()), expectation, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
 
         private static class UpdateTest extends TestCase<UpdateTestInput> {
 
-            public UpdateTest(UpdateTestInput input, String expected) {
-                super(input, expected);
+            public UpdateTest(UpdateTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             private ConfigurationSubscriptionDao dao = getDao();
 
             @Override
             protected void test() throws Exception {
-                TestUtil.test(() -> dao.update(findOne(input, dao).getId(), input.subscription), expected, getClass(),
+                TestUtil.test(() -> dao.update(findOne(input, dao).getId(), input.subscription), expectation, getClass(),
                     new JsonSerializationOptions(true, false));
             }
 
@@ -258,13 +273,13 @@ public class ConfigurationSubscriptionDaoTest {
 
         private static class AddTest extends TestCase<AddTestInput> {
 
-            public AddTest(AddTestInput input, String expected) {
-                super(input, expected);
+            public AddTest(AddTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             @Override
             protected void test() {
-                TestUtil.test(() -> getDao().add(input.subscription), expected, getClass(), new JsonSerializationOptions(true, false));
+                TestUtil.test(() -> getDao().add(input.subscription), expectation, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }

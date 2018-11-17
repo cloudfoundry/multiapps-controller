@@ -37,6 +37,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestCase;
 import com.sap.cloud.lm.sl.common.util.TestInput;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.common.util.XmlUtil;
 
 @RunWith(Parameterized.class)
@@ -54,71 +55,88 @@ public class ConfigurationEntriesResourceTest {
 // @formatter:off
             // (0)
             {
-                new PostRequestTest(new PostRequestTestInput("configuration-entry-01.xml"), "R:configuration-entries-resource-test-output-01.json"),
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-01.xml"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-01.json")),
             },
             // (1)
             {
-               new PostRequestTest(new PostRequestTestInput("configuration-entry-02.xml"), "E:cvc-complex-type.2.4.b: The content of element configuration-entry is not complete"),
+               new PostRequestTest(new PostRequestTestInput("configuration-entry-02.xml"),
+                   new Expectation(Expectation.Type.EXCEPTION, "cvc-complex-type.2.4.b: The content of element configuration-entry is not complete")),
             },
             // (2)
             {
-                new PostRequestTest(new PostRequestTestInput("configuration-entry-03.xml"), "E:Target does not contain 'org' and 'space' parameters"),
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-03.xml"),
+                    new Expectation(Expectation.Type.EXCEPTION, "Target does not contain 'org' and 'space' parameters")),
             },
             // (3)
             {
-                new PostRequestTest(new PostRequestTestInput("configuration-entry-04.xml"), "R:configuration-entries-resource-test-output-04.json"),
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-04.xml"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-04.json")),
             },
             // (4)
             {
-                new PostRequestTest(new PostRequestTestInput("configuration-entry-05.xml"), "E:Target does not contain 'org' and 'space' parameters"),
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-05.xml"),
+                    new Expectation(Expectation.Type.EXCEPTION, "Target does not contain 'org' and 'space' parameters")),
             },
             // (5)
             {
-                new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-05.json"), "R:configuration-entries-resource-test-output-05.json"),
+                new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-05.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-05.json")),
             },
             // (6)
             {
-                new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-06.json"), "R:configuration-entries-resource-test-output-06.json"),
+                new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-06.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-06.json")),
            },
             // (7)
             {
-                new DeleteRequestTest(new DeleteRequestTestInput(100), "R:configuration-entries-resource-test-output-07.json"),
+                new DeleteRequestTest(new DeleteRequestTestInput(100),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-07.json")),
             },
             // (8)
             {
-                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("foo:bar", "baz:qux"), "R:parsed-properties-01.json"), "R:configuration-entries-resource-test-output-08.json"),
+                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("foo:bar", "baz:qux"), "parsed-properties-01.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-08.json")),
             },
             // (9)
             {
-                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-09.xml"), "R:configuration-entries-resource-test-output-09.json"),
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-09.xml"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-09.json")),
             },
             // (10)
             {
-                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-10.xml"), "R:configuration-entries-resource-test-output-10.json"),
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-10.xml"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-10.json")),
             },
             // (11)
             {
-                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-11.xml"), "E:A configuration entry's id cannot be updated"),
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-11.xml"),
+                    new Expectation(Expectation.Type.EXCEPTION, "A configuration entry's id cannot be updated")),
             },
             // (12)
             {
-                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("{\"foo\":\"bar\",\"baz\":\"qux\"}"), "R:parsed-properties-01.json"), "R:configuration-entries-resource-test-output-08.json"),
+                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("{\"foo\":\"bar\",\"baz\":\"qux\"}"), "parsed-properties-01.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-08.json")),
             },
             // (13)
             {
-                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("a"), "R:parsed-properties-01.json"), "E:Could not parse content query parameter as JSON or list"),
+                new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("a"), "parsed-properties-01.json"),
+                    new Expectation(Expectation.Type.EXCEPTION, "Could not parse content query parameter as JSON or list")),
             },
             // (14)
             {
-                new PostRequestTest(new PostRequestTestInput("configuration-entry-06.xml"), "R:configuration-entries-resource-test-output-01.json"),
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-06.xml"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-01.json")),
             },
             // (15)
             {
-                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-12.xml"), "R:configuration-entries-resource-test-output-09.json"),
+                new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-12.xml"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-09.json")),
             },
             // (16)
             {
-                new PostRequestTest(new PostRequestTestInput("configuration-entry-07.xml"), "R:configuration-entries-resource-test-output-01.json"),
+                new PostRequestTest(new PostRequestTestInput("configuration-entry-07.xml"),
+                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-01.json")),
             },
             
 // @formatter:on
@@ -220,8 +238,8 @@ public class ConfigurationEntriesResourceTest {
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
-        public GetRequestTest(GetRequestTestInput input, String expected) {
-            super(input, expected);
+        public GetRequestTest(GetRequestTestInput input, Expectation expectation) {
+            super(input, expectation);
         }
 
         @Override
@@ -230,7 +248,7 @@ public class ConfigurationEntriesResourceTest {
 
                 return new RestResponse(resource.getConfigurationEntry(input.getId()));
 
-            }, expected, getClass());
+            }, expectation, getClass());
         }
 
         @Override
@@ -252,8 +270,8 @@ public class ConfigurationEntriesResourceTest {
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
-        public PostRequestTest(PostRequestTestInput input, String expected) {
-            super(input, expected);
+        public PostRequestTest(PostRequestTestInput input, Expectation expectation) {
+            super(input, expectation);
         }
 
         @Override
@@ -266,7 +284,7 @@ public class ConfigurationEntriesResourceTest {
 
                 return new RestResponse(resource.createConfigurationEntry(input.getEntryXml()));
 
-            }, expected, getClass());
+            }, expectation, getClass());
         }
 
         @Override
@@ -293,8 +311,8 @@ public class ConfigurationEntriesResourceTest {
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
-        public PutRequestTest(PutRequestTestInput input, String expected) {
-            super(input, expected);
+        public PutRequestTest(PutRequestTestInput input, Expectation expectation) {
+            super(input, expectation);
         }
 
         @Override
@@ -303,7 +321,7 @@ public class ConfigurationEntriesResourceTest {
 
                 return new RestResponse(resource.updateConfigurationEntry(input.getId(), input.getEntryXml()));
 
-            }, expected, getClass());
+            }, expectation, getClass());
         }
 
         @Override
@@ -344,8 +362,8 @@ public class ConfigurationEntriesResourceTest {
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
-        public SearchRequestTest(SearchRequestTestInput input, String expected) {
-            super(input, expected);
+        public SearchRequestTest(SearchRequestTestInput input, Expectation expectation) {
+            super(input, expectation);
         }
 
         @Override
@@ -355,7 +373,7 @@ public class ConfigurationEntriesResourceTest {
                 return new RestResponse(resource.getConfigurationEntries(
                     new ConfigurationFilterDto(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION, TARGET_SPACE, input.getRequiredContent())));
 
-            }, expected, getClass());
+            }, expectation, getClass());
         }
 
         @Override
@@ -381,8 +399,8 @@ public class ConfigurationEntriesResourceTest {
         @InjectMocks
         private ConfigurationEntriesResource resource = new ConfigurationEntriesResource();
 
-        public DeleteRequestTest(DeleteRequestTestInput input, String expected) {
-            super(input, expected);
+        public DeleteRequestTest(DeleteRequestTestInput input, Expectation expectation) {
+            super(input, expectation);
         }
 
         @Override
@@ -391,7 +409,7 @@ public class ConfigurationEntriesResourceTest {
 
                 return new RestResponse(resource.deleteConfigurationEntry(input.getId()));
 
-            }, expected, getClass());
+            }, expectation, getClass());
         }
 
         @Override

@@ -14,6 +14,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 @RunWith(Parameterized.class)
 public class PropertiesExpanderTest {
@@ -24,19 +25,27 @@ public class PropertiesExpanderTest {
 // @formatter:off
             // (0) 0 new dependency names:
             {
-                "properties-00.json", "bar", generateNewDependencyNames("bar", 0), "R:expanded-properties-00.json", Arrays.asList("credentials_2", "credentials_4#user", "credentials_4#pass", "name_2", "url_2"),
+                "properties-00.json", "bar", generateNewDependencyNames("bar", 0),
+                new Expectation(Expectation.Type.RESOURCE, "expanded-properties-00.json"),
+                Arrays.asList("credentials_2", "credentials_4#user", "credentials_4#pass", "name_2", "url_2"),
             },
             // (2) 1 new dependency name:
             {
-                "properties-00.json", "bar", generateNewDependencyNames("bar", 1), "R:expanded-properties-01.json", Arrays.asList("credentials_2", "credentials_4#user", "credentials_4#pass", "name_2", "url_2"),
+                "properties-00.json", "bar", generateNewDependencyNames("bar", 1),
+                new Expectation(Expectation.Type.RESOURCE, "expanded-properties-01.json"),
+                Arrays.asList("credentials_2", "credentials_4#user", "credentials_4#pass", "name_2", "url_2"),
             },
             // (1) 2 new dependency names:
             {
-                "properties-00.json", "bar", generateNewDependencyNames("bar", 2), "R:expanded-properties-02.json", Arrays.asList("credentials_2", "credentials_4#user", "credentials_4#pass", "name_2", "url_2"),
+                "properties-00.json", "bar", generateNewDependencyNames("bar", 2),
+                new Expectation(Expectation.Type.RESOURCE, "expanded-properties-02.json"),
+                Arrays.asList("credentials_2", "credentials_4#user", "credentials_4#pass", "name_2", "url_2"),
             },
             // (1) 2 new dependency names (different than the original):
             {
-                "properties-00.json", "bar", generateNewDependencyNames("qux", 2), "R:expanded-properties-03.json", Arrays.asList("credentials_2", "credentials_4#user", "credentials_4#pass", "name_2", "url_2"),
+                "properties-00.json", "bar", generateNewDependencyNames("qux", 2),
+                new Expectation(Expectation.Type.RESOURCE, "expanded-properties-03.json"),
+                Arrays.asList("credentials_2", "credentials_4#user", "credentials_4#pass", "name_2", "url_2"),
             },
 // @formatter:on
         });
@@ -47,14 +56,14 @@ public class PropertiesExpanderTest {
     private List<String> newDependencyNames;
     private List<String> expandedProperties;
 
-    private String expected;
+    private Expectation expectation;
 
     public PropertiesExpanderTest(String propertiesLocation, String originalDependencyName, List<String> newDependencyNames,
-        String expected, List<String> expandedProperties) {
+        Expectation expectation, List<String> expandedProperties) {
         this.newDependencyNames = newDependencyNames;
         this.propertiesLocation = propertiesLocation;
         this.originalDependencyName = originalDependencyName;
-        this.expected = expected;
+        this.expectation = expectation;
         this.expandedProperties = expandedProperties;
     }
 
@@ -72,7 +81,7 @@ public class PropertiesExpanderTest {
 
         PropertiesExpander expander = new PropertiesExpander(originalDependencyName, newDependencyNames);
 
-        TestUtil.test(() -> expander.expand(properties), expected, getClass());
+        TestUtil.test(() -> expander.expand(properties), expectation, getClass());
         assertEquals(expandedProperties, expander.getExpandedProperties());
     }
 

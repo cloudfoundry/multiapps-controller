@@ -13,8 +13,8 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.DomainValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.v1.DescriptorParametersValidator;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Resource;
@@ -26,13 +26,13 @@ public class DescriptorParametersValidatorTest {
         new DomainValidator(), new TestValidator());
 
     private String descriptorLocation;
-    private String expected;
+    private Expectation expectation;
 
     private DescriptorParametersValidator validator;
 
-    public DescriptorParametersValidatorTest(String descriptorLocation, String expected) {
+    public DescriptorParametersValidatorTest(String descriptorLocation, Expectation expectation) {
         this.descriptorLocation = descriptorLocation;
-        this.expected = expected;
+        this.expectation = expectation;
     }
 
     @Before
@@ -55,23 +55,23 @@ public class DescriptorParametersValidatorTest {
 // @formatter:off
             // (0) All parameters are valid:
             {
-                "mtad-01.yaml", "R:mtad-01.yaml.json",
+                "mtad-01.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-01.yaml.json"),
             },
             // (1) Invalid port in a descriptor module:
             {
-                "mtad-02.yaml", "E:Value for parameter \"foo#port\" is not valid and cannot be corrected",
+                "mtad-02.yaml", new Expectation(Expectation.Type.EXCEPTION, "Value for parameter \"foo#port\" is not valid and cannot be corrected")
             },
             // (2) Invalid host in a descriptor module:
             {
-                "mtad-03.yaml", "R:mtad-03.yaml.json",
+                "mtad-03.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-03.yaml.json"),
             },
             // (3) Invalid parameter in a descriptor resource:
             {
-                "mtad-04.yaml", "R:mtad-04.yaml.json",
+                "mtad-04.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-04.yaml.json"),
             },
             // (4) Invalid host in a descriptor module that cannot be corrected:
             {
-                "mtad-05.yaml", "E:Could not create a valid host from \"(__)\"",
+                "mtad-05.yaml", new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid host from \"(__)\"")
             },
 // @formatter:on
         });
@@ -79,7 +79,7 @@ public class DescriptorParametersValidatorTest {
 
     @Test
     public void testValidate() {
-        TestUtil.test(() -> validator.validate(), expected, getClass());
+        TestUtil.test(() -> validator.validate(), expectation, getClass());
     }
 
     protected static class TestValidator implements ParameterValidator {

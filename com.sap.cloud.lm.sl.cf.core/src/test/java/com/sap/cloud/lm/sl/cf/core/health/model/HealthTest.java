@@ -13,6 +13,7 @@ import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 @RunWith(Parameterized.class)
 public class HealthTest {
@@ -23,24 +24,24 @@ public class HealthTest {
             // @formatter:off
             // (0)
             {
-                "successful-operations.json", "R:good-health.json", 
+                "successful-operations.json", new Expectation(Expectation.Type.RESOURCE, "good-health.json"), 
             },
             // (1)
             {
-                "failed-operations.json", "R:poor-health.json", 
+                "failed-operations.json", new Expectation(Expectation.Type.RESOURCE, "poor-health.json"), 
             },
             // @formatter:on
         });
     }
 
     private String operationsJsonLocation;
-    private String expectedResult;
+    private Expectation expectation;
 
     private List<Operation> operations;
 
-    public HealthTest(String operationsJsonLocation, String expectedResult) {
+    public HealthTest(String operationsJsonLocation, Expectation expectation) {
         this.operationsJsonLocation = operationsJsonLocation;
-        this.expectedResult = expectedResult;
+        this.expectation = expectation;
     }
 
     @Before
@@ -52,7 +53,7 @@ public class HealthTest {
 
     @Test
     public void testFromOperations() {
-        TestUtil.test(() -> Health.fromOperations(operations), expectedResult, getClass());
+        TestUtil.test(() -> Health.fromOperations(operations), expectation, getClass());
     }
 
 }

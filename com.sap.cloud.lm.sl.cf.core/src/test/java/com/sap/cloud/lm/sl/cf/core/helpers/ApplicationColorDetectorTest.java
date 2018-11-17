@@ -11,6 +11,7 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 @RunWith(Parameterized.class)
 public class ApplicationColorDetectorTest {
@@ -21,31 +22,31 @@ public class ApplicationColorDetectorTest {
 // @formatter:off
             // (1) All applications are of one color (G):
             {
-                "deployed-mta-02.json", new String[] { "\"GREEN\"", "\"GREEN\"", },
+                "deployed-mta-02.json", new Expectation[] { new Expectation("GREEN"), new Expectation("GREEN"), },
             },
             // (0) All applications are of one color (B):
             {
-                "deployed-mta-01.json", new String[] { "\"BLUE\"", "\"BLUE\"", },
+                "deployed-mta-01.json", new Expectation[] { new Expectation("BLUE"), new Expectation("BLUE"), },
             },
             // (2) All applications have no color:
             {
-                "deployed-mta-03.json", new String[] { "\"BLUE\"", "\"BLUE\"", },
+                "deployed-mta-03.json", new Expectation[] { new Expectation("BLUE"), new Expectation("BLUE"), },
             },
             // (3) Some applications are blue, but some are green:
             {
-                "deployed-mta-04.json", new String[] { "E:There are both blue and green applications already deployed for MTA \"com.sap.sample.mta.consumer\"", "\"GREEN\"", },
+                "deployed-mta-04.json", new Expectation[] { new Expectation(Expectation.Type.EXCEPTION, "There are both blue and green applications already deployed for MTA \"com.sap.sample.mta.consumer\""), new Expectation("GREEN"), },
             },
             // (4) There are no deployed modules:
             {
-                "deployed-mta-05.json", new String[] { "null", "null", },
+                "deployed-mta-05.json", new Expectation[] { new Expectation(null), new Expectation(null), },
             },
             // (5) Some applications are blue, but some are green (same module):
             {
-                "deployed-mta-06.json", new String[] { "E:There are both blue and green applications already deployed for MTA \"com.sap.sample.mta.consumer\"", "\"GREEN\"", },
+                "deployed-mta-06.json", new Expectation[] { new Expectation(Expectation.Type.EXCEPTION, "There are both blue and green applications already deployed for MTA \"com.sap.sample.mta.consumer\""), new Expectation("GREEN"), },
             },
             // (6) There is no deployed MTA:
             {
-                null, new String[] { "null", "null", },
+                null, new Expectation[] { new Expectation(null), new Expectation(null), },
             },
 // @formatter:on
         });
@@ -54,11 +55,11 @@ public class ApplicationColorDetectorTest {
     private DeployedMta deployedMta;
 
     private final String deployedMtaJsonLocation;
-    private final String[] expected;
+    private final Expectation[] expectations;
 
-    public ApplicationColorDetectorTest(String deployedMtaJsonLocation, String[] expected) {
+    public ApplicationColorDetectorTest(String deployedMtaJsonLocation, Expectation[] expectations) {
         this.deployedMtaJsonLocation = deployedMtaJsonLocation;
-        this.expected = expected;
+        this.expectations = expectations;
     }
 
     @Before
@@ -71,12 +72,12 @@ public class ApplicationColorDetectorTest {
 
     @Test
     public void testDetectSingularDeployedApplicationColor() {
-        TestUtil.test(() -> new ApplicationColorDetector().detectSingularDeployedApplicationColor(deployedMta), expected[0], getClass());
+        TestUtil.test(() -> new ApplicationColorDetector().detectSingularDeployedApplicationColor(deployedMta), expectations[0], getClass());
     }
 
     @Test
     public void testDetectFirstDeployedApplicationColor() {
-        TestUtil.test(() -> new ApplicationColorDetector().detectFirstDeployedApplicationColor(deployedMta), expected[1], getClass());
+        TestUtil.test(() -> new ApplicationColorDetector().detectFirstDeployedApplicationColor(deployedMta), expectations[1], getClass());
     }
 
 }

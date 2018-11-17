@@ -9,6 +9,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
@@ -27,24 +28,24 @@ public class XsPlaceholderResolverInvokerTest {
 // @formatter:off
             // (0) MTA spec version 1.0.0:
             {
-                "xs-placeholder-mtad-00.yaml", 1, "R:xs-placeholder-resolved-mtad-00.json",
+                "xs-placeholder-mtad-00.yaml", 1, new Expectation(Expectation.Type.RESOURCE, "xs-placeholder-resolved-mtad-00.json"),
             },
             // (1) MTA spec version 2.0.0:
             {
-                "xs-placeholder-mtad-01.yaml", 2, "R:xs-placeholder-resolved-mtad-01.json",
+                "xs-placeholder-mtad-01.yaml", 2, new Expectation(Expectation.Type.RESOURCE, "xs-placeholder-resolved-mtad-01.json"),
             },
 // @formatter:on
         });
     }
 
     private Integer schemaVersion;
-    private String expected;
     private String descriptorLocation;
+    private Expectation expectation;
 
-    public XsPlaceholderResolverInvokerTest(String descriptorLocation, Integer schemaVersion, String expected) {
+    public XsPlaceholderResolverInvokerTest(String descriptorLocation, Integer schemaVersion, Expectation expectation) {
         this.schemaVersion = schemaVersion;
-        this.expected = expected;
         this.descriptorLocation = descriptorLocation;
+        this.expectation = expectation;
     }
 
     @Test
@@ -61,7 +62,7 @@ public class XsPlaceholderResolverInvokerTest {
             descriptor.accept(new XsPlaceholderResolverInvoker(schemaVersion, xsPlaceholderResolver));
             return descriptor;
 
-        }, expected, getClass());
+        }, expectation, getClass());
     }
 
     private DescriptorParser getDescriptorParser() {

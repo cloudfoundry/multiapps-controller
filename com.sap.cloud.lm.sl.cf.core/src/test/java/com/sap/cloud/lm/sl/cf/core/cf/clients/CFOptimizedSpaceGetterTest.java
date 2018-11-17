@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 public class CFOptimizedSpaceGetterTest extends CFOptimizedSpaceGetterBaseTest {
 
@@ -24,7 +25,7 @@ public class CFOptimizedSpaceGetterTest extends CFOptimizedSpaceGetterBaseTest {
         Map<String, Object> urlVariables = new HashMap<>();
         urlVariables.put("id", "1");
         when(restTemplate.getForObject(GET_SPACE_ENDPOINT, String.class, urlVariables)).thenReturn(response);
-        TestUtil.test(() -> spaceGetter.getSpace(client, "1"), "R:expected-cloud-space-00.json", getClass());
+        TestUtil.test(() -> spaceGetter.getSpace(client, "1"), new Expectation(Expectation.Type.RESOURCE, "expected-cloud-space-00.json"), getClass());
     }
 
     @Test
