@@ -17,12 +17,11 @@ import org.mockito.Mockito;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationFilterParser;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.builders.v1.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
@@ -46,20 +45,20 @@ public class ConfigurationReferencesResolverTest {
     private static Target target;
 
     private String descriptorLocation;
-    private String expectedDescriptor;
+    private Expectation expectation;
 
     protected ConfigurationEntryDao dao = Mockito.mock(ConfigurationEntryDao.class);
     protected List<DaoMockConfiguration> daoConfigurations;
     protected DeploymentDescriptor descriptor;
     protected ApplicationConfiguration configuration = Mockito.mock(ApplicationConfiguration.class);
 
-    public ConfigurationReferencesResolverTest(String descriptorLocation, String daoConfigurationsLocation, String expectedDescriptor)
+    public ConfigurationReferencesResolverTest(String descriptorLocation, String daoConfigurationsLocation, Expectation expectation)
         throws Exception {
         this.daoConfigurations = JsonUtil.fromJson(getResourceAsString(daoConfigurationsLocation, getClass()),
             new TypeToken<List<DaoMockConfiguration>>() {
             }.getType());
         this.descriptorLocation = descriptorLocation;
-        this.expectedDescriptor = expectedDescriptor;
+        this.expectation = expectation;
     }
 
     @Parameters
@@ -68,19 +67,19 @@ public class ConfigurationReferencesResolverTest {
 // @formatter:off
             // (0) Reference to existing provided dependency in the same space:
             {
-                "mtad-03.yaml", "configuration-entries-01.json", "R:result.json",
+                "mtad-03.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.RESOURCE, "result.json"),
             },
             // (1) Reference with some missing parameters:
             {
-                "mtad-04.yaml", "configuration-entries-01.json", "E:Could not find required property \"mta-version\"",
+                "mtad-04.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.EXCEPTION, "Could not find required property \"mta-version\"")
             },
             // (2) Multiple configuration entries exist matching the filter:
             {
-                "mtad-05.yaml", "configuration-entries-02.json", "E:Multiple configuration entries were found matching the filter specified in resource \"resource-2\"",
+                "mtad-05.yaml", "configuration-entries-02.json", new Expectation(Expectation.Type.EXCEPTION, "Multiple configuration entries were found matching the filter specified in resource \"resource-2\"")
             },
             // (3) No configuration entries matching the filter:
             {
-                "mtad-06.yaml", "configuration-entries-03.json", "E:No configuration entries were found matching the filter specified in resource \"resource-2\"",
+                "mtad-06.yaml", "configuration-entries-03.json", new Expectation(Expectation.Type.EXCEPTION, "No configuration entries were found matching the filter specified in resource \"resource-2\"")
             }
 // @formatter:on
         });
@@ -115,7 +114,7 @@ public class ConfigurationReferencesResolverTest {
             referencesResolver.resolve(descriptor);
             return descriptor;
 
-        }, expectedDescriptor, getClass());
+        }, expectation, getClass());
     }
 
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor descriptor) {

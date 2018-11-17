@@ -16,6 +16,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenameStep> {
 
@@ -49,7 +50,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), "R:node-hello-blue-mtad.yaml.json", getClass());
+        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
     // Test what happens when there are 1 color(s) deployed:
@@ -61,7 +62,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), "R:node-hello-blue-mtad.yaml.json", getClass());
+        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
     // Test what happens when there are 2 color(s) deployed:
@@ -75,7 +76,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), "R:node-hello-blue-mtad.yaml.json", getClass());
+        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
     @Override

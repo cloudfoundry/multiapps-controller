@@ -16,6 +16,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 @RunWith(Parameterized.class)
 public class CFOptimizedSpaceGetterParameterizedTest extends CFOptimizedSpaceGetterBaseTest {
@@ -28,23 +29,28 @@ public class CFOptimizedSpaceGetterParameterizedTest extends CFOptimizedSpaceGet
 // @formatter:off
             // (0) The controller returns a single page result with a single resource on it:
             {
-                "find-space-response-00.json", null, "R:expected-cloud-space-00.json",
+                "find-space-response-00.json", null,
+                new Expectation(Expectation.Type.RESOURCE, "expected-cloud-space-00.json"),
             },
             // (1) The controller returns a multi-page result with a single resource on each:
             {
-                "find-space-response-01.json", "find-space-response-additional-response-01.json", "E:The response of finding a space by org and space names should not have more than one resource element",
+                "find-space-response-01.json", "find-space-response-additional-response-01.json",
+                new Expectation(Expectation.Type.EXCEPTION, "The response of finding a space by org and space names should not have more than one resource element"),
             },
             // (2) The controller returns a single page result with zero resources in it:
             {
-                "find-space-response-02.json", null, "null",
+                "find-space-response-02.json", null,
+                new Expectation(null),
             },
             // (3) The controller returns a single page result without a 'resources' element:
             {
-                "find-space-response-03.json", null, "E:The response of finding a space by org and space names should contain a 'resources' element",
+                "find-space-response-03.json", null,
+                new Expectation(Expectation.Type.EXCEPTION, "The response of finding a space by org and space names should contain a 'resources' element"),
             },
             // (4) The controller returns a single page result with multiple resources:
             {
-                "find-space-response-04.json", null, "E:The response of finding a space by org and space names should not have more than one resource element",
+                "find-space-response-04.json", null,
+                new Expectation(Expectation.Type.EXCEPTION, "The response of finding a space by org and space names should not have more than one resource element"),
             },
 // @formatter:on
         });
@@ -52,16 +58,15 @@ public class CFOptimizedSpaceGetterParameterizedTest extends CFOptimizedSpaceGet
 
     private String responseLocation;
     private String additionalResponseLocation;
-    private String expectedResultLocation;
+    private Expectation expectation;
 
     private String response;
     private String additionalResponse;
 
-    public CFOptimizedSpaceGetterParameterizedTest(String responseLocation, String additionalResponseLocation,
-        String expectedResultLocation) {
+    public CFOptimizedSpaceGetterParameterizedTest(String responseLocation, String additionalResponseLocation, Expectation expectation) {
         this.responseLocation = responseLocation;
-        this.expectedResultLocation = expectedResultLocation;
         this.additionalResponseLocation = additionalResponseLocation;
+        this.expectation = expectation;
     }
 
     @Before
@@ -93,7 +98,7 @@ public class CFOptimizedSpaceGetterParameterizedTest extends CFOptimizedSpaceGet
 
     @Test
     public void testFindSpace() {
-        TestUtil.test(() -> spaceGetter.findSpace(client, DUMMY, DUMMY), expectedResultLocation, getClass());
+        TestUtil.test(() -> spaceGetter.findSpace(client, DUMMY, DUMMY), expectation, getClass());
     }
 
 }

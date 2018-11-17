@@ -35,6 +35,7 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
@@ -182,10 +183,14 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getServicesToBind(context), "R:" + input.servicesToBindLocation, getClass());
-        TestUtil.test(() -> StepsUtil.getServicesToCreate(context), "R:" + input.servicesToCreateLocation, getClass());
-        TestUtil.test(() -> StepsUtil.getServiceKeysToCreate(context), "R:" + input.serviceKeysLocation, getClass());
-        TestUtil.test(() -> StepsUtil.getAppsToDeploy(context), "R:" + input.appsToDeployLocation, getClass());
+        TestUtil.test(() -> StepsUtil.getServicesToBind(context), new Expectation(Expectation.Type.RESOURCE, input.servicesToBindLocation),
+            getClass());
+        TestUtil.test(() -> StepsUtil.getServicesToCreate(context),
+            new Expectation(Expectation.Type.RESOURCE, input.servicesToCreateLocation), getClass());
+        TestUtil.test(() -> StepsUtil.getServiceKeysToCreate(context),
+            new Expectation(Expectation.Type.RESOURCE, input.serviceKeysLocation), getClass());
+        TestUtil.test(() -> StepsUtil.getAppsToDeploy(context), new Expectation(Expectation.Type.RESOURCE, input.appsToDeployLocation),
+            getClass());
         assertEquals(input.customDomains, StepsUtil.getCustomDomains(context));
 
         assertEquals(output.newMtaVersion, StepsUtil.getNewMtaVersion(context));

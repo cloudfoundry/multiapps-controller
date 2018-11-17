@@ -28,6 +28,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
@@ -92,13 +93,10 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getSubscriptionsToCreate(context), "[]", getClass());
+        TestUtil.test(() -> StepsUtil.getSubscriptionsToCreate(context), new Expectation("[]"), getClass());
 
-        TestUtil.test(() -> {
-
-            return StepsUtil.getDeploymentDescriptor(context);
-
-        }, "R:node-hello-mtad-1.yaml.json", getClass());
+        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context),
+            new Expectation(Expectation.Type.RESOURCE, "node-hello-mtad-1.yaml.json"), getClass());
     }
 
     @Test(expected = SLException.class)

@@ -39,6 +39,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 
@@ -72,8 +73,7 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
 
         public StepInput(String deploymentDescriptorLocation, String authorizationEndpoint, String deployServiceUrl, String defaultDomain,
             boolean portBasedRouting, boolean useNamespaces, boolean useNamespacesForServices, String user, String platformName, String org,
-            String space, int majorMtaSchemaVersion, String deployedMtaLocation, PlatformType xsType,
-            boolean areXsPlaceholdersSupported) {
+            String space, int majorMtaSchemaVersion, String deployedMtaLocation, PlatformType xsType, boolean areXsPlaceholdersSupported) {
             this.deploymentDescriptorLocation = deploymentDescriptorLocation;
             this.authorizationEndpoint = authorizationEndpoint;
             this.deployServiceUrl = deployServiceUrl;
@@ -96,12 +96,12 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
     protected static class StepOutput {
 
         public Set<Integer> allocatedPorts;
-        public String systemParametersLocation;
+        public Expectation systemParametersExpectation;
         public String versionException;
 
-        public StepOutput(Set<Integer> allocatedPorts, String systemParametersLocation, String versionException) {
+        public StepOutput(Set<Integer> allocatedPorts, Expectation systemParametersExpectation, String versionException) {
             this.allocatedPorts = allocatedPorts;
-            this.systemParametersLocation = systemParametersLocation;
+            this.systemParametersExpectation = systemParametersExpectation;
             this.versionException = versionException;
         }
     }
@@ -113,52 +113,52 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
             // (0) Should not use namespaces for applications and services:
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-02.json", null),
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-02.json"), null),
             },
             // (1) Should use namespaces for applications and services:
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-01.json", null),
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-01.json"), null),
             },
             // (2) There are deployed MTAs:
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, "deployed-mta-01.json", PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-04.json", null),
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-04.json"), null),
             },
             // (3) Host based routing:
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, false), 
-                new StepOutput(null, "R:system-parameters-03.json", null),
+                new StepOutput(null, new Expectation(Expectation.Type.RESOURCE, "system-parameters-03.json"), null),
             },
             // (4) The version of the MTA is lower than the version of the previously deployed MTA:
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial initial", "initial", "initial", 1, "deployed-mta-02.json", PlatformType.XS2, false), 
-                new StepOutput(Collections.emptySet(), "R:system-parameters-04.json", Messages.HIGHER_VERSION_ALREADY_DEPLOYED),
+                new StepOutput(Collections.emptySet(), new Expectation(Expectation.Type.RESOURCE, "system-parameters-04.json"), Messages.HIGHER_VERSION_ALREADY_DEPLOYED),
             },
             // (5) Should not use namespaces for applications and services (platform type  is  CF):
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.CF , false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-07.json", null),
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-07.json"), null),
             },
             // (6) Should not use namespaces for applications and services (XS placeholders are supported):
             {
                 new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial initial", "initial", "initial", 1, null, PlatformType.XS2, true ), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), "R:system-parameters-06.json", null),
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-06.json"), null),
             },
             // (7) Host based routing with TCP/TCPS
             {
                 new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 3, null, PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2)), "R:system-parameters-12.json", null),
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-12.json"), null),
             },
             // (8) Host based routing with TCP/TCPS with existing apps with HTTP uris
             {
                 new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 3, "deployed-mta-13.json", PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2)), "R:system-parameters-12.json", null),
+                new StepOutput(new TreeSet<>(Arrays.asList(1, 2)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-12.json"), null),
             },
             // (9) Host based routing with TCP/TCPS with existing apps with TCP uris
             {
                 new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial initial", "initial", "initial", 3, "deployed-mta-14.json", PlatformType.XS2, false), 
-                new StepOutput(Collections.emptySet(), "R:system-parameters-13.json", null),
+                new StepOutput(Collections.emptySet(), new Expectation(Expectation.Type.RESOURCE, "system-parameters-13.json"), null),
             },
 // @formatter:on
         });
@@ -264,7 +264,7 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
 
             return StepsUtil.getSystemParameters(context);
 
-        }, output.systemParametersLocation, getClass());
+        }, output.systemParametersExpectation, getClass());
     }
 
     @Override

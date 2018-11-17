@@ -33,6 +33,7 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestCase;
 import com.sap.cloud.lm.sl.common.util.TestInput;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.common.util.TestUtil.JsonSerializationOptions;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
@@ -60,111 +61,138 @@ public class ConfigurationEntryDaoTest {
     // @formatter:off
                 // (0)
                 {
-                    new AddTest(new AddTestInput("configuration-entry-07.json"), "R:configuration-entry-07.json"),
+                    new AddTest(new AddTestInput("configuration-entry-07.json"),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-07.json")),
                 },
                 // (1)
                 {
-                    new AddTest(new AddTestInput("configuration-entry-01.json"), "E:Configuration entry with namespace ID \"n-1\", ID \"id-1\", version \"1.0.0\", target org \"org-1\" and target space \"space-1\", already exists"),
+                    new AddTest(new AddTestInput("configuration-entry-01.json"),
+                        new Expectation(Expectation.Type.EXCEPTION, "Configuration entry with namespace ID \"n-1\", ID \"id-1\", version \"1.0.0\", target org \"org-1\" and target space \"space-1\", already exists")),
                 },
                 // (2)
                 {
-                    new FindTest(new FindTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, null, ""), "R:configuration-entry-01.json"),
+                    new FindTest(new FindTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-01.json")),
                 },
                 // (3)
                 {
-                    new RemoveTest(new RemoveTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, ""), ""),
+                    new RemoveTest(new RemoveTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, ""),
+                        new Expectation("")),
                 },
                 // (4)
                 {
-                    new FindAllTest(new FindTestInput(null, "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, null, ""), "R:configuration-entry-dao-test-output-04.json"),
+                    new FindAllTest(new FindTestInput(null, "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-04.json")),
                 },
                 // (5)
                 {
-                    new FindAllTest(new FindTestInput("n-3", "id-3", "3.0.0", new CloudTarget("org-3", "space-3"), null, null, null, ""), "R:configuration-entry-dao-test-output-05.json"),
+                    new FindAllTest(new FindTestInput("n-3", "id-3", "3.0.0", new CloudTarget("org-3", "space-3"), null, null, null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-05.json")),
                 },
                 // (6)
                 {
-                    new FindAllTest(new FindTestInput("n-1", null, null, new CloudTarget("org-1", "space-1"), null, null, null, ""), "R:configuration-entry-dao-test-output-06.json"),
+                    new FindAllTest(new FindTestInput("n-1", null, null, new CloudTarget("org-1", "space-1"), null, null, null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-06.json")),
                 },
                 // (7)
                 {
-                    new AddTest(new AddTestInput("configuration-entry-08.json"), "R:configuration-entry-08.json"),
+                    new AddTest(new AddTestInput("configuration-entry-08.json"),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-08.json")),
                 },
                 // (8)
                 {
-                    new FindAllTest(new FindTestInput(null, null, null, null, null, null, null, ""), "R:configuration-registry-content.json"),
+                    new FindAllTest(new FindTestInput(null, null, null, null, null, null, null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-registry-content.json")),
                 },
                 // (9)
                 {
-                    new FindAllTest(new FindTestInput(null, null, "> 1.0.0", null, null, null, null, ""), "R:configuration-entry-dao-test-output-09.json"),
+                    new FindAllTest(new FindTestInput(null, null, "> 1.0.0", null, null, null, null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-09.json")),
                 },
                 // (10)
                 {
-                    new FindAllTest(new FindTestInput(null, null, "= 1.0.0", null, null, null, null, ""), "R:configuration-entry-dao-test-output-10.json"),
+                    new FindAllTest(new FindTestInput(null, null, "= 1.0.0", null, null, null, null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-10.json")),
                 },
                 // (11)
                 {
-                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, null, null, null, ""), "R:configuration-entry-dao-test-output-11.json"),
+                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, null, null, null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-11.json")),
                 },
                 // (12)
                 {
-                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, MapUtil.asMap("type", "test"), null, null, ""), "R:configuration-entry-dao-test-output-12.json"),
+                    new FindAllTest(new FindTestInput(null, null, ">=1.0.0", null, MapUtil.asMap("type", "test"), null, null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-12.json")),
                 },
                 // (13)
                 {
-                    new RemoveTest(new RemoveTestInput(null, "id-2", null, new CloudTarget("org-2", "space-2"), null, null, ""), ""),
+                    new RemoveTest(new RemoveTestInput(null, "id-2", null, new CloudTarget("org-2", "space-2"), null, null, ""),
+                        new Expectation("")),
                 },
                 // (14)
                 {
-                    new FindTest(new FindTestInput(null, "id-6", null, new CloudTarget("org-6", "space-6"), null, null, null, ""), "R:configuration-entry-06.json"),
+                    new FindTest(new FindTestInput(null, "id-6", null, new CloudTarget("org-6", "space-6"), null, null, null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-06.json")),
                 },
                 // (15)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-18.json", null, ""), "R:configuration-entry-dao-test-output-15.json"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-18.json", null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-15.json")),
                 },
                 // (16)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-19.json", null, ""), "R:configuration-entry-dao-test-output-16.json"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-19.json", null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-16.json")),
                 },
                 // (17)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-20.json", null, ""), "R:configuration-entry-dao-test-output-17.json"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-20.json", null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-17.json")),
                 },
                 // (18)
                 {
-                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-21.json", null, ""), "E:Configuration entry with namespace ID \"n-2\", ID \"id-2\", version \"2.0.0\", target org \"org-2\" and target space \"space-2\", already exists"),
+                    new UpdateTest(new UpdateTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), "configuration-entry-dao-test-input-21.json", null, ""),
+                        new Expectation(Expectation.Type.EXCEPTION, "Configuration entry with namespace ID \"n-2\", ID \"id-2\", version \"2.0.0\", target org \"org-2\" and target space \"space-2\", already exists")),
                 },
                 // (19)
                 {
-                    new FindAllTest(new FindTestInput(null, null, null, null, null, "com.sap.example.mta", null, ""), "R:configuration-entry-dao-test-output-19.json"),
+                    new FindAllTest(new FindTestInput(null, null, null, null, null, "com.sap.example.mta", null, ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-19.json")),
                 },
                 // (20)
                 {
-                    new FindAllTest(new FindTestInput(null, "id-2", null, null, null, null, Arrays.asList(new CloudTarget("org-2", "space-2")), ""), "R:configuration-entry-dao-test-output-20.json"),
+                    new FindAllTest(new FindTestInput(null, "id-2", null, null, null, null, Arrays.asList(new CloudTarget("org-2", "space-2")), ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-20.json")),
                 },              
                 // (21)
                 {
-                    new FindAllTest(new FindTestInput(null, null, "0.1.0", null, null, null, Arrays.asList(new CloudTarget("myorg", "*")), ""), "R:configuration-entry-dao-test-output-21.json"),
+                    new FindAllTest(new FindTestInput(null, null, "0.1.0", null, null, null, Arrays.asList(new CloudTarget("myorg", "*")), ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-21.json")),
                 },
                 // (22)
                 {
-                    new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org-3", "space-3")), ""), "R:configuration-entry-dao-test-output-22.json"),
+                    new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org-3", "space-3")), ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-22.json")),
                 },
                 // (23)
                 {
-                    new FindAllTest(new FindTestInput("n-2", null, null, null, null, null, Arrays.asList(new CloudTarget("*", "")), ""), "R:configuration-entry-dao-test-output-23.json"),
+                    new FindAllTest(new FindTestInput("n-2", null, null, null, null, null, Arrays.asList(new CloudTarget("*", "")), ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-23.json")),
                 },
                 // (24)
                 {
-                    new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org-3", "space-3"), new CloudTarget("org-4", "space-4")), ""), "R:configuration-entry-dao-test-output-24.json"),
+                    new FindAllTest(new FindTestInput(null, null, null, null, MapUtil.asMap("type", "test"), null, Arrays.asList(new CloudTarget("org-3", "space-3"), new CloudTarget("org-4", "space-4")), ""),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-24.json")),
                 }, 
                 // (25)               
                 {
-                    new FindAllTest(new FindTestInput(null, "s-2", null, null, null, null, Arrays.asList(new CloudTarget("myorg1", "myspace1")), ""), "[]"),
+                    new FindAllTest(new FindTestInput(null, "s-2", null, null, null, null, Arrays.asList(new CloudTarget("myorg1", "myspace1")), ""),
+                        new Expectation("[]")),
                 },
                 // (26)
                 {
-                    new FindAllGuidTest(new FindTestInput(null, null, null, null, null, null, null, "fbd3dc79-1a54-4a70-8022-ab716643809b"), "R:configuration-entry-dao-test-output-26.json"),
+                    new FindAllGuidTest(new FindTestInput(null, null, null, null, null, null, null, "fbd3dc79-1a54-4a70-8022-ab716643809b"),
+                        new Expectation(Expectation.Type.RESOURCE, "configuration-entry-dao-test-output-26.json")),
                 }
     // @formatter:on
             });
@@ -251,8 +279,8 @@ public class ConfigurationEntryDaoTest {
 
             ConfigurationEntryDao dao = createDao();
 
-            public RemoveTest(RemoveTestInput input, String expected) {
-                super(input, expected);
+            public RemoveTest(RemoveTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             @Override
@@ -263,7 +291,7 @@ public class ConfigurationEntryDaoTest {
                     dao.remove(entry.getId());
                     assertTrue(!dao.exists(entry.getId()));
 
-                }, expected);
+                }, expectation);
             }
 
         }
@@ -272,8 +300,8 @@ public class ConfigurationEntryDaoTest {
 
             ConfigurationEntryDao dao = createDao();
 
-            public UpdateTest(UpdateTestInput input, String expected) {
-                super(input, expected);
+            public UpdateTest(UpdateTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             @Override
@@ -283,15 +311,15 @@ public class ConfigurationEntryDaoTest {
                     return dao.update(findConfigurationEntries(input, dao).get(0)
                         .getId(), input.configurationEntry);
 
-                }, expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expectation, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
 
         private static class AddTest extends TestCase<AddTestInput> {
 
-            public AddTest(AddTestInput input, String expected) {
-                super(input, expected);
+            public AddTest(AddTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             ConfigurationEntryDao dao = createDao();
@@ -302,15 +330,15 @@ public class ConfigurationEntryDaoTest {
 
                     return dao.add(input.configurationEntry);
 
-                }, expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expectation, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
 
         private static class FindTest extends TestCase<FindTestInput> {
 
-            public FindTest(FindTestInput input, String expected) {
-                super(input, expected);
+            public FindTest(FindTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             ConfigurationEntryDao dao = createDao();
@@ -322,15 +350,15 @@ public class ConfigurationEntryDaoTest {
                     return dao.find(findConfigurationEntries(input, dao).get(0)
                         .getId());
 
-                }, expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expectation, getClass(), new JsonSerializationOptions(true, false));
             }
 
         }
 
         private static class FindAllTest extends TestCase<FindTestInput> {
 
-            public FindAllTest(FindTestInput input, String expected) {
-                super(input, expected);
+            public FindAllTest(FindTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             @Override
@@ -338,14 +366,14 @@ public class ConfigurationEntryDaoTest {
                 TestUtil.test(() -> {
                     return findConfigurationEntries(input, createDao());
 
-                }, expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expectation, getClass(), new JsonSerializationOptions(true, false));
             }
         }
 
         private static class FindAllGuidTest extends TestCase<FindTestInput> {
 
-            public FindAllGuidTest(FindTestInput input, String expected) {
-                super(input, expected);
+            public FindAllGuidTest(FindTestInput input, Expectation expectation) {
+                super(input, expectation);
             }
 
             @Override
@@ -353,7 +381,7 @@ public class ConfigurationEntryDaoTest {
                 TestUtil.test(() -> {
                     return findConfigurationEntriesGuid(input, createDao());
 
-                }, expected, getClass(), new JsonSerializationOptions(true, false));
+                }, expectation, getClass(), new JsonSerializationOptions(true, false));
             }
         }
 

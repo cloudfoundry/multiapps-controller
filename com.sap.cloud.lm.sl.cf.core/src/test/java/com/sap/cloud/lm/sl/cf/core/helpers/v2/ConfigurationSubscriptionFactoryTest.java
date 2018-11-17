@@ -12,10 +12,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
@@ -30,15 +30,15 @@ public class ConfigurationSubscriptionFactoryTest {
 // @formatter:off
             // (0) The required dependency is managed, so a subscription should be created:
             {
-                "subscriptions-mtad-00.yaml", Arrays.asList("plugins"), "SPACE_ID_1", "R:subscriptions-00.json",
+                "subscriptions-mtad-00.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.RESOURCE, "subscriptions-00.json"),
             },
             // (1) The required dependency is not managed, so a subscription should not be created:
             {
-                "subscriptions-mtad-01.yaml", Arrays.asList("plugins"), "SPACE_ID_1", "[]",
+                "subscriptions-mtad-01.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation("[]"),
             },
             // (2) The required dependency is not managed, so a subscription should not be created:
             {
-                "subscriptions-mtad-02.yaml", Arrays.asList("plugins"), "SPACE_ID_1", "[]",
+                "subscriptions-mtad-02.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation("[]"),
             },
 // @formatter:on
         });
@@ -47,13 +47,14 @@ public class ConfigurationSubscriptionFactoryTest {
     private String mtadFilePath;
     private List<String> configurationResources;
     private String spaceId;
-    private String expected;
+    private Expectation expectation;
 
-    public ConfigurationSubscriptionFactoryTest(String mtadFilePath, List<String> configurationResources, String spaceId, String expected) {
+    public ConfigurationSubscriptionFactoryTest(String mtadFilePath, List<String> configurationResources, String spaceId,
+        Expectation expectation) {
         this.mtadFilePath = mtadFilePath;
         this.configurationResources = configurationResources;
         this.spaceId = spaceId;
-        this.expected = expected;
+        this.expectation = expectation;
     }
 
     @Test
@@ -61,13 +62,14 @@ public class ConfigurationSubscriptionFactoryTest {
         String mtadString = TestUtil.getResourceAsString(mtadFilePath, getClass());
         DeploymentDescriptor mtad = getDescriptorParser().parseDeploymentDescriptorYaml(mtadString);
         Map<String, ResolvedConfigurationReference> resolvedResources = getResolvedConfigurationReferences(mtad);
-        testCreate(mtad, resolvedResources, spaceId, expected);
+        testCreate(mtad, resolvedResources, spaceId, expectation);
     }
 
-    protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId, String expected) {
+    protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
+        Expectation expectation) {
         TestUtil.test(() -> {
             return new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId);
-        }, expected, getClass());
+        }, expectation, getClass());
     }
 
     private Map<String, ResolvedConfigurationReference> getResolvedConfigurationReferences(DeploymentDescriptor descriptor) {

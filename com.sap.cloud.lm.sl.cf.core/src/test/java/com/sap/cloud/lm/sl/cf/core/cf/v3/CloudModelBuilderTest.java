@@ -20,6 +20,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.util.Callable;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v3.ConfigurationParser;
@@ -40,9 +41,9 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
         String targetsLocation, String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices,
-        String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, String[] expected) {
+        String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation[] expectations) {
         super(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, targetsLocation, deployedMtaLocation,
-            useNamespaces, useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expected);
+            useNamespaces, useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expectations);
         MockitoAnnotations.initMocks(this);
     }
 
@@ -57,7 +58,10 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-01.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-01.json"), }
             },
 // @formatter:on
         });
@@ -132,7 +136,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
             public List<String> call() throws Exception {
                 return domainsBuilder.build();
             }
-        }, expected[0], getClass(), new TestUtil.JsonSerializationOptions(false, true));
+        }, expectations[0], getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
 
     @Test
@@ -142,7 +146,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
             public List<CloudApplicationExtended> call() throws Exception {
                 return appsBuilder.build(mtaArchiveModules, mtaModules, deployedApps);
             }
-        }, expected[2], getClass(), new TestUtil.JsonSerializationOptions(false, true));
+        }, expectations[2], getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
 
     @Test
@@ -152,6 +156,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
             public List<CloudServiceExtended> call() throws Exception {
                 return servicesBuilder.build();
             }
-        }, expected[1], getClass(), new TestUtil.JsonSerializationOptions(false, true));
+        }, expectations[1], getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 @RunWith(Parameterized.class)
 public class ServiceBrokerCreatorTest {
@@ -36,7 +37,7 @@ public class ServiceBrokerCreatorTest {
 
     private String serviceBrokerToCreateJsonLocation;
     private CloudServiceBrokerExtended serviceBrokerToCreate;
-    private String expected;
+    private Expectation expectation;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -44,35 +45,35 @@ public class ServiceBrokerCreatorTest {
 // @formatter:off
             // (0)
             {
-                "space-scoped-service-broker.json", "R:space-scoped-service-broker-creation-request.json",
+                "space-scoped-service-broker.json", new Expectation(Expectation.Type.RESOURCE, "space-scoped-service-broker-creation-request.json"),
             },
             // (1)
             {
-                "global-service-broker.json", "R:global-service-broker-creation-request.json",
+                "global-service-broker.json", new Expectation(Expectation.Type.RESOURCE, "global-service-broker-creation-request.json"),
             },
             // (2)
             {
-                "service-broker-with-missing-name.json", "E:The service broker's name must not be null!",
+                "service-broker-with-missing-name.json", new Expectation(Expectation.Type.EXCEPTION, "The service broker's name must not be null!")
             },
             // (3)
             {
-                "service-broker-with-missing-username.json", "E:The service broker's username must not be null!",
+                "service-broker-with-missing-username.json", new Expectation(Expectation.Type.EXCEPTION, "The service broker's username must not be null!")
             },
             // (4)
             {
-                "service-broker-with-missing-password.json", "E:The service broker's password must not be null!",
+                "service-broker-with-missing-password.json", new Expectation(Expectation.Type.EXCEPTION, "The service broker's password must not be null!")
             },
             // (5)
             {
-                "service-broker-with-missing-url.json", "E:The service broker's URL must not be null!",
+                "service-broker-with-missing-url.json", new Expectation(Expectation.Type.EXCEPTION, "The service broker's URL must not be null!")
             },
 // @formatter:on
         });
     }
 
-    public ServiceBrokerCreatorTest(String serviceBrokerToCreateJsonLocation, String expected) {
+    public ServiceBrokerCreatorTest(String serviceBrokerToCreateJsonLocation, Expectation expectation) {
         this.serviceBrokerToCreateJsonLocation = serviceBrokerToCreateJsonLocation;
-        this.expected = expected;
+        this.expectation = expectation;
     }
 
     @Before
@@ -98,7 +99,7 @@ public class ServiceBrokerCreatorTest {
                 .postForObject(Mockito.eq(CONTROLLER_URL + SERVICE_BROKERS_ENDPOINT), requestCaptor.capture(), Mockito.eq(String.class));
 
             return requestCaptor.getValue();
-        }, expected, getClass());
+        }, expectation, getClass());
     }
 
 }

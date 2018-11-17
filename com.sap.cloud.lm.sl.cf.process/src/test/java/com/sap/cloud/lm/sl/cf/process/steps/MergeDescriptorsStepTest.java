@@ -19,6 +19,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
@@ -76,7 +77,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
 
             return StepsUtil.getUnresolvedDeploymentDescriptor(context);
 
-        }, "R:node-hello-mtad.yaml.json", getClass());
+        }, new Expectation(Expectation.Type.RESOURCE, "node-hello-mtad.yaml.json"), getClass());
     }
 
     @Test(expected = SLException.class)

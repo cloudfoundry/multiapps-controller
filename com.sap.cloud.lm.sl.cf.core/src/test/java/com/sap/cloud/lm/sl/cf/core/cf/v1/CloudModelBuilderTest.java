@@ -31,6 +31,7 @@ import com.sap.cloud.lm.sl.common.util.Callable;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorMerger;
@@ -66,7 +67,7 @@ public class CloudModelBuilderTest {
     protected final Set<String> mtaArchiveModules;
     protected final Set<String> mtaModules;
     protected final Set<String> deployedApps;
-    protected final String[] expected;
+    protected final Expectation[] expectations;
 
     protected ApplicationsCloudModelBuilder appsBuilder;
     protected ServicesCloudModelBuilder servicesBuilder;
@@ -82,160 +83,160 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/javahelloworld/services.json",
-                    "R:/mta/javahelloworld/apps.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps.json"), } },
             // (01)
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/javahelloworld/xs2-services.json",
-                    "R:/mta/javahelloworld/xs2-apps.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/xs2-services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/xs2-apps.json"), } },
             // (02) Full MTA with namespaces:
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 true, true,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/javahelloworld/services-ns.json",
-                    "R:/mta/javahelloworld/apps-ns.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-ns.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-ns.json"), } },
             // (03) Full MTA with namespaces (w/o services):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 true, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/javahelloworld/services.json",
-                    "R:/mta/javahelloworld/apps-ns2.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-ns2.json"), } },
             // (04) Patch MTA (resolved inter-module dependencies):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/javahelloworld/services-patch1.json",
-                    "R:/mta/javahelloworld/apps-patch2.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch2.json"), } },
             // (05) Patch MTA with namespaces (resolved inter-module dependencies):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 true, true,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/javahelloworld/services-patch1-ns.json",
-                    "R:/mta/javahelloworld/apps-patch2-ns.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1-ns.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch2-ns.json"), } },
             // (06) Patch MTA (unresolved inter-module dependencies):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", }, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/javahelloworld/services-patch1.json",
-                    "E:Unresolved MTA modules [java-hello-world-backend, java-hello-world-db]", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1.json"),
+                    new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-backend, java-hello-world-db]") } },
             // (07) Patch MTA (module is in archive, but not intended for platform):
             { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "java-hello-world", }, // mtaArchiveModules
                 new String[] {}, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                "[]", // domains
-                "R:/mta/javahelloworld/services-patch1.json",
-                "E:MTA module \"java-hello-world\" is part of MTA archive, but is not intended for deployment", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1.json"),
+                    new Expectation(Expectation.Type.EXCEPTION, "MTA module \"java-hello-world\" is part of MTA archive, but is not intended for deployment") } },
             // (08)
             { "/mta/shine/mtad.yaml", "/mta/shine/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaArchiveModules
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/shine/services.json",
-                    "R:/mta/shine/apps.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/shine/services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/shine/apps.json"), } },
             // (09)
             { "/mta/sample/mtad.yaml", "/mta/sample/config1.mtaext", "/mta/sample/platform-types.json", "/mta/sample/targets.json", null,
                 false, false,
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[\"bestprice.sap.com\"]", // domains
-                    "R:/mta/sample/services.json",
-                    "R:/mta/sample/apps.json", } },
+                new Expectation[] {
+                    new Expectation("[bestprice.sap.com]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/sample/services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/sample/apps.json"), } },
             // (10)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/devxwebide/services.json",
-                    "R:/mta/devxwebide/apps2.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/apps2.json"), } },
             // (11)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/devxwebide/services.json",
-                    "R:/mta/devxwebide/xs2-apps2.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps2.json"), } },
             // (12)
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/devxdi/services.json",
-                    "R:/mta/devxdi/apps.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/apps.json"), } },
             // (13)
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config1.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/devxdi/xs2-services.json",
-                    "R:/mta/devxdi/xs2-apps.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps.json"), } },
             // (14)
             { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config2.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/devxwebide/services.json",
-                    "R:/mta/devxwebide/xs2-apps2.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps2.json"), } },
             // (15) Unknown typed resource properties:
             { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config2.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] {
-                    "[]", // domains
-                    "R:/mta/devxdi/xs2-services.json",
-                    "R:/mta/devxdi/xs2-apps.json", } },
+                new Expectation[] {
+                    new Expectation("[]"), // domains
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-services.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps.json"), } },
             // (16) Custom application names are used:
             {
                 "mtad-01.yaml", "config-01.mtaext", "/mta/platform-types.json", "/mta/targets.json", null,
@@ -243,7 +244,10 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-01.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-01.json"), }
             },
             // (17) Custom application names are used:
             {
@@ -252,7 +256,10 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-02.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-02.json"), }
             },
             // (18) Temporary URIs are used:
             {
@@ -261,7 +268,10 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-04.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-04.json"), }
             },
             // (19) Some env values have HTML symbols embedded in them:
             {
@@ -270,7 +280,10 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-05.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-05.json"), }
             },
             // (20) Resource service-name definition in extension descriptor:
             { 
@@ -279,7 +292,10 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "R:services-02.json", "R:apps-06.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "services-02.json"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-06.json"), }
             },
             // (21) Test support for one-off tasks:
             { 
@@ -288,7 +304,10 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2", "module-3" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-07.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-07.json"), }
             },
             // (22) Test inject service keys in application environment
             { 
@@ -297,7 +316,10 @@ public class CloudModelBuilderTest {
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-08.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-08.json"), }
             },
             // (23) With 'health-check-type' set to 'port':
             { 
@@ -306,7 +328,10 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-with-health-check-type-port.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-port.json"), }
             },
             // (24) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
             { 
@@ -315,7 +340,10 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-with-health-check-type-http-with-endpoint.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-http-with-endpoint.json"), }
             },
             // (25) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
             { 
@@ -324,7 +352,10 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-with-health-check-type-http-without-endpoint.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-with-health-check-type-http-without-endpoint.json"), }
             },
             // (26) With 'enable-ssh' set to true:
             {
@@ -333,7 +364,10 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-with-ssh-enabled-true.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-with-ssh-enabled-true.json"), }
             },
             // (27) With 'enable-ssh' set to false:
             {
@@ -342,7 +376,10 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:apps-with-ssh-enabled-false.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "apps-with-ssh-enabled-false.json"), }
             },
             // (28) With 'keep-existing-routes' set to true and no deployed MTA:
             {
@@ -351,7 +388,10 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:keep-existing-routes/apps.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps.json"), }
             },
             // (29) With 'keep-existing-routes' set to true and no deployed module:
             {
@@ -361,7 +401,10 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:keep-existing-routes/apps.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps.json"), }
             },
             // (30) With 'keep-existing-routes' set to true and an already deployed module with no URIs:
             {
@@ -371,7 +414,10 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:keep-existing-routes/apps.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps.json"), }
             },
             // (31) With 'keep-existing-routes' set to true and an already deployed module:
             {
@@ -381,7 +427,10 @@ public class CloudModelBuilderTest {
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new String[] { "[]", "[]", "R:keep-existing-routes/apps-with-existing-routes.json", }
+                new Expectation[] {
+                    new Expectation("[]"),
+                    new Expectation("[]"),
+                    new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps-with-existing-routes.json"), }
             },
 // @formatter:on
         });
@@ -389,7 +438,7 @@ public class CloudModelBuilderTest {
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
         String targetsLocation, String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices,
-        String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, String[] expected) {
+        String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation[] expectations) {
         this.deploymentDescriptorLocation = deploymentDescriptorLocation;
         this.extensionDescriptorLocation = extensionDescriptorLocation;
         this.platformsLocation = platformsLocation;
@@ -400,7 +449,7 @@ public class CloudModelBuilderTest {
         this.mtaArchiveModules = new HashSet<>(Arrays.asList(mtaArchiveModules));
         this.mtaModules = new HashSet<>(Arrays.asList(mtaModules));
         this.deployedApps = new HashSet<>(Arrays.asList(deployedApps));
-        this.expected = expected;
+        this.expectations = expectations;
     }
 
     @Before
@@ -562,7 +611,7 @@ public class CloudModelBuilderTest {
             public List<String> call() throws Exception {
                 return domainsBuilder.build();
             }
-        }, expected[0], getClass(), new TestUtil.JsonSerializationOptions(false, true));
+        }, expectations[0], getClass());
     }
 
     @Test
@@ -572,7 +621,7 @@ public class CloudModelBuilderTest {
             public List<CloudApplicationExtended> call() throws Exception {
                 return appsBuilder.build(mtaArchiveModules, mtaModules, deployedApps);
             }
-        }, expected[2], getClass(), new TestUtil.JsonSerializationOptions(false, true));
+        }, expectations[2], getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
 
     @Test
@@ -582,7 +631,7 @@ public class CloudModelBuilderTest {
             public List<CloudServiceExtended> call() throws Exception {
                 return servicesBuilder.build();
             }
-        }, expected[1], getClass(), new TestUtil.JsonSerializationOptions(false, true));
+        }, expectations[1], getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
 
 }
