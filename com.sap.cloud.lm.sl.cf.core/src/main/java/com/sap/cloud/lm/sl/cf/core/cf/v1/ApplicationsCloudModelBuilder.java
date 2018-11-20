@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
+import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -24,6 +25,7 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.parser.DockerInfoParser;
 import com.sap.cloud.lm.sl.cf.core.parser.MemoryParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.ParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.StagingParametersParser;
@@ -106,6 +108,7 @@ public class ApplicationsCloudModelBuilder {
         if (!unresolvedModules.isEmpty()) {
             throw new ContentException(Messages.UNRESOLVED_MTA_MODULES, unresolvedModules);
         }
+
         return apps;
     }
 
@@ -120,13 +123,24 @@ public class ApplicationsCloudModelBuilder {
     }
 
     private boolean shouldDeployModule(Module module, Set<String> mtaModulesInArchive, Set<String> deployedModules) {
+        if (isDockerModule(module)) {
+
+            return true;
+        }
         if (!isModulePresentInArchive(module, mtaModulesInArchive) || module.getType() == null) {
             if (isModuleDeployed(module, deployedModules)) {
                 printMTAModuleNotFoundWarning(module.getName());
             }
             return false;
         }
+
         return true;
+    }
+
+    private boolean isDockerModule(Module module) {
+        Map<String, Object> moduleParameters = propertiesAccessor.getParameters(module);
+
+        return moduleParameters.containsKey(SupportedParameters.DOCKER);
     }
 
     private boolean isModulePresentInArchive(Module module, Set<String> modulesInArchive) {
@@ -174,6 +188,7 @@ public class ApplicationsCloudModelBuilder {
         Staging staging = parseParameters(propertiesList, new StagingParametersParser());
         int diskQuota = parseParameters(propertiesList, new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0"));
         int memory = parseParameters(propertiesList, new MemoryParametersParser(SupportedParameters.MEMORY, "0"));
+        DockerInfo dockerInfo = parseParameters(propertiesList, new DockerInfoParser());
         int instances = (Integer) getPropertyValue(propertiesList, SupportedParameters.INSTANCES, 0);
         DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
         List<String> uris = urisCloudModelBuilder.getApplicationUris(module, propertiesList, deployedModule);
@@ -186,7 +201,7 @@ public class ApplicationsCloudModelBuilder {
             getSharedApplicationServices(module));
         List<CloudTask> tasks = getTasks(propertiesList);
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
-            resolvedIdleUris, allServices, serviceKeysToInject, env, tasks);
+            resolvedIdleUris, allServices, serviceKeysToInject, env, tasks, dockerInfo);
     }
 
     protected DeployedMtaModule findDeployedModule(DeployedMta deployedMta, Module module) {
@@ -286,7 +301,7 @@ public class ApplicationsCloudModelBuilder {
 
     protected static CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota,
         int memory, int instances, List<String> uris, List<String> idleUris, List<String> services,
-        List<ServiceKeyToInject> serviceKeysToInject, Map<Object, Object> env, List<CloudTask> tasks) {
+        List<ServiceKeyToInject> serviceKeysToInject, Map<Object, Object> env, List<CloudTask> tasks, DockerInfo dockerInfo) {
         CloudApplicationExtended app = new CloudApplicationExtended(null, name);
         app.setModuleName(moduleName);
         app.setStaging(staging);
@@ -299,6 +314,7 @@ public class ApplicationsCloudModelBuilder {
         app.setServiceKeysToInject(serviceKeysToInject);
         app.setEnv(env);
         app.setTasks(tasks);
+        app.setDockerInfo(dockerInfo);
         return app;
     }
 

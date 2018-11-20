@@ -17,6 +17,8 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
+import org.cloudfoundry.client.lib.domain.DockerCredentials;
+import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -39,10 +41,13 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
+import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 @Component("createAppStep")
@@ -83,9 +88,14 @@ public class CreateAppStep extends SyncFlowableStep {
             // Check if an application with this name already exists (as a result of a previous
             // execution):
             CloudApplication existingApp = client.getApplication(app.getName(), false);
+
             // If the application doesn't exist, create it:
             if (existingApp == null) {
-                client.createApplication(appName, staging, diskQuota, memory, uris, Collections.emptyList());
+                if (app.getDockerInfo() != null) {
+                    execution.getStepLogger().info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, app.getName(), app.getDockerInfo().getImage());
+                }
+                client.createApplication(appName, staging, diskQuota, memory, uris, Collections.emptyList(), app.getDockerInfo());
+
                 if (configuration.getPlatformType() == PlatformType.CF) {
                     applicationStagingUpdater.updateApplicationStaging(client, appName, staging);
                 }

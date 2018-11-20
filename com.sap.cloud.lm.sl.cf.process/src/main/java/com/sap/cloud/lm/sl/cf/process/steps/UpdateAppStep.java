@@ -13,6 +13,7 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
+import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -229,7 +230,13 @@ public class UpdateAppStep extends CreateAppStep {
             || (healthCheckTimeout != null && !healthCheckTimeout.equals(existingStaging.getHealthCheckTimeout()))
             || (healthCheckType != null && !healthCheckType.equals(existingStaging.getHealthCheckType()))
             || (healthCheckHttpEndpoint != null && !healthCheckHttpEndpoint.equals(existingStaging.getHealthCheckHttpEndpoint()))
-            || (sshEnabled != null && !sshEnabled.equals(existingStaging.isSshEnabled()));
+            || (sshEnabled != null && !sshEnabled.equals(existingStaging.isSshEnabled())
+                || isDockerInfoModified(existingStaging.getDockerInfo(), staging.getDockerInfo()));
+    }
+
+    private boolean isDockerInfoModified(DockerInfo existingDockerInfo, DockerInfo newDockerInfo) {
+
+        return existingDockerInfo != null && newDockerInfo != null && !existingDockerInfo.getImage().equals(newDockerInfo.getImage());
     }
 
     private boolean hasChanged(List<String> uris, List<String> existingUris) {
@@ -237,4 +244,5 @@ public class UpdateAppStep extends CreateAppStep {
         Set<String> existingUrisSet = new HashSet<>(existingUris);
         return !urisSet.equals(existingUrisSet);
     }
+
 }

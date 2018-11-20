@@ -114,7 +114,7 @@ public class ApplicationArchiveExtractor {
     private Path createTempDirectory() throws IOException {
         return Files.createTempDirectory(null);
     }
-    
+
     private String getFileExtension() {
         String extension = FilenameUtils.getExtension(moduleFileName);
         return extension.isEmpty() ? extension : FilenameUtils.EXTENSION_SEPARATOR_STR + extension;

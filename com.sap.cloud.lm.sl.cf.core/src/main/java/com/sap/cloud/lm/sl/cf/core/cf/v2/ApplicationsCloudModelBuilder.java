@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.parser.DockerInfoParser;
 import com.sap.cloud.lm.sl.cf.core.parser.MemoryParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.RestartParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.StagingParametersParser;
@@ -101,6 +103,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         int diskQuota = parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0"));
         int memory = parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.MEMORY, "0"));
         int instances = (Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0);
+        DockerInfo dockerInfo = parseParameters(parametersList, new DockerInfoParser());
         DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
         List<String> uris = urisCloudModelBuilder.getApplicationUris(module, parametersList, deployedModule);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
@@ -117,15 +120,15 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         RestartParameters restartParameters = parseParameters(parametersList, new RestartParametersParser());
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
             resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains,
-            restartParameters);
+            restartParameters, dockerInfo);
     }
 
     protected CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota, int memory,
         int instances, List<String> uris, List<String> idleUris, List<String> services, List<ServiceKeyToInject> serviceKeys,
         Map<Object, Object> env, Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks,
-        List<ApplicationPort> applicationPorts, List<String> applicationDomains, RestartParameters restartParameters) {
+        List<ApplicationPort> applicationPorts, List<String> applicationDomains, RestartParameters restartParameters, DockerInfo dockerInfo) {
         CloudApplicationExtended app = super.createCloudApplication(name, moduleName, staging, diskQuota, memory, instances, uris, idleUris,
-            services, serviceKeys, env, tasks);
+            services, serviceKeys, env, tasks, dockerInfo);
         if (bindingParameters != null) {
             app.setBindingParameters(bindingParameters);
         }

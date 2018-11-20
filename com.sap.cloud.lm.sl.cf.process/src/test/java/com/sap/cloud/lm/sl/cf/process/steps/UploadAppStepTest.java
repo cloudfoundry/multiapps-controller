@@ -253,5 +253,39 @@ public class UploadAppStepTest {
         }
 
     }
+    
+    public static class UploadAppStepWithoutFileNameTest extends SyncFlowableStepTest<UploadAppStep> {
+        private static final String SPACE = "space";
+        private static final String APP_NAME = "simple-app";
+        private static final String APP_ARCHIVE = "sample-app.mtar";
+        
+        @Before
+        public void setUp() {
+            prepareContext();
+        }
+        
+        private void prepareContext() {
+            CloudApplicationExtended app = new CloudApplicationExtended(null, APP_NAME);
+            // module name must be null
+            app.setModuleName(null);
+            StepsUtil.setApp(context, app);
+            context.setVariable(Constants.VAR_APPS_INDEX, 0);
+            context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
+            context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
+            StepsUtil.setModuleFileName(context, APP_NAME, APP_NAME);
+        }
+        
+        @Test
+        public void testWithMissingFileNameMustReturnDone() {
+            step.execute(context);
+            assertStepFinishedSuccessfully();
+        }
+        
+        @Override
+        protected UploadAppStep createStep() {
+            return new UploadAppStep();
+        }
+        
+    }
 
 }

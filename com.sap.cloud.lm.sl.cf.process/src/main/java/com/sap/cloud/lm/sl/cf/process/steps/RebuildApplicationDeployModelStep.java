@@ -17,6 +17,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -49,7 +50,9 @@ public class RebuildApplicationDeployModelStep extends SyncFlowableStep {
             setApplicationUris(execution.getContext(), app, modifiedApp);
             app.setIdleUris(modifiedApp.getIdleUris());
             app.setEnv(MapUtil.upcastUnmodifiable(modifiedApp.getEnvAsMap()));
-            getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, JsonUtil.toJson(app, true));
+            SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
+            String appJson = secureSerializationFacade.toJson(app);
+            getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, appJson);
             StepsUtil.setApp(execution.getContext(), app);
 
             buildConfigurationEntries(execution.getContext(), app);

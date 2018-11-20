@@ -5,6 +5,7 @@ import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -24,6 +25,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
         String healthCheckHttpEndpoint = (String) getPropertyValue(parametersList, SupportedParameters.HEALTH_CHECK_HTTP_ENDPOINT,
             getDefaultHealthCheckHttpEndpoint(healthCheckType));
         Boolean isSshEnabled = (Boolean) getPropertyValue(parametersList, SupportedParameters.ENABLE_SSH, null);
+        DockerInfo dockerInfo = new DockerInfoParser().parse(parametersList);
         return new Staging.StagingBuilder().command(command)
             .buildpackUrl(buildpack)
             .stack(stack)
@@ -31,6 +33,7 @@ public class StagingParametersParser implements ParametersParser<Staging> {
             .healthCheckType(healthCheckType)
             .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
             .sshEnabled(isSshEnabled)
+            .dockerInfo(dockerInfo)
             .build();
     }
 

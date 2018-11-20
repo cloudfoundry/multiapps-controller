@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
+import org.cloudfoundry.client.lib.domain.DockerInfo;
 
 import com.google.gson.annotations.JsonAdapter;
 import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
@@ -23,6 +24,7 @@ public class CloudApplicationExtended extends CloudApplication {
     private List<String> domains;
     private RestartParameters restartParameters;
     private Set<String> deployedAfter;
+    private DockerInfo dockerInfo;
 
     public CloudApplicationExtended(Meta meta, String name) {
         super(meta, name);
@@ -30,11 +32,12 @@ public class CloudApplicationExtended extends CloudApplication {
 
     public CloudApplicationExtended(String name, String command, String buildpackUrl, int memory, int instances, List<String> uris,
         List<String> serviceNames, AppState state, List<ApplicationPort> applicationPorts, List<String> domains,
-        Set<String> deployedAfter) {
+        Set<String> deployedAfter, DockerInfo dockerInfo) {
         super(name, command, buildpackUrl, memory, instances, uris, serviceNames, state);
         this.applicationPorts = applicationPorts;
         this.domains = domains;
         this.deployedAfter = deployedAfter;
+        this.dockerInfo = dockerInfo;
     }
 
     public String getModuleName() {
@@ -116,4 +119,13 @@ public class CloudApplicationExtended extends CloudApplication {
     public void setDeployedAfter(Set<String> deployedAfter) {
         this.deployedAfter = deployedAfter;
     }
+
+    public DockerInfo getDockerInfo() {
+        return dockerInfo;
+    }
+
+    public void setDockerInfo(DockerInfo dockerInfo) {
+        this.dockerInfo = dockerInfo;
+    }
+    
 }

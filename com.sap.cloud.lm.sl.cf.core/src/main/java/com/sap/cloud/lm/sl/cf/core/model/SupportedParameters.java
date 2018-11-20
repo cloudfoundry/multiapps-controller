@@ -87,6 +87,7 @@ public class SupportedParameters {
     public static final String VCAP_APPLICATION_ENV = "vcap-application";
     public static final String VCAP_SERVICES_ENV = "vcap-services";
     public static final String USER_PROVIDED_ENV = "user-provided";
+    public static final String DOCKER = "docker";
 
     public static final String EXECUTE_APP = "execute-app";
     public static final String SUCCESS_MARKER = "success-marker";
