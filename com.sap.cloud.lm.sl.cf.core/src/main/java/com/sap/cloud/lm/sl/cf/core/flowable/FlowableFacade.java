@@ -57,10 +57,24 @@ public class FlowableFacade {
     }
 
     public State getProcessInstanceState(String processInstanceId) {
-        if (isProcessInstanceDeleted(processInstanceId)) {
+        ProcessInstance processInstance = getProcessInstance(processInstanceId);
+        if (processInstance != null) {
+            return getActiveProcessState(processInstance);
+        }
+
+        return getInactiveProcessState(processInstanceId);
+    }
+
+    private State getInactiveProcessState(String processInstanceId) {
+        if (hasDeleteReason(processInstanceId)) {
             return State.ABORTED;
         }
 
+        return State.FINISHED;
+    }
+
+    private State getActiveProcessState(ProcessInstance processInstance) {
+        String processInstanceId = processInstance.getProcessInstanceId();
         if (isProcessInstanceAtReceiveTask(processInstanceId)) {
             return State.ACTION_REQUIRED;
         }
@@ -69,50 +83,7 @@ public class FlowableFacade {
             return State.ERROR;
         }
 
-        if (isProcessInRunningState(processInstanceId)) {
-            return State.RUNNING;
-        }
-
-        return State.FINISHED;
-    }
-
-    private boolean isProcessInRunningState(String processId) {
-        return hasProcessInstanceNotEnded(processId) || hasHistoricProcessInstanceNotEnded(processId) || hasRunningExecutionJobs(processId);
-    }
-
-    private boolean hasRunningExecutionJobs(String processId) {
-        return !getRunningJobsForOperation(processId).isEmpty();
-    }
-
-    private List<Job> getRunningJobsForOperation(String processInstanceId) {
-        return processEngine.getManagementService()
-            .createJobQuery()
-            .processInstanceId(processInstanceId)
-            .list();
-    }
-
-    private boolean hasHistoricProcessInstanceNotEnded(String processId) {
-        HistoricProcessInstance historicProcessInstance = processEngine.getHistoryService()
-            .createHistoricProcessInstanceQuery()
-            .processInstanceId(processId)
-            .excludeSubprocesses(true)
-            .singleResult();
-        return historicProcessInstance.getEndActivityId() == null;
-    }
-
-    private boolean hasProcessInstanceNotEnded(String processId) {
-        ProcessInstance processInstance = processEngine.getRuntimeService()
-            .createProcessInstanceQuery()
-            .processInstanceId(processId)
-            .singleResult();
-        return processInstance != null && !processInstance.isEnded();
-    }
-
-    private boolean isProcessInstanceDeleted(String processId) {
-        return processEngine.getRuntimeService()
-            .createProcessInstanceQuery()
-            .processInstanceId(processId)
-            .singleResult() == null && hasDeleteReason(processId);
+        return State.RUNNING;
     }
 
     private boolean hasDeleteReason(String processId) {
@@ -123,34 +94,42 @@ public class FlowableFacade {
         return historicProcessInstance != null && processHierarchyHasDeleteReason(historicProcessInstance);
     }
 
+    public ProcessInstance getProcessInstance(String processId) {
+        return processEngine.getRuntimeService()
+            .createProcessInstanceQuery()
+            .processInstanceId(processId)
+            .singleResult();
+    }
+
     private boolean processHierarchyHasDeleteReason(HistoricProcessInstance historicProcessInstance) {
-        if(historicProcessInstance.getDeleteReason() != null) {
+        if (historicProcessInstance.getDeleteReason() != null) {
             return true;
         }
-        
+
         List<HistoricProcessInstance> children = processEngine.getHistoryService()
             .createHistoricProcessInstanceQuery()
             .superProcessInstanceId(historicProcessInstance.getId())
             .list();
-        return children.stream().anyMatch(this::processHierarchyHasDeleteReason);
+        return children.stream()
+            .anyMatch(this::processHierarchyHasDeleteReason);
     }
 
     private boolean hasDeadLetterJobs(String processId) {
-        return !getDeadLetterJobs(processId).isEmpty() || !getDeadLetterJobsInSubProcesses(processId).isEmpty();
+        return !getDeadLetterJobs(processId).isEmpty();
     }
 
-    private List<Job> getDeadLetterJobsInSubProcesses(String processId) {
-        List<String> subProcessIds = getHistoricSubProcessIds(processId);
-        return subProcessIds.stream()
-            .map(this::getDeadLetterJobs)
+    private List<Job> getDeadLetterJobs(String processId) {
+        List<Execution> allProcessExecutions = getAllProcessExecutions(processId);
+        return allProcessExecutions.stream()
+            .map(this::getDeadLetterJobsForExecution)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
     }
 
-    private List<Job> getDeadLetterJobs(String processId) {
+    private List<Job> getDeadLetterJobsForExecution(Execution execution) {
         return processEngine.getManagementService()
             .createDeadLetterJobQuery()
-            .processInstanceId(processId)
+            .processInstanceId(execution.getProcessInstanceId())
             .list();
     }
 
@@ -298,12 +277,11 @@ public class FlowableFacade {
 
     public boolean isProcessInstanceAtReceiveTask(String processInstanceId) {
         List<Execution> executionsAtReceiveTask = findExecutionsAtReceiveTask(processInstanceId);
-
         return !executionsAtReceiveTask.isEmpty();
     }
 
     public List<Execution> findExecutionsAtReceiveTask(String processInstanceId) {
-        List<Execution> allProcessExecutions = getProcessExecutions(processInstanceId);
+        List<Execution> allProcessExecutions = getActiveProcessExecutions(processInstanceId);
 
         return allProcessExecutions.stream()
             .filter(execution -> !findCurrentActivitiesAtReceiveTask(execution).isEmpty())
@@ -311,15 +289,19 @@ public class FlowableFacade {
 
     }
 
-    public List<Execution> getProcessExecutions(String processInstanceId) {
-        List<Execution> allProcessExecutions = processEngine.getRuntimeService()
-            .createExecutionQuery()
-            .rootProcessInstanceId(processInstanceId)
-            .list();
+    public List<Execution> getActiveProcessExecutions(String processInstanceId) {
+        List<Execution> allProcessExecutions = getAllProcessExecutions(processInstanceId);
 
         return allProcessExecutions.stream()
             .filter(e -> e.getActivityId() != null)
             .collect(Collectors.toList());
+    }
+
+    private List<Execution> getAllProcessExecutions(String processInstanceId) {
+        return processEngine.getRuntimeService()
+            .createExecutionQuery()
+            .rootProcessInstanceId(processInstanceId)
+            .list();
     }
 
     private List<HistoricActivityInstance> findCurrentActivitiesAtReceiveTask(Execution execution) {
@@ -342,10 +324,7 @@ public class FlowableFacade {
     }
 
     public boolean isProcessInstanceSuspended(String processInstanceId) {
-        ProcessInstance processInstance = processEngine.getRuntimeService()
-            .createProcessInstanceQuery()
-            .processInstanceId(processInstanceId)
-            .singleResult();
+        ProcessInstance processInstance = getProcessInstance(processInstanceId);
         return processInstance != null && processInstance.isSuspended();
     }
 
