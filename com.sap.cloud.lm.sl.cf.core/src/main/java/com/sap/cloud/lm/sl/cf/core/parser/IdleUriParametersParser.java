@@ -9,12 +9,4 @@ public class IdleUriParametersParser extends UriParametersParser {
         super(portBasedRouting, defaultHost, defaultDomain, defaultPort, SupportedParameters.IDLE_HOST, SupportedParameters.IDLE_DOMAIN,
             SupportedParameters.IDLE_PORT, routePath, includeProtocol, protocol);
     }
-
-    public IdleUriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort,
-        String hostParameterName, String domainParameterName, String portParameterName, String routePath, boolean includeProtocol,
-        String protocol) {
-        super(portBasedRouting, defaultHost, defaultDomain, defaultPort, hostParameterName, domainParameterName, portParameterName,
-            routePath, includeProtocol, protocol);
-    }
-
 }

@@ -130,8 +130,9 @@ public class SystemParametersBuilder {
             moduleSystemParameters.put(SupportedParameters.IDLE_DOMAIN, getDefaultDomain());
         }
         String appName = (String) moduleParameters.getOrDefault(SupportedParameters.APP_NAME, module.getName());
-        moduleSystemParameters.put(SupportedParameters.APP_NAME, NameUtil.getApplicationName(appName, mtaId, useNamespaces));
-        putRoutingParameters(module, moduleParameters, moduleSystemParameters);
+        String appNameWithPrefix = NameUtil.getApplicationName(appName, mtaId, useNamespaces);
+        moduleSystemParameters.put(SupportedParameters.APP_NAME, appNameWithPrefix);
+        putRoutingParameters(module, appNameWithPrefix, moduleParameters, moduleSystemParameters);
         moduleSystemParameters.put(SupportedParameters.COMMAND, "");
         moduleSystemParameters.put(SupportedParameters.BUILDPACK, "");
         moduleSystemParameters.put(SupportedParameters.DISK_QUOTA, -1);
@@ -151,8 +152,9 @@ public class SystemParametersBuilder {
         return timestampSupplier.get();
     }
 
-    private void putRoutingParameters(Module module, Map<String, Object> moduleParameters, Map<String, Object> moduleSystemParameters) {
-        putHostParameters(module, moduleSystemParameters);
+    private void putRoutingParameters(Module module, String appNameWithPrefix, Map<String, Object> moduleParameters,
+        Map<String, Object> moduleSystemParameters) {
+        putHostParameters(module, appNameWithPrefix, moduleSystemParameters);
         String protocol = getProtocol(moduleParameters);
         if (portBasedRouting || (isTcpOrTcpsProtocol(protocol) && portAllocator != null)) {
             putPortRoutingParameters(module, moduleParameters, moduleSystemParameters);
@@ -183,8 +185,8 @@ public class SystemParametersBuilder {
         return (UriUtil.TCP_PROTOCOL.equals(protocol) || UriUtil.TCPS_PROTOCOL.equals(protocol));
     }
 
-    private void putHostParameters(Module module, Map<String, Object> moduleSystemParameters) {
-        String defaultHost = getDefaultHost(module.getName());
+    private void putHostParameters(Module module, String appNameWithPrefix, Map<String, Object> moduleSystemParameters) {
+        String defaultHost = getDefaultHost(appNameWithPrefix);
         if (shouldReserveTemporaryRoutes()) {
             String idleHost = getDefaultHost(module.getName() + IDLE_HOST_SUFFIX);
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_HOST, idleHost);
