@@ -21,6 +21,8 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
     private static final String COMMAND_PARAMETER = "command";
     private static final String BUILDPACK_PARAMETER = "buildpack";
     private static final String ENABLE_SSH_PARAMETER = "enable_ssh";
+    private static final String DOCKER_IMAGE = "docker_image";
+    private static final String DOCKER_CREDENTIALS = "docker_credentials";
 
     @Inject
     public ApplicationStagingUpdater(RestTemplateFactory restTemplateFactory) {
@@ -64,6 +66,12 @@ public class ApplicationStagingUpdater extends CustomControllerClient {
         }
         if (staging.isSshEnabled() != null) {
             stagingParameters.put(ENABLE_SSH_PARAMETER, staging.isSshEnabled());
+        }
+        if (staging.getDockerInfo() != null) {
+            stagingParameters.put(DOCKER_IMAGE, staging.getDockerInfo().getImage());
+            if (staging.getDockerInfo().getDockerCredentials() != null) {
+                stagingParameters.put(DOCKER_CREDENTIALS, staging.getDockerInfo().getDockerCredentials());
+            }
         }
         return stagingParameters;
     }

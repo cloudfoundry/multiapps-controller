@@ -56,7 +56,14 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
             String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
 
+            if (fileName == null) {
+                getStepLogger().debug(Messages.NO_CONTENT_TO_UPLOAD);
+
+                return StepPhase.DONE;
+            }
+
             getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
+
             String uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
             getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
             execution.getContext()
@@ -91,6 +98,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                     throw e;
                 }
             });
+
         fileService.processFileContent(uploadFileToControllerProcessor);
         return uploadTokenBuilder.toString();
     }

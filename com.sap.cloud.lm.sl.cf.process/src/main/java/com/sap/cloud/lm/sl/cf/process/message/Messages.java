@@ -16,6 +16,7 @@ public class Messages {
     public static final String ERROR_RETRIEVING_MTA_EXTENSION_DESCRIPTOR = "Error retrieving MTA extension descriptor";
     public static final String ERROR_RETRIEVING_MTA_MODULE_CONTENT = "Error retrieving content of MTA module \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT = "Error retrieving content of MTA required dependency \"{0}\"";
+    public static final String ERROR_MODULE_NOT_FOUND = "Module with name \"{0}\" not found";
     public static final String ERROR_DELETING_APP_TEMP_FILE = "Error deleting temp application file \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_RESOURCE_CONTENT = "Error retrieving content of MTA resource \"{0}\"";
     public static final String MODULE_CONTENT_NA = "The content of MTA module \"{0}\" is not available";
@@ -197,6 +198,7 @@ public class Messages {
     public static final String DELETED_PROGRESS_MESSAGES_0 = "Deleted progress messages: {0}";
     public static final String REMOVED_TOKENS_0 = "Removed tokens: {0}";
     public static final String DELETED_DATA_FOR_NON_EXISTING_USERS = "Deleted data for no-longer existing users.";
+    public static final String CREATING_APP_FROM_DOCKER_IMAGE = "Creating app \"{0}\" from Docker image \"{1}\"...";
 
     // Progress messages
 
@@ -466,5 +468,6 @@ public class Messages {
     public static final String DELETING_DATA_FOR_NON_EXISTING_USERS = "Deleting data for no-longer existing users...";
     public static final String REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0 = "Registered cleaners in clean-up job: {0}";
     public static final String MISSING_SERVICES_TO_DELETE = "Missing services to delete.";
+    public static final String NO_CONTENT_TO_UPLOAD = "No content to upload";
 
 }
