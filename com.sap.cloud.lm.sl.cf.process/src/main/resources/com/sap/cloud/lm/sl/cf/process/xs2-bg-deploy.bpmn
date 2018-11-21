@@ -141,7 +141,7 @@
     <serviceTask id="deleteIdleRoutesTask" name="Delete Idle Routes" activiti:async="true" activiti:delegateExpression="${deleteIdleRoutesStep}"></serviceTask>
     <sequenceFlow id="flow146" sourceRef="deleteIdleRoutesTask" targetRef="deleteSubscriptionsTask"></sequenceFlow>
     <sequenceFlow id="flow148" sourceRef="addDomainsTask" targetRef="assignIdleUrisTask"></sequenceFlow>
-    <callActivity id="deployAppsSequential" name="Deploy Apps Sequentially" activiti:async="true" calledElement="deployAppSubProcess">
+    <callActivity id="deployAppsSequential" name="Deploy Apps Sequentially" activiti:async="true" calledElement="deployAppSubProcess" activiti:inheritVariables="true">
       <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="appsToDeploy" activiti:elementVariable="appToDeploy"></multiInstanceLoopCharacteristics>
     </callActivity>
     <callActivity id="deployAppsParallel" name="Deploy Apps In Parallel" activiti:async="true" calledElement="deployAppSubProcess" activiti:inheritVariables="true" activiti:completeAsync="true">
