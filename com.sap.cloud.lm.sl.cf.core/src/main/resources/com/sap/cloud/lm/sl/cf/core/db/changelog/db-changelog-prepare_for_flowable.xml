@@ -3,6 +3,14 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+    <changeSet author="sap" id="disable_trigger_delete_from_system_table_process_log">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql" />
+        </preConditions>
+        <sql>
+  		    ALTER TABLE process_log DISABLE TRIGGER delete_from_system_table_process_log;
+        </sql>
+    </changeSet>
 	<changeSet author="sap.com" id="drop_act_evt_log">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="act_evt_log" />
@@ -212,5 +220,13 @@
             <tableExists tableName="progress_message" />
         </preConditions>
         <delete tableName="progress_message" />
+    </changeSet>
+    <changeSet author="sap" id="enable_trigger_delete_from_system_table_process_log">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql" />
+        </preConditions>
+        <sql>
+  		    ALTER TABLE process_log ENABLE TRIGGER delete_from_system_table_process_log;
+        </sql>
     </changeSet>
 </databaseChangeLog>
