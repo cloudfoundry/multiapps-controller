@@ -97,7 +97,7 @@ public class FlowableFacade {
             .processInstanceId(processId)
             .excludeSubprocesses(true)
             .singleResult();
-        return historicProcessInstance.getEndActivityId() == null;
+        return historicProcessInstance != null && historicProcessInstance.getEndActivityId() == null;
     }
 
     private boolean hasProcessInstanceNotEnded(String processId) {
