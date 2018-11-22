@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import com.sap.cloud.lm.sl.cf.core.cf.factory.HelperFactoryConstructor;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.factory.v2.HelperFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
+<<<<<<< HEAD
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationReferencesResolver;
@@ -17,38 +20,54 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationSubscriptionFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.UserProvidedResourceResolver;
+=======
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.ApplicationColorAppender;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.DeployTargetFactory;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.OrgAndSpaceHelper;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.ResourceTypeFinder;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.UserProvidedResourceResolver;
+>>>>>>> refactor HelperFactory
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
+<<<<<<< HEAD
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v1.DescriptorParametersValidator;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.mergers.v1.PlatformMerger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
+=======
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersValidator;
+import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
+import com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger;
+import com.sap.cloud.lm.sl.mta.mergers.v2.TargetMerger;
+import com.sap.cloud.lm.sl.mta.model.SystemParameters;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Platform;
+import com.sap.cloud.lm.sl.mta.model.v2.Target;
+>>>>>>> refactor HelperFactory
 
 public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFactory implements HelperFactoryConstructor {
 
-    private com.sap.cloud.lm.sl.cf.core.cf.factory.v1.HelperFactory helperDelegate;
+    private HelperFactory helperDelegate;
 
     public HandlerFactory(int majorVersion) {
         super(majorVersion);
     }
 
-    public com.sap.cloud.lm.sl.cf.core.cf.factory.v1.HelperFactory getHelperDelegate() {
+    public HelperFactory getHelperDelegate() {
         if (helperDelegate == null) {
             super.initDelegates();
         }
         return helperDelegate;
-    }
-
-    @Override
-    protected void initV1Delegates() {
-        super.initV1Delegates();
-        helperDelegate = new com.sap.cloud.lm.sl.cf.core.cf.factory.v1.HelperFactory(getDescriptorHandler());
     }
 
     @Override
@@ -69,11 +88,30 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     }
 
     @Override
+<<<<<<< HEAD
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
         BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
         ApplicationConfiguration configuration) {
         return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, platform, spaceIdSupplier, dao, cloudTarget,
             configuration);
+=======
+    public DeployTargetFactory getDeployTargetFactory() {
+        return getHelperDelegate().getDeployTargetFactory();
+    }
+
+    @Override
+    public DeployTargetDao<?, ?> getDeployTargetDao(com.sap.cloud.lm.sl.cf.core.dao.v2.DeployTargetDao dao2,
+        com.sap.cloud.lm.sl.cf.core.dao.v3.DeployTargetDao dao3) {
+        return getHelperDelegate().getDeployTargetDao(dao2, dao3);
+    }
+
+    @Override
+    public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
+        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
+        ApplicationConfiguration configuration) {
+        return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, platform, target, spaceIdSupplier, dao,
+            cloudTarget, configuration);
+>>>>>>> refactor HelperFactory
     }
 
     @Override

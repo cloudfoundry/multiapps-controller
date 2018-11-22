@@ -10,9 +10,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v3.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v3.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v3.ConfigurationSubscriptionFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.v3.UserProvidedResourceResolver;
@@ -21,17 +21,41 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
+import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
+<<<<<<< HEAD
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
 
 public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.HelperFactory {
 
     public HelperFactory(com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler descriptorHandler) {
+=======
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Platform;
+import com.sap.cloud.lm.sl.mta.model.v2.Target;
+
+public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.HelperFactory {
+    public HelperFactory(DescriptorHandler descriptorHandler) {
+>>>>>>> refactor HelperFactory
         super(descriptorHandler);
     }
 
     @Override
+<<<<<<< HEAD
+=======
+    public DeployTargetFactory getDeployTargetFactory() {
+        return new DeployTargetFactory();
+    }
+
+    @Override
+    public DeployTargetDao<?, ?> getDeployTargetDao(com.sap.cloud.lm.sl.cf.core.dao.v2.DeployTargetDao dao2,
+        com.sap.cloud.lm.sl.cf.core.dao.v3.DeployTargetDao dao3) {
+        return dao3;
+    }
+
+    @Override
+>>>>>>> refactor HelperFactory
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
         BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
         ApplicationConfiguration configuration) {

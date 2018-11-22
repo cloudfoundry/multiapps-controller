@@ -5,16 +5,19 @@ import static com.sap.cloud.lm.sl.common.util.CommonUtil.cast;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import com.sap.cloud.lm.sl.cf.core.cf.factory.HelperFactoryConstructor;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
+import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationFilterParser;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ApplicationColorAppender;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -27,35 +30,37 @@ import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1.Platform;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
-public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1.HelperFactory {
+public class HelperFactory implements HelperFactoryConstructor {
 
-    public HelperFactory(com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler descriptorHandler) {
-        super(descriptorHandler);
+    protected DescriptorHandler descriptorHandler;
+
+    public HelperFactory(DescriptorHandler descriptorHandler) {
+        this.descriptorHandler = descriptorHandler;
     }
 
-    @Override
     protected DescriptorHandler getHandler() {
-        return cast(super.getHandler());
+        return cast(this.descriptorHandler);
     }
 
     @Override
     public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
         XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
-        return new ApplicationsCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor,
-            configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId);
+        return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
+            deployId);
     }
 
     @Override
     public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
         XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger userMessageLogger) {
-        return new ApplicationsCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor,
-            configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, userMessageLogger);
+        return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
+            deployId, userMessageLogger);
     }
+
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
@@ -74,7 +79,7 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1.Hel
     }
 
     @Override
-    public DescriptorParametersValidator getDescriptorParametersValidator(com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor descriptor,
+    public DescriptorParametersValidator getDescriptorParametersValidator(com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor,
         List<ParameterValidator> parameterValidators) {
         return new DescriptorParametersValidator(cast(descriptor), parameterValidators);
     }
@@ -91,8 +96,8 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1.Hel
     }
 
     @Override
-    public com.sap.cloud.lm.sl.cf.core.helpers.v2.ResourceTypeFinder getResourceTypeFinder(String resourceType) {
-        return new com.sap.cloud.lm.sl.cf.core.helpers.v2.ResourceTypeFinder(resourceType);
+    public ResourceTypeFinder getResourceTypeFinder(String resourceType) {
+        return new ResourceTypeFinder(resourceType);
 
     }
 
@@ -117,4 +122,22 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1.Hel
         return new ConfigurationSubscriptionFactory();
     }
 
+    @Override
+    public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+        PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration) {
+        return new ServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration);
+    }
+
+    @Override
+    public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+        PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration, UserMessageLogger userMessageLogger) {
+        return new ServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration, userMessageLogger);
+    }
+
+    @Override
+    public ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+        PropertiesAccessor propertiesAccessor) {
+        return new ServiceKeysCloudModelBuilder(deploymentDescriptor, propertiesAccessor);
+    }
+    
 }
