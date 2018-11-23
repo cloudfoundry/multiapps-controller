@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,12 +21,10 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -62,8 +59,6 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     private List<String> servicesToDelete = new ArrayList<>();
     private Map<String, String> servicesGuids = new HashMap<>();
 
-    private Meta meta = new Meta(UUID.randomUUID(), null, null);
-
     @Mock
     protected CloudControllerClient client;
 
@@ -84,7 +79,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
             {
                 "delete-services-step-input-1.json", null,
             },
-            // (1) Services do not have bindings, but have service keys:
+            // (1) Services do not have bindings:
             {
                 "delete-services-step-input-2.json", null,
             },
@@ -102,17 +97,13 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
             },
             // (5) The user does not have the necessary rights to delete the service:
             {
-                "delete-services-step-input-6.json", MessageFormat.format(Messages.ERROR_DELETING_SERVICE, "service-2", "servicelabel", "serviceplan", "Controller operation failed: 403 Forbidden")
-            },
-            // (6) One of the services does not have bindings, but has service keys; The other one has bindings, but does not have service keys:
-            {
-                "delete-services-step-input-7.json", null,
-            }
+                "delete-services-step-input-6.json", MessageFormat.format(Messages.ERROR_DELETING_SERVICE, "service-2", "servicelabel", "serviceplan", "Controller operation failed: 403 Forbidden")},
         // @formatter:on
         });
     }
 
     public DeleteServicesStepTest(String stepInput, String expectedExceptionMessage) throws Exception {
+        System.out.println(stepInput);
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, DeleteServicesStepTest.class), StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
@@ -126,8 +117,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
 
     @Test
     public void testExecute() throws Exception {
-        if (StepsUtil.getServicesToDelete(context)
-            .isEmpty()) {
+        if(StepsUtil.getServicesToDelete(context).isEmpty()) {
             return;
         }
         prepareResponses(STEP_EXECUTION);
@@ -139,8 +129,6 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         step.execute(context);
         assertStepPhase(POLLING);
         verifyClient();
-        verifyServiceUnbinding();
-        verifyServiceKeyDeletion();
     }
 
     @SuppressWarnings("unchecked")
@@ -176,14 +164,6 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         for (SimpleService service : stepInput.servicesToDelete) {
             Mockito.when(client.getServiceInstance(service.name))
                 .thenReturn(createServiceInstance(service));
-            if (service.hasBoundApplications) {
-                Mockito.when(client.getApplications())
-                    .thenReturn(Arrays.asList(new CloudApplication(meta, null)));
-            }
-            if (service.hasServiceKeys) {
-                Mockito.when(client.getServiceKeys(service.name))
-                    .thenReturn(Arrays.asList(new ServiceKey(meta, null)));
-            }
             if (service.httpErrorCodeToReturnOnDelete != null) {
                 HttpStatus httpStatusToReturnOnDelete = HttpStatus.valueOf(service.httpErrorCodeToReturnOnDelete);
                 Mockito.doThrow(new CloudOperationException(httpStatusToReturnOnDelete))
@@ -242,12 +222,8 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
 
     private CloudServiceInstance createServiceInstance(SimpleService service) {
         CloudServiceInstance instance = new CloudServiceInstance();
-        CloudServiceBinding binding = new CloudServiceBinding();
         if (service.hasBoundApplications) {
-            binding.setAppGuid(meta.getGuid());
-            instance.setBindings(Arrays.asList(binding));
-        } else {
-            instance.setBindings(Collections.emptyList());
+            instance.setBindings(Arrays.asList(new CloudServiceBinding()));
         }
         CloudService cloudService = new CloudService();
         cloudService.setName(service.name);
@@ -307,24 +283,6 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         }
     }
 
-    private void verifyServiceUnbinding() {
-        for (SimpleService service : stepInput.servicesToDelete) {
-            if (service.hasBoundApplications) {
-                Mockito.verify(client, Mockito.atLeastOnce())
-                    .unbindService(Mockito.anyString(), Mockito.eq(service.name));
-            }
-        }
-    }
-
-    private void verifyServiceKeyDeletion() {
-        for (SimpleService service : stepInput.servicesToDelete) {
-            if (service.hasServiceKeys) {
-                Mockito.verify(client, Mockito.atLeastOnce())
-                    .deleteServiceKey(Mockito.eq(service.name), Mockito.anyString());
-            }
-        }
-    }
-
     private static class StepInput {
         List<SimpleService> servicesToDelete;
         Map<String, Object> stepPhaseResults;
@@ -336,7 +294,6 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         String plan;
         String guid;
         boolean hasBoundApplications;
-        boolean hasServiceKeys;
         Integer httpErrorCodeToReturnOnDelete;
     }
 
