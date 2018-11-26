@@ -100,7 +100,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         Set<String> idsOfMtasThatIncludeTheService = new LinkedHashSet<>();
         Set<String> idsOfMtasThatShareTheService = new LinkedHashSet<>();
         for (CloudServiceBinding binding : bindings) {
-            CloudApplication boundApplication = getBoundApplication(binding, deployedApps);
+            CloudApplication boundApplication = StepsUtil.getBoundApplication(deployedApps, binding.getAppGuid());
             ApplicationMtaMetadata boundMtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(boundApplication);
             if (boundMtaMetadata == null) {
                 namesOfBoundStandaloneApplications.add(boundApplication.getName());
@@ -166,15 +166,6 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     private List<CloudServiceBinding> getServiceBindings(CloudControllerClient client, CloudServiceExtended service) {
         CloudServiceInstance serviceInstance = client.getServiceInstance(service.getName());
         return serviceInstance.getBindings();
-    }
-
-    private CloudApplication getBoundApplication(CloudServiceBinding binding, List<CloudApplication> deployedApps) {
-        return deployedApps.stream()
-            .filter(app -> app.getMeta()
-                .getGuid()
-                .equals(binding.getAppGuid()))
-            .findAny()
-            .get();
     }
 
     private void validateApplicationsToDeploy(DelegateExecution context, DeployedMta deployedMta, List<CloudApplication> deployedApps) {

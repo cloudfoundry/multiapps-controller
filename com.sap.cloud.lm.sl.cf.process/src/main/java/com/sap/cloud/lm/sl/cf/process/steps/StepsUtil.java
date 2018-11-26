@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -18,6 +20,7 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -596,8 +599,8 @@ public class StepsUtil {
     }
 
     public static List<ConfigurationEntry> getPublishedEntries(DelegateExecution context) {
-        ConfigurationEntry[] publishedEntriesArray = JsonUtil
-            .fromBinaryJson((byte[]) context.getVariable(Constants.VAR_PUBLISHED_ENTRIES), ConfigurationEntry[].class);
+        ConfigurationEntry[] publishedEntriesArray = JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_PUBLISHED_ENTRIES),
+            ConfigurationEntry[].class);
         return Arrays.asList(publishedEntriesArray);
     }
 
@@ -1079,6 +1082,19 @@ public class StepsUtil {
         String jsonString = new String(binaryJson, StandardCharsets.UTF_8);
         return JsonUtil.fromJson(jsonString, new TypeToken<Map<String, String>>() {
         }.getType());
+    }
+
+    public static CloudApplication getBoundApplication(List<CloudApplication> applications, UUID appGuid) {
+        return applications.stream()
+            .filter(app -> hasGuid(app, appGuid))
+            .findFirst()
+            .get();
+    }
+
+    private static boolean hasGuid(CloudApplication app, UUID appGuid) {
+        return app.getMeta()
+            .getGuid()
+            .equals(appGuid);
     }
 
     public static boolean shouldDeleteServices(ExecutionWrapper execution) {
