@@ -113,6 +113,12 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     private List<ConfigurationSubscription> subscriptionsToCreate;
     private List<ConfigurationSubscription> existingSubscriptions;
     private DeployedMta deployedMta;
+    
+    private void prepareApplicationServices() {
+        for (CloudApplicationExtended cloudApplicationExtended : appsToDeploy) {
+            cloudApplicationExtended.setServices(Arrays.asList("s-1", "s-2", "s-3" , "s-4"));
+        }
+    }
 
     public BuildCloudUndeployModelStepTest(StepInput input, StepOutput output) {
         this.input = input;
@@ -150,6 +156,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     private void prepareContext() {
         StepsUtil.setDeployedMta(context, deployedMta);
         StepsUtil.setDeployedApps(context, ListUtil.upcastUnmodifiable(deployedApps));
+        prepareApplicationServices();
         StepsUtil.setAppsToDeploy(context, ListUtil.upcastUnmodifiable(appsToDeploy));
         StepsUtil.setSubscriptionsToCreate(context, subscriptionsToCreate);
         StepsUtil.setSpaceId(context, SPACE_ID);
