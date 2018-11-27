@@ -62,7 +62,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                 StepsUtil.getSpaceId(execution.getContext()));
             getStepLogger().debug(Messages.SUBSCRIPTIONS_TO_DELETE, secureSerializer.toJson(subscriptionsToDelete));
 
-            List<String> servicesToDelete = computeServicesToDelete(deployedMta.getServices(), modulesToKeep);
+            List<String> servicesToDelete = computeServicesToDelete(modulesToKeep, deployedMta.getServices());
             getStepLogger().debug(Messages.SERVICES_TO_DELETE, servicesToDelete);
 
             List<CloudApplication> appsToUndeploy = computeAppsToUndeploy(modulesToUndeploy, deployedApps);
@@ -81,10 +81,15 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private List<DeployedMtaModule> computeModulesToKeep(List<DeployedMtaModule> modulesToUndeploy, DeployedMta deployedMta) {
         return deployedMta.getModules()
             .stream()
-            .filter(existingModule -> modulesToUndeploy.stream()
-                .noneMatch(module -> module.getModuleName()
-                    .equals(existingModule.getModuleName())))
+            .filter(existingModule -> shouldKeepExistingModule(modulesToUndeploy, existingModule))
             .collect(Collectors.toList());
+    }
+
+    private boolean shouldKeepExistingModule(List<DeployedMtaModule> modulesToUndeploy, DeployedMtaModule existingModule) {
+        String existingModuleName = existingModule.getModuleName();
+        return modulesToUndeploy.stream()
+            .map(module -> module.getModuleName())
+            .noneMatch(moduleName -> existingModuleName.equals(moduleName));
     }
 
     private void setComponentsToUndeploy(DelegateExecution context, List<String> services, List<CloudApplication> apps,
@@ -94,34 +99,46 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         StepsUtil.setAppsToUndeploy(context, apps);
     }
 
-    private List<String> computeServicesToDelete(Set<String> createdService, List<DeployedMtaModule> modulesToKeep) {
-        return createdService.stream()
-            .filter(service -> modulesToKeep.stream()
-                .noneMatch(module -> module.getServices()
-                    .contains(service)))
+    private List<String> computeServicesToDelete(List<DeployedMtaModule> modulesToKeep, Set<String> existingServices) {
+        return existingServices.stream()
+            .filter(service -> shouldDeleteService(modulesToKeep, service))
             .collect(Collectors.toList());
+    }
+
+    private boolean shouldDeleteService(List<DeployedMtaModule> modulesToKeep, String service) {
+        return modulesToKeep.stream()
+            .noneMatch(module -> module.getServices()
+                .contains(service));
     }
 
     private List<DeployedMtaModule> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules, List<String> appsToDeploy) {
         return deployedMta.getModules()
             .stream()
-            .filter(deployedModule -> {
-                if (!mtaModules.contains(deployedModule.getModuleName())) {
-                    return true;
-                }
-                // The deployed module may be in the list of MTA modules, but the actual application that was created from it may have a
-                // different name:
-                return !appsToDeploy.contains(deployedModule.getAppName());
-            })
+            .filter(deployedModule -> this.shouldUndeployModule(deployedModule, mtaModules, appsToDeploy))
             .collect(Collectors.toList());
+    }
+
+    private boolean shouldUndeployModule(DeployedMtaModule deployedModule, Set<String> mtaModules, List<String> appsToDeploy) {
+        if (mtaModules.contains(deployedModule.getModuleName())) {
+            return false;
+        }
+        // The deployed module may be in the list of MTA modules, but the actual application that was created from it may have a
+        // different name:
+        boolean appNameMatchesExisting = appsToDeploy.contains(deployedModule.getAppName());
+        return !appNameMatchesExisting;
+
     }
 
     private List<CloudApplication> computeAppsToUndeploy(List<DeployedMtaModule> modulesToUndeploy, List<CloudApplication> deployedApps) {
         return deployedApps.stream()
-            .filter(app -> modulesToUndeploy.stream()
-                .anyMatch(module -> module.getAppName()
-                    .equals(app.getName())))
+            .filter(app -> shouldUndeployApp(modulesToUndeploy, app))
             .collect(Collectors.toList());
+    }
+
+    private boolean shouldUndeployApp(List<DeployedMtaModule> modulesToUndeploy, CloudApplication app) {
+        return modulesToUndeploy.stream()
+            .anyMatch(module -> module.getAppName()
+                .equals(app.getName()));
     }
 
     private List<ConfigurationSubscription> computeSubscriptionsToDelete(List<ConfigurationSubscription> subscriptionsToCreate,

@@ -66,7 +66,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
             // (5) There are renamed applications:
             {
                 new StepInput("apps-to-deploy-01.json", "deployed-apps-06.json", new TreeSet<>(Arrays.asList("a", "b", "c")), "deployed-mta-07.json", "empty-list.json", "empty-list.json"),
-                new StepOutput(Arrays.asList("namespace.a", "namespace.b", "namespace.c"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Collections.emptyList(), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
             },
             // (6) There are no obsolete services:
             {
@@ -174,9 +174,9 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         step.execute(context);
 
         assertStepFinishedSuccessfully();
-
+        
         assertEquals(output.servicesToDelete, StepsUtil.getServicesToDelete(context));
-
+        
         assertEquals(output.appsToUndeployNames, getNames(StepsUtil.getAppsToUndeploy(context)));
 
         TestUtil.test(() -> StepsUtil.getSubscriptionsToDelete(context), output.subscriptionsToDeleteExpectation, getClass(),
