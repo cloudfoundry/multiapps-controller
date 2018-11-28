@@ -152,6 +152,10 @@ public class DeleteServicesStep extends AsyncFlowableStep {
     }
 
     private void deleteServiceKeys(CloudControllerClient client, String serviceName) {
+        CloudService service = client.getService(serviceName);
+        if (service.isUserProvided()) {
+            return;
+        }
         List<ServiceKey> serviceKeys = client.getServiceKeys(serviceName);
         for (ServiceKey serviceKey : serviceKeys) {
             getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, serviceKey.getName(), serviceName);

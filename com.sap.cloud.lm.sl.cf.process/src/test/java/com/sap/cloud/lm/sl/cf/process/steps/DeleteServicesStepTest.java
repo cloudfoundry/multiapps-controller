@@ -65,6 +65,9 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     private Meta meta = new Meta(UUID.randomUUID(), null, null);
 
     @Mock
+    private CloudService dummyService;
+
+    @Mock
     protected CloudControllerClient client;
 
     @Mock
@@ -173,7 +176,12 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     }
 
     private void prepareClient() {
+        Mockito.when(dummyService.isUserProvided())
+            .thenReturn(false);
+
         for (SimpleService service : stepInput.servicesToDelete) {
+            Mockito.when(client.getService(service.name))
+                .thenReturn(dummyService);
             Mockito.when(client.getServiceInstance(service.name))
                 .thenReturn(createServiceInstance(service));
             if (service.hasBoundApplications) {
