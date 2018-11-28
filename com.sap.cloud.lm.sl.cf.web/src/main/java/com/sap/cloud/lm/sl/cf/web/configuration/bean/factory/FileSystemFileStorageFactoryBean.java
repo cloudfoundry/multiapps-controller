@@ -22,7 +22,7 @@ public class FileSystemFileStorageFactoryBean implements FactoryBean<FileSystemF
     private String serviceName;
     private FileSystemFileStorage fileSystemFileStorage;
 
-    public void setServiceName(String serviceName) {
+    public FileSystemFileStorageFactoryBean(String serviceName) {
         this.serviceName = serviceName;
     }
 

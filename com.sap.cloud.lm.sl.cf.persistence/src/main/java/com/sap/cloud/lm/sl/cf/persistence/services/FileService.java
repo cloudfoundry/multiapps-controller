@@ -169,8 +169,8 @@ public class FileService {
 
     protected void storeFile(FileEntry fileEntry, FileInfo fileInfo) throws FileStorageException {
         try (InputStream fileStream = fileInfo.getInputStream()) {
-            storeFileAttributes(fileEntry);
             fileStorage.addFile(fileEntry, fileStream);
+            storeFileAttributes(fileEntry);
         } catch (IOException e) {
             logger.debug(e.getMessage(), e);
         }
