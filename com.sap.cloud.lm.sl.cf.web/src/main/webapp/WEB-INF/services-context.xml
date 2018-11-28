@@ -5,13 +5,10 @@
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
 
-    <bean id="fileSystemFileStorage" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.FileSystemFileStorageFactoryBean">
-        <property name="serviceName" value="deploy-service-fss" />
-    </bean>
-
     <bean id="fileService" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.FileServiceFactoryBean">
         <property name="dataSourceWithDialect" ref="dataSourceWithDialect" />
         <property name="fileSystemFileStorage" ref="fileSystemFileStorage" />
+        <property name="objectStoreFileStorage" ref="objectStoreFileStorage" />
     </bean>
 
     <bean id="processLogsPersistenceService"
