@@ -4,7 +4,7 @@
     <startEvent id="startEvent" name="Start" activiti:initiator="initiator"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
     <serviceTask id="deleteServicesWithPolling" name="Delete services with polling" activiti:async="true" activiti:delegateExpression="${deleteServicesStep}"></serviceTask>
-    <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="deleteServicesWithPolling"></sequenceFlow>
+    <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="prepareToDeleteServicesTask"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent1" name="TimerCatchEvent">
       <timerEventDefinition>
         <timeDuration>PT10S</timeDuration>
@@ -17,11 +17,13 @@
     <sequenceFlow id="doneFlow" name="Done" sourceRef="exclusivegateway1" targetRef="endevent1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
+    <serviceTask id="prepareToDeleteServicesTask" name="PrepareDeletion" activiti:async="true" activiti:delegateExpression="${prepareToDeleteServicesStep}"></serviceTask>
+    <sequenceFlow id="flow3" sourceRef="prepareToDeleteServicesTask" targetRef="deleteServicesWithPolling"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deleteServicesSubProcess">
     <bpmndi:BPMNPlane bpmnElement="deleteServicesSubProcess" id="BPMNPlane_deleteServicesSubProcess">
       <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
-        <omgdc:Bounds height="35.0" width="35.0" x="165.0" y="111.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="80.0" y="111.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="660.0" y="115.0"></omgdc:Bounds>
@@ -35,9 +37,12 @@
       <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
         <omgdc:Bounds height="40.0" width="40.0" x="520.0" y="111.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="prepareToDeleteServicesTask" id="BPMNShape_prepareToDeleteServicesTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="161.0" y="101.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
-        <omgdi:waypoint x="200.0" y="128.0"></omgdi:waypoint>
-        <omgdi:waypoint x="310.0" y="128.0"></omgdi:waypoint>
+        <omgdi:waypoint x="115.0" y="128.0"></omgdi:waypoint>
+        <omgdi:waypoint x="161.0" y="128.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
         <omgdi:waypoint x="415.0" y="128.0"></omgdi:waypoint>
@@ -63,6 +68,10 @@
         <bpmndi:BPMNLabel>
           <omgdc:Bounds height="13.0" width="27.0" x="580.0" y="111.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="266.0" y="128.0"></omgdi:waypoint>
+        <omgdi:waypoint x="310.0" y="128.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
