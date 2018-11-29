@@ -27,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ConfigurationEntriesCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -101,11 +100,6 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         }
 
         @Override
-        protected DomainsCloudModelBuilder getDomainsCloudModelBuilder(DelegateExecution context) {
-            return domainsCloudModelBuilder;
-        }
-
-        @Override
         protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
             return serviceKeysCloudModelBuilder;
         }
@@ -116,13 +110,13 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("custom-domain-1", "custom-domain-2"), "deployed-mta-12.json"), new StepOutput("0.1.0"),
+                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), "deployed-mta-12.json"), new StepOutput("0.1.0"),
             },
             {
-                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("custom-domain-1", "custom-domain-2"), null), new StepOutput("0.1.0"),
+                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), null), new StepOutput("0.1.0"),
             },
             {
-                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("custom-domain-1", "custom-domain-2"), null), new StepOutput("0.1.0"),
+                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), null), new StepOutput("0.1.0"),
             },
 // @formatter:on
         });
@@ -138,8 +132,6 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
     @Mock
     protected ApplicationsCloudModelBuilder applicationsCloudModelBuilder;
-    @Mock
-    protected DomainsCloudModelBuilder domainsCloudModelBuilder;
     @Mock
     protected ServiceKeysCloudModelBuilder serviceKeysCloudModelBuilder;
     @Mock
@@ -215,7 +207,6 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         }
 
         when(applicationsCloudModelBuilder.build(any(), any(), any())).thenReturn(appsToDeploy);
-        when(domainsCloudModelBuilder.build()).thenReturn(input.customDomains);
         when(servicesCloudModelBuilder.build()).thenReturn(servicesToBind);
         when(serviceKeysCloudModelBuilder.build()).thenReturn(serviceKeys);
         StepsUtil.setDeployedMta(context, deployedMta);

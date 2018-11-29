@@ -26,6 +26,7 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.ModuleSystemParameterCo
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RestartOnEnvChangeValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.RouteValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v3.VisibilityValidator;
 import com.sap.cloud.lm.sl.common.util.Pair;
@@ -66,7 +67,7 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     public List<ParameterValidator> getValidatorsList() {
-        return Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(),
+        return Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(), new RouteValidator(),
             new ModuleSystemParameterCopier(SupportedParameters.APP_NAME, systemParameters), new TasksValidator(),
             new VisibilityValidator(), new RestartOnEnvChangeValidator());
     }
@@ -78,7 +79,8 @@ public class MtaDescriptorPropertiesResolver {
                 new ResolverBuilder())
             .resolve();
 
-        descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, getValidatorsList())
+        List<ParameterValidator> validatorsList = getValidatorsList();
+        descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, validatorsList)
             .validate();
         LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_AFTER_PARAMETER_CORRECTION, secureSerializer.toJson(descriptor)));
 
@@ -103,7 +105,7 @@ public class MtaDescriptorPropertiesResolver {
             .resolve();
         LOGGER.debug(format(Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR, secureSerializer.toJson(descriptor)));
 
-        descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, getValidatorsList(), true)
+        descriptor = handlerFactory.getDescriptorParametersValidator(descriptor, validatorsList, true)
             .validate();
 
         return descriptor;

@@ -7,7 +7,6 @@ import java.util.function.BiFunction;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
@@ -61,13 +60,6 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1.Hel
         XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger userMessageLogger) {
         return new ApplicationsCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor,
             configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, userMessageLogger);
-    }
-
-    @Override
-    public DomainsCloudModelBuilder getDomainsCloudModelBuilder(SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver, DeploymentDescriptor deploymentDescriptor) {
-        return new DomainsCloudModelBuilder(systemParameters, xsPlaceholderResolver,
-            (com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor);
     }
 
     @Override

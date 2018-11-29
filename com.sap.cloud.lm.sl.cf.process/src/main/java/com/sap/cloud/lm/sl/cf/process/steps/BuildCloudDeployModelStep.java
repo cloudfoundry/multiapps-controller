@@ -13,7 +13,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -47,11 +46,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
             StepsUtil.setNewMtaVersion(execution.getContext(), deploymentDescriptor.getVersion());
 
-            // Build a list of custom domains and save them in the context:
-            List<String> customDomains = getDomainsCloudModelBuilder(execution.getContext()).build();
-            getStepLogger().debug(Messages.CUSTOM_DOMAINS, customDomains);
-            StepsUtil.setCustomDomains(execution.getContext(), customDomains);
-
             // Build a map of service keys and save them in the context:
             Map<String, List<ServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution.getContext()).build();
             getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));
@@ -67,6 +61,11 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
             StepsUtil.setDeploymentMode(execution.getContext(), applicationsCloudModelBuilder.getDeploymentMode());
             StepsUtil.setServiceKeysCredentialsToInject(execution.getContext(), new HashMap<>());
             StepsUtil.setUseIdleUris(execution.getContext(), false);
+
+            // Build a list of custom domains and save them in the context:
+            List<String> customDomainsFromApps = StepsUtil.getDomainsFromApps(execution.getContext(), apps);
+            StepsUtil.setCustomDomains(execution.getContext(), customDomainsFromApps);
+            getStepLogger().debug(Messages.CUSTOM_DOMAINS, customDomainsFromApps);
 
             List<CloudServiceExtended> allServices = getServicesCloudModelBuilder(execution.getContext()).build();
 
@@ -90,10 +89,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
             getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_MODEL);
             throw e;
         }
-    }
-
-    protected DomainsCloudModelBuilder getDomainsCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getDomainsCloudModelBuilder(context);
     }
 
     protected ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {

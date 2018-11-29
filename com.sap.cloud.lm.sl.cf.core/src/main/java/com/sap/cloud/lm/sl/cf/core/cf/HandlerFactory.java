@@ -6,7 +6,6 @@ import java.util.function.BiFunction;
 import com.sap.cloud.lm.sl.cf.core.cf.factory.HelperFactoryConstructor;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
@@ -165,12 +164,6 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
         XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger userMessageLogger) {
         return getHelperDelegate().getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
             xsPlaceholderResolver, deployId, userMessageLogger);
-    }
-
-    @Override
-    public DomainsCloudModelBuilder getDomainsCloudModelBuilder(SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver, DeploymentDescriptor deploymentDescriptor) {
-        return getHelperDelegate().getDomainsCloudModelBuilder(systemParameters, xsPlaceholderResolver, deploymentDescriptor);
     }
 
     @Override

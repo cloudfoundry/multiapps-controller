@@ -1,0 +1,15 @@
+_schema-version: "2.0.0"
+ID: com.sap.sample.mta
+version: 1.0.0
+
+modules:
+  - name: foo
+    type: java.tomee
+    parameters:
+      # define multiple route parameters
+      routes: 
+        - "host-in-route1.test-domain"
+        - "host-in-route2.test-domain/path-in-route"
+      # adding parameters which will be ignored
+      host: deprecated-host
+      route-path: /deprecated-path

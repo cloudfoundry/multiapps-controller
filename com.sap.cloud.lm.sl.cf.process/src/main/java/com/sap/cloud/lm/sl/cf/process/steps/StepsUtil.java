@@ -11,8 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -20,7 +20,6 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -44,7 +43,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.DomainsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
@@ -993,15 +991,29 @@ public class StepsUtil {
             xsPlaceholderResolver, deployId, stepLogger);
     }
 
-    static DomainsCloudModelBuilder getDomainsCloudModelBuilder(DelegateExecution context) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
-
+    static List<String> getDomainsFromApps(DelegateExecution context, List<CloudApplicationExtended> apps) {
+        Set<String> domains = new TreeSet<>();
         SystemParameters systemParameters = StepsUtil.getSystemParameters(context);
-
         XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(context);
 
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
-        return handlerFactory.getDomainsCloudModelBuilder(systemParameters, xsPlaceholderResolver, deploymentDescriptor);
+        String defaultDomain = (String) systemParameters.getGeneralParameters()
+            .getOrDefault(SupportedParameters.DEFAULT_DOMAIN, null);
+
+        for (CloudApplicationExtended app : apps) {
+            if (app.getDomains() != null) {
+                domains.addAll(app.getDomains());
+            }
+        }
+
+        if (xsPlaceholderResolver.getDefaultDomain() != null) {
+            domains.remove(xsPlaceholderResolver.getDefaultDomain());
+        }
+
+        if (defaultDomain != null) {
+            domains.remove(defaultDomain);
+        }
+
+        return new ArrayList<>(domains);
     }
 
     static ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {

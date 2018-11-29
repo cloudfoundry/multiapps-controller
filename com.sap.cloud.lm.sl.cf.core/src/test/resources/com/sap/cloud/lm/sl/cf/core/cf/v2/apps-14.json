@@ -1,0 +1,44 @@
+[
+  {
+    "moduleName": "foo",
+    "idleUris": [],
+    "tasks": [],
+    "serviceKeysToInject": [],
+    "applicationPorts": [
+      {
+        "port": 1234,
+        "portType": "HTTP"
+      }
+    ],
+    "domains": [
+      "tcp.route.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"foo\"]",
+      "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]",
+      "TARGET_RUNTIME=tomee"
+    ],
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "services": [],
+    "staging": {
+      "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
+    },
+    "uris": [
+      "tcp.route.com:1234"
+    ],
+    "meta": {},
+    "name": "foo"
+  }
+]

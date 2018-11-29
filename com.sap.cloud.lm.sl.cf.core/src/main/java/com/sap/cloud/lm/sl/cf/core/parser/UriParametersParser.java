@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,18 +25,19 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     private String hostParameterName;
     private String domainParameterName;
     private String portParameterName;
+    private String routeParameterName;
     private String routePath;
     private String protocol;
 
     public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort, String routePath,
         boolean includeProtocol, String protocol) {
         this(portBasedRouting, defaultHost, defaultDomain, defaultPort, SupportedParameters.HOST, SupportedParameters.DOMAIN,
-            SupportedParameters.PORT, routePath, includeProtocol, protocol);
+            SupportedParameters.PORT, SupportedParameters.ROUTE, routePath, includeProtocol, protocol);
     }
 
     public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort,
-        String hostParameterName, String domainParameterName, String portParameterName, String routePath, boolean includeProtocol,
-        String protocol) {
+        String hostParameterName, String domainParameterName, String portParameterName, String routeParameterName, String routePath,
+        boolean includeProtocol, String protocol) {
         this.portBasedRouting = portBasedRouting;
         this.includeProtocol = includeProtocol;
         this.defaultHost = defaultHost;
@@ -44,6 +46,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         this.hostParameterName = hostParameterName;
         this.domainParameterName = domainParameterName;
         this.portParameterName = portParameterName;
+        this.routeParameterName = routeParameterName;
         this.routePath = routePath;
         this.protocol = protocol;
     }
@@ -54,12 +57,20 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         if (noRoute) {
             return Collections.emptyList();
         }
-        return getUris(getApplicationHosts(parametersList), getApplicationDomains(parametersList), getApplicationPorts(parametersList));
+        return getUris(parametersList);
     }
 
     public List<Integer> getApplicationPorts(List<Map<String, Object>> parametersList) {
-        String portsParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(portParameterName);
-        List<Integer> ports = getAll(parametersList, portParameterName, portsParameterName);
+        List<Integer> ports;
+        List<String> routes = getApplicationRoutes(parametersList);
+
+        if (!routes.isEmpty()) {
+            ports = getPortsFromRoutes(routes);
+        } else {
+            String portsParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(portParameterName);
+            ports = getAll(parametersList, portParameterName, portsParameterName);
+        }
+
         if (ports.isEmpty() && defaultPort != null && defaultPort != 0) {
             ports.add(defaultPort);
         }
@@ -73,8 +84,15 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     public List<String> getApplicationDomains(List<Map<String, Object>> parametersList) {
-        String domainsParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(domainParameterName);
-        List<String> domains = getAll(parametersList, domainParameterName, domainsParameterName);
+        List<String> domains;
+        List<String> routes = getApplicationRoutes(parametersList);
+        if (!routes.isEmpty()) {
+            domains = getDomainsFromRoutes(routes);
+        } else {
+            String domainsParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(domainParameterName);
+            domains = getAll(parametersList, domainParameterName, domainsParameterName);
+        }
+
         if (domains.isEmpty() && defaultDomain != null) {
             domains.add(defaultDomain);
         }
@@ -94,19 +112,57 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         return hosts;
     }
 
+    public List<String> getApplicationRoutes(List<Map<String, Object>> parametersList) {
+        String routesParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(routeParameterName);
+        return getAll(parametersList, routeParameterName, routesParameterName);
+    }
+
+    private List<String> getDomainsFromRoutes(List<String> routes) {
+        return routes.stream()
+            .map(UriUtil::getDomain)
+            .filter(Objects::nonNull)
+            .distinct()
+            .collect(Collectors.toList());
+    }
+
+    private List<Integer> getPortsFromRoutes(List<String> routes) {
+        return routes.stream()
+            .map(UriUtil::getPort)
+            .filter(Objects::nonNull)
+            .distinct()
+            .collect(Collectors.toList());
+    }
+
     private void addHostBasedUris(Set<String> uris, String domain, List<String> hosts) {
         for (String host : hosts) {
             uris.add(appendRoutePathIfPresent(host + "." + domain));
         }
     }
 
-    private List<String> getUris(List<String> hosts, List<String> domains, List<Integer> ports) {
+    private List<String> getUris(List<Map<String, Object>> parametersList) {
+
+        List<String> routes = getApplicationRoutes(parametersList);
+        if (!routes.isEmpty()) {
+            return routes;
+        }
+
+        List<String> hosts = getApplicationHosts(parametersList);
+        List<String> domains = getApplicationDomains(parametersList);
+        List<Integer> ports = getApplicationPorts(parametersList);
+
         if (domains.isEmpty() && hosts.isEmpty()) {
             return new ArrayList<>();
         }
         if (domains.isEmpty() && !hosts.isEmpty()) {
-            return getUris(Collections.emptyList(), hosts, ports); // Use hosts as domains.
+            // Use hosts as domains.
+            domains = hosts;
+            hosts = Collections.emptyList();
         }
+
+        return assembleUris(hosts, domains, ports);
+    }
+    
+    private List<String> assembleUris(List<String> hosts, List<String> domains, List<Integer> ports) {
         Set<String> uris = new LinkedHashSet<>();
         for (String domain : domains) {
             if (shouldUsePortBasedUris(ports, hosts)) {

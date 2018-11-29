@@ -41,9 +41,9 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
         String targetsLocation, String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices,
-        String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation[] expectations) {
+        String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
         super(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, targetsLocation, deployedMtaLocation,
-            useNamespaces, useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expectations);
+            useNamespaces, useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expectedServices, expectedApps);
         MockitoAnnotations.initMocks(this);
     }
 
@@ -58,10 +58,8 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
-                new Expectation[] {
-                    new Expectation("[]"),
-                    new Expectation("[]"),
-                    new Expectation(Expectation.Type.RESOURCE, "apps-01.json"), }
+                new Expectation("[]"),
+                new Expectation(Expectation.Type.RESOURCE, "apps-01.json"),
             },
 // @formatter:on
         });
@@ -130,23 +128,13 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
     }
 
     @Test
-    public void testGetCustomDomains() {
-        TestUtil.test(new Callable<List<String>>() {
-            @Override
-            public List<String> call() throws Exception {
-                return domainsBuilder.build();
-            }
-        }, expectations[0], getClass(), new TestUtil.JsonSerializationOptions(false, true));
-    }
-
-    @Test
     public void testGetApplications() {
         TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
             @Override
             public List<CloudApplicationExtended> call() throws Exception {
                 return appsBuilder.build(mtaArchiveModules, mtaModules, deployedApps);
             }
-        }, expectations[2], getClass(), new TestUtil.JsonSerializationOptions(false, true));
+        }, expectedApps, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
 
     @Test
@@ -156,6 +144,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
             public List<CloudServiceExtended> call() throws Exception {
                 return servicesBuilder.build();
             }
-        }, expectations[1], getClass(), new TestUtil.JsonSerializationOptions(false, true));
+        }, expectedServices, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
 }

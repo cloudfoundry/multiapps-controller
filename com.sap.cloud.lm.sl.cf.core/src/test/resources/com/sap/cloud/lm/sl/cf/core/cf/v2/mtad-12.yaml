@@ -1,0 +1,12 @@
+_schema-version: "2.0.0"
+ID: com.sap.sample.mta
+version: 1.0.0
+
+modules:
+  - name: foo
+    type: java.tomee
+    parameters:
+      # define route parameter
+      route: "foo-custom-route.test-domain"
+      # adding route-path which will be ignored
+      route-path: /custom-path

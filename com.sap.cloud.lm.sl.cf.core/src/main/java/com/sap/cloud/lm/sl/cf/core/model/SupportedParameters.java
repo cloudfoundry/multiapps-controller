@@ -39,14 +39,16 @@ public class SupportedParameters {
     // Module / module type parameters:
     public static final String APP_NAME = "app-name";
     public static final String DOMAIN = "domain";
-    public static final String DEFAULT_HOST = "default-host";
-    public static final String HOSTS = "hosts";
     public static final String DOMAINS = "domains";
-    public static final String DEFAULT_PORT = "default-port";
+    public static final String DEFAULT_HOST = "default-host";
     public static final String HOST = "host";
+    public static final String HOSTS = "hosts";
+    public static final String DEFAULT_PORT = "default-port";
     public static final String PORT = "port";
     public static final String PORTS = "ports";
     public static final String KEEP_EXISTING_ROUTES = "keep-existing-routes";
+    public static final String ROUTE = "route";
+    public static final String ROUTES = "routes";
     public static final String TCP = "tcp";
     public static final String TCPS = "tcps";
     public static final String COMMAND = "command";
@@ -178,6 +180,7 @@ public class SupportedParameters {
         prototype.put(IDLE_DOMAIN, IDLE_DOMAINS);
         prototype.put(IDLE_PORT, IDLE_PORTS);
 
+        prototype.put(ROUTE, ROUTES);
         prototype.put(HOST, HOSTS);
         prototype.put(DOMAIN, DOMAINS);
         prototype.put(PORT, PORTS);

@@ -1,0 +1,29 @@
+[
+  {
+    "moduleName": "foo",
+    "idleUris": [],
+    "tasks": [],
+    "serviceKeysToInject": [],
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_SERVICES=[]",
+      "MTA_SHARED_SERVICES=[]",
+      "TARGET_RUNTIME=tomee",
+      "route=foo-custom-route.test-domain"
+    ],
+    "instances": 0,
+    "memory": 0,
+    "runningInstances": 0,
+    "services": [],
+    "staging": {},
+    "uris": [
+      "foo-custom-route.test-domain"
+    ],
+    "meta": {},
+    "name": "foo"
+  }
+]
