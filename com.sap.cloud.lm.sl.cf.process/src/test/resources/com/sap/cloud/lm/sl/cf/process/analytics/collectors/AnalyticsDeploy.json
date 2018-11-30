@@ -7,7 +7,7 @@
   "endTime": 149543224,
   "processDurationInSeconds": 149543,
   "mtaId": "mta-id",
-  "platform": "MOCK",
+  "platform": "CF",
   "org": "org",
   "space": "space",
   "targetURL": "http://example.com/",

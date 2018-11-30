@@ -29,7 +29,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
@@ -46,7 +45,7 @@ public class AnalyticsCollectorTest {
     protected static final String SPACE_NAME = "space";
     protected static final String TARGET_URL = "http://example.com/";
     protected static final String TIME_ZONE = "Europe/Berlin";
-    protected static final PlatformType PLATFORM_TYPE = PlatformType.MOCK;
+    protected static final PlatformType PLATFORM_TYPE = PlatformType.CF;
     protected static final Map<String, ServiceOperationType> TRIGGERED_SERVICE_OPERATIONS = new HashMap<>();
 
     static {
