@@ -1,0 +1,74 @@
+{
+  "name": "XS2",
+  "module-types": [
+    {
+      "name": "javascript.nodejs"
+    },
+    {
+      "name": "java.tomcat",
+      "properties": {
+        "TARGET_RUNTIME": "tomcat"
+      }
+    },
+    {
+      "name": "java.tomee",
+      "properties": {
+        "TARGET_RUNTIME": "tomee"
+      }
+    },
+    {
+      "name": "com.sap.xs.hdi",
+      "parameters": {
+        "no-route": true,
+        "memory": "256M",
+        "execute-app": false
+      }
+    }
+  ],
+  "resource-types": [
+    {
+      "name": "com.sap.xs.hdi-container",
+      "parameters": {
+        "type": "managed-service",
+        "service": "hana",
+        "service-plan": "hdi-shared"
+      }
+    },
+    {
+      "name": "com.sap.xs.uaa-space",
+      "parameters": {
+        "type": "managed-service",
+        "service": "xsuaa",
+        "service-plan": "space"
+      }
+    },
+    {
+      "name": "org.cloudfoundry.user-provided-service",
+      "parameters": {
+        "type": "user-provided-service"
+      }
+    },
+    {
+      "name": "org.cloudfoundry.existing-service",
+      "parameters": {
+        "type": "existing-service"
+      }
+    },
+    {
+      "name": "mta-provides-dependency",
+      "parameters": {
+        "type": "mta-provides-dependency"
+      }
+    },
+    {
+      "name": "configuration",
+      "parameters": {
+        "type": "configuration"
+      }
+    }
+  ],
+  "parameters": {
+    "org": "initial",
+    "space": "initial"
+  }
+}

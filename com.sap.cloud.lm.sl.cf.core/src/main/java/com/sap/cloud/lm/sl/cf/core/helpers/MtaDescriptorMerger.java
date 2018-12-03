@@ -6,30 +6,26 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorValidator;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class MtaDescriptorMerger {
 
     private HandlerFactory handlerFactory;
     private Platform platform;
-    private Target target;
     private UserMessageLogger userMessageLogger;
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
 
-    public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform, Target target) {
-        this(handlerFactory, platform, target, null);
+    public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform) {
+        this(handlerFactory, platform, null);
     }
 
-    public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform, Target target, UserMessageLogger userMessageLogger) {
+    public MtaDescriptorMerger(HandlerFactory handlerFactory, Platform platform, UserMessageLogger userMessageLogger) {
         this.handlerFactory = handlerFactory;
         this.platform = platform;
-        this.target = target;
         this.userMessageLogger = userMessageLogger;
     }
 
@@ -42,10 +38,10 @@ public class MtaDescriptorMerger {
 
         // Merge the passed set of descriptors into one deployment descriptor. The deployment descriptor at the root of
         // the chain is merged in as well:
-        Pair<DeploymentDescriptor, List<String>> mergedDescriptor = merger.merge(deploymentDescriptor, extensionDescriptors);
-        validator.validateMergedDescriptor(mergedDescriptor, target);
+        DeploymentDescriptor mergedDescriptor = merger.merge(deploymentDescriptor, extensionDescriptors);
+        validator.validateMergedDescriptor(mergedDescriptor);
 
-        deploymentDescriptor = mergedDescriptor._1;
+        deploymentDescriptor = mergedDescriptor;
         logDebug(Messages.MERGED_DESCRIPTOR, secureSerializer.toJson(deploymentDescriptor));
 
         return deploymentDescriptor;

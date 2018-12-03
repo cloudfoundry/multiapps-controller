@@ -19,20 +19,18 @@ import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class StepsTestUtil {
 
-    private static final String COULD_NOT_LOAD_PLATFORM_TYPES = "Could not load test platform types: {0}";
-    private static final String COULD_NOT_LOAD_PLATFORMS = "Could not load test platforms: {0}";
+    private static final String COULD_NOT_LOAD_PLATFORM = "Could not load test platform: {0}";
     private static final String COULD_NOT_LOAD_DEPLOYMENT_DESCRIPTOR = "Could not load test deployment descriptor: {0}";
     private static final DescriptorParserFacade DESCRIPTOR_PARSER_FACADE = new DescriptorParserFacade();
 
-    public static List<Platform> loadPlatforms(ConfigurationParser parser, String filePath, Class<?> testClass) {
+    public static Platform loadPlatform(ConfigurationParser parser, String filePath, Class<?> testClass) {
         try {
-            return parser.parsePlatformsJson(TestUtil.getResourceAsString(filePath, testClass));
+            return parser.parsePlatformJson(TestUtil.getResourceAsString(filePath, testClass));
         } catch (Exception e) {
-            fail(format(COULD_NOT_LOAD_PLATFORM_TYPES, e.getMessage()));
+            fail(format(COULD_NOT_LOAD_PLATFORM, e.getMessage()));
             return null;
         }
     }
@@ -51,15 +49,6 @@ public class StepsTestUtil {
             return DESCRIPTOR_PARSER_FACADE.parseExtensionDescriptor(TestUtil.getResourceAsString(filePath, testClass));
         } catch (Exception e) {
             fail(format(COULD_NOT_LOAD_DEPLOYMENT_DESCRIPTOR, e.getMessage()));
-            return null;
-        }
-    }
-
-    public static List<Target> loadTargets(ConfigurationParser parser, String filePath, Class<?> testClass) {
-        try {
-            return parser.parseTargetsJson(TestUtil.getResourceAsString(filePath, testClass));
-        } catch (Exception e) {
-            fail(format(COULD_NOT_LOAD_PLATFORMS, e.getMessage()));
             return null;
         }
     }

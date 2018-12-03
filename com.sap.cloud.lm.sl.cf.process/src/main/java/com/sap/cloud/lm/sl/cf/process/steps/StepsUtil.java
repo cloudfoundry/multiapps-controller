@@ -66,7 +66,6 @@ import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
 public class StepsUtil {
@@ -216,26 +215,6 @@ public class StepsUtil {
         return new BinaryJson(gson);
     }
 
-    static Target getTarget(DelegateExecution context) {
-        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_TARGET);
-
-        int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
-        switch (majorSchemaVersion) {
-            case 1:
-                return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v1.Target.class);
-            case 2:
-                return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v2.Target.class);
-            case 3:
-                return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v3.Target.class);
-            default:
-                return null;
-        }
-    }
-
-    static void setTarget(DelegateExecution context, Target target) {
-        context.setVariable(Constants.VAR_TARGET, getBinaryJsonForMtaModel().marshal(target));
-    }
-
     static Platform getPlatform(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_PLATFORM);
 
@@ -269,13 +248,6 @@ public class StepsUtil {
         return value;
     }
 
-    static void validateOrg(String org, DelegateExecution context) {
-        String urlOrg = getOrg(context);
-        if (!urlOrg.equals(org)) {
-            throw new SLException(Messages.TARGETED_ORG_DOES_NOT_MATCH_URL_ORG, org, urlOrg);
-        }
-    }
-
     public static String getOrg(DelegateExecution context) {
         return (String) context.getVariable(Constants.VAR_ORG);
     }
@@ -286,13 +258,6 @@ public class StepsUtil {
 
     public static void setSpaceId(DelegateExecution context, String spaceId) {
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, spaceId);
-    }
-
-    static void validateSpace(String space, DelegateExecution context) {
-        String urlSpace = getSpace(context);
-        if (!urlSpace.equals(space)) {
-            throw new SLException(Messages.TARGETED_SPACE_DOES_NOT_MATCH_URL_SPACE, space, urlSpace);
-        }
     }
 
     public static String getSpace(DelegateExecution context) {

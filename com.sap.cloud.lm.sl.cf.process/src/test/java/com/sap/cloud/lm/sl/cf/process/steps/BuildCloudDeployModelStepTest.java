@@ -1,8 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatforms;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadTargets;
+import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatform;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -39,7 +38,6 @@ import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 @RunWith(Parameterized.class)
 public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
@@ -50,9 +48,8 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("build-cloud-model.yaml",
         BuildCloudDeployModelStepTest.class);
-    private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json",
-        BuildCloudDeployModelStepTest.class).get(0);
-    private static final Target TARGET = loadTargets(CONFIGURATION_PARSER, "platforms-01.json", BuildCloudDeployModelStepTest.class).get(0);
+    private static final Platform PLATFORM = loadPlatform(CONFIGURATION_PARSER, "platform-01.json",
+        BuildCloudDeployModelStepTest.class);
 
     private static final SystemParameters EMPTY_SYSTEM_PARAMETERS = new SystemParameters(Collections.emptyMap(), Collections.emptyMap(),
         Collections.emptyMap(), Collections.emptyMap());
@@ -160,7 +157,6 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         StepsUtil.setXsPlaceholderReplacementValues(context, getDummyReplacementValues());
 
         StepsUtil.setPlatform(context, PLATFORM);
-        StepsUtil.setTarget(context, TARGET);
     }
 
     private Map<String, Object> getDummyReplacementValues() {

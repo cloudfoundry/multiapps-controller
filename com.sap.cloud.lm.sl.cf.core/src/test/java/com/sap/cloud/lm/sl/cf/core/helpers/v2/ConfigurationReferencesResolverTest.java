@@ -7,19 +7,18 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Platform;
-import com.sap.cloud.lm.sl.mta.model.v2.Target;
 
 @RunWith(Parameterized.class)
 public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationReferencesResolverTest {
 
     private static Platform platform;
-    private static Target target;
 
     public ConfigurationReferencesResolverTest(String descriptorLocation, String configurationEntriesLocation, Expectation expectation)
         throws Exception {
@@ -69,16 +68,12 @@ public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.
     @BeforeClass
     public static void initializeTargetAndPlatformType() throws Exception {
         ConfigurationParser parser = new ConfigurationParser();
-        target = parser.parseTargetsJson2(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/targets-v2.json"))
-            .get(2);
-        platform = parser
-            .parsePlatformsJson2(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/platform-types-v2.json"))
-            .get(0);
+        platform = parser.parsePlatformJson2(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/xs-platform-v2.json"));
     }
 
     @Override
     protected ParametersChainBuilder getPropertiesChainBuilder(com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor descriptor) {
-        return new ParametersChainBuilder((DeploymentDescriptor) descriptor, target, platform);
+        return new ParametersChainBuilder((DeploymentDescriptor) descriptor, platform);
     }
 
     @Override
@@ -89,9 +84,13 @@ public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.
     @Override
     protected ConfigurationReferencesResolver getConfigurationResolver(
         com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor deploymentDescriptor) {
+        String currentOrg = (String) platform.getParameters()
+            .get("org");
+        String currentSpace = (String) platform.getParameters()
+            .get("space");
         return new ConfigurationReferencesResolver(dao,
-            new ConfigurationFilterParser(platform, target, getPropertiesChainBuilder(descriptor)), (org, space) -> SPACE_ID, null,
-            configuration);
+            new ConfigurationFilterParser(new CloudTarget(currentOrg, currentSpace), getPropertiesChainBuilder(descriptor)),
+            (org, space) -> SPACE_ID, null, configuration);
     }
 
 }

@@ -121,7 +121,6 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     private SystemParametersBuilder createParametersBuilder(DelegateExecution context, CloudControllerClient client,
         PortAllocator portAllocator, boolean portBasedRouting, String defaultDomainName, boolean reserveTemporaryRoute) {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
-        String platformName = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_TARGET_NAME);
         boolean useNamespacesForServices = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES);
         int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
         boolean useNamespaces = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES);
@@ -140,7 +139,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
         boolean areXsPlaceholdersSupported = configuration.areXsPlaceholdersSupported();
 
-        return new SystemParametersBuilder(platformName, StepsUtil.getOrg(context), StepsUtil.getSpace(context), user, defaultDomainName,
+        return new SystemParametersBuilder(StepsUtil.getOrg(context), StepsUtil.getSpace(context), user, defaultDomainName,
             configuration.getPlatformType(), targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting,
             reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices, deployedMta, credentialsGeneratorSupplier.get(),
             majorSchemaVersion, areXsPlaceholdersSupported, timestampSupplier);

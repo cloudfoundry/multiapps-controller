@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -27,7 +28,6 @@ import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 @RunWith(Parameterized.class)
 public class ConfigurationReferencesResolverTest {
@@ -42,7 +42,6 @@ public class ConfigurationReferencesResolverTest {
     }
 
     private static Platform platform;
-    private static Target target;
 
     private String descriptorLocation;
     private Expectation expectation;
@@ -88,10 +87,7 @@ public class ConfigurationReferencesResolverTest {
     @BeforeClass
     public static void initializePlatformAndPlatformType() throws Exception {
         ConfigurationParser parser = new ConfigurationParser();
-        target = parser.parseTargetsJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/targets.json"))
-            .get(2);
-        platform = parser.parsePlatformsJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/platform-types.json"))
-            .get(0);
+        platform = parser.parsePlatformJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/xs-platform.json"));
     }
 
     @Before
@@ -118,9 +114,13 @@ public class ConfigurationReferencesResolverTest {
     }
 
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor descriptor) {
+        String currentOrg = (String) platform.getProperties()
+            .get("org");
+        String currentSpace = (String) platform.getProperties()
+            .get("space");
         return new ConfigurationReferencesResolver(dao,
-            new ConfigurationFilterParser(platform, target, getPropertiesChainBuilder(descriptor)), (org, space) -> SPACE_ID, null,
-            configuration);
+            new ConfigurationFilterParser(new CloudTarget(currentOrg, currentSpace), getPropertiesChainBuilder(descriptor)),
+            (org, space) -> SPACE_ID, null, configuration);
     }
 
     protected DescriptorParser getDescriptorParser() {
@@ -128,7 +128,7 @@ public class ConfigurationReferencesResolverTest {
     }
 
     protected PropertiesChainBuilder getPropertiesChainBuilder(DeploymentDescriptor descriptor) {
-        return new PropertiesChainBuilder(descriptor, target, platform);
+        return new PropertiesChainBuilder(descriptor, platform);
     }
 
 }

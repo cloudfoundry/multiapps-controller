@@ -1,10 +1,12 @@
 {
   "name": "XS2",
-  "properties": {},
-  "moduleTypes1": [
+  "properties": {
+    "org": "initial",
+    "space": "initial"
+  },
+  "module-types": [
     {
-      "name": "javascript.nodejs",
-      "properties": {}
+      "name": "javascript.nodejs"
     },
     {
       "name": "java.tomee",
@@ -21,17 +23,17 @@
     {
       "name": "com.sap.xs.hdi",
       "properties": {
-        "check-deploy-id": true,
-        "execute-app": true,
-        "failure-marker": "STDERR:Deployment to container .* failure.*",
-        "memory": "256M",
         "no-route": true,
+        "memory": "256M",
+        "execute-app": true,
+        "success-marker": "STDOUT:Deployment to container .* success.*",
+        "failure-marker": "STDERR:Deployment to container .* failure.*",
         "stop-app": true,
-        "success-marker": "STDOUT:Deployment to container .* success.*"
+        "check-deploy-id": true
       }
     }
   ],
-  "resourceTypes1": [
+  "resource-types": [
     {
       "name": "com.sap.xs.hdi-container",
       "properties": {

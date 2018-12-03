@@ -1,15 +1,9 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatforms;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadTargets;
-import static org.junit.Assert.assertEquals;
-
 import java.util.Arrays;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -20,67 +14,32 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.model.v1.Platform;
 
 @RunWith(Parameterized.class)
 public class DetectTargetStepTest extends SyncFlowableStepTest<DetectTargetStep> {
 
     private static class StepInput {
 
-        public String platformsLocation;
-        public String targetName;
-        public String platformTypesLocation;
-        public int majorSchemaVersion;
+        public String platformLocation;
         public String org;
         public String space;
+        public int majorSchemaVersion;
 
-        public StepInput(String platformName, String platformsLocation, String platformTypesLocation, String org, String space,
-            int majorSchemaVersion) {
-            this.platformsLocation = platformsLocation;
-            this.targetName = platformName;
-            this.platformTypesLocation = platformTypesLocation;
-            this.majorSchemaVersion = majorSchemaVersion;
+        public StepInput(String platformLocation, String org, String space, int majorSchemaVersion) {
+            this.platformLocation = platformLocation;
             this.org = org;
             this.space = space;
+            this.majorSchemaVersion = majorSchemaVersion;
         }
 
     }
 
-    private static interface StepOutput {
-
-    }
-
-    private static class FailedStepOutput implements StepOutput {
-
-        public String expectedExceptionMessage;
-
-        public FailedStepOutput(String expectedExceptionMessage) {
-            this.expectedExceptionMessage = expectedExceptionMessage;
-        }
-
-    }
-
-    private static class SuccessfulStepOutput implements StepOutput {
-
-        public String platformName;
-        public Expectation platformExpectation;
-        public Expectation platformTypeExpectation;
-
-        public SuccessfulStepOutput(String platformName, Expectation platformExpectation, Expectation platformTypeExpectation) {
-            this.platformName = platformName;
-            this.platformExpectation = platformExpectation;
-            this.platformTypeExpectation = platformTypeExpectation;
-        }
-
-    }
-
-    private StepOutput output;
+    private Expectation expectation;
     private StepInput input;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    public DetectTargetStepTest(StepInput input, StepOutput output) {
-        this.output = output;
+    public DetectTargetStepTest(StepInput input, Expectation expectation) {
+        this.expectation = expectation;
         this.input = input;
     }
 
@@ -90,38 +49,13 @@ public class DetectTargetStepTest extends SyncFlowableStepTest<DetectTargetStep>
 // @formatter:off
             // (0) Platform and its platform types exist (version 1):
             {
-                new StepInput("ZE_PLATFORM", "platforms-01.json", "platform-types-01.json", "initial", "initial", 1),
-                new SuccessfulStepOutput("ZE_PLATFORM", new Expectation(Expectation.Type.RESOURCE, "platform-01.json.json"), new Expectation(Expectation.Type.RESOURCE, "platform-type-01.json.json")),
+                new StepInput("platform-v1.json", "initial", "initial", 1),
+                new Expectation(Expectation.Type.RESOURCE, "parsed-platform-v1.json"),
             },
             // (1) Platform and its platform types exist (version 2):
             {
-                new StepInput("ZE_PLATFORM", "platforms-02.json", "platform-types-02.json", "initial", "initial", 2),
-                new SuccessfulStepOutput("ZE_PLATFORM", new Expectation(Expectation.Type.RESOURCE, "platform-02.json.json"), new Expectation(Expectation.Type.RESOURCE, "platform-type-02.json.json")),
-            },
-            // (2) No platform types are configured:
-            {
-                new StepInput("ZE_PLATFORM", "platforms-01.json", "platform-types-03.json", "initial", "initial", 1),
-                new FailedStepOutput("No platforms configured"),
-            },
-            // (3) Platform name parameter is missing (a default one should be constructed):
-            {
-                new StepInput(null, "platforms-01.json", "platform-types-01.json", "initial", "initial", 1),
-                new SuccessfulStepOutput("initial initial", new Expectation(Expectation.Type.RESOURCE, "platform-03.json.json"), new Expectation(Expectation.Type.RESOURCE, "platform-type-01.json.json")),
-            },
-            // (4) Platform name parameter is missing (a default one should be constructed):
-            {
-                new StepInput(""  , "platforms-01.json", "platform-types-01.json", "initial", "initial", 1),
-                new SuccessfulStepOutput("initial initial", new Expectation(Expectation.Type.RESOURCE, "platform-03.json.json"), new Expectation(Expectation.Type.RESOURCE, "platform-type-01.json.json")),
-            },
-            // (5) Platform organization does not match the organization from the process's context:
-            {
-                new StepInput("ZE_PLATFORM", "platforms-01.json", "platform-types-01.json", "initi@l", "initial", 1),
-                new FailedStepOutput("Deploy target organization \"initial\" does not match the organization \"initi@l\" specified in the URL"),
-            },
-            // (6) Platform space does not match the space from the process's context:
-            {
-                new StepInput("ZE_PLATFORM", "platforms-01.json", "platform-types-01.json", "initial", "initi@l", 1),
-                new FailedStepOutput("Deploy target space \"initial\" does not match the space \"initi@l\" specified in the URL"),
+                new StepInput("platform-v2.json", "initial", "initial", 2),
+                new Expectation(Expectation.Type.RESOURCE, "parsed-platform-v2.json"),
             },
 // @formatter:on
         });
@@ -133,45 +67,22 @@ public class DetectTargetStepTest extends SyncFlowableStepTest<DetectTargetStep>
 
         assertStepFinishedSuccessfully();
 
-        assertEquals(((SuccessfulStepOutput) output).platformName, context.getVariable(Constants.PARAM_TARGET_NAME));
-
-        TestUtil.test(() -> {
-
-            return StepsUtil.getTarget(context);
-
-        }, ((SuccessfulStepOutput) output).platformExpectation, getClass());
-
-        TestUtil.test(() -> {
-
-            return StepsUtil.getPlatform(context);
-
-        }, ((SuccessfulStepOutput) output).platformTypeExpectation, getClass());
+        TestUtil.test(() -> StepsUtil.getPlatform(context), expectation, getClass());
     }
 
     @Before
     public void setUp() throws Exception {
-        loadParameters();
-        prepareContext();
-    }
-
-    private void loadParameters() {
-        if (output instanceof FailedStepOutput) {
-            expectedException.expectMessage(((FailedStepOutput) output).expectedExceptionMessage);
-        }
-    }
-
-    private void prepareContext() {
-        ConfigurationParser configurationParser = new HandlerFactory(input.majorSchemaVersion).getConfigurationParser();
-
         context.setVariable(Constants.VAR_SPACE, input.space);
         context.setVariable(Constants.VAR_ORG, input.org);
-
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, input.majorSchemaVersion);
-        context.setVariable(Constants.PARAM_TARGET_NAME, input.targetName);
+        Platform platform = loadPlatform();
+        Mockito.when(configuration.getPlatform(Mockito.any(), Mockito.anyInt()))
+        .thenReturn(platform);
+    }
 
-        Mockito.when(configuration.getPlatforms(Mockito.any(), Mockito.anyInt()))
-            .thenReturn(loadPlatforms(configurationParser, input.platformTypesLocation, getClass()));
-        step.targetsSupplier = (factory) -> loadTargets(configurationParser, input.platformsLocation, getClass());
+    private Platform loadPlatform() {
+        ConfigurationParser configurationParser = new HandlerFactory(input.majorSchemaVersion).getConfigurationParser();
+        return StepsTestUtil.loadPlatform(configurationParser, input.platformLocation, getClass());
     }
 
     @Override

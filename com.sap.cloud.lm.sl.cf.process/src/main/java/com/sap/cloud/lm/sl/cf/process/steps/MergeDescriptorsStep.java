@@ -13,14 +13,13 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 @Component("mergeDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MergeDescriptorsStep extends SyncFlowableStep {
 
-    protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform, Target target) {
-        return new MtaDescriptorMerger(factory, platform, target, getStepLogger());
+    protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform) {
+        return new MtaDescriptorMerger(factory, platform, getStepLogger());
     }
 
     @Override
@@ -32,10 +31,9 @@ public class MergeDescriptorsStep extends SyncFlowableStep {
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
 
-            Target target = StepsUtil.getTarget(execution.getContext());
             Platform platform = StepsUtil.getPlatform(execution.getContext());
 
-            DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform, target).merge(deploymentDescriptor,
+            DeploymentDescriptor descriptor = getMtaDescriptorMerger(handlerFactory, platform).merge(deploymentDescriptor,
                 extensionDescriptors);
 
             StepsUtil.setUnresolvedDeploymentDescriptor(execution.getContext(), descriptor);

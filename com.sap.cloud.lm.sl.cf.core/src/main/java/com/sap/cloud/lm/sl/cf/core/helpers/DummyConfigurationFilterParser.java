@@ -8,7 +8,7 @@ public class DummyConfigurationFilterParser extends com.sap.cloud.lm.sl.cf.core.
     private ConfigurationFilter filter;
 
     public DummyConfigurationFilterParser(ConfigurationFilter filter) {
-        super(null, null, null);
+        super(null, null);
         this.filter = filter;
     }
 

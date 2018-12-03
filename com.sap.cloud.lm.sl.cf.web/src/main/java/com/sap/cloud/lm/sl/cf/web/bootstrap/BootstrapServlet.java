@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.web.bootstrap;
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -22,18 +21,12 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.UserInfoProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
-import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
-import com.sap.cloud.lm.sl.cf.core.dto.persistence.PersistentObject;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.changes.AsyncChange;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.SecurityContextUtil;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class BootstrapServlet extends HttpServlet {
 
@@ -44,15 +37,6 @@ public class BootstrapServlet extends HttpServlet {
     @Inject
     @Qualifier("dataSource")
     protected DataSource dataSource;
-
-    @Inject
-    protected com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDao deployTargetDaoV1;
-
-    @Inject
-    protected com.sap.cloud.lm.sl.cf.core.dao.v2.DeployTargetDao deployTargetDaoV2;
-
-    @Inject
-    protected com.sap.cloud.lm.sl.cf.core.dao.v3.DeployTargetDao deployTargetDaoV3;
 
     @Inject
     protected ProcessEngine processEngine;
@@ -74,7 +58,6 @@ public class BootstrapServlet extends HttpServlet {
             SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
             configuration.load();
             initializeProviders();
-            addDeployTargets();
             initializeFileService();
             initExtras();
             executeAsyncDatabaseChanges();
@@ -117,34 +100,6 @@ public class BootstrapServlet extends HttpServlet {
     private void initializeProviders() {
         // Initialize audit logging provider
         AuditLoggingProvider.setFacade(new AuditLoggingFacadeSLImpl(dataSource, getUserInfoProvider()));
-    }
-
-    private void addDeployTargets() {
-        addDeployTargets(deployTargetDaoV1, new com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser(), 1);
-        addDeployTargets(deployTargetDaoV2, new com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser(), 2);
-        addDeployTargets(deployTargetDaoV3, new com.sap.cloud.lm.sl.mta.handlers.v3.ConfigurationParser(), 3);
-    }
-
-    private void addDeployTargets(DeployTargetDao dao, ConfigurationParser parser, int majorVersion) {
-        List<PersistentObject<? extends Target>> existingTargets = dao.findAll();
-        DescriptorHandler handler = new DescriptorHandler();
-        for (Target target : configuration.getTargets(parser, majorVersion)) {
-            if (!targetExists(handler, existingTargets, target)) {
-                try {
-                    dao.add(target);
-                } catch (SLException e) {
-                    LOGGER.warn(MessageFormat.format("Could not persist default target \"{0}\" to the database", target.getName()), e);
-                }
-            }
-        }
-    }
-
-    private boolean targetExists(DescriptorHandler handler, List<PersistentObject<? extends Target>> existingTargets, Target target) {
-        List<Target> rawTargets = new ArrayList<>();
-        for (PersistentObject<? extends Target> t : existingTargets) {
-            rawTargets.add(t.getObject());
-        }
-        return handler.findTarget(rawTargets, target.getName()) != null;
     }
 
     private void executeAsyncDatabaseChanges() {

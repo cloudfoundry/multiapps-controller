@@ -15,6 +15,7 @@ public class Constants {
     public static final int DEFAULT_START_TIMEOUT = (int) TimeUnit.HOURS.toSeconds(1);
 
     public static final String PARAM_APP_ARCHIVE_ID = "appArchiveId";
+    @Deprecated
     public static final String PARAM_TARGET_NAME = "deployTarget";
     public static final String PARAM_EXT_DESCRIPTOR_FILE_ID = "mtaExtDescriptorId";
     public static final String PARAM_NO_START = "noStart";
@@ -69,7 +70,6 @@ public class Constants {
     public static final String VAR_SYSTEM_PARAMETERS = "systemParameters";
     public static final String VAR_PORT_BASED_ROUTING = "portBasedRouting";
     public static final String VAR_ALLOCATED_PORTS = "allocatedPorts";
-    public static final String VAR_TARGET = "target";
     public static final String VAR_PLATFORM = "platform";
     public static final String VAR_ORG = "org";
     public static final String VAR_SPACE = "space";

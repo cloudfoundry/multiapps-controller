@@ -9,14 +9,11 @@ import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationSubscriptionFactory;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.DeployTargetFactory;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.OrgAndSpaceHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.UserProvidedResourceResolver;
@@ -29,11 +26,9 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v1.DescriptorParametersValidator;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.mergers.v1.PlatformMerger;
-import com.sap.cloud.lm.sl.mta.mergers.v1.TargetMerger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFactory implements HelperFactoryConstructor {
 
@@ -74,21 +69,11 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     }
 
     @Override
-    public DeployTargetFactory getDeployTargetFactory() {
-        return getHelperDelegate().getDeployTargetFactory();
-    }
-
-    @Override
-    public DeployTargetDao<?, ?> getDeployTargetDao(com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDao dao1,
-        com.sap.cloud.lm.sl.cf.core.dao.v2.DeployTargetDao dao2, com.sap.cloud.lm.sl.cf.core.dao.v3.DeployTargetDao dao3) {
-        return getHelperDelegate().getDeployTargetDao(dao1, dao2, dao3);
-    }
-
-    @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
-        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
-        return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, platform, target, spaceIdSupplier, dao,
-            cloudTarget, configuration);
+        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
+        ApplicationConfiguration configuration) {
+        return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, platform, spaceIdSupplier, dao, cloudTarget,
+            configuration);
     }
 
     @Override
@@ -120,24 +105,14 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     }
 
     @Override
-    public TargetMerger getTargetMerger(Target target) {
-        return getHelperDelegate().getTargetMerger(target);
-    }
-
-    @Override
     public PlatformMerger getPlatformMerger(Platform platform) {
         return getHelperDelegate().getPlatformMerger(platform);
     }
 
     @Override
-    public OrgAndSpaceHelper getOrgAndSpaceHelper(Target target, Platform platform) {
-        return getHelperDelegate().getOrgAndSpaceHelper(target, platform);
-    }
-
-    @Override
     public UserProvidedResourceResolver getUserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
-        Target target, Platform platform) {
-        return getHelperDelegate().getUserProvidedResourceResolver(resourceHelper, descriptor, target, platform);
+        Platform platform) {
+        return getHelperDelegate().getUserProvidedResourceResolver(resourceHelper, descriptor, platform);
     }
 
     @Override
