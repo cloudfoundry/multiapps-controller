@@ -10,11 +10,11 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1.Resource;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 public class ServicesCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder {
 
@@ -37,7 +37,7 @@ public class ServicesCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1
     @Override
     public List<CloudServiceExtended> build() {
         List<CloudServiceExtended> services = new ArrayList<>();
-        for (Resource resource : deploymentDescriptor.getResources1()) {
+        for (Resource resource : deploymentDescriptor.getResources()) {
             if (isService(resource, propertiesAccessor)) {
                 if(isActive(resource)) {
                     CollectionUtils.addIgnoreNull(services, getService(resource));

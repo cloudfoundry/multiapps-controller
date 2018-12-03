@@ -10,8 +10,8 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class ApplicationColorAppenderTest {
@@ -42,7 +42,7 @@ public class ApplicationColorAppenderTest {
 
     @Test
     public void testPrepare() throws Exception {
-        DeploymentDescriptor descriptor = getDescriptorParser()
+       DeploymentDescriptor descriptor = getDescriptorParser()
             .parseDeploymentDescriptorYaml(TestUtil.getResourceAsString(deploymentDescriptorString, getClass()));
 
         TestUtil.test(() -> {

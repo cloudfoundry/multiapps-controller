@@ -52,7 +52,7 @@ import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
-public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder {
+public class ApplicationsCloudModelBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationsCloudModelBuilder.class);
     private static final int MTA_MAJOR_VERSION = 2;

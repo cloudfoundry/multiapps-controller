@@ -6,20 +6,20 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ResourceType;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.parser.ParametersParser;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1.Module;
-import com.sap.cloud.lm.sl.mta.model.v1.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.v1.Resource;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 public class CloudModelBuilderUtil {
 
     public static boolean isPublic(ProvidedDependency dependency) {
-        if (dependency instanceof com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency) {
-            return ((com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency) dependency).isPublic();
+        if (dependency instanceof ProvidedDependency) {
+            return dependency.isPublic();
         }
         return true;
     }
@@ -75,7 +75,7 @@ public class CloudModelBuilderUtil {
 
     public static Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor) {
         Set<String> deployedModuleNames = new TreeSet<>();
-        for (Module mtaModule : deploymentDescriptor.getModules1()) {
+        for (Module mtaModule : deploymentDescriptor.getModules2()) {
             deployedModuleNames.add(mtaModule.getName());
         }
         return deployedModuleNames;

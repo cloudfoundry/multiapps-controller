@@ -1,13 +1,25 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v2;
 
+import static com.sap.cloud.lm.sl.common.util.TestUtil.getResourceAsString;
+
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+import com.google.gson.reflect.TypeToken;
+import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
+import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
@@ -16,13 +28,34 @@ import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 @RunWith(Parameterized.class)
-public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationReferencesResolverTest {
+public class ConfigurationReferencesResolverTest {
+
+    protected static final String SPACE_ID = "SAP";
+
+    protected static class DaoMockConfiguration {
+
+        ConfigurationFilter filter;
+        List<ConfigurationEntry> configurationEntries;
+
+    }
 
     private static Platform platform;
 
+    private String descriptorLocation;
+    private Expectation expectation;
+
+    protected ConfigurationEntryDao dao = Mockito.mock(ConfigurationEntryDao.class);
+    protected List<DaoMockConfiguration> daoConfigurations;
+    protected DeploymentDescriptor descriptor;
+    protected ApplicationConfiguration configuration = Mockito.mock(ApplicationConfiguration.class);
+
     public ConfigurationReferencesResolverTest(String descriptorLocation, String configurationEntriesLocation, Expectation expectation)
         throws Exception {
-        super(descriptorLocation, configurationEntriesLocation, expectation);
+        this.daoConfigurations = JsonUtil.fromJson(getResourceAsString(configurationEntriesLocation, getClass()),
+            new TypeToken<List<DaoMockConfiguration>>() {
+            }.getType());
+        this.descriptorLocation = descriptorLocation;
+        this.expectation = expectation;
     }
 
     @Parameters
@@ -71,19 +104,28 @@ public class ConfigurationReferencesResolverTest extends com.sap.cloud.lm.sl.cf.
         platform = parser.parsePlatformJson2(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/xs-platform-v2.json"));
     }
 
-    @Override
-    protected ParametersChainBuilder getPropertiesChainBuilder(com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor descriptor) {
+    @Test
+    public void testResolve() {
+        ConfigurationReferencesResolver referencesResolver = getConfigurationResolver(descriptor);
+
+        TestUtil.test(() -> {
+
+            referencesResolver.resolve(descriptor);
+            return descriptor;
+
+        }, expectation, getClass());
+    }
+
+    protected ParametersChainBuilder getPropertiesChainBuilder(com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor) {
         return new ParametersChainBuilder((DeploymentDescriptor) descriptor, platform);
     }
 
-    @Override
     protected DescriptorParser getDescriptorParser() {
         return new DescriptorParser();
     }
 
-    @Override
     protected ConfigurationReferencesResolver getConfigurationResolver(
-        com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor deploymentDescriptor) {
+        com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor deploymentDescriptor) {
         String currentOrg = (String) platform.getParameters()
             .get("org");
         String currentSpace = (String) platform.getParameters()

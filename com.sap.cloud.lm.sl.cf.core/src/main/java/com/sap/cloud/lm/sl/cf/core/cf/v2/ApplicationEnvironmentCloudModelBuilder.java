@@ -16,22 +16,32 @@ import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
 
-public class ApplicationEnvironmentCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationEnvironmentCloudModelBuilder {
+public class ApplicationEnvironmentCloudModelBuilder {
 
     private static final int MTA_MAJOR_VERSION = 2;
+    
+    protected CloudModelConfiguration configuration;
+    protected DeploymentDescriptor deploymentDescriptor;
+    protected XsPlaceholderResolver xsPlaceholderResolver;
+    protected DescriptorHandler handler;
+    protected PropertiesAccessor propertiesAccessor;
+    protected String deployId;
 
     public ApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration, DeploymentDescriptor deploymentDescriptor,
         XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler, PropertiesAccessor propertiesAccessor, String deployId) {
-        super(configuration, deploymentDescriptor, xsPlaceholderResolver, handler, propertiesAccessor, deployId);
+        this.configuration = configuration;
+        this.deploymentDescriptor = deploymentDescriptor;
+        this.xsPlaceholderResolver = xsPlaceholderResolver;
+        this.handler = handler;
+        this.propertiesAccessor = propertiesAccessor;
+        this.deployId = deployId;
     }
 
-    @Override
     protected void addToGroup(Map<String, List<Object>> groups, String group, String name, Map<String, Object> properties) {
         groups.computeIfAbsent(group, key -> new ArrayList<>())
             .add(properties);
     }
 
-    @Override
     protected void addDependencies(Map<String, Object> env, com.sap.cloud.lm.sl.mta.model.v1.Module module) {
         addDependencies(env, (Module) module);
     }
@@ -50,8 +60,23 @@ public class ApplicationEnvironmentCloudModelBuilder extends com.sap.cloud.lm.sl
         }
         addToGroupsOrEnvironment(env, groups, asList(dependency.getGroup()), dependency.getName(), dependency.getProperties());
     }
+    
+    protected void addToGroupsOrEnvironment(Map<String, Object> env, Map<String, List<Object>> groups, List<String> destinationGroups,
+        String subgroupName, Map<String, Object> properties) {
+        if (!destinationGroups.isEmpty()) {
+            addToGroups(groups, destinationGroups, subgroupName, properties);
+        } else {
+            properties.forEach(env::put);
+        }
+    }
 
-    @Override
+    protected void addToGroups(Map<String, List<Object>> groups, List<String> destinationGroups, String subgroupName,
+        Map<String, Object> properties) {
+        for (String group : destinationGroups) {
+            addToGroup(groups, group, subgroupName, properties);
+        }
+    }
+    
     protected HandlerFactory getHandlerFactory() {
         return new HandlerFactory(MTA_MAJOR_VERSION);
     }
