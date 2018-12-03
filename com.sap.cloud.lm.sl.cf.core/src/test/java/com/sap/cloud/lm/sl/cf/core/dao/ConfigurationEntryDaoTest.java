@@ -77,7 +77,7 @@ public class ConfigurationEntryDaoTest {
                 // (3)
                 {
                     new RemoveTest(new RemoveTestInput("n-1", "id-1", "1.0.0", new CloudTarget("org-1", "space-1"), null, null, ""),
-                        new Expectation("")),
+                        new Expectation(null)),
                 },
                 // (4)
                 {
@@ -127,7 +127,7 @@ public class ConfigurationEntryDaoTest {
                 // (13)
                 {
                     new RemoveTest(new RemoveTestInput(null, "id-2", null, new CloudTarget("org-2", "space-2"), null, null, ""),
-                        new Expectation("")),
+                        new Expectation(null)),
                 },
                 // (14)
                 {
