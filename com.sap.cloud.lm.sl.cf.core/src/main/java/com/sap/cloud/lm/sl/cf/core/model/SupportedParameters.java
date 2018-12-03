@@ -20,6 +20,7 @@ public class SupportedParameters {
     // General parameters:
     public static final String USER = "user";
     public static final String DEFAULT_DOMAIN = "default-domain";
+    @Deprecated
     public static final String DEPLOY_TARGET = "deploy-target";
     public static final String PROTOCOL = "protocol";
     public static final String XS_TYPE = "xs-type";
@@ -202,7 +203,6 @@ public class SupportedParameters {
             this.port = port;
             this.host = host;
             this.domain = domain;
-
         }
     }
 
