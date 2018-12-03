@@ -10,16 +10,15 @@ import com.sap.cloud.lm.sl.mta.model.v1.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.v2.Resource;
-import com.sap.cloud.lm.sl.mta.model.v2.Target;
 
 public class UserProvidedResourceResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v1.UserProvidedResourceResolver {
 
     private ParametersChainBuilder parametersChainBuilder;
 
     public UserProvidedResourceResolver(ResourceTypeFinder resourceHelper,
-        com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor, Target target, Platform platform) {
-        super(resourceHelper, descriptor, target, platform);
-        this.parametersChainBuilder = new ParametersChainBuilder(descriptor, target, platform);
+        com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor, Platform platform) {
+        super(resourceHelper, descriptor, platform);
+        this.parametersChainBuilder = new ParametersChainBuilder(descriptor, platform);
     }
 
     @Override

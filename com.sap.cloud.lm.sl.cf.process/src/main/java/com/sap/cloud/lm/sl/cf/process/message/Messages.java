@@ -201,7 +201,7 @@ public class Messages {
     // Progress messages
 
     public static final String MTA_SCHEMA_VERSION_DETECTED_AS = "Detected MTA schema version: \"{0}\"";
-    public static final String TARGET_DETECTED = "Detected deploy target as \"{0}\"";
+    public static final String DEPLOYING_IN_ORG_0_AND_SPACE_1 = "Deploying in org \"{0}\" and space \"{1}\"";
     public static final String NO_DEPLOYED_MTA_DETECTED = "No deployed MTA detected - this is initial deployment";
     public static final String DEPLOYED_MTA_DETECTED_WITH_VERSION = "Detected deployed MTA with ID \"{0}\" and version \"{1}\"";
     public static final String ASSUMED_LIVE_AND_IDLE_COLORS = "Assuming {0} is the live and {1} is the idle MTA color";
@@ -385,7 +385,6 @@ public class Messages {
     public static final String SETTING_SERVICE_PARAMETERS = "Setting service \"{0}\" parameters from \"{1}\"";
     public static final String SERVICE_ALREADY_EXISTS = "Service \"{0}\" already exists";
     public static final String BINDING_PARAMETERS_FOR_APPLICATION = "Binding parameters for application \"{0}\": {1}";
-    public static final String PLATFORMS = "Platforms: {0}";
     public static final String ORG_SPACE = "Organization: {0}, space: {1}";
     public static final String PLATFORM_TYPES = "Platform types: {0}";
     public static final String DEFAULT_DOMAIN = "Default domain: {0}";

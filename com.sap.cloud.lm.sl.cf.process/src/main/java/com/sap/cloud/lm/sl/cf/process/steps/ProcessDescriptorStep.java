@@ -28,7 +28,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class ProcessDescriptorStep extends SyncFlowableStep {
 
@@ -43,16 +42,15 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     @Inject
     private SpaceGetter spaceGetter;
 
-    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platform, Target target,
+    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platform,
         SystemParameters systemParameters, ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
         CloudTarget cloudTarget) {
-        return new MtaDescriptorPropertiesResolver(factory, platform, target, systemParameters, spaceIdSupplier, dao, cloudTarget,
-            configuration);
+        return new MtaDescriptorPropertiesResolver(factory, platform, systemParameters, spaceIdSupplier, dao, cloudTarget, configuration);
     }
 
     protected UserProvidedResourceResolver getUserProvidedResourceResolver(DeploymentDescriptor descriptor, HandlerFactory handlerFactory,
-        Target target, Platform platform, ResourceTypeFinder resourceHelper) {
-        return handlerFactory.getUserProvidedResourceResolver(resourceHelper, descriptor, target, platform);
+        Platform platform, ResourceTypeFinder resourceHelper) {
+        return handlerFactory.getUserProvidedResourceResolver(resourceHelper, descriptor, platform);
     }
 
     @Override
@@ -63,24 +61,18 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             CloudControllerClient client = execution.getControllerClient();
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
-            Target target = StepsUtil.getTarget(execution.getContext());
             Platform platform = StepsUtil.getPlatform(execution.getContext());
             ResourceTypeFinder resourceHelper = handlerFactory.getResourceTypeFinder(ResourceType.USER_PROVIDED_SERVICE.toString());
             platform.accept(resourceHelper);
-            getStepLogger().debug(Messages.TARGET, target);
-            MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, platform, target,
+            MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, platform,
                 StepsUtil.getSystemParameters(execution.getContext()), configurationEntryDao, getSpaceIdSupplier(client),
                 new CloudTarget(StepsUtil.getOrg(execution.getContext()), StepsUtil.getSpace(execution.getContext())));
 
             DeploymentDescriptor descriptor = resolver.resolve(StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext()));
-            UserProvidedResourceResolver userProvidedServiceResolver = getUserProvidedResourceResolver(descriptor, handlerFactory, target,
-                platform, resourceHelper);
+            UserProvidedResourceResolver userProvidedServiceResolver = getUserProvidedResourceResolver(descriptor, handlerFactory, platform,
+                resourceHelper);
 
             descriptor = userProvidedServiceResolver.resolve();
-
-            // Merge DeploymentDescriptor and Target
-            handlerFactory.getTargetMerger(target)
-                .mergeInto(descriptor);
 
             // Merge DeploymentDescriptor and Platform
             handlerFactory.getPlatformMerger(platform)

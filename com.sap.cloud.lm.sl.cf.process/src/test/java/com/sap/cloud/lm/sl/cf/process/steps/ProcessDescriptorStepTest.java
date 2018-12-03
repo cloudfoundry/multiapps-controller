@@ -1,8 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatforms;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadTargets;
+import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatform;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
@@ -33,7 +32,6 @@ import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorStep> {
 
@@ -46,16 +44,14 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
         ProcessDescriptorStepTest.class);
-    private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json", ProcessDescriptorStepTest.class)
-        .get(0);
-    private static final Target TARGET = loadTargets(CONFIGURATION_PARSER, "platforms-01.json", ProcessDescriptorStepTest.class).get(0);
+    private static final Platform PLATFORM = loadPlatform(CONFIGURATION_PARSER, "platform-01.json", ProcessDescriptorStepTest.class);
 
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
         @Override
         protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platformType,
-            Target platform, SystemParameters systemParameters, ConfigurationEntryDao dao,
-            BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
+            SystemParameters systemParameters, ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
+            CloudTarget cloudTarget) {
             return resolver;
         }
     }
@@ -80,7 +76,6 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
 
         StepsUtil.setPlatform(context, PLATFORM);
-        StepsUtil.setTarget(context, TARGET);
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
     }

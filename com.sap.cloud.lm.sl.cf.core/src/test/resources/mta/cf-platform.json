@@ -1,0 +1,71 @@
+{
+  "name": "CLOUD-FOUNDRY",
+  "module-types": [
+    {
+      "name": "javascript.nodejs"
+    },
+    {
+      "name": "java.tomcat",
+      "properties": {
+        "buildpack": "git://github.example.com/xs2-java/java-buildpack.git",
+        "TARGET_RUNTIME": "tomcat"
+      }
+    },
+    {
+      "name": "java.tomee",
+      "properties": {
+        "buildpack": "git://github.example.com/xs2-java/java-buildpack.git",
+        "TARGET_RUNTIME": "tomee"
+      }
+    },
+    {
+      "name": "com.sap.xs.hdi",
+      "properties": {
+        "buildpack": "git://github.example.com/xs2/hdi-deploy-buildpack.git",
+        "no-route": true,
+        "memory": "256M",
+        "execute-app": true,
+        "success-marker": "STDOUT:Deployment done",
+        "failure-marker": "STDERR:Deployment failed",
+        "stop-app": true,
+        "check-deploy-id": true
+      }
+    }
+  ],
+  "resource-types": [
+    {
+      "name": "com.sap.xs.hdi-container",
+      "properties": {
+        "type": "managed-service",
+        "service": "hana",
+        "service-plan": "hdi-shared"
+      }
+    },
+    {
+      "name": "com.sap.xs.uaa-space",
+      "properties": {
+        "type": "managed-service",
+        "service": "xsuaa",
+        "service-plan": "space"
+      }
+    },
+    {
+      "name": "org.cloudfoundry.user-provided-service",
+      "properties": {
+        "type": "user-provided-service"
+      }
+    },
+    {
+      "name": "org.cloudfoundry.existing-service",
+      "properties": {
+        "type": "existing-service"
+      }
+    },
+    {
+      "name": "mta-provides-dependency",
+      "properties": {
+        "type": "mta-provides-dependency"
+      }
+    }
+  ]
+}

@@ -11,24 +11,19 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.builders.v1.PropertiesChainBuilder;
-import com.sap.cloud.lm.sl.mta.model.v1.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1.Resource;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class ConfigurationFilterParser {
 
     private static final String NEW_SYNTAX_FILTER = "configuration";
     private static final String OLD_SYNTAX_FILTER = "mta-provides-dependency";
 
-    protected Platform platform;
-    protected Target target;
+    protected CloudTarget currentTarget;
     protected PropertiesChainBuilder chainBuilder;
 
-    public ConfigurationFilterParser(Platform platform, Target target, PropertiesChainBuilder chainBuilder) {
-        this.platform = platform;
-        this.target = target;
+    public ConfigurationFilterParser(CloudTarget currentTarget, PropertiesChainBuilder chainBuilder) {
+        this.currentTarget = currentTarget;
         this.chainBuilder = chainBuilder;
     }
 
@@ -51,11 +46,10 @@ public class ConfigurationFilterParser {
     private ConfigurationFilter parseOldSyntaxFilter(Resource resource) {
         Map<String, Object> parameters = getParameters(resource);
         String mtaId = getRequiredParameter(parameters, SupportedParameters.MTA_ID);
-        CloudTarget cloudTarget = getCurrentOrgAndSpace();
         String mtaProvidesDependency = getRequiredParameter(parameters, SupportedParameters.MTA_PROVIDES_DEPENDENCY);
         String mtaVersion = getRequiredParameter(parameters, SupportedParameters.MTA_VERSION);
         String providerId = ConfigurationEntriesUtil.computeProviderId(mtaId, mtaProvidesDependency);
-        return new ConfigurationFilter(PROVIDER_NID, providerId, mtaVersion, cloudTarget, null);
+        return new ConfigurationFilter(PROVIDER_NID, providerId, mtaVersion, currentTarget, null);
     }
 
     private ConfigurationFilter parseNewSyntaxFilter(Resource resource) {
@@ -66,7 +60,7 @@ public class ConfigurationFilterParser {
         Map<String, Object> filter = getOptionalParameter(parameters, SupportedParameters.FILTER);
         Map<String, Object> target = getOptionalParameter(parameters, SupportedParameters.TARGET);
         boolean hasExplicitTarget = target != null;
-        CloudTarget cloudTarget = hasExplicitTarget ? parseSpaceTarget(target) : getCurrentOrgAndSpace();
+        CloudTarget cloudTarget = hasExplicitTarget ? parseSpaceTarget(target) : currentTarget;
         return new ConfigurationFilter(namespaceId, pid, version, cloudTarget, filter, hasExplicitTarget);
 
     }
@@ -81,8 +75,4 @@ public class ConfigurationFilterParser {
         return resource.getProperties();
     }
 
-    protected CloudTarget getCurrentOrgAndSpace() {
-        Pair<String, String> currentOrgSpace = new OrgAndSpaceHelper(target, platform).getOrgAndSpace();
-        return new CloudTarget(currentOrgSpace._1, currentOrgSpace._2);
-    }
 }

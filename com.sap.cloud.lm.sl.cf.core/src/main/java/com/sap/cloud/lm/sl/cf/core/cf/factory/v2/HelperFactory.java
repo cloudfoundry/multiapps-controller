@@ -8,15 +8,12 @@ import java.util.function.BiFunction;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.dao.DeployTargetDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.DeployTargetFactory;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.OrgAndSpaceHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
@@ -29,11 +26,9 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParameters
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger;
-import com.sap.cloud.lm.sl.mta.mergers.v2.TargetMerger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1.HelperFactory {
 
@@ -63,23 +58,12 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1.Hel
     }
 
     @Override
-    public DeployTargetFactory getDeployTargetFactory() {
-        return new DeployTargetFactory();
-    }
-
-    @Override
-    public DeployTargetDao<?, ?> getDeployTargetDao(com.sap.cloud.lm.sl.cf.core.dao.v1.DeployTargetDao dao1,
-        com.sap.cloud.lm.sl.cf.core.dao.v2.DeployTargetDao dao2, com.sap.cloud.lm.sl.cf.core.dao.v3.DeployTargetDao dao3) {
-        return dao2;
-    }
-
-    @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
-        Target target, BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
+        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
         ApplicationConfiguration configuration) {
-        ParametersChainBuilder chainBuilder = new ParametersChainBuilder(cast(deploymentDescriptor), cast(target), cast(platform));
+        ParametersChainBuilder chainBuilder = new ParametersChainBuilder(cast(deploymentDescriptor), cast(platform));
         com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser filterParser = new com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser(
-            cast(platform), cast(target), chainBuilder);
+            cloudTarget, chainBuilder);
         return new ConfigurationReferencesResolver(dao, filterParser, spaceIdSupplier, cloudTarget, configuration);
     }
 
@@ -90,8 +74,8 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1.Hel
     }
 
     @Override
-    public DescriptorParametersValidator getDescriptorParametersValidator(
-        com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor descriptor, List<ParameterValidator> parameterValidators) {
+    public DescriptorParametersValidator getDescriptorParametersValidator(com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor descriptor,
+        List<ParameterValidator> parameterValidators) {
         return new DescriptorParametersValidator(cast(descriptor), parameterValidators);
     }
 
@@ -113,24 +97,14 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v1.Hel
     }
 
     @Override
-    public TargetMerger getTargetMerger(Target target) {
-        return new TargetMerger(cast(target), getHandler());
-    }
-
-    @Override
     public PlatformMerger getPlatformMerger(Platform platform) {
         return new PlatformMerger(cast(platform), getHandler());
     }
 
     @Override
-    public OrgAndSpaceHelper getOrgAndSpaceHelper(Target target, Platform platform) {
-        return new OrgAndSpaceHelper(cast(target), cast(platform));
-    }
-
-    @Override
     public UserProvidedResourceResolver getUserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
-        Target target, Platform platform) {
-        return new UserProvidedResourceResolver(resourceHelper, cast(descriptor), cast(target), cast(platform));
+        Platform platform) {
+        return new UserProvidedResourceResolver(resourceHelper, cast(descriptor), cast(platform));
     }
 
     @Override

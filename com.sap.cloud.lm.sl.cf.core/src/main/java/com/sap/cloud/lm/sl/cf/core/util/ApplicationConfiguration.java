@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.util;
 
 import static java.text.MessageFormat.format;
 
+import java.lang.annotation.Target;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -29,7 +30,6 @@ import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
 import com.sap.cloud.lm.sl.cf.core.health.model.HealthCheckConfiguration;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.persistence.util.Configuration;
 import com.sap.cloud.lm.sl.cf.persistence.util.DefaultConfiguration;
 import com.sap.cloud.lm.sl.common.ParsingException;
@@ -39,7 +39,6 @@ import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 @Component
 @Lazy(false)
@@ -55,12 +54,9 @@ public class ApplicationConfiguration {
     static final String CFG_TYPE = "XS_TYPE";
     static final String CFG_TARGET_URL = "XS_TARGET_URL"; // Mandatory
     static final String CFG_DB_TYPE = "DB_TYPE";
-    static final String CFG_PLATFORMS = "PLATFORMS"; // Mandatory
-    static final String CFG_PLATFORMS_V2 = "PLATFORMS_V2"; // Mandatory
-    static final String CFG_PLATFORMS_V3 = "PLATFORMS_V3"; // Mandatory
-    static final String CFG_TARGETS = "TARGETS";
-    static final String CFG_TARGETS_V2 = "TARGETS_V2";
-    static final String CFG_TARGETS_V3 = "TARGETS_V3";
+    static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
+    static final String CFG_PLATFORM_V2 = "PLATFORM_V2"; // Mandatory
+    static final String CFG_PLATFORM_V3 = "PLATFORM_V3"; // Mandatory
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
@@ -257,10 +253,10 @@ public class ApplicationConfiguration {
     }
 
     private Set<String> getNotSensitiveConfigVariables() {
-        return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_TARGET_URL, CFG_DB_TYPE, CFG_PLATFORMS, CFG_PLATFORMS_V2, CFG_PLATFORMS_V3,
-            CFG_TARGETS, CFG_TARGETS_V2, CFG_TARGETS_V3, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE,
-            CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
-            CFG_GLOBAL_AUDITOR_USER, CFG_CONTROLLER_POLLING_INTERVAL, CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION,
+        return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_TARGET_URL, CFG_DB_TYPE, CFG_PLATFORM, CFG_PLATFORM_V2, CFG_PLATFORM_V3,
+            CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS,
+            CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER,
+            CFG_CONTROLLER_POLLING_INTERVAL, CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION,
             CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
             CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
             CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE));
@@ -291,39 +287,21 @@ public class ApplicationConfiguration {
         return databaseType;
     }
 
-    public List<Platform> getPlatforms() {
-        return getPlatforms(null, 1);
+    public Platform getPlatform() {
+        return getPlatform(null, 1);
     }
 
-    public List<Platform> getPlatforms(ConfigurationParser parser, int majorVersion) {
+    public Platform getPlatform(ConfigurationParser parser, int majorVersion) {
         switch (majorVersion) {
             case 1:
-                return parsePlatforms(environment.getString(CFG_PLATFORMS));
+                return parsePlatform(environment.getString(CFG_PLATFORM));
             case 2:
-                return parsePlatforms(environment.getString(CFG_PLATFORMS_V2), parser);
+                return parsePlatform(environment.getString(CFG_PLATFORM_V2), parser);
             case 3:
-                return parsePlatforms(environment.getString(CFG_PLATFORMS_V3), parser);
+                return parsePlatform(environment.getString(CFG_PLATFORM_V3), parser);
             default:
                 throw new UnsupportedOperationException();
         }
-    }
-
-    public List<? extends Target> getTargets() {
-        return getTargets(null, 1);
-    }
-
-    public List<? extends Target> getTargets(ConfigurationParser parser, int majorVersion) {
-        switch (majorVersion) {
-            case 1:
-                return parseTargets(environment.getString(CFG_TARGETS));
-            case 2:
-                return parseTargets(environment.getString(CFG_TARGETS_V2), parser);
-            case 3:
-                return parseTargets(environment.getString(CFG_TARGETS_V3), parser);
-            default:
-                throw new UnsupportedOperationException();
-        }
-
     }
 
     public Long getMaxUploadSize() {
@@ -616,40 +594,17 @@ public class ApplicationConfiguration {
         return DEFAULT_DB_TYPE;
     }
 
-    private List<Platform> parsePlatforms(String json) {
-        return parsePlatforms(json, new ConfigurationParser());
+    private Platform parsePlatform(String json) {
+        return parsePlatform(json, new ConfigurationParser());
     }
 
-    private List<Platform> parsePlatforms(String json, ConfigurationParser parser) {
-        try {
-            if (json != null) {
-                List<Platform> result = parser.parsePlatformsJson(json);
-                LOGGER.info(format(Messages.PLATFORMS, JsonUtil.toJson(result, true)));
-                return result;
-            }
-            LOGGER.warn(format(Messages.PLATFORMS_NOT_SPECIFIED, DEFAULT_PLATFORMS));
-        } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_PLATFORMS, json, DEFAULT_PLATFORMS), e);
+    private Platform parsePlatform(String json, ConfigurationParser parser) {
+        if (json == null) {
+            throw new IllegalStateException(Messages.PLATFORMS_NOT_SPECIFIED);
         }
-        return DEFAULT_PLATFORMS;
-    }
-
-    private List<Target> parseTargets(String json) {
-        return parseTargets(json, new ConfigurationParser());
-    }
-
-    private List<Target> parseTargets(String json, ConfigurationParser parser) {
-        try {
-            if (json != null) {
-                List<Target> result = parser.parseTargetsJson(json);
-                LOGGER.info(format(Messages.TARGETS, new SecureSerializationFacade().toJson(result)));
-                return result;
-            }
-            LOGGER.info(format(Messages.TARGETS_NOT_SPECIFIED, DEFAULT_TARGETS));
-        } catch (ParsingException e) {
-            LOGGER.warn(format(Messages.INVALID_TARGETS, json, DEFAULT_TARGETS), e);
-        }
-        return DEFAULT_TARGETS;
+        Platform result = parser.parsePlatformJson(json);
+        LOGGER.info(format(Messages.PLATFORMS, JsonUtil.toJson(result, true)));
+        return result;
     }
 
     private Long getMaxUploadSizeFromEnvironment() {

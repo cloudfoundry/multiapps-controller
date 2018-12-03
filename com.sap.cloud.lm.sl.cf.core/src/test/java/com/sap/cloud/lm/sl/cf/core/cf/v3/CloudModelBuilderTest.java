@@ -15,7 +15,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v3.DeployTargetFactory;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.util.Callable;
@@ -26,11 +25,9 @@ import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v3.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger;
-import com.sap.cloud.lm.sl.mta.mergers.v2.TargetMerger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
 
@@ -40,10 +37,10 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
     private UserMessageLogger userMessageLogger;
 
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
-        String targetsLocation, String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices,
-        String[] mtaArchiveModules, String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
-        super(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, targetsLocation, deployedMtaLocation,
-            useNamespaces, useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expectedServices, expectedApps);
+        String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices, String[] mtaArchiveModules,
+        String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
+        super(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, useNamespaces,
+            useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expectedServices, expectedApps);
         MockitoAnnotations.initMocks(this);
     }
 
@@ -53,7 +50,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
 // @formatter:off
             // (00) Test missing resource type definition:
             {
-                "mtad-missing-resource-type-definition.yaml", "config-01.mtaext", "/mta/platform-types-v2.json", "/mta/targets-v2.json", null,
+                "mtad-missing-resource-type-definition.yaml", "config-01.mtaext", "/mta/cf-platform-v2.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -81,11 +78,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
     }
 
     @Override
-    protected DeployTargetFactory getDeployTargetFactory() {
-        return new DeployTargetFactory();
-    }
-
-    @Override
     protected DescriptorMerger getDescriptorMerger() {
         return new DescriptorMerger();
     }
@@ -106,12 +98,6 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
         return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder(
             (com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor) deploymentDescriptor, configuration, deployedMta, systemParameters,
             xsPlaceholderResolver, DEPLOY_ID);
-    }
-
-    @Override
-    protected TargetMerger getTargetMerger(Target target, DescriptorHandler handler) {
-        return new com.sap.cloud.lm.sl.mta.mergers.v2.TargetMerger((com.sap.cloud.lm.sl.mta.model.v3.Target) target,
-            (com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorHandler) handler);
     }
 
     @Override

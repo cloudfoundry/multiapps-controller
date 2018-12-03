@@ -17,35 +17,31 @@ applications:
     XS_TARGET_URL: 
     DB_TYPE: POSTGRESQL
     CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
-    PLATFORMS: >
-      []
-    PLATFORMS_V2: &V2_LIKE_PLATFORMS >
-      [
-        {
-          "name": "CLOUD-FOUNDRY",
-          "module-types": [
-            { "name": "custom" },
-            { "name": "javascript.nodejs" },
-            { "name": "java", "parameters": { "buildpack": "java_buildpack" }},
-            { "name": "java.tomcat", "parameters": { "buildpack": "java_buildpack" }, "properties": { "TARGET_RUNTIME": "tomcat" }},
-            { "name": "java.tomee",  "parameters": { "buildpack": "java_buildpack" }, "properties": { "TARGET_RUNTIME": "tomee" }},
-            { "name": "staticfile", "parameters": { "buildpack": "staticfile_buildpack" }},
-            { "name": "ruby", "parameters": { "buildpack": "ruby_buildpack" }},
-            { "name": "nodejs", "parameters": { "buildpack": "nodejs_buildpack" }},
-            { "name": "go", "parameters": { "buildpack": "go_buildpack" }},
-            { "name": "python", "parameters": { "buildpack": "python_buildpack" }},
-            { "name": "php", "parameters": { "buildpack": "php_buildpack" }},
-            { "name": "binary", "parameters": { "buildpack": "binary_buildpack" }},
-            { "name": "dotnet_core", "parameters": { "buildpack": "dotnet_core_buildpack" }}
-          ],
-          "resource-types": [
-            { "name": "org.cloudfoundry.user-provided-service", "parameters": { "type": "user-provided-service" }},
-            { "name": "org.cloudfoundry.managed-service", "parameters": { "type": "managed-service" }},
-            { "name": "org.cloudfoundry.existing-service", "parameters": { "type": "existing-service" }},
-            { "name": "org.cloudfoundry.existing-service-key", "parameters": { "type": "existing-service-key" }},
-            { "name": "configuration", "parameters": { "type": "configuration" }}
-          ]
-        }
-      ]
-    PLATFORMS_V3: *V2_LIKE_PLATFORMS
+    PLATFORM_V2: &V2_LIKE_PLATFORM >
+      {
+        "name": "CLOUD-FOUNDRY",
+        "module-types": [
+          { "name": "custom" },
+          { "name": "javascript.nodejs" },
+          { "name": "java", "parameters": { "buildpack": "java_buildpack" }},
+          { "name": "java.tomcat", "parameters": { "buildpack": "java_buildpack" }, "properties": { "TARGET_RUNTIME": "tomcat" }},
+          { "name": "java.tomee",  "parameters": { "buildpack": "java_buildpack" }, "properties": { "TARGET_RUNTIME": "tomee" }},
+          { "name": "staticfile", "parameters": { "buildpack": "staticfile_buildpack" }},
+          { "name": "ruby", "parameters": { "buildpack": "ruby_buildpack" }},
+          { "name": "nodejs", "parameters": { "buildpack": "nodejs_buildpack" }},
+          { "name": "go", "parameters": { "buildpack": "go_buildpack" }},
+          { "name": "python", "parameters": { "buildpack": "python_buildpack" }},
+          { "name": "php", "parameters": { "buildpack": "php_buildpack" }},
+          { "name": "binary", "parameters": { "buildpack": "binary_buildpack" }},
+          { "name": "dotnet_core", "parameters": { "buildpack": "dotnet_core_buildpack" }}
+        ],
+        "resource-types": [
+          { "name": "org.cloudfoundry.user-provided-service", "parameters": { "type": "user-provided-service" }},
+          { "name": "org.cloudfoundry.managed-service", "parameters": { "type": "managed-service" }},
+          { "name": "org.cloudfoundry.existing-service", "parameters": { "type": "existing-service" }},
+          { "name": "org.cloudfoundry.existing-service-key", "parameters": { "type": "existing-service-key" }},
+          { "name": "configuration", "parameters": { "type": "configuration" }}
+        ]
+      }
+    PLATFORM_V3: *V2_LIKE_PLATFORM
     SKIP_SSL_VALIDATION: true

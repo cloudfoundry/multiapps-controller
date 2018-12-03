@@ -1,0 +1,39 @@
+{
+  "name": "CLOUD-FOUNDRY",
+  "properties": {
+    "org.cf.api": "https://api.sap.cf.com"
+  },
+  "module-types": [
+    {
+      "name": "javascript.nodejs"
+    },
+    {
+      "name": "org.nodejs",
+      "properties": {
+        "buildpack": "nodejs-test"
+      }
+    },
+    {
+      "name": "com.sap.java.jee6webprofile"
+    },
+    {
+      "name": "com.sap.xs.hdi"
+    }
+  ],
+  "resource-types": [
+    {
+      "name": "com.sap.xs.hdi-container",
+      "properties": {
+        "type": "managed-service",
+        "service": "hdi-hana",
+        "service-plan": "hdi-shared"
+      }
+    },
+    {
+      "name": "org.cloudfoundry.user-provided-service",
+      "properties": {
+        "type": "user-provided-service"
+      }
+    }
+  ]
+}

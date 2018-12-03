@@ -14,7 +14,6 @@ import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Module;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1.Resource;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class UserProvidedResourceResolver {
 
@@ -22,11 +21,10 @@ public class UserProvidedResourceResolver {
     protected DeploymentDescriptor descriptor;
     private PropertiesChainBuilder propertiesChainBuilder;
 
-    public UserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor, Target target,
-        Platform platform) {
+    public UserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor, Platform platform) {
         this.resourceHelper = resourceHelper;
         this.descriptor = descriptor;
-        this.propertiesChainBuilder = new PropertiesChainBuilder(descriptor, target, platform);
+        this.propertiesChainBuilder = new PropertiesChainBuilder(descriptor, platform);
     }
 
     public DeploymentDescriptor resolve() {

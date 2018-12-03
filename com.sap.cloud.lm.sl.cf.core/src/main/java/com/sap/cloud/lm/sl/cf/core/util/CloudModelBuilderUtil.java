@@ -7,18 +7,13 @@ import java.util.TreeSet;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v1.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.parser.ParametersParser;
-import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Module;
-import com.sap.cloud.lm.sl.mta.model.v1.Platform;
 import com.sap.cloud.lm.sl.mta.model.v1.ProvidedDependency;
 import com.sap.cloud.lm.sl.mta.model.v1.Resource;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class CloudModelBuilderUtil {
 
@@ -27,22 +22,6 @@ public class CloudModelBuilderUtil {
             return ((com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency) dependency).isPublic();
         }
         return true;
-    }
-
-    public static Target findTarget(DescriptorHandler handler, List<Target> targets, String targetName, Target defaultTarget) {
-        Target target = handler.findTarget(targets, targetName, defaultTarget);
-        if (target == null) {
-            throw new ContentException(Messages.UNKNOWN_TARGET, targetName);
-        }
-        return target;
-    }
-
-    public static Platform findPlatform(DescriptorHandler handler, List<Platform> platforms, Target target) {
-        Platform platform = handler.findPlatform(platforms, target.getType());
-        if (platform == null) {
-            throw new ContentException(Messages.UNKNOWN_PLATFORM, target.getType(), target.getName());
-        }
-        return platform;
     }
 
     public static Set<String> getDeployedModuleNames(List<DeployedMtaModule> deployedModules) {
@@ -61,16 +40,12 @@ public class CloudModelBuilderUtil {
         return deployedAppNames;
     }
 
-    public static String buildImplicitDeployTargetName(String org, String space) {
-        return String.format("%s %s", org, space);
-    }
-
     public static boolean isService(Resource resource, PropertiesAccessor propertiesAccessor) {
         Set<ResourceType> resourceTypes = ResourceType.getServiceTypes();
         ResourceType resourceType = getResourceType(resource, propertiesAccessor);
         return resourceTypes.contains(resourceType);
     }
-    
+
     public static boolean isActive(Resource resource) {
         com.sap.cloud.lm.sl.mta.model.v3.Resource resourceV3 = (com.sap.cloud.lm.sl.mta.model.v3.Resource) resource;
         return resourceV3.isActive();

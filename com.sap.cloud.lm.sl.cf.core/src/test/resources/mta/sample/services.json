@@ -8,7 +8,7 @@
     "isShared": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
-    "label": "hdi-hana2",
+    "label": "hdi-hana",
     "plan": "hdi-shared",
     "meta": {},
     "name": "pricing-db-service"

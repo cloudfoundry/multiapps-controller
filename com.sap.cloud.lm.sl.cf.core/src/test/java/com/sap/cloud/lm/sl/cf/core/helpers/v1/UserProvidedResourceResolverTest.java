@@ -18,7 +18,6 @@ import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 @RunWith(Parameterized.class)
 public class UserProvidedResourceResolverTest {
@@ -26,7 +25,6 @@ public class UserProvidedResourceResolverTest {
     protected static final String USER_PROVIDED_SERVICE_TYPE = ResourceType.USER_PROVIDED_SERVICE.toString();
 
     private String descriptorLocation;
-    private String targetLocation;
     private String platformLocation;
     private Expectation expectation;
 
@@ -37,23 +35,21 @@ public class UserProvidedResourceResolverTest {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                "mtad-07.yaml", "/mta/targets.json", "/mta/platform-types.json", new Expectation(Expectation.Type.RESOURCE, "mtad-07.yaml.json"),
+                "mtad-07.yaml", "/mta/cf-platform.json", new Expectation(Expectation.Type.RESOURCE, "mtad-07.yaml.json"),
             },
             {
-                "mtad-08.yaml", "/mta/targets.json", "/mta/platform-types.json", new Expectation(Expectation.Type.RESOURCE, "mtad-08.yaml.json"),
+                "mtad-08.yaml", "/mta/cf-platform.json", new Expectation(Expectation.Type.RESOURCE, "mtad-08.yaml.json"),
             },
             {
-                "mtad-09.yaml", "/mta/targets.json", "/mta/platform-types.json", new Expectation(Expectation.Type.RESOURCE, "mtad-09.yaml.json"),
+                "mtad-09.yaml", "/mta/cf-platform.json", new Expectation(Expectation.Type.RESOURCE, "mtad-09.yaml.json"),
             },
 // @formatter:on
         });
     }
 
-    public UserProvidedResourceResolverTest(String descriptorLocation, String platformLocation, String platformTypeLocation,
-        Expectation expectation) {
+    public UserProvidedResourceResolverTest(String descriptorLocation, String platformLocation, Expectation expectation) {
         this.descriptorLocation = descriptorLocation;
-        this.targetLocation = platformLocation;
-        this.platformLocation = platformTypeLocation;
+        this.platformLocation = platformLocation;
         this.expectation = expectation;
     }
 
@@ -65,16 +61,10 @@ public class UserProvidedResourceResolverTest {
         InputStream descriptorYaml = getClass().getResourceAsStream(descriptorLocation);
         DeploymentDescriptor descriptor = descriptorParser.parseDeploymentDescriptorYaml(descriptorYaml);
 
-        InputStream targetJson = getClass().getResourceAsStream(targetLocation);
-        Target target = configurationParser.parseTargetsJson(targetJson)
-            .get(2);
-
         InputStream platformJson = getClass().getResourceAsStream(platformLocation);
-        Platform platform = configurationParser.parsePlatformsJson(platformJson)
-            .get(0);
+        Platform platform = configurationParser.parsePlatformJson(platformJson);
 
-        resolver = getUserProidedResourceResolver(descriptor, target, platform);
-
+        resolver = getUserProidedResourceResolver(descriptor, platform);
     }
 
     @Test
@@ -88,9 +78,8 @@ public class UserProvidedResourceResolverTest {
         }, expectation, getClass());
     }
 
-    protected UserProvidedResourceResolver getUserProidedResourceResolver(DeploymentDescriptor descriptor, Target target,
-        Platform platform) {
-        return new UserProvidedResourceResolver(getResourceTypeFinder(), descriptor, target, platform);
+    protected UserProvidedResourceResolver getUserProidedResourceResolver(DeploymentDescriptor descriptor, Platform platform) {
+        return new UserProvidedResourceResolver(getResourceTypeFinder(), descriptor, platform);
     }
 
     protected ResourceTypeFinder getResourceTypeFinder() {

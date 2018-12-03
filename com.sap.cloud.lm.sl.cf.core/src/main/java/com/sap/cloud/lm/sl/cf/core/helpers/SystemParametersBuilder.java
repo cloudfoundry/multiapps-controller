@@ -59,12 +59,12 @@ public class SystemParametersBuilder {
     private final PropertiesAccessor propertiesAccessor;
     private final Supplier<String> timestampSupplier;
 
-    public SystemParametersBuilder(String platformName, String organization, String space, String user, String defaultDomain,
-        PlatformType xsType, URL targetUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting,
-        boolean reserveTemporaryRoutes, PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices,
-        DeployedMta deployedMta, CredentialsGenerator credentialsGenerator, int majorSchemaVersion, boolean areXsPlaceholdersSupported,
+    public SystemParametersBuilder(String organization, String space, String user, String defaultDomain, PlatformType xsType, URL targetUrl,
+        String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting, boolean reserveTemporaryRoutes,
+        PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices, DeployedMta deployedMta,
+        CredentialsGenerator credentialsGenerator, int majorSchemaVersion, boolean areXsPlaceholdersSupported,
         Supplier<String> timestampSupplier) {
-        this.targetName = platformName;
+        this.targetName = organization + " " + space;
         this.organization = organization;
         this.space = space;
         this.user = user;

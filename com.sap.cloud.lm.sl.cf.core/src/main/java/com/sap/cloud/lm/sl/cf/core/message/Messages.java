@@ -26,8 +26,6 @@ public final class Messages {
     public static final String PATH_SHOULD_BE_NORMALIZED = "Path \"{0}\" should be normalized (should not contain any \".\", \"..\" or \"//\" path segments)!";
     public static final String PATH_MUST_NOT_CONTAIN_WINDOWS_SEPARATORS = "Path \"{0}\" must use only Unix separators \"/\", but contains Windows separators \"\\\"";
     public static final String UNRESOLVED_MTA_MODULES = "Unresolved MTA modules {0}, these modules are neither part of MTA archive, nor already deployed";
-    public static final String UNKNOWN_TARGET = "Unknown target \"{0}\"";
-    public static final String UNKNOWN_PLATFORM = "Unknown platform \"{0}\" for target \"{1}\"";
     public static final String COULD_NOT_CREATE_VALID_DOMAIN = "Could not create a valid domain from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_HOST = "Could not create a valid host from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_PORT = "Could not create a valid port from \"{0}\"";
@@ -106,7 +104,7 @@ public final class Messages {
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type not specified in environment, using default \"{0}\"";
     public static final String XS_TARGET_URL_NOT_SPECIFIED = "XS target URL not specified in environment, using default \"{0}\"";
     public static final String DB_TYPE_NOT_SPECIFIED = "Database type not specified in environment, using default \"{0}\"";
-    public static final String PLATFORMS_NOT_SPECIFIED = "Platforms not specified in environment, using default \"{0}\"";
+    public static final String PLATFORMS_NOT_SPECIFIED = "No platforms specified in the environment";
     public static final String TARGETS_NOT_SPECIFIED = "Targets not specified in environment, using default \"{0}\"";
     public static final String MAX_UPLOAD_SIZE_NOT_SPECIFIED = "Max upload size not specified in environment, using default \"{0}\"";
     public static final String MAX_MTA_DESCRIPTOR_SIZE_NOT_SPECIFIED = "Max MTA descriptor size not specified in environment, using default \"{0}\"";

@@ -1,8 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatforms;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadTargets;
+import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatform;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -23,7 +22,6 @@ import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v1.Platform;
-import com.sap.cloud.lm.sl.mta.model.v1.Target;
 
 public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep> {
 
@@ -34,14 +32,12 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
         MergeDescriptorsStepTest.class);
 
-    private static final Platform PLATFORM = loadPlatforms(CONFIGURATION_PARSER, "platform-types-01.json", MergeDescriptorsStepTest.class)
-        .get(0);
-    private static final Target TARGET = loadTargets(CONFIGURATION_PARSER, "platforms-01.json", MergeDescriptorsStepTest.class).get(0);
+    private static final Platform PLATFORM = loadPlatform(CONFIGURATION_PARSER, "platform-01.json", MergeDescriptorsStepTest.class);
 
     private class MergeDescriptorsStepMock extends MergeDescriptorsStep {
 
         @Override
-        protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform, Target target) {
+        protected MtaDescriptorMerger getMtaDescriptorMerger(HandlerFactory factory, Platform platform) {
             return merger;
         }
 
@@ -62,7 +58,6 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
         StepsUtil.setExtensionDescriptorChain(context, Collections.emptyList());
 
         StepsUtil.setAsBinaryJson(context, Constants.VAR_PLATFORM, PLATFORM);
-        StepsUtil.setAsBinaryJson(context, Constants.VAR_TARGET, TARGET);
     }
 
     @Test
