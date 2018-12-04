@@ -148,8 +148,16 @@
     <sequenceFlow id="flow123" sourceRef="deployAppsSequential" targetRef="createSubscriptionsTask"></sequenceFlow>
     <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" activiti:async="true" calledElement="deleteServicesSubProcess" activiti:inheritVariables="true"></callActivity>
     <sequenceFlow id="flow121" sourceRef="deleteServicesCallActivity" targetRef="createOrUpdateServiceBrokersTask"></sequenceFlow>
-    <sequenceFlow id="flow122" sourceRef="shouldUndeployAppGateway" targetRef="deleteServicesCallActivity">
+    <sequenceFlow id="flow122" sourceRef="shouldUndeployAppGateway" targetRef="shouldDeleteDiscontinuedServicesGateway">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(appsToUndeployCount == appsToUndeployIndex)}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="shouldDeleteDiscontinuedServicesGateway" name="Should Delete Discontinued Services" default="deleteDiscontinuedServicesFlow"></exclusiveGateway>
+    <sequenceFlow id="deleteDiscontinuedServicesFlow" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="deleteServicesCallActivity"></sequenceFlow>
+    <sequenceFlow id="doNotDeleteDiscontinuedServicesFlow" name="Don't delete services" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="createOrUpdateServiceBrokersTask">
+      <extensionElements>
+        <activiti:executionListener event="take" delegateExpression="${doNotDeleteServicesListener}"></activiti:executionListener>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServices == false)}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-deploy">
@@ -304,6 +312,9 @@
       <bpmndi:BPMNShape bpmnElement="deleteServicesCallActivity" id="BPMNShape_deleteServicesCallActivity">
         <omgdc:Bounds height="61.0" width="105.0" x="918.0" y="592.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="shouldDeleteDiscontinuedServicesGateway" id="BPMNShape_shouldDeleteDiscontinuedServicesGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="1071.0" y="602.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
         <omgdi:waypoint x="1033.0" y="249.0"></omgdi:waypoint>
         <omgdi:waypoint x="963.0" y="249.0"></omgdi:waypoint>
@@ -316,7 +327,6 @@
         <omgdi:waypoint x="886.0" y="141.0"></omgdi:waypoint>
         <omgdi:waypoint x="861.0" y="141.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
         <omgdi:waypoint x="725.0" y="60.0"></omgdi:waypoint>
         <omgdi:waypoint x="756.0" y="60.0"></omgdi:waypoint>
@@ -343,9 +353,7 @@
         <omgdi:waypoint x="431.0" y="692.0"></omgdi:waypoint>
         <omgdi:waypoint x="431.0" y="653.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-
-          <omgdc:Bounds height="48.0" width="100.0" x="593.0" y="661.0"></omgdc:Bounds>
-
+          <omgdc:Bounds height="39.0" width="100.0" x="593.0" y="661.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
@@ -402,9 +410,7 @@
         <omgdi:waypoint x="407.0" y="60.0"></omgdi:waypoint>
         <omgdi:waypoint x="483.0" y="60.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-
-          <omgdc:Bounds height="48.0" width="79.0" x="406.0" y="28.0"></omgdc:Bounds>
-
+          <omgdc:Bounds height="39.0" width="79.0" x="406.0" y="28.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="noGitRepoUriFlow" id="BPMNEdge_noGitRepoUriFlow">
@@ -413,9 +419,7 @@
         <omgdi:waypoint x="673.0" y="5.0"></omgdi:waypoint>
         <omgdi:waypoint x="672.0" y="28.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-
-          <omgdc:Bounds height="48.0" width="73.0" x="307.0" y="11.0"></omgdc:Bounds>
-
+          <omgdc:Bounds height="39.0" width="73.0" x="307.0" y="11.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
@@ -448,9 +452,7 @@
         <omgdi:waypoint x="322.0" y="904.0"></omgdi:waypoint>
         <omgdi:waypoint x="532.0" y="905.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-
-          <omgdc:Bounds height="48.0" width="100.0" x="328.0" y="862.0"></omgdc:Bounds>
-
+          <omgdc:Bounds height="39.0" width="100.0" x="328.0" y="862.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="allServiceBrokerSubscribersWereRestartedFlow" id="BPMNEdge_allServiceBrokerSubscribersWereRestartedFlow">
@@ -586,8 +588,21 @@
       <bpmndi:BPMNEdge bpmnElement="flow122" id="BPMNEdge_flow122">
         <omgdi:waypoint x="1329.0" y="583.0"></omgdi:waypoint>
         <omgdi:waypoint x="1326.0" y="551.0"></omgdi:waypoint>
-        <omgdi:waypoint x="970.0" y="551.0"></omgdi:waypoint>
-        <omgdi:waypoint x="970.0" y="592.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1090.0" y="551.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1091.0" y="602.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="deleteDiscontinuedServicesFlow" id="BPMNEdge_deleteDiscontinuedServicesFlow">
+        <omgdi:waypoint x="1071.0" y="622.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1023.0" y="622.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="doNotDeleteDiscontinuedServicesFlow" id="BPMNEdge_doNotDeleteDiscontinuedServicesFlow">
+        <omgdi:waypoint x="1091.0" y="642.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1091.0" y="694.0"></omgdi:waypoint>
+        <omgdi:waypoint x="808.0" y="694.0"></omgdi:waypoint>
+        <omgdi:waypoint x="808.0" y="653.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="100.0" x="1031.0" y="662.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

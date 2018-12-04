@@ -60,12 +60,6 @@ public class DeleteServicesStep extends AsyncFlowableStep {
                 return StepPhase.DONE;
             }
 
-            if (!StepsUtil.shouldDeleteServices(execution)) {
-                getStepLogger().warn(Messages.SKIP_SERVICES_DELETION);
-
-                return StepPhase.DONE;
-            }
-
             XsCloudControllerClient xsClient = execution.getXsControllerClient();
             if (xsClient == null) {
                 Map<String, String> serviceGuids = getServicesGuids(servicesToDelete, execution);

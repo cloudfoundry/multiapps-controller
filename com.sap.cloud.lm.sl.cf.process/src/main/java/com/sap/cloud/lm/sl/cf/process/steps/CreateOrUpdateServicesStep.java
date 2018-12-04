@@ -261,7 +261,7 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
         getStepLogger().debug(Messages.SERVICE_ALREADY_EXISTS, service.getName());
         List<ServiceAction> actions = determineActions(client, spaceId, service, existingService, defaultTags);
         if (actions.contains(ServiceAction.ACTION_RECREATE)) {
-            if (!StepsUtil.shouldDeleteServices(execution)) {
+            if (!StepsUtil.shouldDeleteServices(execution.getContext())) {
                 getStepLogger().warn(Messages.WILL_NOT_RECREATE_SERVICE, service.getName());
                 return null;
             }

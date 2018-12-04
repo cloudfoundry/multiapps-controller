@@ -1074,8 +1074,8 @@ public class StepsUtil {
             .equals(appGuid);
     }
 
-    public static boolean shouldDeleteServices(ExecutionWrapper execution) {
-        boolean deleteServicesFlag = (boolean) execution.getContext()
+    public static boolean shouldDeleteServices(DelegateExecution context) {
+        boolean deleteServicesFlag = (boolean) context
             .getVariable(Constants.PARAM_DELETE_SERVICES);
 
         return deleteServicesFlag;
