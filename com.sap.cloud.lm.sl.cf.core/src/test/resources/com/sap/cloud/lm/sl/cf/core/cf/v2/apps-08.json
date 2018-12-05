@@ -20,7 +20,6 @@
       "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-1\"]",
       "MTA_SERVICES=[\"user-provided-renamed\",\"user-provided-service\",\"user-provider-resource-named-service\",\"random-service-renamed\",\"random-service\",\"random-resource-named-service\"]",
-      "MTA_SHARED_SERVICES=[]",
       "TARGET_RUNTIME=tomee"
     ],
     "instances": 0,

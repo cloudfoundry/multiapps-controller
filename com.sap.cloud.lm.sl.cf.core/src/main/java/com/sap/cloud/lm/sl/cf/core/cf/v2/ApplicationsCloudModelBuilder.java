@@ -111,8 +111,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
         List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);
         List<String> services = getAllApplicationServices(module);
         List<ServiceKeyToInject> serviceKeys = getServicesKeysToInject(module);
-        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, getApplicationServices(module),
-            getSharedApplicationServices(module));
+        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, getApplicationServices(module));
         List<CloudTask> tasks = getTasks(parametersList);
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters((Module) module);
         List<ApplicationPort> applicationPorts = getApplicationPorts((Module) module, parametersList);

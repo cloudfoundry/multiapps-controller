@@ -20,7 +20,6 @@
       "MTA_MODULE_METADATA={\"name\":\"pricing-db\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"pricing-db\"]",
       "MTA_SERVICES=[\"pricing-db-service\"]",
-      "MTA_SHARED_SERVICES=[]",
       "default-locale=zho"
     ],
     "instances": 0,
@@ -57,7 +56,6 @@
       "MTA_MODULE_METADATA={\"name\":\"pricing\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"internal-odata\",\"pricing\"]",
       "MTA_SERVICES=[\"pricing-db-service\"]",
-      "MTA_SHARED_SERVICES=[]",
       "application-key=25892e17-80f6-415f-9c65-7395632f0223",
       "default-locale=zho",
       "docu-url=http://help.sap.com/saphelp_nw74/en/5c",
@@ -100,7 +98,6 @@
       "MTA_MODULE_METADATA={\"name\":\"web-server\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"web-server\"]",
       "MTA_SERVICES=[\"internal-odata-service\"]",
-      "MTA_SHARED_SERVICES=[]",
       "default-locale=zho",
       "docu-url=http://help.sap.com/saphelp_nw74/en/5c",
       "odata.svc_root=odata/"

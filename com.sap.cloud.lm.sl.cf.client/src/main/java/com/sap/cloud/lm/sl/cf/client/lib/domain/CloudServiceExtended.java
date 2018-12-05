@@ -16,7 +16,6 @@ public class CloudServiceExtended extends CloudService {
     private Map<String, Object> credentials;
     private List<String> tags;
     private boolean isOptional;
-    private boolean isShared;
     private boolean isManaged;
     private boolean shouldIgnoreUpdateErrors;
 
@@ -66,14 +65,6 @@ public class CloudServiceExtended extends CloudService {
 
     public void setOptional(boolean isOptional) {
         this.isOptional = isOptional;
-    }
-
-    public boolean isShared() {
-        return isShared;
-    }
-
-    public void setShared(boolean isShared) {
-        this.isShared = isShared;
     }
 
     public boolean isManaged() {

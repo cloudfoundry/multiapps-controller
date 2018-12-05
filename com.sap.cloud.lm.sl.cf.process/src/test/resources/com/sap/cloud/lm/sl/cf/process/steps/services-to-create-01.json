@@ -1,14 +1,12 @@
 [
   {
     "isOptional": false,
-    "isShared": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
     "name": "resource-1"
   },
   {
     "isOptional": false,
-    "isShared": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
     "name": "resource-2"

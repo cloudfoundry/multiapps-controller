@@ -24,8 +24,7 @@
       "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-1\"]",
-      "MTA_SERVICES=[]",
-      "MTA_SHARED_SERVICES=[]"
+      "MTA_SERVICES=[]"
     ],
     "instances": 0,
     "memory": 0,
@@ -67,8 +66,7 @@
       "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"module-2\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-2\"]",
-      "MTA_SERVICES=[]",
-      "MTA_SHARED_SERVICES=[]"
+      "MTA_SERVICES=[]"
     ],
     "instances": 0,
     "memory": 0,
@@ -108,8 +106,7 @@
       "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"module-3\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-3\"]",
-      "MTA_SERVICES=[]",
-      "MTA_SHARED_SERVICES=[]"
+      "MTA_SERVICES=[]"
     ],
     "instances": 0,
     "memory": 0,

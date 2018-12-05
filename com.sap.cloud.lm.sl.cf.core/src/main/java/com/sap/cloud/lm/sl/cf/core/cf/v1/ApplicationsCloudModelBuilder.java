@@ -197,8 +197,7 @@ public class ApplicationsCloudModelBuilder {
         List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);
         List<String> allServices = getAllApplicationServices(module);
         List<ServiceKeyToInject> serviceKeysToInject = getServicesKeysToInject(module);
-        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, getApplicationServices(module),
-            getSharedApplicationServices(module));
+        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, getApplicationServices(module));
         List<CloudTask> tasks = getTasks(propertiesList);
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
             resolvedIdleUris, allServices, serviceKeysToInject, env, tasks, dockerInfo);
@@ -225,10 +224,6 @@ public class ApplicationsCloudModelBuilder {
         return getApplicationServices(module, this::filterExistingServicesRule);
     }
 
-    protected List<String> getSharedApplicationServices(Module module) {
-        return getApplicationServices(module, this::onlySharedServicesRule);
-    }
-
     protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) {
         List<String> services = new ArrayList<>();
         for (String dependencyName : module.getRequiredDependencies1()) {
@@ -249,17 +244,8 @@ public class ApplicationsCloudModelBuilder {
         return !isExistingService(resourceAndResourceType.getResourceType());
     }
 
-    protected boolean onlySharedServicesRule(ResourceAndResourceType resourceAndResourceType) {
-        return !isExistingService(resourceAndResourceType.getResourceType()) && isSharedService(resourceAndResourceType.getResource());
-    }
-
     private boolean isExistingService(ResourceType resourceType) {
         return resourceType.equals(ResourceType.EXISTING_SERVICE);
-    }
-
-    private boolean isSharedService(Resource resource) {
-        return (boolean) propertiesAccessor.getParameters(resource)
-            .getOrDefault(SupportedParameters.SHARED, false);
     }
 
     protected ResourceAndResourceType getApplicationService(String dependencyName) {

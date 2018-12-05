@@ -77,12 +77,6 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     }
 
     @Override
-    protected List<String> getSharedApplicationServices(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
-        return getApplicationServices(module,
-            resourceAndType -> onlySharedServicesRule(resourceAndType) && onlyActiveServicesRule(resourceAndType));
-    }
-
-    @Override
     protected List<ServiceKeyToInject> getServicesKeysToInject(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
         return getServicesKeysToInject((Module) module);
     }
