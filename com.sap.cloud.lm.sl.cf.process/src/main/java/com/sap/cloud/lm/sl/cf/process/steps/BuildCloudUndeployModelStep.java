@@ -88,7 +88,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     private boolean shouldKeepExistingModule(List<DeployedMtaModule> modulesToUndeploy, DeployedMtaModule existingModule) {
         String existingModuleName = existingModule.getModuleName();
         return modulesToUndeploy.stream()
-            .map(module -> module.getModuleName())
+            .map(DeployedMtaModule::getModuleName)
             .noneMatch(moduleName -> existingModuleName.equals(moduleName));
     }
 
@@ -113,7 +113,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
             .noneMatch(moduleToKeepService -> moduleToKeepService.contains(service))
             && appsToDeploy.stream()
                 .map(CloudApplicationExtended::getServices)
-                .noneMatch(appService -> appService.equals(service));
+                .noneMatch(appService -> appService.contains(service));
     }
 
     private List<DeployedMtaModule> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules, List<String> appsToDeploy) {
