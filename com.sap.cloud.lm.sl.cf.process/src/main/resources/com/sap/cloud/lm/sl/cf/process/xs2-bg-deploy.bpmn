@@ -190,7 +190,6 @@
     </sequenceFlow>
     <exclusiveGateway id="shouldDeleteDiscontinuedServicesGateway" name="Should Delete Discontinued Services" default="deleteDiscontinuedServicesFlow"></exclusiveGateway>
     <sequenceFlow id="deleteDiscontinuedServicesFlow" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="deleteServicesCallActivity"></sequenceFlow>
-    <sequenceFlow id="flow159" sourceRef="undeployAppTask" targetRef="shouldDeleteDiscontinuedServicesGateway"></sequenceFlow>
     <sequenceFlow id="doNotDeleteDiscontinuedServicesFlow" name="Don't delete services" sourceRef="shouldDeleteDiscontinuedServicesGateway" targetRef="createOrUpdateServiceBrokersTask">
       <extensionElements>
         <activiti:executionListener event="take" delegateExpression="${doNotDeleteServicesListener}"></activiti:executionListener>
@@ -739,10 +738,6 @@
       <bpmndi:BPMNEdge bpmnElement="deleteDiscontinuedServicesFlow" id="BPMNEdge_deleteDiscontinuedServicesFlow">
         <omgdi:waypoint x="647.0" y="614.0"></omgdi:waypoint>
         <omgdi:waypoint x="627.0" y="614.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow159" id="BPMNEdge_flow159">
-        <omgdi:waypoint x="725.0" y="612.0"></omgdi:waypoint>
-        <omgdi:waypoint x="687.0" y="614.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="doNotDeleteDiscontinuedServicesFlow" id="BPMNEdge_doNotDeleteDiscontinuedServicesFlow">
         <omgdi:waypoint x="667.0" y="634.0"></omgdi:waypoint>
