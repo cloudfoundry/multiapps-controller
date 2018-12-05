@@ -5,10 +5,12 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import com.sap.cloud.lm.sl.cf.web.resources.AdminResource;
 import com.sap.cloud.lm.sl.cf.web.resources.CFExceptionMapper;
 import com.sap.cloud.lm.sl.cf.web.resources.ConfigurationEntriesResource;
 import com.sap.cloud.lm.sl.cf.web.resources.ConfigurationSubscriptionsResource;
 import com.sap.cloud.lm.sl.cf.web.resources.CsrfTokenResource;
+import com.sap.cloud.lm.sl.cf.web.resources.ApplicationShutdownResource;
 
 public class CFApplication extends Application {
 
@@ -22,4 +24,11 @@ public class CFApplication extends Application {
         return classes;
     }
 
+    @Override
+    public Set<Object> getSingletons() {
+        Set<Object> singletons = new HashSet<>();
+        singletons.add(new AdminResource());
+        singletons.add(new ApplicationShutdownResource());
+        return singletons;
+    }
 }

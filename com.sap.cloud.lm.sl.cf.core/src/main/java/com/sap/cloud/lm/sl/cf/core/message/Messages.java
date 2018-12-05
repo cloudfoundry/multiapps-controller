@@ -174,6 +174,9 @@ public final class Messages {
     public static final String PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES = "All delete request spaces after date: {0} will be deleted from configuration tables.";
     public static final String RETRIEVED_USER_TOKEN = "Retrieved token for user: {0} with expiration time: {1}";
     public static final String FSS_CACHE_UPDATE_TIMEOUT = "Fss cache update timeout: {0} minutes";
+    public static final String APP_SHUTDOWN_REQUEST = "Application with id:\"{0}\", instance id:\"{1}\", instance index:\"{2}\", is requested to shutdown. Timeout to wait before shutdown of Flowable job executor:\"{3}\" seconds.";
+    public static final String APP_SHUTDOWNED = "Application with id:\"{0}\", instance id:\"{1}\", instance index:\"{2}\", is shutdowned. Timeout to wait before shutdown of Flowable job executor:\"{3}\" seconds.";
+    public static final String APP_SHUTDOWN_STATUS_MONITOR = "Monitor shutdown status of application with id:\"{0}\", instance id:\"{1}\", instance index:\"{2}\". Status:\"{3}\".";
 
     // Debug messages
     public static final String EXTENSION_DESCRIPTOR = "Extension descriptor \"{0}\": {1}";
