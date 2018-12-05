@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.builders.ExtensionDescriptorChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
-import com.sap.cloud.lm.sl.mta.model.v1.ExtensionDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
 
 public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest<ProcessMtaExtensionDescriptorsStep> {
 
@@ -32,14 +32,15 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
     public void testExecute() throws FileStorageException {
         final String extensionDescriptorString1 = "abc";
         final String extensionDescriptorString2 = "def";
-        final ExtensionDescriptor extensionDescriptor1 = StepsTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
+//        final ExtensionDescriptor extensionDescriptor1 = StepsTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
         final ExtensionDescriptor extensionDescriptor2 = StepsTestUtil.loadExtensionDescriptor("config-02.mtaext", getClass());
-        final List<ExtensionDescriptor> extensionDescriptorChain = Arrays.asList(extensionDescriptor1, extensionDescriptor2);
+        final ExtensionDescriptor extensionDescriptor3 = StepsTestUtil.loadExtensionDescriptor("config-01.mtaext", getClass());
+        final List<ExtensionDescriptor> extensionDescriptorChain = Arrays.asList(extensionDescriptor2, extensionDescriptor3);
 
         prepare(Arrays.asList(extensionDescriptorString1, extensionDescriptorString2));
         DescriptorParserFacade descriptorParserFacade = Mockito.mock(DescriptorParserFacade.class);
         Mockito.when(descriptorParserFacade.parseExtensionDescriptor(Mockito.<InputStream> any()))
-            .thenReturn(extensionDescriptor1, extensionDescriptor2);
+            .thenReturn(extensionDescriptor2,extensionDescriptor3);
 
         ExtensionDescriptorChainBuilder extensionDescriptorChainBuilder = Mockito.mock(ExtensionDescriptorChainBuilder.class);
         Mockito.when(extensionDescriptorChainBuilder.build(Mockito.any(), Mockito.eq(extensionDescriptorChain)))

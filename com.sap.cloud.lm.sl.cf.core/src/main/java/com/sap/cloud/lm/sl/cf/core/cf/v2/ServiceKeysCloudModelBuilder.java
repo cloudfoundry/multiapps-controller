@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.cf.v1;
+package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.isService;
 
@@ -31,7 +31,7 @@ public class ServiceKeysCloudModelBuilder {
 
     public Map<String, List<ServiceKey>> build() {
         Map<String, List<ServiceKey>> serviceKeys = new HashMap<>();
-        for (Resource resource : deploymentDescriptor.getResources()) {
+        for (Resource resource : deploymentDescriptor.getResources2()) {
             if (isService(resource, propertiesAccessor)) {
                 serviceKeys.put(resource.getName(), getServiceKeysForService(resource));
             }

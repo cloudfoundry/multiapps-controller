@@ -33,7 +33,7 @@ public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.cor
         ConfigurationFilter filter = resolvedReference.getReferenceFilter();
         String appName = (String) module.getParameters()
             .get(SupportedParameters.APP_NAME);
-        com.sap.cloud.lm.sl.mta.model.v1.Resource resource = resolvedReference.getReference();
+        com.sap.cloud.lm.sl.mta.model.v2.Resource resource = resolvedReference.getReference();
         Module adaptedModule = getContainingOneRequiresDependency(module, dependency);
 
         return ConfigurationSubscription.from(mtaId, spaceId, appName, filter, adaptedModule, resource, getMajorSchemaVersion());

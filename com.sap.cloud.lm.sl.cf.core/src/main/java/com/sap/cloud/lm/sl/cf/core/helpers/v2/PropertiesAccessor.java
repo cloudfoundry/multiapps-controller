@@ -10,31 +10,23 @@ import com.sap.cloud.lm.sl.mta.model.PropertiesContainer;
 public class PropertiesAccessor {
 
     public Map<String, Object> getParameters(PropertiesContainer propertiesContainer, Set<String> supportedParameters) {
-        return getParameters((ParametersContainer) propertiesContainer);
+        return new TreeMap<>(((ParametersContainer) propertiesContainer).getParameters());
     }
 
     public Map<String, Object> getProperties(PropertiesContainer propertiesContainer, Set<String> supportedParameters) {
         return new TreeMap<>(propertiesContainer.getProperties());
     }
-
-    public Map<String, Object> getParameters(ParametersContainer parametersContainer) {
-        return new TreeMap<>(parametersContainer.getParameters());
+    
+    public Map<String, Object> getProperties(PropertiesContainer propertiesContainer) {
+        return new TreeMap<>(propertiesContainer.getProperties());
     }
 
     public Map<String, Object> getParameters(PropertiesContainer propertiesContainer) {
-        return getParameters(propertiesContainer);
+        return new TreeMap<>(((ParametersContainer) propertiesContainer).getParameters());
     }
 
     public void setParameters(PropertiesContainer propertiesContainer, Map<String, Object> parameters) {
-        setParameters((ParametersContainer) propertiesContainer, parameters);
-    }
-
-    public void setParameters(ParametersContainer parametersContainer, Map<String, Object> parameters) {
-        parametersContainer.setParameters(parameters);
-    }
-    
-    public void setProperties(PropertiesContainer propertiesContainer, Map<String, Object> properties) {
-        propertiesContainer.setProperties(properties);
+        ((ParametersContainer) propertiesContainer).setParameters(parameters);
     }
 
 }

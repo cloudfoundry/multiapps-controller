@@ -1,6 +1,6 @@
-package com.sap.cloud.lm.sl.cf.core.cf.v1;
+package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
-import com.sap.cloud.lm.sl.mta.model.v1.Resource;
+import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 public class ResourceAndResourceType {
     private final Resource resource;

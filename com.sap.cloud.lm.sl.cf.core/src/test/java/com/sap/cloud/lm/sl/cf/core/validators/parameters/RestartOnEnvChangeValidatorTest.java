@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
-import com.sap.cloud.lm.sl.mta.model.v1.Module;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
 class RestartOnEnvChangeValidatorTest {
     private RestartOnEnvChangeValidator validator = new RestartOnEnvChangeValidator();

@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.cf.v1;
+package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 public class CloudModelConfiguration {
     protected boolean portBasedRouting;

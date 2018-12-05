@@ -4,19 +4,23 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.mta.model.ElementContext;
+import com.sap.cloud.lm.sl.mta.model.Visitor;
 import com.sap.cloud.lm.sl.mta.model.v2.ResourceType;
 
-public class ResourceTypeFinder extends com.sap.cloud.lm.sl.cf.core.helpers.v1.ResourceTypeFinder {
+public class ResourceTypeFinder extends Visitor {
 
+    protected String resourceTypeName = null;
+    protected String resourceType;
+    
     public ResourceTypeFinder(String resourceType) {
-        super(resourceType);
+        this.resourceType = resourceType;
+    }
+    
+    public String getResourceTypeName() {
+        return resourceTypeName;
     }
 
     @Override
-    public void visit(ElementContext context, com.sap.cloud.lm.sl.mta.model.v1.ResourceType resourceType) {
-        visit(context, (com.sap.cloud.lm.sl.mta.model.v2.ResourceType) resourceType);
-    }
-
     public void visit(ElementContext context, ResourceType resourceType) {
         Map<String, Object> resourceTypeProperties = resourceType.getParameters();
         String typeProperty = (String) resourceTypeProperties.get(SupportedParameters.TYPE);

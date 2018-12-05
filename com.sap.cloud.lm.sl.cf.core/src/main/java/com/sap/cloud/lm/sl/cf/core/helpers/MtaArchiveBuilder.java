@@ -76,8 +76,7 @@ public class MtaArchiveBuilder {
         deploymentDescriptorFile = findDeploymenDescriptor(mtaDirectory);
         String deploymentDescriptorString = readDeploymentDescriptor(deploymentDescriptorFile);
 
-        com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor deploymentDescriptor = new DescriptorParserFacade()
-            .parseDeploymentDescriptor(deploymentDescriptorString);
+        DeploymentDescriptor deploymentDescriptor = new DescriptorParserFacade().parseDeploymentDescriptor(deploymentDescriptorString);
         Version schemaVersion = new SchemaVersionDetector().detect(deploymentDescriptor, Collections.emptyList());
 
         if (schemaVersion.getMajor() < 2) {

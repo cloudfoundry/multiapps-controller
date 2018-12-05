@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 import java.util.Collections;
 
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1.Module;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
 public class ModuleSystemParameterCopier implements ParameterValidator {
 

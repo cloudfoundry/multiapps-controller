@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.cf.v1;
+package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,9 +19,9 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.model.ParametersContainer;
 import com.sap.cloud.lm.sl.mta.model.Version;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1.Module;
-import com.sap.cloud.lm.sl.mta.model.v1.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency;
 
 public class ConfigurationEntriesCloudModelBuilder {
 
@@ -42,14 +42,14 @@ public class ConfigurationEntriesCloudModelBuilder {
 
     private Map<String, List<ProvidedDependency>> getPublicProvidedDependencies(DeploymentDescriptor deploymentDescriptor) {
         Map<String, List<ProvidedDependency>> resultMap = new HashMap<>();
-        for (Module module : deploymentDescriptor.getModules1()) {
+        for (Module module : deploymentDescriptor.getModules2()) {
             resultMap.put(module.getName(), getPublicProvidedDependencies(module));
         }
         return resultMap;
     }
 
     private List<ProvidedDependency> getPublicProvidedDependencies(Module module) {
-        return module.getProvidedDependencies1()
+        return module.getProvidedDependencies2()
             .stream()
             .filter(CloudModelBuilderUtil::isPublic)
             .collect(Collectors.toList());

@@ -1,11 +1,11 @@
-package com.sap.cloud.lm.sl.cf.core.validators.parameters.v1;
+package com.sap.cloud.lm.sl.cf.core.validators.parameters.v2;
 
 import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParametersValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParametersValidatorHelper;
-import com.sap.cloud.lm.sl.mta.model.v1.Module;
-import com.sap.cloud.lm.sl.mta.model.v1.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency;
 
 public class ProvidedDependencyParametersValidator extends ParametersValidator<ProvidedDependency> {
 

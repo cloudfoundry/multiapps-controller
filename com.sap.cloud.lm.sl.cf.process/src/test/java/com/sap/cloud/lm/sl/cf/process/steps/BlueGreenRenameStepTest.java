@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 
 public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenameStep> {
 
-    private static final Integer MTA_MAJOR_SCHEMA_VERSION = 1;
+    private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     @Mock
     private ApplicationColorDetector applicationColorDetector;

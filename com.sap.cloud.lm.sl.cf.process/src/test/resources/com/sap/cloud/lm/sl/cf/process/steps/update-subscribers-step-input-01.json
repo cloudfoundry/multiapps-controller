@@ -63,7 +63,7 @@
           "targetSpace": {
              "space": "sap"
           },
-          "providerVersion": "1.0.0",
+          "providerVersion": "2.0.0",
           "content": "{\"plugin_name\":\"plugin-01\"}"
         },
         {
@@ -72,7 +72,7 @@
           "targetSpace": {
              "space": "sap"
           },
-          "providerVersion": "1.0.0",
+          "providerVersion": "2.0.0",
           "content": "{\"plugin_name\":\"plugin-02\"}"
         }
       ],
@@ -84,7 +84,7 @@
           "targetSpace": {
              "space": "sap"
           },
-          "providerVersion": "1.0.0",
+          "providerVersion": "2.0.0",
           "content": "{\"plugin_name\":\"plugin-03\"}"
         }
       ]

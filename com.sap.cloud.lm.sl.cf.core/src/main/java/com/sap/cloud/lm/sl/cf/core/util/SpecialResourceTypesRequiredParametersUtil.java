@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.util;
 import java.util.Map;
 import java.util.Set;
 
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ResourceType;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 

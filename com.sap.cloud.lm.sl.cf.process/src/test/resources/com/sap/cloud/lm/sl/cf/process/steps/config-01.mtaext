@@ -1,3 +1,3 @@
-_schema-version: 1.0.0
+_schema-version: 3.0.0
 ID: com.sap.mta.test.config-01
 extends: com.sap.mta.test

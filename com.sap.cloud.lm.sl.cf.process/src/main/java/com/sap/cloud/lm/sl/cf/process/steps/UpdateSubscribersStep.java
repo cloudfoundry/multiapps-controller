@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
@@ -43,7 +43,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.DummyConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.ReferencingPropertiesVisitor;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationReferencesResolver;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -57,9 +57,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.parsers.v1.DeploymentDescriptorParser;
-import com.sap.cloud.lm.sl.mta.parsers.v1.ModuleParser;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.parsers.v2.DeploymentDescriptorParser;
+import com.sap.cloud.lm.sl.mta.parsers.v2.ModuleParser;
 import com.sap.cloud.lm.sl.mta.resolvers.Reference;
 import com.sap.cloud.lm.sl.mta.resolvers.ReferencePattern;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
@@ -218,7 +218,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             StepsUtil.getCloudBuilderConfiguration(context, shouldUsePrettyPrinting()), null, getEmptySystemParameters(),
             new XsPlaceholderResolver(), "");
 
-        String moduleName = dummyDescriptor.getModules1()
+        String moduleName = dummyDescriptor.getModules2()
             .get(0)
             .getName();
         Set<String> moduleNamesSet = new TreeSet<>(Arrays.asList(moduleName));

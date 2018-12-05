@@ -24,7 +24,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
 import com.sap.cloud.lm.sl.mta.message.Messages;
 import com.sap.cloud.lm.sl.mta.model.Version;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectMtaSchemaVersionStep> {
@@ -38,7 +38,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
 // @formatter:off
             // Supported version:
             {
-                "1.0.0", 1, null,
+                "1.0.0", 1,  format(Messages.UNSUPPORTED_VERSION, "1.0.0"),
             },
             // Supported version:
             {

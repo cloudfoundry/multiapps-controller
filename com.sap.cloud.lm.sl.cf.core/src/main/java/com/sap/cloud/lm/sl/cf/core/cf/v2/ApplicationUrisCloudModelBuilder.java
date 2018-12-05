@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.cf.v1;
+package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.commons.collections4.MapUtils;
 
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.helpers.v1.PropertiesAccessor;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters.RoutingParameterSet;
@@ -16,7 +16,7 @@ import com.sap.cloud.lm.sl.cf.core.parser.IdleUriParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.UriParametersParser;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1.Module;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class ApplicationUrisCloudModelBuilder {

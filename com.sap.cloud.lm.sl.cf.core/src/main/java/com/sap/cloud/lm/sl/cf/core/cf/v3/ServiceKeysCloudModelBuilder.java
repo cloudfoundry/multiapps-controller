@@ -14,7 +14,7 @@ import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 
-public class ServiceKeysCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder {
+public class ServiceKeysCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder {
 
     public ServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor) {
         super(deploymentDescriptor, propertiesAccessor);
@@ -23,7 +23,7 @@ public class ServiceKeysCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
     @Override
     public Map<String, List<ServiceKey>> build() {
         Map<String, List<ServiceKey>> serviceKeys = new HashMap<>();
-        for (Resource resource : deploymentDescriptor.getResources()) {
+        for (Resource resource : deploymentDescriptor.getResources2()) {
             if (isService(resource, propertiesAccessor) && isActive(resource)) {
                 serviceKeys.put(resource.getName(), getServiceKeysForService(resource));
             }

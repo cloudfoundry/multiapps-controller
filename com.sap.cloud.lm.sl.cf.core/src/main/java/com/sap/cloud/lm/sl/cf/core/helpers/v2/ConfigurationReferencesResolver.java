@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v2;
 
+import static java.text.MessageFormat.format;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,29 +12,71 @@ import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.expander.PropertiesExpander;
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.PropertiesContainer;
+import com.sap.cloud.lm.sl.mta.model.Visitor;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
-public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationReferencesResolver {
+public class ConfigurationReferencesResolver extends Visitor {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationReferencesResolver.class);
+
+    protected ConfigurationReferenceResolver configurationResolver;
+    protected ConfigurationEntryDao dao;
+    protected Map<String, ResolvedConfigurationReference> resolvedReferences = new TreeMap<>();
+    protected ConfigurationFilterParser filterParser;
+    protected BiFunction<String, String, String> spaceIdSupplier;
+    protected CloudTarget cloudTarget;
+    protected ApplicationConfiguration configuration;
 
     protected Map<RequiredDependency, List<RequiredDependency>> expandedDependenciesMap = new HashMap<>();
     private List<String> expandedProperties = new ArrayList<>();
 
     public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
         BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
-        super(dao, filterParser, spaceIdSupplier, cloudTarget, configuration);
+        this.dao = dao;
+        this.filterParser = filterParser;
+        this.spaceIdSupplier = spaceIdSupplier;
+        this.cloudTarget = cloudTarget;
+        this.configuration = configuration;
+        this.configurationResolver = createReferenceResolver(dao);
     }
-
-    @Override
-    protected void updateReferencesToResolvedResources(com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor descriptor) {
-        updateReferencesToResolvedResources((DeploymentDescriptor) descriptor);
+    
+    public void resolve(DeploymentDescriptor descriptor) {
+        descriptor.accept(this);
+        insertResolvedResources(descriptor);
+    }
+    
+    protected void insertResolvedResources(DeploymentDescriptor descriptor) {
+        descriptor.setResources2(getResolvedResources(descriptor));
+        updateReferencesToResolvedResources(descriptor);
+    }
+    
+    protected List<Resource> getResolvedResources(DeploymentDescriptor descriptor) {
+        return descriptor.getResources2()
+            .stream()
+            .flatMap(resource -> getResolvedResources(resource).stream())
+            .collect(Collectors.toList());
+    }
+    
+    protected List<Resource> getResolvedResources(Resource resource) {
+        ResolvedConfigurationReference reference = resolvedReferences.get(resource.getName());
+        if (reference != null) {
+            return reference.getResolvedResources();
+        }
+        return Arrays.asList(resource);
     }
 
     protected void updateReferencesToResolvedResources(DeploymentDescriptor descriptor) {
@@ -64,7 +108,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
         return requiredDependencies;
     }
 
-    protected RequiredDependency createRequiredDependency(com.sap.cloud.lm.sl.mta.model.v1.Resource resource,
+    protected RequiredDependency createRequiredDependency(Resource resource,
         RequiredDependency dependency) {
         RequiredDependency.Builder builder = new RequiredDependency.Builder();
         builder.setName(resource.getName());
@@ -101,6 +145,15 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
         expandedDependenciesMap.put(dependency, expandedDependencies);
         return expandedDependencies;
     }
+    
+    protected void makeSureIsResolvedToSingleResource(String resolvedResourceName, List<Resource> resultingResources) {
+        if (resultingResources.size() > 1) {
+            LOGGER.debug(Messages.MULTIPLE_CONFIGURATION_ENTRIES, resolvedResourceName, resultingResources);
+            throw new ContentException(format(Messages.MULTIPLE_CONFIGURATION_ENTRIES_WERE_FOUND, resolvedResourceName));
+        } else if (resultingResources.isEmpty()) {
+            throw new ContentException(format(Messages.NO_CONFIGURATION_ENTRIES_WERE_FOUND, resolvedResourceName));
+        }
+    }
 
     protected boolean permitsMultipleResources(RequiredDependency dependency) {
         return dependency.getList() != null;
@@ -116,14 +169,15 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
         return result;
     }
 
-    @Override
     public List<String> getExpandedProperties() {
         return expandedProperties;
     }
 
-    @Override
+    public Map<String, ResolvedConfigurationReference> getResolvedReferences() {
+        return resolvedReferences;
+    }
+    
     protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryDao dao) {
         return new ConfigurationReferenceResolver(dao, configuration);
     }
-
 }

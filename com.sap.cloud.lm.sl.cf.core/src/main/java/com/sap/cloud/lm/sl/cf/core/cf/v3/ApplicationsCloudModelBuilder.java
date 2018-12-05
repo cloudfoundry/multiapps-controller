@@ -15,15 +15,15 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ResourceAndResourceType;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceAndResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1.Resource;
+import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3.Module;
 import com.sap.cloud.lm.sl.mta.model.v3.RequiredDependency;
@@ -58,7 +58,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     }
 
     @Override
-    protected CloudApplicationExtended getApplication(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
+    protected CloudApplicationExtended getApplication(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
         CloudApplicationExtended app = super.getApplication(module);
         List<String> deployedAfter = emptyIfNull(((Module) module).getDeployedAfter());
         app.setDeployedAfter(new HashSet<>(deployedAfter));
@@ -66,18 +66,18 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     }
 
     @Override
-    protected List<String> getAllApplicationServices(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
+    protected List<String> getAllApplicationServices(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
         return getApplicationServices((Module) module, this::onlyActiveServicesRule);
     }
 
     @Override
-    protected List<String> getApplicationServices(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
+    protected List<String> getApplicationServices(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
         return getApplicationServices(module,
             resourceAndType -> filterExistingServicesRule(resourceAndType) && onlyActiveServicesRule(resourceAndType));
     }
 
     @Override
-    protected List<ServiceKeyToInject> getServicesKeysToInject(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
+    protected List<ServiceKeyToInject> getServicesKeysToInject(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
         return getServicesKeysToInject((Module) module);
     }
 

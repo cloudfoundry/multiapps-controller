@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.cf.v1;
+package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.getResourceType;
 import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.isService;
@@ -49,7 +49,7 @@ public class ServicesCloudModelBuilder {
 
     public List<CloudServiceExtended> build() {
         List<CloudServiceExtended> services = new ArrayList<>();
-        for (Resource resource : deploymentDescriptor.getResources1()) {
+        for (Resource resource : deploymentDescriptor.getResources2()) {
             if (isService(resource, propertiesAccessor)) {
                 CollectionUtils.addIgnoreNull(services, getService(resource));
             }

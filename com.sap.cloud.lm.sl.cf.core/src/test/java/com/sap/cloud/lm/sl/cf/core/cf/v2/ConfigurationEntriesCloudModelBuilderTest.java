@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.cf.v1;
+package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -9,11 +9,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.HandlerFactory;
-import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class ConfigurationEntriesCloudModelBuilderTest {
@@ -23,9 +24,9 @@ public class ConfigurationEntriesCloudModelBuilderTest {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             // (0) Test that provided dependencies from version 1 are public by default:
-            {
-                "mtad-07.yaml", 1, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-00.json"),
-            },
+//            {
+//                "mtad-07.yaml", 1, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-00.json"),
+//            },
             // (1) Test that provided dependencies from version 2 are public by default:
             {
                 "mtad-07.yaml", 2, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-01.json"),

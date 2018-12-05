@@ -17,7 +17,7 @@ public class ConfigurationReferenceResolver extends com.sap.cloud.lm.sl.cf.core.
     }
 
     @Override
-    protected Resource asResource(ConfigurationEntry entry, com.sap.cloud.lm.sl.mta.model.v1.Resource resource, int index,
+    protected Resource asResource(ConfigurationEntry entry, com.sap.cloud.lm.sl.mta.model.v2.Resource resource, int index,
         int entriesCount) {
         return asResource(entry, (Resource) resource, index, entriesCount);
     }

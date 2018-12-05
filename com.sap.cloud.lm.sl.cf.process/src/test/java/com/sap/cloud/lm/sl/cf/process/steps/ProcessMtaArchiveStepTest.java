@@ -15,8 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,8 +41,8 @@ import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1.Resource;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaArchiveStep> {
 
@@ -115,7 +113,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
         step.execute(context);
 
         DeploymentDescriptor unresolvedDeploymentDescriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
-        Resource resource = unresolvedDeploymentDescriptor.getResources1()
+        Resource resource = unresolvedDeploymentDescriptor.getResources2()
             .get(0);
         Map<String, Object> configResourceParams = (Map<String, Object>) new PropertiesAccessor().getParameters(resource)
             .get(SupportedParameters.SERVICE_CONFIG);
@@ -130,7 +128,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
             StepInput.class);
         step.execute(context);
         DeploymentDescriptor unresolvedDeploymentDescriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
-        Resource resource = unresolvedDeploymentDescriptor.getResources1()
+        Resource resource = unresolvedDeploymentDescriptor.getResources2()
             .get(0);
         Map<String, Object> configResourceParams = (Map<String, Object>) new PropertiesAccessor().getParameters(resource)
             .get(SupportedParameters.SERVICE_CONFIG);
@@ -178,7 +176,7 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     }
 
     private Resource getResource(DeploymentDescriptor deploymentDescriptor, String resourceName) {
-        return deploymentDescriptor.getResources1()
+        return deploymentDescriptor.getResources2()
             .stream()
             .filter(r -> r.getName()
                 .equals(resourceName))
