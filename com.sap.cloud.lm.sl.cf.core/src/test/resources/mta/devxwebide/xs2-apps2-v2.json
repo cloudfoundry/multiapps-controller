@@ -16,7 +16,6 @@
       "MTA_MODULE_METADATA={\"name\":\"webide\"}",
       "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
       "MTA_SERVICES=[]",
-      "MTA_SHARED_SERVICES=[]",
       "destinations=[{\"name\":\"sapui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://sofd60245639a:53030\"}]"
     ],
     "instances": 0,

@@ -1,11 +1,11 @@
 package com.sap.cloud.lm.sl.cf.core.cf.detect;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.slf4j.Logger;
@@ -36,19 +36,19 @@ public class ApplicationMtaMetadataParser {
         Map<String, String> appEnv = app.getEnvAsMap();
         DeployedMtaMetadata mtaMetadata = parseMtaMetadata(app, appEnv);
         List<String> services = parseServices(appEnv);
-        List<String> sharedServices = parseSharedServices(appEnv);
         String moduleName = parseModuleName(app, appEnv);
         List<String> providedDependencyNames = parseProvidedDependencyNames(app.getName(), appEnv);
 
-        if (Stream.of(mtaMetadata, services, moduleName, providedDependencyNames, sharedServices)
+        List<Object> metadataFields = Arrays.asList(mtaMetadata, services, moduleName, providedDependencyNames);
+        if (metadataFields.stream()
             .allMatch(Objects::isNull)) {
             return null;
         }
-        if (Stream.of(mtaMetadata, services, moduleName, providedDependencyNames)
+        if (metadataFields.stream()
             .anyMatch(Objects::isNull)) {
             throw new ParsingException(Messages.MTA_METADATA_FOR_APP_0_IS_INCOMPLETE, app.getName());
         }
-        return new ApplicationMtaMetadata(mtaMetadata, services, sharedServices, moduleName, providedDependencyNames);
+        return new ApplicationMtaMetadata(mtaMetadata, services, moduleName, providedDependencyNames);
     }
 
     private static DeployedMtaMetadata parseMtaMetadata(CloudApplication app, Map<String, String> appEnv) {
@@ -70,15 +70,6 @@ public class ApplicationMtaMetadataParser {
 
     private static List<String> parseServices(Map<String, String> appEnv) {
         String envValue = appEnv.get(Constants.ENV_MTA_SERVICES);
-        if (envValue == null) {
-            return null;
-        }
-        return JsonUtil.convertJsonToList(envValue, new TypeToken<List<String>>() {
-        }.getType());
-    }
-
-    private static List<String> parseSharedServices(Map<String, String> appEnv) {
-        String envValue = appEnv.get(Constants.ENV_MTA_SHARED_SERVICES);
         if (envValue == null) {
             return null;
         }

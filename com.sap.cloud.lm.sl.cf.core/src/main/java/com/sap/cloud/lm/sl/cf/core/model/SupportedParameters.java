@@ -129,7 +129,6 @@ public class SupportedParameters {
     public static final String NAME = "name";
     public static final String SERVICE_KEY_CONFIG = "config";
     public static final String SERVICE_KEY_NAME = "service-key-name";
-    public static final String SHARED = "shared";
     public static final String DEFAULT_CONTAINER_NAME = "default-container-name";
     public static final String DEFAULT_XS_APP_NAME = "default-xsappname";
     public static final String TYPE = "type";

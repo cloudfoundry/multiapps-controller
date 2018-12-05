@@ -47,7 +47,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         this.deployId = deployId;
     }
 
-    public Map<Object, Object> build(Module module, List<String> services, List<String> sharedServices) {
+    public Map<Object, Object> build(Module module, List<String> services) {
         Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
         Map<String, Object> properties = propertiesAccessor.getProperties(module, specialModuleProperties);
         Map<String, Object> parameters = propertiesAccessor.getParameters(module, specialModuleProperties);
@@ -55,7 +55,6 @@ public class ApplicationEnvironmentCloudModelBuilder {
         Map<String, Object> env = new TreeMap<>();
         addMetadata(env, module);
         addServices(env, services);
-        addSharedServices(env, sharedServices);
         addAttributes(env, parameters);
         addProperties(env, properties);
         addDependencies(env, module);
@@ -104,10 +103,6 @@ public class ApplicationEnvironmentCloudModelBuilder {
 
     protected void addServices(Map<String, Object> env, List<String> services) {
         env.put(Constants.ENV_MTA_SERVICES, services);
-    }
-
-    protected void addSharedServices(Map<String, Object> env, List<String> sharedServices) {
-        env.put(Constants.ENV_MTA_SHARED_SERVICES, sharedServices);
     }
 
     protected void addAttributes(Map<String, Object> env, Map<String, Object> properties) {

@@ -323,16 +323,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.RESOURCE, "apps-with-tcp-routes.json"),
             },
-            // (31) Shared Managed Service
-            { "/mta/sample/mtad-v2-shared.yaml", "/mta/sample/config1-v2.mtaext", "/mta/sample/platform-v2.json", null,
-                false, false,
-                new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
-                new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
-                new String[] {}, // deployedApps
-                new Expectation(Expectation.Type.RESOURCE, "/mta/sample/services-shared.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/sample/apps-v2-shared.json"),
-            },
-            // (32) Do not restart on env change - bg-deploy
+            // (31) Do not restart on env change - bg-deploy
             { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
                 false, false, 
                 new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
@@ -341,7 +332,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.RESOURCE, "apps-with-restart-parameters-false.json") // services
             },
-            // (33) With 'keep-existing-routes' set to true and no deployed MTA:
+            // (32) With 'keep-existing-routes' set to true and no deployed MTA:
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
                 false, false,
@@ -351,7 +342,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps.json"),
             },
-            // (34) With 'keep-existing-routes' set to true and no deployed module:
+            // (33) With 'keep-existing-routes' set to true and no deployed module:
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
                 "keep-existing-routes/deployed-mta-without-foo-module.json",
@@ -362,7 +353,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps.json"),
             },
-            // (35) With 'keep-existing-routes' set to true and an already deployed module with no URIs:
+            // (34) With 'keep-existing-routes' set to true and an already deployed module with no URIs:
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
                 "keep-existing-routes/deployed-mta-without-uris.json",
@@ -373,7 +364,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps.json"),
             },
-            // (36) With 'keep-existing-routes' set to true and an already deployed module:
+            // (35) With 'keep-existing-routes' set to true and an already deployed module:
             {
                 "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
                 "keep-existing-routes/deployed-mta.json",
@@ -384,7 +375,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps-with-existing-routes.json"),
             },
-            // (37) With global 'keep-existing-routes' set to true and an already deployed module:
+            // (36) With global 'keep-existing-routes' set to true and an already deployed module:
             {
                 "keep-existing-routes/mtad-with-global-parameter.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
                 "keep-existing-routes/deployed-mta.json",
@@ -395,7 +386,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new Expectation("[]"),
                 new Expectation(Expectation.Type.RESOURCE, "keep-existing-routes/apps-with-existing-routes.json"),
             },
-            // (38) With new parameter - 'route'
+            // (37) With new parameter - 'route'
             {
                 "mtad-12.yaml", "config-01.mtaext", "/mta/cf-platform-v2.json", null,
                 false, false,
@@ -405,7 +396,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new Expectation("[]"), //services
                 new Expectation(Expectation.Type.RESOURCE, "apps-12.json"),  //applications
             },
-            // (39) With new parameter - 'routes'
+            // (38) With new parameter - 'routes'
             {
                 "mtad-13.yaml", "config-01.mtaext", "/mta/cf-platform-v2.json", null,
                 false, false,
@@ -415,7 +406,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
                 new Expectation("[]"), //services
                 new Expectation(Expectation.Type.RESOURCE, "apps-13.json"),  //applications
             },
-            // (40) With parameter - 'route', using tcp
+            // (39) With parameter - 'route', using tcp
             {
                 "mtad-14.yaml", "config-01.mtaext", "/mta/cf-platform-v2.json", null,
                 false, false,

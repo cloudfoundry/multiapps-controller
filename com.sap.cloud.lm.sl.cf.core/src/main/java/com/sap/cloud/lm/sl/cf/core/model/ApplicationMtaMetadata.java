@@ -9,15 +9,13 @@ public class ApplicationMtaMetadata {
 
     private final DeployedMtaMetadata mtaMetadata;
     private final List<String> services;
-    private final List<String> sharedServices;
     private final String moduleName;
     private final List<String> providedDependencyNames;
 
-    public ApplicationMtaMetadata(DeployedMtaMetadata mtaMetadata, List<String> services, List<String> sharedServices, String moduleName,
+    public ApplicationMtaMetadata(DeployedMtaMetadata mtaMetadata, List<String> services, String moduleName,
         List<String> providedDependencyNames) {
         this.mtaMetadata = mtaMetadata;
         this.services = services;
-        this.sharedServices = sharedServices;
         this.moduleName = moduleName;
         this.providedDependencyNames = providedDependencyNames;
     }
@@ -28,10 +26,6 @@ public class ApplicationMtaMetadata {
 
     public List<String> getServices() {
         return services;
-    }
-
-    public List<String> getSharedServices() {
-        return sharedServices;
     }
 
     public String getModuleName() {
