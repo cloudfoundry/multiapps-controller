@@ -18,9 +18,6 @@ public class CtsDeployMetadata {
             .id(Constants.PARAM_APP_ARCHIVE_ID)
             .build());
         PARAMS.add(ParameterMetadata.builder()
-            .id(Constants.PARAM_TARGET_NAME)
-            .build());
-        PARAMS.add(ParameterMetadata.builder()
             .id(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID)
             .build());
         PARAMS.add(ParameterMetadata.builder()

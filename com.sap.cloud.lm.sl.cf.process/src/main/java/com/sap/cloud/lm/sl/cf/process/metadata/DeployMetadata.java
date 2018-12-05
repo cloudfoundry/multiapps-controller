@@ -19,10 +19,6 @@ public class DeployMetadata {
             .type(ParameterType.STRING)
             .build());
         PARAMS.add(ParameterMetadata.builder()
-            .id(Constants.PARAM_TARGET_NAME)
-            .type(ParameterType.STRING)
-            .build());
-        PARAMS.add(ParameterMetadata.builder()
             .id(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID)
             .type(ParameterType.STRING)
             .build());
