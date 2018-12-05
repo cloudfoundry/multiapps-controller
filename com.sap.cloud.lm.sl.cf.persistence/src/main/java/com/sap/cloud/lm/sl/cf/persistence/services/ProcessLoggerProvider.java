@@ -103,6 +103,7 @@ public class ProcessLoggerProvider {
     }
 
     public void remove(ProcessLogger processLogger) {
+        processLogger.removeAllAppenders();
         loggersCache.remove(processLogger.getName());
     }
 
