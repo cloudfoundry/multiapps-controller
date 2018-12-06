@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -44,7 +45,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
             Map<String, ServiceOperationType> triggeredServiceOperations = StepsUtil.getTriggeredServiceOperations(execution.getContext());
             List<CloudServiceExtended> servicesToPoll = getServiceOperationsToPoll(execution, triggeredServiceOperations);
-            if (servicesToPoll.isEmpty()) {
+            if (CollectionUtils.isEmpty(servicesToPoll)) {
                 return AsyncExecutionState.FINISHED;
             }
 
@@ -83,7 +84,7 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
     protected List<CloudServiceExtended> getServiceOperationsToPoll(ExecutionWrapper execution,
         Map<String, ServiceOperationType> triggeredServiceOperations) {
         List<CloudServiceExtended> servicesToPoll = StepsUtil.getServicesToPoll(execution.getContext());
-        if (servicesToPoll == null) {
+        if (CollectionUtils.isEmpty(servicesToPoll)) {
             return computeServicesToPoll(execution, triggeredServiceOperations);
         }
         return servicesToPoll;
