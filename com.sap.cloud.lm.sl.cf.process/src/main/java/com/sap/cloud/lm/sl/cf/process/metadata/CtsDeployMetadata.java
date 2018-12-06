@@ -106,6 +106,11 @@ public class CtsDeployMetadata {
             .type(ParameterType.BOOLEAN)
             .defaultValue(true)
             .build());
+        PARAMS.add(ParameterMetadata.builder()
+            .id(Constants.PARAM_SKIP_OWNERSHIP_VALIDATION)
+            .type(ParameterType.BOOLEAN)
+            .defaultValue(false)
+            .build());
 
         // Special CTS+ parameters:
         PARAMS.add(ParameterMetadata.builder()

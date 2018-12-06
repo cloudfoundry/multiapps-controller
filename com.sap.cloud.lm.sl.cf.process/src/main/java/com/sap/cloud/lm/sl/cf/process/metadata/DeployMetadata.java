@@ -109,6 +109,11 @@ public class DeployMetadata {
             .type(ParameterType.BOOLEAN)
             .defaultValue(false)
             .build());
+        PARAMS.add(ParameterMetadata.builder()
+            .id(Constants.PARAM_SKIP_OWNERSHIP_VALIDATION)
+            .type(ParameterType.BOOLEAN)
+            .defaultValue(false)
+            .build());
     }
 
     public static OperationMetadata getMetadata() {
