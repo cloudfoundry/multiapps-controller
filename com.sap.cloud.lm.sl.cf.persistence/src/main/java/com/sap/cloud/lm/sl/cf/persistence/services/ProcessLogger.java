@@ -58,6 +58,11 @@ public class ProcessLogger extends Logger {
     public void warn(Object message, Throwable t) {
         logger.warn(message, t);
     }
+    
+    @Override
+    public void removeAllAppenders() {
+        logger.removeAllAppenders();
+    }
 
     public String getProcessId() {
         return processId;
