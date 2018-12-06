@@ -8,7 +8,7 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 
 public enum ResourceType {
     MANAGED_SERVICE("managed-service", SupportedParameters.SERVICE, SupportedParameters.SERVICE_PLAN), USER_PROVIDED_SERVICE(
-        "user-provided-service", SupportedParameters.SERVICE_CONFIG), EXISTING_SERVICE("existing-service"), EXISTING_SERVICE_KEY("existing-service-key");
+        "user-provided-service"), EXISTING_SERVICE("existing-service"), EXISTING_SERVICE_KEY("existing-service-key");
 
     private String name;
     private final Set<String> requiredParameters = new HashSet<>();
