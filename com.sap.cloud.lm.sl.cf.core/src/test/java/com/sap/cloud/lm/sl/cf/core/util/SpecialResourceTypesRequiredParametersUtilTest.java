@@ -19,7 +19,8 @@ class SpecialResourceTypesRequiredParametersUtilTest {
         Assertions.assertThrows(ContentException.class,
             () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
-     @Test
+
+    @Test
     void checkRequiredParametersForManagedServiceWithMissingParameter() {
         Map<String, Object> dummyParameters = new HashMap<>();
         dummyParameters.put("service", new Object());
@@ -27,37 +28,40 @@ class SpecialResourceTypesRequiredParametersUtilTest {
         Assertions.assertThrows(ContentException.class,
             () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
-    
+
     @Test
     void checkRequiredParametersForManagedServiceWithRequiredParameter() {
         Map<String, Object> dummyParameters = new HashMap<>();
         dummyParameters.put("service", new Object());
         dummyParameters.put("service-plan", new Object());
         ResourceType resourceType = ResourceType.MANAGED_SERVICE;
-        Assertions.assertDoesNotThrow(() -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
+        Assertions.assertDoesNotThrow(
+            () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
-     @Test
+
+    @Test
     void checkRequiredParametersForUserProvidedServiceWithNoParameters() {
         Map<String, Object> dummyParameters = new HashMap<>();
         ResourceType resourceType = ResourceType.USER_PROVIDED_SERVICE;
-        Assertions.assertThrows(ContentException.class,
+        Assertions.assertDoesNotThrow(
             () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
-    
+
     @Test
     void checkRequiredParametersForUserProvidedServiceWithRequiredParameter() {
         Map<String, Object> dummyParameters = new HashMap<>();
         dummyParameters.put("config", new Object());
         ResourceType resourceType = ResourceType.USER_PROVIDED_SERVICE;
-        Assertions.assertDoesNotThrow(() -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
+        Assertions.assertDoesNotThrow(
+            () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
-    
+
     @Test
     void checkRequiredParametersForExistingServiceWithNoParameters() {
         Map<String, Object> dummyParameters = new HashMap<>();
         ResourceType resourceType = ResourceType.EXISTING_SERVICE;
-        Assertions
-            .assertDoesNotThrow(() -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
+        Assertions.assertDoesNotThrow(
+            () -> SpecialResourceTypesRequiredParametersUtil.checkRequiredParameters(testServiceName, resourceType, dummyParameters));
     }
 
 }
