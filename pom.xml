@@ -63,7 +63,7 @@
         <swagger.version>1.5.16</swagger.version>
         <jclouds.version>2.1.1</jclouds.version>
         <guava.version>27.0.1-jre</guava.version>
-        <com.sap.cloud.lm.sl.open.version>1.66.0-SNAPSHOT</com.sap.cloud.lm.sl.open.version>
+        <com.sap.cloud.lm.sl.open.version>1.66.0</com.sap.cloud.lm.sl.open.version>
     </properties>
     <modules>
         <module>com.sap.cloud.lm.sl.cf.client</module>
