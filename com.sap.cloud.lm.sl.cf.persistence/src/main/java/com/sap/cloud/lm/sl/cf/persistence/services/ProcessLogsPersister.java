@@ -14,8 +14,7 @@ public class ProcessLogsPersister {
     private ProcessLogsPersistenceService processLogsPersistenceService;
 
     public void persistLogs(DelegateExecution context) {
-        for (ProcessLogger processLogger : processLoggerProvider.getExistingLoggers(getCorrelationId(context),
-            context.getCurrentActivityId())) {
+        for (ProcessLogger processLogger : processLoggerProvider.getExistingLoggers(getCorrelationId(context), getTaskId(context))) {
             processLogger.persistLogFile(processLogsPersistenceService);
             processLogger.deleteLogFile();
             processLoggerProvider.remove(processLogger);
@@ -24,5 +23,10 @@ public class ProcessLogsPersister {
 
     private String getCorrelationId(DelegateExecution context) {
         return (String) context.getVariable(Constants.CORRELATION_ID);
+    }
+
+    private String getTaskId(DelegateExecution context) {
+        String taskId = (String) context.getVariable(Constants.TASK_ID);
+        return taskId != null ? taskId : context.getCurrentActivityId();
     }
 }
