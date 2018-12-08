@@ -53,11 +53,11 @@ public class AnalyticsCollector {
             .toString();
         String org = StepsUtil.getOrg(context);
         String space = StepsUtil.getSpace(context);
-        String targetUrl = configuration.getTargetURL()
+        String controllerUrl = configuration.getControllerUrl()
             .toString();
         AbstractCommonProcessAttributes attributes = getProcessType(processType).collectProcessVariables(context);
 
-        return new AnalyticsData(processId, processType, startTime, endTime, processDuration, null, mtaId, platform, org, space, targetUrl,
+        return new AnalyticsData(processId, processType, startTime, endTime, processDuration, null, mtaId, platform, org, space, controllerUrl,
             attributes);
 
     }

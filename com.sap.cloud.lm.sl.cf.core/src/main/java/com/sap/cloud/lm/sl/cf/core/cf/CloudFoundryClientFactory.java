@@ -31,7 +31,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         CloudControllerRestClientFactory factory = new CloudControllerRestClientFactory(null, configuration.shouldSkipSslValidation());
         addTaggingInterceptor(factory.getRestTemplate());
         OauthClient oauthClient = createOauthClient(factory.getRestTemplate());
-        CloudControllerRestClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, null, oauthClient);
+        CloudControllerRestClient controllerClient = factory.newCloudController(configuration.getControllerUrl(), credentials, null, oauthClient);
         return new Pair<>(new ResilientCloudControllerClient(controllerClient), new CloudFoundryTokenProvider(oauthClient));
     }
 
@@ -41,7 +41,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         CloudSpace sessionSpace = getSessionSpace(credentials, org, space);
         addTaggingInterceptor(factory.getRestTemplate(), org, space);
         OauthClient oauthClient = createOauthClient(factory.getRestTemplate());
-        CloudControllerRestClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace,
+        CloudControllerRestClient controllerClient = factory.newCloudController(configuration.getControllerUrl(), credentials, sessionSpace,
             oauthClient);
         return new Pair<>(new ResilientCloudControllerClient(controllerClient), new CloudFoundryTokenProvider(oauthClient));
     }
@@ -52,7 +52,7 @@ public class CloudFoundryClientFactory extends ClientFactory {
         addTaggingInterceptor(factory.getRestTemplate(), sessionSpace.getOrganization()
             .getName(), sessionSpace.getName());
         OauthClient oauthClient = createOauthClient(factory.getRestTemplate());
-        CloudControllerRestClient controllerClient = factory.newCloudController(configuration.getTargetURL(), credentials, sessionSpace,
+        CloudControllerRestClient controllerClient = factory.newCloudController(configuration.getControllerUrl(), credentials, sessionSpace,
             oauthClient);
         return new Pair<>(new ResilientCloudControllerClient(controllerClient), new CloudFoundryTokenProvider(oauthClient));
     }

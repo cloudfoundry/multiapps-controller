@@ -48,8 +48,8 @@ public class AnalyticsData {
     @XmlElement(name = "space")
     private String space;
 
-    @XmlElement(name = "targetUrl")
-    private String targetURL;
+    @XmlElement(name = "controllerUrl")
+    private String controllerUrl;
 
     @XmlElements({ @XmlElement(name = "processSpecificAttributes", type = DeployProcessAttributes.class),
         @XmlElement(name = "processSpecificAttributes", type = UndeployProcessAttributes.class) })
@@ -60,7 +60,7 @@ public class AnalyticsData {
     }
 
     public AnalyticsData(String processId, ProcessType processType, long startTime, long endTime, long processDurationInSeconds,
-        State processFinalState, String mtaId, String platform, String org, String space, String targetURL,
+        State processFinalState, String mtaId, String platform, String org, String space, String controllerUrl,
         AbstractCommonProcessAttributes commonProcessVariables) {
         this.processId = processId;
         this.processType = processType;
@@ -72,7 +72,7 @@ public class AnalyticsData {
         this.platform = platform;
         this.org = org;
         this.space = space;
-        this.targetURL = targetURL;
+        this.controllerUrl = controllerUrl;
         this.processSpecificAttributes = commonProcessVariables;
     }
 
@@ -156,12 +156,12 @@ public class AnalyticsData {
         this.space = space;
     }
 
-    public String getTargetUrl() {
-        return targetURL;
+    public String getControllerUrl() {
+        return controllerUrl;
     }
 
-    public void setTargetUrl(String targetURL) {
-        this.targetURL = targetURL;
+    public void setControllerUrl(String controllerUrl) {
+        this.controllerUrl = controllerUrl;
     }
 
     public AbstractCommonProcessAttributes getProcessSpecificAttributes() {

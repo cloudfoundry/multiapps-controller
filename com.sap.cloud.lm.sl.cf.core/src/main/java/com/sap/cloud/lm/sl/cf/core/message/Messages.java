@@ -78,11 +78,12 @@ public final class Messages {
     public static final String ENV_OF_APP_0_CONTAINS_INVALID_VALUE_FOR_1 = "The environment of application \"{0}\" contains an invalid value for \"{0}\"";
     public static final String COULD_NOT_DELETE_SPACE_LEFTOVERS = "Could not delete space leftovers";
     public static final String SERVICE_MISSING_REQUIRED_PARAMETER = "Service \"{0}\" has missing required parameter: {1}";
+    public static final String CONTROLLER_URL_NOT_SPECIFIED = "Controller URL is not specified in the environment.";
+    public static final String INVALID_CONTROLLER_URL = "Invalid controller URL \"{0}\".";
     
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
-    public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\", using default \"{1}\"";
-    public static final String INVALID_XS_TARGET_URL = "Invalid XS target URL \"{0}\", using default \"{1}\"";
+    public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\". Using default: \"{1}\"";
     public static final String UNKNOWN_DB_TYPE = "Unknown database type \"{0}\", using default \"{1}\"";
     public static final String INVALID_PLATFORMS = "Invalid platforms \"{0}\", using default \"{1}\"";
     public static final String INVALID_TARGETS = "Invalid targets \"{0}\", using default \"{1}\"";
@@ -96,19 +97,18 @@ public final class Messages {
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
     public static final String NOT_DESCRIBED_MODULE = "MTA module \"{0}\" is found deployed, but it is not part of MTA manifest file";
     public static final String COULD_NOT_PARSE_PROVIDED_DEPENDENCY_NAMES_1_OF_APP_0 = "Could not parse provided dependency names of application \"{0}\". Assuming that they're written in the \"old\" format. This is what they look like: {1}";
-    public static final String SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0 = "Space ID not specified in environment, using default \"{0}\"";
-    public static final String ORG_NAME_NOT_SPECIFIED = "Org name not specified in environment";
-    public static final String DEPLOY_SERVICE_URL_NOT_SPECIFIED = "Deploy service URL not specified in environment";
+    public static final String SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0 = "Space ID is not specified in the environment. Using default: \"{0}\"";
+    public static final String ORG_NAME_NOT_SPECIFIED = "Org name is not specified in the environment.";
+    public static final String DEPLOY_SERVICE_URL_NOT_SPECIFIED = "Deploy service URL is not specified in the environment.";
 
     // Info messages
-    public static final String XS_TYPE_NOT_SPECIFIED = "XS type not specified in environment, using default \"{0}\"";
-    public static final String XS_TARGET_URL_NOT_SPECIFIED = "XS target URL not specified in environment, using default \"{0}\"";
-    public static final String DB_TYPE_NOT_SPECIFIED = "Database type not specified in environment, using default \"{0}\"";
-    public static final String PLATFORMS_NOT_SPECIFIED = "No platforms specified in the environment";
-    public static final String TARGETS_NOT_SPECIFIED = "Targets not specified in environment, using default \"{0}\"";
-    public static final String MAX_UPLOAD_SIZE_NOT_SPECIFIED = "Max upload size not specified in environment, using default \"{0}\"";
-    public static final String MAX_MTA_DESCRIPTOR_SIZE_NOT_SPECIFIED = "Max MTA descriptor size not specified in environment, using default \"{0}\"";
-    public static final String NO_APPLICATION_URIS_SPECIFIED = "No application uris specified in environment";
+    public static final String XS_TYPE_NOT_SPECIFIED = "XS type is not specified in the environment. Using default: \"{0}\"";
+    public static final String DB_TYPE_NOT_SPECIFIED = "Database type is not specified in the environment. Using default: \"{0}\"";
+    public static final String PLATFORMS_NOT_SPECIFIED = "No platforms are specified in the environment.";
+    public static final String TARGETS_NOT_SPECIFIED = "Targets are not specified in the environment. Using default: \"{0}\"";
+    public static final String MAX_UPLOAD_SIZE_NOT_SPECIFIED = "Max upload size is not specified in the environment. Using default: \"{0}\"";
+    public static final String MAX_MTA_DESCRIPTOR_SIZE_NOT_SPECIFIED = "Max MTA descriptor size is not specified in the environment. Using default: \"{0}\"";
+    public static final String NO_APPLICATION_URIS_SPECIFIED = "No application URIs are specified in the environment.";
     public static final String ATTEMPTING_TO_RELEASE_STUCK_LOCK = "Change log lock is presumed to be stuck. Attempting to release it...";
     public static final String CURRENT_LOCK = "Change log lock was acquired at {0} by {1}";
     public static final String CURRENT_DATE = "The current date is {0}";
@@ -119,7 +119,7 @@ public final class Messages {
     public static final String POPULATE_SPACE_ID_COLUMN = "Populate SPACE_ID column in configuration registry table";
 
     public static final String XS_TYPE = "XS type: {0}";
-    public static final String XS_TARGET_URL = "XS target URL: {0}";
+    public static final String CONTROLLER_URL = "Controller URL: {0}";
     public static final String DB_TYPE = "Database type: {0}";
     public static final String PLATFORMS = "Platforms: {0}";
     public static final String TARGETS = "Targets: {0}";

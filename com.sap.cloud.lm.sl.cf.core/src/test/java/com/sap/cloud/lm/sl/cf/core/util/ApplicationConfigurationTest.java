@@ -1,9 +1,17 @@
 package com.sap.cloud.lm.sl.cf.core.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.Map;
+
+import org.glassfish.jersey.jaxb.internal.XmlCollectionJaxbProvider.App;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -11,9 +19,10 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingFacade;
 import com.sap.cloud.lm.sl.cf.core.configuration.Environment;
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration.DatabaseType;
-
-import static org.mockito.Mockito.when;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class ApplicationConfigurationTest {
 
@@ -36,16 +45,46 @@ public class ApplicationConfigurationTest {
     @InjectMocks
     private ApplicationConfiguration configuration;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testLoadDefaultsNoGivenValues() {
-        configuration.load();
-        assertEquals(DatabaseType.DEFAULTDB, configuration.getDatabaseType());
+    public void testLoadDefaultsWithAnEmptyEnvironment() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> configuration.load());
+        assertEquals(Messages.CONTROLLER_URL_NOT_SPECIFIED, e.getMessage());
+    }
 
+    @Test
+    public void testGetCfControllerUrl() throws Exception {
+        URL expectedControllerUrl = new URL("https://api.example.com");
+        Map<String, String> vcapApplication = MapUtil.asMap("cf_api", expectedControllerUrl.toString());
+        assertEquals(expectedControllerUrl, getControllerUrlWithVcapApplication(vcapApplication));
+    }
+
+    @Test
+    public void testGetXsControllerUrl() throws Exception {
+        URL expectedControllerUrl = new URL("https://localhost:30030");
+        Map<String, String> vcapApplication = MapUtil.asMap("xs_api", expectedControllerUrl.toString());
+        assertEquals(expectedControllerUrl, getControllerUrlWithVcapApplication(vcapApplication));
+    }
+
+    @Test
+    public void testGetControllerUrlWithInvalidValue() {
+        String invalidUrl = "blabla";
+        Map<String, String> vcapApplication = MapUtil.asMap("cf_api", invalidUrl);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+            () -> getControllerUrlWithVcapApplication(vcapApplication));
+        e.printStackTrace();
+        assertEquals(MessageFormat.format(Messages.INVALID_CONTROLLER_URL, invalidUrl), e.getMessage());
+    }
+
+    public URL getControllerUrlWithVcapApplication(Map<String, String> vcapApplication) throws Exception {
+        String vcapApplicationJson = JsonUtil.toJson(vcapApplication);
+        when(environment.getString(ApplicationConfiguration.CFG_VCAP_APPLICATION)).thenReturn(vcapApplicationJson);
+        ApplicationConfiguration testedConfiguration = new ApplicationConfiguration(environment);
+        return testedConfiguration.getControllerUrl();
     }
 
     @Test

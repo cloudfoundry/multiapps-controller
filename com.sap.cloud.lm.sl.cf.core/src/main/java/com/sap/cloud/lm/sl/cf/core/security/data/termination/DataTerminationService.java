@@ -111,7 +111,7 @@ public class DataTerminationService {
         CloudCredentials cloudCredentials = new CloudCredentials(configuration.getGlobalAuditorUser(),
             configuration.getGlobalAuditorPassword(), SecurityUtil.CLIENT_ID, SecurityUtil.CLIENT_SECRET);
 
-        CloudControllerClientImpl cfClient = new CloudControllerClientImpl(cloudCredentials, configuration.getTargetURL(),
+        CloudControllerClientImpl cfClient = new CloudControllerClientImpl(cloudCredentials, configuration.getControllerUrl(),
             configuration.shouldSkipSslValidation());
         cfClient.login();
         return cfClient;
