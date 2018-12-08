@@ -7,6 +7,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
@@ -203,7 +204,7 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
 
     private void prepareContext() throws Exception {
         when(configuration.getPlatformType()).thenReturn(input.xsType);
-        when(configuration.getTargetURL()).thenReturn(ApplicationConfiguration.DEFAULT_TARGET_URL);
+        when(configuration.getControllerUrl()).thenReturn(new URL("http://localhost:9999"));
         when(configuration.getRouterPort()).thenReturn(ApplicationConfiguration.DEFAULT_HTTP_ROUTER_PORT);
         when(configuration.areXsPlaceholdersSupported()).thenReturn(input.areXsPlaceholdersSupported);
         step.credentialsGeneratorSupplier = () -> credentialsGenerator;

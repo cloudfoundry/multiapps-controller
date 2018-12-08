@@ -43,7 +43,7 @@ public class AnalyticsCollectorTest {
     protected static final String MTA_ID = "mta-id";
     protected static final String ORG_NAME = "org";
     protected static final String SPACE_NAME = "space";
-    protected static final String TARGET_URL = "http://example.com/";
+    protected static final String CONTROLLER_URL = "http://example.com/";
     protected static final String TIME_ZONE = "Europe/Berlin";
     protected static final PlatformType PLATFORM_TYPE = PlatformType.CF;
     protected static final Map<String, ServiceOperationType> TRIGGERED_SERVICE_OPERATIONS = new HashMap<>();
@@ -81,7 +81,7 @@ public class AnalyticsCollectorTest {
         MockitoAnnotations.initMocks(this);
         mockProcessStartTime();
         collector.endTimeSupplier = () -> 149543224L;
-        when(configuration.getTargetURL()).thenReturn(new URL(TARGET_URL));
+        when(configuration.getControllerUrl()).thenReturn(new URL(CONTROLLER_URL));
         collector.timeZoneSupplier = () -> ZoneId.of(TIME_ZONE);
         mockMtaSize();
         prepareContextForDeploy();

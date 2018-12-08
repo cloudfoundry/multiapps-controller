@@ -130,17 +130,17 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         int routerPort = configuration.getRouterPort();
         String user = (String) context.getVariable(Constants.VAR_USER);
 
-        URL targetUrl = configuration.getTargetURL();
+        URL controllerUrl = configuration.getControllerUrl();
 
         String deployServiceUrl = getDeployServiceUrl(client);
         Map<String, Object> xsPlaceholderReplacementValues = buildXsPlaceholderReplacementValues(defaultDomainName, authorizationEndpoint,
-            deployServiceUrl, routerPort, targetUrl.toString(), targetUrl.getProtocol());
+            deployServiceUrl, routerPort, controllerUrl.toString(), controllerUrl.getProtocol());
         StepsUtil.setXsPlaceholderReplacementValues(context, xsPlaceholderReplacementValues);
 
         boolean areXsPlaceholdersSupported = configuration.areXsPlaceholdersSupported();
 
         return new SystemParametersBuilder(StepsUtil.getOrg(context), StepsUtil.getSpace(context), user, defaultDomainName,
-            configuration.getPlatformType(), targetUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting,
+            configuration.getPlatformType(), controllerUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting,
             reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices, deployedMta, credentialsGeneratorSupplier.get(),
             majorSchemaVersion, areXsPlaceholdersSupported, timestampSupplier);
     }

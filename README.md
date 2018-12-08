@@ -56,7 +56,6 @@ The [manifest.xml](com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml) located at
 
 Property | Sample Value | Description
 --- | --- | ---
-[XS_TARGET_URL](com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml#L17) | http://api.bosh-lite.com  | The CF API URL for your Cloud Foundry instance. Configuring this is a **mandatory** step.
 [host](com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml#L4) | deploy-service | The entry can be changed to define a different host name for the application.
 [memory](com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml#L5) | 1024M | This setting can be further tuned depending on the expected load. If you set the memory to too low the application might fail to start due to JVM heap memory shortage.
 [instances](com.sap.cloud.lm.sl.cf.web/manifests/manifest.yml#L6) | 1 | The CF MultiApps Controller can also scale by instances. The default number of instances is set to 1 to avoid consuming too much resources.

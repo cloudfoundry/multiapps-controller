@@ -45,7 +45,7 @@ public class SystemParametersBuilder {
     private final String user;
     private final String defaultDomain;
     private final PlatformType xsType;
-    private final URL targetUrl;
+    private final URL controllerUrl;
     private final String authorizationEndpoint;
     private final String deployServiceUrl;
     private final int routerPort;
@@ -59,7 +59,7 @@ public class SystemParametersBuilder {
     private final PropertiesAccessor propertiesAccessor;
     private final Supplier<String> timestampSupplier;
 
-    public SystemParametersBuilder(String organization, String space, String user, String defaultDomain, PlatformType xsType, URL targetUrl,
+    public SystemParametersBuilder(String organization, String space, String user, String defaultDomain, PlatformType xsType, URL controllerUrl,
         String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting, boolean reserveTemporaryRoutes,
         PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices, DeployedMta deployedMta,
         CredentialsGenerator credentialsGenerator, int majorSchemaVersion, boolean areXsPlaceholdersSupported,
@@ -70,7 +70,7 @@ public class SystemParametersBuilder {
         this.user = user;
         this.defaultDomain = defaultDomain;
         this.xsType = xsType;
-        this.targetUrl = targetUrl;
+        this.controllerUrl = controllerUrl;
         this.authorizationEndpoint = authorizationEndpoint;
         this.deployServiceUrl = deployServiceUrl;
         this.routerPort = routerPort;
@@ -111,8 +111,8 @@ public class SystemParametersBuilder {
         if (shouldReserveTemporaryRoutes()) {
             systemParameters.put(SupportedParameters.DEFAULT_IDLE_DOMAIN, getDefaultDomain());
         }
-        systemParameters.put(SupportedParameters.XS_TARGET_API_URL, getTargetUrl());
-        systemParameters.put(SupportedParameters.CONTROLLER_URL, getTargetUrl());
+        systemParameters.put(SupportedParameters.XS_TARGET_API_URL, getControllerUrl());
+        systemParameters.put(SupportedParameters.CONTROLLER_URL, getControllerUrl());
         systemParameters.put(SupportedParameters.XS_TYPE, xsType.toString());
         systemParameters.put(SupportedParameters.XS_AUTHORIZATION_ENDPOINT, getAuthorizationEndpoint());
         systemParameters.put(SupportedParameters.AUTHORIZATION_URL, getAuthorizationEndpoint());
@@ -157,7 +157,7 @@ public class SystemParametersBuilder {
         if (portBasedRouting || (isTcpOrTcpsProtocol(protocol) && portAllocator != null)) {
             putPortRoutingParameters(module, moduleParameters, moduleSystemParameters);
         } else {
-            boolean isStandardPort = UriUtil.isStandardPort(routerPort, targetUrl.getProtocol());
+            boolean isStandardPort = UriUtil.isStandardPort(routerPort, controllerUrl.getProtocol());
             String defaultUri = isStandardPort ? DEFAULT_URI_HOST_PLACEHOLDER : DEFAULT_URI_HOST_PLACEHOLDER + ":" + getRouterPort();
             if (shouldReserveTemporaryRoutes()) {
                 String defaultIdleUri = isStandardPort ? DEFAULT_IDLE_URI_HOST_PLACEHOLDER
@@ -313,11 +313,11 @@ public class SystemParametersBuilder {
         return Integer.toString(routerPort);
     }
 
-    private String getTargetUrl() {
+    private String getControllerUrl() {
         if (shouldUseXsPlaceholders()) {
             return SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER;
         }
-        return targetUrl.toString();
+        return controllerUrl.toString();
     }
 
     private String getProtocol(Map<String, Object> moduleParameters) {
@@ -332,7 +332,7 @@ public class SystemParametersBuilder {
         if (shouldUseXsPlaceholders()) {
             return SupportedParameters.XSA_PROTOCOL_PLACEHOLDER;
         }
-        return targetUrl.getProtocol();
+        return controllerUrl.getProtocol();
     }
 
     private boolean shouldUseXsPlaceholders() {

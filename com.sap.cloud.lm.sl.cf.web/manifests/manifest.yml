@@ -14,7 +14,6 @@ applications:
   env:
     VERSION: ${project.version}
     XS_TYPE: CF
-    XS_TARGET_URL: 
     DB_TYPE: POSTGRESQL
     CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
     PLATFORM_V2: &V2_LIKE_PLATFORM >

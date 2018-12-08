@@ -52,7 +52,6 @@ public class ApplicationConfiguration {
 
     // Environment variables
     static final String CFG_TYPE = "XS_TYPE";
-    static final String CFG_TARGET_URL = "XS_TARGET_URL"; // Mandatory
     static final String CFG_DB_TYPE = "DB_TYPE";
     static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
     static final String CFG_PLATFORM_V2 = "PLATFORM_V2"; // Mandatory
@@ -95,7 +94,6 @@ public class ApplicationConfiguration {
 
     // Default values
     public static final PlatformType DEFAULT_TYPE = PlatformType.XS2;
-    public static final URL DEFAULT_TARGET_URL = url("http://localhost:9999");
     public static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.DEFAULTDB;
     public static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
     public static final List<Target> DEFAULT_TARGETS = Collections.emptyList();
@@ -153,7 +151,7 @@ public class ApplicationConfiguration {
     // Cached configuration settings:
     private Map<String, Object> vcapApplication;
     private PlatformType platformType;
-    private URL targetURL;
+    private URL controllerUrl;
     private DatabaseType databaseType;
     private Long maxUploadSize;
     private Long maxMtaDescriptorSize;
@@ -202,7 +200,7 @@ public class ApplicationConfiguration {
 
     public void load() {
         getPlatformType();
-        getTargetURL();
+        getControllerUrl();
         getDatabaseType();
         getMaxUploadSize();
         getMaxMtaDescriptorSize();
@@ -253,13 +251,13 @@ public class ApplicationConfiguration {
     }
 
     private Set<String> getNotSensitiveConfigVariables() {
-        return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_TARGET_URL, CFG_DB_TYPE, CFG_PLATFORM, CFG_PLATFORM_V2, CFG_PLATFORM_V3,
-            CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS,
-            CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER,
-            CFG_CONTROLLER_POLLING_INTERVAL, CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION,
-            CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE,
-            CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS,
-            CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE));
+        return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_DB_TYPE, CFG_PLATFORM, CFG_PLATFORM_V2, CFG_PLATFORM_V3, CFG_MAX_UPLOAD_SIZE,
+            CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING,
+            CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER, CFG_CONTROLLER_POLLING_INTERVAL,
+            CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE,
+            CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS,
+            CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
+            CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE));
     }
 
     public Configuration getFileConfiguration() {
@@ -273,11 +271,11 @@ public class ApplicationConfiguration {
         return platformType;
     }
 
-    public URL getTargetURL() {
-        if (targetURL == null) {
-            targetURL = getTargetURLFromEnvironment();
+    public URL getControllerUrl() {
+        if (controllerUrl == null) {
+            controllerUrl = getControllerUrlFromEnvironment();
         }
-        return targetURL;
+        return controllerUrl;
     }
 
     public DatabaseType getDatabaseType() {
@@ -564,19 +562,28 @@ public class ApplicationConfiguration {
         return DEFAULT_TYPE;
     }
 
-    private URL getTargetURLFromEnvironment() {
-        String targetURL = environment.getString(CFG_TARGET_URL);
+    private URL getControllerUrlFromEnvironment() {
+        Map<String, Object> vcapApplication = getVcapApplication();
+        String controllerUrl = getControllerUrl(vcapApplication);
         try {
-            if (targetURL != null) {
-                URL result = MiscUtil.getURL(targetURL);
-                LOGGER.info(format(Messages.XS_TARGET_URL, result));
-                return result;
-            }
-            LOGGER.warn(format(Messages.XS_TARGET_URL_NOT_SPECIFIED, DEFAULT_TARGET_URL));
-        } catch (MalformedURLException e) {
-            LOGGER.warn(format(Messages.INVALID_XS_TARGET_URL, targetURL, DEFAULT_TARGET_URL), e);
+            URL parsedControllerUrl = MiscUtil.getURL(controllerUrl);
+            LOGGER.info(format(Messages.CONTROLLER_URL, parsedControllerUrl));
+            return parsedControllerUrl;
+        } catch (MalformedURLException | IllegalArgumentException e) {
+            throw new IllegalArgumentException(format(Messages.INVALID_CONTROLLER_URL, controllerUrl), e);
         }
-        return DEFAULT_TARGET_URL;
+    }
+
+    private String getControllerUrl(Map<String, Object> vcapApplication) {
+        String cfApi = (String) vcapApplication.get("cf_api");
+        if (cfApi != null) {
+            return cfApi;
+        }
+        String xsApi = (String) vcapApplication.get("xs_api");
+        if (xsApi != null) {
+            return xsApi;
+        }
+        throw new IllegalArgumentException(Messages.CONTROLLER_URL_NOT_SPECIFIED);
     }
 
     private DatabaseType getDatabaseTypeFromEnvironment() {
@@ -704,7 +711,7 @@ public class ApplicationConfiguration {
     }
 
     private int computeDefaultRouterPort() {
-        return getTargetURL().getProtocol()
+        return getControllerUrl().getProtocol()
             .equals("http") ? DEFAULT_HTTP_ROUTER_PORT : DEFAULT_HTTPS_ROUTER_PORT;
     }
 

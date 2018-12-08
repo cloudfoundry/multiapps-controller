@@ -10,7 +10,7 @@
   "platform": "CF",
   "org": "org",
   "space": "space",
-  "targetURL": "http://example.com/",
+  "controllerUrl": "http://example.com/",
   "processSpecificAttributes": {
     "mtaSize": 1234,
     "customDomains": 2,

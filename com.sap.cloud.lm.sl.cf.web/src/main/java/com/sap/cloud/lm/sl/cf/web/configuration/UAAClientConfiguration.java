@@ -27,7 +27,7 @@ public class UAAClientConfiguration {
         if (configuration.shouldSkipSslValidation()) {
             SSLUtil.disableSSLValidation();
         }
-        return new UAAClientFactory().createClient(readTokenEndpoint(configuration.getTargetURL()));
+        return new UAAClientFactory().createClient(readTokenEndpoint(configuration.getControllerUrl()));
     }
 
     private URL readTokenEndpoint(URL targetURL) {
