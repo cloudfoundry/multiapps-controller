@@ -32,7 +32,8 @@ applications:
           { "name": "python", "parameters": { "buildpack": "python_buildpack" }},
           { "name": "php", "parameters": { "buildpack": "php_buildpack" }},
           { "name": "binary", "parameters": { "buildpack": "binary_buildpack" }},
-          { "name": "dotnet_core", "parameters": { "buildpack": "dotnet_core_buildpack" }}
+          { "name": "dotnet_core", "parameters": { "buildpack": "dotnet_core_buildpack" }},
+          { "name": "application" }
         ],
         "resource-types": [
           { "name": "org.cloudfoundry.user-provided-service", "parameters": { "type": "user-provided-service" }},
