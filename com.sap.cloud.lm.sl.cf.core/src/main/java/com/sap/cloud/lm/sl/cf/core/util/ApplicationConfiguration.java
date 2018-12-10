@@ -920,11 +920,4 @@ public class ApplicationConfiguration {
         return value;
     }
 
-    private static URL url(String s) {
-        try {
-            return MiscUtil.getURL(s);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
-    }
 }
