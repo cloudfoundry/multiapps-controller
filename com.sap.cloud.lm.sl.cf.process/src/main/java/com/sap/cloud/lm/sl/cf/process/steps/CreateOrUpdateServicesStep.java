@@ -33,7 +33,6 @@ import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceOfferingExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceInstanceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
@@ -65,9 +64,6 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
 
     @Inject
     private ServiceInstanceGetter serviceInstanceGetter;
-
-    @Inject
-    private EventsGetter eventsGetter;
 
     @Inject
     private ApplicationConfiguration configuration;
