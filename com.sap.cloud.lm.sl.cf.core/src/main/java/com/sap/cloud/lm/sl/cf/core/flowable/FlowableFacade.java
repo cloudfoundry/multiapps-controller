@@ -17,6 +17,8 @@ import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.job.api.Job;
+import org.flowable.job.service.impl.asyncexecutor.AsyncExecutor;
+import org.flowable.job.service.impl.asyncexecutor.DefaultAsyncJobExecutor;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -328,4 +330,20 @@ public class FlowableFacade {
         return processInstance != null && processInstance.isSuspended();
     }
 
+    public void shutdownJobExecutor(long secondsToWaitOnShutdown) {
+        setSecondsToWaitOnJobExecutorShutdown(secondsToWaitOnShutdown);
+        LOGGER.info(Messages.SHUTTING_DOWN_FLOWABLE_JOB_EXECUTOR);
+        AsyncExecutor asyncExecutor = processEngine.getProcessEngineConfiguration().getAsyncExecutor();
+        asyncExecutor.shutdown();
+    }
+
+    private void setSecondsToWaitOnJobExecutorShutdown(long secondsToWaitOnShutdown) {
+        LOGGER.info(format(Messages.SETTING_SECONDS_TO_WAIT_BEFORE_FLOWABLE_JOB_EXECUTOR_SHUTDOWN, secondsToWaitOnShutdown));
+        AsyncExecutor asyncExecutor = processEngine.getProcessEngineConfiguration().getAsyncExecutor();
+        ((DefaultAsyncJobExecutor) asyncExecutor).setSecondsToWaitOnShutdown(secondsToWaitOnShutdown);
+    }
+
+    public boolean isJobExecutorActive() {
+        return processEngine.getProcessEngineConfiguration().getAsyncExecutor().isActive();
+    }
 }
