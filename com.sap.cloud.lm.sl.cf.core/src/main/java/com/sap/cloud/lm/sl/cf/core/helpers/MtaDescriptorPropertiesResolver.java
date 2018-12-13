@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.ModuleSystemParameterCo
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RestartOnEnvChangeValidator;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.RouteValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v3.VisibilityValidator;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
@@ -63,7 +63,7 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     public List<ParameterValidator> getValidatorsList() {
-        return Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(), new RouteValidator(),
+        return Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(), new RoutesValidator(),
             new ModuleSystemParameterCopier(SupportedParameters.APP_NAME, systemParameters), new TasksValidator(),
             new VisibilityValidator(), new RestartOnEnvChangeValidator());
     }

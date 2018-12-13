@@ -8,7 +8,7 @@ modules:
     parameters:
       # define multiple route parameters
       routes: 
-        - "tcp.route.com:1234"
+        - route: "tcp.route.com:1234"
       # adding parameters which will be ignored
       port: 5678
       route-path: /deprecated-path
