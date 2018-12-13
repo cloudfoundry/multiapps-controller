@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -34,7 +33,7 @@ public class RouteValidatorTest {
             // [4]
             {"$$$$_$$$$:1234", false, "cannot really correct this domain", "Could not create a valid domain"},
             // [5]
-            {"domain_can_be_corrected:1234", false, "domain-can-be-corrected:1234", null},
+            {"domain_can_be_corrected:1234/path", false, "domain-can-be-corrected:1234/path", null},
             // [6]
             {"host_can_be_corrected.domain.com", false, "host-can-be-corrected.domain.com", null},
             // [7]
