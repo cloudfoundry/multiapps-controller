@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
+import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class UriParametersParser implements ParametersParser<List<String>> {
 
@@ -26,18 +27,19 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     private String domainParameterName;
     private String portParameterName;
     private String routeParameterName;
+    private String routesParameterName;
     private String routePath;
     private String protocol;
 
     public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort, String routePath,
         boolean includeProtocol, String protocol) {
         this(portBasedRouting, defaultHost, defaultDomain, defaultPort, SupportedParameters.HOST, SupportedParameters.DOMAIN,
-            SupportedParameters.PORT, SupportedParameters.ROUTE, routePath, includeProtocol, protocol);
+            SupportedParameters.PORT, SupportedParameters.ROUTE, SupportedParameters.ROUTES, routePath, includeProtocol, protocol);
     }
 
     public UriParametersParser(boolean portBasedRouting, String defaultHost, String defaultDomain, Integer defaultPort,
-        String hostParameterName, String domainParameterName, String portParameterName, String routeParameterName, String routePath,
-        boolean includeProtocol, String protocol) {
+        String hostParameterName, String domainParameterName, String portParameterName, String routeParameterName,
+        String routesParameterName, String routePath, boolean includeProtocol, String protocol) {
         this.portBasedRouting = portBasedRouting;
         this.includeProtocol = includeProtocol;
         this.defaultHost = defaultHost;
@@ -47,6 +49,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
         this.domainParameterName = domainParameterName;
         this.portParameterName = portParameterName;
         this.routeParameterName = routeParameterName;
+        this.routesParameterName = routesParameterName;
         this.routePath = routePath;
         this.protocol = protocol;
     }
@@ -113,8 +116,26 @@ public class UriParametersParser implements ParametersParser<List<String>> {
     }
 
     public List<String> getApplicationRoutes(List<Map<String, Object>> parametersList) {
-        String routesParameterName = SupportedParameters.SINGULAR_PLURAL_MAPPING.get(routeParameterName);
-        return getAll(parametersList, routeParameterName, routesParameterName);
+        String route = routeParameterName != null ? (String) PropertiesUtil.getPropertyValue(parametersList, routeParameterName, null)
+            : null;
+
+        List<Map<String, Object>> routes = routesParameterName != null
+            ? (List<Map<String, Object>>) PropertiesUtil.getPropertyValue(parametersList, routesParameterName, Collections.emptyList())
+            : null;
+
+        List<String> allRoutesFound = new ArrayList<>();
+
+        if (route != null) {
+            allRoutesFound.add(route);
+        }
+        if (routes != null && !routes.isEmpty()) {
+            routes.stream()
+                .map(map -> map.get(routeParameterName))
+                .filter(Objects::nonNull)
+                .forEach(r -> allRoutesFound.add((String) r));
+        }
+
+        return allRoutesFound;
     }
 
     private List<String> getDomainsFromRoutes(List<String> routes) {
@@ -161,7 +182,7 @@ public class UriParametersParser implements ParametersParser<List<String>> {
 
         return assembleUris(hosts, domains, ports);
     }
-    
+
     private List<String> assembleUris(List<String> hosts, List<String> domains, List<Integer> ports) {
         Set<String> uris = new LinkedHashSet<>();
         for (String domain : domains) {

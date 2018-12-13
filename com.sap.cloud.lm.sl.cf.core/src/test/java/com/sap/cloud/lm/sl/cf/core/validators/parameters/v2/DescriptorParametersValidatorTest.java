@@ -54,6 +54,14 @@ public class DescriptorParametersValidatorTest
 //            {
 //                "mtad-08.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-08.yaml.json"),
 //            },
+            // (8) Invalid parameter value in provided dependency property:
+            {
+                "mtad-09.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-09.yaml.json"),
+            },
+            // (9) Invalid parameter value in provided dependency property:
+            {
+                "mtad-10.yaml", new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid route from"),
+            },
 // @formatter:on
         });
     }

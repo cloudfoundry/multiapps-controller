@@ -62,7 +62,6 @@
     "idle-domain": "idle-domains",
     "idle-host": "idle-hosts",
     "idle-port": "idle-ports",
-    "port": "ports",
-    "route": "routes"
+    "port": "ports"
   }
 }

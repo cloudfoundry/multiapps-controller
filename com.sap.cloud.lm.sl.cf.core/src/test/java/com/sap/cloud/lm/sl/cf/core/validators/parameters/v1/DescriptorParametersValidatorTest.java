@@ -13,8 +13,7 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.DomainValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.RouteValidator;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.v1.DescriptorParametersValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
@@ -25,7 +24,7 @@ import com.sap.cloud.lm.sl.mta.model.v1.Resource;
 public class DescriptorParametersValidatorTest {
 
     protected static final List<ParameterValidator> PARAMETER_VALIDATORS = Arrays.asList(new PortValidator(), new HostValidator(),
-        new DomainValidator(), new TestValidator(), new RouteValidator());
+        new DomainValidator(), new TestValidator(), new RoutesValidator());
 
     private String descriptorLocation;
     private Expectation expectation;

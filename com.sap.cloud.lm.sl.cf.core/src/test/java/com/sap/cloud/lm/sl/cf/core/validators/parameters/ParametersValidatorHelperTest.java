@@ -38,21 +38,33 @@ public class ParametersValidatorHelperTest {
             },
             // [2]
             {new TreeMap<String, Object>() {{
-                    put("routes", Arrays.asList("already-correct-route.com", "route_for_correction.com"));
+                    put("routes", Arrays.asList(new TreeMap<String, String>() {{
+                                                        put("route", "already-correct-route.com");
+                                                }}, new TreeMap<String, String>() {{
+                                                        put("route", "route_for_correction.com");
+                                                }}));
                 }},
                 new TreeMap<String, Object>() {{
-                    put("routes", Arrays.asList("already-correct-route.com", "route-for-correction.com"));
+                    put("routes", Arrays.asList(new TreeMap<String, String>() {{
+                                                        put("route", "already-correct-route.com");
+                                                }}, new TreeMap<String, String>() {{
+                                                        put("route", "route-for-correction.com");
+                                                }}));
                     }}
             },
             // [3]
             {new TreeMap<String, Object>() {{
-                    put("routes", Arrays.asList("only_one%route.$$$in.need$$of$$$correction^^^"));
+                    put("routes", Arrays.asList(new TreeMap<String, String>() {{
+                                                        put("route", "only_one%route.$$$in.need$$of$$$correction^^^");
+                                                }}));
                     put("host", "a-proper-host");
                     put("ports", Arrays.asList(1, 2));
                     put("domains", Arrays.asList("one.correct.domain", "and#one%with@special^^characters"));
                 }},
                 new TreeMap<String, Object>() {{
-                    put("routes", Arrays.asList("only-one-route.in.need--of---correction"));
+                    put("routes", Arrays.asList(new TreeMap<String, String>() {{
+                                                        put("route", "only-one-route.in.need--of---correction");
+                                                }}));
                     put("host", "a-proper-host");
                     put("ports", Arrays.asList(1, 2));
                     put("domains", Arrays.asList("one.correct.domain", "and-one-with-special--characters"));
@@ -63,7 +75,7 @@ public class ParametersValidatorHelperTest {
     }
 
     private List<ParameterValidator> validators = Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(),
-        new RouteValidator());
+        new RoutesValidator());
     private ParametersValidatorHelper validatorHelper = new ParametersValidatorHelper(validators, false);
     private Module container = new Module.Builder().build();
 

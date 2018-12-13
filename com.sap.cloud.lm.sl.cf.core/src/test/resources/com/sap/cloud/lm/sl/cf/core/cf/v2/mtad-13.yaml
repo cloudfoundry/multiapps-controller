@@ -8,8 +8,8 @@ modules:
     parameters:
       # define multiple route parameters
       routes: 
-        - "host-in-route1.test-domain"
-        - "host-in-route2.test-domain/path-in-route"
+        - route: "host-in-route1.test-domain"
+        - route: "host-in-route2.test-domain/path-in-route"
       # adding parameters which will be ignored
       host: deprecated-host
       route-path: /deprecated-path

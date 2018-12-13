@@ -181,7 +181,6 @@ public class SupportedParameters {
         prototype.put(IDLE_DOMAIN, IDLE_DOMAINS);
         prototype.put(IDLE_PORT, IDLE_PORTS);
 
-        prototype.put(ROUTE, ROUTES);
         prototype.put(HOST, HOSTS);
         prototype.put(DOMAIN, DOMAINS);
         prototype.put(PORT, PORTS);
