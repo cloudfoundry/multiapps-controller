@@ -28,6 +28,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -41,7 +42,7 @@ import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 @RunWith(Parameterized.class)
 public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
-
+    
     private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
@@ -134,6 +135,8 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
     protected ServicesCloudModelBuilder servicesCloudModelBuilder;
     @Mock
     protected ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder;
+    @Mock
+    protected ModuleToDeployHelper moduleToDeployHelper;
 
     public BuildCloudDeployModelStepTest(StepInput input, StepOutput output) {
         this.output = output;
@@ -201,7 +204,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
             deployedMta = JsonUtil.fromJson(deployedMtaString, DeployedMta.class);
         }
 
-        when(applicationsCloudModelBuilder.build(any())).thenReturn(appsToDeploy);
+        when(applicationsCloudModelBuilder.build(any(), any())).thenReturn(appsToDeploy);
         when(servicesCloudModelBuilder.build(any())).thenReturn(servicesToBind);
         when(serviceKeysCloudModelBuilder.build()).thenReturn(serviceKeys);
         StepsUtil.setDeployedMta(context, deployedMta);

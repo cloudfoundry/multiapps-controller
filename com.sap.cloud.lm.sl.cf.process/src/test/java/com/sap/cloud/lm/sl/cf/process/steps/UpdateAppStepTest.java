@@ -306,7 +306,7 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(cloudApp), context);
         StepsUtil.setServicesToBind(context, mapToCloudServices());
         StepsUtil.setTriggeredServiceOperations(context, Collections.emptyMap());
-        context.setVariable(Constants.VAR_APPS_INDEX, 0);
+        context.setVariable(Constants.VAR_MODULES_INDEX, 0);
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
         byte[] serviceKeysToInjectByteArray = JsonUtil.toBinaryJson(new HashMap<>());
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
@@ -353,7 +353,7 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
 
         CloudApplicationExtended toCloudApp() {
             CloudApplicationExtended cloudApp = new CloudApplicationExtended(name, command, buildpackUrl, memory, instances, uris, services,
-                AppState.STARTED, Collections.emptyList(), Collections.emptyList(), Collections.emptySet(), null);
+                AppState.STARTED, Collections.emptyList(), Collections.emptyList(), null);
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
             cloudApp.setStaging(new Staging.StagingBuilder().command(command)

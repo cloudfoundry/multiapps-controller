@@ -131,7 +131,7 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
         StepsUtil.setServicesToBind(context, mapToCloudServiceExtended());
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
-        context.setVariable(Constants.VAR_APPS_INDEX, stepInput.applicationIndex);
+        context.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
         byte[] serviceKeysToInjectByteArray = JsonUtil.toBinaryJson(new HashMap<>());
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
@@ -255,7 +255,7 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
 
         private void prepareContext() {
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "archive_id");
-            context.setVariable(Constants.VAR_APPS_INDEX, stepInput.applicationIndex);
+            context.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
             StepsUtil.setServicesToBind(context, Collections.emptyList());
 
             byte[] serviceKeysToInjectByteArray = JsonUtil.toBinaryJson(new HashMap<>());

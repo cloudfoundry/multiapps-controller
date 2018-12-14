@@ -18,7 +18,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Before
     public void setUp() {
-        context.setVariable(Constants.VAR_APPS_INDEX, 0);
+        context.setVariable(Constants.VAR_MODULES_INDEX, 0);
     }
 
     @Test

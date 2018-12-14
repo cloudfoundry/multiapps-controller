@@ -105,7 +105,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
                 secureSerializer.toJson(descriptor));
             getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOVED);
-
+            
             return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES);

@@ -11,7 +11,7 @@
       </extensionElements>
     </startEvent>
     <serviceTask id="addDomainsTask" name="Add Domains" activiti:async="true" activiti:delegateExpression="${addDomainsStep}"></serviceTask>
-    <serviceTask id="prepareAppsDeploymentTask" name="Prepare Apps Deployment" activiti:async="true" activiti:delegateExpression="${prepareAppsDeploymentStep}"></serviceTask>
+    <serviceTask id="prepareModulesDeploymentTask" name="Prepare Modules Deployment" activiti:async="true" activiti:delegateExpression="${prepareModulesDeploymentStep}"></serviceTask>
     <serviceTask id="buildDeployModelTask" name="Build Deploy Model" activiti:async="true" activiti:delegateExpression="${buildCloudDeployModelStep}"></serviceTask>
     <serviceTask id="processArchiveTask" name="Process Archive" activiti:async="true" activiti:delegateExpression="${processMtaArchiveStep}"></serviceTask>
     <sequenceFlow id="flow16" sourceRef="deleteUnusedReservedRoutesTask" targetRef="createOrUpdateServicesTask"></sequenceFlow>
@@ -119,7 +119,7 @@
     <serviceTask id="createOrUpdateServicesTask" name="Create Or Update Services" activiti:async="true" activiti:delegateExpression="${createOrUpdateServicesStep}"></serviceTask>
     <exclusiveGateway id="areServiceOperationsDoneGateway" name="Are Service Operations Done Gateway" default="waitForServiceOperationsToBeDoneFlow"></exclusiveGateway>
     <sequenceFlow id="flow140" sourceRef="createOrUpdateServicesTask" targetRef="areServiceOperationsDoneGateway"></sequenceFlow>
-    <sequenceFlow id="serviceOperationsDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="prepareAppsDeploymentTask">
+    <sequenceFlow id="serviceOperationsDoneFlow" sourceRef="areServiceOperationsDoneGateway" targetRef="prepareModulesDeploymentTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
     </sequenceFlow>
     <intermediateCatchEvent id="pollServicesStatusTimer" name="TimerCatchEvent">
@@ -141,35 +141,35 @@
     <serviceTask id="deleteIdleRoutesTask" name="Delete Idle Routes" activiti:async="true" activiti:delegateExpression="${deleteIdleRoutesStep}"></serviceTask>
     <sequenceFlow id="flow146" sourceRef="deleteIdleRoutesTask" targetRef="deleteSubscriptionsTask"></sequenceFlow>
     <sequenceFlow id="flow148" sourceRef="checkForCreationConflictsTask" targetRef="addDomainsTask"></sequenceFlow>
-    <callActivity id="deployAppsSequential" name="Deploy Apps Sequentially" activiti:async="true" calledElement="deployAppSubProcess" activiti:inheritVariables="true">
-      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="appsToDeploy" activiti:elementVariable="appToDeploy"></multiInstanceLoopCharacteristics>
+    <callActivity id="deployModulesSequential" name="Deploy Modules Sequentially" activiti:async="true" calledElement="${moduleDeployProcessGetter.get(moduleToDeploy)}" activiti:inheritVariables="true">
+      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="modulesToDeploy" activiti:elementVariable="moduleToDeploy"></multiInstanceLoopCharacteristics>
     </callActivity>
-    <callActivity id="deployAppsParallel" name="Deploy Apps In Parallel" activiti:async="true" calledElement="deployAppSubProcess" activiti:inheritVariables="true" activiti:completeAsync="true">
-      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="appsToIterateInParallel" activiti:elementVariable="appToDeploy"></multiInstanceLoopCharacteristics>
+    <callActivity id="deployModulesParallel" name="Deploy Apps In Parallel" activiti:async="true" calledElement="${moduleDeployProcessGetter.get(moduleToDeploy)}" activiti:inheritVariables="true" activiti:completeAsync="true">
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="modulesToIterateInParallel" activiti:elementVariable="moduleToDeploy"></multiInstanceLoopCharacteristics>
     </callActivity>
-    <sequenceFlow id="flow68" sourceRef="prepareAppsDeploymentTask" targetRef="deploymentModeGateway"></sequenceFlow>
-    <exclusiveGateway id="deploymentModeGateway" name="Deployment Mode Gateway" default="shouldDeployAppsSequentialFlow"></exclusiveGateway>
-    <sequenceFlow id="shouldDeployAppsSequentialFlow" sourceRef="deploymentModeGateway" targetRef="deployAppsSequential"></sequenceFlow>
-    <sequenceFlow id="shouldDeployAppsParallelFlow" sourceRef="deploymentModeGateway" targetRef="computeNextAppsToDeployInParallel">
+    <sequenceFlow id="flow68" sourceRef="prepareModulesDeploymentTask" targetRef="deploymentModeGateway"></sequenceFlow>
+    <exclusiveGateway id="deploymentModeGateway" name="Deployment Mode Gateway" default="shouldDeployModulesSequentialFlow"></exclusiveGateway>
+    <sequenceFlow id="shouldDeployModulesSequentialFlow" sourceRef="deploymentModeGateway" targetRef="deployModulesSequential"></sequenceFlow>
+    <sequenceFlow id="shouldDeployModulesParallelFlow" sourceRef="deploymentModeGateway" targetRef="computeNextModulesToDeployInParallel">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deploymentMode == "PARALLEL")}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="computeNextAppsToDeployInParallel" name="Compute Next Apps To Deploy" activiti:async="true" activiti:delegateExpression="${computeNextAppsStep}"></serviceTask>
+    <serviceTask id="computeNextModulesToDeployInParallel" name="Compute Next Modules To Deploy" activiti:async="true" activiti:delegateExpression="${computeNextAppsStep}"></serviceTask>
     <exclusiveGateway id="hasParallelDeploymentCompletedGateway" name="Has Parallel Deployment Completed" default="deployAppsParallelNextIterationFlow"></exclusiveGateway>
-    <sequenceFlow id="flow151" sourceRef="computeNextAppsToDeployInParallel" targetRef="deployAppsParallel"></sequenceFlow>
-    <sequenceFlow id="flow152" sourceRef="deployAppsParallel" targetRef="hasParallelDeploymentCompletedGateway"></sequenceFlow>
-    <sequenceFlow id="deployAppsParallelNextIterationFlow" sourceRef="hasParallelDeploymentCompletedGateway" targetRef="computeNextAppsToDeployInParallel"></sequenceFlow>
+    <sequenceFlow id="flow151" sourceRef="computeNextModulesToDeployInParallel" targetRef="deployModulesParallel"></sequenceFlow>
+    <sequenceFlow id="flow152" sourceRef="deployModulesParallel" targetRef="hasParallelDeploymentCompletedGateway"></sequenceFlow>
+    <sequenceFlow id="deployAppsParallelNextIterationFlow" sourceRef="hasParallelDeploymentCompletedGateway" targetRef="computeNextModulesToDeployInParallel"></sequenceFlow>
     <sequenceFlow id="parallelDeploymentCompletedFlow" sourceRef="hasParallelDeploymentCompletedGateway" targetRef="createSubscriptionsTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(iteratedAppsInParallel.size() == appsToDeploy.size())}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(iteratedModulesInParallel.size() == appsToDeploy.size())}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="continueDeployProcessFlow" sourceRef="deployAppsSequential" targetRef="createSubscriptionsTask"></sequenceFlow>
+    <sequenceFlow id="continueDeployProcessFlow" sourceRef="deployModulesSequential" targetRef="createSubscriptionsTask"></sequenceFlow>
     <sequenceFlow id="sequentialRestartCompletedFlow" sourceRef="restartAppsSequential" targetRef="deleteIdleRoutesTask"></sequenceFlow>
     <callActivity id="deleteServicesCallActivity" name="Delete Services Sub Process" activiti:async="true" calledElement="deleteServicesSubProcess" activiti:inheritVariables="true"></callActivity>
     <sequenceFlow id="flow153" sourceRef="deleteServicesCallActivity" targetRef="createOrUpdateServiceBrokersTask"></sequenceFlow>
     <callActivity id="restartAppsSequential" name="Restart Apps Sequentially" activiti:async="true" calledElement="deployAppSubProcess" activiti:inheritVariables="true">
-      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="appsToDeploy" activiti:elementVariable="appToDeploy"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="modulesToDeploy" activiti:elementVariable="moduleToDeploy"></multiInstanceLoopCharacteristics>
     </callActivity>
     <callActivity id="restartAppsParallel" name="Restart Apps In Parallel" activiti:async="true" calledElement="deployAppSubProcess" activiti:inheritVariables="true" activiti:completeAsync="true">
-      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="appsToIterateInParallel" activiti:elementVariable="appToDeploy"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="modulesToIterateInParallel" activiti:elementVariable="moduleToDeploy"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow154" sourceRef="prepareAppsRestartTask" targetRef="restartAppsModeGateway"></sequenceFlow>
     <exclusiveGateway id="restartAppsModeGateway" name="Restart Apps Mode Gateway" default="shouldRestartAppsSequentialFlow"></exclusiveGateway>
@@ -183,7 +183,7 @@
     <sequenceFlow id="flow156" sourceRef="restartAppsParallel" targetRef="hasParallelRestartCompletedGateway"></sequenceFlow>
     <sequenceFlow id="restartAppsParallelNextIterationFlow" sourceRef="hasParallelRestartCompletedGateway" targetRef="computeNextAppsToRestartInParallel"></sequenceFlow>
     <sequenceFlow id="parallelRestartCompletedFlow" sourceRef="hasParallelRestartCompletedGateway" targetRef="deleteIdleRoutesTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(iteratedAppsInParallel.size() == appsToDeploy.size())}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(iteratedModulesInParallel.size() == appsToDeploy.size())}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow157" sourceRef="shouldUndeployAppGateway" targetRef="shouldDeleteDiscontinuedServicesGateway">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(appsToUndeployCount == appsToUndeployIndex)}]]></conditionExpression>
@@ -210,7 +210,7 @@
       <bpmndi:BPMNShape bpmnElement="addDomainsTask" id="BPMNShape_addDomainsTask">
         <omgdc:Bounds height="66.0" width="105.0" x="260.0" y="122.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="prepareAppsDeploymentTask" id="BPMNShape_prepareAppsDeploymentTask">
+      <bpmndi:BPMNShape bpmnElement="prepareModulesDeploymentTask" id="BPMNShape_prepareModulesDeploymentTask">
         <omgdc:Bounds height="66.0" width="119.0" x="178.0" y="232.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="buildDeployModelTask" id="BPMNShape_buildDeployModelTask">
@@ -357,16 +357,16 @@
       <bpmndi:BPMNShape bpmnElement="deleteIdleRoutesTask" id="BPMNShape_deleteIdleRoutesTask">
         <omgdc:Bounds height="68.0" width="105.0" x="1529.0" y="579.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="deployAppsSequential" id="BPMNShape_deployAppsSequential">
+      <bpmndi:BPMNShape bpmnElement="deployModulesSequential" id="BPMNShape_deployModulesSequential">
         <omgdc:Bounds height="62.0" width="105.0" x="330.0" y="471.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="deployAppsParallel" id="BPMNShape_deployAppsParallel">
+      <bpmndi:BPMNShape bpmnElement="deployModulesParallel" id="BPMNShape_deployModulesParallel">
         <omgdc:Bounds height="62.0" width="105.0" x="330.0" y="350.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="deploymentModeGateway" id="BPMNShape_deploymentModeGateway">
         <omgdc:Bounds height="40.0" width="40.0" x="69.0" y="419.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="computeNextAppsToDeployInParallel" id="BPMNShape_computeNextAppsToDeployInParallel">
+      <bpmndi:BPMNShape bpmnElement="computeNextModulesToDeployInParallel" id="BPMNShape_computeNextModulesToDeployInParallel">
         <omgdc:Bounds height="55.0" width="105.0" x="185.0" y="353.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="hasParallelDeploymentCompletedGateway" id="BPMNShape_hasParallelDeploymentCompletedGateway">
@@ -434,7 +434,7 @@
         <omgdi:waypoint x="85.0" y="552.0"></omgdi:waypoint>
         <omgdi:waypoint x="85.0" y="581.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="42.0" width="100.0" x="222.0" y="556.0"></omgdc:Bounds>
+          <omgdc:Bounds height="39.0" width="100.0" x="222.0" y="556.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
@@ -497,7 +497,7 @@
         <omgdi:waypoint x="1085.0" y="498.0"></omgdi:waypoint>
         <omgdi:waypoint x="1080.0" y="473.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="42.0" width="100.0" x="864.0" y="480.0"></omgdc:Bounds>
+          <omgdc:Bounds height="39.0" width="100.0" x="864.0" y="480.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow33" id="BPMNEdge_flow33">
@@ -512,7 +512,7 @@
         <omgdi:waypoint x="160.0" y="59.0"></omgdi:waypoint>
         <omgdi:waypoint x="260.0" y="59.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="79.0" x="164.0" y="66.0"></omgdc:Bounds>
+          <omgdc:Bounds height="39.0" width="79.0" x="164.0" y="66.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="noGitRepoUriFlow" id="BPMNEdge_noGitRepoUriFlow">
@@ -521,7 +521,7 @@
         <omgdi:waypoint x="481.0" y="12.0"></omgdi:waypoint>
         <omgdi:waypoint x="480.0" y="27.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="73.0" x="165.0" y="15.0"></omgdc:Bounds>
+          <omgdc:Bounds height="39.0" width="73.0" x="165.0" y="15.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flowAfterGitProcessing" id="BPMNEdge_flowAfterGitProcessing">
@@ -653,13 +653,13 @@
         <omgdi:waypoint x="88.0" y="265.0"></omgdi:waypoint>
         <omgdi:waypoint x="89.0" y="419.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="shouldDeployAppsSequentialFlow" id="BPMNEdge_shouldDeployAppsSequentialFlow">
+      <bpmndi:BPMNEdge bpmnElement="shouldDeployModulesSequentialFlow" id="BPMNEdge_shouldDeployModulesSequentialFlow">
         <omgdi:waypoint x="109.0" y="439.0"></omgdi:waypoint>
         <omgdi:waypoint x="145.0" y="439.0"></omgdi:waypoint>
         <omgdi:waypoint x="145.0" y="501.0"></omgdi:waypoint>
         <omgdi:waypoint x="330.0" y="502.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="shouldDeployAppsParallelFlow" id="BPMNEdge_shouldDeployAppsParallelFlow">
+      <bpmndi:BPMNEdge bpmnElement="shouldDeployModulesParallelFlow" id="BPMNEdge_shouldDeployModulesParallelFlow">
         <omgdi:waypoint x="109.0" y="439.0"></omgdi:waypoint>
         <omgdi:waypoint x="143.0" y="438.0"></omgdi:waypoint>
         <omgdi:waypoint x="143.0" y="381.0"></omgdi:waypoint>
@@ -754,7 +754,7 @@
         <omgdi:waypoint x="442.0" y="710.0"></omgdi:waypoint>
         <omgdi:waypoint x="442.0" y="647.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="42.0" width="100.0" x="597.0" y="673.0"></omgdc:Bounds>
+          <omgdc:Bounds height="39.0" width="100.0" x="597.0" y="673.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="doNotSkipOwnershipValidationFlow" id="BPMNEdge_doNotSkipOwnershipValidationFlow">

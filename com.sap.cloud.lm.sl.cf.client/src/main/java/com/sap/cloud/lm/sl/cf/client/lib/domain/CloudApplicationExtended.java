@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.client.lib.domain;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
@@ -24,7 +23,6 @@ public class CloudApplicationExtended extends CloudApplication {
     private List<ApplicationPort> applicationPorts;
     private List<String> domains;
     private RestartParameters restartParameters;
-    private Set<String> deployedAfter;
     private DockerInfo dockerInfo;
 
     public CloudApplicationExtended(Meta meta, String name) {
@@ -32,12 +30,10 @@ public class CloudApplicationExtended extends CloudApplication {
     }
 
     public CloudApplicationExtended(String name, String command, String buildpackUrl, int memory, int instances, List<String> uris,
-        List<String> serviceNames, AppState state, List<ApplicationPort> applicationPorts, List<String> domains, Set<String> deployedAfter,
-        DockerInfo dockerInfo) {
+        List<String> serviceNames, AppState state, List<ApplicationPort> applicationPorts, List<String> domains, DockerInfo dockerInfo) {
         super(name, command, buildpackUrl, memory, instances, uris, serviceNames, state);
         this.applicationPorts = applicationPorts;
         this.domains = domains;
-        this.deployedAfter = deployedAfter;
         this.dockerInfo = dockerInfo;
     }
 
@@ -111,14 +107,6 @@ public class CloudApplicationExtended extends CloudApplication {
 
     public void setRestartParameters(RestartParameters restartParameters) {
         this.restartParameters = restartParameters;
-    }
-
-    public Set<String> getDeployedAfter() {
-        return deployedAfter;
-    }
-
-    public void setDeployedAfter(Set<String> deployedAfter) {
-        this.deployedAfter = deployedAfter;
     }
 
     public DockerInfo getDockerInfo() {

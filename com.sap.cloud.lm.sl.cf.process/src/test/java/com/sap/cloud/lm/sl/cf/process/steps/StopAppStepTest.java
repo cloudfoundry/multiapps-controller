@@ -72,7 +72,7 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_APPS_INDEX, 0);
+        context.setVariable(Constants.VAR_MODULES_INDEX, 0);
         StepsTestUtil.mockApplicationsToDeploy(toCloudApplication(), context);
         StepsUtil.setExistingApp(context, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
     }

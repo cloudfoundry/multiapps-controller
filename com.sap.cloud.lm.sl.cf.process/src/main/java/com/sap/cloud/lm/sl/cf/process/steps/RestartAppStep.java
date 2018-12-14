@@ -104,7 +104,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected String getIndexVariable() {
-        return Constants.VAR_APPS_INDEX;
+        return Constants.VAR_MODULES_INDEX;
     }
 
     @Override

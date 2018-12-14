@@ -2,16 +2,13 @@ package com.sap.cloud.lm.sl.cf.core.cf.v3;
 
 import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.isActive;
 import static com.sap.cloud.lm.sl.common.util.CommonUtil.cast;
-import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -48,14 +45,6 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     @Override
     protected HandlerFactory createHandlerFactory() {
         return new HandlerFactory(MTA_MAJOR_VERSION);
-    }
-
-    @Override
-    protected CloudApplicationExtended getApplication(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
-        CloudApplicationExtended app = super.getApplication(module);
-        List<String> deployedAfter = emptyIfNull(((Module) module).getDeployedAfter());
-        app.setDeployedAfter(new HashSet<>(deployedAfter));
-        return app;
     }
 
     @Override

@@ -221,7 +221,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected String getIndexVariable() {
-        return Constants.VAR_APPS_INDEX;
+        return Constants.VAR_MODULES_INDEX;
     }
 
     @Override

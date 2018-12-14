@@ -26,6 +26,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.RestartParameters;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -98,11 +99,16 @@ public class ApplicationsCloudModelBuilder {
         return new HandlerFactory(MTA_MAJOR_VERSION);
     }
 
-    public List<CloudApplicationExtended> build(List<Module> modulesForDeployment) {
+    public List<CloudApplicationExtended> build(List<Module> modulesForDeployment, ModuleToDeployHelper moduleToDeployHelper) {
         return modulesForDeployment.stream()
+            .filter(moduleToDeploy -> isApplication(moduleToDeploy, moduleToDeployHelper))
             .map(this::getApplication)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
+    }
+
+    private boolean isApplication(Module moduleToDeploy, ModuleToDeployHelper moduleToDeployHelper) {
+        return moduleToDeployHelper.isApplication(moduleToDeploy);
     }
 
     protected PropertiesChainBuilder createPropertiesChainBuilder(DeploymentDescriptor deploymentDescriptor) {

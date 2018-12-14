@@ -64,6 +64,8 @@ public class Constants {
     public static final String VAR_MTA_ARCHIVE_MODULES = "mtaArchiveModules";
     public static final String VAR_NEW_MTA_VERSION = "newMtaVersion";
     public static final String VAR_MTA_MODULES = "mtaModules";
+    public static final String MODULE_NAME_TO_MODULE_TYPE_MAP = "moduleNameToModuleTypeMap";
+    public static final String VAR_MTA_MODULES_TO_DEPLOY_ALWAYS = "mtaModulesToDeployAlways";
 
     public static final String VAR_APP_STATE_ACTIONS_TO_EXECUTE = "appStateActionsToExecute";
     public static final String VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES = "xsPlaceholderReplacementValues";
@@ -80,18 +82,21 @@ public class Constants {
     public static final String VAR_SERVICES_TO_BIND = "servicesToBind";
     public static final String VAR_SERVICE_KEYS_TO_CREATE = "serviceKeysToCreate";
     public static final String VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT = "serviceKeysCredentialsToInject";
+    public static final String VAR_MODULES_TO_DEPLOY = "modulesToDeploy";
+    public static final String VAR_ALL_MODULES_TO_DEPLOY = "allModulesToDeploy";
     public static final String VAR_APPS_TO_DEPLOY = "appsToDeploy";
+    public static final String VAR_CONTENTS_TO_DEPLOY = "contentsToDeploy";
     public static final String VAR_DEPLOYMENT_MODE = "deploymentMode";
-    public static final String VAR_ITERATED_APPS_IN_PARALLEL = "iteratedAppsInParallel";
-    public static final String VAR_APPS_TO_ITERATE_IN_PARALLEL = "appsToIterateInParallel";
+    public static final String VAR_ITERATED_MODULES_IN_PARALLEL = "iteratedModulesInParallel";
+    public static final String VAR_MODULES_TO_ITERATE_IN_PARALLEL = "modulesToIterateInParallel";
     public static final String VAR_UPDATED_SUBSCRIBERS = "updatedSubscribers";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS = "updatedServiceBrokerSubscribers";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = "updatedServiceBrokerSubscribersCount";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX = "updatedServiceBrokerSubscribersIndex";
     public static final String VAR_APPS_TO_UNDEPLOY_COUNT = "appsToUndeployCount";
     public static final String VAR_APPS_TO_UNDEPLOY_INDEX = "appsToUndeployIndex";
-    public static final String VAR_APPS_INDEX = "appsIndex";
-    public static final String VAR_APPS_COUNT = "appsCount";
+    public static final String VAR_MODULES_INDEX = "modulesIndex";
+    public static final String VAR_MODULES_COUNT = "modulesCount";
     public static final String VAR_INDEX_VARIABLE_NAME = "indexVariableName";
     public static final String VAR_MTARS_COUNT = "mtarsCount";
     public static final String VAR_MTARS_INDEX = "mtarsIndex";
@@ -126,6 +131,7 @@ public class Constants {
     public static final String VAR_USER_PROPERTIES_CHANGED = "vcapUserPropertiesChanged";
     public static final String VAR_TRIGGERED_SERVICE_OPERATIONS = "triggeredServiceOperations";
     public static final String VAR_CORRELATION_ID = "correlationId";
+    public static final String VAR_MODULE_TO_DEPLOY = "moduleToDeploy";
     public static final String VAR_APP_TO_DEPLOY = "appToDeploy";
     public static final String VAR_SUBPROCESS_ID = "subProcessId";
     public static final String VAR_PARENTPROCESS_ID = "parentProcessId";
