@@ -37,6 +37,7 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
+import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -44,6 +45,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
 @RunWith(Parameterized.class)
 public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscribersStep> {
@@ -114,6 +116,9 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
     @Mock
     private CloudControllerClient clientForCurrentSpace;
 
+    @Mock
+    protected ModuleToDeployHelper moduleToDeployHelper;
+    
     private String expectedExceptionMessage;
 
     private int majorSchemaVersion;
@@ -173,6 +178,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
             .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue())
             .thenReturn(getBytes(getPublishedEntries()));
+        Mockito.when(moduleToDeployHelper.isApplication((Module) any())).thenReturn(true);
     }
 
     private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {

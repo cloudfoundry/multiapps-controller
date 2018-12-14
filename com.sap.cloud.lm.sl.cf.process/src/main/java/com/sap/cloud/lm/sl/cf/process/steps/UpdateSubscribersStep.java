@@ -39,6 +39,7 @@ import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.DummyConfigurationFilterParser;
+import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.ReferencingPropertiesVisitor;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
@@ -102,6 +103,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     private SpaceGetter spaceGetter;
     @Inject
     private ApplicationConfiguration configuration;
+    @Inject
+    private ModuleToDeployHelper moduleToDeployHelper;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -220,7 +223,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         Module module = dummyDescriptor.getModules2()
             .get(0);
 
-        CloudApplicationExtended application = appsCloudModelBuilder.build(Arrays.asList(module))
+        CloudApplicationExtended application = appsCloudModelBuilder.build(Arrays.asList(module), moduleToDeployHelper)
             .get(0);
         CloudApplication existingApplication = client.getApplication(subscription.getAppName());
 

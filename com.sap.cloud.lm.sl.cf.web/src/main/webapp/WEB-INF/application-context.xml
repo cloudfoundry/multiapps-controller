@@ -58,5 +58,8 @@
         </bean>
 
         <bean id="metricsBean" class="com.sap.cloud.lm.sl.cf.web.monitoring.Metrics"/>
+        
+        <bean id="moduleDeployProcessGetter" class="com.sap.cloud.lm.sl.cf.process.steps.ModuleDeployProcessGetter"/>
+        <bean id="moduleToDeployHelper" class="com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper"/>
     </beans>
 </beans>

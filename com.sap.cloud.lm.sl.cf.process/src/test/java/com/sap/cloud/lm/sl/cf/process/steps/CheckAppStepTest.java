@@ -73,7 +73,7 @@ public class CheckAppStepTest extends SyncFlowableStepTest<CheckAppStep> {
     private void prepareContext() {
         StepsUtil.setAppsToDeploy(context, stepInput.applications);
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
-        context.setVariable(Constants.VAR_APPS_INDEX, stepInput.applicationIndex);
+        context.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
     }
 
     private void prepareClient() {

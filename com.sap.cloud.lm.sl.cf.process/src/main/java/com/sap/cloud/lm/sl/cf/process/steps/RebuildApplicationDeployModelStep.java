@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -27,6 +30,9 @@ import com.sap.cloud.lm.sl.mta.model.v2.Module;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RebuildApplicationDeployModelStep extends SyncFlowableStep {
 
+    @Inject
+    private ModuleToDeployHelper moduleToDeployHelper;
+    
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         try {
@@ -36,7 +42,7 @@ public class RebuildApplicationDeployModelStep extends SyncFlowableStep {
             DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
             Module applicationModule = getApplicationModule(app, descriptor);
             List<CloudApplicationExtended> modifiedApps = getApplicationsCloudModelBuilder(execution.getContext())
-                .build(Arrays.asList(applicationModule));
+                .build(Arrays.asList(applicationModule), moduleToDeployHelper);
             CloudApplicationExtended modifiedApp = findApplication(modifiedApps, app.getName());
             setApplicationUris(execution.getContext(), app, modifiedApp);
             app.setIdleUris(modifiedApp.getIdleUris());

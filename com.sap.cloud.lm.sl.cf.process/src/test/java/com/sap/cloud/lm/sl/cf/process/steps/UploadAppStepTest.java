@@ -145,7 +145,7 @@ public class UploadAppStepTest {
             CloudApplicationExtended app = new CloudApplicationExtended(null, APP_NAME);
             app.setModuleName(APP_NAME);
             StepsUtil.setApp(context, app);
-            context.setVariable(Constants.VAR_APPS_INDEX, 0);
+            context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             StepsUtil.setModuleFileName(context, APP_NAME, APP_FILE);
@@ -221,7 +221,7 @@ public class UploadAppStepTest {
 
         @Before
         public void prepareContext() {
-            context.setVariable(Constants.VAR_APPS_INDEX, 0);
+            context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             step.initializeStepLogger(context);
         }
 
@@ -269,7 +269,7 @@ public class UploadAppStepTest {
             // module name must be null
             app.setModuleName(null);
             StepsUtil.setApp(context, app);
-            context.setVariable(Constants.VAR_APPS_INDEX, 0);
+            context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
             StepsUtil.setModuleFileName(context, APP_NAME, APP_NAME);

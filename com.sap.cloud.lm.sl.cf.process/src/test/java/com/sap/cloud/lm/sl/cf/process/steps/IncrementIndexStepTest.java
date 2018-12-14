@@ -43,8 +43,8 @@ public class IncrementIndexStepTest extends SyncFlowableStepTest<IncrementIndexS
     }
 
     private DelegateExecution prepareContext() {
-        context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_APPS_INDEX);
-        context.setVariable(Constants.VAR_APPS_INDEX, index);
+        context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
+        context.setVariable(Constants.VAR_MODULES_INDEX, index);
         return context;
     }
 

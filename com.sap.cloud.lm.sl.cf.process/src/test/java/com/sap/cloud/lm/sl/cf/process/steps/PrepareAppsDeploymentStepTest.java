@@ -17,14 +17,14 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.core.model.ModuleToDeploy;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @RunWith(Parameterized.class)
-public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareAppsDeploymentStep> {
+public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareModulesDeploymentStep> {
 
     @Mock
     private ProcessTypeParser processTypeParser;
@@ -68,9 +68,9 @@ public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareA
 
         assertStepFinishedSuccessfully();
 
-        assertEquals(count, context.getVariable(Constants.VAR_APPS_COUNT));
-        assertEquals(0, context.getVariable(Constants.VAR_APPS_INDEX));
-        assertEquals(Constants.VAR_APPS_INDEX, context.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
+        assertEquals(count, context.getVariable(Constants.VAR_MODULES_COUNT));
+        assertEquals(0, context.getVariable(Constants.VAR_MODULES_INDEX));
+        assertEquals(Constants.VAR_MODULES_INDEX, context.getVariable(Constants.VAR_INDEX_VARIABLE_NAME));
         assertEquals(ApplicationConfiguration.DEFAULT_CONTROLLER_POLLING_INTERVAL,
             context.getVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL));
         assertTrue((boolean) context.getVariable(Constants.REBUILD_APP_ENV));
@@ -81,21 +81,21 @@ public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareA
     }
 
     private DelegateExecution prepareContext() {
-        StepsUtil.setAppsToDeploy(context, getDummyApplications());
+        StepsUtil.setAllModulesToDeploy(context, getDummyModules());
         return context;
     }
-
-    private List<CloudApplicationExtended> getDummyApplications() {
-        List<CloudApplicationExtended> applications = new ArrayList<>();
+    
+    private List<ModuleToDeploy> getDummyModules() {
+        List<ModuleToDeploy> modules = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            applications.add(new CloudApplicationExtended(null, "application-" + i));
+            modules.add(new ModuleToDeploy("module-" + i, "app"));
         }
-        return applications;
+        return modules;
     }
 
     @Override
-    protected PrepareAppsDeploymentStep createStep() {
-        return new PrepareAppsDeploymentStep();
+    protected PrepareModulesDeploymentStep createStep() {
+        return new PrepareModulesDeploymentStep();
     }
 
 }

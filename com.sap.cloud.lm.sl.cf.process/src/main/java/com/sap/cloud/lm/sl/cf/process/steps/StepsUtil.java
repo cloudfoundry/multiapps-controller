@@ -52,6 +52,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
+import com.sap.cloud.lm.sl.cf.core.model.ModuleToDeploy;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -65,6 +66,7 @@ import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
@@ -368,30 +370,60 @@ public class StepsUtil {
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
     }
+    
+    @SuppressWarnings("unchecked")
+    public static List<ModuleToDeploy> getModulesToDeploy(DelegateExecution context) {
+        List<String> cldoudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_MODULES_TO_DEPLOY);
+        return cldoudApplicationsAsStrings.stream()
+            .map(app -> (ModuleToDeploy) JsonUtil.fromJson(app, ModuleToDeploy.class))
+            .collect(Collectors.toList());
+    }
+
+    public static void setModulesToDeploy(DelegateExecution context, List<ModuleToDeploy> apps) {
+        List<String> cloudApplicationsAsStrings = apps.stream()
+            .map(JsonUtil::toJson)
+            .collect(Collectors.toList());
+        context.setVariable(Constants.VAR_MODULES_TO_DEPLOY, cloudApplicationsAsStrings);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static List<ModuleToDeploy> getAllModulesToDeploy(DelegateExecution context) {
+        List<String> cldoudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY);
+        return cldoudApplicationsAsStrings.stream()
+            .map(app -> (ModuleToDeploy) JsonUtil.fromJson(app, ModuleToDeploy.class))
+            .collect(Collectors.toList());
+    }
+
+    public static void setAllModulesToDeploy(DelegateExecution context, List<ModuleToDeploy> modulesCalculatedForDeployment) {
+        List<String> cloudApplicationsAsStrings = modulesCalculatedForDeployment.stream()
+            .map(JsonUtil::toJson)
+            .collect(Collectors.toList());
+        context.setVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY, cloudApplicationsAsStrings);
+    }
 
     @SuppressWarnings("unchecked")
-    public static List<CloudApplicationExtended> getIteratedAppsInParallel(DelegateExecution context) {
-        List<String> appsIteratedInParallel = (List<String>) context.getVariable(Constants.VAR_ITERATED_APPS_IN_PARALLEL);
+    public static List<ModuleToDeploy> getIteratedModulesInParallel(DelegateExecution context) {
+        List<String> appsIteratedInParallel = (List<String>) context.getVariable(Constants.VAR_ITERATED_MODULES_IN_PARALLEL);
         if (appsIteratedInParallel == null) {
             return Collections.emptyList();
         }
         return appsIteratedInParallel.stream()
-            .map(app -> (CloudApplicationExtended) JsonUtil.fromJson(app, CloudApplicationExtended.class))
+            .map(app -> (ModuleToDeploy) JsonUtil.fromJson(app, CloudApplicationExtended.class))
             .collect(Collectors.toList());
     }
 
-    public static void setIteratedAppsInParallel(DelegateExecution context, List<CloudApplicationExtended> apps) {
+    public static void setIteratedModulesInParallel(DelegateExecution context, List<ModuleToDeploy> apps) {
         List<String> cloudApplicationsAsStrings = apps.stream()
             .map(JsonUtil::toJson)
             .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_ITERATED_APPS_IN_PARALLEL, cloudApplicationsAsStrings);
+        context.setVariable(Constants.VAR_ITERATED_MODULES_IN_PARALLEL, cloudApplicationsAsStrings);
     }
 
-    public static void setAppsToIterateInParallel(DelegateExecution context, List<CloudApplicationExtended> apps) {
+    public static void setModulesToIterateInParallel(DelegateExecution context, List<ModuleToDeploy> apps) {
         List<String> cloudApplicationsAsStrings = apps.stream()
             .map(JsonUtil::toJson)
             .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_APPS_TO_ITERATE_IN_PARALLEL, cloudApplicationsAsStrings);
+        context.setVariable(Constants.VAR_MODULES_TO_ITERATE_IN_PARALLEL, cloudApplicationsAsStrings);
     }
 
     public static void setDeploymentMode(DelegateExecution context, DeploymentMode deploymentMode) {
@@ -735,6 +767,10 @@ public class StepsUtil {
 
     static CloudApplicationExtended getApp(DelegateExecution context) {
         return JsonUtil.fromJson((String) context.getVariable(Constants.VAR_APP_TO_DEPLOY), CloudApplicationExtended.class);
+    }
+    
+    static ModuleToDeploy getModuleToDeploy(DelegateExecution context) {
+        return JsonUtil.fromJson((String) context.getVariable(Constants.VAR_MODULE_TO_DEPLOY), ModuleToDeploy.class);
     }
 
     static void setApp(DelegateExecution context, CloudApplicationExtended app) {

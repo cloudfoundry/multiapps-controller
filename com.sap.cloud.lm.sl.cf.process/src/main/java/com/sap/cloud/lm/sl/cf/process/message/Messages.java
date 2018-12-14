@@ -95,6 +95,7 @@ public class Messages {
     public static final String ERROR_DELETING_SERVICES = "Error deleting services";
     public static final String ERROR_UNDEPLOYING_APPS = "Error undeploying applications";
     public static final String ERROR_BUILDING_CLOUD_APP_MODEL = "Error building cloud application deploy model";
+    public static final String ERROR_SETTING_APP = "Error setting application from module \"{0}\"";
     public static final String ERROR_CHECKING_APP = "Error checking application \"{0}\"";
     public static final String ERROR_CREATING_APP = "Error creating application \"{0}\"";
     public static final String ERROR_UPDATING_APP = "Error updating application \"{0}\"";
@@ -333,10 +334,9 @@ public class Messages {
     public static final String SERVICES_TO_UPDATE = "Services to update: {0}";
     public static final String CREATED_SERVICE_KEY = "Service key \"{0}\" created";
     public static final String SERVICE_BINDINGS_EXISTS = "Service bindings \"{0}\" exists";
-    public static final String PREPARING_APPS_DEPLOYMENT = "Preparing applications deployment...";
-    public static final String APPS_DEPLOYMENT_PREPARED = "Applications deployment prepared";
-    public static final String COMPUTING_NEXT_APPS_FOR_PARALLEL_ITERATION = "Computing applications for next parallel iteration...";
-    public static final String COMPUTED_NEXT_APPS_FOR_PARALLEL_ITERATION = "Computed applications for next parallel iteration: {0}";
+    public static final String PREPARING_MODULES_DEPLOYMENT = "Preparing modules deployment...";
+    public static final String COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computing modules for next parallel iteration...";
+    public static final String COMPUTED_NEXT_MODULES_FOR_PARALLEL_ITERATION = "Computed modules for next parallel iteration: {0}";
     public static final String CHECKING_APP = "Checking application \"{0}\"...";
     public static final String CHECKING_APP_STATUS = "Checking status of application \"{0}\"...";
     public static final String APP_EXISTS = "Application \"{0}\" exists";
@@ -408,6 +408,7 @@ public class Messages {
     public static final String DEPLOYED_MODULES = "Deployed modules: {0}";
     public static final String MTA_ARCHIVE_MODULES = "MTA archive modules: {0}";
     public static final String CUSTOM_DOMAINS = "Custom domains: {0}";
+    public static final String MODULES_TO_DEPLOY = "Modules to deploy: {0}";
     public static final String APPS_TO_DEPLOY = "Apps to deploy: {0}";
     public static final String CONFIGURATION_ENTRIES_TO_PUBLISH = "Configuration entries to publish: {0}";
     public static final String SERVICE_KEYS_TO_CREATE = "Service keys to create: {0}";

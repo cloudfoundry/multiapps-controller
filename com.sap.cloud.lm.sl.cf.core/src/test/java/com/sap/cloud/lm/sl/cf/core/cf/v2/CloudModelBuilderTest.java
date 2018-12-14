@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.util.ResourcesCloudModelBuilderContentCalculator;
+import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -561,7 +562,7 @@ public class CloudModelBuilderTest {
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
 
         modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, mtaModules,
-            Collections.emptyList(), getPropertiesAccessor(), getUserMessageLogger());
+            Collections.emptyList(), getPropertiesAccessor(), getUserMessageLogger(), new ModuleToDeployHelper());
 
         resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(Collections.emptyList(), getPropertiesAccessor(),
             getUserMessageLogger());
@@ -637,7 +638,7 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
             @Override
             public List<CloudApplicationExtended> call() throws Exception {
-                return appsBuilder.build(modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules2()));
+                return appsBuilder.build(modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules2()), new ModuleToDeployHelper());
             }
         }, expectedApps, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }

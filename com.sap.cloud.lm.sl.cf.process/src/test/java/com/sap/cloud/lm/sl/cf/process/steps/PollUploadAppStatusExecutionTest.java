@@ -102,7 +102,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
 
     private void prepareContext() {
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(application.toCloudApplication()), context);
-        context.setVariable(Constants.VAR_APPS_INDEX, 0);
+        context.setVariable(Constants.VAR_MODULES_INDEX, 0);
         context.setVariable(Constants.VAR_UPLOAD_TOKEN, UPLOAD_TOKEN);
     }
 

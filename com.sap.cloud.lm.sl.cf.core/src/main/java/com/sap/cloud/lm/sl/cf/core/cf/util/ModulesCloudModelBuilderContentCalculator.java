@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.SetUtils;
 
+import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -22,16 +23,18 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     private PropertiesAccessor propertiesAccessor;
     private List<String> modulesSpecifiedForDeployment;
     private UserMessageLogger userMessageLogger;
+    private ModuleToDeployHelper moduleToDeployHelper;
 
     public ModulesCloudModelBuilderContentCalculator(Set<String> mtaModulesInArchive, Set<String> deployedModules,
         Set<String> allMtaModules, List<String> modulesSpecifiedForDeployment, PropertiesAccessor propertiesAccessor,
-        UserMessageLogger userMessageLogger) {
+        UserMessageLogger userMessageLogger, ModuleToDeployHelper moduleToDeployHelper) {
         this.mtaModulesInArchive = mtaModulesInArchive;
         this.deployedModules = deployedModules;
         this.modulesSpecifiedForDeployment = modulesSpecifiedForDeployment;
         this.propertiesAccessor = propertiesAccessor;
         this.userMessageLogger = userMessageLogger;
         this.allMtaModules = allMtaModules;
+        this.moduleToDeployHelper = moduleToDeployHelper;
     }
 
     @Override
@@ -75,7 +78,7 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     }
 
     private boolean shouldDeployModule(Module module, Set<String> mtaModulesInArchive, Set<String> deployedModules) {
-        if (isDockerModule(module)) {
+        if (moduleToDeployHelper.shouldDeployAlways(module) || isDockerModule(module)) {
             return true;
         }
         if (!isModulePresentInArchive(module, mtaModulesInArchive) || module.getType() == null) {
