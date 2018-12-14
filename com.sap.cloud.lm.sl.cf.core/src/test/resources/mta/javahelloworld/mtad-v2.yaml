@@ -1,6 +1,6 @@
 _schema-version: "2.0.0"
 ID: com.sap.xs2.samples.javahelloworld
-version: 2.0.0
+version: 0.1.0
 
 modules:
   - name: java-hello-world

@@ -1,4 +1,4 @@
-_schema-version: 1.0.0
+_schema-version: 2.0.0
 ID: test
 version: 0.1.0
 
@@ -14,3 +14,6 @@ modules:
     provides:
       - name: baz
         public: true
+        properties:
+          foo: bar
+          baz: qux

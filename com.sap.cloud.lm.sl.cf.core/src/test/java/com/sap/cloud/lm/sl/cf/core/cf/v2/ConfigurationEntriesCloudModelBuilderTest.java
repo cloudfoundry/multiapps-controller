@@ -29,23 +29,23 @@ public class ConfigurationEntriesCloudModelBuilderTest {
 //            },
             // (1) Test that provided dependencies from version 2 are public by default:
             {
-                "mtad-07.yaml", 2, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-01.json"),
+                "mtad-07-v2.yaml", 2, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-01.json"),
             },
             // (2) Test that provided dependencies from version 3 are not public by default:
             {
-                "mtad-07.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-02.json"),
+                "mtad-07-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-02.json"),
             },
             // (3) Test that explicitly public provided dependencies are converted to configuration entries:
             {
-                "mtad-08.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-03.json"),
+                "mtad-08-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-03.json"),
             },
             // (4) Test that public provided dependencies from all modules are converted to configuration entries:
             {
-                "mtad-09.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-04.json"),
+                "mtad-09-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-04.json"),
             },
             // (5) Test that the provided dependencies' properties are added in the created configuration entries:
             {
-                "mtad-10.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-05.json"),
+                "mtad-10-v2.yaml", 3, "some-org", "some-space", new Expectation(Expectation.Type.RESOURCE, "expected-configuration-entries-05.json"),
             },
 // @formatter:on
         });

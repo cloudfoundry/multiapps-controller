@@ -40,7 +40,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
     private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
 
-    private static final Integer MTA_MAJOR_SCHEMA_VERSION = 1;
+    private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
         ProcessDescriptorStepTest.class);

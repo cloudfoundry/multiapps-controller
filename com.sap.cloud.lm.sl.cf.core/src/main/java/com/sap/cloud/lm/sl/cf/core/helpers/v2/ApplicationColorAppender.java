@@ -17,7 +17,7 @@ public class ApplicationColorAppender extends Visitor {
 
     protected ApplicationColor applicationColor;
     protected ApplicationColor deployedMtaColor;
-    
+
     public ApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationColor) {
         this.applicationColor = applicationColor;
         this.deployedMtaColor = deployedMtaColor;
@@ -39,7 +39,7 @@ public class ApplicationColorAppender extends Visitor {
     protected String getAppName(Map<String, Object> moduleProperties, String moduleName) {
         return (String) moduleProperties.getOrDefault(SupportedParameters.APP_NAME, moduleName) + applicationColor.asSuffix();
     }
-    
+
     protected RequiredDependency.Builder getRequiredDependencyBuilder() {
         return new RequiredDependency.Builder();
     }

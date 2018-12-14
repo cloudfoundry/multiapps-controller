@@ -1,6 +1,6 @@
 {
   "name": "XS2",
-  "properties": {
+  "parameters": {
     "org": "initial",
     "space": "initial"
   },
@@ -36,41 +36,41 @@
   "resource-types": [
     {
       "name": "com.sap.xs.hdi-container",
-      "properties": {
+      "parameters": {
         "service": "hana",
         "service-plan": "hdi-shared"
       }
     },
     {
       "name": "com.sap.xs.job-scheduler",
-      "properties": {
+      "parameters": {
         "service": "jobscheduler",
         "service-plan": "default"
       }
     },
     {
       "name": "com.sap.xs.fs",
-      "properties": {
+      "parameters": {
         "service": "fs-storage",
         "service-plan": "free"
       }
     },
     {
       "name": "org.cloudfoundry.user-provided-service",
-      "properties": {
+      "parameters": {
         "type": "user-provided-service"
       }
     },
     {
       "name": "org.cloudfoundry.managed-service",
-      "properties": {
+      "parameters": {
         "type": "managed-service"
       }
     },
     {
       "name": "org.cloudfoundry.existing-service",
-      "properties": {
-        "type": "existing-service"
+      "parameters": {
+    	"type": "existing-service"
       }
     }
   ]

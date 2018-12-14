@@ -140,7 +140,7 @@ public class ConfigurationReferencesResolverTest {
     }
 
     protected ParametersChainBuilder getPropertiesChainBuilder(DeploymentDescriptor descriptor) {
-        return new ParametersChainBuilder((DeploymentDescriptor) descriptor, platform);
+        return new ParametersChainBuilder(descriptor, platform);
     }
 
     protected DescriptorParser getDescriptorParser() {

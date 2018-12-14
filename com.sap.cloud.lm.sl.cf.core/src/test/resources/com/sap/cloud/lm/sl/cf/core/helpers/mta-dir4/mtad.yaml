@@ -6,7 +6,10 @@ modules:
   - name: node-hello-world
     type: javascript.nodejs
     path: web/
-    requires: [nodejs-uaa, nodejs, ui]
+    requires:
+      - name: nodejs-uaa
+      - name: nodejs
+      - name: ui
     properties:
       host: ${user}-node-hello-world
     
@@ -17,14 +20,18 @@ modules:
       - name: nodejs
         properties:
           url: "http://${default-uri}"
-    requires: [nodejs-uaa, nodejs-hdi-container, node-hello-world-db]
+    requires: 
+      - name: nodejs-uaa
+      - name: nodejs-hdi-container
+      - name: node-hello-world-db
     properties:
       host: ${user}-node-hello-world-backend
 
   - name: node-hello-world-db
     type: com.sap.xs.hdi
     path: db/
-    requires: [nodejs-hdi-container]
+    requires: 
+      - name: nodejs-hdi-container
 
 resources:
   - name: nodejs-hdi-container

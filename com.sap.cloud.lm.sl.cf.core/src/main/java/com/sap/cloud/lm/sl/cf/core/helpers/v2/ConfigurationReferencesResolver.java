@@ -16,12 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.helpers.expander.PropertiesExpander;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.mta.model.ElementContext;
 import com.sap.cloud.lm.sl.mta.model.PropertiesContainer;
 import com.sap.cloud.lm.sl.mta.model.Visitor;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
@@ -179,5 +181,18 @@ public class ConfigurationReferencesResolver extends Visitor {
     
     protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryDao dao) {
         return new ConfigurationReferenceResolver(dao, configuration);
+    }
+    
+    @Override
+    public void visit(ElementContext context, Resource sourceResource) {
+        ConfigurationFilter configurationFilter = filterParser.parse(sourceResource);
+        if (configurationFilter == null) {
+            // resource is not a config reference.
+            return;
+        }
+        List<Resource> resolvedResources = configurationResolver.resolve(sourceResource, configurationFilter, cloudTarget);
+        ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter, sourceResource,
+            resolvedResources);
+        resolvedReferences.put(sourceResource.getName(), resolvedReference);
     }
 }

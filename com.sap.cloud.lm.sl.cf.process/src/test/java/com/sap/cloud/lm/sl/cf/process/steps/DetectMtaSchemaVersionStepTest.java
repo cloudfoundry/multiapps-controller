@@ -36,7 +36,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
     public static Collection<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-            // Supported version:
+            // Unsupported version:
             {
                 "1.0.0", 1,  format(Messages.UNSUPPORTED_VERSION, "1.0.0"),
             },

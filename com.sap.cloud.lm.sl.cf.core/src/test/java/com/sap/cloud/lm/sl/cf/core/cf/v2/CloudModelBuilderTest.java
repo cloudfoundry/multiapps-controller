@@ -46,12 +46,12 @@ import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
 
 @RunWith(Parameterized.class)
 public class CloudModelBuilderTest {
-    
+
     protected static final String DEFAULT_DOMAIN_CF = "cfapps.neo.ondemand.com";
     protected static final String DEFAULT_DOMAIN_XS = "sofd60245639a";
-    
+
     protected static final String DEPLOY_ID = "123";
-    
+
     protected final DescriptorParser descriptorParser = getDescriptorParser();
     protected final ConfigurationParser configurationParser = getConfigurationParser();
     protected final DescriptorHandler descriptorHandler = getDescriptorHandler();
@@ -67,10 +67,10 @@ public class CloudModelBuilderTest {
     protected final Set<String> deployedApps;
     protected final Expectation expectedServices;
     protected final Expectation expectedApps;
-    
+
     protected ApplicationsCloudModelBuilder appsBuilder;
     protected ServicesCloudModelBuilder servicesBuilder;
-    
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
@@ -464,7 +464,7 @@ public class CloudModelBuilderTest {
 // @formatter:on
         });
     }
-    
+
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
         String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices, String[] mtaArchiveModules,
         String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
@@ -499,23 +499,20 @@ public class CloudModelBuilderTest {
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration) {
-        return new ServicesCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor,
-            new HandlerFactory(2).getPropertiesAccessor(), configuration);
+        return new ServicesCloudModelBuilder(deploymentDescriptor, new HandlerFactory(2).getPropertiesAccessor(), configuration);
     }
 
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
         XsPlaceholderResolver xsPlaceholderResolver) {
-        deploymentDescriptor = new DescriptorReferenceResolver((com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor,
-            new ResolverBuilder(), new ResolverBuilder()).resolve();
-        return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder(
-            (com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, DEPLOY_ID);
+        deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder())
+            .resolve();
+        return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
+            DEPLOY_ID);
     }
 
     protected PlatformMerger getPlatformMerger(Platform platform, DescriptorHandler handler) {
-        return new com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger((com.sap.cloud.lm.sl.mta.model.v2.Platform) platform,
-            (com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler) handler);
+        return new PlatformMerger(platform, handler);
     }
 
     protected void setParameters(Module module, Map<String, Object> parameters) {
@@ -525,7 +522,7 @@ public class CloudModelBuilderTest {
     protected DescriptorMerger getDescriptorMerger() {
         return new DescriptorMerger();
     }
-    
+
     @Before
     public void setUp() throws Exception {
         DeploymentDescriptor deploymentDescriptor = loadDeploymentDescriptor();
@@ -535,7 +532,6 @@ public class CloudModelBuilderTest {
 
         deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Arrays.asList(extensionDescriptor));
         insertProperAppNames(deploymentDescriptor);
-
         PlatformMerger platformMerger = getPlatformMerger(platform, descriptorHandler);
         platformMerger.mergeInto(deploymentDescriptor);
 
@@ -549,7 +545,7 @@ public class CloudModelBuilderTest {
             xsPlaceholderResolver);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
     }
-    
+
     private DeploymentDescriptor loadDeploymentDescriptor() {
         InputStream deploymentDescriptorYaml = getClass().getResourceAsStream(deploymentDescriptorLocation);
         return descriptorParser.parseDeploymentDescriptorYaml(deploymentDescriptorYaml);
@@ -590,7 +586,7 @@ public class CloudModelBuilderTest {
     protected String getDefaultDomain(String targetName) {
         return (targetName.equals("CLOUD-FOUNDRY")) ? DEFAULT_DOMAIN_CF : DEFAULT_DOMAIN_XS;
     }
-    
+
     protected SystemParameters createSystemParameters(DeploymentDescriptor descriptor, String defaultDomain) {
         Map<String, Object> generalParameters = new HashMap<>();
         generalParameters.put(SupportedParameters.DEFAULT_DOMAIN, defaultDomain);
@@ -601,7 +597,7 @@ public class CloudModelBuilderTest {
         }
         return new SystemParameters(generalParameters, moduleParameters, Collections.emptyMap(), Collections.emptyMap());
     }
-    
+
     private CloudModelConfiguration createCloudModelConfiguration(String defaultDomain) {
         CloudModelConfiguration configuration = new CloudModelConfiguration();
         configuration.setPortBasedRouting(defaultDomain.equals(DEFAULT_DOMAIN_XS));
@@ -610,10 +606,10 @@ public class CloudModelBuilderTest {
         configuration.setUseNamespacesForServices(useNamespacesForServices);
         return configuration;
     }
-    
+
     @Test
     public void testGetApplications() {
-       TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
+        TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
             @Override
             public List<CloudApplicationExtended> call() throws Exception {
                 return appsBuilder.build(mtaArchiveModules, mtaModules, deployedApps);
@@ -630,5 +626,5 @@ public class CloudModelBuilderTest {
             }
         }, expectedServices, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
-    
+
 }

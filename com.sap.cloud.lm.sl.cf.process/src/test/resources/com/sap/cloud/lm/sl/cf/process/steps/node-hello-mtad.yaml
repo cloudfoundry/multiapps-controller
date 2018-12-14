@@ -1,28 +1,36 @@
 _schema-version: 2.0.0
 ID: com.sap.xs2.samples.helloworld
-version: 2.0.1
+version: 0.1.0
 
 modules:
   - name: node-hello-world
     type: javascript.nodejs
     properties:
       port: 50050
-    requires: [uaa, nodejs, ui5]
+    requires: 
+      - name: uaa
+      - name: nodejs
+        group: destinations
+      - name: ui5
+        group: destinations
 
   - name: node-hello-world-backend
     type: javascript.nodejs
     provides:
       - name: nodejs
-        groups: [destinations]
         properties:
           url: "https://nodejs.hana.ondemand.com"
-    requires: [uaa, db, nodejs-hdi-container]
+    requires: 
+      - name: uaa
+      - name: db
+      - name: nodejs-hdi-container
 
   - name: node-hello-world-db
     type: com.sap.xs.hdi
     provides:
       - name: db
-    requires: [nodejs-hdi-container]
+    requires: 
+       - name: nodejs-hdi-container
 
 resources:
   - name: nodejs-hdi-container
@@ -32,6 +40,5 @@ resources:
     type: org.cloudfoundry.existing-service
 
   - name: ui5
-    groups: [destinations]
-    properties:
-      url: "https://sapui5.hana.ondemand.com"
+    parameters:
+     url: "https://sapui5.hana.ondemand.com"

@@ -81,6 +81,12 @@ public class ApplicationsCloudModelBuilder {
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
+        this(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, null);
+    }
+
+    public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
+        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
+        UserMessageLogger userMessageLogger) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.propertiesChainBuilder = createPropertiesChainBuilder(deploymentDescriptor);
@@ -94,6 +100,8 @@ public class ApplicationsCloudModelBuilder {
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployedMta = deployedMta;
+        this.userMessageLogger = userMessageLogger;
+        this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
     }
 
     public List<CloudApplicationExtended> build(Set<String> mtaModulesInArchive, Set<String> allMtaModules, Set<String> deployedModules) {
@@ -168,14 +176,6 @@ public class ApplicationsCloudModelBuilder {
     protected String getDependencyType(Module module) {
         return (String) propertiesAccessor.getParameters(module)
             .getOrDefault(SupportedParameters.DEPENDENCY_TYPE, DEPENDENCY_TYPE_SOFT);
-    }
-
-    public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
-        UserMessageLogger userMessageLogger) {
-        this(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId);
-        this.userMessageLogger = userMessageLogger;
-        this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
     }
 
     protected HandlerFactory createHandlerFactory() {
