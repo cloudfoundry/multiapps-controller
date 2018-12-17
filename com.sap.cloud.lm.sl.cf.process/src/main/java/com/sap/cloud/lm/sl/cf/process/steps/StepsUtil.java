@@ -650,6 +650,9 @@ public class StepsUtil {
 
     public static DeploymentDescriptor getDeploymentDescriptor(DelegateExecution context) {
         byte[] binaryYaml = (byte[]) context.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR);
+        if (binaryYaml == null) {
+            return null;
+        }
         String yaml = new String(binaryYaml, StandardCharsets.UTF_8);
         return parseDeploymentDescriptor(yaml);
     }
@@ -933,11 +936,6 @@ public class StepsUtil {
 
     static ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {
 
-        return getApplicationsCloudModelBuilder(context, null);
-    }
-
-    static ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context, StepLogger stepLogger) {
-
         CloudModelConfiguration configuration = getCloudBuilderConfiguration(context, true);
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
 
@@ -951,7 +949,7 @@ public class StepsUtil {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
 
         return handlerFactory.getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, deployId, stepLogger);
+            xsPlaceholderResolver, deployId);
     }
 
     static List<String> getDomainsFromApps(DelegateExecution context, List<CloudApplicationExtended> apps) {
@@ -980,15 +978,11 @@ public class StepsUtil {
     }
 
     static ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {
-        return getServicesCloudModelBuilder(context, null);
-    }
-
-    static ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context, StepLogger stepLogger) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
         CloudModelConfiguration configuration = getCloudBuilderConfiguration(context, true);
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
-        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), configuration,
-            stepLogger);
+
+        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor(), configuration);
     }
 
     static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
@@ -1076,5 +1070,18 @@ public class StepsUtil {
         boolean deleteServicesFlag = (boolean) context.getVariable(Constants.PARAM_DELETE_SERVICES);
 
         return deleteServicesFlag;
+    }
+
+    public static List<String> getModulesForDeployment(DelegateExecution context) {
+        return getVariableWithCommaSepearator(context, Constants.PARAM_MODULES_FOR_DEPLOYMENT);
+    }
+
+    public static List<String> getResourcesForDeployment(DelegateExecution context) {
+        return getVariableWithCommaSepearator(context, Constants.PARAM_RESOURCES_FOR_DEPLOYMENT);
+    }
+
+    private static List<String> getVariableWithCommaSepearator(DelegateExecution context, String variableName) {
+        String variableWithCommaSeparator = (String) context.getVariable(variableName);
+        return variableWithCommaSeparator == null ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
     }
 }

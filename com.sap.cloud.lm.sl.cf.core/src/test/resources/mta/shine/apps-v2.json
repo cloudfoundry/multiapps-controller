@@ -1,5 +1,41 @@
 [
   {
+    "moduleName": "shine",
+    "idleUris": [],
+    "tasks": [],
+    "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "diskQuota": 0,
+    "env": [
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "MTA_METADATA={\"id\":\"com.sap.xs2.samples.shine\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA={\"name\":\"shine\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"shine\"]",
+      "MTA_SERVICES=[\"uaa\"]",
+      "destinations=[{\"name\":\"xsjs\",\"url\":\"http://i027947-shine-xsjs.cfapps.neo.ondemand.com\"},{\"name\":\"xsodata\",\"url\":\"http://i027947-shine-odata.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
+    ],
+    "instances": 0,
+    "memory": 128,
+    "runningInstances": 0,
+    "services": [
+      "uaa"
+    ],
+    "staging": {},
+    "uris": [
+      "i027947-shine.cfapps.neo.ondemand.com"
+    ],
+    "meta": {},
+    "name": "shine"
+  },
+  {
     "moduleName": "shine-xsjs",
     "idleUris": [],
     "tasks": [],
@@ -75,41 +111,5 @@
     ],
     "meta": {},
     "name": "shine-odata"
-  },
-  {
-    "moduleName": "shine",
-    "idleUris": [],
-    "tasks": [],
-    "serviceKeysToInject": [],
-    "applicationPorts": [],
-    "domains": [
-      "cfapps.neo.ondemand.com"
-    ],
-    "restartParameters": {
-      "shouldRestartOnVcapAppChange": true,
-      "shouldRestartOnVcapServicesChange": true,
-      "shouldRestartOnUserProvidedChange": true
-    },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.xs2.samples.shine\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"shine\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"shine\"]",
-      "MTA_SERVICES=[\"uaa\"]",
-      "destinations=[{\"name\":\"xsjs\",\"url\":\"http://i027947-shine-xsjs.cfapps.neo.ondemand.com\"},{\"name\":\"xsodata\",\"url\":\"http://i027947-shine-odata.cfapps.neo.ondemand.com\"},{\"name\":\"ui5\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
-    ],
-    "instances": 0,
-    "memory": 128,
-    "runningInstances": 0,
-    "services": [
-      "uaa"
-    ],
-    "staging": {},
-    "uris": [
-      "i027947-shine.cfapps.neo.ondemand.com"
-    ],
-    "meta": {},
-    "name": "shine"
   }
 ]

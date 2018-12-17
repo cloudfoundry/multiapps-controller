@@ -22,10 +22,14 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.cf.util.ModulesCloudModelBuilderContentCalculator;
+import com.sap.cloud.lm.sl.cf.core.cf.util.ResourcesCloudModelBuilderContentCalculator;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.util.Callable;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -55,6 +59,7 @@ public class CloudModelBuilderTest {
     protected final DescriptorParser descriptorParser = getDescriptorParser();
     protected final ConfigurationParser configurationParser = getConfigurationParser();
     protected final DescriptorHandler descriptorHandler = getDescriptorHandler();
+    protected DeploymentDescriptor deploymentDescriptor;
 
     protected final String deploymentDescriptorLocation;
     protected final String extensionDescriptorLocation;
@@ -67,6 +72,8 @@ public class CloudModelBuilderTest {
     protected final Set<String> deployedApps;
     protected final Expectation expectedServices;
     protected final Expectation expectedApps;
+    private ModulesCloudModelBuilderContentCalculator modulesCalculator;
+    protected ResourcesCloudModelBuilderContentCalculator resourcesCalculator;
 
     protected ApplicationsCloudModelBuilder appsBuilder;
     protected ServicesCloudModelBuilder servicesBuilder;
@@ -481,12 +488,20 @@ public class CloudModelBuilderTest {
         this.expectedApps = expectedApps;
     }
 
+    protected UserMessageLogger getUserMessageLogger() {
+        return null;
+    }
+
     protected DescriptorParser getDescriptorParser() {
-        return new DescriptorParser();
+        return getHandlerFactory().getDescriptorParser();
     }
 
     protected ConfigurationParser getConfigurationParser() {
-        return new ConfigurationParser();
+        return getHandlerFactory().getConfigurationParser();
+    }
+
+    protected HandlerFactory getHandlerFactory() {
+        return new HandlerFactory(2);
     }
 
     protected Map<String, Object> getParameters(Module module) {
@@ -494,12 +509,12 @@ public class CloudModelBuilderTest {
     }
 
     protected DescriptorHandler getDescriptorHandler() {
-        return new DescriptorHandler();
+        return getHandlerFactory().getDescriptorHandler();
     }
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration) {
-        return new ServicesCloudModelBuilder(deploymentDescriptor, new HandlerFactory(2).getPropertiesAccessor(), configuration);
+        return new ServicesCloudModelBuilder(deploymentDescriptor, getPropertiesAccessor(), configuration);
     }
 
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
@@ -512,7 +527,7 @@ public class CloudModelBuilderTest {
     }
 
     protected PlatformMerger getPlatformMerger(Platform platform, DescriptorHandler handler) {
-        return new PlatformMerger(platform, handler);
+        return getHandlerFactory().getPlatformMerger(platform);
     }
 
     protected void setParameters(Module module, Map<String, Object> parameters) {
@@ -525,7 +540,7 @@ public class CloudModelBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        DeploymentDescriptor deploymentDescriptor = loadDeploymentDescriptor();
+        deploymentDescriptor = loadDeploymentDescriptor();
         ExtensionDescriptor extensionDescriptor = loadExtensionDescriptor();
         Platform platform = loadPlatform();
         DeployedMta deployedMta = loadDeployedMta();
@@ -544,6 +559,16 @@ public class CloudModelBuilderTest {
         appsBuilder = getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
             xsPlaceholderResolver);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
+
+        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, mtaModules,
+            Collections.emptyList(), getPropertiesAccessor(), getUserMessageLogger());
+
+        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(Collections.emptyList(), getPropertiesAccessor(),
+            getUserMessageLogger());
+    }
+
+    protected PropertiesAccessor getPropertiesAccessor() {
+        return getHandlerFactory().getPropertiesAccessor();
     }
 
     private DeploymentDescriptor loadDeploymentDescriptor() {
@@ -612,7 +637,7 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
             @Override
             public List<CloudApplicationExtended> call() throws Exception {
-                return appsBuilder.build(mtaArchiveModules, mtaModules, deployedApps);
+                return appsBuilder.build(modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules2()));
             }
         }, expectedApps, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
@@ -622,7 +647,7 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudServiceExtended>>() {
             @Override
             public List<CloudServiceExtended> call() throws Exception {
-                return servicesBuilder.build();
+                return servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources2()));
             }
         }, expectedServices, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }

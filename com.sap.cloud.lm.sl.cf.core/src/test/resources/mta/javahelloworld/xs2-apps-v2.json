@@ -1,6 +1,6 @@
 [
   {
-    "moduleName": "java-hello-world-db",
+    "moduleName": "java-hello-world",
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -15,22 +15,25 @@
     },
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"execute-app\":false}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"java-hello-world-db\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java-hello-world-db\"]",
-      "MTA_SERVICES=[\"java-hdi-container\"]"
+      "MTA_MODULE_METADATA={\"name\":\"java-hello-world\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java-hello-world\"]",
+      "MTA_SERVICES=[\"uaa\"]",
+      "destinations=[{\"name\":\"java\",\"url\":\"http://sofd60245639a:52001\"},{\"name\":\"ui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
     ],
     "instances": 0,
-    "memory": 256,
+    "memory": 128,
     "runningInstances": 0,
     "services": [
-      "java-hdi-container"
+      "uaa"
     ],
     "staging": {},
-    "uris": [],
+    "uris": [
+      "java-hello-world.sofd60245639a"
+    ],
     "meta": {},
-    "name": "java-hello-world-db"
+    "name": "java-hello-world"
   },
   {
     "moduleName": "java-hello-world-backend",
@@ -75,7 +78,7 @@
     "name": "java-hello-world-backend"
   },
   {
-    "moduleName": "java-hello-world",
+    "moduleName": "java-hello-world-db",
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -90,24 +93,21 @@
     },
     "diskQuota": 0,
     "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
+      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"execute-app\":false}",
       "MTA_METADATA={\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"java-hello-world\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java-hello-world\"]",
-      "MTA_SERVICES=[\"uaa\"]",
-      "destinations=[{\"name\":\"java\",\"url\":\"http://sofd60245639a:52001\"},{\"name\":\"ui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
+      "MTA_MODULE_METADATA={\"name\":\"java-hello-world-db\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java-hello-world-db\"]",
+      "MTA_SERVICES=[\"java-hdi-container\"]"
     ],
     "instances": 0,
-    "memory": 128,
+    "memory": 256,
     "runningInstances": 0,
     "services": [
-      "uaa"
+      "java-hdi-container"
     ],
     "staging": {},
-    "uris": [
-      "java-hello-world.sofd60245639a"
-    ],
+    "uris": [],
     "meta": {},
-    "name": "java-hello-world"
+    "name": "java-hello-world-db"
   }
 ]

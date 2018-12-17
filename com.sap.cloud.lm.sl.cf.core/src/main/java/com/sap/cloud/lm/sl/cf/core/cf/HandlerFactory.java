@@ -13,16 +13,15 @@ import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
+import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.UserProvidedResourceResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersValidator;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
@@ -129,23 +128,9 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     }
 
     @Override
-    public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger userMessageLogger) {
-        return getHelperDelegate().getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, deployId, userMessageLogger);
-    }
-
-    @Override
     public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration) {
         return getHelperDelegate().getServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration);
-    }
-
-    @Override
-    public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration, UserMessageLogger userMessageLogger) {
-        return getHelperDelegate().getServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration, userMessageLogger);
     }
 
     @Override

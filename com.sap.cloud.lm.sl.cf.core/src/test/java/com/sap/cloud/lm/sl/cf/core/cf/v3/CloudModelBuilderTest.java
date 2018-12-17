@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v3;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Test;
 import org.junit.runners.Parameterized.Parameters;
@@ -9,25 +8,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.util.Callable;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
-import com.sap.cloud.lm.sl.mta.handlers.v3.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
 
@@ -63,30 +52,14 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
     }
 
     @Override
-    protected DescriptorParser getDescriptorParser() {
-        return new DescriptorParser();
-    }
-
-    @Override
-    protected ConfigurationParser getConfigurationParser() {
-        return new ConfigurationParser();
-    }
-
-    @Override
-    protected com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorHandler getDescriptorHandler() {
-        return new com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorHandler();
-    }
-
-    @Override
-    protected DescriptorMerger getDescriptorMerger() {
-        return new DescriptorMerger();
+    protected HandlerFactory getHandlerFactory() {
+        return new HandlerFactory(3);
     }
 
     @Override
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration) {
-        return new ServicesCloudModelBuilder(deploymentDescriptor, new HandlerFactory(2).getPropertiesAccessor(), configuration,
-            userMessageLogger);
+        return new ServicesCloudModelBuilder(deploymentDescriptor, getPropertiesAccessor(), configuration);
     }
 
     @Override
@@ -101,35 +74,14 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
     }
 
     @Override
-    protected PlatformMerger getPlatformMerger(Platform platform, DescriptorHandler handler) {
-        return new com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger((com.sap.cloud.lm.sl.mta.model.v3.Platform) platform,
-            (com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorHandler) handler);
+    protected UserMessageLogger getUserMessageLogger() {
+        return userMessageLogger;
     }
 
     @Test
     public void testWarnMessage() {
-        servicesBuilder.build();
+        resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources2());
         Mockito.verify(userMessageLogger)
             .warn(Mockito.anyString(), Mockito.any());
-    }
-
-    @Test
-    public void testGetApplications() {
-        TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
-            @Override
-            public List<CloudApplicationExtended> call() throws Exception {
-                return appsBuilder.build(mtaArchiveModules, mtaModules, deployedApps);
-            }
-        }, expectedApps, getClass(), new TestUtil.JsonSerializationOptions(false, true));
-    }
-
-    @Test
-    public void testGetServices() {
-        TestUtil.test(new Callable<List<CloudServiceExtended>>() {
-            @Override
-            public List<CloudServiceExtended> call() throws Exception {
-                return servicesBuilder.build();
-            }
-        }, expectedServices, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
 }

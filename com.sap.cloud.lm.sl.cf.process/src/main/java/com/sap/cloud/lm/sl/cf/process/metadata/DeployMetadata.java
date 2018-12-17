@@ -114,6 +114,14 @@ public class DeployMetadata {
             .type(ParameterType.BOOLEAN)
             .defaultValue(false)
             .build());
+        PARAMS.add(ParameterMetadata.builder()
+            .id(Constants.PARAM_MODULES_FOR_DEPLOYMENT)
+            .type(ParameterType.STRING)
+            .build());
+        PARAMS.add(ParameterMetadata.builder()
+            .id(Constants.PARAM_RESOURCES_FOR_DEPLOYMENT)
+            .type(ParameterType.STRING)
+            .build());
     }
 
     public static OperationMetadata getMetadata() {

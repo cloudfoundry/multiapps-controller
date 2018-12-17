@@ -21,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
@@ -36,12 +35,6 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
         super(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId);
-    }
-
-    public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
-        UserMessageLogger userMessageLogger) {
-        super(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, userMessageLogger);
     }
 
     @Override
