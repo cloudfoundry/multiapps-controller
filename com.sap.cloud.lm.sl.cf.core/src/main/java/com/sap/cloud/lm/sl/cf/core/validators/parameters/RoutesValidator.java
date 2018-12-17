@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -29,14 +32,16 @@ public class RoutesValidator implements ParameterValidator {
             return false;
         }
 
-        for (Map<String, Object> routesElem : routesList) {
-            boolean elemIsValid = routesElem.keySet()
+        for (Map<String, Object> routesElement : routesList) {
+
+            boolean hasUnsupportedOrInvalidElement = routesElement.keySet()
                 .stream()
-                .map(key -> this.validators.get(key) != null && this.validators.get(key)
-                    .isValid(routesElem.get(key)))
-                .reduce(true, Boolean::logicalAnd);
-            if (!elemIsValid)
+                .anyMatch(key -> validators.get(key) == null || !validators.get(key)
+                    .isValid(routesElement.get(key)));
+
+            if (hasUnsupportedOrInvalidElement) {
                 return false;
+            }
         }
 
         return true;
@@ -49,11 +54,9 @@ public class RoutesValidator implements ParameterValidator {
             throw new SLException(Messages.COULD_NOT_PARSE_ROUTE);
         }
 
-        List<Map<String, Object>> correcteRoutesList = new ArrayList<Map<String, Object>>();
-
-        routesList.forEach(elem -> correcteRoutesList.add(attemptToCorrectParameterMap(elem)));
-
-        return correcteRoutesList;
+        return routesList.stream()
+            .map(route -> attemptToCorrectParameterMap(route))
+            .collect(Collectors.toList());
     }
 
     private Map<String, Object> attemptToCorrectParameterMap(Map<String, Object> originalElem) {
@@ -75,29 +78,29 @@ public class RoutesValidator implements ParameterValidator {
 
         if (validator.canCorrect()) {
             return validator.attemptToCorrect(parameter);
-        } else {
-            throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, parameter);
         }
+
+        throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, parameter);
     }
 
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> applyRoutesType(Object routes) {
         if (routes instanceof List) {
             List<Map<String, Object>> routesList = (List<Map<String, Object>>) routes;
-            if (routesList == null || routesList.isEmpty()) {
+            if (CollectionUtils.isEmpty(routesList)) {
                 return new ArrayList<Map<String, Object>>();
             }
 
-            for (Object element : routesList) {
-                if (!(element instanceof Map)) {
-                    return null;
-                }
+            if (routesList.stream()
+                .anyMatch(route -> !(route instanceof Map))) {
+                return null;
             }
 
             return (List<Map<String, Object>>) routes;
         }
 
         return null;
+
     }
 
     @Override
