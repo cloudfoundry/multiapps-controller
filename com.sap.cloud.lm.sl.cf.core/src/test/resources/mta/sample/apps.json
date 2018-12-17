@@ -1,6 +1,6 @@
 [
   {
-    "moduleName": "pricing-db",
+    "moduleName": "web-server",
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -8,23 +8,25 @@
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
-      "MTA_MODULE_METADATA={\"name\":\"pricing-db\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"price-optimization\"]",
-      "MTA_SERVICES=[\"pricing-db-service\"]",
-      "default-locale=zho"
+      "MTA_MODULE_METADATA={\"name\":\"web-server\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_SERVICES=[\"internal-odata-service\"]",
+      "default-locale=zho",
+      "docu-url=http://help.sap.com/saphelp_nw74/en/5c",
+      "odata.svc_root=odata/"
     ],
     "instances": 0,
     "memory": 0,
     "runningInstances": 0,
     "services": [
-      "pricing-db-service"
+      "internal-odata-service"
     ],
     "staging": {},
     "uris": [
-      "pricing-db.cfapps.neo.ondemand.com"
+      "www.bestprice.sap.com"
     ],
     "meta": {},
-    "name": "pricing-db"
+    "name": "web-server"
   },
   {
     "moduleName": "pricing",
@@ -60,7 +62,7 @@
     "name": "pricing"
   },
   {
-    "moduleName": "web-server",
+    "moduleName": "pricing-db",
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
@@ -68,24 +70,22 @@
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
-      "MTA_MODULE_METADATA={\"name\":\"web-server\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
-      "MTA_SERVICES=[\"internal-odata-service\"]",
-      "default-locale=zho",
-      "docu-url=http://help.sap.com/saphelp_nw74/en/5c",
-      "odata.svc_root=odata/"
+      "MTA_MODULE_METADATA={\"name\":\"pricing-db\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"price-optimization\"]",
+      "MTA_SERVICES=[\"pricing-db-service\"]",
+      "default-locale=zho"
     ],
     "instances": 0,
     "memory": 0,
     "runningInstances": 0,
     "services": [
-      "internal-odata-service"
+      "pricing-db-service"
     ],
     "staging": {},
     "uris": [
-      "www.bestprice.sap.com"
+      "pricing-db.cfapps.neo.ondemand.com"
     ],
     "meta": {},
-    "name": "web-server"
+    "name": "pricing-db"
   }
 ]

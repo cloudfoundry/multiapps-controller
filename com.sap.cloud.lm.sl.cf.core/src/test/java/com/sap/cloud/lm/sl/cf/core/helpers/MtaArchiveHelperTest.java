@@ -15,7 +15,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
@@ -53,17 +52,6 @@ public class MtaArchiveHelperTest {
     }
 
     @Test
-    public void testModules() {
-        Set<String> descriptorModules = getModulesNamesFromDescriptor();
-        Set<String> mtaModules = CloudModelBuilderUtil.getModuleNames(descriptor);
-
-        assertEquals(descriptorModules.size(), mtaModules.size());
-        for (String moduleName : mtaModules) {
-            assertTrue(descriptorModules.contains(moduleName));
-        }
-    }
-
-    @Test
     public void testResources() {
         Set<String> descriptorResources = getResourcesNamesFromDescriptor();
         Set<String> mtaResources = helper.getMtaArchiveResources()
@@ -87,13 +75,6 @@ public class MtaArchiveHelperTest {
         for (String dependencyName : mtaDependencies) {
             assertTrue(descriptorDependencies.contains(dependencyName));
         }
-    }
-
-    private Set<String> getModulesNamesFromDescriptor() {
-        return descriptor.getModules2()
-            .stream()
-            .map(Module::getName)
-            .collect(Collectors.toSet());
     }
 
     private Set<String> getResourcesNamesFromDescriptor() {

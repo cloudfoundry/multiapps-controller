@@ -8,12 +8,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
@@ -40,7 +39,6 @@ import com.sap.cloud.lm.sl.cf.core.parser.RestartParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.StagingParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.TaskParametersParser;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -75,18 +73,11 @@ public class ApplicationsCloudModelBuilder {
     protected CloudServiceNameMapper cloudServiceNameMapper;
     protected XsPlaceholderResolver xsPlaceholderResolver;
     protected DeployedMta deployedMta;
-    protected UserMessageLogger userMessageLogger;
 
     protected ParametersChainBuilder parametersChainBuilder;
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
-        this(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, null);
-    }
-
-    public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
-        UserMessageLogger userMessageLogger) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.propertiesChainBuilder = createPropertiesChainBuilder(deploymentDescriptor);
@@ -100,86 +91,18 @@ public class ApplicationsCloudModelBuilder {
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployedMta = deployedMta;
-        this.userMessageLogger = userMessageLogger;
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
-    }
-
-    public List<CloudApplicationExtended> build(Set<String> mtaModulesInArchive, Set<String> allMtaModules, Set<String> deployedModules) {
-        initializeModulesDependecyTypes(deploymentDescriptor);
-        List<CloudApplicationExtended> apps = resolveModules(mtaModulesInArchive, deployedModules);
-        Set<String> unresolvedModules = getUnresolvedModules(apps, deployedModules, allMtaModules);
-        if (!unresolvedModules.isEmpty()) {
-            throw new ContentException(Messages.UNRESOLVED_MTA_MODULES, unresolvedModules);
-        }
-        return apps;
-    }
-
-    private List<CloudApplicationExtended> resolveModules(Set<String> mtaModulesInArchive, Set<String> deployedModules) {
-        return handler
-            .getModulesForDeployment(deploymentDescriptor, SupportedParameters.ENABLE_PARALLEL_DEPLOYMENTS,
-                SupportedParameters.DEPENDENCY_TYPE, DEPENDENCY_TYPE_HARD)
-            .stream()
-            .filter(module -> shouldDeployModule(module, mtaModulesInArchive, deployedModules))
-            .map(this::getApplication)
-            .collect(Collectors.toList());
-    }
-
-    private boolean shouldDeployModule(com.sap.cloud.lm.sl.mta.model.v2.Module module, Set<String> mtaModulesInArchive, Set<String> deployedModules) {
-        if (isDockerModule(module)) {
-            return true;
-        }
-        if (!isModulePresentInArchive(module, mtaModulesInArchive) || module.getType() == null) {
-            if (isModuleDeployed(module, deployedModules)) {
-                printMTAModuleNotFoundWarning(module.getName());
-            }
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isDockerModule(Module module) {
-        Map<String, Object> moduleParameters = propertiesAccessor.getParameters(module);
-        return moduleParameters.containsKey(SupportedParameters.DOCKER);
-    }
-
-    private void printMTAModuleNotFoundWarning(String moduleName) {
-        if (userMessageLogger != null) {
-            userMessageLogger.warn(Messages.NOT_DESCRIBED_MODULE, moduleName);
-        }
-    }
-
-    private boolean isModulePresentInArchive(Module module, Set<String> modulesInArchive) {
-        return modulesInArchive.contains(module.getName());
-    }
-
-    private boolean isModuleDeployed(Module module, Set<String> deployedModules) {
-        return deployedModules.contains(module.getName());
-    }
-
-    private Set<String> getUnresolvedModules(List<CloudApplicationExtended> apps, Set<String> deployedModules, Set<String> allMtaModules) {
-        Set<String> resolvedModules = apps.stream()
-            .map(CloudApplicationExtended::getModuleName)
-            .collect(Collectors.toSet());
-        return SetUtils.difference(allMtaModules, SetUtils.union(resolvedModules, deployedModules))
-            .toSet();
-    }
-
-    protected void initializeModulesDependecyTypes(DeploymentDescriptor deploymentDescriptor) {
-        for (Module module : deploymentDescriptor.getModules2()) {
-            String dependencyType = getDependencyType(module);
-            Map<String, Object> moduleProperties = propertiesAccessor.getParameters(module);
-            moduleProperties.put(SupportedParameters.DEPENDENCY_TYPE, dependencyType);
-            propertiesAccessor.setParameters(module, moduleProperties);
-        }
-    }
-
-    protected String getDependencyType(Module module) {
-        return (String) propertiesAccessor.getParameters(module)
-            .getOrDefault(SupportedParameters.DEPENDENCY_TYPE, DEPENDENCY_TYPE_SOFT);
     }
 
     protected HandlerFactory createHandlerFactory() {
         return new HandlerFactory(MTA_MAJOR_VERSION);
+    }
+
+    public List<CloudApplicationExtended> build(List<Module> modulesForDeployment) {
+        return modulesForDeployment.stream()
+            .map(this::getApplication)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     protected PropertiesChainBuilder createPropertiesChainBuilder(DeploymentDescriptor deploymentDescriptor) {

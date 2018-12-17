@@ -48,8 +48,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("build-cloud-model.yaml",
         BuildCloudDeployModelStepTest.class);
-    private static final Platform PLATFORM = loadPlatform(CONFIGURATION_PARSER, "platform-01.json",
-        BuildCloudDeployModelStepTest.class);
+    private static final Platform PLATFORM = loadPlatform(CONFIGURATION_PARSER, "platform-01.json", BuildCloudDeployModelStepTest.class);
 
     private static final SystemParameters EMPTY_SYSTEM_PARAMETERS = new SystemParameters(Collections.emptyMap(), Collections.emptyMap(),
         Collections.emptyMap(), Collections.emptyMap());
@@ -202,8 +201,8 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
             deployedMta = JsonUtil.fromJson(deployedMtaString, DeployedMta.class);
         }
 
-        when(applicationsCloudModelBuilder.build(any(), any(), any())).thenReturn(appsToDeploy);
-        when(servicesCloudModelBuilder.build()).thenReturn(servicesToBind);
+        when(applicationsCloudModelBuilder.build(any())).thenReturn(appsToDeploy);
+        when(servicesCloudModelBuilder.build(any())).thenReturn(servicesToBind);
         when(serviceKeysCloudModelBuilder.build()).thenReturn(serviceKeys);
         StepsUtil.setDeployedMta(context, deployedMta);
     }

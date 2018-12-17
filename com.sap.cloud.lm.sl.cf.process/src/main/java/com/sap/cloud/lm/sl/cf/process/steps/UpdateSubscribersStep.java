@@ -11,9 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -58,6 +56,7 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.parsers.v2.DeploymentDescriptorParser;
 import com.sap.cloud.lm.sl.mta.parsers.v2.ModuleParser;
 import com.sap.cloud.lm.sl.mta.resolvers.Reference;
@@ -85,7 +84,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     // working...
     private static final int MAJOR_SCHEMA_VERSION = 2;
     private static final String SCHEMA_VERSION = "2.1.0";
-    
+
     private static final String DUMMY_VERSION = "1.0.0";
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
@@ -218,12 +217,10 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             StepsUtil.getCloudBuilderConfiguration(context, shouldUsePrettyPrinting()), null, getEmptySystemParameters(),
             new XsPlaceholderResolver(), "");
 
-        String moduleName = dummyDescriptor.getModules2()
-            .get(0)
-            .getName();
-        Set<String> moduleNamesSet = new TreeSet<>(Arrays.asList(moduleName));
+        Module module = dummyDescriptor.getModules2()
+            .get(0);
 
-        CloudApplicationExtended application = appsCloudModelBuilder.build(moduleNamesSet, moduleNamesSet, Collections.emptySet())
+        CloudApplicationExtended application = appsCloudModelBuilder.build(Arrays.asList(module))
             .get(0);
         CloudApplication existingApplication = client.getApplication(subscription.getAppName());
 

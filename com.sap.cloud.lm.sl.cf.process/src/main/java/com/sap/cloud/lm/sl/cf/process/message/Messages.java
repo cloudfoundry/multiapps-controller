@@ -66,6 +66,8 @@ public class Messages {
     public static final String APPLICATION_NOT_FOUND_IN_REBUILT_CLOUD_MODEL = "Application \"{0}\" could not be found in the rebuilt cloud model";
     public static final String COULD_NOT_DELETE_FILES_MODIFIED_BEFORE_0 = "Could not delete files modified before {0}";
     public static final String COULD_NOT_DELETE_PROCESS_LOGS_MODIFIED_BEFORE_0 = "Could not delete process logs modified before {0}";
+    public static final String MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES = "Modules {0}, specified for deployment, are not part of deployment descriptor modules";
+    public static final String MODULE_0_IS_NOT_MATCHING_THE_MODULES_IN_DESCRIPTOR = "Application module name {0} is not matching any of the modules in the deployment descriptor";
 
     // Audit log messages
 

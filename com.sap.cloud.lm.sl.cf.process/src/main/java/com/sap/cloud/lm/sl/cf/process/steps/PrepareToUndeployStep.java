@@ -1,17 +1,22 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.Collections;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
@@ -33,7 +38,7 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
         try {
             String mtaId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_MTA_ID);
 
-            StepsUtil.setMtaModules(execution.getContext(), Collections.emptySet());
+            StepsUtil.setMtaModules(execution.getContext(), getMtaModules(execution.getContext()));
             StepsUtil.setServiceBrokersToCreate(execution.getContext(), Collections.emptyList());
             StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
             StepsUtil.setAppsToDeploy(execution.getContext(), Collections.emptyList());
@@ -55,6 +60,18 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
             getStepLogger().error(e, Messages.ERROR_DETECTING_COMPONENTS_TO_UNDEPLOY);
             throw e;
         }
+    }
+
+    private Set<String> getMtaModules(DelegateExecution context) {
+        DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
+        if (deployedMta == null) {
+            return Collections.emptySet();
+        }
+
+        return deployedMta.getModules()
+            .stream()
+            .map(DeployedMtaModule::getModuleName)
+            .collect(Collectors.toSet());
     }
 
 }

@@ -1,16 +1,15 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.getResourceType;
-import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.isService;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.SpecialResourceTypesRequiredParametersUtil;
-import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Resource;
@@ -32,7 +30,6 @@ public class ServicesCloudModelBuilder {
     private CloudServiceNameMapper cloudServiceNameMapper;
     protected final PropertiesAccessor propertiesAccessor;
     protected final DeploymentDescriptor deploymentDescriptor;
-    protected UserMessageLogger userMessageLogger;
 
     public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
         CloudModelConfiguration configuration) {
@@ -41,20 +38,11 @@ public class ServicesCloudModelBuilder {
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
     }
 
-    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
-        CloudModelConfiguration configuration, UserMessageLogger userMessageLogger) {
-        this(deploymentDescriptor, propertiesAccessor, configuration);
-        this.userMessageLogger = userMessageLogger;
-    }
-
-    public List<CloudServiceExtended> build() {
-        List<CloudServiceExtended> services = new ArrayList<>();
-        for (Resource resource : deploymentDescriptor.getResources2()) {
-            if (isService(resource, propertiesAccessor)) {
-                CollectionUtils.addIgnoreNull(services, getService(resource));
-            }
-        }
-        return services;
+    public List<CloudServiceExtended> build(List<Resource> resourcesToProcess) {
+        return resourcesToProcess.stream()
+            .map(this::getService)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     protected CloudServiceExtended getService(Resource resource) {

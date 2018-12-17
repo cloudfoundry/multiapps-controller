@@ -117,6 +117,14 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
             .apply("not-initial", SPACE_NAME));
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testWithInvalidModulesSpecifiedForDeployment() {
+        when(resolver.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
+        when(context.getVariable(Constants.PARAM_MODULES_FOR_DEPLOYMENT)).thenReturn("foo,bar");
+
+        step.execute(context);
+    }
+
     @Override
     protected ProcessDescriptorStep createStep() {
         return new ProcessDescriptorStepMock();

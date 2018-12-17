@@ -1,8 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -22,12 +25,14 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.Platform;
+
+import liquibase.util.StringUtils;
 
 public class ProcessDescriptorStep extends SyncFlowableStep {
 
@@ -86,7 +91,14 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
             StepsUtil.setDeploymentDescriptor(execution.getContext(), descriptor);
             // Set MTA modules in the context
-            Set<String> mtaModules = CloudModelBuilderUtil.getModuleNames(descriptor);
+            List<String> modulesForDeployment = StepsUtil.getModulesForDeployment(execution.getContext());
+            List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
+            if (!invalidModulesSpecifiedForDeployment.isEmpty()) {
+                throw new IllegalStateException(
+                    MessageFormat.format(Messages.MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES,
+                        StringUtils.join(invalidModulesSpecifiedForDeployment, ", ")));
+            }
+            Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
             getStepLogger().debug("MTA Modules: {0}", mtaModules);
             StepsUtil.setMtaModules(execution.getContext(), mtaModules);
 
@@ -99,6 +111,31 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             getStepLogger().error(e, Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES);
             throw e;
         }
+    }
+
+    private Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor, List<String> moduleNamesForDeployment) {
+        if (moduleNamesForDeployment.isEmpty()) {
+            return deploymentDescriptor.getModules2()
+                .stream()
+                .map(Module::getName)
+                .collect(Collectors.toSet());
+        }
+
+        return moduleNamesForDeployment.stream()
+            .collect(Collectors.toSet());
+    }
+
+    private List<String> findInvalidModulesSpecifiedForDeployment(DeploymentDescriptor descriptor, List<String> modulesForDeployment) {
+        if (modulesForDeployment.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Set<String> deploymentDescriptorModuleNames = descriptor.getModules2()
+            .stream()
+            .map(Module::getName)
+            .collect(Collectors.toSet());
+        return modulesForDeployment.stream()
+            .filter(moduleSpecifiedForDeployment -> !deploymentDescriptorModuleNames.contains(moduleSpecifiedForDeployment))
+            .collect(Collectors.toList());
     }
 
     private void resolveXsPlaceholders(DeploymentDescriptor descriptor, XsPlaceholderResolver xsPlaceholderResolver, int majorVersion) {

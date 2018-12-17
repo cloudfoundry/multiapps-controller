@@ -47,6 +47,8 @@ public class Constants {
     public static final String PARAM_TRANSFER_TYPE = "transferType";
     public static final String PARAM_GIT_REPOSITORY_LIST = "gitRepositoryList";
     public static final String PARAM_SKIP_OWNERSHIP_VALIDATION = "skipOwnershipValidation";
+    public static final String PARAM_MODULES_FOR_DEPLOYMENT = "modulesForDeployment";
+    public static final String PARAM_RESOURCES_FOR_DEPLOYMENT = "resourcesForDeployment";
 
     public static final String VAR_USER = "user";
 
