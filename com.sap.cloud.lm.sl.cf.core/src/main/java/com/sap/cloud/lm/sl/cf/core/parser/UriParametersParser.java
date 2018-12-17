@@ -12,6 +12,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
@@ -125,15 +127,10 @@ public class UriParametersParser implements ParametersParser<List<String>> {
 
         List<String> allRoutesFound = new ArrayList<>();
 
-        if (route != null) {
-            allRoutesFound.add(route);
-        }
-        if (routes != null && !routes.isEmpty()) {
-            routes.stream()
-                .map(map -> map.get(routeParameterName))
-                .filter(Objects::nonNull)
-                .forEach(r -> allRoutesFound.add((String) r));
-        }
+        CollectionUtils.addIgnoreNull(allRoutesFound, route);
+
+        CollectionUtils.emptyIfNull(routes)
+            .forEach(routesMap -> CollectionUtils.addIgnoreNull(allRoutesFound, (String) routesMap.get(routeParameterName)));
 
         return allRoutesFound;
     }
