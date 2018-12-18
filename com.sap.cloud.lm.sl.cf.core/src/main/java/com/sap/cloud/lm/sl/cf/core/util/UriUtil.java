@@ -82,8 +82,7 @@ public class UriUtil {
                 .append(port);
         }
         if (!CommonUtil.isNullOrEmpty(path)) {
-            uri.append(UriUtil.DEFAULT_PATH_SEPARATOR)
-                .append(path);
+            uri.append(path);
         }
 
         return uri.toString();
