@@ -1,5 +1,5 @@
     {
-		"archiveFileLocation": "process-archive-step-test-1.mtar",
+		"archiveFileLocation": "process-archive-step-test-2.mtar",
         "expectedModules": [
             "test-module2", "test-module1"
         ],

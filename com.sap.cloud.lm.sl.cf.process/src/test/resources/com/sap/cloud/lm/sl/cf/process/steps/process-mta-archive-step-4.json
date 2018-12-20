@@ -1,5 +1,5 @@
     {
-		"archiveFileLocation": "process-archive-step-test-1.mtar",
+		"archiveFileLocation": "process-archive-step-test-4.mtar",
         "expectedModules": [
             "test-module2", "test-module1"
         ],
@@ -8,5 +8,11 @@
         ],
         "expectedRequiredDependencies": [
             "test-dependency1"
-        ]
-      }
+        ],
+		"expectedResourceConfigParameters": {
+			"xsappname": "valid",
+			"anotherField": "someValue",
+			"anotherField1": "someValue1"
+		}
+		
+    }
