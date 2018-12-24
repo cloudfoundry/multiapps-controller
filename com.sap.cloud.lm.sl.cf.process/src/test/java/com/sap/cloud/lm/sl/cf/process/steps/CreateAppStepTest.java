@@ -22,7 +22,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
@@ -240,10 +239,10 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
     }
 
     public static class TestWithDocker extends SyncFlowableStepTest<CreateAppStep> {
-            
-        //Required for autowiring
+
+        // Required for autowiring
         private ApplicationStagingUpdater applicationStagingUpdater = Mockito.mock(ApplicationStagingUpdater.class);
-        
+
         private CloudApplicationExtended application;
         private StepInput stepInput;
         private DockerInfo dockerInfo;
