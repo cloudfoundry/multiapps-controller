@@ -56,16 +56,12 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
         XsCloudControllerClient xsClient = execution.getXsControllerClient();
 
         getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
-        CloudTask startedTask = runTask(xsClient, app, taskToExecute);
+        CloudTask startedTask = xsClient.runTask(app.getName(), taskToExecute);
 
         StepsUtil.setStartedTask(execution.getContext(), startedTask);
         execution.getContext()
             .setVariable(Constants.VAR_START_TIME, currentTimeSupplier.get());
         return StepPhase.POLL;
-    }
-
-    private CloudTask runTask(XsCloudControllerClient xsClient, CloudApplication app, CloudTask task) {
-        return xsClient.runTask(app.getName(), task.getName(), task.getCommand(), task.getEnvironmentVariables());
     }
 
     @Override

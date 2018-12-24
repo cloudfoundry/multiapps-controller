@@ -55,41 +55,27 @@ public interface XsCloudControllerClient extends CloudControllerClientSupporting
      * @return the list of known tasks
      * @throws UnsupportedOperationException if the targeted controller does not support tasks
      */
-    List<CloudTask> getTasks(String appName);
+    List<CloudTask> getTasks(String applicationName);
 
     /**
      * Run a one-off task on an app. Tasks are not supported on all versions of the controller, so check
      * {@link CloudInfoExtended#hasTasksSupport()} before using this method.
      * 
      * @param appName the application to run the task on
-     * @param taskName a name for the task to run
-     * @param command the command to execute as task
+     * @param task the task to run
      * @return the created task
      * @throws UnsupportedOperationException if the targeted controller does not support tasks
      */
-    CloudTask runTask(String appName, String taskName, String command);
-
-    /**
-     * Run a one-off task on an app. Tasks are not supported on all versions of the controller, so check
-     * {@link CloudInfoExtended#hasTasksSupport()} before using this method.
-     * 
-     * @param appName the application to run the task on
-     * @param taskName a name for the task to run
-     * @param command the command to execute as task
-     * @param environment optional environment variables for the task (in addition to the app environment)
-     * @return the created task
-     * @throws UnsupportedOperationException if the targeted controller does not support tasks
-     */
-    CloudTask runTask(String appName, String taskName, String command, Map<String, String> environment);
+    CloudTask runTask(String applicationName, CloudTask task);
 
     /**
      * Cancel the given task. Tasks are not supported on all versions of the controller, so check
      * {@link CloudInfoExtended#hasTasksSupport()} before using this method.
      * 
-     * @param taskId the GUID of the task to cancel
+     * @param taskGuid the GUID of the task to cancel
      * @return the cancelled task
      */
-    CloudTask cancelTask(UUID taskId);
+    CloudTask cancelTask(UUID taskGuid);
 
     /**
      * Update the service plan for an existing service.
