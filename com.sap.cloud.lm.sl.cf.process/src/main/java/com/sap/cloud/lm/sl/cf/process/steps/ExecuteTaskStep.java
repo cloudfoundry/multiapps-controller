@@ -6,17 +6,17 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -53,10 +53,10 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     }
 
     private StepPhase attemptToExecuteTask(ExecutionWrapper execution, CloudApplication app, CloudTask taskToExecute) {
-        XsCloudControllerClient xsClient = execution.getXsControllerClient();
+        CloudControllerClient client = execution.getControllerClient();
 
         getStepLogger().info(Messages.EXECUTING_TASK_ON_APP, taskToExecute.getName(), app.getName());
-        CloudTask startedTask = xsClient.runTask(app.getName(), taskToExecute);
+        CloudTask startedTask = client.runTask(app.getName(), taskToExecute);
 
         StepsUtil.setStartedTask(execution.getContext(), startedTask);
         execution.getContext()

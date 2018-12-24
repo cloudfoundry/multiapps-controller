@@ -4,18 +4,18 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.OneOffTasksSupportChecker;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("prepareToExecuteTasksStep")
@@ -62,7 +62,8 @@ public class PrepareToExecuteTasksStep extends SyncFlowableStep {
     }
 
     private boolean platformSupportsTasks(ExecutionWrapper execution) {
-        return new OneOffTasksSupportChecker().areOneOffTasksSupported(execution.getControllerClient());
+        CloudControllerClient client = execution.getControllerClient();
+        return client.areTasksSupported();
     }
 
 }

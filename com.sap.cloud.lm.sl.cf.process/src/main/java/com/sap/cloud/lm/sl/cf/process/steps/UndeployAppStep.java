@@ -11,19 +11,17 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.OneOffTasksSupportChecker;
 import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -32,8 +30,6 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UndeployAppStep extends SyncFlowableStep {
 
-    @Inject
-    private OneOffTasksSupportChecker oneOffTasksSupportChecker;
     @Inject
     private ApplicationRoutesGetter applicationRoutesGetter;
     @Inject
@@ -45,7 +41,9 @@ public class UndeployAppStep extends SyncFlowableStep {
             CloudApplication appToUndeploy = StepsUtil.getAppToUndeploy(execution.getContext());
             CloudControllerClient client = execution.getControllerClient();
 
-            cancelRunningTasksIfTasksAreSupported(appToUndeploy, client);
+            if (client.areTasksSupported()) {
+                cancelRunningTasks(appToUndeploy, client);
+            }
             stopApplication(appToUndeploy, client);
             deleteApplicationRoutes(appToUndeploy, client);
             deleteApplication(appToUndeploy, client);
@@ -62,27 +60,19 @@ public class UndeployAppStep extends SyncFlowableStep {
         }
     }
 
-    private void cancelRunningTasksIfTasksAreSupported(CloudApplication appToUndeploy, CloudControllerClient client) {
-        if (!oneOffTasksSupportChecker.areOneOffTasksSupported(client)) {
-            return;
-        }
-        cancelRunningTasks(appToUndeploy, client);
-    }
-
     private void cancelRunningTasks(CloudApplication appToUndeploy, CloudControllerClient client) {
-        XsCloudControllerClient xsClient = (XsCloudControllerClient) client;
-        List<CloudTask> tasksToCancel = xsClient.getTasks(appToUndeploy.getName());
+        List<CloudTask> tasksToCancel = client.getTasks(appToUndeploy.getName());
         for (CloudTask task : tasksToCancel) {
             CloudTask.State taskState = task.getState();
             if (taskState.equals(CloudTask.State.RUNNING) || taskState.equals(CloudTask.State.PENDING)) {
-                cancelTask(task, appToUndeploy, xsClient);
+                cancelTask(task, appToUndeploy, client);
             }
         }
     }
 
-    private void cancelTask(CloudTask task, CloudApplication appToUndeploy, XsCloudControllerClient xsClient) {
+    private void cancelTask(CloudTask task, CloudApplication appToUndeploy, CloudControllerClient client) {
         getStepLogger().info(Messages.CANCELING_TASK_ON_APP, task.getName(), appToUndeploy.getName());
-        xsClient.cancelTask(task.getMeta()
+        client.cancelTask(task.getMeta()
             .getGuid());
         getStepLogger().debug(Messages.CANCELED_TASK_ON_APP, task.getName(), appToUndeploy.getName());
     }

@@ -43,7 +43,7 @@ public class ServiceBrokersGetter extends CustomControllerClient {
 
     private CloudServiceBrokerExtended toCloudServiceBroker(Map<String, Object> resource) {
         CloudServiceBroker serviceBroker = resourceMapper.mapResource(resource, CloudServiceBroker.class);
-        String spaceGuid = CloudEntityResourceMapper.getEntityAttribute(resource, "space_guid", String.class);
+        String spaceGuid = CloudEntityResourceMapper.getAttributeOfV2Resource(resource, "space_guid", String.class);
         return toCloudServiceBrokerExtended(serviceBroker, spaceGuid);
     }
 

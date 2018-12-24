@@ -1,25 +1,17 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudInfo;
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareToExecuteTasksStep> {
@@ -47,65 +39,16 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     }
 
     @Test
-    public void testExecuteWhenClientSupportsTasks() throws Exception {
+    public void testExecuteWhenTasksAreSupported() throws Exception {
         // Given:
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(createDummyApplicationWithTasks(0)), context);
-
-        CloudControllerClient client = getClientThatSupportsTasks();
-        when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
-
-        // When:
-        step.execute(context);
-
-        // Then:
-        assertFalse((boolean) context.getVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS));
-    }
-
-    @Test
-    public void testExecuteWhenControllerSupportsTasks() throws Exception {
-        // Given:
-        StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(createDummyApplicationWithTasks(0)), context);
-
-        CloudControllerClient client = Mockito.mock(CloudControllerClient.class);
-        mockControllerTasksSupport(client);
-        when(clientProvider.getControllerClient(anyString(), anyString(), anyString(), anyString())).thenReturn(client);
-
-        // When:
-        step.execute(context);
-
-        // Then:
-        assertFalse((boolean) context.getVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS));
-    }
-
-    @Test
-    public void testExecuteWhenBothClientAndControllerSupportTasks() throws Exception {
-        // Given:
-        StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(createDummyApplicationWithTasks(0)), context);
-
-        CloudControllerClient client = getClientThatSupportsTasks();
-        mockControllerTasksSupport(client);
-        when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
+        when(client.areTasksSupported()).thenReturn(true);
 
         // When:
         step.execute(context);
 
         // Then:
         assertTrue((boolean) context.getVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS));
-    }
-
-    private void mockControllerTasksSupport(CloudControllerClient client) {
-        CloudInfo info = getInfoSayingTheControllerSupportsTasks();
-        when(client.getCloudInfo()).thenReturn(info);
-    }
-
-    private CloudInfo getInfoSayingTheControllerSupportsTasks() {
-        CloudInfoExtended info = Mockito.mock(CloudInfoExtended.class);
-        when(info.hasTasksSupport()).thenReturn(true);
-        return info;
-    }
-
-    private CloudControllerClient getClientThatSupportsTasks() {
-        return Mockito.mock(CloudControllerClient.class, withSettings().extraInterfaces(XsCloudControllerClient.class));
     }
 
     private CloudApplicationExtended createDummyApplicationWithTasks(int numberOfTasks) {

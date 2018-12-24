@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 
 import com.google.gson.annotations.JsonAdapter;
@@ -31,8 +32,8 @@ public class CloudApplicationExtended extends CloudApplication {
     }
 
     public CloudApplicationExtended(String name, String command, String buildpackUrl, int memory, int instances, List<String> uris,
-        List<String> serviceNames, AppState state, List<ApplicationPort> applicationPorts, List<String> domains,
-        Set<String> deployedAfter, DockerInfo dockerInfo) {
+        List<String> serviceNames, AppState state, List<ApplicationPort> applicationPorts, List<String> domains, Set<String> deployedAfter,
+        DockerInfo dockerInfo) {
         super(name, command, buildpackUrl, memory, instances, uris, serviceNames, state);
         this.applicationPorts = applicationPorts;
         this.domains = domains;
@@ -127,5 +128,5 @@ public class CloudApplicationExtended extends CloudApplication {
     public void setDockerInfo(DockerInfo dockerInfo) {
         this.dockerInfo = dockerInfo;
     }
-    
+
 }

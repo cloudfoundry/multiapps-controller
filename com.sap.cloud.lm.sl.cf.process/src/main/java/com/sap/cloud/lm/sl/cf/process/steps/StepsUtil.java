@@ -20,6 +20,7 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -33,7 +34,6 @@ import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
@@ -1073,8 +1073,7 @@ public class StepsUtil {
     }
 
     public static boolean shouldDeleteServices(DelegateExecution context) {
-        boolean deleteServicesFlag = (boolean) context
-            .getVariable(Constants.PARAM_DELETE_SERVICES);
+        boolean deleteServicesFlag = (boolean) context.getVariable(Constants.PARAM_DELETE_SERVICES);
 
         return deleteServicesFlag;
     }
