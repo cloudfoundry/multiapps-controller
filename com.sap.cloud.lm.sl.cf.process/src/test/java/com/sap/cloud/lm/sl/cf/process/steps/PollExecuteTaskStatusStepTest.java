@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -16,7 +17,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 

@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,10 +24,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.util.OneOffTasksSupportChecker;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -34,8 +33,6 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 @RunWith(Parameterized.class)
 public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
 
-    @Mock
-    private OneOffTasksSupportChecker oneOffTasksSupportChecker;
     @Mock
     private ApplicationRoutesGetter applicationRoutesGetter;
 
@@ -89,7 +86,7 @@ public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
     public void setUp() throws Exception {
         prepareContext();
         prepareClient();
-        Mockito.when(oneOffTasksSupportChecker.areOneOffTasksSupported(client))
+        Mockito.when(client.areTasksSupported())
             .thenReturn(!stepInput.tasksPerApplication.isEmpty());
     }
 

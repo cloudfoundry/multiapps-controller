@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
+import org.cloudfoundry.client.lib.domain.CloudTask;
+
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;

@@ -36,12 +36,10 @@ import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.cloudfoundry.client.lib.domain.CloudStack;
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.CloudUser;
 import org.cloudfoundry.client.lib.domain.CrashesInfo;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
-import org.cloudfoundry.client.lib.domain.CloudStack;
-import org.cloudfoundry.client.lib.domain.CloudUser;
-import org.cloudfoundry.client.lib.domain.CrashesInfo;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.Staging;
@@ -949,6 +947,26 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
         });
     }
 
+    @Override
+    public boolean areTasksSupported() {
+        return executeWithRetry(() -> cc.areTasksSupported());
+    }
+
+    @Override
+    public List<CloudTask> getTasks(String applicationName) {
+        return executeWithRetry(() -> cc.getTasks(applicationName), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public CloudTask runTask(String applicationName, CloudTask task) {
+        return executeWithRetry(() -> cc.runTask(applicationName, task));
+    }
+
+    @Override
+    public CloudTask cancelTask(UUID taskGuid) {
+        return executeWithRetry(() -> cc.cancelTask(taskGuid));
+    }
+
     private <T> T executeWithRetry(Supplier<T> supplier, HttpStatus... httpStatusesToIgnore) {
         return retrier.executeWithRetry(supplier, httpStatusesToIgnore);
     }
@@ -962,4 +980,5 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
             .map(UUID::toString)
             .collect(Collectors.toList());
     }
+
 }

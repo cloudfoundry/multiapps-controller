@@ -8,14 +8,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
+import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudTask;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
@@ -57,9 +56,10 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
     private void verifyTaskWasStarted() {
         verify(client).runTask(eq(app.getName()), argThat(GenericArgumentMatcher.forObject(task)));
         assertEquals(DUMMY_TIME, context.getVariable(Constants.VAR_START_TIME));
-        String expectedStartedTaskJson = JsonUtil.toJson(task, true);
-        String actualStartedTaskJson = JsonUtil.toJson(StepsUtil.getStartedTask(context), true);
-        assertEquals(expectedStartedTaskJson, actualStartedTaskJson);
+        CloudTask startedTask = StepsUtil.getStartedTask(context);
+        assertEquals(task.getName(), startedTask.getName());
+        assertEquals(task.getCommand(), startedTask.getCommand());
+        assertEquals(task.getEnvironmentVariables(), startedTask.getEnvironmentVariables());
     }
 
     @Override
