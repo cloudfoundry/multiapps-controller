@@ -26,17 +26,21 @@ public class MemoryParametersParser implements ParametersParser<Integer> {
         return parseMemory((String) getPropertyValue(parametersList, parameterName, defaultMemory));
     }
 
-    protected int parseMemory(String value) {
+    public static Integer parseMemory(String value) {
+        if (value == null) {
+            return null;
+        }
         if (value.matches(MEGABYTES_MATCHER)) {
             return getNumberFromString(value);
         }
         if (value.matches(GYGABYTES_MATCHER)) {
             return getNumberFromString(value) * 1024;
         }
-        throw new ContentException(MessageFormat.format(Messages.UNABLE_TO_PARSE_PARAMETER, parameterName, value));
+        throw new ContentException(MessageFormat.format(Messages.UNABLE_TO_PARSE_MEMORY_STRING_0, value));
     }
 
-    private int getNumberFromString(String value) {
+    private static int getNumberFromString(String value) {
         return Integer.parseInt(value.replaceAll("[^0-9]", ""));
     }
+
 }
