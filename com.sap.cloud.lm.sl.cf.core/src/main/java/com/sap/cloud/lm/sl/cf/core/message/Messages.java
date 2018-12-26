@@ -69,7 +69,7 @@ public final class Messages {
     public static final String INVALID_TCP_ROUTE = "TCP route can either be TCP or TCPS";
     public static final String NO_SERVICE_PLAN_FOUND = "Could not create service instance \"{0}\". Service plan \"{1}\" from service offering \"{2}\" was not found.";
     public static final String NO_CONTENT_TO_DEPLOY = "No content to deploy";
-    public static final String UNABLE_TO_PARSE_PARAMETER = "Unable to parse parameter {0} with value {1}";
+    public static final String UNABLE_TO_PARSE_MEMORY_STRING_0 = "Unable to parse memory string \"{0}\"";
     public static final String LIQUIBASE_CF_CHECK_PLATFORM_TYPE = "Platform must be cloud foundry to execute this change. Current platform is: {0}";
     public static final String CANNOT_SUBMIT_TASK = "Couldn't submit auditlogging task for execution in the executor service";
     public static final String CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN = "Service \"{0}\" could not be created because none of the service offering(s) \"{1}\" match with existing service offerings or provide service plan \"{2}\"";

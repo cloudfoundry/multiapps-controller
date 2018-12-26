@@ -36,12 +36,22 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
         CloudTask task = new CloudTask(null, getProperty(rawTask, TasksValidator.TASK_NAME_KEY));
         task.setCommand(getProperty(rawTask, TasksValidator.TASK_COMMAND_KEY));
         task.setEnvironmentVariables(getEnvironmentVariables(rawTask));
+        task.setMemory(parseMemory(rawTask));
+        task.setDiskQuota(parseDiskQuota(rawTask));
         return task;
     }
 
     private Map<String, String> getEnvironmentVariables(Map<String, Object> rawTask) {
         Map<String, Object> env = getProperty(rawTask, TasksValidator.TASK_ENV_KEY);
         return env == null ? null : new MapToEnvironmentConverter(prettyPrinting).asEnv(env);
+    }
+
+    private Integer parseMemory(Map<String, Object> rawTask) {
+        return MemoryParametersParser.parseMemory(getProperty(rawTask, TasksValidator.TASK_MEMORY_KEY));
+    }
+
+    private Integer parseDiskQuota(Map<String, Object> rawTask) {
+        return MemoryParametersParser.parseMemory(getProperty(rawTask, TasksValidator.TASK_DISK_QUOTA_KEY));
     }
 
     @SuppressWarnings("unchecked")

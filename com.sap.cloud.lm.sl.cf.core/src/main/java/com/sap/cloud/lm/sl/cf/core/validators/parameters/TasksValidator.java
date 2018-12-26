@@ -20,6 +20,8 @@ public class TasksValidator implements ParameterValidator {
 
     public static final String TASK_NAME_KEY = "name";
     public static final String TASK_COMMAND_KEY = "command";
+    public static final String TASK_MEMORY_KEY = "memory";
+    public static final String TASK_DISK_QUOTA_KEY = "disk-quota";
     public static final String TASK_ENV_KEY = "env";
 
     private static final MapElement TASK = new MapElement();
@@ -30,6 +32,10 @@ public class TasksValidator implements ParameterValidator {
             .buildSimple());
         TASK.add(TASK_COMMAND_KEY, new ElementBuilder().type(String.class)
             .required(true)
+            .buildSimple());
+        TASK.add(TASK_MEMORY_KEY, new ElementBuilder().type(String.class)
+            .buildSimple());
+        TASK.add(TASK_DISK_QUOTA_KEY, new ElementBuilder().type(String.class)
             .buildSimple());
         TASK.add(TASK_ENV_KEY, new ElementBuilder().type(Map.class)
             .buildSimple());
