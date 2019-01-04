@@ -47,7 +47,6 @@ public class MtaArchiveBuilderTest {
              }, 
              // (1) testCannotReadDeploymentDescriptor
              {
-                 //TODO ask what should code do when someone is trying to use version 1
                 "src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mta-dir3",
                 MessageFormat.format(Messages.FAILED_TO_READ_DEPLOYMENT_DESCRIPTOR_0,
                 Paths.get("src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/mta-dir3/mtad.yaml").toAbsolutePath())

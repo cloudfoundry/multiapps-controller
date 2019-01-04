@@ -183,16 +183,16 @@ public class ApplicationsCloudModelBuilder {
     }
 
     protected PropertiesChainBuilder createPropertiesChainBuilder(DeploymentDescriptor deploymentDescriptor) {
-        DeploymentDescriptor v2DeploymentDescriptor = (DeploymentDescriptor) deploymentDescriptor;
+        DeploymentDescriptor v2DeploymentDescriptor = deploymentDescriptor;
         return new PropertiesChainBuilder(v2DeploymentDescriptor);
     }
 
     protected ApplicationEnvironmentCloudModelBuilder createApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration,
         DeploymentDescriptor deploymentDescriptor, XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler,
         PropertiesAccessor propertiesAccessor, String deployId) {
-        DeploymentDescriptor v2DeploymentDescriptor = (DeploymentDescriptor) deploymentDescriptor;
-        DescriptorHandler v2Handler = (DescriptorHandler) handler;
-        PropertiesAccessor v2PropertiesAccessor = (PropertiesAccessor) propertiesAccessor;
+        DeploymentDescriptor v2DeploymentDescriptor = deploymentDescriptor;
+        DescriptorHandler v2Handler = handler;
+        PropertiesAccessor v2PropertiesAccessor = propertiesAccessor;
         return new ApplicationEnvironmentCloudModelBuilder(configuration, v2DeploymentDescriptor, xsPlaceholderResolver, v2Handler,
             v2PropertiesAccessor, deployId);
     }
@@ -214,9 +214,9 @@ public class ApplicationsCloudModelBuilder {
         List<ServiceKeyToInject> serviceKeys = getServicesKeysToInject(module);
         Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, getApplicationServices(module));
         List<CloudTask> tasks = getTasks(parametersList);
-        Map<String, Map<String, Object>> bindingParameters = getBindingParameters((Module) module);
-        List<ApplicationPort> applicationPorts = getApplicationPorts((Module) module, parametersList);
-        List<String> applicationDomains = getApplicationDomains((Module) module, parametersList);
+        Map<String, Map<String, Object>> bindingParameters = getBindingParameters(module);
+        List<ApplicationPort> applicationPorts = getApplicationPorts(module, parametersList);
+        List<String> applicationDomains = getApplicationDomains(module, parametersList);
         RestartParameters restartParameters = parseParameters(parametersList, new RestartParametersParser());
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
             resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains, restartParameters,

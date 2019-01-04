@@ -47,13 +47,7 @@ public class DetectTargetStepTest extends SyncFlowableStepTest<DetectTargetStep>
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-            // (0) Platform and its platform types exist (version 1):
-            //TODO
-//            {
-//                new StepInput("platform-v1.json", "initial", "initial", 1),
-//                new Expectation(Expectation.Type.RESOURCE, "parsed-platform-v1.json"),
-//            },
-            // (1) Platform and its platform types exist (version 2):
+            // (0) Platform and its platform types exist (version 2):
             {
                 new StepInput("platform-v2.json", "initial", "initial", 2),
                 new Expectation(Expectation.Type.RESOURCE, "parsed-platform-v2.json"),
