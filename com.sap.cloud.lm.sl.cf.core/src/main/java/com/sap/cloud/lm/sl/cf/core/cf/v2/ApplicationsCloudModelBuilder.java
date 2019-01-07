@@ -291,6 +291,7 @@ public class ApplicationsCloudModelBuilder {
         app.setServiceKeysToInject(serviceKeysToInject);
         app.setEnv(env);
         app.setTasks(tasks);
+        app.setDockerInfo(dockerInfo);
         return app;
     }
 
