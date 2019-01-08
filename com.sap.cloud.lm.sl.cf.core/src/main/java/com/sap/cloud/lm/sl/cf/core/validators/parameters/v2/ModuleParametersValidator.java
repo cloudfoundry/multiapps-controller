@@ -17,8 +17,8 @@ public class ModuleParametersValidator extends ParametersValidator<Module> {
 
     @Override
     public Module validate() {
-        Module moduleV2 = (Module) module;
-        Map<String, Object> parameters = validateParameters(module, ((Module) module).getParameters());
+        Module moduleV2 = module;
+        Map<String, Object> parameters = validateParameters(module, module.getParameters());
         moduleV2.setParameters(parameters);
         return moduleV2;
     }

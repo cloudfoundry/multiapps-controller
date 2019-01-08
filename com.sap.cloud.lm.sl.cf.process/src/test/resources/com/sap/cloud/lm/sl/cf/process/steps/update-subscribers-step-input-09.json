@@ -48,7 +48,7 @@
         },
         "name": "framework",
         "env": [
-          "plugins=[{\"plugin_name\":\"plugin\"}]"
+          "plugins=[{\"name\":\"plugins\",\"plugin_name\":\"plugin\"}]"
         ],
         "space": {
           "organization": {

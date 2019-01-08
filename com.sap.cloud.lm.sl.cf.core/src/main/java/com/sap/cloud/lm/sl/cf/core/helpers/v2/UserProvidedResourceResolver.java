@@ -21,14 +21,12 @@ public class UserProvidedResourceResolver {
 
     protected ResourceTypeFinder resourceHelper;
     protected DeploymentDescriptor descriptor;
-    private PropertiesChainBuilder propertiesChainBuilder;
     private ParametersChainBuilder parametersChainBuilder;
 
-    public UserProvidedResourceResolver(ResourceTypeFinder resourceHelper, com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor,
+    public UserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
         Platform platform) {
         this.resourceHelper = resourceHelper;
         this.descriptor = descriptor;
-        this.propertiesChainBuilder = new PropertiesChainBuilder(descriptor, platform);
         this.parametersChainBuilder = new ParametersChainBuilder(descriptor, platform);
     }
 
@@ -69,8 +67,8 @@ public class UserProvidedResourceResolver {
     }
 
     protected void updateModuleRequiredDependencies(Module module, Resource userProvidedResource) {
-        com.sap.cloud.lm.sl.mta.model.v2.Module moduleV2 = (com.sap.cloud.lm.sl.mta.model.v2.Module) module;
-        Resource resourceV2 = (Resource) userProvidedResource;
+        com.sap.cloud.lm.sl.mta.model.v2.Module moduleV2 = module;
+        Resource resourceV2 = userProvidedResource;
         List<RequiredDependency> moduleRequiredDependencies = new ArrayList<>(moduleV2.getRequiredDependencies2());
         RequiredDependency.Builder requiredDependencyBuilder = new RequiredDependency.Builder();
         requiredDependencyBuilder.setName(resourceV2.getName());

@@ -124,7 +124,7 @@ public class ApplicationsCloudModelBuilder {
             .collect(Collectors.toList());
     }
 
-    private boolean shouldDeployModule(Module module, Set<String> mtaModulesInArchive, Set<String> deployedModules) {
+    private boolean shouldDeployModule(com.sap.cloud.lm.sl.mta.model.v2.Module module, Set<String> mtaModulesInArchive, Set<String> deployedModules) {
         if (isDockerModule(module)) {
             return true;
         }
@@ -356,7 +356,7 @@ public class ApplicationsCloudModelBuilder {
     }
 
     protected ResourceAndResourceType getApplicationService(String dependencyName) {
-        Resource resource = (Resource) getResource(dependencyName);
+        Resource resource = getResource(dependencyName);
         if (resource != null && CloudModelBuilderUtil.isService(resource, propertiesAccessor)) {
             ResourceType serviceType = CloudModelBuilderUtil.getResourceType(resource.getParameters());
             return new ResourceAndResourceType(resource, serviceType);
@@ -420,7 +420,7 @@ public class ApplicationsCloudModelBuilder {
     }
 
     protected Resource getResource(String dependencyName) {
-        return handler.findDependency(deploymentDescriptor, dependencyName)._1;
+        return (Resource) handler.findDependency(deploymentDescriptor, dependencyName)._1;
     }
 
     public DeploymentMode getDeploymentMode() {

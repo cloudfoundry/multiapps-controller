@@ -17,7 +17,7 @@
     },
     {
       "env": [
-        "plugins\u003d[{\"url\":\"https://localhost:30030\"}]"
+        "plugins\u003d[{\"name\":\"plugins\",\"url\":\"https://localhost:30030\"}]"
       ],
       "space": {
         "organization": {

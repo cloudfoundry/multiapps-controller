@@ -84,7 +84,7 @@ public class MtaArchiveBuilder {
                 deploymentDescriptorFile.toAbsolutePath(), schemaVersion.getMajor());
         }
 
-        return (DeploymentDescriptor) deploymentDescriptor;
+        return deploymentDescriptor;
     }
 
     public Path buildMtaArchive() {

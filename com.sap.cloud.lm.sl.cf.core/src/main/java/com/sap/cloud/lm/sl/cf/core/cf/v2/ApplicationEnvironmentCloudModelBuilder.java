@@ -133,7 +133,14 @@ public class ApplicationEnvironmentCloudModelBuilder {
     
     protected void addToGroup(Map<String, List<Object>> groups, String group, String name, Map<String, Object> properties) {
         groups.computeIfAbsent(group, key -> new ArrayList<>())
-            .add(properties);
+        .add(createExtendedProperties(name, properties));
+    }
+    
+    protected static Map<String, Object> createExtendedProperties(String name, Map<String, Object> properties) {
+        Map<String, Object> extendedProperties = new TreeMap<>();
+        extendedProperties.put(Constants.ATTR_NAME, name);
+        extendedProperties.putAll(properties);
+        return extendedProperties;
     }
 
     protected void addDependencies(Map<String, Object> env, Module module) {

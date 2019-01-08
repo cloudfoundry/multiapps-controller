@@ -26,7 +26,7 @@ public class DescriptorParametersValidator extends ParametersValidator<Deploymen
 
     @Override
     public DeploymentDescriptor validate() {
-        DeploymentDescriptor castedDescriptor = (DeploymentDescriptor) descriptor;
+        DeploymentDescriptor castedDescriptor = descriptor;
         validate(castedDescriptor);
         return castedDescriptor;
     }
