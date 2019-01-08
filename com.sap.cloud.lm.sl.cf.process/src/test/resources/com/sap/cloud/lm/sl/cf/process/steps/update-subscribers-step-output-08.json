@@ -18,7 +18,7 @@
     },
     {
       "env": [
-        "urls\u003d[{\"url\":\"https://localhost:30030\"}]",
+        "urls\u003d[{\"name\":\"urls\",\"url\":\"https://localhost:30030\"}]",
         "test\u003dthis-property-should-remain-in-the-env-after-the-update"
       ],
       "space": {

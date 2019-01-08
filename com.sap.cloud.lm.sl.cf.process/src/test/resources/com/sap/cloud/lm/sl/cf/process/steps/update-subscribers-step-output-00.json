@@ -2,7 +2,7 @@
   "callArgumentsOfUpdateApplicationEnvMethod": [
     {
       "env": [
-        "plugins=[{\"plugin_name\":\"plugin-01\"},{\"plugin_name\":\"plugin-02\"}]"
+        "plugins=[{\"name\":\"plugins.0\",\"plugin_name\":\"plugin-01\"},{\"name\":\"plugins.1\",\"plugin_name\":\"plugin-02\"}]"
       ],
       "space": {
         "organization": {

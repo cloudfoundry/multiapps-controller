@@ -2,13 +2,19 @@ package com.sap.cloud.lm.sl.cf.core.helpers.v2;
 
 import java.util.Arrays;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
+import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
-public class ApplicationColorAppenderTest extends com.sap.cloud.lm.sl.cf.core.helpers.v1.ApplicationColorAppenderTest {
+@RunWith(Parameterized.class)
+public class ApplicationColorAppenderTest {
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -26,16 +32,31 @@ public class ApplicationColorAppenderTest extends com.sap.cloud.lm.sl.cf.core.he
         });
     }
 
+    private String deploymentDescriptorString;
+    private Expectation expectation;
+
     public ApplicationColorAppenderTest(String deploymentDescritorString, Expectation expectation) {
-        super(deploymentDescritorString, expectation);
+        this.deploymentDescriptorString = deploymentDescritorString;
+        this.expectation = expectation;
     }
 
-    @Override
+    @Test
+    public void testPrepare() throws Exception {
+        DeploymentDescriptor descriptor = getDescriptorParser()
+            .parseDeploymentDescriptorYaml(TestUtil.getResourceAsString(deploymentDescriptorString, getClass()));
+
+        TestUtil.test(() -> {
+
+            descriptor.accept(getApplicationColorAppender(ApplicationColor.BLUE, ApplicationColor.GREEN));
+            return descriptor;
+
+        }, expectation, getClass());
+    }
+
     protected DescriptorParser getDescriptorParser() {
         return new DescriptorParser();
     }
 
-    @Override
     protected ApplicationColorAppender getApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationColor) {
         return new ApplicationColorAppender(deployedMtaColor, applicationColor);
     }

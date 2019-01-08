@@ -1,26 +1,34 @@
-_schema-version: 1.0.0
+_schema-version: 2.0.0
 ID: com.sap.xs2.samples.javahelloworld
 version: 0.1.0
 
 modules:
   - name: java-hello-world
     type: javascript.nodejs
-    requires: [uaa, java, ui5]
+    requires: 
+      - name: uaa
+      - name: java
+        group: destinations
+      - name: ui5
+        group: destinations
     
   - name: java-hello-world-backend
     type: java.tomee
     provides: 
       - name: java
-        groups: [destinations]
         properties:
           url:
-    requires: [uaa, db, java-hdi-container]
+    requires: 
+      - name: uaa
+      - name: db
+      - name: java-hdi-container
 
   - name: java-hello-world-db
     type: com.sap.xs.hdi
     provides:
       - name: db
-    requires: [java-hdi-container]
+    requires: 
+      - name: java-hdi-container
 
 resources:
   - name: java-hdi-container
@@ -30,6 +38,5 @@ resources:
     type: org.cloudfoundry.user-provided-service
     
   - name: ui5
-    groups: [destinations]
     properties:
       url: "https://sapui5.netweaver.ondemand.com"

@@ -12,21 +12,17 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.resolvers.v2.PartialDescriptorReferenceResolver;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
 
-public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.core.helpers.v1.ConfigurationSubscriptionFactory {
+public class ConfigurationSubscriptionFactory {
 
     private static final int MTA_MAJOR_SCHEMA_VERSION = 2;
 
-    @Override
-    public List<ConfigurationSubscription> create(com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor descriptor,
-        Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId) {
-        return create((com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) descriptor, resolvedResources, spaceId);
-    }
-
-    public List<ConfigurationSubscription> create(com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor,
+    public List<ConfigurationSubscription> create(DeploymentDescriptor descriptor,
         Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId) {
         List<String> dependenciesToIgnore = new ArrayList<>(resolvedResources.keySet());
         descriptor = getPartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore).resolve();
@@ -53,7 +49,7 @@ public class ConfigurationSubscriptionFactory extends com.sap.cloud.lm.sl.cf.cor
         ConfigurationFilter filter = resolvedReference.getReferenceFilter();
         String appName = (String) module.getParameters()
             .get(SupportedParameters.APP_NAME);
-        com.sap.cloud.lm.sl.mta.model.v1.Resource resource = resolvedReference.getReference();
+        Resource resource = resolvedReference.getReference();
         Module adaptedModule = getContainingOneRequiresDependency(module, dependency);
 
         return ConfigurationSubscription.from(mtaId, spaceId, appName, filter, adaptedModule, resource, getMajorSchemaVersion());

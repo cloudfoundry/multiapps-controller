@@ -41,10 +41,10 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
@@ -63,9 +63,9 @@ import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1.Platform;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
 public class StepsUtil {
@@ -220,8 +220,6 @@ public class StepsUtil {
 
         int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
         switch (majorSchemaVersion) {
-            case 1:
-                return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v1.Platform.class);
             case 2:
                 return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v2.Platform.class);
             case 3:

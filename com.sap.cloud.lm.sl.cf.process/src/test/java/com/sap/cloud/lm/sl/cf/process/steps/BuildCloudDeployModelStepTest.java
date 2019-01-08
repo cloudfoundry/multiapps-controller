@@ -24,27 +24,27 @@ import org.mockito.Mock;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ConfigurationEntriesCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1.Platform;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 @RunWith(Parameterized.class)
 public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
 
     private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
 
-    private static final Integer MTA_MAJOR_SCHEMA_VERSION = 1;
+    private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("build-cloud-model.yaml",
         BuildCloudDeployModelStepTest.class);

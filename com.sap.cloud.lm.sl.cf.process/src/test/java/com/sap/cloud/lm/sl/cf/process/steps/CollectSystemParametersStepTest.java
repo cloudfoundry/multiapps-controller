@@ -42,7 +42,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class CollectSystemParametersStepTest extends SyncFlowableStepTest<CollectSystemParametersStep> {
@@ -111,37 +111,37 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
 // @formatter:off
             // (0) Should not use namespaces for applications and services:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 1, null, PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-02.json"), null),
             },
             // (1) Should use namespaces for applications and services:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 1, null, PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-01.json"), null),
             },
             // (2) There are deployed MTAs:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 1, "deployed-mta-01.json", PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, "deployed-mta-01.json", PlatformType.XS2, false), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-04.json"), null),
             },
             // (3) Host based routing:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 1, null, PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false), 
                 new StepOutput(null, new Expectation(Expectation.Type.RESOURCE, "system-parameters-03.json"), null),
             },
             // (4) The version of the MTA is lower than the version of the previously deployed MTA:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 1, "deployed-mta-02.json", PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, "deployed-mta-02.json", PlatformType.XS2, false), 
                 new StepOutput(Collections.emptySet(), new Expectation(Expectation.Type.RESOURCE, "system-parameters-04.json"), Messages.HIGHER_VERSION_ALREADY_DEPLOYED),
             },
             // (5) Should not use namespaces for applications and services (platform type  is  CF):
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 1, null, PlatformType.CF , false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.CF , false), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-07.json"), null),
             },
             // (6) Should not use namespaces for applications and services (XS placeholders are supported):
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 1, null, PlatformType.XS2, true ), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, true ), 
                 new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-06.json"), null),
             },
             // (7) Host based routing with TCP/TCPS

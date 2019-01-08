@@ -6,7 +6,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ResourceType;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.common.ContentException;
 
 class SpecialResourceTypesRequiredParametersUtilTest {

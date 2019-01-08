@@ -12,9 +12,9 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ServiceKeysCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -22,7 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
@@ -54,8 +54,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
             // Build a list of applications for deployment and save them in the context:
             ApplicationsCloudModelBuilder applicationsCloudModelBuilder = getApplicationsCloudModelBuilder(execution.getContext());
-            List<CloudApplicationExtended> apps = applicationsCloudModelBuilder.build(mtaArchiveModules,
-                mtaModules, deployedModuleNames);
+            List<CloudApplicationExtended> apps = applicationsCloudModelBuilder.build(mtaArchiveModules, mtaModules, deployedModuleNames);
             getStepLogger().debug(Messages.APPS_TO_DEPLOY, secureSerializer.toJson(apps));
             StepsUtil.setAppsToDeploy(execution.getContext(), apps);
             StepsUtil.setDeploymentMode(execution.getContext(), applicationsCloudModelBuilder.getDeploymentMode());

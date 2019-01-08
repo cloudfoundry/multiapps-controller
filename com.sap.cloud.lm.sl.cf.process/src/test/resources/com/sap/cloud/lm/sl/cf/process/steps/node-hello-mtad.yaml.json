@@ -1,80 +1,125 @@
 {
-  "schemaVersion": "1.0.0",
-  "id": "com.sap.xs2.samples.helloworld",
-  "version": "0.1.0",
-  "modules1": [
+  "modules2": [
     {
+      "requiredDependencies2": [
+        {
+          "name": "uaa",
+          "properties": {},
+          "parameters": {}
+        },
+        {
+          "name": "nodejs",
+          "group": "destinations",
+          "properties": {},
+          "parameters": {}
+        },
+        {
+          "name": "ui5",
+          "group": "destinations",
+          "properties": {},
+          "parameters": {}
+        }
+      ],
+      "providedDependencies2": [
+        {
+          "isPublic": true,
+          "name": "node-hello-world",
+          "properties": {}
+        }
+      ],
+      "parameters": {},
       "name": "node-hello-world",
       "type": "javascript.nodejs",
       "properties": {
         "port": 50050
-      },
-      "requiredDependencies1": [
-        "uaa",
-        "nodejs",
-        "ui5"
-      ],
-      "providedDependencies1": []
+      }
     },
     {
-      "name": "node-hello-world-backend",
-      "type": "javascript.nodejs",
-      "properties": {},
-      "requiredDependencies1": [
-        "uaa",
-        "db",
-        "nodejs-hdi-container"
-      ],
-      "providedDependencies1": [
+      "requiredDependencies2": [
         {
+          "name": "uaa",
+          "properties": {},
+          "parameters": {}
+        },
+        {
+          "name": "db",
+          "properties": {},
+          "parameters": {}
+        },
+        {
+          "name": "nodejs-hdi-container",
+          "properties": {},
+          "parameters": {}
+        }
+      ],
+      "providedDependencies2": [
+        {
+          "isPublic": true,
           "name": "nodejs",
-          "groups": [
-            "destinations"
-          ],
           "properties": {
             "url": "https://nodejs.hana.ondemand.com"
           }
-        }
-      ]
-    },
-    {
-      "name": "node-hello-world-db",
-      "type": "com.sap.xs.hdi",
-      "properties": {},
-      "requiredDependencies1": [
-        "nodejs-hdi-container"
-      ],
-      "providedDependencies1": [
+        },
         {
-          "name": "db",
-          "groups": [],
+          "isPublic": true,
+          "name": "node-hello-world-backend",
           "properties": {}
         }
-      ]
+      ],
+      "parameters": {},
+      "name": "node-hello-world-backend",
+      "type": "javascript.nodejs",
+      "properties": {}
+    },
+    {
+      "requiredDependencies2": [
+        {
+          "name": "nodejs-hdi-container",
+          "properties": {},
+          "parameters": {}
+        }
+      ],
+      "providedDependencies2": [
+        {
+          "isPublic": true,
+          "name": "db",
+          "properties": {}
+        },
+        {
+          "isPublic": true,
+          "name": "node-hello-world-db",
+          "properties": {}
+        }
+      ],
+      "parameters": {},
+      "name": "node-hello-world-db",
+      "type": "com.sap.xs.hdi",
+      "properties": {}
     }
   ],
-  "resources1": [
+  "resources2": [
     {
+      "parameters": {},
       "name": "nodejs-hdi-container",
       "type": "com.sap.xs.hdi-container",
-      "groups": [],
       "properties": {}
     },
     {
+      "parameters": {},
       "name": "uaa",
       "type": "org.cloudfoundry.existing-service",
-      "groups": [],
       "properties": {}
     },
     {
-      "name": "ui5",
-      "groups": [
-        "destinations"
-      ],
-      "properties": {
+      "parameters": {
         "url": "https://sapui5.hana.ondemand.com"
-      }
+      },
+      "name": "ui5",
+      "properties": {}
     }
   ],
-  "properties": {}
+  "parameters": {},
+  "schemaVersion": "2.0.0",
+  "id": "com.sap.xs2.samples.helloworld",
+  "version": "0.1.0"
 }

@@ -87,7 +87,9 @@ public class CreateAppStep extends SyncFlowableStep {
             // If the application doesn't exist, create it:
             if (existingApp == null) {
                 if (app.getDockerInfo() != null) {
-                    execution.getStepLogger().info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, app.getName(), app.getDockerInfo().getImage());
+                    execution.getStepLogger()
+                        .info(Messages.CREATING_APP_FROM_DOCKER_IMAGE, app.getName(), app.getDockerInfo()
+                            .getImage());
                 }
                 client.createApplication(appName, staging, diskQuota, memory, uris, Collections.emptyList(), app.getDockerInfo());
 

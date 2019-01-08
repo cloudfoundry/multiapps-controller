@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ConfigurationEntriesCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 @Component("rebuildApplicationDeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

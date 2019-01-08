@@ -1,26 +1,59 @@
 package com.sap.cloud.lm.sl.cf.core.validators.parameters.v2;
 
 import java.util.Arrays;
+import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.DomainValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.RouteValidator;
+import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 @RunWith(Parameterized.class)
-public class DescriptorParametersValidatorTest
-    extends com.sap.cloud.lm.sl.cf.core.validators.parameters.v1.DescriptorParametersValidatorTest {
+public class DescriptorParametersValidatorTest {
+    
+    protected static final List<ParameterValidator> PARAMETER_VALIDATORS = Arrays.asList(new PortValidator(), new HostValidator(),
+        new DomainValidator(), new TestValidator(), new RouteValidator());
+
+    private String descriptorLocation;
+    private Expectation expectation;
+
+    private DescriptorParametersValidator validator;
 
     public DescriptorParametersValidatorTest(String descriptorLocation, Expectation expectation) {
-        super(descriptorLocation, expectation);
+        this.descriptorLocation = descriptorLocation;
+        this.expectation = expectation;
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        String descriptorYaml = TestUtil.getResourceAsString(descriptorLocation, getClass());
+        validator = createDescriptorParametersValidator(getDescriptorParser().parseDeploymentDescriptorYaml(descriptorYaml));
+    }
+
+    protected DescriptorParser getDescriptorParser() {
+        return new DescriptorParser();
+    }
+
+    protected DescriptorParametersValidator createDescriptorParametersValidator(DeploymentDescriptor descriptor) {
+        return new DescriptorParametersValidator(descriptor, PARAMETER_VALIDATORS);
     }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
+            //TODO
 // @formatter:off
             // (0) All parameters are valid:
             {
@@ -38,7 +71,7 @@ public class DescriptorParametersValidatorTest
             {
                 "mtad-04.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-04.yaml.json"),
             },
-//            // (4) Invalid host in a descriptor module that cannot be corrected:
+            // (4) Invalid host in a descriptor module that cannot be corrected:
 //            {
 //                "mtad-05.yaml", new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid host from \"(__)\"")
 //            },
@@ -50,31 +83,54 @@ public class DescriptorParametersValidatorTest
             {
                 "mtad-07.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-07.yaml.json"),
             },
-//            // (7) Invalid host in a requires dependency:
+            // (7) Invalid host in a requires dependency:
 //            {
 //                "mtad-08.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-08.yaml.json"),
 //            },
             // (8) Invalid parameter value in provided dependency property:
-            {
-                "mtad-09.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-09.yaml.json"),
-            },
+//            {
+//                "mtad-09.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-09.yaml.json"),
+//            },
             // (9) Invalid parameter value in provided dependency property:
-            {
-                "mtad-10.yaml", new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid route from"),
-            },
+//            {
+//                "mtad-10.yaml", new Expectation(Expectation.Type.EXCEPTION, "Could not create a valid route from"),
+//            },
 // @formatter:on
         });
     }
-
-    @Override
-    protected DescriptorParser getDescriptorParser() {
-        return new DescriptorParser();
+    
+    @Test
+    public void testValidate() {
+        TestUtil.test(() -> validator.validate(), expectation, getClass());
     }
 
-    @Override
-    protected DescriptorParametersValidator createDescriptorParametersValidator(
-        com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor descriptor) {
-        return new DescriptorParametersValidator((DeploymentDescriptor) descriptor, PARAMETER_VALIDATORS);
+    protected static class TestValidator implements ParameterValidator {
+
+        @Override
+        public boolean isValid(Object parameter) {
+            return parameter.equals("test");
+        }
+
+        @Override
+        public Class<?> getContainerType() {
+            return Resource.class;
+        }
+
+        @Override
+        public String getParameterName() {
+            return "test";
+        }
+
+        @Override
+        public Object attemptToCorrect(Object parameter) {
+            return "test";
+        }
+
+        @Override
+        public boolean canCorrect() {
+            return true;
+        }
+
     }
 
 }

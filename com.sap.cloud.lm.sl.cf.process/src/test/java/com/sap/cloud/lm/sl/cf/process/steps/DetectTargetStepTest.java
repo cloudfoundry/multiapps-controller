@@ -13,8 +13,8 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v1.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.model.v1.Platform;
+import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 @RunWith(Parameterized.class)
 public class DetectTargetStepTest extends SyncFlowableStepTest<DetectTargetStep> {
@@ -47,12 +47,7 @@ public class DetectTargetStepTest extends SyncFlowableStepTest<DetectTargetStep>
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-            // (0) Platform and its platform types exist (version 1):
-            {
-                new StepInput("platform-v1.json", "initial", "initial", 1),
-                new Expectation(Expectation.Type.RESOURCE, "parsed-platform-v1.json"),
-            },
-            // (1) Platform and its platform types exist (version 2):
+            // (0) Platform and its platform types exist (version 2):
             {
                 new StepInput("platform-v2.json", "initial", "initial", 2),
                 new Expectation(Expectation.Type.RESOURCE, "parsed-platform-v2.json"),

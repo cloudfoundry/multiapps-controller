@@ -1,43 +1,45 @@
 {
-  "schemaVersion": "2.0.0",
-  "id": "com.sap.test",
-  "version": "1.0",
-  "modules": [
+  "modules2": [
     {
-      "parameters": {},
-      "name": "foo",
-      "type": "foo",
-      "properties": {},
-      "requiredDependencies": [
+      "requiredDependencies2": [
         {
           "name": "bar",
           "properties": {},
           "parameters": {
-            "host": "123-abc"
+            "host": "_123_abc"
           }
         }
       ],
-      "providedDependencies": [
+      "providedDependencies2": [
         {
+          "isPublic": true,
           "name": "foo",
           "properties": {}
         }
-      ]
+      ],
+      "parameters": {},
+      "name": "foo",
+      "type": "foo",
+      "properties": {}
     },
     {
-      "parameters": {},
-      "name": "bar",
-      "type": "bar",
-      "properties": {},
-      "requiredDependencies": [],
-      "providedDependencies": [
+      "requiredDependencies2": [],
+      "providedDependencies2": [
         {
+          "isPublic": true,
           "name": "bar",
           "properties": {}
         }
-      ]
+      ],
+      "parameters": {},
+      "name": "bar",
+      "type": "bar",
+      "properties": {}
     }
   ],
-  "resources": [],
-  "properties": {}
+  "resources2": [],
+  "parameters": {},
+  "schemaVersion": "2.0.0",
+  "id": "com.sap.test",
+  "version": "1.0"
 }

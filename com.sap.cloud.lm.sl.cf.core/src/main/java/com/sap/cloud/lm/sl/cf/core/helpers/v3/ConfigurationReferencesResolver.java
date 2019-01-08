@@ -40,7 +40,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     }
 
     @Override
-    protected void updateReferencesToResolvedResources(com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor descriptor) {
+    protected void updateReferencesToResolvedResources(com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor) {
         DeploymentDescriptor descriptor3 = (DeploymentDescriptor) descriptor;
         this.updateReferencesToResolvedResources(descriptor3);
     }
@@ -122,7 +122,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     }
 
     @Override
-    protected RequiredDependency createRequiredDependency(com.sap.cloud.lm.sl.mta.model.v1.Resource resource,
+    protected RequiredDependency createRequiredDependency(com.sap.cloud.lm.sl.mta.model.v2.Resource resource,
         com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency dependency) {
         RequiredDependency.Builder builder = new RequiredDependency.Builder();
         builder.setName(resource.getName());
@@ -137,7 +137,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     }
 
     @Override
-    public void visit(ElementContext context, com.sap.cloud.lm.sl.mta.model.v1.Resource sourceResource) {
+    public void visit(ElementContext context, com.sap.cloud.lm.sl.mta.model.v2.Resource sourceResource) {
         ConfigurationFilter configurationFilter = filterParser.parse(sourceResource);
         if (configurationFilter == null) {
             // resource is not a config reference.
@@ -151,7 +151,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
             resolvedReferences.put(sourceResource.getName(), resolvedReference);
             return;
         }
-        List<com.sap.cloud.lm.sl.mta.model.v1.Resource> resolvedResources = configurationResolver.resolve(sourceResource,
+        List<com.sap.cloud.lm.sl.mta.model.v2.Resource> resolvedResources = configurationResolver.resolve(sourceResource,
             configurationFilter, cloudTarget);
         ResolvedConfigurationReference resolvedReference = new ResolvedConfigurationReference(configurationFilter, sourceResource,
             resolvedResources);

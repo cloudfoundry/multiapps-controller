@@ -64,7 +64,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
             },
             // (1) A subscriber should be updated, because there are new published entries (there are no existing entries):
             {
-                "update-subscribers-step-input-00.json", "update-subscribers-step-output-00.json", 1, null,
+                "update-subscribers-step-input-00.json", "update-subscribers-step-output-00.json", 2, null,
             },
             // (2) A subscriber should be updated:
             {

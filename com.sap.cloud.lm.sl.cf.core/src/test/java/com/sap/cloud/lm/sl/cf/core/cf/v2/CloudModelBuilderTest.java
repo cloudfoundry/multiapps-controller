@@ -1,30 +1,75 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ApplicationsCloudModelBuilder;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.cf.v1.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
+import com.sap.cloud.lm.sl.common.util.Callable;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v1.Platform;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
 
-public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.CloudModelBuilderTest {
+@RunWith(Parameterized.class)
+public class CloudModelBuilderTest {
+
+    protected static final String DEFAULT_DOMAIN_CF = "cfapps.neo.ondemand.com";
+    protected static final String DEFAULT_DOMAIN_XS = "sofd60245639a";
+
+    protected static final String DEPLOY_ID = "123";
+
+    protected final DescriptorParser descriptorParser = getDescriptorParser();
+    protected final ConfigurationParser configurationParser = getConfigurationParser();
+    protected final DescriptorHandler descriptorHandler = getDescriptorHandler();
+
+    protected final String deploymentDescriptorLocation;
+    protected final String extensionDescriptorLocation;
+    protected final String platformLocation;
+    protected final String deployedMtaLocation;
+    protected final boolean useNamespaces;
+    protected final boolean useNamespacesForServices;
+    protected final Set<String> mtaArchiveModules;
+    protected final Set<String> mtaModules;
+    protected final Set<String> deployedApps;
+    protected final Expectation expectedServices;
+    protected final Expectation expectedApps;
+
+    protected ApplicationsCloudModelBuilder appsBuilder;
+    protected ServicesCloudModelBuilder servicesBuilder;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -423,62 +468,163 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v1.Clo
     public CloudModelBuilderTest(String deploymentDescriptorLocation, String extensionDescriptorLocation, String platformsLocation,
         String deployedMtaLocation, boolean useNamespaces, boolean useNamespacesForServices, String[] mtaArchiveModules,
         String[] mtaModules, String[] deployedApps, Expectation expectedServices, Expectation expectedApps) {
-        super(deploymentDescriptorLocation, extensionDescriptorLocation, platformsLocation, deployedMtaLocation, useNamespaces,
-            useNamespacesForServices, mtaArchiveModules, mtaModules, deployedApps, expectedServices, expectedApps);
+        this.deploymentDescriptorLocation = deploymentDescriptorLocation;
+        this.extensionDescriptorLocation = extensionDescriptorLocation;
+        this.platformLocation = platformsLocation;
+        this.deployedMtaLocation = deployedMtaLocation;
+        this.useNamespaces = useNamespaces;
+        this.useNamespacesForServices = useNamespacesForServices;
+        this.mtaArchiveModules = new HashSet<>(Arrays.asList(mtaArchiveModules));
+        this.mtaModules = new HashSet<>(Arrays.asList(mtaModules));
+        this.deployedApps = new HashSet<>(Arrays.asList(deployedApps));
+        this.expectedServices = expectedServices;
+        this.expectedApps = expectedApps;
     }
 
-    @Override
     protected DescriptorParser getDescriptorParser() {
         return new DescriptorParser();
     }
 
-    @Override
     protected ConfigurationParser getConfigurationParser() {
         return new ConfigurationParser();
     }
 
-    @Override
-    protected Map<String, Object> getParameters(com.sap.cloud.lm.sl.mta.model.v1.Module module) {
-        return ((Module) module).getParameters();
+    protected Map<String, Object> getParameters(Module module) {
+        return module.getParameters();
     }
 
-    @Override
-    protected com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler getDescriptorHandler() {
-        return new com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler();
+    protected DescriptorHandler getDescriptorHandler() {
+        return new DescriptorHandler();
     }
 
-    @Override
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration) {
-        return new ServicesCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor,
-            new HandlerFactory(2).getPropertiesAccessor(), configuration);
+        return new ServicesCloudModelBuilder(deploymentDescriptor, new HandlerFactory(2).getPropertiesAccessor(), configuration);
     }
 
-    @Override
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
         XsPlaceholderResolver xsPlaceholderResolver) {
-        deploymentDescriptor = new DescriptorReferenceResolver((com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor,
-            new ResolverBuilder(), new ResolverBuilder()).resolve();
-        return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder(
-            (com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor) deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, DEPLOY_ID);
+        deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder())
+            .resolve();
+        return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
+            DEPLOY_ID);
     }
 
-    @Override
     protected PlatformMerger getPlatformMerger(Platform platform, DescriptorHandler handler) {
-        return new com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger((com.sap.cloud.lm.sl.mta.model.v2.Platform) platform,
-            (com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler) handler);
+        return new PlatformMerger(platform, handler);
     }
 
-    @Override
-    protected void setParameters(com.sap.cloud.lm.sl.mta.model.v1.Module module, Map<String, Object> parameters) {
-        ((Module) module).setParameters(parameters);
+    protected void setParameters(Module module, Map<String, Object> parameters) {
+        module.setParameters(parameters);
     }
 
-    @Override
     protected DescriptorMerger getDescriptorMerger() {
         return new DescriptorMerger();
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        DeploymentDescriptor deploymentDescriptor = loadDeploymentDescriptor();
+        ExtensionDescriptor extensionDescriptor = loadExtensionDescriptor();
+        Platform platform = loadPlatform();
+        DeployedMta deployedMta = loadDeployedMta();
+
+        deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Arrays.asList(extensionDescriptor));
+        insertProperAppNames(deploymentDescriptor);
+        PlatformMerger platformMerger = getPlatformMerger(platform, descriptorHandler);
+        platformMerger.mergeInto(deploymentDescriptor);
+
+        String defaultDomain = getDefaultDomain(platform.getName());
+
+        SystemParameters systemParameters = createSystemParameters(deploymentDescriptor, defaultDomain);
+        XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
+        xsPlaceholderResolver.setDefaultDomain(defaultDomain);
+        CloudModelConfiguration configuration = createCloudModelConfiguration(defaultDomain);
+        appsBuilder = getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
+            xsPlaceholderResolver);
+        servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
+    }
+
+    private DeploymentDescriptor loadDeploymentDescriptor() {
+        InputStream deploymentDescriptorYaml = getClass().getResourceAsStream(deploymentDescriptorLocation);
+        return descriptorParser.parseDeploymentDescriptorYaml(deploymentDescriptorYaml);
+    }
+
+    private ExtensionDescriptor loadExtensionDescriptor() {
+        InputStream extensionDescriptorYaml = getClass().getResourceAsStream(extensionDescriptorLocation);
+        return descriptorParser.parseExtensionDescriptorYaml(extensionDescriptorYaml);
+    }
+
+    private Platform loadPlatform() {
+        InputStream platformJson = getClass().getResourceAsStream(platformLocation);
+        return configurationParser.parsePlatformJson(platformJson);
+    }
+
+    private DeployedMta loadDeployedMta() throws IOException {
+        if (deployedMtaLocation == null) {
+            return null;
+        }
+        InputStream deployedMtaStream = getClass().getResourceAsStream(deployedMtaLocation);
+        String deployedMtaJson = IOUtils.toString(deployedMtaStream, StandardCharsets.UTF_8);
+        return JsonUtil.fromJson(deployedMtaJson, DeployedMta.class);
+    }
+
+    protected void insertProperAppNames(DeploymentDescriptor descriptor) throws Exception {
+        for (Module module : descriptor.getModules2()) {
+            Map<String, Object> parameters = new TreeMap<>(getParameters(module));
+            String appName = NameUtil.getApplicationName(module.getName(), descriptor.getId(), useNamespaces);
+            if (parameters.containsKey(SupportedParameters.APP_NAME)) {
+                appName = NameUtil.getApplicationName((String) parameters.get(SupportedParameters.APP_NAME), descriptor.getId(),
+                    useNamespaces);
+            }
+            parameters.put(SupportedParameters.APP_NAME, appName);
+            setParameters(module, parameters);
+        }
+    }
+
+    protected String getDefaultDomain(String targetName) {
+        return (targetName.equals("CLOUD-FOUNDRY")) ? DEFAULT_DOMAIN_CF : DEFAULT_DOMAIN_XS;
+    }
+
+    protected SystemParameters createSystemParameters(DeploymentDescriptor descriptor, String defaultDomain) {
+        Map<String, Object> generalParameters = new HashMap<>();
+        generalParameters.put(SupportedParameters.DEFAULT_DOMAIN, defaultDomain);
+        Map<String, Map<String, Object>> moduleParameters = new HashMap<>();
+        for (Module module : descriptor.getModules2()) {
+            String moduleName = module.getName();
+            moduleParameters.put(moduleName, MapUtil.asMap(SupportedParameters.DEFAULT_HOST, moduleName));
+        }
+        return new SystemParameters(generalParameters, moduleParameters, Collections.emptyMap(), Collections.emptyMap());
+    }
+
+    private CloudModelConfiguration createCloudModelConfiguration(String defaultDomain) {
+        CloudModelConfiguration configuration = new CloudModelConfiguration();
+        configuration.setPortBasedRouting(defaultDomain.equals(DEFAULT_DOMAIN_XS));
+        configuration.setPrettyPrinting(false);
+        configuration.setUseNamespaces(useNamespaces);
+        configuration.setUseNamespacesForServices(useNamespacesForServices);
+        return configuration;
+    }
+
+    @Test
+    public void testGetApplications() {
+        TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
+            @Override
+            public List<CloudApplicationExtended> call() throws Exception {
+                return appsBuilder.build(mtaArchiveModules, mtaModules, deployedApps);
+            }
+        }, expectedApps, getClass(), new TestUtil.JsonSerializationOptions(false, true));
+    }
+
+    @Test
+    public void testGetServices() {
+        TestUtil.test(new Callable<List<CloudServiceExtended>>() {
+            @Override
+            public List<CloudServiceExtended> call() throws Exception {
+                return servicesBuilder.build();
+            }
+        }, expectedServices, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
 
 }

@@ -10,9 +10,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser;
+import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.message.Messages;
-import com.sap.cloud.lm.sl.mta.model.v1.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class XsPlaceholderResolverInvokerTest {
@@ -26,11 +26,7 @@ public class XsPlaceholderResolverInvokerTest {
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
-            // (0) MTA spec version 1.0.0:
-            {
-                "xs-placeholder-mtad-00.yaml", 1, new Expectation(Expectation.Type.RESOURCE, "xs-placeholder-resolved-mtad-00.json"),
-            },
-            // (1) MTA spec version 2.0.0:
+            // (0) MTA spec version 2.0.0:
             {
                 "xs-placeholder-mtad-01.yaml", 2, new Expectation(Expectation.Type.RESOURCE, "xs-placeholder-resolved-mtad-01.json"),
             },
@@ -69,8 +65,6 @@ public class XsPlaceholderResolverInvokerTest {
         switch (schemaVersion) {
             case 2:
                 return new com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser();
-            case 1:
-                return new com.sap.cloud.lm.sl.mta.handlers.v1.DescriptorParser();
             default:
                 throw new UnsupportedOperationException(MessageFormat.format(Messages.UNSUPPORTED_VERSION, schemaVersion));
         }
