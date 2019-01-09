@@ -77,6 +77,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
                 DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
                 StepsUtil.setUnresolvedDeploymentDescriptor(context, deploymentDescriptor);
             });
+
         fileService.processFileContent(deploymentDescriptorProcessor);
 
         FileDownloadProcessor manifestProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId,
