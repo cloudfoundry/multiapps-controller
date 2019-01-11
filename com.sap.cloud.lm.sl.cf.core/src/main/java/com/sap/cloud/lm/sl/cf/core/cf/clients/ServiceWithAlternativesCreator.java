@@ -1,14 +1,18 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudServiceOffering;
@@ -39,9 +43,11 @@ public class ServiceWithAlternativesCreator {
         userMessageLogger.debug("Service \"{0}\" has defined service offering alternatives \"{1}\" for default service offering \"{2}\"",
             service.getName(), service.getAlternativeLabels(), service.getLabel());
         List<String> possibleServiceOfferings = computePossibleServiceOfferings(service);
-        Map<String, List<CloudServicePlan>> existingServiceOfferings = client.getServiceOfferings()
-            .stream()
-            .collect(Collectors.toMap(CloudServiceOffering::getName, CloudServiceOffering::getCloudServicePlans));
+        List<CloudServiceOffering> serviceOfferings = client.getServiceOfferings();
+        Map<String, List<CloudServicePlan>> existingServiceOfferings = serviceOfferings.stream()
+            .collect(Collectors.toMap(CloudServiceOffering::getName, CloudServiceOffering::getCloudServicePlans,
+                (v1, v2) -> retrievePlanListFromServicePlan(service, v1, v2)));
+
         List<String> validServiceOfferings = computeValidServiceOfferings(possibleServiceOfferings, service.getPlan(),
             existingServiceOfferings);
 
@@ -51,6 +57,25 @@ public class ServiceWithAlternativesCreator {
         }
 
         attemptToFindServiceOfferingAndCreateService(client, service, spaceId, validServiceOfferings);
+    }
+
+    private List<CloudServicePlan> retrievePlanListFromServicePlan(CloudServiceExtended service, List<CloudServicePlan>... listOfPlans) {
+        String servicePlanName = service.getPlan();
+        if (ArrayUtils.isEmpty(listOfPlans)) {
+            throw new SLException(Messages.EMPTY_SERVICE_PLANS_LIST_FOUND, servicePlanName);
+        }
+
+        return Stream.of(listOfPlans)
+            .filter(plans -> containsPlan(plans, servicePlanName))
+            .findFirst()
+            .orElse(listOfPlans[0]);
+    }
+
+    private boolean containsPlan(List<CloudServicePlan> plans, String servicePlanName) {
+        return plans.stream()
+            .filter(p -> servicePlanName.equalsIgnoreCase(p.getName()))
+            .findFirst()
+            .isPresent();
     }
 
     private List<String> computePossibleServiceOfferings(CloudServiceExtended service) {
@@ -72,8 +97,8 @@ public class ServiceWithAlternativesCreator {
                 .filter(servicePlan -> desiredServicePlan.equals(servicePlan.getName()))
                 .findFirst();
             if (!existingCloudServicePlan.isPresent()) {
-                userMessageLogger.warnWithoutProgressMessage("Service offering \"{0}\" does not provide service plan \"{1}\"", possibleServiceOffering,
-                    desiredServicePlan);
+                userMessageLogger.warnWithoutProgressMessage("Service offering \"{0}\" does not provide service plan \"{1}\"",
+                    possibleServiceOffering, desiredServicePlan);
                 continue;
             }
             validServiceOfferings.add(possibleServiceOffering);
