@@ -32,9 +32,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
-import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 @Component("processMtaArchiveStep")
@@ -112,8 +110,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     private void setResourcesParameters(DelegateExecution context, String appArchiveId) throws FileStorageException {
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
 
-        PropertiesAccessor propertiesAccessor = new HandlerFactory(Version.parseVersion(deploymentDescriptor.getSchemaVersion())
-            .getMajor()).getPropertiesAccessor();
+        PropertiesAccessor propertiesAccessor = new HandlerFactory(getMajorVersion(deploymentDescriptor)).getPropertiesAccessor();
 
         for (Resource resource : deploymentDescriptor.getResources2()) {
             String resourceFileName = StepsUtil.getResourceFileName(context, resource.getName());
@@ -125,7 +122,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
             Map<String, Object> contentConfigParameters = JsonUtil
                 .convertJsonToMap(getResourceFileContent(context, appArchiveId, resourceFileName));
             Map<String, Object> mergedConfigParameters = PropertiesUtil.mergeExtensionProperties(contentConfigParameters,
-                getConfigParameters(resource, propertiesAccessor));
+                getCurrentConfigParameters(resource, propertiesAccessor));
             parameters.put(SupportedParameters.SERVICE_CONFIG, mergedConfigParameters);
 
             propertiesAccessor.setParameters(resource, parameters);
@@ -134,7 +131,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         StepsUtil.setUnresolvedDeploymentDescriptor(context, deploymentDescriptor);
     }
 
-    private Map<String, Object> getConfigParameters(Resource resource, PropertiesAccessor propertiesAccessor) {
+    private Map<String, Object> getCurrentConfigParameters(Resource resource, PropertiesAccessor propertiesAccessor) {
         Object currentResourceConfigParameters = propertiesAccessor.getParameters(resource)
             .get(SupportedParameters.SERVICE_CONFIG);
 
@@ -143,6 +140,12 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         }
 
         return (Map<String, Object>) currentResourceConfigParameters;
+    }
+
+    private int getMajorVersion(DeploymentDescriptor deploymentDescriptor) {
+        String schemaVersion = deploymentDescriptor.getSchemaVersion();
+
+        return Integer.valueOf(schemaVersion.split("\\.")[0]);
     }
 
     private String getResourceFileContent(DelegateExecution context, String appArchiveId, String fileName) throws FileStorageException {
