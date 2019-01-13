@@ -11,7 +11,13 @@
   		    ALTER TABLE process_log DISABLE TRIGGER delete_from_system_table_process_log;
         </sql>
     </changeSet>
-	<changeSet author="sap.com" id="drop_act_evt_log">
+    <changeSet author="sap.com" id="drop_act_evt_log_seq">
+        <preConditions onFail="MARK_RAN">
+            <sequenceExists sequenceName="act_evt_log_seq" />
+        </preConditions>
+        <dropSequence sequenceName="act_evt_log_seq" />
+    </changeSet>
+    <changeSet author="sap.com" id="drop_act_evt_log">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="act_evt_log" />
         </preConditions>
