@@ -34,6 +34,9 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
             if (!SupportedVersions.isSupported(schemaVersion)) {
                 throw new SLException(com.sap.cloud.lm.sl.mta.message.Messages.UNSUPPORTED_VERSION, schemaVersion);
             }
+            if (!SupportedVersions.isFullySupported(schemaVersion)) {
+               getStepLogger().warn(Messages.UNSUPPORTED_MINOR_VERSION, schemaVersion);
+            }
             execution.getContext()
                 .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, schemaVersion.getMajor());
 
