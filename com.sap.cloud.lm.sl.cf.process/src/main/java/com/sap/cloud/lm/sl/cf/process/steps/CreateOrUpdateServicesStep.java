@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +39,8 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceWithAlternativesCreator;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -44,6 +48,8 @@ import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.mta.handlers.ArchiveHandler;
+import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 @Component("createOrUpdateServicesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -234,6 +240,14 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
 
     private ServiceOperationType createOrUpdateService(ExecutionWrapper execution, CloudControllerClient client, String spaceId,
         CloudServiceExtended service, CloudService existingService, List<String> defaultTags) throws FileStorageException {
+
+        // Set service parameters if a file containing their values exists:
+        String fileName = StepsUtil.getResourceFileName(execution.getContext(), service.getResourceName());
+        if (fileName != null) {
+            getStepLogger().debug(Messages.SETTING_SERVICE_PARAMETERS, service.getName(), fileName);
+            String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+            setServiceParameters(execution.getContext(), service, appArchiveId, fileName);
+        }
         if (existingService == null) {
             serviceOperationExecutor.executeServiceOperation(service, () -> createService(execution.getContext(), client, service),
                 getStepLogger());
@@ -400,6 +414,29 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
         boundAppNames.forEach(appName -> client.unbindService(appName, service.getName()));
         client.deleteService(service.getName());
         getStepLogger().debug(Messages.SERVICE_DELETED, service.getName());
+    }
+
+    private void setServiceParameters(DelegateExecution context, CloudServiceExtended service, final String appArchiveId,
+        final String fileName) throws FileStorageException {
+        FileContentProcessor parametersFileProcessor = appArchiveStream -> {
+            try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
+                mergeCredentials(service, is);
+            } catch (IOException e) {
+                throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
+            }
+        };
+        fileService
+            .processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId, parametersFileProcessor));
+    }
+
+    private void mergeCredentials(CloudServiceExtended service, InputStream credentialsJson) {
+        Map<String, Object> existingCredentials = service.getCredentials();
+        Map<String, Object> credentials = JsonUtil.convertJsonToMap(credentialsJson);
+        if (existingCredentials == null) {
+            existingCredentials = Collections.emptyMap();
+        }
+        Map<String, Object> result = PropertiesUtil.mergeExtensionProperties(credentials, existingCredentials);
+        service.setCredentials(result);
     }
 
     private boolean shouldRecreate(CloudServiceExtended service, CloudService existingService) {
