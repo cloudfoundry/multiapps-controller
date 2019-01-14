@@ -137,7 +137,7 @@ public class Messages {
     public static final String ERROR_UPDATING_OPTIONAL_SERVICE = "Error updating optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_DELETING_OPTIONAL_SERVICE = "Error deleting optional service \"{0}\" from offering \"{1}\" and plan \"{2}\": {3}";
     public static final String ERROR_MONITORING_CREATION_OF_SERVICES = "Error monitoring creation of services";
-    public static final String ERROR_MAPPING_SERVICE_NAMES_TO_GUIDS = "Error mapping services \"{0}\" to guids";
+    public static final String SERVICES_ARE_ALREADY_DELETED = "Services \"{0}\" are already deleted";
 
     // WARN log messages
     public static final String CANNOT_RETRIEVE_SERVICE_INSTANCE_OF_OPTIONAL_SERVICE = "Cannot retrieve service instance of optional service {0}";

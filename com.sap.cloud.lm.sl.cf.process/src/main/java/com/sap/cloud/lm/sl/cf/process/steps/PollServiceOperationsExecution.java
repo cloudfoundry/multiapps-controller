@@ -16,6 +16,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.CloudService;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -90,10 +91,10 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
         return servicesToPoll;
     }
     
-    protected List<CloudServiceExtended> getServicesWithTriggeredOperations(List<CloudServiceExtended> services,
+    protected List<CloudServiceExtended> getServicesWithTriggeredOperations(Collection<CloudServiceExtended> services,
         Map<String, ServiceOperationType> triggeredServiceOperations) {
         return services.stream()
-            .filter(service -> triggeredServiceOperations.containsKey(service.getName()))
+            .filter(e -> triggeredServiceOperations.containsKey(e.getName()))
             .collect(Collectors.toList());
     }
 
@@ -102,8 +103,6 @@ public abstract class PollServiceOperationsExecution implements AsyncExecution {
 
     protected abstract ServiceOperation getLastServiceOperation(ExecutionWrapper execution, CloudControllerClient client,
         CloudServiceExtended service);
-
-
     protected void reportIndividualServiceState(ExecutionWrapper execution,
         Map<CloudServiceExtended, ServiceOperation> servicesWithLastOperation) {
         for (Entry<CloudServiceExtended, ServiceOperation> serviceWithLastOperation : servicesWithLastOperation.entrySet()) {

@@ -3,10 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -26,16 +24,12 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
     @Override
     protected List<CloudServiceExtended> computeServicesToPoll(ExecutionWrapper execution,
         Map<String, ServiceOperationType> triggeredServiceOperations) {
-        List<String> servicesToDeleteNames = StepsUtil.getServicesToDelete(execution.getContext());
-        List<CloudServiceExtended> servicesToDelete = getServicesData(servicesToDeleteNames, execution);
-        return getServicesWithTriggeredOperations(servicesToDelete, triggeredServiceOperations);
+        Map<String, CloudServiceExtended> servicesToDeleteData = getServicesData(execution);
+        return getServicesWithTriggeredOperations(servicesToDeleteData.values(), triggeredServiceOperations);
     }
 
-    private List<CloudServiceExtended> getServicesData(List<String> servicesToDeleteNames, ExecutionWrapper execution) {
-        Map<String, String> servicesGuids = StepsUtil.getServicesGuids(execution.getContext());
-        return servicesToDeleteNames.stream()
-            .map(name -> new CloudServiceExtended(new Meta(UUID.fromString(servicesGuids.get(name)), null, null), name))
-            .collect(Collectors.toList());
+    private Map<String, CloudServiceExtended> getServicesData(ExecutionWrapper execution) {
+        return StepsUtil.getServicesData(execution.getContext());
     }
 
     @Override

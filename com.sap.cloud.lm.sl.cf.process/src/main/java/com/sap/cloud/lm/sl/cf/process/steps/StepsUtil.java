@@ -20,6 +20,7 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.flowable.common.engine.impl.identity.Authentication;
@@ -1039,17 +1040,17 @@ public class StepsUtil {
         return (boolean) context.getVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES);
     }
 
-    public static void setServicesGuids(DelegateExecution context, Map<String, String> serviceGuids) {
-        context.setVariable(Constants.VAR_SERVICES_GUIDS, JsonUtil.toBinaryJson(serviceGuids));
+    public static void setServicesData(DelegateExecution context, Map<String, CloudServiceExtended> servicesData) {
+        context.setVariable(Constants.VAR_SERVICES_DATA, JsonUtil.toBinaryJson(servicesData));
     }
 
-    public static Map<String, String> getServicesGuids(DelegateExecution context) {
-        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_SERVICES_GUIDS);
+    public static Map<String, CloudServiceExtended> getServicesData(DelegateExecution context) {
+        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_SERVICES_DATA);
         if (binaryJson == null) {
             return Collections.emptyMap();
         }
         String jsonString = new String(binaryJson, StandardCharsets.UTF_8);
-        return JsonUtil.fromJson(jsonString, new TypeToken<Map<String, String>>() {
+        return JsonUtil.fromJson(jsonString, new TypeToken<Map<String, CloudServiceExtended>>() {
         }.getType());
     }
 
