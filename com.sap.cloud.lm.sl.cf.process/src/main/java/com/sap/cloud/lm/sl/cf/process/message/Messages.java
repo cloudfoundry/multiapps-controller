@@ -383,6 +383,7 @@ public class Messages {
     public static final String VALIDATING_SERVICES = "Validating services to create...";
     public static final String VALIDATING_APPLICATIONS = "Validating applications to deploy...";
     public static final String DOMAIN_ALREADY_EXISTS = "Domain \"{0}\" already exists";
+    public static final String SETTING_SERVICE_PARAMETERS = "Setting service \"{0}\" parameters from \"{1}\"";
     public static final String SERVICE_ALREADY_EXISTS = "Service \"{0}\" already exists";
     public static final String BINDING_PARAMETERS_FOR_APPLICATION = "Binding parameters for application \"{0}\": {1}";
     public static final String ORG_SPACE = "Organization: {0}, space: {1}";
