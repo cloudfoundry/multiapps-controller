@@ -33,10 +33,6 @@ public class DetectMtaSchemaVersionStepTest extends SyncActivitiStepTest<DetectM
 // @formatter:off
             // Supported version:
             {
-                "1.0.0", 1, 0, null,
-            },
-            // Supported version:
-            {
                 "2.0.0", 2, 0, null,
             },
             // Supported version:
@@ -53,7 +49,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncActivitiStepTest<DetectM
             },
             // Supported version:
             {
-                "3", 3, 1, null,
+                "3", 3, 2, null,
             },
             // Unsupported version:
             {

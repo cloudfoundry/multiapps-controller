@@ -64,6 +64,7 @@ public class ProcessMtaArchiveStep extends SyncActivitiStep {
                 String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
                 StepsUtil.setDeploymentDescriptorString(context, descriptorString);
             });
+
         fileService.processFileContent(deploymentDescriptorProcessor);
 
         FileDownloadProcessor manifestProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId,

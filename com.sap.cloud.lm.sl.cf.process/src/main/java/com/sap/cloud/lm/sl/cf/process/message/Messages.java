@@ -168,6 +168,8 @@ public class Messages {
     public static final String ERROR_DURING_CLEAN_UP_0 = "Error during clean-up: {0}";
     public static final String COULD_NOT_DELETE_HISTORIC_PROCESS_0 = "Could not delete historic process \"{0}\"";
     public static final String COULD_NOT_ABORT_OPERATION_0 = "Could not abort operation \"{0}\"";
+    public static final String SKIP_SERVICES_DELETION = "Skipping deletion of services, because the command line option \"--delete-services\" is not specified.";
+    public static final String UNSUPPORTED_MINOR_VERSION = "Used verion \"{0}\" is higher than the supported ones. Some features might not be implemented.";
 
     // INFO log messages
     public static final String MTA_NOT_FOUND = "An MTA with id \"{0}\" does not exist";
