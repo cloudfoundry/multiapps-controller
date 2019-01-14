@@ -1,10 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -25,13 +27,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @Component("deleteServicesStep")
@@ -39,9 +40,6 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 public class DeleteServicesStep extends AsyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    @Inject
-    private ServiceGetter serviceGetter;
 
     @Inject
     private EventsGetter eventsGetter;
@@ -53,7 +51,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
 
             CloudControllerClient client = execution.getControllerClient();
 
-            List<String> servicesToDelete = StepsUtil.getServicesToDelete(execution.getContext());
+            List<String> servicesToDelete = new ArrayList<>(StepsUtil.getServicesToDelete(execution.getContext()));
 
             if (servicesToDelete.isEmpty()) {
                 getStepLogger().debug(Messages.MISSING_SERVICES_TO_DELETE);
@@ -62,9 +60,14 @@ public class DeleteServicesStep extends AsyncFlowableStep {
 
             XsCloudControllerClient xsClient = execution.getXsControllerClient();
             if (xsClient == null) {
-                Map<String, String> serviceGuids = getServicesGuids(servicesToDelete, execution);
-                validateGuidMapping(servicesToDelete, serviceGuids);
-                StepsUtil.setServicesGuids(execution.getContext(), serviceGuids);
+                Map<String, CloudServiceExtended> servicesData = getServicesData(servicesToDelete, execution);
+                List<String> servicesWithoutData = getServicesWithoutData(servicesToDelete, servicesData);
+                if(!servicesWithoutData.isEmpty()) {
+                    execution.getStepLogger()
+                    .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
+                    servicesToDelete.removeAll(servicesWithoutData);
+                }
+                StepsUtil.setServicesData(execution.getContext(), servicesData);
             }
 
             Map<String, ServiceOperationType> triggeredServiceOperations = deleteServices(client, servicesToDelete);
@@ -81,34 +84,20 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         }
     }
 
-    private Map<String, String> getServicesGuids(List<String> services, ExecutionWrapper execution) {
-        String spaceId = StepsUtil.getSpaceId(execution.getContext());
+    private Map<String, CloudServiceExtended> getServicesData(List<String> serviceNames, ExecutionWrapper execution) {
         CloudControllerClient client = execution.getControllerClient();
 
-        return services.stream()
-            .map(name -> serviceGetter.getServiceInstance(client, name, spaceId))
-            .filter(instance -> instance != null && !instance.isEmpty())
-            .collect(Collectors.toMap(this::getNameFromInstance, this::getGuidFromInstance));
+        return serviceNames.parallelStream()
+            .map(name -> client.getService(name, false))
+            .filter(Objects::nonNull)
+            .map(service -> new CloudServiceExtended(service.getMeta(), service.getName()))
+            .collect(Collectors.toMap(e -> e.getName(), e -> e));
     }
 
-    private void validateGuidMapping(List<String> servicesToDelete, Map<String, String> serviceGuids) {
-        List<String> servicesWithoutGuid = servicesToDelete.stream()
-            .filter(name -> serviceGuids.get(name) == null)
+    private List<String> getServicesWithoutData(List<String> servicesToDelete, Map<String, CloudServiceExtended> servicesData) {
+        return servicesToDelete.stream()
+            .filter(name -> servicesData.get(name) == null)
             .collect(Collectors.toList());
-
-        if (!servicesWithoutGuid.isEmpty()) {
-            throw new SLException(Messages.ERROR_MAPPING_SERVICE_NAMES_TO_GUIDS, String.join(",", servicesWithoutGuid));
-        }
-    }
-
-    private String getGuidFromInstance(Map<String, Object> serviceInstance) {
-        Map<String, Object> metadata = CommonUtil.cast(serviceInstance.get("metadata"));
-        return CommonUtil.cast(metadata.get("guid"));
-    }
-
-    private String getNameFromInstance(Map<String, Object> serviceInstance) {
-        Map<String, Object> metadata = CommonUtil.cast(serviceInstance.get("entity"));
-        return CommonUtil.cast(metadata.get("name"));
     }
 
     private Map<String, ServiceOperationType> deleteServices(CloudControllerClient client, List<String> serviceNames) {

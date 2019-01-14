@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
@@ -36,12 +36,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -60,18 +61,12 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     private final String expectedExceptionMessage;
 
     private List<String> servicesToDelete = new ArrayList<>();
-    private Map<String, String> servicesGuids = new HashMap<>();
+    private Map<String, CloudServiceExtended> servicesData = new HashMap<>();
 
     private Meta meta = new Meta(UUID.randomUUID(), null, null);
 
     @Mock
-    private CloudService dummyService;
-
-    @Mock
     protected CloudControllerClient client;
-
-    @Mock
-    private ServiceGetter serviceGetter;
 
     @Mock
     private EventsGetter eventsGetter;
@@ -127,7 +122,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         prepareClient();
     }
 
-    @Test
+    @Test 
     public void testExecute() throws Exception {
         if (StepsUtil.getServicesToDelete(context)
             .isEmpty()) {
@@ -157,8 +152,8 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         servicesToDelete = stepInput.servicesToDelete.stream()
             .map((service) -> service.name)
             .collect(Collectors.toList());
-        servicesGuids = stepInput.servicesToDelete.stream()
-            .collect(Collectors.toMap(e -> e.name, e -> e.guid));
+        servicesData = stepInput.servicesToDelete.stream()
+            .collect(Collectors.toMap(e -> e.name, e -> new CloudServiceExtended(new Meta(UUID.fromString(e.guid), null, null), e.name)));
 
         if (expectedExceptionMessage != null) {
             expectedException.expect(SLException.class);
@@ -168,7 +163,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
 
     private void prepareContext() {
         StepsUtil.setArrayVariableFromCollection(context, Constants.VAR_SERVICES_TO_DELETE, servicesToDelete);
-        StepsUtil.setAsBinaryJson(context, Constants.VAR_SERVICES_GUIDS, servicesGuids);
+        StepsUtil.setAsBinaryJson(context, Constants.VAR_SERVICES_DATA, servicesData);
         context.setVariable(com.sap.cloud.lm.sl.cf.process.Constants.PARAM_DELETE_SERVICES, true);
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, TEST_SPACE_ID);
         when(clientProvider.getControllerClient(anyString(), anyString())).thenReturn(client);
@@ -176,12 +171,11 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
     }
 
     private void prepareClient() {
-        Mockito.when(dummyService.isUserProvided())
-            .thenReturn(false);
-
         for (SimpleService service : stepInput.servicesToDelete) {
+            Mockito.when(client.getService(Matchers.eq(service.name), Matchers.anyBoolean()))
+                .thenReturn(createCloudService(service));
             Mockito.when(client.getService(service.name))
-                .thenReturn(dummyService);
+                .thenReturn(createCloudService(service));
             Mockito.when(client.getServiceInstance(service.name))
                 .thenReturn(createServiceInstance(service));
             if (service.hasBoundApplications) {
@@ -201,11 +195,16 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         }
     }
 
+    private CloudService createCloudService(SimpleService service) {
+        CloudServiceExtended cloudServiceExtended = new CloudServiceExtended(new Meta(UUID.fromString(service.guid), null, null), service.name);
+        cloudServiceExtended.setPlan(service.plan);
+        return cloudServiceExtended;
+    }
+
     @SuppressWarnings("unchecked")
     private void prepareResponses(String stepPhase) {
         Map<String, Object> stepPhaseResults = (Map<String, Object>) stepInput.stepPhaseResults.get(stepPhase);
 
-        prepareServiceInstanceGetter(stepPhaseResults);
         prepareEventsGetter(stepPhaseResults);
     }
 
@@ -230,22 +229,6 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
             });
         Mockito.when(eventsGetter.isDeleteEvent(SERVICE_EVENT_TYPE_DELETE))
             .thenCallRealMethod();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void prepareServiceInstanceGetter(Map<String, Object> stepPhaseResponse) {
-        Mockito.reset(serviceGetter);
-        Map<String, Object> serviceInstanceResponse = (Map<String, Object>) stepPhaseResponse.get("serviceInstanceResponse");
-        for (Entry<String, Object> entry : serviceInstanceResponse.entrySet()) {
-            String serviceName = entry.getKey();
-            Map<String, Object> response = (Map<String, Object>) entry.getValue();
-            Map<String, Object> entryResponse = (Map<String, Object>) response.get("entity");
-
-            Mockito.when(serviceGetter.getServiceInstanceEntity(client, serviceName, TEST_SPACE_ID))
-                .thenReturn(entryResponse);
-            Mockito.when(serviceGetter.getServiceInstance(client, serviceName, TEST_SPACE_ID))
-                .thenReturn(response);
-        }
     }
 
     private CloudServiceInstance createServiceInstance(SimpleService service) {

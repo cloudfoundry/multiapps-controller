@@ -4,13 +4,15 @@
 			"name": "service-1",
 			"hasBoundApplications": false,
 			"hasServiceKeys": true,
-			"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602"
+			"guid": "5ee63aa7-fb56-4e8f-b43f-a74efead2602",
+			"plan": "plan"
 		},
 		{
 			"name": "service-2",
 			"hasBoundApplications": false,
 			"hasServiceKeys": true,
-			"guid": "8dbdfd12-807d-4f0a-b909-562d5873f2e8"
+			"guid": "8dbdfd12-807d-4f0a-b909-562d5873f2e8",
+			"plan": "plan"
 		}
 	],
 	"stepPhaseResults": {
