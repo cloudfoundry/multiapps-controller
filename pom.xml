@@ -52,7 +52,7 @@
         <spring.cloud.version>1.2.3.RELEASE</spring.cloud.version>
         <hana.cloud.version>1.0.4.RELEASE</hana.cloud.version>
         <quartz.version>2.2.1</quartz.version>
-        <jackson.version>2.9.7</jackson.version>
+        <jackson.version>2.9.8</jackson.version>
         <jackson-asl.version>1.9.13</jackson-asl.version>
         <liquibase.version>3.4.1</liquibase.version>
         <liquibase-slf4j.version>1.2.1</liquibase-slf4j.version>
