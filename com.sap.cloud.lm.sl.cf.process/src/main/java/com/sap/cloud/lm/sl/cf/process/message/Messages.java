@@ -24,6 +24,8 @@ public class Messages {
     public static final String CF_ERROR = "Controller operation failed: {0}";
     public static final String CANT_DELETE_SERVICE = "Service \"{0}\" cannot be deleted because there are external applications bound to it";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
+    public static final String EMPTY_CREDENTIALS_FOR_SERVICE_KEY_FOR_SERVICE = "Error retrieving credentials for service key \"{0}\" for service \"{1}\"";
+    public static final String MISSING_REQUIRED_PROPERTY_IN_SERVICE_KEY_CREDENTIALS = "Error retrieving required property \"{0}\" for service key \"{1}\" for service \"{12}\"";
     public static final String TARGETED_ORG_DOES_NOT_MATCH_URL_ORG = "Deploy target organization \"{0}\" does not match the organization \"{1}\" specified in the URL";
     public static final String TARGETED_SPACE_DOES_NOT_MATCH_URL_SPACE = "Deploy target space \"{0}\" does not match the space \"{1}\" specified in the URL";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
@@ -228,7 +230,7 @@ public class Messages {
     public static final String UPDATING_SERVICE_TAGS = "Updating service tags for service \"{0}\"...";
     public static final String SERVICE_TAGS_UPDATED = "Service tags for service \"{0}\" updated";
     public static final String CREATING_SERVICE_KEY_FOR_SERVICE = "Creating service key \"{0}\" for service \"{1}\"...";
-    public static final String SERVICE_KEY_FOR_SERVICE_ALREADY_EXISTS = "Service \"{0}\" for service \"{1}\"already exists";
+    public static final String SERVICE_KEY_FOR_SERVICE_ALREADY_EXISTS = "Service key \"{0}\" for service \"{1}\"already exists";
     public static final String DELETING_SERVICE_KEY_FOR_SERVICE = "Deleting service key \"{0}\" for service \"{1}\"...";
     public static final String SERVICE_HAS_BINDINGS_AND_CANNOT_BE_DELETED = "Service \"{0}\" could not be deleted because there are applications bound to it";
     public static final String CREATING_APP_FROM_MODULE = "Creating application \"{0}\" from MTA module \"{1}\"...";
