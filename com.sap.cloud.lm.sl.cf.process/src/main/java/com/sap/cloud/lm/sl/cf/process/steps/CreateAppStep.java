@@ -17,7 +17,6 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +38,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileContentProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -137,7 +137,8 @@ public class CreateAppStep extends SyncFlowableStep {
         Map<String, String> appEnv) {
         Map<String, String> appServiceKeysCredentials = new HashMap<>();
         for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
-            String serviceKeyCredentials = JsonUtil.toJson(getServiceKeyCredentials(client, serviceKeyToInject), true);
+            String serviceKeyCredentials = JsonUtil.toJson(ServiceOperationUtil.getServiceKeyCredentials(client,
+                serviceKeyToInject.getServiceName(), serviceKeyToInject.getServiceKeyName()), true);
             appEnv.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
             appServiceKeysCredentials.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
         }
@@ -152,18 +153,6 @@ public class CreateAppStep extends SyncFlowableStep {
         // Update current process context
         StepsUtil.setApp(context, app);
         StepsUtil.setServiceKeysCredentialsToInject(context, serviceKeysCredentialsToInject);
-    }
-
-    private Map<String, Object> getServiceKeyCredentials(CloudControllerClient client, ServiceKeyToInject serviceKeyToInject) {
-        List<ServiceKey> existingServiceKeys = client.getServiceKeys(serviceKeyToInject.getServiceName());
-        for (ServiceKey existingServiceKey : existingServiceKeys) {
-            if (existingServiceKey.getName()
-                .equals(serviceKeyToInject.getServiceKeyName())) {
-                return existingServiceKey.getCredentials();
-            }
-        }
-        throw new SLException(Messages.ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT, serviceKeyToInject.getServiceKeyName(),
-            serviceKeyToInject.getServiceName());
     }
 
     protected Map<String, Map<String, Object>> getBindingParameters(DelegateExecution context, CloudApplicationExtended app)
