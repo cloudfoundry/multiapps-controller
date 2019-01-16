@@ -23,6 +23,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.variable.api.history.HistoricVariableInstance;
@@ -834,7 +835,7 @@ public class StepsUtil {
         getAppLogger(context, appName, processLoggerProvider).debug(getPrefix(logger) + "[" + appName + "] " + message);
     }
 
-    static StartingInfo getStartingInfo(DelegateExecution context) {
+    public static StartingInfo getStartingInfo(DelegateExecution context) {
         String className = (String) context.getVariable(Constants.VAR_STARTING_INFO_CLASSNAME);
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_STARTING_INFO);
         return (binaryJson != null) ? JsonUtil.fromBinaryJson(binaryJson, getStartingInfoClass(className)) : null;
@@ -1120,5 +1121,17 @@ public class StepsUtil {
     private static List<String> getVariableWithCommaSepearator(DelegateExecution context, String variableName) {
         String variableWithCommaSeparator = (String) context.getVariable(variableName);
         return variableWithCommaSeparator == null ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
+    }
+    
+    public static void setUploadToken(UploadToken uploadToken, DelegateExecution context) {
+        String jsonString = JsonUtil.toJson(uploadToken);
+
+        context.setVariable(Constants.VAR_UPLOAD_TOKEN, jsonString);
+    }
+
+    public static UploadToken getUploadToken(DelegateExecution context) {
+        String jsonString = (String) context.getVariable(Constants.VAR_UPLOAD_TOKEN);
+
+        return JsonUtil.fromJson(jsonString, UploadToken.class);
     }
 }

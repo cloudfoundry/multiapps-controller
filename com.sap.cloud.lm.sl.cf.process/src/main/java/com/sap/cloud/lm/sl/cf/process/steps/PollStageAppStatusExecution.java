@@ -2,24 +2,27 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static java.text.MessageFormat.format;
 
+import java.util.UUID;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
+import com.sap.cloud.lm.sl.cf.process.util.StagingState;
+import com.sap.cloud.lm.sl.cf.process.util.StagingState.StagingLogs;
 import com.sap.cloud.lm.sl.cf.process.util.XMLValueFilter;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class PollStageAppStatusExecution implements AsyncExecution {
 
@@ -27,8 +30,11 @@ public class PollStageAppStatusExecution implements AsyncExecution {
 
     private RecentLogsRetriever recentLogsRetriever;
 
-    public PollStageAppStatusExecution(RecentLogsRetriever recentLogsRetriever) {
+    private ApplicationStager applicationStager;
+    
+    public PollStageAppStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationStager applicationStager) {
         this.recentLogsRetriever = recentLogsRetriever;
+        this.applicationStager = applicationStager;
     }
 
     @Override
@@ -39,16 +45,29 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         try {
             execution.getStepLogger()
                 .debug(Messages.CHECKING_APP_STATUS, app.getName());
-
-            Pair<PackageState, String> state = getStagingState(execution, client, app);
-            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger().getProcessLoggerProvider();
+            
+            StagingState state = applicationStager.getStagingState(execution, client);
+     
+            
+            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
+                .getProcessLoggerProvider();
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
-            if (!state._1.equals(PackageState.STAGED)) {
+
+            if (!state.getState().equals(PackageState.STAGED)) {
+                setStagingLogs(state, execution);
+                
                 return checkStagingState(execution, app, state);
             }
 
             execution.getStepLogger()
                 .info(Messages.APP_STAGED, app.getName());
+
+            UUID appId = client.getApplication(app.getName())
+                .getMeta()
+                .getGuid();
+            
+            applicationStager.bindDropletToApp(execution, appId, client);
+
             return AsyncExecutionState.FINISHED;
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
@@ -62,60 +81,31 @@ public class PollStageAppStatusExecution implements AsyncExecution {
         }
     }
 
-    private Pair<PackageState, String> getStagingState(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app) {
-        if (client instanceof XsCloudControllerClient) {
-            return reportStagingLogs(execution, client);
-        } else {
-            app = client.getApplication(app.getName());
-            return new Pair<>(app.getPackageState(), app.getStagingError());
-        }
-    }
-
-    private Pair<PackageState, String> reportStagingLogs(ExecutionWrapper execution, CloudControllerClient client) {
-        try {
-            StartingInfo startingInfo = StepsUtil.getStartingInfo(execution.getContext());
-            int offset = (Integer) execution.getContext()
-                .getVariable(Constants.VAR_OFFSET);
-            String stagingLogs = client.getStagingLogs(startingInfo, offset);
-            if (stagingLogs != null) {
-                // Staging logs successfully retrieved
-                stagingLogs = stagingLogs.trim();
-                if (!stagingLogs.isEmpty()) {
-                    // TODO delete filtering when parallel app push is implemented
-                    stagingLogs = new XMLValueFilter(stagingLogs).getFiltered();
-                    execution.getStepLogger()
-                        .debug(stagingLogs);
-                    offset += stagingLogs.length();
-                    execution.getContext()
-                        .setVariable(Constants.VAR_OFFSET, offset);
-                }
-                return new Pair<>(PackageState.PENDING, null);
-            } else {
-                // No more staging logs
-                return new Pair<>(PackageState.STAGED, null);
-            }
-        } catch (CloudOperationException e) {
-            // "400 Bad Request" might mean that staging had already finished
-            if (e.getStatusCode()
-                .equals(HttpStatus.BAD_REQUEST)) {
-                return new Pair<>(PackageState.STAGED, null);
-            } else {
-                return new Pair<>(PackageState.FAILED, e.getMessage());
-            }
-        }
-    }
-
-    private AsyncExecutionState checkStagingState(ExecutionWrapper execution, CloudApplication app, Pair<PackageState, String> state) {
-
-        if (state._1.equals(PackageState.FAILED)) {
+    private AsyncExecutionState checkStagingState(ExecutionWrapper execution, CloudApplication app, StagingState state) {
+        if (state.getState().equals(PackageState.FAILED)) {
             // Application staging failed
-            String message = format(Messages.ERROR_STAGING_APP_2, app.getName(), state._2);
+            String message = format(Messages.ERROR_STAGING_APP_2, app.getName(), state.getError());
             execution.getStepLogger()
                 .error(message);
             return AsyncExecutionState.ERROR;
         }
         // Application not staged yet, wait and try again unless it's a timeout.
         return AsyncExecutionState.RUNNING;
+    }
+    
+    private void setStagingLogs(StagingState state, ExecutionWrapper execution) {
+        if (state.getStagingLogs() != null) {
+            StagingLogs logs = state.getStagingLogs();
+            String stagingLogs = logs.getLogs();
+            int offset = logs.getOffset();
+            
+            stagingLogs = new XMLValueFilter(stagingLogs).getFiltered();
+            execution.getStepLogger()
+                .debug(stagingLogs);
+            offset += stagingLogs.length();
+            execution.getContext()
+                .setVariable(Constants.VAR_OFFSET, offset);
+        }
     }
 
 }

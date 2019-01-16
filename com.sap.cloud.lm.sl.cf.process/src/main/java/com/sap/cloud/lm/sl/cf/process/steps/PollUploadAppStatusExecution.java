@@ -7,6 +7,7 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.Upload;
+import org.cloudfoundry.client.lib.domain.UploadToken;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -16,7 +17,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
-        CloudApplication app = StepsUtil.getApp(execution.getContext());
+        CloudApplication app = StepsUtil.getApp(execution.getContext());    
 
         try {
             execution.getStepLogger()
@@ -24,21 +25,20 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
 
             CloudControllerClient client = execution.getControllerClient();
 
-            String uploadToken = (String) execution.getContext()
-                .getVariable(Constants.VAR_UPLOAD_TOKEN);
-            Upload upload = client.getUploadStatus(uploadToken);
+            UploadToken uploadToken = StepsUtil.getUploadToken(execution.getContext());
+            Upload upload = client.getUploadStatus(uploadToken.getToken());
             switch (upload.getStatus()) {
-                case FAILED:
+                case EXPIRED:
                     execution.getStepLogger()
                         .error(Messages.ERROR_UPLOADING_APP, app.getName());
                     return AsyncExecutionState.ERROR;
-                case FINISHED:
+                case READY:
                     execution.getStepLogger()
                         .debug(Messages.APP_UPLOADED, app.getName());
                     return AsyncExecutionState.FINISHED;
-                case RUNNING:
-                    return AsyncExecutionState.RUNNING;
-                case QUEUED:
+                case PROCESSING_UPLOAD:
+                case COPYING:
+                case AWAITING_UPLOAD:
                     return AsyncExecutionState.RUNNING;
                 default:
                     throw new IllegalStateException(format(Messages.UNKNOWN_UPLOAD_STATUS, upload.getStatus()));
@@ -54,5 +54,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
             throw e;
         }
     }
+    
+    
 
 }
