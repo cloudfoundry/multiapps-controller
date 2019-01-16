@@ -137,7 +137,7 @@ public class StepsUtil {
         return userId;
     }
 
-    static String getModuleFileName(DelegateExecution context, String moduleName) {
+    public static String getModuleFileName(DelegateExecution context, String moduleName) {
         return (String) context.getVariable(getModuleFileNameVariable(moduleName));
     }
 
@@ -370,7 +370,7 @@ public class StepsUtil {
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static List<ModuleToDeploy> getModulesToDeploy(DelegateExecution context) {
         List<String> cldoudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_MODULES_TO_DEPLOY);
@@ -385,7 +385,7 @@ public class StepsUtil {
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_MODULES_TO_DEPLOY, cloudApplicationsAsStrings);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static List<ModuleToDeploy> getAllModulesToDeploy(DelegateExecution context) {
         List<String> cldoudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY);
@@ -636,7 +636,7 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_DEPLOYED_MTA, binaryJson);
     }
 
-    static DeployedMta getDeployedMta(DelegateExecution context) {
+    protected static DeployedMta getDeployedMta(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_DEPLOYED_MTA);
         return binaryJson == null ? null : JsonUtil.fromBinaryJson(binaryJson, DeployedMta.class);
     }
@@ -1027,7 +1027,7 @@ public class StepsUtil {
         return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor());
     }
 
-    static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {
+    protected static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {
         Boolean useNamespaces = getVariableOrDefault(context, Constants.PARAM_USE_NAMESPACES, Boolean.FALSE);
         Boolean useNamespacesForServices = getVariableOrDefault(context, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, Boolean.FALSE);
         Boolean portBasedRouting = getVariableOrDefault(context, Constants.VAR_PORT_BASED_ROUTING, Boolean.FALSE);
@@ -1120,7 +1120,7 @@ public class StepsUtil {
         String variableWithCommaSeparator = (String) context.getVariable(variableName);
         return variableWithCommaSeparator == null ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
     }
-    
+
     public static void setUploadToken(UploadToken uploadToken, DelegateExecution context) {
         String jsonString = JsonUtil.toJson(uploadToken);
 
