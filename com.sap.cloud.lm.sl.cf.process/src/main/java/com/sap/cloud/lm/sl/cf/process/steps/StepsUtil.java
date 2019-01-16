@@ -614,7 +614,7 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_DEPLOYED_MTA, binaryJson);
     }
 
-    static DeployedMta getDeployedMta(DelegateExecution context) {
+    protected static DeployedMta getDeployedMta(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_DEPLOYED_MTA);
         return binaryJson == null ? null : JsonUtil.fromBinaryJson(binaryJson, DeployedMta.class);
     }
@@ -1005,7 +1005,7 @@ public class StepsUtil {
         return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor);
     }
 
-    static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {
+    protected static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {
         Boolean useNamespaces = getVariableOrDefault(context, Constants.PARAM_USE_NAMESPACES, Boolean.FALSE);
         Boolean useNamespacesForServices = getVariableOrDefault(context, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, Boolean.FALSE);
         Boolean portBasedRouting = getVariableOrDefault(context, Constants.VAR_PORT_BASED_ROUTING, Boolean.FALSE);
