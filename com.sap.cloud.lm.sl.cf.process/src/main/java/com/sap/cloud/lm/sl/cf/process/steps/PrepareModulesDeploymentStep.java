@@ -30,7 +30,7 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.PREPARING_MODULES_DEPLOYMENT);
 
-        // Get the list of cloud applications from the context:
+        // Get the list of cloud modules from the context:
         List<ModuleToDeploy> modulesToDeploy = getModulesToDeploy(execution.getContext());
 
         // Initialize the iteration over the applications list:
