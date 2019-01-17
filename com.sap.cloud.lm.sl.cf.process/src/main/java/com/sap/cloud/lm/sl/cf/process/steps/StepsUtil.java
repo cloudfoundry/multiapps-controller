@@ -20,7 +20,6 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.UploadToken;
@@ -68,7 +67,6 @@ import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
@@ -405,27 +403,27 @@ public class StepsUtil {
 
     @SuppressWarnings("unchecked")
     public static List<ModuleToDeploy> getIteratedModulesInParallel(DelegateExecution context) {
-        List<String> appsIteratedInParallel = (List<String>) context.getVariable(Constants.VAR_ITERATED_MODULES_IN_PARALLEL);
-        if (appsIteratedInParallel == null) {
+        List<String> modulesIteratedInParallel = (List<String>) context.getVariable(Constants.VAR_ITERATED_MODULES_IN_PARALLEL);
+        if (modulesIteratedInParallel == null) {
             return Collections.emptyList();
         }
-        return appsIteratedInParallel.stream()
-            .map(app -> (ModuleToDeploy) JsonUtil.fromJson(app, CloudApplicationExtended.class))
+        return modulesIteratedInParallel.stream()
+            .map(module -> JsonUtil.<ModuleToDeploy> fromJson(module, ModuleToDeploy.class))
             .collect(Collectors.toList());
     }
 
-    public static void setIteratedModulesInParallel(DelegateExecution context, List<ModuleToDeploy> apps) {
-        List<String> cloudApplicationsAsStrings = apps.stream()
+    public static void setIteratedModulesInParallel(DelegateExecution context, List<ModuleToDeploy> modules) {
+        List<String> modulesAsStrings = modules.stream()
             .map(JsonUtil::toJson)
             .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_ITERATED_MODULES_IN_PARALLEL, cloudApplicationsAsStrings);
+        context.setVariable(Constants.VAR_ITERATED_MODULES_IN_PARALLEL, modulesAsStrings);
     }
 
-    public static void setModulesToIterateInParallel(DelegateExecution context, List<ModuleToDeploy> apps) {
-        List<String> cloudApplicationsAsStrings = apps.stream()
+    public static void setModulesToIterateInParallel(DelegateExecution context, List<ModuleToDeploy> modules) {
+        List<String> modulesAsStrings = modules.stream()
             .map(JsonUtil::toJson)
             .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_MODULES_TO_ITERATE_IN_PARALLEL, cloudApplicationsAsStrings);
+        context.setVariable(Constants.VAR_MODULES_TO_ITERATE_IN_PARALLEL, modulesAsStrings);
     }
 
     public static void setDeploymentMode(DelegateExecution context, DeploymentMode deploymentMode) {
