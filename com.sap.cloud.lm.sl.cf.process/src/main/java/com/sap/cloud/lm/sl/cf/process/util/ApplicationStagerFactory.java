@@ -8,11 +8,12 @@ public final class ApplicationStagerFactory {
     }
 
     public static ApplicationStager createApplicationStager(PlatformType platformType) {
-        switch (platformType) {
-            case CF:
-                return new ApplicationStager();
-            case XS2:
-                return new XS2ApplicationStager();
+
+        if (platformType == PlatformType.CF) {
+            return new ApplicationStager();
+        }
+        if (platformType == PlatformType.XS2) {
+            return new XS2ApplicationStager();
         }
 
         throw new IllegalStateException("Invalid platform type!");
