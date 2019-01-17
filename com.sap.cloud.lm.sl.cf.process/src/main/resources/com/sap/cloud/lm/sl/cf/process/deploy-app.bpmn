@@ -69,7 +69,7 @@
     <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway" default="doNotStageAppFlow"></exclusiveGateway>
     <sequenceFlow id="doNotStopAppFlow" sourceRef="shouldStopAppGateway" targetRef="exclusivegateway2"></sequenceFlow>
     <sequenceFlow id="stageAppFlow" sourceRef="exclusivegateway2" targetRef="stageAppTask">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('STAGE') and platformType != 'CF'}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('STAGE')}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="doNotStageAppFlow" sourceRef="exclusivegateway2" targetRef="shouldStartAppGateway"></sequenceFlow>
     <sequenceFlow id="flow64" sourceRef="stopAppTask" targetRef="exclusivegateway2"></sequenceFlow>

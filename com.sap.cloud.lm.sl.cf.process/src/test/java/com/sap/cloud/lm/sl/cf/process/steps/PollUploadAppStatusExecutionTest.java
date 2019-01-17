@@ -5,11 +5,14 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudJob.Status;
+import org.cloudfoundry.client.lib.domain.CloudJob;
+import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.Upload;
+import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,12 +24,14 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @RunWith(Parameterized.class)
 public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<UploadAppStep> {
 
     private static final CloudOperationException CLOUD_OPERATION_EXCEPTION = new CloudOperationException(HttpStatus.BAD_REQUEST);
     private static final String UPLOAD_TOKEN = "tokenString";
+    private static final String PACKAGE_GUID = "20886182-1802-11e9-ab14-d663bd873d93";
     private static final String APP_NAME = "test-app-1";
 
     private final Status uploadState;
@@ -48,19 +53,19 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
             },
             // (01) The previous step used asynchronous upload and it finished successfully:
             {
-                Status.FINISHED, AsyncExecutionState.FINISHED, null,
+                Status.READY, AsyncExecutionState.FINISHED, null,
             },
             // (02) The previous step used asynchronous upload but it is still not finished:
             {
-                Status.RUNNING, AsyncExecutionState.RUNNING, null,
+                Status.AWAITING_UPLOAD, AsyncExecutionState.RUNNING, null,
             },
             // (03) The previous step used asynchronous upload but it is still not finished:
             {
-                Status.QUEUED, AsyncExecutionState.RUNNING, null,
+                Status.PROCESSING_UPLOAD, AsyncExecutionState.RUNNING, null,
             },
             // (04) The previous step used asynchronous upload but it failed:
             {
-               Status.FAILED, AsyncExecutionState.ERROR, null,
+                Status.EXPIRED, AsyncExecutionState.ERROR, null,
             },
 // @formatter:on
         });
@@ -103,7 +108,7 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
     private void prepareContext() {
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(application.toCloudApplication()), context);
         context.setVariable(Constants.VAR_MODULES_INDEX, 0);
-        context.setVariable(Constants.VAR_UPLOAD_TOKEN, UPLOAD_TOKEN);
+        context.setVariable(Constants.VAR_UPLOAD_TOKEN, JsonUtil.toJson(new UploadToken(UPLOAD_TOKEN, UUID.fromString(PACKAGE_GUID))));
     }
 
     @Override

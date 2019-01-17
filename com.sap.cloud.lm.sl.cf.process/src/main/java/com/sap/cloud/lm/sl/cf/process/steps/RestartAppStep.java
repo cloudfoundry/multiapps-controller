@@ -110,9 +110,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         List<AsyncExecution> stepExecutions = new LinkedList<>();
-        if (!(execution.getControllerClient() instanceof XsCloudControllerClient)) {
-            stepExecutions.add(new PollStageAppStatusExecution(recentLogsRetriever));
-        }
+
         stepExecutions.add(new PollStartAppStatusExecution(recentLogsRetriever, configuration));
         stepExecutions.add(new PollExecuteAppStatusExecution(recentLogsRetriever));
         return stepExecutions;

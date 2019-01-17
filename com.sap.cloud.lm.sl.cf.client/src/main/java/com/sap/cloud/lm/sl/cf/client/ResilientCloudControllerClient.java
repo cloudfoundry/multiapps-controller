@@ -23,6 +23,7 @@ import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationStats;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.DebugMode;
+import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
@@ -44,6 +45,7 @@ import org.cloudfoundry.client.lib.domain.InstancesInfo;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
+import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.cloudfoundry.client.lib.rest.CloudControllerRestClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -425,7 +427,7 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public String asyncUploadApplication(String appName, File file, UploadStatusCallback callback) throws IOException {
+    public UploadToken asyncUploadApplication(String appName, File file, UploadStatusCallback callback) throws IOException {
         return executeWithRetry(() -> {
             try {
                 return cc.asyncUploadApplication(appName, file, callback);
@@ -436,7 +438,7 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public String asyncUploadApplication(String appName, ApplicationArchive archive, UploadStatusCallback callback) throws IOException {
+    public UploadToken asyncUploadApplication(String appName, ApplicationArchive archive, UploadStatusCallback callback) throws IOException {
         return executeWithRetry(() -> {
             try {
                 return cc.asyncUploadApplication(appName, archive, callback);
@@ -926,7 +928,7 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public String asyncUploadApplication(String appName, File file) throws IOException {
+    public UploadToken asyncUploadApplication(String appName, File file) throws IOException {
         return executeWithRetry(() -> {
             try {
                 return cc.asyncUploadApplication(appName, file);
@@ -937,7 +939,7 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public String asyncUploadApplication(String appName, ApplicationArchive archive) throws IOException {
+    public UploadToken asyncUploadApplication(String appName, ApplicationArchive archive) throws IOException {
         return executeWithRetry(() -> {
             try {
                 return cc.asyncUploadApplication(appName, archive);
@@ -981,4 +983,18 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
             .collect(Collectors.toList());
     }
 
+    @Override
+    public CloudBuild createBuild(UUID packageGuid) {
+        return executeWithRetry(() -> cc.createBuild(packageGuid));
+    }
+
+    @Override
+    public CloudBuild getBuild(UUID buildGuid) {
+        return executeWithRetry(() -> cc.getBuild(buildGuid));
+    }
+
+    @Override
+    public void bindDropletToApp(UUID dropletGuid,UUID appGuid) {
+        executeWithRetry(() -> cc.bindDropletToApp(dropletGuid, appGuid));
+    }
 }
