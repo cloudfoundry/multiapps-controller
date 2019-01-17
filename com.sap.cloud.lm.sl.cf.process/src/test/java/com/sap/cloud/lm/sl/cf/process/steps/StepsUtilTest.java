@@ -7,13 +7,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class StepsUtilTest {
 
@@ -97,6 +101,19 @@ public class StepsUtilTest {
             .get("service-1")
             .get("string-value")
             .getClass());
+    }
+    
+    @Test
+    public void testSetAndGetUploadToken() {
+        UploadToken expectedUploadToken = new UploadToken();
+        expectedUploadToken.setPackageGuid(UUID.fromString("ab0703c2-1a50-11e9-ab14-d663bd873d93"));
+        expectedUploadToken.setToken("token");
+        
+        StepsUtil.setUploadToken(expectedUploadToken, context);
+        UploadToken actualUploadToken = StepsUtil.getUploadToken(context);
+        
+        assertEquals(expectedUploadToken.getToken(), actualUploadToken.getToken());
+        assertEquals(expectedUploadToken.getPackageGuid(), actualUploadToken.getPackageGuid());
     }
 
 }

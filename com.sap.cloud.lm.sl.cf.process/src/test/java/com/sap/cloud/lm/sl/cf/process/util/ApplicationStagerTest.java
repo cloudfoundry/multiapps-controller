@@ -152,4 +152,16 @@ public class ApplicationStagerTest {
             .info(Messages.STAGING_APP, APP_NAME);
     }
 
+    @Test
+    public void testIfBuildGuidDoesNotExist() {
+        Mockito.when(execution.getContext()
+            .getVariable(Constants.VAR_BUILD_GUID))
+            .thenReturn(null);
+        
+        StagingState stagingState = applicationStager.getStagingState(execution, client);
+        
+        assertEquals(PackageState.STAGED, stagingState.getState());
+        assertNull(stagingState.getError());
+    }
+
 }

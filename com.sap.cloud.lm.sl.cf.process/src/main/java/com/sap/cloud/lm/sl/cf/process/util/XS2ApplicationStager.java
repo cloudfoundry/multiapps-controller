@@ -11,9 +11,7 @@ import org.springframework.http.HttpStatus;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
-import com.sap.cloud.lm.sl.cf.process.util.StagingState;
 import com.sap.cloud.lm.sl.cf.process.util.StagingState.StagingLogs;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationStager;
 
 public class XS2ApplicationStager extends ApplicationStager {
 
