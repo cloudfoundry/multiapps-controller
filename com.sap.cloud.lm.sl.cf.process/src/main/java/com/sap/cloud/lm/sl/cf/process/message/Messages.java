@@ -228,6 +228,7 @@ public class Messages {
     public static final String UPDATING_SERVICE_TAGS = "Updating service tags for service \"{0}\"...";
     public static final String SERVICE_TAGS_UPDATED = "Service tags for service \"{0}\" updated";
     public static final String CREATING_SERVICE_KEY_FOR_SERVICE = "Creating service key \"{0}\" for service \"{1}\"...";
+    public static final String SERVICE_KEY_FOR_SERVICE_ALREADY_EXISTS = "Service \"{0}\" for service \"{1}\"already exists";
     public static final String DELETING_SERVICE_KEY_FOR_SERVICE = "Deleting service key \"{0}\" for service \"{1}\"...";
     public static final String SERVICE_HAS_BINDINGS_AND_CANNOT_BE_DELETED = "Service \"{0}\" could not be deleted because there are applications bound to it";
     public static final String CREATING_APP_FROM_MODULE = "Creating application \"{0}\" from MTA module \"{1}\"...";

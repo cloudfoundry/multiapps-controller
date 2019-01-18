@@ -614,7 +614,7 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_DEPLOYED_MTA, binaryJson);
     }
 
-    static DeployedMta getDeployedMta(DelegateExecution context) {
+    public static DeployedMta getDeployedMta(DelegateExecution context) {
         byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_DEPLOYED_MTA);
         return binaryJson == null ? null : JsonUtil.fromBinaryJson(binaryJson, DeployedMta.class);
     }
@@ -640,7 +640,7 @@ public class StepsUtil {
         return JsonUtil.convertJsonToMap(new String(replacementValuesJson, StandardCharsets.UTF_8));
     }
 
-    static XsPlaceholderResolver getXsPlaceholderResolver(DelegateExecution context) {
+    protected static XsPlaceholderResolver getXsPlaceholderResolver(DelegateExecution context) {
         Map<String, Object> replacementValues = getXsPlaceholderReplacementValues(context);
         XsPlaceholderResolver resolver = new XsPlaceholderResolver();
         resolver.setControllerEndpoint((String) replacementValues.get(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER));
@@ -746,7 +746,7 @@ public class StepsUtil {
     static CloudApplicationExtended getApp(DelegateExecution context) {
         return JsonUtil.fromJson((String) context.getVariable(Constants.VAR_APP_TO_DEPLOY), CloudApplicationExtended.class);
     }
-
+    
     static void setApp(DelegateExecution context, CloudApplicationExtended app) {
         context.setVariable(Constants.VAR_APP_TO_DEPLOY, JsonUtil.toJson(app));
     }
@@ -1005,7 +1005,7 @@ public class StepsUtil {
         return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor, handlerFactory.getPropertiesAccessor());
     }
 
-    static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {
+    protected static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {
         Boolean useNamespaces = getVariableOrDefault(context, Constants.PARAM_USE_NAMESPACES, Boolean.FALSE);
         Boolean useNamespacesForServices = getVariableOrDefault(context, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, Boolean.FALSE);
         Boolean portBasedRouting = getVariableOrDefault(context, Constants.VAR_PORT_BASED_ROUTING, Boolean.FALSE);
