@@ -360,8 +360,8 @@ public class StepsUtil {
 
     @SuppressWarnings("unchecked")
     public static List<CloudApplicationExtended> getAppsToDeploy(DelegateExecution context) {
-        List<String> cldoudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_APPS_TO_DEPLOY);
-        return cldoudApplicationsAsStrings.stream()
+        List<String> cloudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_APPS_TO_DEPLOY);
+        return cloudApplicationsAsStrings.stream()
             .map(app -> (CloudApplicationExtended) JsonUtil.fromJson(app, CloudApplicationExtended.class))
             .collect(Collectors.toList());
     }
@@ -375,32 +375,32 @@ public class StepsUtil {
     
     @SuppressWarnings("unchecked")
     public static List<ModuleToDeploy> getModulesToDeploy(DelegateExecution context) {
-        List<String> cldoudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_MODULES_TO_DEPLOY);
-        return cldoudApplicationsAsStrings.stream()
+        List<String> modulesAsStrings = (List<String>) context.getVariable(Constants.VAR_MODULES_TO_DEPLOY);
+        return modulesAsStrings.stream()
             .map(app -> (ModuleToDeploy) JsonUtil.fromJson(app, ModuleToDeploy.class))
             .collect(Collectors.toList());
     }
 
     public static void setModulesToDeploy(DelegateExecution context, List<ModuleToDeploy> apps) {
-        List<String> cloudApplicationsAsStrings = apps.stream()
+        List<String> modulesAsStrings = apps.stream()
             .map(JsonUtil::toJson)
             .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_MODULES_TO_DEPLOY, cloudApplicationsAsStrings);
+        context.setVariable(Constants.VAR_MODULES_TO_DEPLOY, modulesAsStrings);
     }
     
     @SuppressWarnings("unchecked")
     public static List<ModuleToDeploy> getAllModulesToDeploy(DelegateExecution context) {
-        List<String> cldoudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY);
-        return cldoudApplicationsAsStrings.stream()
+        List<String> modulesAsStrings = (List<String>) context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY);
+        return modulesAsStrings.stream()
             .map(app -> (ModuleToDeploy) JsonUtil.fromJson(app, ModuleToDeploy.class))
             .collect(Collectors.toList());
     }
 
-    public static void setAllModulesToDeploy(DelegateExecution context, List<ModuleToDeploy> modulesCalculatedForDeployment) {
-        List<String> cloudApplicationsAsStrings = modulesCalculatedForDeployment.stream()
+    public static void setAllModulesToDeploy(DelegateExecution context, List<ModuleToDeploy> modules) {
+        List<String> modulesAsStrings = modules.stream()
             .map(JsonUtil::toJson)
             .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY, cloudApplicationsAsStrings);
+        context.setVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY, modulesAsStrings);
     }
 
     @SuppressWarnings("unchecked")
