@@ -768,13 +768,13 @@ public class StepsUtil {
     static CloudApplicationExtended getApp(DelegateExecution context) {
         return JsonUtil.fromJson((String) context.getVariable(Constants.VAR_APP_TO_DEPLOY), CloudApplicationExtended.class);
     }
-    
-    static ModuleToDeploy getModuleToDeploy(DelegateExecution context) {
-        return JsonUtil.fromJson((String) context.getVariable(Constants.VAR_MODULE_TO_DEPLOY), ModuleToDeploy.class);
-    }
 
     static void setApp(DelegateExecution context, CloudApplicationExtended app) {
         context.setVariable(Constants.VAR_APP_TO_DEPLOY, JsonUtil.toJson(app));
+    }
+
+    public static ModuleToDeploy getModuleToDeploy(DelegateExecution context) {
+        return JsonUtil.fromJson((String) context.getVariable(Constants.VAR_MODULE_TO_DEPLOY), ModuleToDeploy.class);
     }
 
     static CloudTask getTask(DelegateExecution context) {
