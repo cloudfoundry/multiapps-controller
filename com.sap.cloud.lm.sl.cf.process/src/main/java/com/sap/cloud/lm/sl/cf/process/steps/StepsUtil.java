@@ -839,7 +839,7 @@ public class StepsUtil {
         return (binaryJson != null) ? JsonUtil.fromBinaryJson(binaryJson, getStartingInfoClass(className)) : null;
     }
 
-    static void setStartingInfo(DelegateExecution context, StartingInfo startingInfo) {
+    public static void setStartingInfo(DelegateExecution context, StartingInfo startingInfo) {
         byte[] binaryJson = (startingInfo != null) ? JsonUtil.toBinaryJson(startingInfo) : null;
         context.setVariable(Constants.VAR_STARTING_INFO, binaryJson);
         String className = (startingInfo != null) ? startingInfo.getClass()
