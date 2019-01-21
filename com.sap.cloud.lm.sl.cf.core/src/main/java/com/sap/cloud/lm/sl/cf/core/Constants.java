@@ -34,6 +34,7 @@ public class Constants {
     // Numeric constants
     public static final long DEFAULT_MAX_MTA_DESCRIPTOR_SIZE = 1024 * 1024l;
     
-    public static final Object SERVICE_INSTANCE_RESPONSE_RESOURCES = "resources";
+    public static final String SERVICE_INSTANCE_RESPONSE_RESOURCES = "resources";
     public static final String SERVICE_INSTANCE_RESPONSE_ENTITY = "entity";
+    public static final String V2_QUERY_SEPARATOR = "&q=";
 }

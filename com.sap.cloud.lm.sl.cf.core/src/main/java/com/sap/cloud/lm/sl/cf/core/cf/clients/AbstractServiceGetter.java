@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -14,6 +16,10 @@ import org.springframework.util.Assert;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class AbstractServiceGetter extends CustomControllerClient {
+
+    private static final String V2_USER_PROVIDED_SERVICE_INSTANCES_RESOURCE_PATH = "/v2/user_provided_service_instances?";
+    private static final String V2_SERVICE_INSTANCES_RESOURCE_PATH = "/v2/service_instances?";
+
 
     @Inject
     public AbstractServiceGetter(RestTemplateFactory restTemplateFactory) {
@@ -33,9 +39,9 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
     }
 
     private Map<String, Object> attemptToGetServiceInstance(CloudControllerClient client, String serviceName, String spaceId) {
-        String serviceInstancesEndpoint = getUrl(client.getCloudControllerUrl()
-            .toString(), getServiceInstanceURL());
         Map<String, Object> queryParameters = buildQueryParameters(serviceName, spaceId);
+        String serviceInstancesEndpoint = getUrl(client.getCloudControllerUrl()
+            .toString(), getServiceInstanceURL(queryParameters.keySet()));
 
         return getCloudServiceInstance(client, serviceInstancesEndpoint, queryParameters);
     }
@@ -78,9 +84,17 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
         return (List<Map<String, Object>>) serviceInstancesResponse.get(getResourcesName());
     }
 
-    protected abstract Object getResourcesName();
+    protected String getUserProvidedServiceInstanceResourcePath() {
+        return V2_USER_PROVIDED_SERVICE_INSTANCES_RESOURCE_PATH;
+    }
+    
+    protected String getServiceInstanceResourcePath() {
+        return V2_SERVICE_INSTANCES_RESOURCE_PATH;
+    }
+    
+    protected abstract String getServiceInstanceURL(Set<String> fields);
+    
+    protected abstract String getResourcesName();
 
-    protected abstract Object getEntityName();
-
-    public abstract String getServiceInstanceURL();
+    protected abstract String getEntityName();
 }
