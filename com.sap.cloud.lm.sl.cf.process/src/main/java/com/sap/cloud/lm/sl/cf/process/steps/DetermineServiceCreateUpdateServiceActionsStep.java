@@ -90,6 +90,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             getStepLogger().debug("Service should be created");
             getStepLogger().debug("New service: " + secureSerializer.toJson(service));
             actions.add(ServiceAction.CREATE);
+            StepsUtil.setServicesToCreate(execution.getContext(), Arrays.asList(service));
             return actions;
         }
 

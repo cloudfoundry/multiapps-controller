@@ -1,11 +1,11 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -13,13 +13,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.springframework.util.Assert;
 
+import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public abstract class AbstractServiceGetter extends CustomControllerClient {
 
     private static final String V2_USER_PROVIDED_SERVICE_INSTANCES_RESOURCE_PATH = "/v2/user_provided_service_instances?";
     private static final String V2_SERVICE_INSTANCES_RESOURCE_PATH = "/v2/service_instances?";
-
 
     @Inject
     public AbstractServiceGetter(RestTemplateFactory restTemplateFactory) {
@@ -75,8 +75,8 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
 
     private void validateServiceInstanceResponse(Map<String, Object> serviceInstancesResponse) {
         List<Map<String, Object>> resources = getResourcesFromResponse(serviceInstancesResponse);
-        Assert.notNull(serviceInstancesResponse.containsKey(getResourcesName()), "The response of finding a service instance should contain a '"+getResourcesName()+"' element");
-        Assert.isTrue(resources == null || resources.size() <= 1, "The response of finding a service instance should not have more than one resource element");
+        Assert.notNull(serviceInstancesResponse.containsKey(getResourcesName()), MessageFormat.format(Messages.ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MISSING_FIELD, getResourcesName()));
+        Assert.isTrue(resources == null || resources.size() <= 1, Messages.ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MORE_THEN_ONE_RESULT);
     }
 
     @SuppressWarnings("unchecked")
@@ -87,13 +87,13 @@ public abstract class AbstractServiceGetter extends CustomControllerClient {
     protected String getUserProvidedServiceInstanceResourcePath() {
         return V2_USER_PROVIDED_SERVICE_INSTANCES_RESOURCE_PATH;
     }
-    
+
     protected String getServiceInstanceResourcePath() {
         return V2_SERVICE_INSTANCES_RESOURCE_PATH;
     }
-    
+
     protected abstract String getServiceInstanceURL(Set<String> fields);
-    
+
     protected abstract String getResourcesName();
 
     protected abstract String getEntityName();
