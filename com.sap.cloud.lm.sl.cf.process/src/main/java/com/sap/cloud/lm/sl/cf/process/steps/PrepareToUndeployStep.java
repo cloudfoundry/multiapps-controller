@@ -46,7 +46,7 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
             StepsUtil.setSubscriptionsToCreate(execution.getContext(), Collections.emptyList());
 
             conflictPreventerSupplier.apply(operationDao)
-                .attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()), execution.getContext()
+                .acquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()), execution.getContext()
                     .getProcessInstanceId());
 
             getStepLogger().debug(Messages.COMPONENTS_TO_UNDEPLOY_DETECTED);

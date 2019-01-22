@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.listeners;
 import static java.text.MessageFormat.format;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
@@ -37,7 +38,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ClientReleaser;
 import com.sap.cloud.lm.sl.cf.process.util.CollectedDataSender;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
-import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -83,8 +83,6 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         String processInstanceId = engineEvent.getProcessInstanceId();
         String correlationId = getCorrelationId(engineEvent);
 
-        new SafeExecutor().executeSafely(() -> new ProcessConflictPreventer(getOperationDao()).attemptToReleaseLock(correlationId));
-
         new SafeExecutor().executeSafely(() -> setOperationInAbortedState(correlationId));
 
         HistoryService historyService = Context.getProcessEngineConfiguration()
@@ -117,9 +115,13 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
 
     protected void setOperationInAbortedState(String processInstanceId) {
         Operation operation = getOperationDao().findRequired(processInstanceId);
+        LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
+            operation.getMtaId(), operation.getSpaceId()));
         operation.setState(State.ABORTED);
         operation.setEndedAt(ZonedDateTime.now());
+        operation.setAcquiredLock(false);
         getOperationDao().merge(operation);
+        LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }
 
     protected void deleteAllocatedRoutes(HistoryService historyService, String processInstanceId) {
