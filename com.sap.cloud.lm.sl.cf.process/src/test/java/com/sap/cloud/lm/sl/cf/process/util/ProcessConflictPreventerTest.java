@@ -31,7 +31,7 @@ public class ProcessConflictPreventerTest {
     }
 
     @Test
-    public void testAttemptToAcquireLock() {
+    public void testAcquireLock() {
         try {
             Operation operation = new Operation().processId(testProcessId)
                 .processType(ProcessType.DEPLOY)
@@ -43,7 +43,7 @@ public class ProcessConflictPreventerTest {
                 .withAcquiredLock()
                 .build();
             when(daoMock.find(expectedFilter)).thenReturn(Arrays.asList(operation));
-            processConflictPreventerMock.attemptToAcquireLock(testMtaId, testSpaceId, testProcessId);
+            processConflictPreventerMock.acquireLock(testMtaId, testSpaceId, testProcessId);
             verify(daoMock).merge(daoMock.findRequired(testProcessId));
         } catch (SLException e) {
             assertEquals("Conflicting process \"test-process-id\" found for MTA \"test-mta-id\"", e.getMessage());
@@ -51,14 +51,8 @@ public class ProcessConflictPreventerTest {
     }
 
     @Test
-    public void testAttemptToAcquireLockWithNoConflictingOperations() throws SLException {
-        processConflictPreventerMock.attemptToAcquireLock(testMtaId, testSpaceId, testProcessId);
-    }
-
-    @Test
-    public void testAttemptToReleaseLock() throws SLException {
-        processConflictPreventerMock.attemptToReleaseLock(testProcessId);
-        verify(daoMock).merge(daoMock.findRequired(testProcessId));
+    public void testAcquireLockWithNoConflictingOperations() throws SLException {
+        processConflictPreventerMock.acquireLock(testMtaId, testSpaceId, testProcessId);
     }
 
     private OperationDao getOperationDaoMock() throws SLException {
