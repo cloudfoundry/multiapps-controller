@@ -23,8 +23,6 @@ import com.sap.cloud.lm.sl.cf.process.util.ServiceOperationExecutor;
 @Component("updateServiceKeysStep")
 public class UpdateServiceKeysStep extends ServiceStep {
 
-    private static CyclicBarrier barier = new CyclicBarrier(4);
-
     private ServiceOperationExecutor serviceOperationExecutor = new ServiceOperationExecutor();
     
     @Override

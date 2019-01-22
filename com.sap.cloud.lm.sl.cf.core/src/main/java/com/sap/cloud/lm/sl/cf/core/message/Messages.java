@@ -83,6 +83,8 @@ public final class Messages {
     public static final String SERVICE_MISSING_REQUIRED_PARAMETER = "Service \"{0}\" has missing required parameter: {1}";
     public static final String CONTROLLER_URL_NOT_SPECIFIED = "Controller URL is not specified in the environment.";
     public static final String INVALID_CONTROLLER_URL = "Invalid controller URL \"{0}\".";
+    public static final String ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MISSING_FIELD = "The response of finding a service instance should contain a \"{0}\" element";
+    public static final String ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MORE_THEN_ONE_RESULT = "The response of finding a service instance should not have more than one resource element";
     
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
