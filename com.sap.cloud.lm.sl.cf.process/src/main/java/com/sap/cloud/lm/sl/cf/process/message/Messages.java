@@ -183,8 +183,8 @@ public class Messages {
     public static final String MTA_NOT_FOUND = "An MTA with id \"{0}\" does not exist";
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
     public static final String ACQUIRED_LOCK = "Process \"{0}\" acquired lock for operation on MTA \"{1}\"";
-    public static final String RELEASING_LOCK = "Process \"{0}\" attempting to release lock for operation on MTA \"{1}\"";
-    public static final String RELEASED_LOCK = "Process \"{0}\" released lock for operation on MTA \"{1}\"";
+    public static final String PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2 = "Process \"{0}\" releasing lock for MTA \"{1}\" in space {2}";
+    public static final String PROCESS_0_RELEASED_LOCK = "Process \"{0}\" released lock successfully!";
     public static final String DELETING_FILE_FROM_SPACE = "Deleting file with ID \"{0}\" from space with ID \"{1}\"";
     public static final String BINDING_APP_TO_SERVICE_WITH_PARAMETERS = "Binding application \"{0}\" to service \"{1}\" with parameters \"{2}\"";
     public static final String BINDING_APP_TO_SERVICE = "Binding application \"{0}\" to service \"{1}\"";
