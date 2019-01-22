@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.listeners;
 
+import java.text.MessageFormat;
 import java.time.ZonedDateTime;
 
 import javax.inject.Inject;
@@ -18,10 +19,10 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.AnalyticsData;
+import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.CollectedDataSender;
 import com.sap.cloud.lm.sl.cf.process.util.FileSweeper;
-import com.sap.cloud.lm.sl.cf.process.util.ProcessConflictPreventer;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
@@ -58,16 +59,18 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
 
         removeClientForProcess(context);
 
-        new ProcessConflictPreventer(operationDao).attemptToReleaseLock(StepsUtil.getCorrelationId(context));
-
         setOperationInFinishedState(StepsUtil.getCorrelationId(context));
     }
 
     protected void setOperationInFinishedState(String processInstanceId) {
         Operation operation = operationDao.findRequired(processInstanceId);
+        LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
+            operation.getMtaId(), operation.getSpaceId()));
         operation.setState(State.FINISHED);
         operation.setEndedAt(ZonedDateTime.now());
+        operation.setAcquiredLock(false);
         operationDao.merge(operation);
+        LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }
 
     private void removeClientForProcess(DelegateExecution context) {

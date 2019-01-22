@@ -106,7 +106,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         String mtaId = deploymentDescriptor.getId();
         context.setVariable(Constants.PARAM_MTA_ID, mtaId);
         conflictPreventerSupplier.apply(operationDao)
-            .attemptToAcquireLock(mtaId, StepsUtil.getSpaceId(context), StepsUtil.getCorrelationId(context));
+            .acquireLock(mtaId, StepsUtil.getSpaceId(context), StepsUtil.getCorrelationId(context));
     }
 
 }
