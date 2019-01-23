@@ -75,7 +75,7 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
     }
 
     private boolean isResourceSpecifiedForDeployment(Resource resource) {
-        return resourcesSpecifiedForDeployment.isEmpty() || resourcesSpecifiedForDeployment.contains(resource.getName());
+        return resourcesSpecifiedForDeployment == null || resourcesSpecifiedForDeployment.contains(resource.getName());
     }
 
 }

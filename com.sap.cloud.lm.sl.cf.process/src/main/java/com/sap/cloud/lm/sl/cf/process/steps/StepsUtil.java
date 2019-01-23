@@ -372,7 +372,7 @@ public class StepsUtil {
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static List<ModuleToDeploy> getModulesToDeploy(DelegateExecution context) {
         List<String> modulesAsStrings = (List<String>) context.getVariable(Constants.VAR_MODULES_TO_DEPLOY);
@@ -387,7 +387,7 @@ public class StepsUtil {
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_MODULES_TO_DEPLOY, modulesAsStrings);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static List<ModuleToDeploy> getAllModulesToDeploy(DelegateExecution context) {
         List<String> modulesAsStrings = (List<String>) context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY);
@@ -1168,9 +1168,12 @@ public class StepsUtil {
 
     private static List<String> getVariableWithCommaSepearator(DelegateExecution context, String variableName) {
         String variableWithCommaSeparator = (String) context.getVariable(variableName);
-        return variableWithCommaSeparator == null ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
+        if (variableWithCommaSeparator == null) {
+            return null;
+        }
+        return variableWithCommaSeparator.isEmpty() ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
     }
-    
+
     public static void setUploadToken(UploadToken uploadToken, DelegateExecution context) {
         String jsonString = JsonUtil.toJson(uploadToken);
 
