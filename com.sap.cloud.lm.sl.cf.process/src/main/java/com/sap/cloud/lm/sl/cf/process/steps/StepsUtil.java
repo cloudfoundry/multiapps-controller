@@ -1118,7 +1118,10 @@ public class StepsUtil {
 
     private static List<String> getVariableWithCommaSepearator(DelegateExecution context, String variableName) {
         String variableWithCommaSeparator = (String) context.getVariable(variableName);
-        return variableWithCommaSeparator == null ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
+        if (variableWithCommaSeparator == null) {
+            return null;
+        }
+        return variableWithCommaSeparator.isEmpty() ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
     }
 
     public static void setUploadToken(UploadToken uploadToken, DelegateExecution context) {
