@@ -170,7 +170,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     class MonitorUploadStatusCallback implements UploadStatusCallbackExtended {
 
-        static final String FINISHED_STATUS = "finished";
+        static final String READY_STATUS = "ready";
 
         private final CloudApplication app;
         private final File file;
@@ -200,7 +200,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         @Override
         public boolean onProgress(String status) {
             getStepLogger().debug(Messages.UPLOAD_STATUS_0, status);
-            if (status.equals(FINISHED_STATUS)) {
+            if (status.equals(READY_STATUS)) {
                 cleanUp(file.toPath());
                 getProcessLogsPersister().persistLogs(context);
             }
