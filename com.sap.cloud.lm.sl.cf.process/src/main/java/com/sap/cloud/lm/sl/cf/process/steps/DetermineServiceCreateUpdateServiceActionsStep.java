@@ -165,7 +165,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (service.isUserProvided()) {
             return false;
         }
-        List<String> existingTags = existingServiceTags;
+        List<String> existingTags = existingServiceTags == null ? new ArrayList<>() : existingServiceTags;
         List<String> newServiceTags = new ArrayList<>(service.getTags());
         existingTags.removeAll(defaultTags);
         newServiceTags.removeAll(defaultTags);
@@ -174,13 +174,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
     private boolean shouldUpdateCredentials(CloudServiceExtended service, Map<String, Object> credentials) {
         return !Objects.equals(service.getCredentials(), credentials);
-    }
-
-    private List<String> getServiceTags(Map<String, Object> serviceInstanceEntity) {
-        if (serviceInstanceEntity == null) {
-            return Collections.emptyList();
-        }
-        return CommonUtil.cast(serviceInstanceEntity.getOrDefault("tags", Collections.emptyList()));
     }
 
     private Map<String, List<String>> computeDefaultTags(CloudControllerClient client) {
