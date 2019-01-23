@@ -117,10 +117,12 @@ public class DeployMetadata {
         PARAMS.add(ParameterMetadata.builder()
             .id(Constants.PARAM_MODULES_FOR_DEPLOYMENT)
             .type(ParameterType.STRING)
+            .defaultValue(null)
             .build());
         PARAMS.add(ParameterMetadata.builder()
             .id(Constants.PARAM_RESOURCES_FOR_DEPLOYMENT)
             .type(ParameterType.STRING)
+            .defaultValue(null)
             .build());
     }
 

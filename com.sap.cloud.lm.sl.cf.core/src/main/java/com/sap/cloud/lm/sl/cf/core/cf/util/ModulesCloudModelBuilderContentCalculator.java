@@ -74,7 +74,7 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     }
 
     private boolean isModuleSpecifiedForDeployment(Module module) {
-        return modulesSpecifiedForDeployment.isEmpty() || modulesSpecifiedForDeployment.contains(module.getName());
+        return modulesSpecifiedForDeployment == null || modulesSpecifiedForDeployment.contains(module.getName());
     }
 
     private boolean shouldDeployModule(Module module, Set<String> mtaModulesInArchive, Set<String> deployedModules) {

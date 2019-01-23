@@ -561,11 +561,10 @@ public class CloudModelBuilderTest {
             xsPlaceholderResolver);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
 
-        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, mtaModules,
-            Collections.emptyList(), getPropertiesAccessor(), getUserMessageLogger(), new ModuleToDeployHelper());
+        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, mtaModules, null,
+            getPropertiesAccessor(), getUserMessageLogger(), new ModuleToDeployHelper());
 
-        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(Collections.emptyList(), getPropertiesAccessor(),
-            getUserMessageLogger());
+        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(null, getPropertiesAccessor(), getUserMessageLogger());
     }
 
     protected PropertiesAccessor getPropertiesAccessor() {
@@ -638,7 +637,8 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
             @Override
             public List<CloudApplicationExtended> call() throws Exception {
-                return appsBuilder.build(modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules2()), new ModuleToDeployHelper());
+                return appsBuilder.build(modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules2()),
+                    new ModuleToDeployHelper());
             }
         }, expectedApps, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }

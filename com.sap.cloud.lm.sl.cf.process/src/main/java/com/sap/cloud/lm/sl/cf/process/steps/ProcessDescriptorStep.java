@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -105,7 +106,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
                 secureSerializer.toJson(descriptor));
             getStepLogger().debug(Messages.DESCRIPTOR_PROPERTIES_RESOVED);
-            
+
             return StepPhase.DONE;
         } catch (SLException e) {
             getStepLogger().error(e, Messages.ERROR_RESOLVING_DESCRIPTOR_PROPERTIES);
@@ -114,7 +115,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     }
 
     private Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor, List<String> moduleNamesForDeployment) {
-        if (moduleNamesForDeployment.isEmpty()) {
+        if (moduleNamesForDeployment == null) {
             return deploymentDescriptor.getModules2()
                 .stream()
                 .map(Module::getName)
@@ -126,7 +127,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     }
 
     private List<String> findInvalidModulesSpecifiedForDeployment(DeploymentDescriptor descriptor, List<String> modulesForDeployment) {
-        if (modulesForDeployment.isEmpty()) {
+        if (CollectionUtils.isEmpty(modulesForDeployment)) {
             return Collections.emptyList();
         }
         Set<String> deploymentDescriptorModuleNames = descriptor.getModules2()
