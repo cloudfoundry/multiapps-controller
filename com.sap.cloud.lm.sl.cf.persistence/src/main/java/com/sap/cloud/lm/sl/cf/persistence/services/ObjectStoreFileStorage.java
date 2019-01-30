@@ -16,6 +16,7 @@ import org.jclouds.blobstore.ContainerNotFoundException;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.options.ListContainerOptions;
+import org.jclouds.http.HttpResponseException;
 import org.jclouds.io.Payload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 public class ObjectStoreFileStorage implements FileStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectStoreFileStorage.class);
+
+    private static final int RETRY_BASE_WAIT_TIME_IN_MILLIS = 5000;
 
     private BlobStore blobStore;
     private String container;
@@ -51,7 +54,7 @@ public class ObjectStoreFileStorage implements FileStorage {
             .userMetadata(createFileEntryMetadata(fileEntry))
             .build();
         try {
-            blobStore.putBlob(container, blob);
+            putBlobWithRetries(blob, 3);
             LOGGER.debug(MessageFormat.format(Messages.STORED_FILE_0_WITH_SIZE_1_SUCCESSFULLY_2, fileEntry.getId(), fileSize));
         } catch (ContainerNotFoundException e) {
             throw new FileStorageException(
@@ -107,6 +110,21 @@ public class ObjectStoreFileStorage implements FileStorage {
             throw new FileStorageException(e);
         } finally {
             closeQuietly(fileContentStream);
+        }
+    }
+
+    private void putBlobWithRetries(Blob blob, int retries) {
+        for (int i = 1; i <= retries; i++) {
+            try {
+                blobStore.putBlob(container, blob);
+                return;
+            } catch (HttpResponseException e) {
+                LOGGER.warn(MessageFormat.format(Messages.BLOB_STORE_PUT_BLOB_FAILED, e.getMessage()), e);
+                if (i == retries) {
+                    throw e;
+                }
+            }
+            sleep(i * RETRY_BASE_WAIT_TIME_IN_MILLIS);
         }
     }
 
@@ -181,6 +199,14 @@ public class ObjectStoreFileStorage implements FileStorage {
             is.close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            throw new IllegalStateException("Waiting to retry blob upload was interrupted", e);
         }
     }
 
