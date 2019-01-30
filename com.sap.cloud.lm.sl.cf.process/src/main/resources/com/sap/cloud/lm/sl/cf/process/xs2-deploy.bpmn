@@ -160,6 +160,8 @@
         <flowable:in source="__SPACE_ID" target="__SPACE_ID"></flowable:in>
         <flowable:in source="space" target="space"></flowable:in>
         <flowable:in source="deleteServiceKeys" target="deleteServiceKeys"></flowable:in>
+        <flowable:in source="mtaArchiveElements" target="mtaArchiveElements"></flowable:in>
+        <flowable:in source="appArchiveId" target="appArchiveId"></flowable:in>
       </extensionElements>
       <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="servicesToCreate" flowable:elementVariable="serviceToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>

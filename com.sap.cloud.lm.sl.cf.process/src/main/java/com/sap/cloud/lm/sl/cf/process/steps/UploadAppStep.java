@@ -27,6 +27,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
+import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
@@ -55,7 +56,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             CloudControllerClient client = execution.getControllerClient();
 
             String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
-            String fileName = StepsUtil.getModuleFileName(execution.getContext(), app.getModuleName());
+            MtaArchiveElements mtaArchiveElements = StepsUtil.getMtaArchiveElements(execution.getContext());
+            String fileName = mtaArchiveElements.getModuleFileName(app.getModuleName());
 
             if (fileName == null) {
                 getStepLogger().debug(Messages.NO_CONTENT_TO_UPLOAD);

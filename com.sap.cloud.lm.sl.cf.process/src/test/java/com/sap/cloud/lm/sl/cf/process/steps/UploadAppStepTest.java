@@ -35,6 +35,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -98,6 +99,7 @@ public class UploadAppStepTest {
 
         private String expectedIOExceptionMessage;
         private String expectedCFExceptionMessage;
+        private MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
 
         private File appFile;
 
@@ -123,7 +125,7 @@ public class UploadAppStepTest {
                 assertFalse(appFile.exists());
                 throw e;
             }
-            
+
             String uploadTokenJson = JsonUtil.toJson(new UploadToken(TOKEN, null));
             assertCall(Constants.VAR_UPLOAD_TOKEN, uploadTokenJson);
         }
@@ -151,7 +153,8 @@ public class UploadAppStepTest {
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
-            StepsUtil.setModuleFileName(context, APP_NAME, APP_FILE);
+            mtaArchiveElements.addModuleFileName(APP_NAME, APP_FILE);
+            StepsUtil.setMtaArchiveElements(context, mtaArchiveElements);
             StepsUtil.setVcapAppPropertiesChanged(context, false);
         }
 
@@ -183,7 +186,8 @@ public class UploadAppStepTest {
             @Override
             protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) {
                 try {
-                    ApplicationArchiveExtractor extractor = getApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, getStepLogger());
+                    ApplicationArchiveExtractor extractor = getApplicationArchiveExtractor(appArchiveStream, fileName, maxSize,
+                        getStepLogger());
                     InputStream stream = extractor.getNextEntryByName(fileName);
                     assertNotNull(stream);
                     Files.copy(stream, appFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -193,7 +197,8 @@ public class UploadAppStepTest {
                 }
             }
 
-            private ApplicationArchiveExtractor getApplicationArchiveExtractor(InputStream appArchiveStream, String fileName, long maxSize, StepLogger logger) throws SLException {
+            private ApplicationArchiveExtractor getApplicationArchiveExtractor(InputStream appArchiveStream, String fileName, long maxSize,
+                StepLogger logger) throws SLException {
                 if (!fileName.equals(APP_FILE)) {
                     return new ApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, logger);
                 }
@@ -256,17 +261,17 @@ public class UploadAppStepTest {
         }
 
     }
-    
+
     public static class UploadAppStepWithoutFileNameTest extends SyncFlowableStepTest<UploadAppStep> {
         private static final String SPACE = "space";
         private static final String APP_NAME = "simple-app";
         private static final String APP_ARCHIVE = "sample-app.mtar";
-        
+
         @Before
         public void setUp() {
             prepareContext();
         }
-        
+
         private void prepareContext() {
             CloudApplicationExtended app = new CloudApplicationExtended(null, APP_NAME);
             // module name must be null
@@ -275,20 +280,22 @@ public class UploadAppStepTest {
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
             context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE);
-            StepsUtil.setModuleFileName(context, APP_NAME, APP_NAME);
+            MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
+            mtaArchiveElements.addModuleFileName(APP_NAME, APP_NAME);
+            StepsUtil.setMtaArchiveElements(context, mtaArchiveElements);
         }
-        
+
         @Test
         public void testWithMissingFileNameMustReturnDone() {
             step.execute(context);
             assertStepFinishedSuccessfully();
         }
-        
+
         @Override
         protected UploadAppStep createStep() {
             return new UploadAppStep();
         }
-        
+
     }
 
 }

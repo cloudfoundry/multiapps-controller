@@ -32,6 +32,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
+import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
@@ -202,7 +203,8 @@ public class CreateAppStep extends SyncFlowableStep {
     private void addFileProvidedBindingParameters(DelegateExecution context, String serviceName, String requiredDependencyName,
         Map<String, Map<String, Object>> result) throws FileStorageException {
         String archiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
-        String fileName = StepsUtil.getRequiresFileName(context, requiredDependencyName);
+        MtaArchiveElements mtaArchiveElements = StepsUtil.getMtaArchiveElements(context);
+        String fileName = mtaArchiveElements.getRequiredDependencyFileName(requiredDependencyName);
         if (fileName == null) {
             return;
         }

@@ -11,8 +11,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
+import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
@@ -78,21 +78,24 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
 
                 getStepLogger().debug("MTA Archive ID: {0}", appArchiveId);
 
+                MtaArchiveElements mtaArchiveElements = new MtaArchiveElements();
                 // Set MTA archive modules in the context
                 Map<String, String> mtaArchiveModules = helper.getMtaArchiveModules();
-                mtaArchiveModules.forEach((moduleName, fileName) -> StepsUtil.setModuleFileName(context, moduleName, fileName));
+                mtaArchiveModules.forEach((moduleName, fileName) -> mtaArchiveElements.addModuleFileName(moduleName, fileName));
                 getStepLogger().debug("MTA Archive Modules: {0}", mtaArchiveModules.keySet());
                 StepsUtil.setMtaArchiveModules(context, mtaArchiveModules.keySet());
 
                 Map<String, String> mtaArchiveRequiresDependencies = helper.getMtaRequiresDependencies();
                 mtaArchiveRequiresDependencies
-                    .forEach((requiresName, fileName) -> StepsUtil.setRequiresFileName(context, requiresName, fileName));
+                    .forEach((requiresName, fileName) -> mtaArchiveElements.addRequiredDependencyFileName(requiresName, fileName));
                 getStepLogger().debug("MTA Archive Requires: {0}", mtaArchiveRequiresDependencies.keySet());
 
                 // Set MTA archive resources in the context
                 Map<String, String> mtaArchiveResources = helper.getMtaArchiveResources();
-                mtaArchiveResources.forEach((resourceName, fileName) -> StepsUtil.setResourceFileName(context, resourceName, fileName));
+                mtaArchiveResources.forEach((resourceName, fileName) -> mtaArchiveElements.addResourceFileName(resourceName, fileName));
                 getStepLogger().debug("MTA Archive Resources: {0}", mtaArchiveResources.keySet());
+
+                StepsUtil.setMtaArchiveElements(context, mtaArchiveElements);
             });
         fileService.processFileContent(manifestProcessor);
     }
