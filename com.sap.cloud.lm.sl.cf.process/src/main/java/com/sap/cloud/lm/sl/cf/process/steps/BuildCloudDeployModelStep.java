@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.SetUtils;
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
 
@@ -21,8 +23,11 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.util.CloudModelBuilderContentCalculator;
+import com.sap.cloud.lm.sl.cf.core.cf.util.DeployedAfterModulesContentValidator;
 import com.sap.cloud.lm.sl.cf.core.cf.util.ModulesCloudModelBuilderContentCalculator;
+import com.sap.cloud.lm.sl.cf.core.cf.util.ModulesContentValidator;
 import com.sap.cloud.lm.sl.cf.core.cf.util.ResourcesCloudModelBuilderContentCalculator;
+import com.sap.cloud.lm.sl.cf.core.cf.util.UnresolvedModulesContentValidator;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
@@ -80,7 +85,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
             List<ModuleToDeploy> modulesToDeploy = getModulesToDeploy(modulesCalculatedForDeployment);
             validateNoUnresolvedModulesExist(deployedModuleNames, mtaModules, modulesToDeploy);
-            
+
             getStepLogger().debug(Messages.MODULES_TO_DEPLOY, secureSerializer.toJson(modulesToDeploy));
             StepsUtil.setAllModulesToDeploy(execution.getContext(), modulesToDeploy);
 
@@ -187,8 +192,15 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         Set<String> deployedModuleNames, Set<String> allMtaModules) {
         PropertiesAccessor propertiesAccessor = StepsUtil.getHandlerFactory(execution.getContext())
             .getPropertiesAccessor();
-        return new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedModuleNames, allMtaModules,
-            StepsUtil.getModulesForDeployment(execution.getContext()), propertiesAccessor, getStepLogger(), moduleToDeployHelper);
+        return new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedModuleNames,
+            StepsUtil.getModulesForDeployment(execution.getContext()), propertiesAccessor, getStepLogger(), moduleToDeployHelper,
+            getModuleContentValidators(execution.getControllerClient(), allMtaModules, deployedModuleNames));
+    }
+
+    private List<ModulesContentValidator> getModuleContentValidators(CloudControllerClient cloudControllerClient, Set<String> allMtaModules,
+        Set<String> deployedModuleNames) {
+        return Arrays.asList(new UnresolvedModulesContentValidator(allMtaModules, deployedModuleNames),
+            new DeployedAfterModulesContentValidator(cloudControllerClient));
     }
 
     private List<? extends Module> getModulesForDeployment(DelegateExecution context, DeploymentDescriptor deploymentDescriptor) {

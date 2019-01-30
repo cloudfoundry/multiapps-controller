@@ -1,9 +1,13 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
+import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -27,8 +31,9 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
             .map(ModuleToDeploy::getName)
             .collect(Collectors.toList());
 
+        CloudControllerClient client = execution.getControllerClient();
         // Set next iteration data
-        List<ModuleToDeploy> modulesForNextIteration = computeApplicationsForNextIteration(allModulesToDeploy,
+        List<ModuleToDeploy> modulesForNextIteration = computeApplicationsForNextIteration(client, allModulesToDeploy,
             completedModuleNames);
         StepsUtil.setModulesToIterateInParallel(execution.getContext(), modulesForNextIteration);
 
@@ -39,17 +44,27 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
-    private List<ModuleToDeploy> computeApplicationsForNextIteration(List<ModuleToDeploy> allModulesToDeploy,
+    private List<ModuleToDeploy> computeApplicationsForNextIteration(CloudControllerClient client, List<ModuleToDeploy> allModulesToDeploy,
         List<String> completedModules) {
         allModulesToDeploy.removeIf(module -> completedModules.contains(module.getName()));
         return allModulesToDeploy.stream()
-            .filter(module -> applicationHasAllDependenciesSatisfied(completedModules, module))
+            .filter(module -> applicationHasAllDependenciesSatisfied(client, completedModules, module))
             .collect(Collectors.toList());
     }
 
-    private boolean applicationHasAllDependenciesSatisfied(List<String> completedModules, ModuleToDeploy app) {
+    private boolean applicationHasAllDependenciesSatisfied(CloudControllerClient client, List<String> completedModules,
+        ModuleToDeploy app) {
         return app.getDeployedAfter()
-            .isEmpty() || completedModules.containsAll(app.getDeployedAfter());
+            .isEmpty() || completedModules.containsAll(app.getDeployedAfter())
+            || areAllDependenciesAlreadyDeployed(client, app.getDeployedAfter());
+    }
+
+    private boolean areAllDependenciesAlreadyDeployed(CloudControllerClient client, Set<String> deployedAfter) {
+        List<CloudApplication> nonDeployedApplications = deployedAfter.stream()
+            .map(deployAfterDependency -> client.getApplication(deployAfterDependency, false))
+            .filter(Objects::isNull)
+            .collect(Collectors.toList());
+        return nonDeployedApplications.isEmpty();
     }
 
 }

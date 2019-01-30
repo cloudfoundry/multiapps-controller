@@ -5,36 +5,33 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.SetUtils;
-
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
 public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuilderContentCalculator<Module> {
 
     private Set<String> mtaModulesInArchive;
     private Set<String> deployedModules;
-    private Set<String> allMtaModules;
     private PropertiesAccessor propertiesAccessor;
     private List<String> modulesSpecifiedForDeployment;
     private UserMessageLogger userMessageLogger;
     private ModuleToDeployHelper moduleToDeployHelper;
+    private List<ModulesContentValidator> modulesContentValidators;
 
     public ModulesCloudModelBuilderContentCalculator(Set<String> mtaModulesInArchive, Set<String> deployedModules,
-        Set<String> allMtaModules, List<String> modulesSpecifiedForDeployment, PropertiesAccessor propertiesAccessor,
-        UserMessageLogger userMessageLogger, ModuleToDeployHelper moduleToDeployHelper) {
+        List<String> modulesSpecifiedForDeployment, PropertiesAccessor propertiesAccessor, UserMessageLogger userMessageLogger,
+        ModuleToDeployHelper moduleToDeployHelper, List<ModulesContentValidator> modulesContentValidators) {
         this.mtaModulesInArchive = mtaModulesInArchive;
         this.deployedModules = deployedModules;
         this.modulesSpecifiedForDeployment = modulesSpecifiedForDeployment;
         this.propertiesAccessor = propertiesAccessor;
         this.userMessageLogger = userMessageLogger;
-        this.allMtaModules = allMtaModules;
         this.moduleToDeployHelper = moduleToDeployHelper;
+        this.modulesContentValidators = modulesContentValidators;
     }
 
     @Override
@@ -44,19 +41,12 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
             .filter(module -> shouldDeployModule(module, mtaModulesInArchive, deployedModules))
             .filter(this::isModuleSpecifiedForDeployment)
             .collect(Collectors.toList());
-        Set<String> unresolvedModules = getUnresolvedModules(calculatedModules);
-        if (unresolvedModules.isEmpty()) {
-            return calculatedModules;
-        }
-        throw new ContentException(Messages.UNRESOLVED_MTA_MODULES, unresolvedModules);
+        validateCalculatedModules(calculatedModules);
+        return calculatedModules;
     }
 
-    private Set<String> getUnresolvedModules(List<Module> calculatedModules) {
-        Set<String> calculatedModuleNames = calculatedModules.stream()
-            .map(Module::getName)
-            .collect(Collectors.toSet());
-        return SetUtils.difference(allMtaModules, SetUtils.union(calculatedModuleNames, deployedModules))
-            .toSet();
+    private void validateCalculatedModules(List<Module> calculatedModules) {
+        modulesContentValidators.forEach(validator -> validator.validate(calculatedModules));
     }
 
     private void initializeModulesDependecyTypes(List<? extends Module> modulesForDeployment) {

@@ -26,6 +26,7 @@ public final class Messages {
     public static final String PATH_SHOULD_BE_NORMALIZED = "Path \"{0}\" should be normalized (should not contain any \".\", \"..\" or \"//\" path segments)!";
     public static final String PATH_MUST_NOT_CONTAIN_WINDOWS_SEPARATORS = "Path \"{0}\" must use only Unix separators \"/\", but contains Windows separators \"\\\"";
     public static final String UNRESOLVED_MTA_MODULES = "Unresolved MTA modules {0}, these modules are neither part of MTA archive, nor already deployed";
+    public static final String UNRESOLVED_MODULE_DEPENDENCIES = "Modules {0} have dependencies which are neither part of MTA archive, nor already deployed";
     public static final String COULD_NOT_CREATE_VALID_DOMAIN = "Could not create a valid domain from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_HOST = "Could not create a valid host from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_PORT = "Could not create a valid port from \"{0}\"";
@@ -85,7 +86,7 @@ public final class Messages {
     public static final String INVALID_CONTROLLER_URL = "Invalid controller URL \"{0}\".";
     public static final String ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MISSING_FIELD = "The response of finding a service instance should contain a \"{0}\" element";
     public static final String ERROR_SERVICE_INSTANCE_RESPONSE_WITH_MORE_THEN_ONE_RESULT = "The response of finding a service instance should not have more than one resource element";
-    
+
     // Warning messages
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
     public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\". Using default: \"{1}\"";
