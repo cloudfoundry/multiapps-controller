@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.util.ResourcesCloudModelBuilderContentCalculator;
+import com.sap.cloud.lm.sl.cf.core.cf.util.UnresolvedModulesContentValidator;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
@@ -561,8 +562,9 @@ public class CloudModelBuilderTest {
             xsPlaceholderResolver);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
 
-        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, mtaModules, null,
-            getPropertiesAccessor(), getUserMessageLogger(), new ModuleToDeployHelper());
+        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, null, getPropertiesAccessor(),
+            getUserMessageLogger(), new ModuleToDeployHelper(),
+            Arrays.asList(new UnresolvedModulesContentValidator(mtaModules, deployedApps)));
 
         resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(null, getPropertiesAccessor(), getUserMessageLogger());
     }
