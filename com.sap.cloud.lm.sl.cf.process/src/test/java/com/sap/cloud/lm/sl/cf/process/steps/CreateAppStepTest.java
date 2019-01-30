@@ -241,8 +241,6 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
     public static class TestWithDocker extends SyncFlowableStepTest<CreateAppStep> {
 
         // Required for autowiring
-        private ApplicationStagingUpdater applicationStagingUpdater = Mockito.mock(ApplicationStagingUpdater.class);
-
         private CloudApplicationExtended application;
         private StepInput stepInput;
         private DockerInfo dockerInfo;

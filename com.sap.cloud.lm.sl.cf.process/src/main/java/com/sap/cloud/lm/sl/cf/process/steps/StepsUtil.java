@@ -48,6 +48,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -139,28 +140,15 @@ public class StepsUtil {
         return userId;
     }
 
-    static String getModuleFileName(DelegateExecution context, String moduleName) {
-        return (String) context.getVariable(getModuleFileNameVariable(moduleName));
+    public static MtaArchiveElements getMtaArchiveElements(DelegateExecution context) {
+        String archiveElementsJson = (String) context.getVariable(Constants.VAR_MTA_ARCHIVE_ELEMENTS);
+        return archiveElementsJson == null ? new MtaArchiveElements()
+            : JsonUtil.fromJson(archiveElementsJson, new TypeToken<MtaArchiveElements>() {
+            }.getType());
     }
 
-    static String getResourceFileName(DelegateExecution context, String resourceName) {
-        return (String) context.getVariable(getResourceFileNameVariable(resourceName));
-    }
-
-    static String getRequiresFileName(DelegateExecution context, String requiresName) {
-        return (String) context.getVariable(getRequiresFileNameVariable(requiresName));
-    }
-
-    static void setModuleFileName(DelegateExecution context, String moduleName, String fileName) {
-        context.setVariable(getModuleFileNameVariable(moduleName), fileName);
-    }
-
-    static void setRequiresFileName(DelegateExecution context, String requiresName, String fileName) {
-        context.setVariable(getRequiresFileNameVariable(requiresName), fileName);
-    }
-
-    static void setResourceFileName(DelegateExecution context, String resourceName, String fileName) {
-        context.setVariable(getResourceFileNameVariable(resourceName), fileName);
+    public static void setMtaArchiveElements(DelegateExecution context, MtaArchiveElements mtaArchiveElements) {
+        context.setVariable(Constants.VAR_MTA_ARCHIVE_ELEMENTS, JsonUtil.toJson(mtaArchiveElements));
     }
 
     static InputStream getModuleContentAsStream(DelegateExecution context, String moduleName) {
@@ -199,18 +187,6 @@ public class StepsUtil {
 
     private static String getModuleContentVariable(String moduleName) {
         return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + moduleName;
-    }
-
-    private static String getModuleFileNameVariable(String moduleName) {
-        return Constants.VAR_MTA_MODULE_FILE_NAME_PREFIX + moduleName;
-    }
-
-    private static String getRequiresFileNameVariable(String requiresName) {
-        return Constants.VAR_MTA_REQUIRES_FILE_NAME_PREFIX + requiresName;
-    }
-
-    private static String getResourceFileNameVariable(String resourceName) {
-        return Constants.VAR_MTA_RESOURCE_FILE_NAME_PREFIX + resourceName;
     }
 
     private static BinaryJson getBinaryJsonForMtaModel() {
