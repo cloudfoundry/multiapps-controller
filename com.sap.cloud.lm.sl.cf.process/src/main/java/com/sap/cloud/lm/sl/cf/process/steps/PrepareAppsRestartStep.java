@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
-import com.sap.cloud.lm.sl.cf.core.model.ModuleToDeploy;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
 @Component("prepareAppsRestartStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -33,6 +33,7 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
         execution.getContext()
             .setVariable(Constants.EXECUTE_ONE_OFF_TASKS, false);
         StepsUtil.setUseIdleUris(execution.getContext(), false);
+        StepsUtil.setDeleteIdleUris(execution.getContext(), true);
         StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), false);
 
         StepsUtil.setIteratedModulesInParallel(execution.getContext(), Collections.emptyList());
@@ -41,8 +42,8 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
     }
 
     @Override
-    protected List<ModuleToDeploy> getModulesToDeploy(DelegateExecution context) {
-        List<ModuleToDeploy> allModulesToDeploy = StepsUtil.getAllModulesToDeploy(context);
+    protected List<Module> getModulesToDeploy(DelegateExecution context) {
+        List<? extends Module> allModulesToDeploy = StepsUtil.getAllModulesToDeploy(context);
         return allModulesToDeploy.stream()
             .filter(module -> moduleToDeployHelper.isApplication(module))
             .collect(Collectors.toList());

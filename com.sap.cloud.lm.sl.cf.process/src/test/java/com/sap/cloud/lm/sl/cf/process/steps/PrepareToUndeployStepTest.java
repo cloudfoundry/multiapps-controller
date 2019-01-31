@@ -30,10 +30,7 @@ public class PrepareToUndeployStepTest extends SyncFlowableStepTest<PrepareToUnd
         step.execute(context);
 
         assertStepFinishedSuccessfully();
-
-        assertEquals(Collections.emptyList(), StepsUtil.getServiceUrlsToRegister(context));
         assertEquals(Collections.emptyList(), StepsUtil.getAppsToDeploy(context));
-        assertEquals(Collections.emptyList(), StepsUtil.getServiceBrokersToCreate(context));
         assertEquals(Collections.emptySet(), StepsUtil.getMtaModules(context));
         assertEquals(Collections.emptyList(), StepsUtil.getPublishedEntriesFromSubProcesses(context, flowableFacadeFacade));
     }

@@ -1,14 +1,9 @@
 {
   "existingServiceBrokers": [],
-  "applications": [
+  "application":
     {
       "name": "foo",
       "attributes": {}
-    },
-    {
-      "name": "qux",
-      "attributes": {}
     }
-  ]
 }
 

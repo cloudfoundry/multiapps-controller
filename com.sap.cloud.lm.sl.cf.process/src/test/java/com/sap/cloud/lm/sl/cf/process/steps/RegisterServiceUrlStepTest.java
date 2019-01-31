@@ -3,9 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,7 +22,7 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterServiceUrlsStep> {
+public class RegisterServiceUrlStepTest extends SyncFlowableStepTest<RegisterServiceUrlStep> {
 
     private final String expectedExceptionMessage;
     private final String inputLocation;
@@ -51,7 +49,7 @@ public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterSe
         });
     }
 
-    public RegisterServiceUrlsStepTest(String inputLocation, String expectedOutputLocation, String expectedExceptionMessage) {
+    public RegisterServiceUrlStepTest(String inputLocation, String expectedOutputLocation, String expectedExceptionMessage) {
         this.expectedOutputLocation = expectedOutputLocation;
         this.expectedExceptionMessage = expectedExceptionMessage;
         this.inputLocation = inputLocation;
@@ -72,14 +70,13 @@ public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterSe
         StepOutput actualOutput = captureStepOutput();
         assertEquals(JsonUtil.toJson(expectedOutput, true), JsonUtil.toJson(actualOutput, true));
 
-        for (ServiceUrl serviceUrl : expectedOutput.serviceUrlsToRegister) {
-            Mockito.verify(client)
-                .registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
-        }
+        ServiceUrl serviceUrl = expectedOutput.serviceUrlToRegister;
+        Mockito.verify(client)
+            .registerServiceURL(serviceUrl.getServiceName(), serviceUrl.getUrl());
     }
 
     private void prepareContext() {
-        StepsUtil.setAppsToDeploy(context, toCloudApplications());
+        StepsUtil.setApp(context, input.application.toCloudApplicationExtended());
     }
 
     private void loadParameters() throws Exception {
@@ -95,23 +92,17 @@ public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterSe
     private StepOutput captureStepOutput() {
         StepOutput output = new StepOutput();
 
-        output.serviceUrlsToRegister = StepsUtil.getServiceUrlsToRegister(context);
+        output.serviceUrlToRegister = StepsUtil.getServiceUrlToRegister(context);
 
         return output;
     }
 
-    private List<CloudApplicationExtended> toCloudApplications() {
-        return input.applications.stream()
-            .map(app -> app.toCloudApplicationExtended())
-            .collect(Collectors.toList());
-    }
-
     private static class StepInput {
-        List<SimpleApplication> applications;
+        SimpleApplication application;
     }
 
     private static class StepOutput {
-        List<ServiceUrl> serviceUrlsToRegister;
+        ServiceUrl serviceUrlToRegister;
     }
 
     private static class SimpleApplication {
@@ -128,8 +119,8 @@ public class RegisterServiceUrlsStepTest extends SyncFlowableStepTest<RegisterSe
     }
 
     @Override
-    protected RegisterServiceUrlsStep createStep() {
-        return new RegisterServiceUrlsStep();
+    protected RegisterServiceUrlStep createStep() {
+        return new RegisterServiceUrlStep();
     }
 
 }

@@ -26,11 +26,11 @@ import com.sap.cloud.lm.sl.mta.model.v3.Module;
 import com.sap.cloud.lm.sl.mta.model.v3.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
-public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder {
+public class ApplicationCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder {
 
     private static final int MTA_MAJOR_VERSION = 3;
 
-    public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
+    public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
         UserMessageLogger stepLogger) {
         super(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, stepLogger);
@@ -50,7 +50,7 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
     }
 
     @Override
-    protected List<String> getAllApplicationServices(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
+    public List<String> getAllApplicationServices(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
         return getApplicationServices((Module) module, this::onlyActiveServicesRule);
     }
 

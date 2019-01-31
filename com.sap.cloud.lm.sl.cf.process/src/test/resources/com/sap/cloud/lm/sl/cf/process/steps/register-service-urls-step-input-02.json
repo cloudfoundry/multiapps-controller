@@ -1,5 +1,5 @@
 {
-  "applications" : [
+  "application" :
     {
       "name" : "test-app-2",
       "attributes" : {
@@ -7,5 +7,4 @@
         "service-name": "test-service-1"
       }
     }
-  ]
 }

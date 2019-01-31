@@ -10,11 +10,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -27,7 +29,10 @@ import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.common.engine.impl.identity.Authentication;
+import org.flowable.engine.RuntimeService;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.impl.context.Context;
+import org.flowable.engine.runtime.Execution;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
@@ -44,11 +49,12 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStateAction;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
+import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
@@ -56,7 +62,6 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
-import com.sap.cloud.lm.sl.cf.core.model.ModuleToDeploy;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
@@ -72,6 +77,7 @@ import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
@@ -335,74 +341,73 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_DEPLOYED_APPS, JsonUtil.toBinaryJson(apps.toArray(new CloudApplication[] {})));
     }
 
-    @SuppressWarnings("unchecked")
-    public static List<CloudApplicationExtended> getAppsToDeploy(DelegateExecution context) {
-        List<String> cloudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_APPS_TO_DEPLOY);
-        return cloudApplicationsAsStrings.stream()
-            .map(app -> (CloudApplicationExtended) JsonUtil.fromJson(app, CloudApplicationExtended.class))
-            .collect(Collectors.toList());
+    public static List<String> getAppsToDeploy(DelegateExecution context) {
+        List<String> arrayVariableAsList = getArrayVariableAsList(context, Constants.VAR_APPS_TO_DEPLOY);
+        return arrayVariableAsList != null ? arrayVariableAsList : Collections.emptyList();
     }
 
-    public static void setAppsToDeploy(DelegateExecution context, List<CloudApplicationExtended> apps) {
-        List<String> cloudApplicationsAsStrings = apps.stream()
-            .map(JsonUtil::toJson)
-            .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
+    public static void setAppsToDeploy(DelegateExecution context, List<String> apps) {
+        setArrayVariableFromCollection(context, Constants.VAR_APPS_TO_DEPLOY, apps);
     }
 
     @SuppressWarnings("unchecked")
-    public static List<ModuleToDeploy> getModulesToDeploy(DelegateExecution context) {
-        List<String> modulesAsStrings = (List<String>) context.getVariable(Constants.VAR_MODULES_TO_DEPLOY);
-        return modulesAsStrings.stream()
-            .map(app -> (ModuleToDeploy) JsonUtil.fromJson(app, ModuleToDeploy.class))
+    public static List<Module> getModulesToDeploy(DelegateExecution context) {
+        List<byte[]> modulesAsBinaryJson = (List<byte[]>) context.getVariable(Constants.VAR_MODULES_TO_DEPLOY);
+        return modulesAsBinaryJson.stream()
+            .map(moduleAsBinaryJson -> JsonUtil.fromBinaryJson(moduleAsBinaryJson, getModuleToDeployClass(context)))
             .collect(Collectors.toList());
     }
 
-    public static void setModulesToDeploy(DelegateExecution context, List<ModuleToDeploy> apps) {
-        List<String> modulesAsStrings = apps.stream()
-            .map(JsonUtil::toJson)
-            .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_MODULES_TO_DEPLOY, modulesAsStrings);
+    public static void setModulesToDeploy(DelegateExecution context, List<? extends Module> modules) {
+        context.setVariable(Constants.VAR_MODULES_TO_DEPLOY, toBinaryjsonList(modules));
     }
 
-    @SuppressWarnings("unchecked")
-    public static List<ModuleToDeploy> getAllModulesToDeploy(DelegateExecution context) {
-        List<String> modulesAsStrings = (List<String>) context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY);
-        return modulesAsStrings.stream()
-            .map(app -> (ModuleToDeploy) JsonUtil.fromJson(app, ModuleToDeploy.class))
-            .collect(Collectors.toList());
-    }
-
-    public static void setAllModulesToDeploy(DelegateExecution context, List<ModuleToDeploy> modules) {
-        List<String> modulesAsStrings = modules.stream()
-            .map(JsonUtil::toJson)
-            .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY, modulesAsStrings);
+    public static void setModuleToDeployClass(DelegateExecution context, List<? extends Module> modules) {
+        String className = (!CollectionUtils.isEmpty(modules)) ? modules.get(0)
+            .getClass()
+            .getName() : Module.class.getName();
+        context.setVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME, className);
     }
 
     @SuppressWarnings("unchecked")
-    public static List<ModuleToDeploy> getIteratedModulesInParallel(DelegateExecution context) {
-        List<String> modulesIteratedInParallel = (List<String>) context.getVariable(Constants.VAR_ITERATED_MODULES_IN_PARALLEL);
+    public static Class<? extends Module> getModuleToDeployClass(DelegateExecution context) {
+        String className = (String) context.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME);
+        try {
+            return (Class<? extends Module>) Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Module> getAllModulesToDeploy(DelegateExecution context) {
+        List<byte[]> modulesAsBinaryJson = (List<byte[]>) context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY);
+        return modulesAsBinaryJson.stream()
+            .map(moduleAsBinaryJson -> JsonUtil.fromBinaryJson(moduleAsBinaryJson, getModuleToDeployClass(context)))
+            .collect(Collectors.toList());
+    }
+
+    public static void setAllModulesToDeploy(DelegateExecution context, List<? extends Module> modules) {
+        context.setVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY, toBinaryjsonList(modules));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Module> getIteratedModulesInParallel(DelegateExecution context) {
+        List<byte[]> modulesIteratedInParallel = (List<byte[]>) context.getVariable(Constants.VAR_ITERATED_MODULES_IN_PARALLEL);
         if (modulesIteratedInParallel == null) {
             return Collections.emptyList();
         }
         return modulesIteratedInParallel.stream()
-            .map(module -> JsonUtil.<ModuleToDeploy> fromJson(module, ModuleToDeploy.class))
+            .map(moduleAsBinaryJson -> JsonUtil.fromBinaryJson(moduleAsBinaryJson, getModuleToDeployClass(context)))
             .collect(Collectors.toList());
     }
 
-    public static void setIteratedModulesInParallel(DelegateExecution context, List<ModuleToDeploy> modules) {
-        List<String> modulesAsStrings = modules.stream()
-            .map(JsonUtil::toJson)
-            .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_ITERATED_MODULES_IN_PARALLEL, modulesAsStrings);
+    public static void setIteratedModulesInParallel(DelegateExecution context, List<? extends Module> modules) {
+        context.setVariable(Constants.VAR_ITERATED_MODULES_IN_PARALLEL, toBinaryjsonList(modules));
     }
 
-    public static void setModulesToIterateInParallel(DelegateExecution context, List<ModuleToDeploy> modules) {
-        List<String> modulesAsStrings = modules.stream()
-            .map(JsonUtil::toJson)
-            .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_MODULES_TO_ITERATE_IN_PARALLEL, modulesAsStrings);
+    public static void setModulesToIterateInParallel(DelegateExecution context, List<? extends Module> modules) {
+        context.setVariable(Constants.VAR_MODULES_TO_ITERATE_IN_PARALLEL, toBinaryjsonList(modules));
     }
 
     public static void setDeploymentMode(DelegateExecution context, DeploymentMode deploymentMode) {
@@ -523,15 +528,28 @@ public class StepsUtil {
         return Arrays.asList(configurationEntriesArray);
     }
 
-    static void setServiceBrokersToCreate(DelegateExecution context, List<CloudServiceBroker> serviceBrokers) {
-        context.setVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE,
-            JsonUtil.toBinaryJson(serviceBrokers.toArray(new CloudServiceBroker[] {})));
+    static void setCreatedOrUpdatedServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker) {
+        byte[] binaryJson = serviceBroker == null ? null : JsonUtil.toBinaryJson(serviceBroker);
+        context.setVariable(Constants.VAR_CREATED_OR_UPDATED_SERVICE_BROKER, binaryJson);
     }
 
-    public static List<CloudServiceBroker> getServiceBrokersToCreate(DelegateExecution context) {
-        CloudServiceBroker[] serviceBrokers = JsonUtil
-            .fromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE), CloudServiceBroker[].class);
-        return Arrays.asList(serviceBrokers);
+    public static CloudServiceBroker getCreatedOrUpdatedServiceBroker(DelegateExecution context) {
+        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_CREATED_OR_UPDATED_SERVICE_BROKER);
+        return binaryJson == null ? null : JsonUtil.fromBinaryJson(binaryJson, CloudServiceBroker.class);
+    }
+
+    public static CloudServiceBroker getServiceBrokersToCreateForModule(DelegateExecution context, String moduleName) {
+        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_APP_SERVICE_BROKER_VAR_PREFIX + moduleName);
+        return binaryJson == null ? null : JsonUtil.fromBinaryJson(binaryJson, CloudServiceBroker.class);
+    }
+
+    public static List<String> getCreatedOrUpdatedServiceBrokerNames(DelegateExecution context) {
+        List<Module> allModulesToDeploy = getAllModulesToDeploy(context);
+        return allModulesToDeploy.stream()
+            .map(module -> getServiceBrokersToCreateForModule(context, module.getName()))
+            .filter(Objects::nonNull)
+            .map(CloudServiceBroker::getName)
+            .collect(Collectors.toList());
     }
 
     public static List<ConfigurationEntry> getDeletedEntries(DelegateExecution context) {
@@ -600,14 +618,49 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_PUBLISHED_ENTRIES, publishedEntriesByteArray);
     }
 
-    static void setServiceUrlsToRegister(DelegateExecution context, List<ServiceUrl> serviceUrls) {
-        context.setVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER, JsonUtil.toBinaryJson(serviceUrls.toArray(new ServiceUrl[] {})));
+    static void setServiceUrlToRegister(DelegateExecution context, ServiceUrl serviceUrl) {
+        byte[] binaryJson = serviceUrl == null ? null : JsonUtil.toBinaryJson(serviceUrl);
+        context.setVariable(Constants.VAR_SERVICE_URL_TO_REGISTER, binaryJson);
     }
 
-    public static List<ServiceUrl> getServiceUrlsToRegister(DelegateExecution context) {
-        ServiceUrl[] serviceUrls = JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER),
-            ServiceUrl[].class);
-        return Arrays.asList(serviceUrls);
+    public static ServiceUrl getServiceUrlToRegister(DelegateExecution context) {
+        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_SERVICE_URL_TO_REGISTER);
+        return binaryJson == null ? null : JsonUtil.fromBinaryJson(binaryJson, ServiceUrl.class);
+    }
+
+    public static void setVariableInParentProcess(DelegateExecution context, String variablePrefix, Object variableValue) {
+        String moduleName = StepsUtil.getApp(context)
+            .getModuleName();
+        if (moduleName == null) {
+            throw new IllegalStateException("Not able to determine module name.");
+        }
+        String exportedVariableName = variablePrefix + moduleName;
+
+        RuntimeService runtimeService = Context.getProcessEngineConfiguration()
+            .getRuntimeService();
+
+        String superExecutionId = context.getParentId();
+        Execution superExecutionResult = runtimeService.createExecutionQuery()
+            .executionId(superExecutionId)
+            .singleResult();
+        superExecutionId = superExecutionResult.getSuperExecutionId();
+
+        byte[] binaryJson = variableValue == null ? null : JsonUtil.toBinaryJson(variableValue);
+        runtimeService.setVariable(superExecutionId, exportedVariableName, binaryJson);
+    }
+
+    public static ServiceUrl getServiceUrlToRegisterForModule(DelegateExecution context, String moduleName) {
+        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_APP_SERVICE_URL_VAR_PREFIX + moduleName);
+        return binaryJson == null ? null : JsonUtil.fromBinaryJson(binaryJson, ServiceUrl.class);
+    }
+
+    public static List<String> getRegisteredServiceUrlsNames(DelegateExecution context) {
+        List<Module> allModulesToDeploy = getAllModulesToDeploy(context);
+        return allModulesToDeploy.stream()
+            .map(module -> getServiceUrlToRegisterForModule(context, module.getName()))
+            .filter(Objects::nonNull)
+            .map(ServiceUrl::getServiceName)
+            .collect(Collectors.toList());
     }
 
     static void setDeployedMta(DelegateExecution context, DeployedMta deployedMta) {
@@ -620,15 +673,14 @@ public class StepsUtil {
         return binaryJson == null ? null : JsonUtil.fromBinaryJson(binaryJson, DeployedMta.class);
     }
 
-    static Set<Integer> getAllocatedPorts(DelegateExecution context) {
-        byte[] allocatedPortsBytes = (byte[]) context.getVariable(Constants.VAR_ALLOCATED_PORTS);
-        Integer[] allocatedPorts = allocatedPortsBytes != null ? JsonUtil.fromBinaryJson(allocatedPortsBytes, Integer[].class) : null;
-        return allocatedPorts != null ? Arrays.stream(allocatedPorts)
-            .collect(Collectors.toSet()) : Collections.emptySet();
+    static Map<String, Set<Integer>> getAllocatedPorts(DelegateExecution context) {
+        String json = new String((byte[]) context.getVariable(Constants.VAR_ALLOCATED_PORTS), StandardCharsets.UTF_8);
+        return JsonUtil.fromJson(json, new TypeToken<Map<String, Set<Integer>>>() {
+        }.getType());
     }
 
-    static void setAllocatedPorts(DelegateExecution context, Set<Integer> allocatedPorts) {
-        context.setVariable(Constants.VAR_ALLOCATED_PORTS, JsonUtil.toBinaryJson(allocatedPorts.toArray(new Integer[0])));
+    static void setAllocatedPorts(DelegateExecution context, Map<String, Set<Integer>> allocatedPorts) {
+        context.setVariable(Constants.VAR_ALLOCATED_PORTS, JsonUtil.toBinaryJson(allocatedPorts));
     }
 
     static void setXsPlaceholderReplacementValues(DelegateExecution context, Map<String, Object> replacementValues) {
@@ -666,6 +718,13 @@ public class StepsUtil {
         }
         String yaml = new String(binaryYaml, StandardCharsets.UTF_8);
         return parseDeploymentDescriptor(yaml);
+    }
+
+    public static Module findModuleInDeploymentDescriptor(DelegateExecution context, String module) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
+        DeploymentDescriptor deploymentDescriptor = getDeploymentDescriptor(context);
+        return handlerFactory.getDescriptorHandler()
+            .findModule(deploymentDescriptor, module);
     }
 
     private static DeploymentDescriptor parseDeploymentDescriptor(String yaml) {
@@ -707,6 +766,12 @@ public class StepsUtil {
             .collect(Collectors.toList());
     }
 
+    private static List<byte[]> toBinaryjsonList(List<?> objects) {
+        return objects.stream()
+            .map(JsonUtil::toBinaryJson)
+            .collect(Collectors.toList());
+    }
+
     private static byte[] toBinaryYaml(Object object) {
         String yaml = YamlUtil.convertToYaml(object);
         return yaml.getBytes(StandardCharsets.UTF_8);
@@ -744,7 +809,7 @@ public class StepsUtil {
         return (boolean) context.getVariable(Constants.VAR_USER_PROPERTIES_CHANGED);
     }
 
-    static CloudApplicationExtended getApp(DelegateExecution context) {
+    public static CloudApplicationExtended getApp(DelegateExecution context) {
         return JsonUtil.fromJson((String) context.getVariable(Constants.VAR_APP_TO_DEPLOY), CloudApplicationExtended.class);
     }
 
@@ -752,8 +817,12 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_APP_TO_DEPLOY, JsonUtil.toJson(app));
     }
 
-    public static ModuleToDeploy getModuleToDeploy(DelegateExecution context) {
-        return JsonUtil.fromJson((String) context.getVariable(Constants.VAR_MODULE_TO_DEPLOY), ModuleToDeploy.class);
+    public static void setModuleToDeploy(DelegateExecution context, Module module) {
+        context.setVariable(Constants.VAR_MODULE_TO_DEPLOY, JsonUtil.toBinaryJson(module));
+    }
+
+    public static Module getModuleToDeploy(DelegateExecution context) {
+        return JsonUtil.fromBinaryJson((byte[]) context.getVariable(Constants.VAR_MODULE_TO_DEPLOY), getModuleToDeployClass(context));
     }
 
     static CloudTask getTask(DelegateExecution context) {
@@ -945,8 +1014,7 @@ public class StepsUtil {
 
     public static final String DEPLOY_ID_PREFIX = "deploy-";
 
-    static ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context, UserMessageLogger stepLogger) {
-
+    static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DelegateExecution context, UserMessageLogger stepLogger) {
         CloudModelConfiguration configuration = getCloudBuilderConfiguration(context, true);
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
 
@@ -959,21 +1027,25 @@ public class StepsUtil {
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
 
-        return handlerFactory.getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
+        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
             xsPlaceholderResolver, deployId, stepLogger);
     }
 
-    static List<String> getDomainsFromApps(DelegateExecution context, List<CloudApplicationExtended> apps) {
-        Set<String> domains = new TreeSet<>();
+    static List<String> getDomainsFromApps(DelegateExecution context, ApplicationCloudModelBuilder applicationCloudModelBuilder,
+        List<? extends Module> modules, ModuleToDeployHelper moduleToDeployHelper) {
         SystemParameters systemParameters = StepsUtil.getSystemParameters(context);
         XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(context);
-
         String defaultDomain = (String) systemParameters.getGeneralParameters()
             .getOrDefault(SupportedParameters.DEFAULT_DOMAIN, null);
 
-        for (CloudApplicationExtended app : apps) {
-            if (app.getDomains() != null) {
-                domains.addAll(app.getDomains());
+        Set<String> domains = new TreeSet<>();
+        for (Module module : modules) {
+            if (!moduleToDeployHelper.isApplication(module)) {
+                continue;
+            }
+            List<String> appDomains = applicationCloudModelBuilder.getApplicationDomains(module);
+            if (appDomains != null) {
+                domains.addAll(appDomains);
             }
         }
 
@@ -1040,6 +1112,14 @@ public class StepsUtil {
 
     static boolean getUseIdleUris(DelegateExecution context) {
         return (boolean) context.getVariable(Constants.VAR_USE_IDLE_URIS);
+    }
+
+    public static void setDeleteIdleUris(DelegateExecution context, boolean state) {
+        context.setVariable(Constants.VAR_DELETE_IDLE_URIS, state);
+    }
+
+    static boolean getDeleteIdleUris(DelegateExecution context) {
+        return (boolean) context.getVariable(Constants.VAR_DELETE_IDLE_URIS);
     }
 
     public static void setSkipUpdateConfigurationEntries(DelegateExecution context, boolean update) {
@@ -1162,4 +1242,5 @@ public class StepsUtil {
 
         return JsonUtil.fromJson(jsonString, UploadToken.class);
     }
+
 }

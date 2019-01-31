@@ -1,8 +1,10 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -32,13 +34,13 @@ public class ReserveRoutesStep extends SyncFlowableStep {
             if (!(client instanceof XsCloudControllerClient)) {
                 return StepPhase.DONE;
             }
-            Set<Integer> allocatedPorts = StepsUtil.getAllocatedPorts(execution.getContext());
+            Map<String, Set<Integer>> allocatedPorts = StepsUtil.getAllocatedPorts(execution.getContext());
             getStepLogger().debug(Messages.ALLOCATED_PORTS, allocatedPorts);
             List<String> domains = app.getDomains();
             XsCloudControllerClient xsClient = (XsCloudControllerClient) client;
 
             for (ApplicationPort applicationPort : app.getApplicationPorts()) {
-                if (shouldReserveTcpPort(allocatedPorts, applicationPort)) {
+                if (shouldReserveTcpPort(allocatedPorts.get(app.getModuleName()), applicationPort)) {
                     reservePortInDomains(xsClient, applicationPort, domains);
                 }
             }
@@ -61,6 +63,7 @@ public class ReserveRoutesStep extends SyncFlowableStep {
     }
 
     private boolean shouldReserveTcpPort(Set<Integer> allocatedPorts, ApplicationPort applicationPort) {
-        return !allocatedPorts.contains(applicationPort.getPort()) && !ApplicationPortType.HTTP.equals(applicationPort.getPortType());
+        return (CollectionUtils.isEmpty(allocatedPorts) || !allocatedPorts.contains(applicationPort.getPort()))
+            && !ApplicationPortType.HTTP.equals(applicationPort.getPortType());
     }
 }

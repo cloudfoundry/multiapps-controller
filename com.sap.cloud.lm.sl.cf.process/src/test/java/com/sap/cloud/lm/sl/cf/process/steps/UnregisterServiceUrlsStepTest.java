@@ -3,10 +3,13 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.junit.Before;
@@ -29,6 +32,18 @@ public class UnregisterServiceUrlsStepTest extends SyncFlowableStepTest<Unregist
     private final String[] expectedUnregisteredServiceUrls;
 
     private StepInput input;
+
+    private class UnregisterServiceUrlsStepMock extends UnregisterServiceUrlsStep {
+        @Override
+        protected List<String> getRegisteredServiceUrlNames(ExecutionWrapper execution) {
+            if (CollectionUtils.isEmpty(input.serviceUrlsToRegister)) {
+                return Collections.emptyList();
+            }
+            return input.serviceUrlsToRegister.stream()
+                .map(ServiceUrl::getServiceName)
+                .collect(Collectors.toList());
+        }
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -71,7 +86,6 @@ public class UnregisterServiceUrlsStepTest extends SyncFlowableStepTest<Unregist
 
     private void prepareContext() {
         StepsUtil.setAppsToUndeploy(context, toCloudApplications(input.apps));
-        StepsUtil.setServiceUrlsToRegister(context, input.serviceUrlsToRegister);
     }
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> apps) {
@@ -119,7 +133,7 @@ public class UnregisterServiceUrlsStepTest extends SyncFlowableStepTest<Unregist
 
     @Override
     protected UnregisterServiceUrlsStep createStep() {
-        return new UnregisterServiceUrlsStep();
+        return new UnregisterServiceUrlsStepMock();
     }
 
 }

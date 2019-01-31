@@ -10,6 +10,7 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,7 +25,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.steps.CreateOrUpdateServiceBrokersStepTest.SimpleApplication;
+import com.sap.cloud.lm.sl.cf.process.steps.CreateOrUpdateServiceBrokerStepTest.SimpleApplication;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -41,6 +42,13 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+
+    private class DeleteServiceBrokersStepMock extends DeleteServiceBrokersStep {
+        @Override
+        protected List<String> getCreatedOrUpdatedServiceBrokerNames(DelegateExecution context) {
+            return input.serviceBrokersToCreate;
+        }
+    }
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -121,17 +129,6 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     private void prepareContext() {
         StepsUtil.setAppsToUndeploy(context, toCloudApplications(input.applicationsToUndeploy));
-        StepsUtil.setServiceBrokersToCreate(context, toCloudServiceBrokers(input.serviceBrokersToCreate));
-    }
-
-    private List<CloudServiceBroker> toCloudServiceBrokers(List<String> serviceBrokerNames) {
-        return serviceBrokerNames.stream()
-            .map(serviceBrokerName -> toCloudServiceBroker(serviceBrokerName))
-            .collect(Collectors.toList());
-    }
-
-    private CloudServiceBroker toCloudServiceBroker(String serviceBrokerName) {
-        return new CloudServiceBroker(null, serviceBrokerName);
     }
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> applications) {
@@ -175,7 +172,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
 
     @Override
     protected DeleteServiceBrokersStep createStep() {
-        return new DeleteServiceBrokersStep();
+        return new DeleteServiceBrokersStepMock();
     }
 
 }

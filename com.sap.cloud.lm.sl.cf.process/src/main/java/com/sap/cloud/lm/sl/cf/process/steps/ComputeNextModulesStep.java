@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
@@ -12,9 +11,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.model.ModuleToDeploy;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
 @Component("computeNextModulesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -25,16 +24,15 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
         getStepLogger().debug(Messages.COMPUTING_NEXT_MODULES_FOR_PARALLEL_ITERATION);
-        List<ModuleToDeploy> allModulesToDeploy = StepsUtil.getModulesToDeploy(execution.getContext());
-        List<ModuleToDeploy> completedApplications = StepsUtil.getIteratedModulesInParallel(execution.getContext());
+        List<Module> allModulesToDeploy = StepsUtil.getModulesToDeploy(execution.getContext());
+        List<Module> completedApplications = StepsUtil.getIteratedModulesInParallel(execution.getContext());
         List<String> completedModuleNames = completedApplications.stream()
-            .map(ModuleToDeploy::getName)
+            .map(Module::getName)
             .collect(Collectors.toList());
 
         CloudControllerClient client = execution.getControllerClient();
         // Set next iteration data
-        List<ModuleToDeploy> modulesForNextIteration = computeApplicationsForNextIteration(client, allModulesToDeploy,
-            completedModuleNames);
+        List<Module> modulesForNextIteration = computeApplicationsForNextIteration(client, allModulesToDeploy, completedModuleNames);
         StepsUtil.setModulesToIterateInParallel(execution.getContext(), modulesForNextIteration);
 
         // Mark next iteration data as computed
@@ -44,7 +42,7 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
-    private List<ModuleToDeploy> computeApplicationsForNextIteration(CloudControllerClient client, List<ModuleToDeploy> allModulesToDeploy,
+    private List<Module> computeApplicationsForNextIteration(CloudControllerClient client, List<Module> allModulesToDeploy,
         List<String> completedModules) {
         allModulesToDeploy.removeIf(module -> completedModules.contains(module.getName()));
         return allModulesToDeploy.stream()
@@ -52,14 +50,18 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
             .collect(Collectors.toList());
     }
 
-    private boolean applicationHasAllDependenciesSatisfied(CloudControllerClient client, List<String> completedModules,
-        ModuleToDeploy app) {
-        return app.getDeployedAfter()
-            .isEmpty() || completedModules.containsAll(app.getDeployedAfter())
-            || areAllDependenciesAlreadyDeployed(client, app.getDeployedAfter());
+    private boolean applicationHasAllDependenciesSatisfied(CloudControllerClient client, List<String> completedModules, Module module) {
+        if (!(module instanceof com.sap.cloud.lm.sl.mta.model.v3.Module)) {
+            return true;
+        }
+        com.sap.cloud.lm.sl.mta.model.v3.Module upcastModule = (com.sap.cloud.lm.sl.mta.model.v3.Module) module;
+
+        return upcastModule.getDeployedAfter()
+            .isEmpty() || completedModules.containsAll(upcastModule.getDeployedAfter())
+            || areAllDependenciesAlreadyDeployed(client, upcastModule.getDeployedAfter());
     }
 
-    private boolean areAllDependenciesAlreadyDeployed(CloudControllerClient client, Set<String> deployedAfter) {
+    private boolean areAllDependenciesAlreadyDeployed(CloudControllerClient client, List<String> deployedAfter) {
         List<CloudApplication> nonDeployedApplications = deployedAfter.stream()
             .map(deployAfterDependency -> client.getApplication(deployAfterDependency, false))
             .filter(Objects::isNull)

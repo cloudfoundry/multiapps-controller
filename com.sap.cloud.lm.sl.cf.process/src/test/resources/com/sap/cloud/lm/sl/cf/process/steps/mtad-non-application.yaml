@@ -1,0 +1,7 @@
+_schema-version: 3
+ID: mta-tcp
+version: 0.1.0
+
+modules:
+  - name: module-1
+    type: non-app

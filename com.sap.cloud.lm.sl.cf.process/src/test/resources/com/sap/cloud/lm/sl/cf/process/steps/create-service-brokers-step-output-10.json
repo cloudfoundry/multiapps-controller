@@ -1,5 +1,5 @@
 {
-  "createdServiceBrokers": [
+  "createdServiceBroker":
     {
       "spaceGuid": "cb42bf12-b819-4c27-5ba0-d3dc351b80dc",
       "password": "baz",
@@ -7,7 +7,6 @@
       "username": "bar",
       "meta": {},
       "name": "foo-broker"
-    }
-  ],
-  "updatedServiceBrokers": []
+    },
+  "updatedServiceBroker": null
 }

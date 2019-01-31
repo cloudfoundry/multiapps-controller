@@ -3,7 +3,9 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,8 +16,8 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort.ApplicationPortType;
-import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -54,6 +56,7 @@ public class ReserveRoutesStepTest extends SyncFlowableStepTest<ReserveRoutesSte
         context.setVariable(Constants.VAR_PORT_BASED_ROUTING, true);
         StepsUtil.setAllocatedPorts(context, stepInput.allocatedPorts);
         CloudApplicationExtended app = new CloudApplicationExtended(null, "appName");
+        app.setModuleName("appName");
         app.setApplicationPorts(stepInput.applicationPorts);
         app.setDomains(stepInput.domains);
         StepsUtil.setApp(context, app);
@@ -85,7 +88,15 @@ public class ReserveRoutesStepTest extends SyncFlowableStepTest<ReserveRoutesSte
 
     private boolean shouldHaveReservedTcpPort(ApplicationPort applicationPort) {
         return !ApplicationPortType.HTTP.equals(applicationPort.getPortType())
-            && !stepInput.allocatedPorts.contains(applicationPort.getPort());
+            && !getAllAllocatedPorts().contains(applicationPort.getPort());
+    }
+
+    private Set<Integer> getAllAllocatedPorts() {
+        Set<Integer> allPorts = new TreeSet<>();
+        for (String module : stepInput.allocatedPorts.keySet()) {
+            allPorts.addAll(stepInput.allocatedPorts.get(module));
+        }
+        return allPorts;
     }
 
     @Override
@@ -96,6 +107,6 @@ public class ReserveRoutesStepTest extends SyncFlowableStepTest<ReserveRoutesSte
     private static class StepInput {
         List<String> domains;
         List<ApplicationPort> applicationPorts;
-        Set<Integer> allocatedPorts;
+        Map<String, Set<Integer>> allocatedPorts;
     }
 }

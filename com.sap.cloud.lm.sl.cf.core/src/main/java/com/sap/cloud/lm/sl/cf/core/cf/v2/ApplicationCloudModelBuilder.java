@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudTask;
@@ -53,12 +51,12 @@ import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
-public class ApplicationsCloudModelBuilder {
+public class ApplicationCloudModelBuilder {
 
     public static final String DEPENDENCY_TYPE_SOFT = "soft";
     public static final String DEPENDENCY_TYPE_HARD = "hard";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationsCloudModelBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationCloudModelBuilder.class);
 
     private static final int MTA_MAJOR_VERSION = 2;
 
@@ -75,7 +73,7 @@ public class ApplicationsCloudModelBuilder {
 
     protected ParametersChainBuilder parametersChainBuilder;
 
-    public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
+    public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger stepLogger) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
@@ -95,12 +93,11 @@ public class ApplicationsCloudModelBuilder {
         return new HandlerFactory(MTA_MAJOR_VERSION);
     }
 
-    public List<CloudApplicationExtended> build(List<Module> modulesForDeployment, ModuleToDeployHelper moduleToDeployHelper) {
-        return modulesForDeployment.stream()
-            .filter(moduleToDeploy -> isApplication(moduleToDeploy, moduleToDeployHelper))
-            .map(this::getApplication)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+    public CloudApplicationExtended build(Module moduleToDeploy, ModuleToDeployHelper moduleToDeployHelper) {
+        if (isApplication(moduleToDeploy, moduleToDeployHelper)) {
+            return getApplication(moduleToDeploy);
+        }
+        return null;
     }
 
     private boolean isApplication(Module moduleToDeploy, ModuleToDeployHelper moduleToDeployHelper) {
@@ -115,8 +112,7 @@ public class ApplicationsCloudModelBuilder {
         int memory = parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.MEMORY, "0"));
         int instances = (Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0);
         DockerInfo dockerInfo = parseParameters(parametersList, new DockerInfoParser());
-        DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
-        List<String> uris = urisCloudModelBuilder.getApplicationUris(module, parametersList, deployedModule);
+        List<String> uris = getApplicationUris(module);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
         List<String> resolvedUris = xsPlaceholderResolver.resolve(uris);
         List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);
@@ -126,11 +122,17 @@ public class ApplicationsCloudModelBuilder {
         List<CloudTask> tasks = getTasks(parametersList);
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters(module);
         List<ApplicationPort> applicationPorts = getApplicationPorts(module, parametersList);
-        List<String> applicationDomains = getApplicationDomains(module, parametersList);
+        List<String> applicationDomains = getApplicationDomains(module);
         RestartParameters restartParameters = parseParameters(parametersList, new RestartParametersParser());
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
             resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains, restartParameters,
             dockerInfo);
+    }
+
+    public List<String> getApplicationUris(Module module) {
+        List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
+        DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
+        return urisCloudModelBuilder.getApplicationUris(module, parametersList, deployedModule);
     }
 
     protected <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
@@ -141,12 +143,12 @@ public class ApplicationsCloudModelBuilder {
         return deployedMta == null ? null : deployedMta.findDeployedModule(module.getName());
     }
 
-    protected String getApplicationName(Module module) {
+    public String getApplicationName(Module module) {
         return (String) module.getParameters()
             .get(SupportedParameters.APP_NAME);
     }
 
-    protected List<String> getAllApplicationServices(Module module) {
+    public List<String> getAllApplicationServices(Module module) {
         return getApplicationServices(module, this::allServicesRule);
     }
 
@@ -312,8 +314,9 @@ public class ApplicationsCloudModelBuilder {
         return applicationRoutes;
     }
 
-    protected List<String> getApplicationDomains(Module module, List<Map<String, Object>> parametersList) {
-        List<String> applicationDomains = urisCloudModelBuilder.getApplicationDomains(module, parametersList);
+    public List<String> getApplicationDomains(Module module) {
+        List<String> applicationDomains = urisCloudModelBuilder.getApplicationDomains(module,
+            parametersChainBuilder.buildModuleChain(module.getName()));
         return xsPlaceholderResolver.resolve(applicationDomains);
     }
 

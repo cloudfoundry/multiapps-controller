@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.junit.Before;
@@ -69,9 +71,8 @@ public class OccupiedPortsDetectorTest {
 
     @Test
     public void testGetOccupiedPorts() {
-        OccupiedPortsDetector occupiedPortsDetector = new OccupiedPortsDetector();
-        List<Integer> actualPorts = occupiedPortsDetector.detectOccupiedPorts(application);
-        assertEquals(expectedPorts, actualPorts);
+        Set<Integer> actualPorts = OccupiedPortsDetector.detectOccupiedPorts(application.getUris());
+        assertEquals(expectedPorts.stream().collect(Collectors.toSet()), actualPorts);
     }
 
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import com.sap.cloud.lm.sl.cf.core.cf.factory.HelperFactoryConstructor;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
@@ -45,10 +45,10 @@ public class HelperFactory implements HelperFactoryConstructor {
     }
 
     @Override
-    public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+    public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
         XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger stepLogger) {
-        return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
+        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
             deployId, stepLogger);
     }
 

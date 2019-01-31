@@ -2,12 +2,10 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -33,7 +31,7 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<CreateOrUpdateServiceBrokersStep> {
+public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<CreateOrUpdateServiceBrokerStep> {
 
     private final String expectedExceptionMessage;
     private final String inputLocation;
@@ -47,7 +45,7 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
     public ExpectedException expectedException = ExpectedException.none();
 
     @InjectMocks
-    private CreateOrUpdateServiceBrokersStep step = new CreateOrUpdateServiceBrokersStep();
+    private CreateOrUpdateServiceBrokerStep step = new CreateOrUpdateServiceBrokerStep();
     private CloudOperationException updateException;
     private CloudOperationException createException;
     private Class<? extends Throwable> expectedExceptionClass;
@@ -92,39 +90,43 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
             {
                 "create-service-brokers-step-input-08.json", "create-service-brokers-step-output-08.json", null, null, null, null, null,
             },
-            // (09) Create/update calls for both brokers should be made, although update throws exception:
+            // (09) Update call for broker should be made, although update throws exception:
             {
                 "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", "Could not update service broker \"foo-broker\". Operation not supported.", null, null, null, new CloudOperationException(HttpStatus.NOT_IMPLEMENTED),
             },
             // (10) A random exception is thrown during create:
             {
-                "create-service-brokers-step-input-09.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT), null,
+                "create-service-brokers-step-input-15.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT), null,
             },
             // (11) A random exception is thrown during update:
             {
-                "create-service-brokers-step-input-09.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, null, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
+                "create-service-brokers-step-input-14.json", null, null, "Controller operation failed: 418 I'm a teapot", CloudControllerException.class, null, new CloudOperationException(HttpStatus.I_AM_A_TEAPOT),
             },
             // (12) Create/update calls for should fail, because both create and update throw an exception and failsafe option is not set: 
             {
                 "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", null, "Controller operation failed: 403 Forbidden", CloudControllerException.class, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
             },
-            // (13) Create/update calls for both brokers should be made, although both create and update throw an exception but failsafe option is set: 
+            // (13) Update call for broker should be made, although both create and update throw an exception but failsafe option is set: 
             {
-                "create-service-brokers-step-input-09.json", "create-service-brokers-step-output-09.json", "Could not create service broker \"bar-broker\". Operation forbidden. Only admin users can manage service brokers!", null, null, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
+                "create-service-brokers-step-input-16.json", "create-service-brokers-step-output-09.json", "Could not update service broker \"foo-broker\". Operation forbidden. Only admin users can manage service brokers!", null, null, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
             },
-            // (14) A service broker should be created, all necessary parameters are present and it is space scoped:
+            // (14) Create call for broker should be made, although both create and update throw an exception but failsafe option is set: 
+            {
+                "create-service-brokers-step-input-15.json", "create-service-brokers-step-output-13.json", "Could not create service broker \"boo-broker\". Operation forbidden. Only admin users can manage service brokers!", null, null, new CloudOperationException(HttpStatus.FORBIDDEN), new CloudOperationException(HttpStatus.FORBIDDEN),
+            },
+            // (15) A service broker should be created, all necessary parameters are present and it is space scoped:
             {
                 "create-service-brokers-step-input-10.json", "create-service-brokers-step-output-10.json", null, null, null, null, null,
             },
-            // (15) The visibility of a service broker should be changed from global to space-scoped:
+            // (16) The visibility of a service broker should be changed from global to space-scoped:
             {
                 "create-service-brokers-step-input-11.json", "create-service-brokers-step-output-11.json", "Visibility of service broker \"foo-broker\" will not be changed from global to space-scoped, as visibility changes are not yet supported!", null, null, null, null,
             },
-            // (16) The visibility of a service broker should be changed from space-scoped to global:
+            // (17) The visibility of a service broker should be changed from space-scoped to global:
             {
                 "create-service-brokers-step-input-12.json", "create-service-brokers-step-output-12.json", "Visibility of service broker \"foo-broker\" will not be changed from space-scoped to global, as visibility changes are not yet supported!", null, null, null, null,
             },
-            // (17) A space-scoped service broker should be created on XSA:
+            // (18) A space-scoped service broker should be created on XSA:
             {
                 "create-service-brokers-step-input-13.json", "create-service-brokers-step-output-01.json", "Service broker \"foo-broker\" will be created as global, since space-scoped service brokers are not yet supported on this platform!", null, null, null, null,
             },
@@ -132,7 +134,7 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
         });
     }
 
-    public CreateOrUpdateServiceBrokersStepTest(String inputLocation, String expectedOutputLocation, String expectedWarningMessage,
+    public CreateOrUpdateServiceBrokerStepTest(String inputLocation, String expectedOutputLocation, String expectedWarningMessage,
         String expectedExceptionMessage, Class<? extends Throwable> expectedExceptionClass, CloudOperationException createException,
         CloudOperationException updateException) {
         this.expectedOutputLocation = expectedOutputLocation;
@@ -165,15 +167,16 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
                 .warn(expectedWarningMessage);
         }
 
-        List<CloudServiceBroker> actuallyCreatedServiceBrokers = StepsUtil.getServiceBrokersToCreate(context);
-        Collections.sort(actuallyCreatedServiceBrokers, (broker1, broker2) -> broker1.getName()
-            .compareTo(broker2.getName()));
-        List<CloudServiceBroker> expectedServiceBrokersToCreate = new ArrayList<>(expectedOutput.createdServiceBrokers);
-        expectedServiceBrokersToCreate.addAll(expectedOutput.updatedServiceBrokers);
-        Collections.sort(expectedServiceBrokersToCreate, (broker1, broker2) -> broker1.getName()
-            .compareTo(broker2.getName()));
+        CloudServiceBroker actuallyCreatedOrUpdatedServiceBroker = StepsUtil.getCreatedOrUpdatedServiceBroker(context);
+        CloudServiceBroker expectedCreatedServiceBroker = expectedOutput.createdServiceBroker;
+        CloudServiceBroker expectedUpdatedServiceBroker = expectedOutput.updatedServiceBroker;
 
-        assertEquals(JsonUtil.toJson(expectedServiceBrokersToCreate, true), JsonUtil.toJson(actuallyCreatedServiceBrokers, true));
+        if (Objects.nonNull(expectedCreatedServiceBroker)) {
+            assertEquals(JsonUtil.toJson(expectedCreatedServiceBroker, true), JsonUtil.toJson(actuallyCreatedOrUpdatedServiceBroker, true));
+        }
+        if (Objects.nonNull(expectedUpdatedServiceBroker)) {
+            assertEquals(JsonUtil.toJson(expectedUpdatedServiceBroker, true), JsonUtil.toJson(actuallyCreatedOrUpdatedServiceBroker, true));
+        }
     }
 
     private void loadParameters() throws Exception {
@@ -192,14 +195,8 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
     }
 
     private void prepareContext() {
-        StepsUtil.setAppsToDeploy(context, toCloudApplications(input.applications));
+        StepsUtil.setApp(context, input.application.toCloudApplication());
         StepsUtil.setSpaceId(context, input.spaceGuid);
-    }
-
-    private List<CloudApplicationExtended> toCloudApplications(List<SimpleApplication> applications) {
-        return applications.stream()
-            .map((application) -> application.toCloudApplication())
-            .collect(Collectors.toList());
     }
 
     private void prepareClient() {
@@ -215,10 +212,8 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
                 .when(client)
                 .createServiceBroker(Mockito.any());
         }
-        for (SimpleApplication application : input.applications) {
-            Mockito.when(client.getApplication(application.name))
-                .thenReturn(application.toCloudApplication());
-        }
+        Mockito.when(client.getApplication(input.application.name))
+            .thenReturn(input.application.toCloudApplication());
     }
 
     private StepOutput captureStepOutput() {
@@ -226,30 +221,40 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
         StepOutput actualOutput = new StepOutput();
 
         ArgumentCaptor<CloudServiceBroker> createArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBroker.class);
-        int expectedCreatedBrokersCnt = expectedOutput.createdServiceBrokers.size();
-        Mockito.verify(client, Mockito.times(expectedCreatedBrokersCnt))
-            .createServiceBroker(createArgumentCaptor.capture());
-        actualOutput.createdServiceBrokers = createArgumentCaptor.getAllValues();
+        boolean expectCreateServiceBroker = (expectedOutput != null && expectedOutput.createdServiceBroker != null) ? true : false;
+        if (expectCreateServiceBroker) {
+            Mockito.verify(client, Mockito.times(1))
+                .createServiceBroker(createArgumentCaptor.capture());
+            actualOutput.createdServiceBroker = createArgumentCaptor.getValue();
+        } else {
+            Mockito.verify(client, Mockito.never())
+                .createServiceBroker(Mockito.any());
+        }
 
         ArgumentCaptor<CloudServiceBroker> updateArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBroker.class);
-        int expectedUpdatedBrokersCnt = expectedOutput.updatedServiceBrokers.size();
-        Mockito.verify(client, Mockito.times(expectedUpdatedBrokersCnt))
-            .updateServiceBroker(updateArgumentCaptor.capture());
-        actualOutput.updatedServiceBrokers = updateArgumentCaptor.getAllValues();
+        boolean expectUpdateServiceBroker = (expectedOutput != null && expectedOutput.updatedServiceBroker != null) ? true : false;
+        if (expectUpdateServiceBroker) {
+            Mockito.verify(client, Mockito.times(1))
+                .updateServiceBroker(updateArgumentCaptor.capture());
+            actualOutput.updatedServiceBroker = updateArgumentCaptor.getValue();
+        } else {
+            Mockito.verify(client, Mockito.never())
+                .updateServiceBroker(Mockito.any());
+        }
 
         return actualOutput;
     }
 
     private static class StepInput {
         List<CloudServiceBroker> existingServiceBrokers;
-        List<SimpleApplication> applications;
+        SimpleApplication application;
         String spaceGuid;
         PlatformType platformType = PlatformType.CF;
     }
 
     private static class StepOutput {
-        List<CloudServiceBroker> createdServiceBrokers;
-        List<CloudServiceBroker> updatedServiceBrokers;
+        CloudServiceBroker createdServiceBroker;
+        CloudServiceBroker updatedServiceBroker;
     }
 
     static class SimpleApplication {
@@ -266,8 +271,8 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
     }
 
     @Override
-    protected CreateOrUpdateServiceBrokersStep createStep() {
-        return new CreateOrUpdateServiceBrokersStep();
+    protected CreateOrUpdateServiceBrokerStep createStep() {
+        return new CreateOrUpdateServiceBrokerStep();
     }
 
 }

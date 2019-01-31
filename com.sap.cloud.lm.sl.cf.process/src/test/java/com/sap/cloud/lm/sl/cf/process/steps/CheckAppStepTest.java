@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -71,7 +72,8 @@ public class CheckAppStepTest extends SyncFlowableStepTest<CheckAppStep> {
     }
 
     private void prepareContext() {
-        StepsUtil.setAppsToDeploy(context, stepInput.applications);
+        //TODO 
+        StepsUtil.setAppsToDeploy(context, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
         context.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
     }

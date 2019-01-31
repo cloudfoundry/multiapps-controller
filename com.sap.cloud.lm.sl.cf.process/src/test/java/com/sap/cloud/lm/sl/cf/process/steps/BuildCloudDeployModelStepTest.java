@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.cloudfoundry.client.lib.domain.ServiceKey;
@@ -22,9 +23,9 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
 import com.google.gson.reflect.TypeToken;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.util.ModulesCloudModelBuilderContentCalculator;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
@@ -38,11 +39,12 @@ import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 @RunWith(Parameterized.class)
 public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
-    
+
     private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
@@ -60,16 +62,16 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         public String servicesToCreateLocation;
         public String deployedMtaLocation;
         public String serviceKeysLocation;
-        public String appsToDeployLocation;
+        public String modulesToDeployLocation;
         public List<String> customDomains;
 
-        public StepInput(String appsToDeployLocation, String servicesToBindLocation, String servicesToCreateLocation,
+        public StepInput(String modulesToDeployLocation, String servicesToBindLocation, String servicesToCreateLocation,
             String serviceKeysLocation, List<String> customDomains, String deployedMtaLocation) {
             this.servicesToBindLocation = servicesToBindLocation;
             this.servicesToCreateLocation = servicesToCreateLocation;
             this.deployedMtaLocation = deployedMtaLocation;
             this.serviceKeysLocation = serviceKeysLocation;
-            this.appsToDeployLocation = appsToDeployLocation;
+            this.modulesToDeployLocation = modulesToDeployLocation;
             this.customDomains = customDomains;
         }
 
@@ -87,8 +89,14 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
     private class BuildCloudDeployModelStepMock extends BuildCloudDeployModelStep {
         @Override
-        protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {
-            return applicationsCloudModelBuilder;
+        protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DelegateExecution context) {
+            return applicationCloudModelBuilder;
+        }
+
+        @Override
+        protected ModulesCloudModelBuilderContentCalculator getModulesContentCalculator(ExecutionWrapper execution,
+            Set<String> mtaArchiveModules, Set<String> deployedModuleNames, Set<String> allMtaModules) {
+            return modulesCloudModelBuilderContentCalculator;
         }
 
         @Override
@@ -107,13 +115,13 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), "deployed-mta-12.json"), new StepOutput("0.1.0"),
+                new StepInput("modules-to-deploy-01.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), "deployed-mta-12.json"), new StepOutput("0.1.0"),
             },
             {
-                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), null), new StepOutput("0.1.0"),
+                new StepInput("modules-to-deploy-01.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), null), new StepOutput("0.1.0"),
             },
             {
-                new StepInput("apps-to-deploy-05.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), null), new StepOutput("0.1.0"),
+                new StepInput("modules-to-deploy-01.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), null), new StepOutput("0.1.0"),
             },
 // @formatter:on
         });
@@ -122,13 +130,15 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
     protected StepOutput output;
     protected StepInput input;
 
-    protected List<CloudApplicationExtended> appsToDeploy;
+    protected List<Module> modulesToDeploy;
     protected DeployedMta deployedMta;
     protected List<CloudServiceExtended> servicesToBind;
     protected Map<String, List<ServiceKey>> serviceKeys;
 
     @Mock
-    protected ApplicationsCloudModelBuilder applicationsCloudModelBuilder;
+    protected ApplicationCloudModelBuilder applicationCloudModelBuilder;
+    @Mock
+    protected ModulesCloudModelBuilderContentCalculator modulesCloudModelBuilderContentCalculator;
     @Mock
     protected ServiceKeysCloudModelBuilder serviceKeysCloudModelBuilder;
     @Mock
@@ -179,16 +189,18 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
             new Expectation(Expectation.Type.RESOURCE, input.servicesToCreateLocation), getClass());
         TestUtil.test(() -> StepsUtil.getServiceKeysToCreate(context),
             new Expectation(Expectation.Type.RESOURCE, input.serviceKeysLocation), getClass());
-        TestUtil.test(() -> StepsUtil.getAppsToDeploy(context), new Expectation(Expectation.Type.RESOURCE, input.appsToDeployLocation),
-            getClass());
+        TestUtil.test(() -> StepsUtil.getModulesToDeploy(context),
+            new Expectation(Expectation.Type.RESOURCE, input.modulesToDeployLocation), getClass());
+        TestUtil.test(() -> StepsUtil.getAllModulesToDeploy(context),
+            new Expectation(Expectation.Type.RESOURCE, input.modulesToDeployLocation), getClass());
+        assertEquals(false, StepsUtil.getUseIdleUris(context));
         assertEquals(input.customDomains, StepsUtil.getCustomDomains(context));
-
         assertEquals(output.newMtaVersion, StepsUtil.getNewMtaVersion(context));
     }
 
     protected void loadParameters() throws Exception {
-        String appsToDeployString = TestUtil.getResourceAsString(input.appsToDeployLocation, getClass());
-        appsToDeploy = JsonUtil.fromJson(appsToDeployString, new TypeToken<List<CloudApplicationExtended>>() {
+        String modulesToDeployString = TestUtil.getResourceAsString(input.modulesToDeployLocation, getClass());
+        modulesToDeploy = JsonUtil.fromJson(modulesToDeployString, new TypeToken<List<Module>>() {
         }.getType());
 
         String servicesToBindString = TestUtil.getResourceAsString(input.servicesToBindLocation, getClass());
@@ -203,8 +215,9 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
             String deployedMtaString = TestUtil.getResourceAsString(input.deployedMtaLocation, getClass());
             deployedMta = JsonUtil.fromJson(deployedMtaString, DeployedMta.class);
         }
-
-        when(applicationsCloudModelBuilder.build(any(), any())).thenReturn(appsToDeploy);
+        when(moduleToDeployHelper.isApplication(any())).thenReturn(true);
+        when(modulesCloudModelBuilderContentCalculator.calculateContentForBuilding(any())).thenReturn(modulesToDeploy);
+        when(applicationCloudModelBuilder.getApplicationDomains(any())).thenReturn(input.customDomains);
         when(servicesCloudModelBuilder.build(any())).thenReturn(servicesToBind);
         when(serviceKeysCloudModelBuilder.build()).thenReturn(serviceKeys);
         StepsUtil.setDeployedMta(context, deployedMta);

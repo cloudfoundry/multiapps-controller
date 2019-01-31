@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.v2;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -75,9 +76,10 @@ public class CloudModelBuilderTest {
     protected final Expectation expectedServices;
     protected final Expectation expectedApps;
     private ModulesCloudModelBuilderContentCalculator modulesCalculator;
+    protected ModuleToDeployHelper moduleToDeployHelper;
     protected ResourcesCloudModelBuilderContentCalculator resourcesCalculator;
 
-    protected ApplicationsCloudModelBuilder appsBuilder;
+    protected ApplicationCloudModelBuilder appBuilder;
     protected ServicesCloudModelBuilder servicesBuilder;
 
     @Parameters
@@ -519,12 +521,12 @@ public class CloudModelBuilderTest {
         return new ServicesCloudModelBuilder(deploymentDescriptor, configuration);
     }
 
-    protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
+    protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
         XsPlaceholderResolver xsPlaceholderResolver) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder())
             .resolve();
-        return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
+        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
             DEPLOY_ID, Mockito.mock(UserMessageLogger.class));
     }
 
@@ -558,12 +560,14 @@ public class CloudModelBuilderTest {
         XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
         xsPlaceholderResolver.setDefaultDomain(defaultDomain);
         CloudModelConfiguration configuration = createCloudModelConfiguration(defaultDomain);
-        appsBuilder = getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
+        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
             xsPlaceholderResolver);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
 
         modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, null, getUserMessageLogger(),
             new ModuleToDeployHelper(), Arrays.asList(new UnresolvedModulesContentValidator(mtaModules, deployedApps)));
+
+        moduleToDeployHelper = new ModuleToDeployHelper();
 
         resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(null, getUserMessageLogger());
     }
@@ -634,8 +638,12 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
             @Override
             public List<CloudApplicationExtended> call() throws Exception {
-                return appsBuilder.build(modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules2()),
-                    new ModuleToDeployHelper());
+                List<CloudApplicationExtended> apps = new ArrayList<CloudApplicationExtended>();
+                List<Module> modulesToDeploy = modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules2());
+                for (Module module : modulesToDeploy) {
+                    apps.add(appBuilder.build(module, moduleToDeployHelper));
+                }
+                return apps;
             }
         }, expectedApps, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }
