@@ -1,6 +1,6 @@
 {
   "existingServiceBrokers": [],
-  "applications": [
+  "application": 
     {
       "name": "foo",
       "attributes": {
@@ -11,11 +11,6 @@
         "service-broker-url": "http://localhost:3030",
         "service-broker-space-scoped": false
       }
-    },
-    {
-      "name": "qux",
-      "attributes": {}
     }
-  ]
 }
 

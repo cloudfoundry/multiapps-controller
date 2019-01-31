@@ -1,6 +1,6 @@
 {
   "existingServiceBrokers": [],
-  "applications": [
+  "application":
     {
       "name": "foo",
       "attributes": {
@@ -9,10 +9,5 @@
         "service-broker-password": "baz",
         "service-broker-url": "http://localhost:3030"
       }
-    },
-    {
-      "name": "qux",
-      "attributes": {}
     }
-  ]
 }

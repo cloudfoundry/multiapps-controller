@@ -1,6 +1,6 @@
 {
   "existingServiceBrokers": [],
-  "applications": [
+  "application":
     {
       "name": "foo",
       "attributes": {
@@ -12,11 +12,6 @@
         "service-broker-space-scoped": true
       }
     },
-    {
-      "name": "qux",
-      "attributes": {}
-    }
-  ],
   "spaceGuid": "cb42bf12-b819-4c27-5ba0-d3dc351b80dc",
   "platformType": "XS2"
 }

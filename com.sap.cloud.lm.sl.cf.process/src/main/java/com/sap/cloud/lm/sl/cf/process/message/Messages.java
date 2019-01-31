@@ -400,10 +400,10 @@ public class Messages {
     public static final String DEFAULT_DOMAIN = "Default domain: {0}";
     public static final String PORT_BASED_ROUTING = "Port based routing: {0}";
     public static final String VERSION_RULE = "Version rule: {0}";
-    public static final String SERVICE_BROKERS = "Service brokers: {0}";
-    public static final String SERVICE_URLS = "Service URLs: {0}";
+    public static final String SERVICE_BROKER = "Service broker: {0}";
     public static final String CONSTRUCTED_SERVICE_BROKER_FROM_APPLICATION = "Constructed service broker \"{0}\" declared by application \"{1}\"";
     public static final String CONSTRUCTED_SERVICE_URL_FROM_APPLICATION = "Constructed service URL \"{0}\" declared by application \"{1}\"";
+    public static final String MISSING_SERVICE_URL_FOR_APPLICATION = "Missing service URL for application \"{0}\"";
     public static final String PUBLISHED_ENTRIES = "Published entries: {0}";
     public static final String DELETED_ENTRIES = "Deleted entries: {0}";
     public static final String SYSTEM_PARAMETERS = "System parameters: {0}";
@@ -420,7 +420,7 @@ public class Messages {
     public static final String APPS_TO_DEPLOY = "Apps to deploy: {0}";
     public static final String CONFIGURATION_ENTRIES_TO_PUBLISH = "Configuration entries to publish: {0}";
     public static final String SERVICE_KEYS_TO_CREATE = "Service keys to create: {0}";
-    public static final String APPLICATION_PORTS = "Application ports: {0}";
+    public static final String USED_APPLICATION_PORTS = "Used application ports: {0}";
     public static final String ALLOCATED_PORTS = "Allocated ports: {0}";
     public static final String DEPLOYED_APPS = "Deployed apps: {0}";
     public static final String APP_WITH_UPDATED_ENVIRONMENT = "App with updated environment: {0}";

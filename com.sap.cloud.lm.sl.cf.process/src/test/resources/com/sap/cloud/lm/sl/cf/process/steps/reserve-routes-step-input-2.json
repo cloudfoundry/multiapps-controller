@@ -18,5 +18,7 @@
       "portType": "TCP"
     }
   ],
-  "allocatedPorts": [51164, 51165]
+  "allocatedPorts": {
+  	"appName": [51164, 51165]
+  }
 }

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
+import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -47,6 +48,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
     @Inject
     private ApplicationConfiguration configuration;
+    @Inject
+    private ModuleToDeployHelper moduleToDeployHelper;
 
     protected Supplier<CredentialsGenerator> credentialsGeneratorSupplier = CredentialsGenerator::new;
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()
@@ -141,7 +144,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         return new SystemParametersBuilder(StepsUtil.getOrg(context), StepsUtil.getSpace(context), user, defaultDomainName,
             configuration.getPlatformType(), controllerUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting,
             reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices, deployedMta, credentialsGeneratorSupplier.get(),
-            areXsPlaceholdersSupported, timestampSupplier);
+            areXsPlaceholdersSupported, timestampSupplier, moduleToDeployHelper);
     }
 
     private Map<String, Object> buildXsPlaceholderReplacementValues(String defaultDomain, String authorizationEndpoint,

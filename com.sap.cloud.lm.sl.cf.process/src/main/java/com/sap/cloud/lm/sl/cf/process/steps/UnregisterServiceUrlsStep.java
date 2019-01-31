@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -12,7 +11,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -33,7 +31,8 @@ public class UnregisterServiceUrlsStep extends SyncFlowableStep {
                 getStepLogger().debug(Messages.CLIENT_EXTENSIONS_ARE_NOT_SUPPORTED);
                 return StepPhase.DONE;
             }
-            List<String> serviceUrlToRegisterNames = getServiceNames(StepsUtil.getServiceUrlsToRegister(execution.getContext()));
+
+            List<String> serviceUrlToRegisterNames = getRegisteredServiceUrlNames(execution);
 
             for (CloudApplication app : StepsUtil.getAppsToUndeploy(execution.getContext())) {
                 unregisterServiceUrlIfNecessary(execution.getContext(), app, serviceUrlToRegisterNames, xsClient);
@@ -51,10 +50,8 @@ public class UnregisterServiceUrlsStep extends SyncFlowableStep {
         }
     }
 
-    private List<String> getServiceNames(List<ServiceUrl> serviceUrls) {
-        return serviceUrls.stream()
-            .map(ServiceUrl::getServiceName)
-            .collect(Collectors.toList());
+    protected List<String> getRegisteredServiceUrlNames(ExecutionWrapper execution) {
+        return StepsUtil.getRegisteredServiceUrlsNames(execution.getContext());
     }
 
     private void unregisterServiceUrlIfNecessary(DelegateExecution context, CloudApplication app, List<String> serviceUrlsToRegister,

@@ -15,7 +15,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("updateServiceBrokerSubscriberStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrokersStep {
+public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrokerStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {

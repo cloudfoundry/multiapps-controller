@@ -17,14 +17,14 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import com.sap.cloud.lm.sl.cf.core.model.ModuleToDeploy;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
 @RunWith(Parameterized.class)
-public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareModulesDeploymentStep> {
+public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<PrepareModulesDeploymentStep> {
 
     @Mock
     private ProcessTypeParser processTypeParser;
@@ -46,7 +46,7 @@ public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareM
         });
     }
 
-    public PrepareAppsDeploymentStepTest(int count, ProcessType processType, boolean skipUpdateConfigurations) {
+    public PrepareModulesDeploymentStepTest(int count, ProcessType processType, boolean skipUpdateConfigurations) {
         this.count = count;
         this.processType = processType;
         this.skipUpdateConfigurations = skipUpdateConfigurations;
@@ -82,13 +82,14 @@ public class PrepareAppsDeploymentStepTest extends SyncFlowableStepTest<PrepareM
 
     private DelegateExecution prepareContext() {
         StepsUtil.setAllModulesToDeploy(context, getDummyModules());
+        StepsUtil.setModuleToDeployClass(context, getDummyModules());
         return context;
     }
     
-    private List<ModuleToDeploy> getDummyModules() {
-        List<ModuleToDeploy> modules = new ArrayList<>();
+    private List<Module> getDummyModules() {
+        List<Module> modules = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            modules.add(new ModuleToDeploy("module-" + i, "app"));
+            modules.add(new Module.Builder().build());
         }
         return modules;
     }

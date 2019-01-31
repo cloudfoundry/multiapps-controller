@@ -1,18 +1,16 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
-import org.cloudfoundry.client.lib.domain.CloudApplication;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 
 public class OccupiedPortsDetector {
 
-    public List<Integer> detectOccupiedPorts(CloudApplication application) {
-        List<Integer> occupiedPorts = new ArrayList<>();
-        for (String uri : getApplicationUris(application)) {
+    public static Set<Integer> detectOccupiedPorts(List<String> applicationUris) {
+        Set<Integer> occupiedPorts = new TreeSet<>();
+        for (String uri : applicationUris) {
             Integer port = UriUtil.getPort(uri);
             if (port != null) {
                 occupiedPorts.add(port);
@@ -20,13 +18,4 @@ public class OccupiedPortsDetector {
         }
         return occupiedPorts;
     }
-
-    private List<String> getApplicationUris(CloudApplication application) {
-        List<String> uris = application.getUris();
-        if (uris == null) {
-            return Collections.emptyList();
-        }
-        return uris;
-    }
-
 }

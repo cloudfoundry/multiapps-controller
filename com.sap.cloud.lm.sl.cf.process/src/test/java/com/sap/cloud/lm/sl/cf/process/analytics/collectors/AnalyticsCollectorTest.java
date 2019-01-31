@@ -36,6 +36,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
 public class AnalyticsCollectorTest {
     protected static final String PROCESS_ID = "process-instance-id";
@@ -47,6 +48,7 @@ public class AnalyticsCollectorTest {
     protected static final String TIME_ZONE = "Europe/Berlin";
     protected static final PlatformType PLATFORM_TYPE = PlatformType.CF;
     protected static final Map<String, ServiceOperationType> TRIGGERED_SERVICE_OPERATIONS = new HashMap<>();
+    protected static final String MODULE_A = "module-a";
 
     static {
         TRIGGERED_SERVICE_OPERATIONS.put("foo", ServiceOperationType.CREATE);
@@ -111,14 +113,14 @@ public class AnalyticsCollectorTest {
         when(configuration.getPlatformType()).thenReturn(PLATFORM_TYPE);
         context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
         context.setVariable(Constants.VAR_ORG, ORG_NAME);
-
-        when(context.getVariable(Constants.VAR_CUSTOM_DOMAINS)).thenReturn(mockedListWithStringsAsBytes(2));
+        
+        when(context.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME)).thenReturn(Module.class.getName());
+        when(context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY)).thenReturn(mockModulesToDeploy(2));
+        when(context.getVariable(Constants.VAR_CUSTOM_DOMAINS)).thenReturn(mockedListAsBytesWithStrings(2));
         when(context.getVariable(Constants.VAR_SERVICES_TO_CREATE)).thenReturn(mockedListWithStrings(4));
-        when(context.getVariable(Constants.VAR_APPS_TO_DEPLOY)).thenReturn(mockedListWithStrings(1));
+        when(context.getVariable(Constants.VAR_APPS_TO_DEPLOY)).thenReturn(mockedListAsBytesWithStrings(1));
         when(context.getVariable(Constants.VAR_PUBLISHED_ENTRIES)).thenReturn(mockedListWithObjects(1));
         when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE)).thenReturn(mockedListWithObjects(3));
-        when(context.getVariable(Constants.VAR_SERVICE_URLS_TO_REGISTER)).thenReturn(mockedListWithObjects(5));
-        when(context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE)).thenReturn(mockedListWithObjects(1));
         when(context.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS))
             .thenReturn(JsonUtil.toBinaryJson(TRIGGERED_SERVICE_OPERATIONS));
         when(context.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.toBinaryJson(new Object()));
@@ -126,7 +128,7 @@ public class AnalyticsCollectorTest {
         when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE)).thenReturn(mockedListWithObjects(2));
         when(context.getVariable(Constants.VAR_DELETED_ENTRIES)).thenReturn(mockedListWithObjects(1));
         when(context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY)).thenReturn(mockedListWithObjects(3));
-        when(context.getVariable(Constants.VAR_SERVICES_TO_DELETE)).thenReturn(mockedListWithStringsAsBytes(3));
+        when(context.getVariable(Constants.VAR_SERVICES_TO_DELETE)).thenReturn(mockedListAsBytesWithStrings(3));
         when(context.getVariable(Constants.VAR_UPDATED_SUBSCRIBERS)).thenReturn(mockedListWithObjects(1));
         when(context.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS)).thenReturn(mockedListWithObjects(2));
     }
@@ -147,12 +149,22 @@ public class AnalyticsCollectorTest {
         return list;
     }
 
-    private byte[] mockedListWithStringsAsBytes(int size) {
+    private byte[] mockedListAsBytesWithStrings(int size) {
         List<String> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             list.add(new String());
         }
         return JsonUtil.toBinaryJson(list);
+    }
+    
+    private List<byte[]> mockModulesToDeploy(int size) {
+        List<byte[]> list = new ArrayList<>();
+        Module.Builder moduleBuilder = new Module.Builder();
+        for (int i = 0; i < size; i++) {
+            moduleBuilder.setName(Integer.toString(i));
+            list.add(JsonUtil.toBinaryJson(moduleBuilder.build()));
+        }
+        return list;
     }
 
     @Test

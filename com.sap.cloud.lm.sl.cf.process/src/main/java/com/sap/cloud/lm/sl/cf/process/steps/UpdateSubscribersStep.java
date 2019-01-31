@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
@@ -216,15 +216,14 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
             secureSerializer.toJson(dummyDescriptor));
 
-        ApplicationsCloudModelBuilder appsCloudModelBuilder = handlerFactory.getApplicationsCloudModelBuilder(dummyDescriptor,
+        ApplicationCloudModelBuilder applicationCloudModelBuilder = handlerFactory.getApplicationCloudModelBuilder(dummyDescriptor,
             StepsUtil.getCloudBuilderConfiguration(context, shouldUsePrettyPrinting()), null, getEmptySystemParameters(),
             new XsPlaceholderResolver(), "",getStepLogger());
 
         Module module = dummyDescriptor.getModules2()
             .get(0);
 
-        CloudApplicationExtended application = appsCloudModelBuilder.build(Arrays.asList(module), moduleToDeployHelper)
-            .get(0);
+        CloudApplicationExtended application = applicationCloudModelBuilder.build(module, moduleToDeployHelper);
         CloudApplication existingApplication = client.getApplication(subscription.getAppName());
 
         Map<String, String> updatedEnvironment = application.getEnvAsMap();

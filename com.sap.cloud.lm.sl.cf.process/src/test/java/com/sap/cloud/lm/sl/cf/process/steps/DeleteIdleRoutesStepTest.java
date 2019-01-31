@@ -33,10 +33,10 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
 
     private static class StepInput {
 
-        public String appsToDeployLocation;
+        public String appToDeployLocation;
 
-        public StepInput(String appsToDeployLocation) {
-            this.appsToDeployLocation = appsToDeployLocation;
+        public StepInput(String appToDeployLocation) {
+            this.appToDeployLocation = appToDeployLocation;
         }
 
     }
@@ -44,11 +44,11 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
     private static class StepOutput {
 
         public List<String> urisToDelete;
-        public String appsToDeployLocation;
+        public String appToDeployLocation;
 
-        public StepOutput(String appsToDeployLocation, List<String> urisToDelete) {
+        public StepOutput(String appToDeployLocation, List<String> urisToDelete) {
             this.urisToDelete = urisToDelete;
-            this.appsToDeployLocation = appsToDeployLocation;
+            this.appToDeployLocation = appToDeployLocation;
         }
 
     }
@@ -59,22 +59,22 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
 // @formatter:off
             // (0) There are idle URIs:
             {
-                new StepInput("apps-to-deploy-04.json"), new StepOutput("apps-to-deploy-04.json", Arrays.asList("module-2-idle.api.cf.neo.ondemand.com", "module-3-idle.api.cf.neo.ondemand.com")),
+                new StepInput("app-to-deploy-1.json"), new StepOutput("app-to-deploy-1.json", Arrays.asList("module-1-idle.domain.com")),
             },
             // (1) There are no idle URIs:
             {
-                new StepInput("apps-to-deploy-07.json"), new StepOutput("apps-to-deploy-07.json", Collections.emptyList()),
+                new StepInput("app-to-deploy-2.json"), new StepOutput("app-to-deploy-2.json", Collections.emptyList()),
             },
             // (2) There are idle TCP URIs:
             {
-                new StepInput("apps-to-deploy-11.json"), new StepOutput("apps-to-deploy-11.json", Arrays.asList("tcp://test.domain.com:51052")),
+                new StepInput("app-to-deploy-3.json"), new StepOutput("app-to-deploy-3.json", Arrays.asList("tcp://test.domain.com:51052")),
             },
 // @formatter:on
         });
     }
 
-    private List<CloudApplicationExtended> expectedAppsToDeploy;
-    private List<CloudApplicationExtended> appsToDeploy;
+    private CloudApplicationExtended expectedAppToDeploy;
+    private CloudApplicationExtended appToDeploy;
 
     private StepOutput output;
     private StepInput input;
@@ -92,28 +92,26 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
     }
 
     private void loadParameters() throws Exception {
-        expectedAppsToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(output.appsToDeployLocation, getClass()),
-            new TypeToken<List<CloudApplicationExtended>>() {
+        expectedAppToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(output.appToDeployLocation, getClass()),
+            new TypeToken<CloudApplicationExtended>() {
             }.getType());
-        appsToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(input.appsToDeployLocation, getClass()),
-            new TypeToken<List<CloudApplicationExtended>>() {
+        appToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(input.appToDeployLocation, getClass()),
+            new TypeToken<CloudApplicationExtended>() {
             }.getType());
     }
 
     private void prepareContext() {
         context.setVariable(Constants.VAR_PORT_BASED_ROUTING, false);
 
-        StepsUtil.setAppsToDeploy(context, appsToDeploy);
+        StepsUtil.setApp(context, appToDeploy);
     }
 
     private void prepareClient() {
-        for (CloudApplicationExtended app : expectedAppsToDeploy) {
-            CloudApplicationExtended existingApp = new CloudApplicationExtended(null, app.getName());
-            List<String> existingUris = new ArrayList<>(app.getUris());
-            existingUris.addAll(output.urisToDelete);
-            existingApp.setUris(existingUris);
-            when(client.getApplication(app.getName())).thenReturn(existingApp);
-        }
+        CloudApplicationExtended existingApp = new CloudApplicationExtended(null, expectedAppToDeploy.getName());
+        List<String> existingUris = new ArrayList<>(expectedAppToDeploy.getUris());
+        existingUris.addAll(output.urisToDelete);
+        existingApp.setUris(existingUris);
+        when(client.getApplication(expectedAppToDeploy.getName())).thenReturn(existingApp);
     }
 
     @Test

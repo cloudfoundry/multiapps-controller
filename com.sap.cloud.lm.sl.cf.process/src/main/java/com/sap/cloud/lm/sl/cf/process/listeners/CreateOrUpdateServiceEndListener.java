@@ -14,7 +14,7 @@ import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 public class CreateOrUpdateServiceEndListener implements ExecutionListener {
     
     private static final long serialVersionUID = 1L;
-    
+
     @Override
     public void notify(DelegateExecution context) {
         boolean isServiceUpdated = StepsUtil.getIsServiceUpdated(context);

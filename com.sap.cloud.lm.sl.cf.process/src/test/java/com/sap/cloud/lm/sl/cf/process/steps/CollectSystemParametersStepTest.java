@@ -1,6 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -9,9 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.CloudDomain;
@@ -30,6 +26,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
+import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorMock;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -70,10 +67,11 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
         public int majorMtaSchemaVersion;
         public PlatformType xsType;
         public boolean areXsPlaceholdersSupported;
+        public boolean isApplication;
 
         public StepInput(String deploymentDescriptorLocation, String authorizationEndpoint, String deployServiceUrl, String defaultDomain,
             boolean portBasedRouting, boolean useNamespaces, boolean useNamespacesForServices, String user, String org, String space,
-            int majorMtaSchemaVersion, String deployedMtaLocation, PlatformType xsType, boolean areXsPlaceholdersSupported) {
+            int majorMtaSchemaVersion, String deployedMtaLocation, PlatformType xsType, boolean areXsPlaceholdersSupported, boolean isApplication) {
             this.deploymentDescriptorLocation = deploymentDescriptorLocation;
             this.authorizationEndpoint = authorizationEndpoint;
             this.deployServiceUrl = deployServiceUrl;
@@ -88,18 +86,19 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
             this.majorMtaSchemaVersion = majorMtaSchemaVersion;
             this.xsType = xsType;
             this.areXsPlaceholdersSupported = areXsPlaceholdersSupported;
+            this.isApplication = isApplication;
         }
 
     }
 
     protected static class StepOutput {
 
-        public Set<Integer> allocatedPorts;
+        public Expectation allocatedPortsExpectation;
         public Expectation systemParametersExpectation;
         public String versionException;
 
-        public StepOutput(Set<Integer> allocatedPorts, Expectation systemParametersExpectation, String versionException) {
-            this.allocatedPorts = allocatedPorts;
+        public StepOutput(Expectation allocatedPortsExpectation, Expectation systemParametersExpectation, String versionException) {
+            this.allocatedPortsExpectation = allocatedPortsExpectation;
             this.systemParametersExpectation = systemParametersExpectation;
             this.versionException = versionException;
         }
@@ -111,53 +110,58 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
 // @formatter:off
             // (0) Should not use namespaces for applications and services:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-02.json"), null),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, true), 
+                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-02.json"), null),
             },
             // (1) Should use namespaces for applications and services:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-01.json"), null),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, true), 
+                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-01.json"), null),
             },
             // (2) There are deployed MTAs:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, "deployed-mta-01.json", PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-04.json"), null),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, "deployed-mta-01.json", PlatformType.XS2, false, true), 
+                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-04.json"), null),
             },
             // (3) Host based routing:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false), 
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, true), 
                 new StepOutput(null, new Expectation(Expectation.Type.RESOURCE, "system-parameters-03.json"), null),
             },
             // (4) The version of the MTA is lower than the version of the previously deployed MTA:
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, "deployed-mta-02.json", PlatformType.XS2, false), 
-                new StepOutput(Collections.emptySet(), new Expectation(Expectation.Type.RESOURCE, "system-parameters-04.json"), Messages.HIGHER_VERSION_ALREADY_DEPLOYED),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, "deployed-mta-02.json", PlatformType.XS2, false, true), 
+                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-04.json"), Messages.HIGHER_VERSION_ALREADY_DEPLOYED),
             },
             // (5) Should not use namespaces for applications and services (platform type  is  CF):
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.CF , false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-07.json"), null),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.CF , false, true), 
+                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-07.json"), null),
             },
             // (6) Should not use namespaces for applications and services (XS placeholders are supported):
             {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, true ), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2, 3)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-06.json"), null),
+                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, true, true), 
+                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-06.json"), null),
             },
             // (7) Host based routing with TCP/TCPS
             {
-                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 3, null, PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-12.json"), null),
+                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 3, null, PlatformType.XS2, false, true), 
+                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-2.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-12.json"), null),
             },
             // (8) Host based routing with TCP/TCPS with existing apps with HTTP uris
             {
-                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 3, "deployed-mta-13.json", PlatformType.XS2, false), 
-                new StepOutput(new TreeSet<>(Arrays.asList(1, 2)), new Expectation(Expectation.Type.RESOURCE, "system-parameters-12.json"), null),
+                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 3, "deployed-mta-13.json", PlatformType.XS2, false, true), 
+                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-2.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-12.json"), null),
             },
             // (9) Host based routing with TCP/TCPS with existing apps with TCP uris
             {
-                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 3, "deployed-mta-14.json", PlatformType.XS2, false), 
-                new StepOutput(Collections.emptySet(), new Expectation(Expectation.Type.RESOURCE, "system-parameters-13.json"), null),
+                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 3, "deployed-mta-14.json", PlatformType.XS2, false, true), 
+                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "empty-map.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-13.json"), null),
+            },
+            // (10) Port based routing with non-application module
+            {
+                new StepInput("mtad-non-application.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, false), 
+                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "empty-map.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-14.json"), null),
             },
 // @formatter:on
         });
@@ -172,6 +176,8 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
     private PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE);
     @Mock
     private CredentialsGenerator credentialsGenerator;
+    @Mock
+    protected ModuleToDeployHelper moduleToDeployHelper;
 
     public CollectSystemParametersStepTest(StepInput input, StepOutput output) {
         this.input = input;
@@ -193,7 +199,8 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
 
     private void loadParameters() throws Exception {
         String deploymentDescriptorString = TestUtil.getResourceAsString(input.deploymentDescriptorLocation, getClass());
-
+        
+        when(moduleToDeployHelper.isApplication(any())).thenReturn(input.isApplication);
         descriptor = new HandlerFactory(input.majorMtaSchemaVersion).getDescriptorParser()
             .parseDeploymentDescriptorYaml(deploymentDescriptorString);
         if (input.deployedMtaLocation != null) {
@@ -254,9 +261,14 @@ public class CollectSystemParametersStepTest extends SyncFlowableStepTest<Collec
 
         assertStepFinishedSuccessfully();
 
-        if (output.allocatedPorts != null) {
-            assertEquals(output.allocatedPorts, StepsUtil.getAllocatedPorts(context));
+        if (output.allocatedPortsExpectation != null) {
+            TestUtil.test(() -> {
+                
+                return StepsUtil.getAllocatedPorts(context);
+                
+            }, output.allocatedPortsExpectation, getClass());
         }
+        
 
         TestUtil.test(() -> {
 

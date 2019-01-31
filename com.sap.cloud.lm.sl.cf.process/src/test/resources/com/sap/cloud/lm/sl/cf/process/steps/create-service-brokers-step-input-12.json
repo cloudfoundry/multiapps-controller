@@ -9,7 +9,7 @@
       "spaceGuid": "cb42bf12-b819-4c27-5ba0-d3dc351b80dc"
     }
   ],
-  "applications": [
+  "application":
     {
       "name": "foo",
       "attributes": {
@@ -21,6 +21,5 @@
         "service-broker-space-scoped": false
       }
     }
-  ]
 }
 

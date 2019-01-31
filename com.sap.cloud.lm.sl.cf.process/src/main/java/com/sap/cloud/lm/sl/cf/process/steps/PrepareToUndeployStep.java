@@ -39,11 +39,13 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
             String mtaId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_MTA_ID);
 
             StepsUtil.setMtaModules(execution.getContext(), getMtaModules(execution.getContext()));
-            StepsUtil.setServiceBrokersToCreate(execution.getContext(), Collections.emptyList());
             StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());
+            StepsUtil.setModulesToDeploy(execution.getContext(), Collections.emptyList());
             StepsUtil.setAppsToDeploy(execution.getContext(), Collections.emptyList());
-            StepsUtil.setServiceUrlsToRegister(execution.getContext(), Collections.emptyList());
+            StepsUtil.setAllModulesToDeploy(execution.getContext(), Collections.emptyList());
             StepsUtil.setSubscriptionsToCreate(execution.getContext(), Collections.emptyList());
+            execution.getContext()
+                .setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 2);
 
             conflictPreventerSupplier.apply(operationDao)
                 .acquireLock(mtaId, StepsUtil.getSpaceId(execution.getContext()), execution.getContext()

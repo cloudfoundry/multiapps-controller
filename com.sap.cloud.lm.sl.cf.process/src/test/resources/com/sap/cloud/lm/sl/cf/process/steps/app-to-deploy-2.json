@@ -1,0 +1,7 @@
+{
+  "name": "module-1",
+  "uris": [
+    "module-1.domain.com"
+  ],
+  "idleUris": [ ]
+ }

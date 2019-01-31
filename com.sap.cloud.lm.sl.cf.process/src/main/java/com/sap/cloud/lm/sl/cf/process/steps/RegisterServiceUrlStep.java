@@ -1,8 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -18,11 +15,10 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-@Component("registerServiceUrlsStep")
+@Component("registerServiceUrlStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class RegisterServiceUrlsStep extends SyncFlowableStep {
+public class RegisterServiceUrlStep extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -35,14 +31,19 @@ public class RegisterServiceUrlsStep extends SyncFlowableStep {
                 return StepPhase.DONE;
             }
 
-            List<ServiceUrl> serviceUrlsToRegister = getServiceUrlsToRegister(StepsUtil.getAppsToDeploy(execution.getContext()));
-            getStepLogger().debug(Messages.SERVICE_URLS, JsonUtil.toJson(serviceUrlsToRegister, true));
+            CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
+            ServiceUrl serviceUrlToRegister = getServiceUrlToRegister(app);
 
-            for (ServiceUrl serviceUrl : serviceUrlsToRegister) {
-                registerServiceUrl(execution.getContext(), serviceUrl, xsClient);
+            if (serviceUrlToRegister == null) {
+                getStepLogger().debug(Messages.MISSING_SERVICE_URL_FOR_APPLICATION, app.getName());
+                return StepPhase.DONE;
             }
 
-            StepsUtil.setServiceUrlsToRegister(execution.getContext(), serviceUrlsToRegister);
+            getStepLogger().debug(Messages.CONSTRUCTED_SERVICE_URL_FROM_APPLICATION, serviceUrlToRegister.getServiceName(), app.getName());
+
+            registerServiceUrl(execution.getContext(), serviceUrlToRegister, xsClient);
+
+            StepsUtil.setServiceUrlToRegister(execution.getContext(), serviceUrlToRegister);
             getStepLogger().debug(Messages.SERVICE_URLS_REGISTERED);
             return StepPhase.DONE;
         } catch (CloudOperationException coe) {
@@ -53,18 +54,6 @@ public class RegisterServiceUrlsStep extends SyncFlowableStep {
             getStepLogger().error(e, Messages.ERROR_REGISTERING_SERVICE_URLS);
             throw e;
         }
-    }
-
-    private List<ServiceUrl> getServiceUrlsToRegister(List<CloudApplicationExtended> appsToDeploy) {
-        List<ServiceUrl> serviceUrlsToRegister = new ArrayList<>();
-        for (CloudApplicationExtended app : appsToDeploy) {
-            ServiceUrl serviceUrl = getServiceUrlToRegister(app);
-            if (serviceUrl != null) {
-                getStepLogger().debug(Messages.CONSTRUCTED_SERVICE_URL_FROM_APPLICATION, serviceUrl.getServiceName(), app.getName());
-                serviceUrlsToRegister.add(serviceUrl);
-            }
-        }
-        return serviceUrlsToRegister;
     }
 
     private ServiceUrl getServiceUrlToRegister(CloudApplicationExtended app) {

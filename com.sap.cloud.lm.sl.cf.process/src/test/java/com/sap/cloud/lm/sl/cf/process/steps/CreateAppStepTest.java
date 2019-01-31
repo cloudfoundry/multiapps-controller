@@ -116,7 +116,8 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
     }
 
     private void prepareContext() {
-        StepsUtil.setAppsToDeploy(context, stepInput.applications);
+        //TODO
+        StepsUtil.setAppsToDeploy(context, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
         StepsUtil.setServicesToBind(context, mapToCloudServiceExtended());
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
@@ -247,7 +248,8 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
             context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
             stepInput.applications.get(0)
                 .setDockerInfo(dockerInfo);
-            StepsUtil.setAppsToDeploy(context, stepInput.applications);
+            //TODO
+            StepsUtil.setAppsToDeploy(context, Collections.emptyList());
             StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
         }
 

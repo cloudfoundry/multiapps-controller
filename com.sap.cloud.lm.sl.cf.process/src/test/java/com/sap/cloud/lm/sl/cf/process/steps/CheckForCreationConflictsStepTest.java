@@ -142,8 +142,8 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private void prepareContext() {
         StepsUtil.setServicesToCreate(context, stepInput.servicesToDeploy);
-        List<CloudApplicationExtended> appsToDeploy = new ArrayList<>();
-        stepInput.appsToDeploy.forEach(app -> appsToDeploy.add(app.toCloudApplication()));
+        List<String> appsToDeploy = new ArrayList<>();
+        stepInput.appsToDeploy.forEach(app -> appsToDeploy.add(app.name));
         StepsUtil.setAppsToDeploy(context, appsToDeploy);
         List<CloudApplication> existingApps = new ArrayList<>();
         stepInput.existingApps.forEach(app -> existingApps.add(app.toCloudApplication()));

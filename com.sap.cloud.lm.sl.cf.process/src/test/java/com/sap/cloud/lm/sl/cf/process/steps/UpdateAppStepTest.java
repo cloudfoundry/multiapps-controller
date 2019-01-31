@@ -299,7 +299,8 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         StepsUtil.setExistingApp(context, input.existingApplication.toCloudApp());
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         cloudApp.setModuleName("test");
-        StepsUtil.setAppsToDeploy(context, Arrays.asList(cloudApp));
+        //TODO
+        StepsUtil.setAppsToDeploy(context, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(cloudApp), context);
         StepsUtil.setServicesToBind(context, mapToCloudServices());
         StepsUtil.setTriggeredServiceOperations(context, Collections.emptyMap());

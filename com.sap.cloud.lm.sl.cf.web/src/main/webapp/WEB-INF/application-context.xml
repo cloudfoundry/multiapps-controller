@@ -28,6 +28,9 @@
 
         <bean id="buildCloudDeployModelStep" class="com.sap.cloud.lm.sl.cf.process.steps.BuildCloudDeployModelStep"
             scope="prototype" />
+            
+        <bean id="buildApplicationDeployModelStep"
+            class="com.sap.cloud.lm.sl.cf.process.steps.BuildApplicationDeployModelStep" scope="prototype" />
 
         <bean id="processDescriptorStep" class="com.sap.cloud.lm.sl.cf.process.steps.ProcessDescriptorStep"
             scope="prototype" />

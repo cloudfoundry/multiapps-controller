@@ -55,12 +55,13 @@ public class SystemParametersBuilder {
     private final boolean reserveTemporaryRoutes;
     private final boolean areXsPlaceholdersSupported;
     private final Supplier<String> timestampSupplier;
+    private final ModuleToDeployHelper moduleToDeployHelper;
 
     public SystemParametersBuilder(String organization, String space, String user, String defaultDomain, PlatformType platformType,
         URL controllerUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting,
         boolean reserveTemporaryRoutes, PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices,
         DeployedMta deployedMta, CredentialsGenerator credentialsGenerator, boolean areXsPlaceholdersSupported,
-        Supplier<String> timestampSupplier) {
+        Supplier<String> timestampSupplier, ModuleToDeployHelper moduleToDeployHelper) {
         this.targetName = organization + " " + space;
         this.organization = organization;
         this.space = space;
@@ -80,6 +81,7 @@ public class SystemParametersBuilder {
         this.reserveTemporaryRoutes = reserveTemporaryRoutes;
         this.areXsPlaceholdersSupported = areXsPlaceholdersSupported;
         this.timestampSupplier = timestampSupplier;
+        this.moduleToDeployHelper = moduleToDeployHelper;
     }
 
     public SystemParameters build(DeploymentDescriptor descriptor) {
@@ -150,7 +152,7 @@ public class SystemParametersBuilder {
     private void putRoutingParameters(Module module, Map<String, Object> moduleParameters, Map<String, Object> moduleSystemParameters) {
         putHostParameters(module, moduleSystemParameters);
         String protocol = getProtocol(moduleParameters);
-        if (portBasedRouting || (isTcpOrTcpsProtocol(protocol) && portAllocator != null)) {
+        if (portAllocator != null && moduleToDeployHelper.isApplication(module) && (portBasedRouting || isTcpOrTcpsProtocol(protocol))) {
             putPortRoutingParameters(module, moduleParameters, moduleSystemParameters);
         } else {
             boolean isStandardPort = UriUtil.isStandardPort(routerPort, controllerUrl.getProtocol());
@@ -195,7 +197,7 @@ public class SystemParametersBuilder {
 
         int defaultPort = getDefaultPort(module.getName(), moduleParameters);
         if (shouldReserveTemporaryRoutes()) {
-            int idlePort = allocatePort(moduleParameters);
+            int idlePort = allocatePort(module.getName(), moduleParameters);
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_PORT, idlePort);
             moduleSystemParameters.put(SupportedParameters.IDLE_PORT, idlePort);
             moduleSystemParameters.put(SupportedParameters.DEFAULT_IDLE_URI,
@@ -243,10 +245,10 @@ public class SystemParametersBuilder {
             }
         }
 
-        return allocatePort(moduleParameters);
+        return allocatePort(moduleName, moduleParameters);
     }
 
-    private int allocatePort(Map<String, Object> moduleParameters) {
+    private int allocatePort(String moduleName, Map<String, Object> moduleParameters) {
         boolean isTcpRoute = getBooleanParameter(moduleParameters, SupportedParameters.TCP);
         boolean isTcpsRoute = getBooleanParameter(moduleParameters, SupportedParameters.TCPS);
         if (isTcpRoute && isTcpsRoute) {
@@ -254,9 +256,9 @@ public class SystemParametersBuilder {
         }
 
         if (isTcpRoute || isTcpsRoute) {
-            return portAllocator.allocateTcpPort(isTcpsRoute);
+            return portAllocator.allocateTcpPort(moduleName, isTcpsRoute);
         } else {
-            return portAllocator.allocatePort();
+            return portAllocator.allocatePort(moduleName);
         }
     }
 
