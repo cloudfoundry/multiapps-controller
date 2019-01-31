@@ -1,0 +1,67 @@
+package com.sap.cloud.lm.sl.cf.process.steps;
+
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.util.function.BiFunction;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
+import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
+import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
+import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+
+public class MtaDescriptorPropertiesResolverTest {
+
+    public static Stream<Arguments> testResolve() {
+        return Stream.of(
+// @formatter:off
+            Arguments.of(
+                "mtad-properties-resolver-test/bg-mtad-xsa-with-route.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-properties-resolver-test/bg-mtad-xsa-with-route-result.json")
+                ),
+            Arguments.of(
+                "mtad-properties-resolver-test/bg-mtad-xsa-with-domain.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-properties-resolver-test/bg-mtad-xsa-with-domain-result.json")
+                )
+            );
+// @formatter:on
+    }
+
+    private MtaDescriptorPropertiesResolver resolver;
+
+    @Mock
+    private BiFunction<String, String, String> spaceIdSupplier;
+    @Mock
+    private ApplicationConfiguration configuration;
+    @Mock
+    private ConfigurationEntryDao dao;
+    @Mock
+    private CloudTarget cloudTarget;
+
+    @BeforeEach
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+        when(spaceIdSupplier.apply(anyString(), anyString())).thenReturn("");
+
+        resolver = new MtaDescriptorPropertiesResolver(new HandlerFactory(2), dao, new CloudTarget("", ""), "", configuration, false, false,
+            false);
+    }
+
+    @ParameterizedTest(name = "{index}: \"{1}.\"")
+    @MethodSource
+    public void testResolve(String descriptorFile, Expectation expectation) {
+        DeploymentDescriptor descriptor = StepsTestUtil.loadDeploymentDescriptor(descriptorFile, getClass());
+
+        TestUtil.test(() -> resolver.resolve(descriptor), expectation, getClass());
+    }
+}

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.Module;
@@ -17,7 +18,7 @@ public class RouteValidator implements ParameterValidator {
     public RouteValidator() {
         this.validators = Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator());
     }
-
+    
     @Override
     public String attemptToCorrect(Object route) {
         if (!(route instanceof String)) {
@@ -25,20 +26,16 @@ public class RouteValidator implements ParameterValidator {
         }
         String routeString = (String) route;
 
-        Map<String, Object> uriParts = UriUtil.splitUri(routeString);
+        ApplicationURI uri = new ApplicationURI(routeString);
         try {
             for (ParameterValidator validator : validators) {
-                correctUriPartIfPresent(uriParts, validator);
+                correctUriPartIfPresent(uri, validator);
             }
         } catch (SLException e) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE_NESTED_EXCEPTION, route, e.getMessage());
         }
 
-        String scheme = UriUtil.getScheme(routeString);
-        String path = UriUtil.getPath(routeString);
-
-        String correctedRoute = UriUtil.buildUri(scheme, (String) uriParts.get(SupportedParameters.HOST),
-            (String) uriParts.get(SupportedParameters.DOMAIN), (Integer) uriParts.get(SupportedParameters.PORT), path);
+        String correctedRoute = uri.toString();
 
         if (!isValid(correctedRoute)) {
             throw new SLException(Messages.COULD_NOT_CREATE_VALID_ROUTE, route);
@@ -47,15 +44,17 @@ public class RouteValidator implements ParameterValidator {
         return correctedRoute;
     }
 
-    protected void correctUriPartIfPresent(Map<String, Object> uriParts, ParameterValidator partValidator) {
+    protected void correctUriPartIfPresent(ApplicationURI uri, ParameterValidator partValidator) {
         String uriPartName = partValidator.getParameterName();
-        if (!uriParts.containsKey(uriPartName)) {
+        if (uri.getURIPart(uriPartName) == null) {
             return;
         }
+        
+        Object part = uri.getURIPart(uriPartName);
 
-        if (partValidator.canCorrect() && !partValidator.isValid(uriParts.get(uriPartName))) {
-            String correctedPart = (String) partValidator.attemptToCorrect(uriParts.get(uriPartName));
-            uriParts.put(uriPartName, correctedPart);
+        if (partValidator.canCorrect() && !partValidator.isValid(part)) {
+            String correctedPart = (String) partValidator.attemptToCorrect(part);
+            uri.setURIPart(uriPartName, correctedPart);
         }
     }
 

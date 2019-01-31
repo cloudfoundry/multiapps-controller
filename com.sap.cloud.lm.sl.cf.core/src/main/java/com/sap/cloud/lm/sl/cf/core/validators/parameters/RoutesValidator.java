@@ -85,7 +85,7 @@ public class RoutesValidator implements ParameterValidator {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> applyRoutesType(Object routes) {
+    public static List<Map<String, Object>> applyRoutesType(Object routes) {
         if (routes instanceof List) {
             List<Map<String, Object>> routesList = (List<Map<String, Object>>) routes;
             if (CollectionUtils.isEmpty(routesList)) {

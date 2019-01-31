@@ -96,13 +96,34 @@ public class UriUtilTest {
             validatePath(path);
         }
 
+        @Test
+        public void testGetHostAndDomainWithApplicationURI() {
+            ApplicationURI applicationURI = new ApplicationURI(uri);
+            // the old function returns the port in the host position ...
+            if (applicationURI.isHostBased()) {
+                validateHostOrPort(applicationURI.getHost());
+            } else {
+                validateHostOrPort(applicationURI.getPort());
+            }
+            validateDomain(applicationURI.getDomain());
+            validatePath(applicationURI.getPath());
+        }
+
+        private void validateHostDomain(Pair<String, String> hostDomain) {
+            validateHostOrPort(hostDomain._1);
+            validateDomain(hostDomain._2);
+        }
+
         private void validatePath(String path) {
             assertEquals(expectedPath, path);
         }
 
-        private void validateHostDomain(Pair<String, String> hostDomain) {
-            assertEquals(expectedHost, hostDomain._1);
-            assertEquals(expectedDomain, hostDomain._2);
+        private void validateHostOrPort(String host) {
+            assertEquals(expectedHost, host);
+        }
+
+        private void validateDomain(String domain) {
+            assertEquals(expectedDomain, domain);
         }
 
     }
@@ -178,12 +199,19 @@ public class UriUtilTest {
             String uriWithoutPort = UriUtil.removePort(uri);
             assertEquals(expectedUri, uriWithoutPort);
         }
+
+        @Test
+        public void testRemovePortWithApplicationURI() {
+            ApplicationURI applicationURI = new ApplicationURI(uri);
+            assertEquals(expectedUri, applicationURI.toString(true));
+        }
     }
 
     @RunWith(Parameterized.class)
     public static class TestGetUriWithoutScheme {
         private String uri;
         private String expectedUri;
+        private boolean isTcp;
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -191,25 +219,39 @@ public class UriUtilTest {
 // @formatter:off
                 // (00) Test with no-port in the uri
                 {
-                    "https://valid-host.valid-domain", "valid-host.valid-domain"
+                    "https://valid-host.valid-domain", "valid-host.valid-domain", false
                 },
                 // (01) Test with port in the uri
                 {                    
-                    "tcp://10.244.0.34.xip.io:4443", "10.244.0.34.xip.io:4443"
+                    "tcp://10.244.0.34.xip.io:4443", "10.244.0.34.xip.io:4443", true
+                },
+                // (01) Test without scheme
+                {                    
+                    "10.244.0.34.xip.io:4443", "10.244.0.34.xip.io:4443", false
                 }
 // @formatter:on
             });
         }
 
-        public TestGetUriWithoutScheme(String uri, String expectedUri) {
+        public TestGetUriWithoutScheme(String uri, String expectedUri, boolean isTcp) {
             this.uri = uri;
             this.expectedUri = expectedUri;
+            this.isTcp = isTcp;
         }
 
         @Test
         public void testGetUriWithoutScheme() {
             String actualUri = UriUtil.getUriWithoutScheme(uri);
             assertEquals(expectedUri, actualUri);
+        }
+
+        @Test
+        public void testGetUriWithoutSchemeWithApplicationURI() {
+            ApplicationURI actualUri = new ApplicationURI(uri);
+            assertEquals(actualUri.isTcpOrTcps(), isTcp);
+
+            actualUri.setScheme(null);
+            assertEquals(expectedUri, actualUri.toString());
         }
     }
 
@@ -261,6 +303,30 @@ public class UriUtilTest {
         public void testRouteMatchesUri() {
             boolean actualResult = UriUtil.routeMatchesUri(routeInput, uri, isPortBasedRouting);
             assertEquals(expectedResult, actualResult);
+        }
+
+        @Test
+        public void testRouteMatchesUriWithApplicationURI() {
+            ApplicationURI uri = new ApplicationURI(this.uri);
+
+            boolean routeHostMatches = false;
+            boolean routeDomainMatches = false;
+            if (isPortBasedRouting) {
+                routeHostMatches = routeInput.getHost()
+                    .equals(uri.getPort());
+                routeDomainMatches = routeInput.getDomain()
+                    .getName()
+                    .equals(uri.getDomain());
+            } else {
+                ApplicationURI uriWithoutPort = new ApplicationURI(uri.toString(true));
+                routeHostMatches = routeInput.getHost()
+                    .equals(uriWithoutPort.getHost());
+                routeDomainMatches = routeInput.getDomain()
+                    .getName()
+                    .equals(uriWithoutPort.getDomain());
+            }
+
+            assertEquals(expectedResult, routeHostMatches && routeDomainMatches);
         }
     }
 

@@ -4,14 +4,12 @@ import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentD
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
+import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
-import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -30,8 +28,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
         @Override
-        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, ConfigurationEntryDao dao,
-            CloudTarget cloudTarget, String currentSpaceId, boolean useNamespaces, boolean useNamespacesForServices) {
+        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(DelegateExecution context) {
             return resolver;
         }
 

@@ -3,10 +3,12 @@ package com.sap.cloud.lm.sl.cf.core.helpers;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -16,6 +18,7 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;

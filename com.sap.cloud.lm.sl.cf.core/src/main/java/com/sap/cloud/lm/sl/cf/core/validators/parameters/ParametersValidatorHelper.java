@@ -14,8 +14,6 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class ParametersValidatorHelper {
 
-    private static final String PARAMETER_CONTAINING_XSA_PLACEHOLDER_PATTERN = ".*?\\{xsa-placeholder-.*\\}.*?";
-
     private final List<ParameterValidator> parameterValidators;
     private final boolean doNotCorrect;
 
@@ -76,17 +74,11 @@ public class ParametersValidatorHelper {
     }
 
     private Object validateAndCorrect(Object container, String parameterName, Object parameter, ParameterValidator validator) {
-        if ((parameter instanceof String) && containsXsaPlaceholders((String) parameter)) {
-            return parameter;
-        } else if (!validator.isValid(container, parameter)) {
+        if (!validator.containsXsaPlaceholders(parameter) && !validator.isValid(container, parameter)) {
             return attemptToCorrect(container, parameterName, parameter, validator);
         } else {
             return parameter;
         }
-    }
-
-    private boolean containsXsaPlaceholders(String parameter) {
-        return parameter.matches(PARAMETER_CONTAINING_XSA_PLACEHOLDER_PATTERN);
     }
 
     private Object attemptToCorrect(Object container, String parameterName, Object parameter, ParameterValidator validator) {
