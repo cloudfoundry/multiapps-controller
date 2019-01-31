@@ -15,7 +15,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v2.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ResourceTypeFinder;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
@@ -110,11 +109,6 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     }
 
     @Override
-    public PropertiesAccessor getPropertiesAccessor() {
-        return getHelperDelegate().getPropertiesAccessor();
-    }
-
-    @Override
     public ConfigurationSubscriptionFactory getConfigurationSubscriptionFactory() {
         return getHelperDelegate().getConfigurationSubscriptionFactory();
     }
@@ -129,14 +123,13 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
 
     @Override
     public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        PropertiesAccessor propertiesAccessor, CloudModelConfiguration configuration) {
-        return getHelperDelegate().getServicesCloudModelBuilder(deploymentDescriptor, propertiesAccessor, configuration);
+        CloudModelConfiguration configuration) {
+        return getHelperDelegate().getServicesCloudModelBuilder(deploymentDescriptor, configuration);
     }
 
     @Override
-    public ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        PropertiesAccessor propertiesAccessor) {
-        return getHelperDelegate().getServiceKeysCloudModelBuilder(deploymentDescriptor, propertiesAccessor);
+    public ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
+        return getHelperDelegate().getServiceKeysCloudModelBuilder(deploymentDescriptor);
     }
 
 }

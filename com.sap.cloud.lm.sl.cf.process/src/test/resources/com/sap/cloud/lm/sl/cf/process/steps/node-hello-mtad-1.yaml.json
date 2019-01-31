@@ -32,9 +32,7 @@
       },
       "name": "node-hello-world",
       "type": "javascript.nodejs",
-      "properties": {
-        "port": 50050
-      }
+      "properties": {}
     },
     {
       "requiredDependencies2": [
@@ -104,15 +102,7 @@
       },
       "name": "node-hello-world-db",
       "type": "com.sap.xs.hdi",
-      "properties": {
-        "check-deploy-id": true,
-        "execute-app": true,
-        "failure-marker": "STDERR:Deployment to container .* failure.*",
-        "memory": "256M",
-        "no-route": true,
-        "stop-app": true,
-        "success-marker": "STDOUT:Deployment to container .* success.*"
-      }
+      "properties": {}
     }
   ],
   "resources2": [

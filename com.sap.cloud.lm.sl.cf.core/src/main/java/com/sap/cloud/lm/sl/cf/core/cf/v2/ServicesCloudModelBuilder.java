@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.SpecialResourceTypesRequiredParametersUtil;
@@ -28,14 +27,11 @@ public class ServicesCloudModelBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServicesCloudModelBuilder.class);
 
     private CloudServiceNameMapper cloudServiceNameMapper;
-    protected final PropertiesAccessor propertiesAccessor;
     protected final DeploymentDescriptor deploymentDescriptor;
 
-    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
-        CloudModelConfiguration configuration) {
-        this.propertiesAccessor = propertiesAccessor;
+    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration) {
         this.deploymentDescriptor = deploymentDescriptor;
-        this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
+        this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, deploymentDescriptor);
     }
 
     public List<CloudServiceExtended> build(List<Resource> resourcesToProcess) {
@@ -46,7 +42,7 @@ public class ServicesCloudModelBuilder {
     }
 
     protected CloudServiceExtended getService(Resource resource) {
-        Map<String, Object> parameters = propertiesAccessor.getParameters(resource);
+        Map<String, Object> parameters = resource.getParameters();
         ResourceType serviceType = getResourceType(parameters);
         boolean isOptional = isOptional(resource);
         boolean shouldIgnoreUpdateErrors = (boolean) parameters.getOrDefault(SupportedParameters.IGNORE_UPDATE_ERRORS, false);

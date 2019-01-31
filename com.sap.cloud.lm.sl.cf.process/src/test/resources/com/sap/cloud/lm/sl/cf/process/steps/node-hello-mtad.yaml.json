@@ -27,12 +27,12 @@
           "properties": {}
         }
       ],
-      "parameters": {},
+      "parameters": {
+        "port": 50050
+      },
       "name": "node-hello-world",
       "type": "javascript.nodejs",
-      "properties": {
-        "port": 50050
-      }
+      "properties": {}
     },
     {
       "requiredDependencies2": [

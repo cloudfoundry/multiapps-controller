@@ -88,7 +88,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             StepsUtil.setSubscriptionsToCreate(execution.getContext(), subscriptions);
             XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(execution.getContext());
 
-            resolveXsPlaceholders(descriptor, xsPlaceholderResolver, handlerFactory.getMajorVersion());
+            resolveXsPlaceholders(descriptor, xsPlaceholderResolver);
 
             StepsUtil.setDeploymentDescriptor(execution.getContext(), descriptor);
             // Set MTA modules in the context
@@ -139,8 +139,8 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             .collect(Collectors.toList());
     }
 
-    private void resolveXsPlaceholders(DeploymentDescriptor descriptor, XsPlaceholderResolver xsPlaceholderResolver, int majorVersion) {
-        XsPlaceholderResolverInvoker resolverInvoker = new XsPlaceholderResolverInvoker(majorVersion, xsPlaceholderResolver);
+    private void resolveXsPlaceholders(DeploymentDescriptor descriptor, XsPlaceholderResolver xsPlaceholderResolver) {
+        XsPlaceholderResolverInvoker resolverInvoker = new XsPlaceholderResolverInvoker(xsPlaceholderResolver);
         descriptor.accept(resolverInvoker);
     }
 

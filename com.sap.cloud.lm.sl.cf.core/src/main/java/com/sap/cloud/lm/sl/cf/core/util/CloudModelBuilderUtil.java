@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.parser.ParametersParser;
@@ -38,9 +37,9 @@ public class CloudModelBuilderUtil {
         return deployedAppNames;
     }
 
-    public static boolean isService(Resource resource, PropertiesAccessor propertiesAccessor) {
+    public static boolean isService(Resource resource) {
         Set<ResourceType> resourceTypes = ResourceType.getServiceTypes();
-        ResourceType resourceType = getResourceType(resource, propertiesAccessor);
+        ResourceType resourceType = getResourceType(resource);
         return resourceTypes.contains(resourceType);
     }
 
@@ -49,11 +48,11 @@ public class CloudModelBuilderUtil {
         return resourceV3.isActive();
     }
 
-    public static boolean isServiceKey(Resource resource, PropertiesAccessor propertiesAccessor) {
+    public static boolean isServiceKey(Resource resource) {
         if (resource.getType() == null) {
             return false;
         }
-        return ResourceType.EXISTING_SERVICE_KEY.equals(getResourceType(resource, propertiesAccessor));
+        return ResourceType.EXISTING_SERVICE_KEY.equals(getResourceType(resource));
     }
 
     public static <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
@@ -65,8 +64,8 @@ public class CloudModelBuilderUtil {
         return ResourceType.get(type);
     }
 
-    private static ResourceType getResourceType(Resource resource, PropertiesAccessor propertiesAccessor) {
-        Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
+    private static ResourceType getResourceType(Resource resource) {
+        Map<String, Object> resourceParameters = resource.getParameters();
         String type = (String) resourceParameters.get(SupportedParameters.TYPE);
         return ResourceType.get(type);
     }

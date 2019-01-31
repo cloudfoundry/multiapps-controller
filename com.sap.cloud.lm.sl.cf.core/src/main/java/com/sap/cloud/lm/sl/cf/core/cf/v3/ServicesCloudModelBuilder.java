@@ -1,15 +1,14 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v3;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 public class ServicesCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder {
 
-    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor,
+    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration) {
-        super(deploymentDescriptor, propertiesAccessor, configuration);
+        super(deploymentDescriptor, configuration);
     }
 
     @Override

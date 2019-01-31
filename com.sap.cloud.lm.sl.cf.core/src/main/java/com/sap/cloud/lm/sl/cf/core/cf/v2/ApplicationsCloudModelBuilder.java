@@ -28,7 +28,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -65,7 +64,6 @@ public class ApplicationsCloudModelBuilder {
 
     protected DescriptorHandler handler;
     protected PropertiesChainBuilder propertiesChainBuilder;
-    protected PropertiesAccessor propertiesAccessor;
     protected DeploymentDescriptor deploymentDescriptor;
 
     protected CloudModelConfiguration configuration;
@@ -82,14 +80,12 @@ public class ApplicationsCloudModelBuilder {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.propertiesChainBuilder = createPropertiesChainBuilder(deploymentDescriptor);
-        this.propertiesAccessor = handlerFactory.getPropertiesAccessor();
         this.deploymentDescriptor = deploymentDescriptor;
         this.configuration = configuration;
-        this.urisCloudModelBuilder = new ApplicationUrisCloudModelBuilder(configuration.isPortBasedRouting(), systemParameters,
-            propertiesAccessor);
+        this.urisCloudModelBuilder = new ApplicationUrisCloudModelBuilder(configuration.isPortBasedRouting(), systemParameters);
         this.applicationEnvCloudModelBuilder = createApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor,
-            xsPlaceholderResolver, handler, propertiesAccessor, deployId);
-        this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, propertiesAccessor, deploymentDescriptor);
+            xsPlaceholderResolver, handler, deployId);
+        this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, deploymentDescriptor);
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployedMta = deployedMta;
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
@@ -118,12 +114,11 @@ public class ApplicationsCloudModelBuilder {
 
     protected ApplicationEnvironmentCloudModelBuilder createApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration,
         DeploymentDescriptor deploymentDescriptor, XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler,
-        PropertiesAccessor propertiesAccessor, String deployId) {
+        String deployId) {
         DeploymentDescriptor v2DeploymentDescriptor = deploymentDescriptor;
         DescriptorHandler v2Handler = handler;
-        PropertiesAccessor v2PropertiesAccessor = propertiesAccessor;
         return new ApplicationEnvironmentCloudModelBuilder(configuration, v2DeploymentDescriptor, xsPlaceholderResolver, v2Handler,
-            v2PropertiesAccessor, deployId);
+            deployId);
     }
 
     protected CloudApplicationExtended getApplication(Module module) {
@@ -161,7 +156,7 @@ public class ApplicationsCloudModelBuilder {
     }
 
     protected String getApplicationName(Module module) {
-        return (String) propertiesAccessor.getParameters(module)
+        return (String) module.getParameters()
             .get(SupportedParameters.APP_NAME);
     }
 
@@ -286,7 +281,7 @@ public class ApplicationsCloudModelBuilder {
 
     protected ResourceAndResourceType getApplicationService(String dependencyName) {
         Resource resource = getResource(dependencyName);
-        if (resource != null && CloudModelBuilderUtil.isService(resource, propertiesAccessor)) {
+        if (resource != null && CloudModelBuilderUtil.isService(resource)) {
             ResourceType serviceType = CloudModelBuilderUtil.getResourceType(resource.getParameters());
             return new ResourceAndResourceType(resource, serviceType);
         }
@@ -304,8 +299,8 @@ public class ApplicationsCloudModelBuilder {
 
     protected ServiceKeyToInject getServiceKeyToInject(RequiredDependency dependency) {
         Resource resource = getResource(dependency.getName());
-        if (resource != null && CloudModelBuilderUtil.isServiceKey(resource, propertiesAccessor)) {
-            Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
+        if (resource != null && CloudModelBuilderUtil.isServiceKey(resource)) {
+            Map<String, Object> resourceParameters = resource.getParameters();
             String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
             String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
             String envVarName = (String) dependency.getParameters()

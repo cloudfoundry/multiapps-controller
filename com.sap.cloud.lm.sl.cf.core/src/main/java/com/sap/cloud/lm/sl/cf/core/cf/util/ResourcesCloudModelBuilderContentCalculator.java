@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.cf.util;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
@@ -12,13 +11,10 @@ import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBuilderContentCalculator<Resource> {
 
     private List<String> resourcesSpecifiedForDeployment;
-    private PropertiesAccessor propertiesAccessor;
     private UserMessageLogger userMessageLogger;
 
-    public ResourcesCloudModelBuilderContentCalculator(List<String> resourcesSpecifiedForDeployment, PropertiesAccessor propertiesAccessor,
-        UserMessageLogger userMessageLogger) {
+    public ResourcesCloudModelBuilderContentCalculator(List<String> resourcesSpecifiedForDeployment, UserMessageLogger userMessageLogger) {
         this.resourcesSpecifiedForDeployment = resourcesSpecifiedForDeployment;
-        this.propertiesAccessor = propertiesAccessor;
         this.userMessageLogger = userMessageLogger;
     }
 
@@ -32,7 +28,7 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
     }
 
     private boolean isService(Resource resource) {
-        if (!CloudModelBuilderUtil.isService(resource, propertiesAccessor)) {
+        if (!CloudModelBuilderUtil.isService(resource)) {
             warnInvalidResourceType(resource);
             return false;
         }
