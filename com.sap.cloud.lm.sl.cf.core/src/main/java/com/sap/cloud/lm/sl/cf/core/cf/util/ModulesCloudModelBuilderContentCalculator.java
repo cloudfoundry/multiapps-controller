@@ -3,10 +3,10 @@ package com.sap.cloud.lm.sl.cf.core.cf.util;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
@@ -16,19 +16,17 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
 
     private Set<String> mtaModulesInArchive;
     private Set<String> deployedModules;
-    private PropertiesAccessor propertiesAccessor;
     private List<String> modulesSpecifiedForDeployment;
     private UserMessageLogger userMessageLogger;
     private ModuleToDeployHelper moduleToDeployHelper;
     private List<ModulesContentValidator> modulesContentValidators;
 
     public ModulesCloudModelBuilderContentCalculator(Set<String> mtaModulesInArchive, Set<String> deployedModules,
-        List<String> modulesSpecifiedForDeployment, PropertiesAccessor propertiesAccessor, UserMessageLogger userMessageLogger,
+        List<String> modulesSpecifiedForDeployment, UserMessageLogger userMessageLogger,
         ModuleToDeployHelper moduleToDeployHelper, List<ModulesContentValidator> modulesContentValidators) {
         this.mtaModulesInArchive = mtaModulesInArchive;
         this.deployedModules = deployedModules;
         this.modulesSpecifiedForDeployment = modulesSpecifiedForDeployment;
-        this.propertiesAccessor = propertiesAccessor;
         this.userMessageLogger = userMessageLogger;
         this.moduleToDeployHelper = moduleToDeployHelper;
         this.modulesContentValidators = modulesContentValidators;
@@ -51,15 +49,15 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
 
     private void initializeModulesDependecyTypes(List<? extends Module> modulesForDeployment) {
         for (Module module : modulesForDeployment) {
-            String dependencyType = getDependencyType(propertiesAccessor, module);
-            Map<String, Object> moduleProperties = propertiesAccessor.getParameters(module);
-            moduleProperties.put(SupportedParameters.DEPENDENCY_TYPE, dependencyType);
-            propertiesAccessor.setParameters(module, moduleProperties);
+            String dependencyType = getDependencyType( module);
+            Map<String, Object> parameters = new TreeMap<>(module.getParameters());
+            parameters.put(SupportedParameters.DEPENDENCY_TYPE, dependencyType);
+            module.setParameters(parameters);
         }
     }
 
-    protected String getDependencyType(PropertiesAccessor propertiesAccessor, Module module) {
-        return (String) propertiesAccessor.getParameters(module)
+    protected String getDependencyType(Module module) {
+        return (String) module.getParameters()
             .getOrDefault(SupportedParameters.DEPENDENCY_TYPE, com.sap.cloud.lm.sl.cf.core.Constants.DEPENDENCY_TYPE_SOFT);
     }
 
@@ -89,8 +87,7 @@ public class ModulesCloudModelBuilderContentCalculator implements CloudModelBuil
     }
 
     private boolean isDockerModule(Module module) {
-        Map<String, Object> moduleParameters = propertiesAccessor.getParameters(module);
-
+        Map<String, Object> moduleParameters = module.getParameters();
         return moduleParameters.containsKey(SupportedParameters.DOCKER);
     }
 

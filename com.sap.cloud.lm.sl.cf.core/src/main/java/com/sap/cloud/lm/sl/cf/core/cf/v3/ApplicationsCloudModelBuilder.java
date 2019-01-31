@@ -86,9 +86,9 @@ public class ApplicationsCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.c
 
     protected ServiceKeyToInject getServiceKeyToInject(RequiredDependency dependency) {
         com.sap.cloud.lm.sl.mta.model.v3.Resource resource = (com.sap.cloud.lm.sl.mta.model.v3.Resource) getResource(dependency.getName());
-        if (resource != null && CloudModelBuilderUtil.isServiceKey(resource, propertiesAccessor)
+        if (resource != null && CloudModelBuilderUtil.isServiceKey(resource)
             && CloudModelBuilderUtil.isActive(resource)) {
-            Map<String, Object> resourceParameters = propertiesAccessor.getParameters(resource);
+            Map<String, Object> resourceParameters = resource.getParameters();
             String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
             String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
             String envVarName = (String) dependency.getParameters()

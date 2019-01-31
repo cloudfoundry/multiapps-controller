@@ -3,8 +3,6 @@ package com.sap.cloud.lm.sl.cf.core.exec;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
-
 public class MethodExecution<T> {
 
     private ExecutionState state;

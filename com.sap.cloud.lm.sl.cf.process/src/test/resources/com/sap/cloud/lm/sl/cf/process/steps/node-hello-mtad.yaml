@@ -5,7 +5,7 @@ version: 0.1.0
 modules:
   - name: node-hello-world
     type: javascript.nodejs
-    properties:
+    parameters:
       port: 50050
     requires: 
       - name: uaa

@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.commons.collections4.MapUtils;
 
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters.RoutingParameterSet;
@@ -23,13 +22,10 @@ public class ApplicationUrisCloudModelBuilder {
 
     private boolean portBasedRouting;
     private SystemParameters systemParameters;
-    private PropertiesAccessor propertiesAccessor;
 
-    public ApplicationUrisCloudModelBuilder(boolean portBasedRouting, SystemParameters systemParameters,
-        PropertiesAccessor propertiesAccessor) {
+    public ApplicationUrisCloudModelBuilder(boolean portBasedRouting, SystemParameters systemParameters) {
         this.portBasedRouting = portBasedRouting;
         this.systemParameters = systemParameters;
-        this.propertiesAccessor = propertiesAccessor;
     }
 
     private boolean includeProtocol() {
@@ -73,8 +69,8 @@ public class ApplicationUrisCloudModelBuilder {
             .getOrDefault(module.getName(), Collections.emptyMap());
         String defaultHost = (String) moduleSystemParameters.getOrDefault(parametersType.host, null);
         int defaultPort = (Integer) moduleSystemParameters.getOrDefault(parametersType.port, 0);
-        String defaultRoutePath = (String) propertiesAccessor.getParameters(module)
-            .getOrDefault(SupportedParameters.ROUTE_PATH, null);
+        String defaultRoutePath = (String) module.getParameters()
+            .get(SupportedParameters.ROUTE_PATH);
         String defaultDomain = getDefaultDomain(parametersType, moduleSystemParameters);
         String protocol = MapUtils.getString(moduleSystemParameters, SupportedParameters.PROTOCOL);
         return new IdleUriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, defaultRoutePath, includeProtocol(),
@@ -87,8 +83,8 @@ public class ApplicationUrisCloudModelBuilder {
             .getOrDefault(module.getName(), Collections.emptyMap());
         String defaultHost = (String) moduleSystemParameters.getOrDefault(parametersType.host, null);
         int defaultPort = (Integer) moduleSystemParameters.getOrDefault(parametersType.port, 0);
-        String routePath = (String) propertiesAccessor.getParameters(module)
-            .getOrDefault(SupportedParameters.ROUTE_PATH, null);
+        String routePath = (String) module.getParameters()
+            .get(SupportedParameters.ROUTE_PATH);
         String defaultDomain = getDefaultDomain(parametersType, moduleSystemParameters);
         String protocol = MapUtils.getString(moduleSystemParameters, SupportedParameters.PROTOCOL);
         return new UriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, routePath, includeProtocol(), protocol);

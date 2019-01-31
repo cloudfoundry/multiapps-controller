@@ -32,7 +32,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.ModuleToDeploy;
@@ -167,9 +166,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     private CloudModelBuilderContentCalculator<Resource> getResourcesCloudModelBuilderContentCalculator(DelegateExecution context) {
         List<String> resourcesSpecifiedForDeployment = StepsUtil.getResourcesForDeployment(context);
-        PropertiesAccessor propertiesAccessor = StepsUtil.getHandlerFactory(context)
-            .getPropertiesAccessor();
-        return new ResourcesCloudModelBuilderContentCalculator(resourcesSpecifiedForDeployment, propertiesAccessor, getStepLogger());
+        return new ResourcesCloudModelBuilderContentCalculator(resourcesSpecifiedForDeployment, getStepLogger());
     }
 
     private void validateNoUnresolvedModulesExist(Set<String> deployedModuleNames, Set<String> mtaModules,
@@ -190,10 +187,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     private ModulesCloudModelBuilderContentCalculator getModulesContentCalculator(ExecutionWrapper execution, Set<String> mtaArchiveModules,
         Set<String> deployedModuleNames, Set<String> allMtaModules) {
-        PropertiesAccessor propertiesAccessor = StepsUtil.getHandlerFactory(execution.getContext())
-            .getPropertiesAccessor();
         return new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedModuleNames,
-            StepsUtil.getModulesForDeployment(execution.getContext()), propertiesAccessor, getStepLogger(), moduleToDeployHelper,
+            StepsUtil.getModulesForDeployment(execution.getContext()), getStepLogger(), moduleToDeployHelper,
             getModuleContentValidators(execution.getControllerClient(), allMtaModules, deployedModuleNames));
     }
 

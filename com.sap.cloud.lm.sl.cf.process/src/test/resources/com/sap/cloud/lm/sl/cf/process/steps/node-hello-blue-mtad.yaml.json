@@ -28,13 +28,12 @@
         }
       ],
       "parameters": {
-        "app-name": "node-hello-world-blue"
+        "app-name": "node-hello-world-blue",
+        "port": 50050
       },
       "name": "node-hello-world",
       "type": "javascript.nodejs",
-      "properties": {
-        "port": 50050
-      }
+      "properties": {}
     },
     {
       "requiredDependencies2": [

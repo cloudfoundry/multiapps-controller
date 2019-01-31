@@ -59,7 +59,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
     @Override
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration) {
-        return new ServicesCloudModelBuilder(deploymentDescriptor, getPropertiesAccessor(), configuration);
+        return new ServicesCloudModelBuilder(deploymentDescriptor, configuration);
     }
 
     @Override

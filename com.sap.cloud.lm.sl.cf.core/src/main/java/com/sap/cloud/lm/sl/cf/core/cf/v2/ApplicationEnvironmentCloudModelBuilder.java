@@ -3,10 +3,8 @@ package com.sap.cloud.lm.sl.cf.core.cf.v2;
 import static com.sap.cloud.lm.sl.common.util.ListUtil.asList;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -14,7 +12,6 @@ import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -32,23 +29,20 @@ public class ApplicationEnvironmentCloudModelBuilder {
     protected DeploymentDescriptor deploymentDescriptor;
     protected XsPlaceholderResolver xsPlaceholderResolver;
     protected DescriptorHandler handler;
-    protected PropertiesAccessor propertiesAccessor;
     protected String deployId;
 
     public ApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration, DeploymentDescriptor deploymentDescriptor,
-        XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler, PropertiesAccessor propertiesAccessor, String deployId) {
+        XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler, String deployId) {
         this.configuration = configuration;
         this.deploymentDescriptor = deploymentDescriptor;
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.handler = handler;
-        this.propertiesAccessor = propertiesAccessor;
         this.deployId = deployId;
     }
 
     public Map<Object, Object> build(Module module, List<String> services) {
-        Set<String> specialModuleProperties = buildSpecialModulePropertiesSet();
-        Map<String, Object> properties = propertiesAccessor.getProperties(module, specialModuleProperties);
-        Map<String, Object> parameters = propertiesAccessor.getParameters(module, specialModuleProperties);
+        Map<String, Object> properties = module.getProperties();
+        Map<String, Object> parameters = module.getParameters();
         Map<String, Object> env = new TreeMap<>();
         addMetadata(env, module);
         addServices(env, services);
@@ -58,14 +52,6 @@ public class ApplicationEnvironmentCloudModelBuilder {
         return MapUtil.unmodifiable(new MapToEnvironmentConverter(configuration.isPrettyPrinting()).asEnv(env));
     }
     
-    private Set<String> buildSpecialModulePropertiesSet() {
-        Set<String> result = new HashSet<>();
-        result.addAll(SupportedParameters.APP_PROPS);
-        result.addAll(SupportedParameters.APP_ATTRIBUTES);
-        result.addAll(SupportedParameters.SPECIAL_MT_PROPS);
-        return result;
-    }
-
     protected void addMetadata(Map<String, Object> env, Module module) {
         addMtaMetadata(env);
         addMtaModuleMetadata(env, module);

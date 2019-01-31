@@ -7,9 +7,7 @@ import java.util.function.Supplier;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -44,7 +42,7 @@ public class SystemParametersBuilder {
     private final String space;
     private final String user;
     private final String defaultDomain;
-    private final PlatformType xsType;
+    private final PlatformType platformType;
     private final URL controllerUrl;
     private final String authorizationEndpoint;
     private final String deployServiceUrl;
@@ -56,20 +54,19 @@ public class SystemParametersBuilder {
     private final DeployedMta deployedMta;
     private final boolean reserveTemporaryRoutes;
     private final boolean areXsPlaceholdersSupported;
-    private final PropertiesAccessor propertiesAccessor;
     private final Supplier<String> timestampSupplier;
 
-    public SystemParametersBuilder(String organization, String space, String user, String defaultDomain, PlatformType xsType, URL controllerUrl,
-        String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting, boolean reserveTemporaryRoutes,
-        PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices, DeployedMta deployedMta,
-        CredentialsGenerator credentialsGenerator, int majorSchemaVersion, boolean areXsPlaceholdersSupported,
+    public SystemParametersBuilder(String organization, String space, String user, String defaultDomain, PlatformType platformType,
+        URL controllerUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting,
+        boolean reserveTemporaryRoutes, PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices,
+        DeployedMta deployedMta, CredentialsGenerator credentialsGenerator, boolean areXsPlaceholdersSupported,
         Supplier<String> timestampSupplier) {
         this.targetName = organization + " " + space;
         this.organization = organization;
         this.space = space;
         this.user = user;
         this.defaultDomain = defaultDomain;
-        this.xsType = xsType;
+        this.platformType = platformType;
         this.controllerUrl = controllerUrl;
         this.authorizationEndpoint = authorizationEndpoint;
         this.deployServiceUrl = deployServiceUrl;
@@ -82,7 +79,6 @@ public class SystemParametersBuilder {
         this.credentialsGenerator = credentialsGenerator;
         this.reserveTemporaryRoutes = reserveTemporaryRoutes;
         this.areXsPlaceholdersSupported = areXsPlaceholdersSupported;
-        this.propertiesAccessor = new HandlerFactory(majorSchemaVersion).getPropertiesAccessor();
         this.timestampSupplier = timestampSupplier;
     }
 
@@ -113,7 +109,7 @@ public class SystemParametersBuilder {
         }
         systemParameters.put(SupportedParameters.XS_TARGET_API_URL, getControllerUrl());
         systemParameters.put(SupportedParameters.CONTROLLER_URL, getControllerUrl());
-        systemParameters.put(SupportedParameters.XS_TYPE, xsType.toString());
+        systemParameters.put(SupportedParameters.XS_TYPE, platformType.toString());
         systemParameters.put(SupportedParameters.XS_AUTHORIZATION_ENDPOINT, getAuthorizationEndpoint());
         systemParameters.put(SupportedParameters.AUTHORIZATION_URL, getAuthorizationEndpoint());
         systemParameters.put(SupportedParameters.DEPLOY_SERVICE_URL, getDeployServiceUrl());
@@ -124,7 +120,7 @@ public class SystemParametersBuilder {
     private Map<String, Object> getModuleParameters(Module module, String mtaId) {
         Map<String, Object> moduleSystemParameters = new HashMap<>();
 
-        Map<String, Object> moduleParameters = propertiesAccessor.getParameters(module);
+        Map<String, Object> moduleParameters = module.getParameters();
         moduleSystemParameters.put(SupportedParameters.DOMAIN, getDefaultDomain());
         if (shouldReserveTemporaryRoutes()) {
             moduleSystemParameters.put(SupportedParameters.IDLE_DOMAIN, getDefaultDomain());
@@ -336,6 +332,6 @@ public class SystemParametersBuilder {
     }
 
     private boolean shouldUseXsPlaceholders() {
-        return xsType.equals(PlatformType.XS2) && areXsPlaceholdersSupported;
+        return platformType.equals(PlatformType.XS2) && areXsPlaceholdersSupported;
     }
 }

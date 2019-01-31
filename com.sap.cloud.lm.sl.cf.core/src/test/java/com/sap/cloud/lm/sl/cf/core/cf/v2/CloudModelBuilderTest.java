@@ -27,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.core.cf.util.ResourcesCloudModelBuilderContentCalc
 import com.sap.cloud.lm.sl.cf.core.cf.util.UnresolvedModulesContentValidator;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
@@ -516,7 +515,7 @@ public class CloudModelBuilderTest {
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration) {
-        return new ServicesCloudModelBuilder(deploymentDescriptor, getPropertiesAccessor(), configuration);
+        return new ServicesCloudModelBuilder(deploymentDescriptor, configuration);
     }
 
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
@@ -562,15 +561,10 @@ public class CloudModelBuilderTest {
             xsPlaceholderResolver);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
 
-        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, null, getPropertiesAccessor(),
-            getUserMessageLogger(), new ModuleToDeployHelper(),
-            Arrays.asList(new UnresolvedModulesContentValidator(mtaModules, deployedApps)));
+        modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, null, getUserMessageLogger(),
+            new ModuleToDeployHelper(), Arrays.asList(new UnresolvedModulesContentValidator(mtaModules, deployedApps)));
 
-        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(null, getPropertiesAccessor(), getUserMessageLogger());
-    }
-
-    protected PropertiesAccessor getPropertiesAccessor() {
-        return getHandlerFactory().getPropertiesAccessor();
+        resourcesCalculator = new ResourcesCloudModelBuilderContentCalculator(null, getUserMessageLogger());
     }
 
     private DeploymentDescriptor loadDeploymentDescriptor() {

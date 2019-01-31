@@ -22,7 +22,7 @@
     },
     {
       "name": "com.sap.xs.hdi",
-      "properties": {
+      "parameters": {
         "no-route": true,
         "memory": "256M",
         "execute-app": true,

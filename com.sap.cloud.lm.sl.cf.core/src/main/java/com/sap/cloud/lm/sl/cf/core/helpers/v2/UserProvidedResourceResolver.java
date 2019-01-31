@@ -10,7 +10,6 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
-import com.sap.cloud.lm.sl.mta.builders.v2.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.Platform;

@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
-import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.isService;
-
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,8 +10,8 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.PropertiesAccessor;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Resource;
@@ -22,17 +20,15 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 public class ServiceKeysCloudModelBuilder {
 
     protected DeploymentDescriptor deploymentDescriptor;
-    protected PropertiesAccessor propertiesAccessor;
 
-    public ServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, PropertiesAccessor propertiesAccessor) {
+    public ServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
         this.deploymentDescriptor = deploymentDescriptor;
-        this.propertiesAccessor = propertiesAccessor;
     }
 
     public Map<String, List<ServiceKey>> build() {
         Map<String, List<ServiceKey>> serviceKeys = new HashMap<>();
         for (Resource resource : deploymentDescriptor.getResources2()) {
-            if (isService(resource, propertiesAccessor)) {
+            if (CloudModelBuilderUtil.isService(resource)) {
                 serviceKeys.put(resource.getName(), getServiceKeysForService(resource));
             }
         }
@@ -58,7 +54,7 @@ public class ServiceKeysCloudModelBuilder {
 
     @SuppressWarnings("unchecked")
     protected List<Map<String, Object>> getServiceKeysMaps(Resource resource) {
-        Object serviceKeys = propertiesAccessor.getParameters(resource)
+        Object serviceKeys = resource.getParameters()
             .get(SupportedParameters.SERVICE_KEYS);
         if (serviceKeys == null) {
             return Collections.emptyList();
