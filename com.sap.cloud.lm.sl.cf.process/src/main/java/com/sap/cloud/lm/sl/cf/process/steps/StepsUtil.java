@@ -70,11 +70,11 @@ import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
+import com.sap.cloud.lm.sl.common.util.YamlUtil;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
 public class StepsUtil {
 
@@ -672,7 +672,7 @@ public class StepsUtil {
     }
 
     static boolean getVcapAppPropertiesChanged(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_VCAP_APP_PROPERTIES_CHANGED);
+        return getBoolean(scope, Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, false);
     }
 
     static void setVcapServicesPropertiesChanged(VariableScope scope, boolean state) {
@@ -680,7 +680,7 @@ public class StepsUtil {
     }
 
     static boolean getVcapServicesPropertiesChanged(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED);
+        return getBoolean(scope, Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, false);
     }
 
     static void setUserPropertiesChanged(VariableScope scope, boolean state) {
@@ -688,7 +688,7 @@ public class StepsUtil {
     }
 
     static boolean getUserPropertiesChanged(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_USER_PROPERTIES_CHANGED);
+        return getBoolean(scope, Constants.VAR_USER_PROPERTIES_CHANGED, false);
     }
 
     public static CloudApplicationExtended getApp(VariableScope scope) {
@@ -948,7 +948,7 @@ public class StepsUtil {
     }
 
     static boolean getUseIdleUris(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_USE_IDLE_URIS);
+        return getBoolean(scope, Constants.VAR_USE_IDLE_URIS, false);
     }
 
     public static void setDeleteIdleUris(VariableScope scope, boolean state) {
@@ -959,12 +959,24 @@ public class StepsUtil {
         return getBoolean(scope, Constants.VAR_DELETE_IDLE_URIS, false);
     }
 
+    static boolean getUseNamespacesForService(VariableScope scope) {
+        return getBoolean(scope, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
+    }
+
+    static boolean getUseNamespaces(VariableScope scope) {
+        return getBoolean(scope, Constants.PARAM_USE_NAMESPACES, false);
+    }
+
+    public static boolean getSkipUpdateConfigurationEntries(DelegateExecution context) {
+        return getBoolean(context, Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES, false);
+    }
+
     public static void setSkipUpdateConfigurationEntries(VariableScope scope, boolean update) {
         scope.setVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES, update);
     }
 
     public static boolean getSkipUpdateConfigurationEntries(VariableScope scope) {
-        return getBoolean(scope, Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES);
+        return getBoolean(scope, Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES, false);
     }
 
     public static void setSkipManageServiceBroker(VariableScope scope, boolean manage) {

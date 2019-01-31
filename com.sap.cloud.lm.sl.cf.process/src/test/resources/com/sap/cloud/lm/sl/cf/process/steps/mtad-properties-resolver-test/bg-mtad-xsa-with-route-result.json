@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "2.0.0",
+  "id": "hello",
+  "version": "0.1.0",
+  "modules": [
+    {
+      "name": "hello-router",
+      "type": "java.tomee",
+      "path": "web/router.war",
+      "properties": {},
+      "parameters": {
+        "disk-quota": "256M",
+        "memory": "512M",
+        "routes": [
+          {
+            "route": "{xsa-placeholder-domain-default}:53531"
+          }
+        ]
+      },
+      "requiredDependencies": [
+        {
+          "name": "backend",
+          "properties": {
+            "backend": "https://{xsa-placeholder-domain-default}:53530/content",
+            "name": "backend",
+            "url": "https://{xsa-placeholder-domain-default}:53530/content"
+          },
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "providedDependencies": [
+        {
+          "name": "hello-router",
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
+    },
+    {
+      "name": "hello-backend",
+      "type": "java.tomee",
+      "path": "web/router.war",
+      "properties": {},
+      "parameters": {
+        "disk-quota": "256M",
+        "memory": "512M",
+        "routes": [
+          {
+            "route": "{xsa-placeholder-domain-default}:53530/content"
+          }
+        ]
+      },
+      "requiredDependencies": [],
+      "providedDependencies": [
+        {
+          "name": "backend",
+          "isPublic": true,
+          "properties": {
+            "url": "https://{xsa-placeholder-domain-default}:53530/content"
+          },
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        },
+        {
+          "name": "hello-backend",
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
+    }
+  ],
+  "resources": [],
+  "parameters": {
+    "default-domain": "{xsa-placeholder-domain-default}"
+  },
+  "parametersMetadata": {
+    "metadata": {}
+  },
+  "majorSchemaVersion": 2
+}

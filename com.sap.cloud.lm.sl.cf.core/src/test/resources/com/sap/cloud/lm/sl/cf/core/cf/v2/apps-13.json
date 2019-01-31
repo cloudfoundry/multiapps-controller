@@ -1,7 +1,10 @@
 [
   {
     "moduleName": "foo",
-    "idleUris": [],
+    "idleUris": [
+      "host-in-route1.test-domain",
+      "host-in-route2.test-domain/path-in-route"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [],

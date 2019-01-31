@@ -16,6 +16,7 @@ import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ExecutionQuery;
 import org.flowable.job.api.DeadLetterJobQuery;
 import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -82,6 +83,7 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected abstract T createStep();
 
     @Before
+    @BeforeEach
     public void initMocks() throws FileStorageException {
         MockitoAnnotations.initMocks(this);
         this.stepLogger = Mockito.spy(new StepLogger(context, progressMessageService, processLoggerProvider, LOGGER));

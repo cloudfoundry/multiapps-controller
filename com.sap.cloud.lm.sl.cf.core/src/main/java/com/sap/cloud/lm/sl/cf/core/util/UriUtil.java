@@ -64,6 +64,25 @@ public class UriUtil {
         return splitUri;
     }
 
+    public static Map<String, Object> splitUriWithPath(String uri) {
+        Map<String, Object> splitUri = splitUri(uri);
+
+        String domain = (String) splitUri.get(SupportedParameters.HOST);
+        int pathIndex = domain.indexOf(DEFAULT_PATH_SEPARATOR);
+        if (pathIndex > 0) {
+            splitUri.put(SupportedParameters.HOST, domain.substring(0, pathIndex));
+            splitUri.put(SupportedParameters.ROUTE_PATH, domain.substring(pathIndex));
+        }
+
+        return splitUri;
+    }
+
+    // TODO: move this in a new utility class, also see what's up with the scheme really
+    public static String buildUri(String scheme, Map<String, Object> uriParts) {
+        return buildUri(scheme, (String) uriParts.get(SupportedParameters.HOST), (String) uriParts.get(SupportedParameters.DOMAIN),
+            (Integer) uriParts.get(SupportedParameters.PORT), (String) uriParts.get(SupportedParameters.ROUTE_PATH));
+    }
+
     public static String buildUri(String scheme, String host, String domain, Integer port, String path) {
         StringBuffer uri = new StringBuffer();
         if (!CommonUtil.isNullOrEmpty(scheme)) {
@@ -131,7 +150,7 @@ public class UriUtil {
         }
     }
 
-    private static int getPathIndexAfter(String uri, int pos) {
+    protected static int getPathIndexAfter(String uri, int pos) {
         int pathIndex = uri.indexOf(DEFAULT_PATH_SEPARATOR, pos);
         if (pathIndex < 0) {
             pathIndex = uri.length();

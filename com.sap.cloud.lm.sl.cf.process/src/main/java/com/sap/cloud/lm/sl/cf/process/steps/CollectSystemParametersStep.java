@@ -103,7 +103,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
         return StepPhase.DONE;
     }
-
+    
     private String getDefaultDomain(CloudControllerClient client) {
         CloudDomain defaultDomain = client.getDefaultDomain();
         if (defaultDomain != null) {

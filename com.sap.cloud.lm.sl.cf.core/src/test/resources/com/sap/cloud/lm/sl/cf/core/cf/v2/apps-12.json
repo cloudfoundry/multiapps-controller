@@ -1,7 +1,9 @@
 [
   {
     "moduleName": "foo",
-    "idleUris": [],
+    "idleUris": [
+      "foo-custom-route.test-domain"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [],

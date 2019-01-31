@@ -36,7 +36,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
             StepsUtil.setModuleToDeploy(execution.getContext(), applicationModule);
             CloudApplicationExtended modifiedApp = getApplicationCloudModelBuilder(execution.getContext()).build(applicationModule,
                 moduleToDeployHelper);
-            setApplicationUris(execution.getContext(), modifiedApp);
+            editUrisIfIdleApplication(execution.getContext(), modifiedApp);
             modifiedApp.setEnv(getApplicationEnv(execution.getContext(), modifiedApp));
             SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
             String appJson = secureSerializationFacade.toJson(modifiedApp);
@@ -57,7 +57,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         return MapUtil.upcastUnmodifiable(app.getEnvAsMap());
     }
 
-    private void setApplicationUris(DelegateExecution context, CloudApplicationExtended modifiedApp) {
+    private void editUrisIfIdleApplication(DelegateExecution context, CloudApplicationExtended modifiedApp) {
         if (StepsUtil.getUseIdleUris(context)) {
             modifiedApp.setUris(modifiedApp.getIdleUris());
         }

@@ -7,6 +7,7 @@ modules:
     type: java.tomee
     parameters:
       # define route parameter
-      route: "foo-custom-route.test-domain"
+      routes: 
+        - route: "foo-custom-route.test-domain"
       # adding route-path which will be ignored
       route-path: /custom-path

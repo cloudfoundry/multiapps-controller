@@ -48,7 +48,7 @@ public class PropertiesExpander extends ReferencingPropertiesVisitor implements 
             for (int i = 0; i < newDependencyNames.size(); i++) {
                 String newDependencyName = newDependencyNames.get(i);
                 String oldReference = REFERENCE_PATTERN.toString(reference);
-                String newReference = REFERENCE_PATTERN.toString(new Reference(null, reference.getPropertyName(), newDependencyName));
+                String newReference = REFERENCE_PATTERN.toString(new Reference(null, reference.getKey(), newDependencyName));
                 replaceAll(result.get(i), oldReference, newReference);
             }
         }

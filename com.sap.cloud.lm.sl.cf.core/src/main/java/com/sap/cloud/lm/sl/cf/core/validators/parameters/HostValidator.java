@@ -32,10 +32,15 @@ public class HostValidator implements ParameterValidator {
     }
 
     @Override
-    public boolean isValid(Object host) {
+    public boolean isValid(Object host) {        
+        if (containsXsaPlaceholders(host)) {
+            return true;
+        }
+        
         if (!(host instanceof String)) {
             return false;
         }
+        
         String hostString = (String) host;
         return !hostString.isEmpty() && NameUtil.isValidName(hostString, HOST_PATTERN);
     }

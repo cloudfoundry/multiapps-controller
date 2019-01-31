@@ -1,0 +1,34 @@
+_schema-version: "2.0.0"
+ID: hello
+version: 0.1.0
+
+modules:
+  - name: hello-router
+    type: java.tomee
+    path: web/router.war
+    requires:
+      - name: backend
+        properties:
+          backend: ~{url}
+          name: backend
+          url: ~{url}
+    parameters:
+      memory: 512M
+      disk-quota: 256M
+      routes:
+        - route:  ${default-domain}:53531
+        
+  - name: hello-backend
+    type: java.tomee
+    path: web/router.war
+    provides:
+      - name: backend
+        properties:
+          url: "https://${routes/0/route}"
+    parameters:
+      memory: 512M
+      disk-quota: 256M
+      routes:
+        - route: ${default-domain}:53530/content
+parameters:
+  default-domain: "{xsa-placeholder-domain-default}"

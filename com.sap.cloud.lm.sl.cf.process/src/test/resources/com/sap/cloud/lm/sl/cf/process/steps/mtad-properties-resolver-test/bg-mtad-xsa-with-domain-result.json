@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "2.0.0",
+  "id": "hello",
+  "version": "0.1.0",
+  "modules": [
+    {
+      "name": "hello-backend",
+      "type": "java.tomee",
+      "path": "web/router.war",
+      "properties": {},
+      "parameters": {
+        "disk-quota": "256M",
+        "domain": "{xsa-placeholder-domain-default}",
+        "memory": "512M"
+      },
+      "requiredDependencies": [],
+      "providedDependencies": [
+        {
+          "name": "hello-backend",
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
+    }
+  ],
+  "resources": [],
+  "parameters": {
+    "default-domain": "{xsa-placeholder-domain-default}"
+  },
+  "parametersMetadata": {
+    "metadata": {}
+  },
+  "majorSchemaVersion": 2
+}

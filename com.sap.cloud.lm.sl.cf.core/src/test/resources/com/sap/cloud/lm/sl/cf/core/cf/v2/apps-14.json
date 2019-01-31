@@ -1,7 +1,9 @@
 [
   {
     "moduleName": "foo",
-    "idleUris": [],
+    "idleUris": [
+      "tcp.route.com:1234"
+    ],
     "tasks": [],
     "serviceKeysToInject": [],
     "applicationPorts": [

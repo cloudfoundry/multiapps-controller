@@ -450,7 +450,7 @@ public class Messages {
     public static final String UPDATED_SERVICES = "Updated services: {0}";
     public static final String UPLOAD_APP_TIMEOUT = "Upload app timeout in seconds: {0}";
     public static final String MERGING_ARCHIVE_PART = "Merging archive part with ID \"{0}\", name \"{1}\"";
-    public static final String EXTENSION_DESCRIPTORS = "Еxtension descriptor/s: {0}";
+    public static final String EXTENSION_DESCRIPTORS = "Extension descriptors: {0}";
     public static final String CREATED_SUBSCRIPTION = "Created subscription with ID: {0}";
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
     public static final String DELETED_APP_ROUTES = "App routes for applications \"{0}\" deleted";

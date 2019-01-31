@@ -55,7 +55,7 @@ public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<Prepa
     @Before
     public void setUp() throws Exception {
         prepareContext();
-        Mockito.when(configuration.getPlatformType())
+        when(configuration.getPlatformType())
             .thenReturn(ApplicationConfiguration.DEFAULT_TYPE);
         Mockito.when(configuration.getStepPollingIntervalInSeconds())
             .thenReturn(ApplicationConfiguration.DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS);

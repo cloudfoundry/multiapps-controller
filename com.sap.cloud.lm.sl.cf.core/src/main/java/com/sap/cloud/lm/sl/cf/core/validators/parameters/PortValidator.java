@@ -10,6 +10,10 @@ public class PortValidator implements ParameterValidator {
 
     @Override
     public boolean isValid(Object port) {
+        if (containsXsaPlaceholders(port)) {
+            return true;
+        }
+        
         if (!(port instanceof Integer)) {
             return false;
         }
