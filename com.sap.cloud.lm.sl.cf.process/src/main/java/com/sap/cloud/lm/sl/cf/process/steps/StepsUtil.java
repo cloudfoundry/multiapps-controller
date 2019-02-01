@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
@@ -1094,22 +1095,22 @@ public class StepsUtil {
         if (StringUtils.isEmpty(service)) {
             return null;
         }
-        return (CloudServiceExtended) JsonUtil.fromJson(service, CloudServiceExtended.class);
+        return JsonUtil.fromJson(service, CloudServiceExtended.class);
     }
 
     public static void setServiceActionsToExecute(List<ServiceAction> actions, DelegateExecution context) {
         List<String> actionsStrings = actions.stream()
-            .map(e -> e.toString())
+            .map(ServiceAction::toString)
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE, actionsStrings);
     }
 
+    @SuppressWarnings("unchecked")
     public static List<ServiceAction> getServiceActionsToExecute(DelegateExecution execution) {
-        List<String> actionsStrings = (List<String>) execution.getVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE);
-        List<ServiceAction> actions = actionsStrings.stream()
-            .map(e -> ServiceAction.valueOf(e))
+        List<String> actionStrings = (List<String>) execution.getVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE);
+        return actionStrings.stream()
+            .map(ServiceAction::valueOf)
             .collect(Collectors.toList());
-        return actions;
     }
 
     public static void isServiceUpdated(boolean isUpdated, DelegateExecution context) {
@@ -1117,8 +1118,8 @@ public class StepsUtil {
     }
 
     public static boolean getIsServiceUpdated(DelegateExecution context) {
-        Object variable = context.getVariable(Constants.VAR_IS_SERVICE_UPDATED);
-        return variable == null ? false : (boolean) variable;
+        Boolean isServiceUpdated = (Boolean) context.getVariable(Constants.VAR_IS_SERVICE_UPDATED);
+        return ObjectUtils.defaultIfNull(isServiceUpdated, false);
     }
 
     public static void setServiceToProcessName(String name, DelegateExecution context) {
@@ -1130,8 +1131,8 @@ public class StepsUtil {
     }
 
     public static boolean getIsServiceUpdatedExportedVariable(String serviceName, DelegateExecution context) {
-        Object variable = context.getVariable(Constants.VAR_IS_SERVICE_UPDATED_VAR_PREFIX + serviceName);
-        return variable == null ? false : (boolean) variable;
+        Boolean isServiceUpdated = (Boolean) context.getVariable(Constants.VAR_IS_SERVICE_UPDATED_VAR_PREFIX + serviceName);
+        return ObjectUtils.defaultIfNull(isServiceUpdated, false);
     }
 
     public static List<String> getModulesForDeployment(DelegateExecution context) {
