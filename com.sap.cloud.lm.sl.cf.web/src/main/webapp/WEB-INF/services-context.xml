@@ -23,8 +23,6 @@
         <constructor-arg name="dataSourceWithDialect" ref="dataSourceWithDialect" />
     </bean>
 
-    <bean class="com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider" factory-method="getInstance" />
-
     <beans profile="cf">
         <bean id="objectStoreFileStorage" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.ObjectStoreFileStorageFactoryBean">
             <constructor-arg name="serviceName" value="deploy-service-os" />
