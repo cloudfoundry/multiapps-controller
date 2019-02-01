@@ -438,7 +438,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String appName, ApplicationArchive archive, UploadStatusCallback callback) throws IOException {
+    public UploadToken asyncUploadApplication(String appName, ApplicationArchive archive, UploadStatusCallback callback)
+        throws IOException {
         return executeWithRetry(() -> {
             try {
                 return cc.asyncUploadApplication(appName, archive, callback);
@@ -955,6 +956,11 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
+    public CloudTask getTask(UUID taskGuid) {
+        return executeWithRetry(() -> cc.getTask(taskGuid));
+    }
+
+    @Override
     public List<CloudTask> getTasks(String applicationName) {
         return executeWithRetry(() -> cc.getTasks(applicationName), HttpStatus.NOT_FOUND);
     }
@@ -994,7 +1000,7 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void bindDropletToApp(UUID dropletGuid,UUID appGuid) {
+    public void bindDropletToApp(UUID dropletGuid, UUID appGuid) {
         executeWithRetry(() -> cc.bindDropletToApp(dropletGuid, appGuid));
     }
 }

@@ -73,10 +73,11 @@ public class Messages {
     public static final String CANT_GET_SERVICE_TAGS = "Cloud not retrieve tags for service \"{0}\"";
     public static final String TIMEOUT_EXECUTOR_IS_NOT_SET_UP = "TimeoutExecutor is not set up";
     public static final String CANT_GET_TASKS_FOR_APP = "Could not get tasks for application \"{0}\"";
+    public static final String CANT_GET_TASK_WITH_GUID = "Could not get task with guid \"{0}\"";
     public static final String CANT_RUN_TASK_ON_APP = "Could not run task \"{0}\" on application \"{1}\"";
     public static final String CANT_CANCEL_TASK = "Could not cancel task with GUID \"{0}\"";
     public static final String CANT_UPDATE_SERVICE_PLAN = "Could not update service plan of service \"{0}\": \"{1}\"";
-    
+
     public static final String SAVING_INPUT_STREAM_TEMP_FILE = "Saving input stream to temporary file \"{0}\"...";
     public static final String INPUT_STREAM_SAVED_IN_TEMP_FILE = "Input stream saved to temporary file \"{0}\"";
     public static final String SAVING_INPUT_STREAM_TO_TMP_DIR = "Saving input stream to temporary directory \"{0}\"...";
