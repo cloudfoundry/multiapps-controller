@@ -11,6 +11,8 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
@@ -102,7 +104,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         }
 
         List<String> existingServiceTags = getServiceTags(client, spaceId, existingService);
-        if (shouldUpdateTags(client, spaceId, service, existingService, defaultTags, existingServiceTags)) {
+        if (shouldUpdateTags(service, defaultTags, existingServiceTags)) {
             getStepLogger().debug("Service tags should be updated");
             getStepLogger().debug("New service tags: " + JsonUtil.toJson(service.getTags()));
             getStepLogger().debug("Existing service tags: " + JsonUtil.toJson(existingServiceTags));
@@ -141,7 +143,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
     private boolean shouldRecreate(CloudServiceExtended service, CloudService existingService, Map<String, Object> serviceInstanceEntity,
         ExecutionWrapper execution) {
-        if(serviceInstanceEntity == null) {
+        if (serviceInstanceEntity == null) {
             return false;
         }
         ServiceOperation lastOperation = getLastOperation(execution, serviceInstanceEntity);
@@ -160,27 +162,18 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return haveDifferentTypes || haveDifferentLabels;
     }
 
-    private boolean shouldUpdateTags(CloudControllerClient client, String spaceId, CloudServiceExtended service,
-        CloudService existingService, List<String> defaultTags, List<String> existingServiceTags) {
+    private boolean shouldUpdateTags(CloudServiceExtended service, List<String> defaultTags, List<String> existingServiceTags) {
         if (service.isUserProvided()) {
             return false;
         }
-        List<String> existingTags = existingServiceTags;
-        List<String> newServiceTags = new ArrayList<>(service.getTags());
-        existingTags.removeAll(defaultTags);
-        newServiceTags.removeAll(defaultTags);
-        return !existingTags.equals(newServiceTags);
+        existingServiceTags = ObjectUtils.defaultIfNull(existingServiceTags, Collections.emptyList());
+        existingServiceTags = ListUtils.removeAll(existingServiceTags, defaultTags);
+        List<String> newServiceTags = ListUtils.removeAll(service.getTags(), defaultTags);
+        return !existingServiceTags.equals(newServiceTags);
     }
 
     private boolean shouldUpdateCredentials(CloudServiceExtended service, Map<String, Object> credentials) {
         return !Objects.equals(service.getCredentials(), credentials);
-    }
-
-    private List<String> getServiceTags(Map<String, Object> serviceInstanceEntity) {
-        if (serviceInstanceEntity == null) {
-            return Collections.emptyList();
-        }
-        return CommonUtil.cast(serviceInstanceEntity.getOrDefault("tags", Collections.emptyList()));
     }
 
     private Map<String, List<String>> computeDefaultTags(CloudControllerClient client) {
