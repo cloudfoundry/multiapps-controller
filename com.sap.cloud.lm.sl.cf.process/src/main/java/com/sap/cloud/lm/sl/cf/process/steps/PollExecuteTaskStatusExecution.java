@@ -1,8 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -70,19 +67,9 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
         private CloudTask.State getCurrentState() {
             CloudControllerClient client = execution.getControllerClient();
-            List<CloudTask> allTasksForApp = client.getTasks(app.getName());
-
-            return findTaskWithGuid(allTasksForApp, taskToPoll.getMeta()
-                .getGuid()).getState();
-        }
-
-        private CloudTask findTaskWithGuid(List<CloudTask> allTasksForApp, UUID guid) {
-            return allTasksForApp.stream()
-                .filter(task -> task.getMeta()
-                    .getGuid()
-                    .equals(guid))
-                .findAny()
-                .orElseThrow(() -> new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_FIND_TASK_WITH_GUID, guid)));
+            return client.getTask(taskToPoll.getMeta()
+                .getGuid())
+                .getState();
         }
 
         private void reportCurrentState(CloudTask.State currentState) {

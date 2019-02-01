@@ -49,7 +49,6 @@ public class Messages {
     public static final String ERROR_DELETING_ARCHIVE_PARTS_CONTENT = "Error deleting archive parts content";
     public static final String SUB_PROCESS_HAS_FAILED = "Sub-process with id {0} has failed.";
     public static final String SUB_PROCESS_HAS_BEEN_ABORTED = "Sub-process with id {0} has been aborted.";
-    public static final String COULD_NOT_FIND_TASK_WITH_GUID = "Could not find task with GUID \"{0}\"!";
     public static final String COULD_NOT_COLLECT_PROCESS_STATISTICS = "Could not collect statistics for process with ID \"{0}\"";
     public static final String UNSUPPORTED_PROCESS_TYPE = "Process type \"{0}\" is not supported";
     public static final String FAILED_SERVICE_UPDATE = "Updating service {0} failed: {1}";
@@ -177,7 +176,6 @@ public class Messages {
     public static final String COULD_NOT_ABORT_OPERATION_0 = "Could not abort operation \"{0}\"";
     public static final String SKIP_SERVICES_DELETION = "Skipping deletion of services, because the command line option \"--delete-services\" is not specified.";
     public static final String UNSUPPORTED_MINOR_VERSION = "Used verion \"{0}\" is higher than the supported ones. Some features might not be implemented.";
-
 
     // INFO log messages
     public static final String MTA_NOT_FOUND = "An MTA with id \"{0}\" does not exist";
