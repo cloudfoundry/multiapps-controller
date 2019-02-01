@@ -28,8 +28,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
-import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.adapters.FlowableEngineEventToDelegateExecutionAdapter;
@@ -46,22 +46,16 @@ import com.sap.cloud.lm.sl.common.util.Runnable;
 @Component("abortProcessListener")
 public class AbortProcessListener extends AbstractFlowableEventListener implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbortProcessListener.class);
 
-    /*
-     * In older version of the Activiti process diagram, the AbortProcessListener was defined with its fully qualified class name. In the
-     * new versions of the Activiti process diagram it is defined with the delegateExpression and the Activiti will get the instance of the
-     * AbortProcessListener from the Spring configuration. When using the AbortProcessListener(aborting process or a process fails) with an
-     * old Activiti process diagram, in which the AbortProcessListener is defined by specifying the fully qualified class name, and attempt
-     * to use the AbortProcessListener(attempt to abort a process) the Activiti tries to initialize the AbortProcessListener by calling its
-     * constructor. This happens because the Activiti saved the version of the process diagram with which the process was aborted. And when
-     * such abort is being executed the Activiti initializes the AbortProcessListener with its constructor and all the @Inject resources in
-     * it are automatically null.
-     */
     @Inject
-    private BeanProvider beanProvider;
+    private OperationDao operationDao;
+    @Inject
+    private CloudControllerClientProvider clientProvider;
+    @Inject
+    private FileService fileService;
     @Inject
     private ApplicationConfiguration configuration;
     @Inject
@@ -91,7 +85,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         new SafeExecutor().executeSafely(() -> deleteAllocatedRoutes(historyService, processInstanceId));
         new SafeExecutor().executeSafely(() -> deleteDeploymentFiles(historyService, processInstanceId));
 
-        new SafeExecutor().executeSafely(() -> new ClientReleaser(engineEvent, getClientProvider()).releaseClient());
+        new SafeExecutor().executeSafely(() -> new ClientReleaser(engineEvent, clientProvider).releaseClient());
 
         new SafeExecutor().executeSafely(() -> {
             if (configuration.shouldGatherUsageStatistics()) {
@@ -114,13 +108,13 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
     }
 
     protected void setOperationInAbortedState(String processInstanceId) {
-        Operation operation = getOperationDao().findRequired(processInstanceId);
+        Operation operation = operationDao.findRequired(processInstanceId);
         LOGGER.info(MessageFormat.format(Messages.PROCESS_0_RELEASING_LOCK_FOR_MTA_1_IN_SPACE_2, operation.getProcessId(),
             operation.getMtaId(), operation.getSpaceId()));
         operation.setState(State.ABORTED);
         operation.setEndedAt(ZonedDateTime.now());
         operation.setAcquiredLock(false);
-        getOperationDao().merge(operation);
+        operationDao.merge(operation);
         LOGGER.debug(MessageFormat.format(Messages.PROCESS_0_RELEASED_LOCK, operation.getProcessId()));
     }
 
@@ -151,7 +145,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         String user = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_USER).getValue();
         String organization = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_ORG).getValue();
         String space = (String) getHistoricVarInstanceValue(historyService, processInstanceId, Constants.VAR_SPACE).getValue();
-        return getClientProvider().getControllerClient(user, organization, space, null);
+        return clientProvider.getControllerClient(user, organization, space, null);
     }
 
     protected void deleteDeploymentFiles(HistoryService historyService, String processInstanceId) throws FileStorageException {
@@ -167,7 +161,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
         String spaceId = (String) getHistoricVarInstanceValue(historyService, processInstanceId,
             com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID).getValue();
 
-        FileSweeper fileSweeper = new FileSweeper(spaceId, getBeanProvider().getFileService());
+        FileSweeper fileSweeper = new FileSweeper(spaceId, fileService);
         fileSweeper.sweep(extensionDescriptorFileIds);
         fileSweeper.sweep(appArchiveFileIds);
     }
@@ -189,21 +183,6 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
             .processInstanceId(processInstanceId)
             .variableName(parameter)
             .singleResult();
-    }
-
-    private CloudControllerClientProvider getClientProvider() {
-        return getBeanProvider().getCloudFoundryClientProvider();
-    }
-
-    private OperationDao getOperationDao() {
-        return getBeanProvider().getOperationDao();
-    }
-
-    private BeanProvider getBeanProvider() {
-        if (beanProvider == null) {
-            beanProvider = BeanProvider.getInstance();
-        }
-        return beanProvider;
     }
 
     private boolean isEventValid(FlowableEvent event) {

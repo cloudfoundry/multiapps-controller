@@ -23,7 +23,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.helpers.BeanProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -95,9 +94,6 @@ public class AbortProcessListenerTest {
         private FileService fileService;
 
         @InjectMocks
-        BeanProvider beanProvider = BeanProvider.getInstance();
-
-        @InjectMocks
         AbortProcessListener abortListener = new AbortProcessListenerMock();
 
         public AbortProcessListenerFileCleanupTest(String archiveIds, String extensionDescriptorIds, boolean shouldKeepFiles,
@@ -167,9 +163,6 @@ public class AbortProcessListenerTest {
         private CloudControllerClientProvider clientProvider;
         @Mock
         private CloudControllerClient client;
-
-        @InjectMocks
-        BeanProvider beanProvider = BeanProvider.getInstance();
 
         @InjectMocks
         AbortProcessListener abortListener = new AbortProcessListenerMock();
