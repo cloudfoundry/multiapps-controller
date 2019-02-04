@@ -46,7 +46,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
         @Override
-        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platformType,
+        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory,
             SystemParameters systemParameters, ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
             CloudTarget cloudTarget) {
             return resolver;
@@ -79,7 +79,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
     @Test
     public void testExecute1() throws Exception {
-        when(resolver.resolve(any())).thenReturn(DEPLOYMENT_DESCRIPTOR);
+        when(resolver.resolve(any())).thenAnswer((invocation) -> invocation.getArguments()[0]);
 
         step.execute(context);
 

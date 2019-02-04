@@ -42,7 +42,6 @@ public class MtaDescriptorPropertiesResolver {
     private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade().setFormattedOutput(true);
 
     private final HandlerFactory handlerFactory;
-    private final Platform platform;
     private final SystemParameters systemParameters;
     private BiFunction<String, String, String> spaceIdSupplier;
     private final ConfigurationEntryDao dao;
@@ -50,11 +49,10 @@ public class MtaDescriptorPropertiesResolver {
     private List<ConfigurationSubscription> subscriptions;
     private final ApplicationConfiguration configuration;
 
-    public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, Platform platform, SystemParameters systemParameters,
+    public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, SystemParameters systemParameters,
         BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
         ApplicationConfiguration configuration) {
         this.handlerFactory = handlerFactory;
-        this.platform = platform;
         this.systemParameters = systemParameters;
         this.spaceIdSupplier = spaceIdSupplier;
         this.dao = dao;
@@ -71,8 +69,7 @@ public class MtaDescriptorPropertiesResolver {
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
         // Resolve placeholders in parameters:
         descriptor = handlerFactory
-            .getDescriptorPlaceholderResolver(descriptor, platform, systemParameters, new NullPropertiesResolverBuilder(),
-                new ResolverBuilder())
+            .getDescriptorPlaceholderResolver(descriptor, systemParameters, new NullPropertiesResolverBuilder(), new ResolverBuilder())
             .resolve();
 
         List<ParameterValidator> validatorsList = getValidatorsList();
@@ -82,14 +79,13 @@ public class MtaDescriptorPropertiesResolver {
 
         // Resolve placeholders in properties:
         descriptor = handlerFactory
-            .getDescriptorPlaceholderResolver(descriptor, platform, systemParameters, new ResolverBuilder(),
-                new NullPropertiesResolverBuilder())
+            .getDescriptorPlaceholderResolver(descriptor, systemParameters, new ResolverBuilder(), new NullPropertiesResolverBuilder())
             .resolve();
 
         DeploymentDescriptor descriptorWithUnresolvedReferences = descriptor.copyOf();
 
-        ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor, platform, spaceIdSupplier,
-            dao, cloudTarget, configuration);
+        ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor, spaceIdSupplier, dao,
+            cloudTarget, configuration);
         resolver.resolve(descriptor);
         LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_AFTER_CROSS_MTA_DEPENDENCY_RESOLUTION, secureSerializer.toJson(descriptor)));
 
