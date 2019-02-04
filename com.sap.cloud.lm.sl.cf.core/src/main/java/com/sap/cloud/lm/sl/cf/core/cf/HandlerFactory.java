@@ -61,10 +61,10 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     }
 
     @Override
-    public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
+    public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor,
         BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
         ApplicationConfiguration configuration) {
-        return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, platform, spaceIdSupplier, dao, cloudTarget,
+        return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, spaceIdSupplier, dao, cloudTarget,
             configuration);
     }
 

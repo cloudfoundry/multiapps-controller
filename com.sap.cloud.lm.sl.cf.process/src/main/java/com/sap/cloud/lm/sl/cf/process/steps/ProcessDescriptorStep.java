@@ -45,10 +45,9 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     @Inject
     private SpaceGetter spaceGetter;
 
-    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, Platform platform,
-        SystemParameters systemParameters, ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
-        CloudTarget cloudTarget) {
-        return new MtaDescriptorPropertiesResolver(factory, platform, systemParameters, spaceIdSupplier, dao, cloudTarget, configuration);
+    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, SystemParameters systemParameters,
+        ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
+        return new MtaDescriptorPropertiesResolver(factory, systemParameters, spaceIdSupplier, dao, cloudTarget, configuration);
     }
 
     @Override
@@ -60,15 +59,15 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
             Platform platform = StepsUtil.getPlatform(execution.getContext());
-            MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, platform,
+            MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory,
                 StepsUtil.getSystemParameters(execution.getContext()), configurationEntryDao, getSpaceIdSupplier(client),
                 new CloudTarget(StepsUtil.getOrg(execution.getContext()), StepsUtil.getSpace(execution.getContext())));
 
-            DeploymentDescriptor descriptor = resolver.resolve(StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext()));
-
-            // Merge DeploymentDescriptor and Platform
+            DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext());
             handlerFactory.getPlatformMerger(platform)
                 .mergeInto(descriptor);
+
+            descriptor = resolver.resolve(descriptor);
 
             List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
             StepsUtil.setSubscriptionsToCreate(execution.getContext(), subscriptions);

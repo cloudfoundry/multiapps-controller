@@ -51,10 +51,10 @@ public class HelperFactory implements HelperFactoryConstructor {
     }
 
     @Override
-    public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, Platform platform,
+    public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor,
         BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
         ApplicationConfiguration configuration) {
-        ParametersChainBuilder chainBuilder = new ParametersChainBuilder(cast(deploymentDescriptor), cast(platform));
+        ParametersChainBuilder chainBuilder = new ParametersChainBuilder(cast(deploymentDescriptor), null);
         com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser filterParser = new com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser(
             cloudTarget, chainBuilder);
         return new ConfigurationReferencesResolver(dao, filterParser, spaceIdSupplier, cloudTarget, configuration);
