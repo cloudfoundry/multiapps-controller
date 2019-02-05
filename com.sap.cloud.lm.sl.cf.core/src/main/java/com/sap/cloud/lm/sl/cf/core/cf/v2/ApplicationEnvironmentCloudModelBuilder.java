@@ -15,7 +15,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency;
@@ -28,15 +27,13 @@ public class ApplicationEnvironmentCloudModelBuilder {
     protected CloudModelConfiguration configuration;
     protected DeploymentDescriptor deploymentDescriptor;
     protected XsPlaceholderResolver xsPlaceholderResolver;
-    protected DescriptorHandler handler;
     protected String deployId;
 
     public ApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration, DeploymentDescriptor deploymentDescriptor,
-        XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler, String deployId) {
+        XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
         this.configuration = configuration;
         this.deploymentDescriptor = deploymentDescriptor;
         this.xsPlaceholderResolver = xsPlaceholderResolver;
-        this.handler = handler;
         this.deployId = deployId;
     }
 
@@ -51,7 +48,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         addDependencies(env, module);
         return MapUtil.unmodifiable(new MapToEnvironmentConverter(configuration.isPrettyPrinting()).asEnv(env));
     }
-    
+
     protected void addMetadata(Map<String, Object> env, Module module) {
         addMtaMetadata(env);
         addMtaModuleMetadata(env, module);
@@ -74,7 +71,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         MapUtil.addNonNull(mtaModuleMetadata, Constants.ATTR_DESCRIPTION, module.getDescription());
         env.put(Constants.ENV_MTA_MODULE_METADATA, mtaModuleMetadata);
     }
-    
+
     protected void addProvidedDependenciesMetadata(Map<String, Object> env, Module module) {
         List<String> mtaModuleProvidedDependencies = module.getProvidedDependencies2()
             .stream()
@@ -83,7 +80,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
             .collect(Collectors.toList());
         env.put(Constants.ENV_MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES, mtaModuleProvidedDependencies);
     }
-    
+
     protected void addServices(Map<String, Object> env, List<String> services) {
         env.put(Constants.ENV_MTA_SERVICES, services);
     }
@@ -101,7 +98,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
             env.put(Constants.ENV_DEPLOY_ID, deployId);
         }
     }
-    
+
     private void resolveUrlsInAppAttributes(Map<String, Object> properties) {
         String serviceUrl = (String) properties.get(SupportedParameters.REGISTER_SERVICE_URL_SERVICE_URL);
         String serviceBrokerUrl = (String) properties.get(SupportedParameters.SERVICE_BROKER_URL);
@@ -112,16 +109,16 @@ public class ApplicationEnvironmentCloudModelBuilder {
             properties.put(SupportedParameters.SERVICE_BROKER_URL, xsPlaceholderResolver.resolve(serviceBrokerUrl));
         }
     }
-    
+
     protected void addProperties(Map<String, Object> env, Map<String, Object> properties) {
         env.putAll(properties);
     }
-    
+
     protected void addToGroup(Map<String, List<Object>> groups, String group, String name, Map<String, Object> properties) {
         groups.computeIfAbsent(group, key -> new ArrayList<>())
-        .add(createExtendedProperties(name, properties));
+            .add(createExtendedProperties(name, properties));
     }
-    
+
     protected static Map<String, Object> createExtendedProperties(String name, Map<String, Object> properties) {
         Map<String, Object> extendedProperties = new TreeMap<>();
         extendedProperties.put(Constants.ATTR_NAME, name);
@@ -163,7 +160,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
     protected HandlerFactory getHandlerFactory() {
         return new HandlerFactory(MTA_MAJOR_VERSION);
     }
-    
+
     public Map<String, Object> removeSpecialApplicationProperties(Map<String, Object> properties) {
         properties.keySet()
             .removeAll(SupportedParameters.APP_ATTRIBUTES);

@@ -43,7 +43,6 @@ import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
-import com.sap.cloud.lm.sl.mta.builders.v2.PropertiesChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
@@ -63,7 +62,6 @@ public class ApplicationsCloudModelBuilder {
     private static final int MTA_MAJOR_VERSION = 2;
 
     protected DescriptorHandler handler;
-    protected PropertiesChainBuilder propertiesChainBuilder;
     protected DeploymentDescriptor deploymentDescriptor;
 
     protected CloudModelConfiguration configuration;
@@ -79,12 +77,11 @@ public class ApplicationsCloudModelBuilder {
         DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
-        this.propertiesChainBuilder = createPropertiesChainBuilder(deploymentDescriptor);
         this.deploymentDescriptor = deploymentDescriptor;
         this.configuration = configuration;
         this.urisCloudModelBuilder = new ApplicationUrisCloudModelBuilder(configuration.isPortBasedRouting(), systemParameters);
-        this.applicationEnvCloudModelBuilder = createApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor,
-            xsPlaceholderResolver, handler, deployId);
+        this.applicationEnvCloudModelBuilder = new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor,
+            xsPlaceholderResolver, deployId);
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, deploymentDescriptor);
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployedMta = deployedMta;
@@ -105,20 +102,6 @@ public class ApplicationsCloudModelBuilder {
 
     private boolean isApplication(Module moduleToDeploy, ModuleToDeployHelper moduleToDeployHelper) {
         return moduleToDeployHelper.isApplication(moduleToDeploy);
-    }
-
-    protected PropertiesChainBuilder createPropertiesChainBuilder(DeploymentDescriptor deploymentDescriptor) {
-        DeploymentDescriptor v2DeploymentDescriptor = deploymentDescriptor;
-        return new PropertiesChainBuilder(v2DeploymentDescriptor);
-    }
-
-    protected ApplicationEnvironmentCloudModelBuilder createApplicationEnvironmentCloudModelBuilder(CloudModelConfiguration configuration,
-        DeploymentDescriptor deploymentDescriptor, XsPlaceholderResolver xsPlaceholderResolver, DescriptorHandler handler,
-        String deployId) {
-        DeploymentDescriptor v2DeploymentDescriptor = deploymentDescriptor;
-        DescriptorHandler v2Handler = handler;
-        return new ApplicationEnvironmentCloudModelBuilder(configuration, v2DeploymentDescriptor, xsPlaceholderResolver, v2Handler,
-            deployId);
     }
 
     protected CloudApplicationExtended getApplication(Module module) {
