@@ -28,8 +28,6 @@ import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -50,9 +48,6 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 public class CreateAppStep extends SyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    @Autowired
-    protected ApplicationStagingUpdater applicationStagingUpdater;
 
     @Autowired(required = false)
     ServiceBindingCreator serviceBindingCreator;
@@ -92,10 +87,6 @@ public class CreateAppStep extends SyncFlowableStep {
                             .getImage());
                 }
                 client.createApplication(appName, staging, diskQuota, memory, uris, Collections.emptyList(), app.getDockerInfo());
-
-                if (configuration.getPlatformType() == PlatformType.CF) {
-                    applicationStagingUpdater.updateApplicationStaging(client, appName, staging);
-                }
             }
 
             injectServiceKeysCredentialsInAppEnv(execution.getContext(), client, app, env);

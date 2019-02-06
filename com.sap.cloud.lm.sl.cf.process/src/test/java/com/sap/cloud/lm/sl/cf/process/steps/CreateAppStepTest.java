@@ -28,7 +28,6 @@ import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -42,8 +41,6 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
     private final String expectedExceptionMessage;
 
     private CloudApplicationExtended application;
-
-    private ApplicationStagingUpdater applicationUpdater = Mockito.mock(ApplicationStagingUpdater.class);
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -108,14 +105,6 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
         assertStepFinishedSuccessfully();
 
         validateClient();
-        validateApplicationUpdate();
-    }
-
-    private void validateApplicationUpdate() {
-        if (stepInput.platform == PlatformType.CF) {
-            Mockito.verify(applicationUpdater)
-                .updateApplicationStaging(eq(client), eq(application.getName()), eq(application.getStaging()));
-        }
     }
 
     private void loadParameters() {
