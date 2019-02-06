@@ -45,7 +45,6 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
@@ -64,7 +63,6 @@ public class ApplicationCloudModelBuilder {
 
     protected DescriptorHandler handler;
     protected DeploymentDescriptor deploymentDescriptor;
-    protected SystemParameters systemParameters;
     protected CloudModelConfiguration configuration;
     protected ApplicationEnvironmentCloudModelBuilder applicationEnvCloudModelBuilder;
     protected CloudServiceNameMapper cloudServiceNameMapper;
@@ -75,13 +73,11 @@ public class ApplicationCloudModelBuilder {
     protected ParametersChainBuilder parametersChainBuilder;
 
     public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
-        UserMessageLogger stepLogger) {
+        DeployedMta deployedMta, XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger stepLogger) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.deploymentDescriptor = deploymentDescriptor;
         this.configuration = configuration;
-        this.systemParameters = systemParameters;
         this.applicationEnvCloudModelBuilder = new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor,
             xsPlaceholderResolver, deployId);
         this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, deploymentDescriptor);
@@ -139,7 +135,7 @@ public class ApplicationCloudModelBuilder {
     }
 
     private ApplicationUrisCloudModelBuilder getApplicationUrisCloudModelBuilder(List<Map<String, Object>> parametersList) {
-        return new ApplicationUrisCloudModelBuilder(configuration.isPortBasedRouting(), systemParameters,
+        return new ApplicationUrisCloudModelBuilder(deploymentDescriptor, configuration.isPortBasedRouting(),
             getApplicationAttributesUpdateStrategy(parametersList));
     }
 

@@ -68,7 +68,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
             StepsUtil.setConfigurationEntriesToPublish(context, Collections.emptyList());
             return;
         }
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
 
         ConfigurationEntriesCloudModelBuilder configurationEntriesCloudModelBuilder = getConfigurationEntriesCloudModelBuilder(context);
         Map<String, List<ConfigurationEntry>> allConfigurationEntries = configurationEntriesCloudModelBuilder.build(deploymentDescriptor);

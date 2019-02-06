@@ -37,7 +37,7 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
         List<String> extensionDescriptorFileIds = getExtensionDescriptorFileIds(context);
         try {
             String spaceId = StepsUtil.getSpaceId(context);
-            DeploymentDescriptor deploymentDescriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
+            DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
 
             List<ExtensionDescriptor> extensionDescriptors = parseExtensionDescriptors(spaceId, extensionDescriptorFileIds);
             List<ExtensionDescriptor> extensionDescriptorChain = extensionDescriptorChainBuilder.build(deploymentDescriptor,

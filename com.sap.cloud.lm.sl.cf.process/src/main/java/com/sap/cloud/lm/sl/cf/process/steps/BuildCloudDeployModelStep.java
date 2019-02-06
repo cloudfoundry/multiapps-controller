@@ -51,7 +51,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().debug(Messages.BUILDING_CLOUD_MODEL);
-            DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
+            DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(execution.getContext());
 
             // Get module sets:
             DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
@@ -88,8 +88,8 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
             StepsUtil.setUseIdleUris(execution.getContext(), false);
 
             // Build a list of custom domains and save them in the context:
-            List<String> customDomainsFromApps = StepsUtil.getDomainsFromApps(execution.getContext(), applicationCloudModelBuilder,
-                modulesCalculatedForDeployment, moduleToDeployHelper);
+            List<String> customDomainsFromApps = StepsUtil.getDomainsFromApps(execution.getContext(), deploymentDescriptor,
+                applicationCloudModelBuilder, modulesCalculatedForDeployment, moduleToDeployHelper);
             StepsUtil.setCustomDomains(execution.getContext(), customDomainsFromApps);
             getStepLogger().debug(Messages.CUSTOM_DOMAINS, customDomainsFromApps);
 

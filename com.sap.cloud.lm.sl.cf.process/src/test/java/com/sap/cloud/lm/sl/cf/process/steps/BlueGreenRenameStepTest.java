@@ -37,7 +37,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
-        StepsUtil.setUnresolvedDeploymentDescriptor(context,
+        StepsUtil.setDeploymentDescriptor(context,
             loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
     }
 
@@ -50,7 +50,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
+        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
     // Test what happens when there are 1 color(s) deployed:
@@ -62,7 +62,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
+        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
     // Test what happens when there are 2 color(s) deployed:
@@ -76,7 +76,7 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getUnresolvedDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
+        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
     @Override

@@ -6,7 +6,6 @@ import static com.sap.cloud.lm.sl.common.util.JsonUtil.toJson;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.parsers.v2.DeploymentDescriptorParser;
@@ -217,8 +215,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             secureSerializer.toJson(dummyDescriptor));
 
         ApplicationCloudModelBuilder applicationCloudModelBuilder = handlerFactory.getApplicationCloudModelBuilder(dummyDescriptor,
-            StepsUtil.getCloudBuilderConfiguration(context, shouldUsePrettyPrinting()), null, getEmptySystemParameters(),
-            new XsPlaceholderResolver(), "",getStepLogger());
+            StepsUtil.getCloudBuilderConfiguration(context, shouldUsePrettyPrinting()), null, new XsPlaceholderResolver(), "",
+            getStepLogger());
 
         Module module = dummyDescriptor.getModules2()
             .get(0);
@@ -294,10 +292,6 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         return subscription.getModuleDto()
             .getRequiredDependencies()
             .get(0);
-    }
-
-    private SystemParameters getEmptySystemParameters() {
-        return new SystemParameters(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
     private CloudControllerClient getClient(ExecutionWrapper execution, Pair<String, String> orgAndSpace) {

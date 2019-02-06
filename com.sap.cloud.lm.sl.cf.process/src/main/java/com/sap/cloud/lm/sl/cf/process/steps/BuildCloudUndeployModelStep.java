@@ -87,7 +87,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
     }
 
     private List<String> getDeploymentDescriptorModules(DelegateExecution context) {
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
         if (deploymentDescriptor == null) {
             return Collections.emptyList();
         }

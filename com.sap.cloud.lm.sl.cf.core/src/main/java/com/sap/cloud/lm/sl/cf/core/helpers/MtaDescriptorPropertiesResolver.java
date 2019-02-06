@@ -22,15 +22,12 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.DomainValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.ModuleSystemParameterCopier;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RestartOnEnvChangeValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v3.VisibilityValidator;
-import com.sap.cloud.lm.sl.mta.model.Platform;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.resolvers.NullPropertiesResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
@@ -42,18 +39,15 @@ public class MtaDescriptorPropertiesResolver {
     private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade().setFormattedOutput(true);
 
     private final HandlerFactory handlerFactory;
-    private final SystemParameters systemParameters;
     private BiFunction<String, String, String> spaceIdSupplier;
     private final ConfigurationEntryDao dao;
     private final CloudTarget cloudTarget;
     private List<ConfigurationSubscription> subscriptions;
     private final ApplicationConfiguration configuration;
 
-    public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, SystemParameters systemParameters,
-        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-        ApplicationConfiguration configuration) {
+    public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, BiFunction<String, String, String> spaceIdSupplier,
+        ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
         this.handlerFactory = handlerFactory;
-        this.systemParameters = systemParameters;
         this.spaceIdSupplier = spaceIdSupplier;
         this.dao = dao;
         this.cloudTarget = cloudTarget;
@@ -61,15 +55,15 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     public List<ParameterValidator> getValidatorsList() {
-        return Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(), new RoutesValidator(),
-            new ModuleSystemParameterCopier(SupportedParameters.APP_NAME, systemParameters), new TasksValidator(),
+        return Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(), new RoutesValidator(), new TasksValidator(),
             new VisibilityValidator(), new RestartOnEnvChangeValidator());
     }
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
         // Resolve placeholders in parameters:
         descriptor = handlerFactory
-            .getDescriptorPlaceholderResolver(descriptor, systemParameters, new NullPropertiesResolverBuilder(), new ResolverBuilder())
+            .getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
+                SupportedParameters.SINGULAR_PLURAL_MAPPING)
             .resolve();
 
         List<ParameterValidator> validatorsList = getValidatorsList();
@@ -79,7 +73,8 @@ public class MtaDescriptorPropertiesResolver {
 
         // Resolve placeholders in properties:
         descriptor = handlerFactory
-            .getDescriptorPlaceholderResolver(descriptor, systemParameters, new ResolverBuilder(), new NullPropertiesResolverBuilder())
+            .getDescriptorPlaceholderResolver(descriptor, new ResolverBuilder(), new NullPropertiesResolverBuilder(),
+                SupportedParameters.SINGULAR_PLURAL_MAPPING)
             .resolve();
 
         DeploymentDescriptor descriptorWithUnresolvedReferences = descriptor.copyOf();

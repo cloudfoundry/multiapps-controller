@@ -43,6 +43,9 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.VALIDATING_PARAMETERS);
 
             validateParameters(execution.getContext());
+            String space = StepsUtil.getSpace(execution.getContext());
+            String org = StepsUtil.getOrg(execution.getContext());
+            getStepLogger().info(Messages.DEPLOYING_IN_ORG_0_AND_SPACE_1, org, space);
 
             getStepLogger().debug(Messages.PARAMETERS_VALIDATED);
             return StepPhase.DONE;

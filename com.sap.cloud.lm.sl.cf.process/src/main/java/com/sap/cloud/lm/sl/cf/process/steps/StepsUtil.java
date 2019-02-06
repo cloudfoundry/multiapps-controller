@@ -72,8 +72,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
-import com.sap.cloud.lm.sl.mta.model.Platform;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
@@ -196,14 +194,6 @@ public class StepsUtil {
 
     private static String getModuleContentVariable(String moduleName) {
         return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + moduleName;
-    }
-
-    static Platform getPlatform(VariableScope scope) {
-        return getFromJsonBinary(scope, Constants.VAR_PLATFORM, Platform.class);
-    }
-
-    static void setPlatform(VariableScope scope, Platform platform) {
-        setAsJsonBinary(scope, Constants.VAR_PLATFORM, platform);
     }
 
     public static HandlerFactory getHandlerFactory(VariableScope scope) {
@@ -634,14 +624,14 @@ public class StepsUtil {
         return resolver;
     }
 
-    public static DeploymentDescriptor getUnresolvedDeploymentDescriptor(VariableScope scope) {
-        byte[] binaryYaml = (byte[]) scope.getVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR);
+    public static DeploymentDescriptor getDeploymentDescriptor(VariableScope scope) {
+        byte[] binaryYaml = (byte[]) scope.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR);
         String yaml = new String(binaryYaml, StandardCharsets.UTF_8);
         return parseDeploymentDescriptor(yaml);
     }
 
-    public static DeploymentDescriptor getDeploymentDescriptor(VariableScope scope) {
-        byte[] binaryYaml = (byte[]) scope.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR);
+    public static DeploymentDescriptor getCompleteDeploymentDescriptor(VariableScope scope) {
+        byte[] binaryYaml = (byte[]) scope.getVariable(Constants.VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR);
         if (binaryYaml == null) {
             return null;
         }
@@ -651,7 +641,7 @@ public class StepsUtil {
 
     public static Module findModuleInDeploymentDescriptor(VariableScope scope, String module) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
-        DeploymentDescriptor deploymentDescriptor = getDeploymentDescriptor(scope);
+        DeploymentDescriptor deploymentDescriptor = getCompleteDeploymentDescriptor(scope);
         return handlerFactory.getDescriptorHandler()
             .findModule(deploymentDescriptor, module);
     }
@@ -677,12 +667,12 @@ public class StepsUtil {
             .collect(Collectors.toList());
     }
 
-    public static void setUnresolvedDeploymentDescriptor(VariableScope scope, DeploymentDescriptor unresolvedDeploymentDescriptor) {
-        scope.setVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(unresolvedDeploymentDescriptor));
+    public static void setDeploymentDescriptor(VariableScope scope, DeploymentDescriptor unresolvedDeploymentDescriptor) {
+        scope.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(unresolvedDeploymentDescriptor));
     }
 
-    public static void setDeploymentDescriptor(VariableScope scope, DeploymentDescriptor deploymentDescriptor) {
-        scope.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(deploymentDescriptor));
+    public static void setCompleteDeploymentDescriptor(VariableScope scope, DeploymentDescriptor deploymentDescriptor) {
+        scope.setVariable(Constants.VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(deploymentDescriptor));
     }
 
     static void setExtensionDescriptorChain(VariableScope scope, List<ExtensionDescriptor> extensionDescriptors) {
@@ -698,14 +688,6 @@ public class StepsUtil {
     private static byte[] toBinaryYaml(Object object) {
         String yaml = YamlUtil.convertToYaml(object);
         return yaml.getBytes(StandardCharsets.UTF_8);
-    }
-
-    static SystemParameters getSystemParameters(VariableScope scope) {
-        return getFromJsonBinary(scope, Constants.VAR_SYSTEM_PARAMETERS, SystemParameters.class);
-    }
-
-    static void setSystemParameters(VariableScope scope, SystemParameters systemParameters) {
-        setAsJsonBinary(scope, Constants.VAR_SYSTEM_PARAMETERS, systemParameters);
     }
 
     static void setVcapAppPropertiesChanged(VariableScope scope, boolean state) {
@@ -900,32 +882,31 @@ public class StepsUtil {
         CloudModelConfiguration configuration = getCloudBuilderConfiguration(scope, true);
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
 
-        SystemParameters systemParameters = StepsUtil.getSystemParameters(scope);
-
         String deployId = DEPLOY_ID_PREFIX + getCorrelationId(scope);
 
         XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(scope);
 
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(scope);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(scope);
         DeployedMta deployedMta = StepsUtil.getDeployedMta(scope);
 
-        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, deployId, stepLogger);
+        return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver,
+            deployId, stepLogger);
     }
 
-    static List<String> getDomainsFromApps(VariableScope scope, ApplicationCloudModelBuilder applicationCloudModelBuilder,
-        List<? extends Module> modules, ModuleToDeployHelper moduleToDeployHelper) {
-        SystemParameters systemParameters = StepsUtil.getSystemParameters(scope);
+    static List<String> getDomainsFromApps(VariableScope scope, DeploymentDescriptor descriptor,
+        ApplicationCloudModelBuilder applicationCloudModelBuilder, List<? extends Module> modules,
+        ModuleToDeployHelper moduleToDeployHelper) {
         XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(scope);
-        String defaultDomain = (String) systemParameters.getGeneralParameters()
-            .getOrDefault(SupportedParameters.DEFAULT_DOMAIN, null);
+
+        String defaultDomain = (String) descriptor.getParameters()
+            .get(SupportedParameters.DEFAULT_DOMAIN);
 
         Set<String> domains = new TreeSet<>();
         for (Module module : modules) {
             if (!moduleToDeployHelper.isApplication(module)) {
                 continue;
             }
-            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(StepsUtil.getDeploymentDescriptor(scope));
+            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(StepsUtil.getCompleteDeploymentDescriptor(scope));
             List<String> appDomains = applicationCloudModelBuilder
                 .getApplicationDomains(parametersChainBuilder.buildModuleChain(module.getName()), module);
             if (appDomains != null) {
@@ -947,14 +928,14 @@ public class StepsUtil {
     static ServicesCloudModelBuilder getServicesCloudModelBuilder(VariableScope scope) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
         CloudModelConfiguration configuration = getCloudBuilderConfiguration(scope, true);
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(scope);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(scope);
 
         return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, configuration);
     }
 
     static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(VariableScope scope) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(scope);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(scope);
         return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor);
     }
 

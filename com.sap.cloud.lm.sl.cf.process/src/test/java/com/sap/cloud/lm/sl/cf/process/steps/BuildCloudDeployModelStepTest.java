@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatform;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -36,23 +35,16 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.model.Platform;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
 @RunWith(Parameterized.class)
 public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
-
+    
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("build-cloud-model.yaml",
         BuildCloudDeployModelStepTest.class);
-    private static final Platform PLATFORM = loadPlatform("platform-01.json", BuildCloudDeployModelStepTest.class);
-
-    private static final SystemParameters EMPTY_SYSTEM_PARAMETERS = new SystemParameters(Collections.emptyMap(), Collections.emptyMap(),
-        Collections.emptyMap(), Collections.emptyMap());
 
     protected static class StepInput {
 
@@ -160,13 +152,10 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
     protected void prepareContext() throws Exception {
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
-        StepsUtil.setSystemParameters(context, EMPTY_SYSTEM_PARAMETERS);
         StepsUtil.setMtaModules(context, Collections.emptySet());
         StepsUtil.setMtaArchiveModules(context, Collections.emptySet());
-        StepsUtil.setDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        StepsUtil.setCompleteDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setXsPlaceholderReplacementValues(context, getDummyReplacementValues());
-
-        StepsUtil.setPlatform(context, PLATFORM);
     }
 
     private Map<String, Object> getDummyReplacementValues() {

@@ -30,9 +30,6 @@
     <sequenceFlow id="flow3" sourceRef="processArchiveTask" targetRef="processExtensionDescriptorsTask"></sequenceFlow>
     <serviceTask id="detectSchemaVersionTask" name="Detect Schema Version" flowable:async="true" flowable:delegateExpression="${detectMtaSchemaVersionStep}"></serviceTask>
     <sequenceFlow id="flow4" sourceRef="processExtensionDescriptorsTask" targetRef="detectSchemaVersionTask"></sequenceFlow>
-    <sequenceFlow id="flow5" sourceRef="detectSchemaVersionTask" targetRef="detectTargetTask"></sequenceFlow>
-    <serviceTask id="detectTargetTask" name="Detect Target" flowable:async="true" flowable:delegateExpression="${detectTargetStep}"></serviceTask>
-    <sequenceFlow id="flow6" sourceRef="detectTargetTask" targetRef="mergeDescriptorsTask"></sequenceFlow>
     <serviceTask id="mergeDescriptorsTask" name="Merge Descriptors" flowable:async="true" flowable:delegateExpression="${mergeDescriptorsStep}"></serviceTask>
     <sequenceFlow id="flow7" sourceRef="mergeDescriptorsTask" targetRef="detectDeployedMtaTask"></sequenceFlow>
     <serviceTask id="deleteDiscontinuedConfigurationEntriesTask" name="Delete Discontinued Configuration Entries" flowable:async="true" flowable:delegateExpression="${deleteDiscontinuedConfigurationEntriesStep}"></serviceTask>
@@ -196,6 +193,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServices == false)}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow50" sourceRef="addDomainsTask" targetRef="deleteUnusedReservedRoutesTask"></sequenceFlow>
+    <sequenceFlow id="sid-59F0AF3A-1E41-4A9D-8C78-9B94151006DE" sourceRef="detectSchemaVersionTask" targetRef="mergeDescriptorsTask"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_xs2-bg-deploy">
     <bpmndi:BPMNPlane bpmnElement="xs2-bg-deploy" id="BPMNPlane_xs2-bg-deploy">
@@ -234,9 +232,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="detectSchemaVersionTask" id="BPMNShape_detectSchemaVersionTask">
         <omgdc:Bounds height="65.0" width="117.0" x="905.0" y="27.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="detectTargetTask" id="BPMNShape_detectTargetTask">
-        <omgdc:Bounds height="65.0" width="105.0" x="1070.0" y="27.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="mergeDescriptorsTask" id="BPMNShape_mergeDescriptorsTask">
         <omgdc:Bounds height="65.0" width="105.0" x="1222.0" y="27.0"></omgdc:Bounds>
@@ -432,10 +427,6 @@
         <omgdi:waypoint x="481.0" y="12.0"></omgdi:waypoint>
         <omgdi:waypoint x="480.8415789473684" y="27.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
-        <omgdi:waypoint x="1021.9499999999999" y="59.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1069.999999999996" y="59.5"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="doNotAutoContinueDeploymentFlow" id="BPMNEdge_doNotAutoContinueDeploymentFlow">
         <omgdi:waypoint x="879.7262019230752" y="440.21336898395725"></omgdi:waypoint>
         <omgdi:waypoint x="898.999999999995" y="440.42162162162157"></omgdi:waypoint>
@@ -443,10 +434,6 @@
       <bpmndi:BPMNEdge bpmnElement="doNotSkipOwnershipValidationFlow" id="BPMNEdge_doNotSkipOwnershipValidationFlow">
         <omgdi:waypoint x="613.0" y="154.0"></omgdi:waypoint>
         <omgdi:waypoint x="532.9499999999583" y="154.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
-        <omgdi:waypoint x="1174.9499999999923" y="59.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1222.0" y="59.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow86" id="BPMNEdge_flow86">
         <omgdi:waypoint x="282.94999999958947" y="791.5"></omgdi:waypoint>
@@ -640,6 +627,10 @@
       <bpmndi:BPMNEdge bpmnElement="flow155" id="BPMNEdge_flow155">
         <omgdi:waypoint x="1444.9499999998852" y="373.5"></omgdi:waypoint>
         <omgdi:waypoint x="1470.0" y="373.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-59F0AF3A-1E41-4A9D-8C78-9B94151006DE" id="BPMNEdge_sid-59F0AF3A-1E41-4A9D-8C78-9B94151006DE">
+        <omgdi:waypoint x="1021.9499999999864" y="59.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1222.0" y="59.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
         <omgdi:waypoint x="1069.9999999999623" y="154.0"></omgdi:waypoint>

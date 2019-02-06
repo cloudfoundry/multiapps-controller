@@ -1,65 +1,100 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.util.Arrays;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.Test;
 
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
+import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
-public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersStepTest {
-
-    public CollectBlueGreenSystemParametersStepTest(StepInput input, StepOutput output) {
-        super(input, output);
-    }
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-            // (0) Should not use namespaces for applications and services:
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-3.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-08.json"), null),
-            },
-            // (1) Should use namespaces for applications and services:
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-3.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-09.json"), null),
-            },
-            // (2) There are deployed MTAs:
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, "deployed-mta-01.json", PlatformType.CF, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-3.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-05.json"), null),
-            },
-            // (3) Host based routing:
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, true), 
-                new StepOutput(null, new Expectation(Expectation.Type.RESOURCE, "system-parameters-10.json"), null),            },
-            // (4) Should not use namespaces for applications and services (XS placeholders are supported):
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, true, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-3.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-11.json"), null),
-            },
-            // (5) The version of the MTA is lower than the version of the previously deployed MTA:
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, "deployed-mta-02.json", PlatformType.CF, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-05.json"), Messages.HIGHER_VERSION_ALREADY_DEPLOYED),
-            },
-// @formatter:on
-        });
-    }
+public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
 
     @Before
-    public void prepareContext() {
+    public void setNoConfirm() {
         context.setVariable(Constants.PARAM_NO_CONFIRM, false);
     }
 
+    @Test
+    public void testIdleGeneralParameters() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(true);
+
+        step.execute(context);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        Map<String, Object> generalParameters = descriptor.getParameters();
+        assertEquals(DEFAULT_DOMAIN, generalParameters.get(SupportedParameters.DEFAULT_IDLE_DOMAIN));
+        assertEquals(DEFAULT_DOMAIN, generalParameters.get(SupportedParameters.DEFAULT_DOMAIN));
+    }
+
+    @Test
+    public void testIdleHostBasedModuleParameters() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(false);
+
+        step.execute(context);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(2, modules.size());
+        for (Module module : modules) {
+            validateIdleHostBasedModuleParameters(module);
+        }
+    }
+
+    private void validateIdleHostBasedModuleParameters(Module module) {
+        Map<String, Object> parameters = module.getParameters();
+        String expectedIdleHost = String.format("%s-%s-%s-idle", ORG, SPACE, module.getName());
+        assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.IDLE_DOMAIN));
+        assertEquals(expectedIdleHost, parameters.get(SupportedParameters.DEFAULT_IDLE_HOST));
+        assertEquals(expectedIdleHost, parameters.get(SupportedParameters.IDLE_HOST));
+        assertEquals(expectedIdleHost, parameters.get(SupportedParameters.DEFAULT_HOST));
+        assertEquals(expectedIdleHost, parameters.get(SupportedParameters.HOST));
+        assertEquals(SystemParametersBuilder.DEFAULT_HOST_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_IDLE_URI));
+        assertEquals(SystemParametersBuilder.DEFAULT_HOST_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_URI));
+        assertEquals(SystemParametersBuilder.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_IDLE_URL));
+        assertEquals(SystemParametersBuilder.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_URL));
+    }
+
+    @Test
+    public void testIdlePortBasedModuleParameters() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(true);
+
+        step.execute(context);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(2, modules.size());
+        for (int index = 0; index < modules.size(); index++) {
+            Module module = modules.get(index);
+            validateIdlePortBasedModuleParameters(module, (PortValidator.MIN_PORT_VALUE + index) * 2);
+        }
+    }
+
+    private void validateIdlePortBasedModuleParameters(Module module, int expectedPort) {
+        Map<String, Object> parameters = module.getParameters();
+        assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.IDLE_DOMAIN));
+        assertEquals(expectedPort, parameters.get(SupportedParameters.DEFAULT_IDLE_PORT));
+        assertEquals(expectedPort, parameters.get(SupportedParameters.IDLE_PORT));
+        assertEquals(expectedPort, parameters.get(SupportedParameters.DEFAULT_PORT));
+        assertEquals(expectedPort, parameters.get(SupportedParameters.PORT));
+        assertEquals(SystemParametersBuilder.DEFAULT_PORT_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_IDLE_URI));
+        assertEquals(SystemParametersBuilder.DEFAULT_PORT_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_URI));
+        assertEquals(SystemParametersBuilder.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_IDLE_URL));
+        assertEquals(SystemParametersBuilder.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_URL));
+    }
+
     @Override
-    protected CollectSystemParametersStep createStep() {
+    protected CollectBlueGreenSystemParametersStep createStep() {
         return new CollectBlueGreenSystemParametersStep();
     }
 

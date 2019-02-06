@@ -35,7 +35,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentType;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
@@ -55,15 +54,15 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     protected Supplier<String> timestampSupplier = () -> new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance()
         .getTime());
 
+    @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         return executeStepInternal(execution, false);
     }
 
-    protected StepPhase executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoute) {
+    protected StepPhase executeStepInternal(ExecutionWrapper execution, boolean reserveTemporaryRoutes) {
         getStepLogger().debug(Messages.COLLECTING_SYSTEM_PARAMETERS);
         PortAllocator portAllocator = null;
         try {
-
             CloudControllerClient client = execution.getControllerClient();
             String defaultDomainName = getDefaultDomain(client);
             getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
@@ -75,10 +74,10 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
             }
 
             SystemParametersBuilder systemParametersBuilder = createParametersBuilder(execution.getContext(), client, portAllocator,
-                portBasedRouting, defaultDomainName, reserveTemporaryRoute);
-            DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext());
-            SystemParameters systemParameters = systemParametersBuilder.build(descriptor);
-            getStepLogger().debug(Messages.SYSTEM_PARAMETERS, secureSerializer.toJson(systemParameters));
+                portBasedRouting, defaultDomainName, reserveTemporaryRoutes);
+            DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
+            systemParametersBuilder.injectInto(descriptor);
+            getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, secureSerializer.toJson(descriptor));
 
             determineIsVersionAccepted(execution.getContext(), descriptor);
 
@@ -89,7 +88,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
             execution.getContext()
                 .setVariable(Constants.VAR_PORT_BASED_ROUTING, portBasedRouting);
 
-            StepsUtil.setSystemParameters(execution.getContext(), systemParameters);
+            StepsUtil.setCompleteDeploymentDescriptor(execution.getContext(), descriptor);
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
             cleanUp(portAllocator);
@@ -114,7 +113,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
     }
 
     private SystemParametersBuilder createParametersBuilder(DelegateExecution context, CloudControllerClient client,
-        PortAllocator portAllocator, boolean portBasedRouting, String defaultDomainName, boolean reserveTemporaryRoute) {
+        PortAllocator portAllocator, boolean portBasedRouting, String defaultDomainName, boolean reserveTemporaryRoutes) {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
         boolean useNamespacesForServices = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES);
         boolean useNamespaces = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES);
@@ -135,7 +134,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
 
         return new SystemParametersBuilder(StepsUtil.getOrg(context), StepsUtil.getSpace(context), user, defaultDomainName,
             configuration.getPlatformType(), controllerUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting,
-            reserveTemporaryRoute, portAllocator, useNamespaces, useNamespacesForServices, deployedMta, credentialsGeneratorSupplier.get(),
+            reserveTemporaryRoutes, portAllocator, useNamespaces, useNamespacesForServices, deployedMta, credentialsGeneratorSupplier.get(),
             areXsPlaceholdersSupported, timestampSupplier, moduleToDeployHelper);
     }
 

@@ -87,7 +87,7 @@ public class DetectMtaSchemaVersionStepTest extends SyncFlowableStepTest<DetectM
     public void setUp() throws Exception {
         step.detectorSupplier = () -> versionDetector;
 
-        StepsUtil.setUnresolvedDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        StepsUtil.setDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setExtensionDescriptorChain(context, Collections.emptyList());
     }
 

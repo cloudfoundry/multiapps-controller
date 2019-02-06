@@ -1,285 +1,318 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.net.URL;
 import java.util.Arrays;
-import java.util.UUID;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-import org.cloudfoundry.client.lib.domain.CloudDomain;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
-import org.cloudfoundry.client.lib.domain.CloudInfo;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Mock;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
-import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
-import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
-import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorMock;
+import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
-@RunWith(Parameterized.class)
-public class CollectSystemParametersStepTest extends SyncFlowableStepTest<CollectSystemParametersStep> {
+public class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
 
-    private static final String GENERATED_CREDENTIAL = "credential";
-    private static final UUID CLOUD_DOMAIN_GUID = UUID.fromString("7b5987e9-4325-4bb6-93e2-a0b1c562e60c");
-    private static final String DEFAULT_TIMESTAMP = "19700101";
+    private static final int USED_PORT = 50020;
+    private static final String DEFAULT_PROTOCOL = "https";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    @Test
+    public void testGeneralParameters() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(true);
 
-    protected static class StepInput {
+        step.execute(context);
 
-        public String deploymentDescriptorLocation;
-        public String authorizationEndpoint;
-        public String deployServiceUrl;
-        public String defaultDomain;
-        public boolean portBasedRouting;
-        public boolean useNamespaces;
-        public boolean useNamespacesForServices;
-        public String deployedMtaLocation;
-        public String user;
-        public String org;
-        public String space;
-        public int majorMtaSchemaVersion;
-        public PlatformType xsType;
-        public boolean areXsPlaceholdersSupported;
-        public boolean isApplication;
-
-        public StepInput(String deploymentDescriptorLocation, String authorizationEndpoint, String deployServiceUrl, String defaultDomain,
-            boolean portBasedRouting, boolean useNamespaces, boolean useNamespacesForServices, String user, String org, String space,
-            int majorMtaSchemaVersion, String deployedMtaLocation, PlatformType xsType, boolean areXsPlaceholdersSupported, boolean isApplication) {
-            this.deploymentDescriptorLocation = deploymentDescriptorLocation;
-            this.authorizationEndpoint = authorizationEndpoint;
-            this.deployServiceUrl = deployServiceUrl;
-            this.defaultDomain = defaultDomain;
-            this.portBasedRouting = portBasedRouting;
-            this.useNamespaces = useNamespaces;
-            this.useNamespacesForServices = useNamespacesForServices;
-            this.deployedMtaLocation = deployedMtaLocation;
-            this.user = user;
-            this.org = org;
-            this.space = space;
-            this.majorMtaSchemaVersion = majorMtaSchemaVersion;
-            this.xsType = xsType;
-            this.areXsPlaceholdersSupported = areXsPlaceholdersSupported;
-            this.isApplication = isApplication;
-        }
-
-    }
-
-    protected static class StepOutput {
-
-        public Expectation allocatedPortsExpectation;
-        public Expectation systemParametersExpectation;
-        public String versionException;
-
-        public StepOutput(Expectation allocatedPortsExpectation, Expectation systemParametersExpectation, String versionException) {
-            this.allocatedPortsExpectation = allocatedPortsExpectation;
-            this.systemParametersExpectation = systemParametersExpectation;
-            this.versionException = versionException;
-        }
-    }
-
-    @Parameters
-    public static Iterable<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-// @formatter:off
-            // (0) Should not use namespaces for applications and services:
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-02.json"), null),
-            },
-            // (1) Should use namespaces for applications and services:
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-01.json"), null),
-            },
-            // (2) There are deployed MTAs:
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, "deployed-mta-01.json", PlatformType.XS2, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-04.json"), null),
-            },
-            // (3) Host based routing:
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, true), 
-                new StepOutput(null, new Expectation(Expectation.Type.RESOURCE, "system-parameters-03.json"), null),
-            },
-            // (4) The version of the MTA is lower than the version of the previously deployed MTA:
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , true , true , "XSMASTER", "initial", "initial", 2, "deployed-mta-02.json", PlatformType.XS2, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-04.json"), Messages.HIGHER_VERSION_ALREADY_DEPLOYED),
-            },
-            // (5) Should not use namespaces for applications and services (platform type  is  CF):
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.CF , false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-07.json"), null),
-            },
-            // (6) Should not use namespaces for applications and services (XS placeholders are supported):
-            {
-                new StepInput("node-hello-mtad.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, true, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-1.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-06.json"), null),
-            },
-            // (7) Host based routing with TCP/TCPS
-            {
-                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 3, null, PlatformType.XS2, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-2.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-12.json"), null),
-            },
-            // (8) Host based routing with TCP/TCPS with existing apps with HTTP uris
-            {
-                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 3, "deployed-mta-13.json", PlatformType.XS2, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "allocated-ports-2.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-12.json"), null),
-            },
-            // (9) Host based routing with TCP/TCPS with existing apps with TCP uris
-            {
-                new StepInput("mtad-tcp-tcps.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", false, true , true , "XSMASTER", "initial", "initial", 3, "deployed-mta-14.json", PlatformType.XS2, false, true), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "empty-map.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-13.json"), null),
-            },
-            // (10) Port based routing with non-application module
-            {
-                new StepInput("mtad-non-application.yaml", "https://localhost:30032/uaa-security", "https://deploy-service-url:51002", "localhost", true , false, false, "XSMASTER", "initial", "initial", 2, null, PlatformType.XS2, false, false), 
-                new StepOutput(new Expectation(Expectation.Type.RESOURCE, "empty-map.json"), new Expectation(Expectation.Type.RESOURCE, "system-parameters-14.json"), null),
-            },
-// @formatter:on
-        });
-    }
-
-    private DeploymentDescriptor descriptor;
-    private DeployedMta deployedMta;
-
-    private StepOutput output;
-    private StepInput input;
-
-    private PortAllocator portAllocator = new PortAllocatorMock(PortValidator.MIN_PORT_VALUE);
-    @Mock
-    private CredentialsGenerator credentialsGenerator;
-    @Mock
-    protected ModuleToDeployHelper moduleToDeployHelper;
-
-    public CollectSystemParametersStepTest(StepInput input, StepOutput output) {
-        this.input = input;
-        this.output = output;
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        loadParameters();
-        prepareContext();
-        prepareClient();
-        when(credentialsGenerator.next(anyInt())).thenReturn(GENERATED_CREDENTIAL);
-
-        if (output.versionException != null) {
-            expectedException.expect(SLException.class);
-            expectedException.expectMessage(output.versionException);
-        }
-    }
-
-    private void loadParameters() throws Exception {
-        String deploymentDescriptorString = TestUtil.getResourceAsString(input.deploymentDescriptorLocation, getClass());
-        
-        when(moduleToDeployHelper.isApplication(any())).thenReturn(input.isApplication);
-        descriptor = new HandlerFactory(input.majorMtaSchemaVersion).getDescriptorParser()
-            .parseDeploymentDescriptorYaml(deploymentDescriptorString);
-        if (input.deployedMtaLocation != null) {
-            String deployedMtaString = TestUtil.getResourceAsString(input.deployedMtaLocation, getClass());
-            deployedMta = JsonUtil.fromJson(deployedMtaString, DeployedMta.class);
-        }
-    }
-
-    private void prepareContext() throws Exception {
-        when(configuration.getPlatformType()).thenReturn(input.xsType);
-        when(configuration.getControllerUrl()).thenReturn(new URL("http://localhost:9999"));
-        when(configuration.getRouterPort()).thenReturn(ApplicationConfiguration.DEFAULT_HTTP_ROUTER_PORT);
-        when(configuration.areXsPlaceholdersSupported()).thenReturn(input.areXsPlaceholdersSupported);
-        step.credentialsGeneratorSupplier = () -> credentialsGenerator;
-        step.timestampSupplier = () -> DEFAULT_TIMESTAMP;
-
-        context.setVariable(Constants.VAR_SPACE, input.space);
-        context.setVariable(Constants.VAR_ORG, input.org);
-
-        context.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, input.useNamespacesForServices);
-        context.setVariable(Constants.PARAM_USE_NAMESPACES, input.useNamespaces);
-        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, input.majorMtaSchemaVersion);
-
-        StepsUtil.setUnresolvedDeploymentDescriptor(context, descriptor);
-
-        context.setVariable(Constants.PARAM_VERSION_RULE, VersionRule.SAME_HIGHER.toString());
-        context.setVariable(Constants.VAR_USER, input.user);
-
-        StepsUtil.setDeployedMta(context, deployedMta);
-    }
-
-    private void prepareClient() throws Exception {
-        CloudDomain domain = mock(CloudDomain.class);
-        CloudInfo info;
-        if (input.portBasedRouting) {
-            info = mock(CloudInfoExtended.class);
-            when(((CloudInfoExtended) info).isPortBasedRouting()).thenReturn(true);
-        } else {
-            info = mock(CloudInfo.class);
-        }
-
-        if (info instanceof CloudInfoExtended)
-            when(((CloudInfoExtended) info).getDeployServiceUrl()).thenReturn(input.deployServiceUrl);
-
-        when(clientProvider.getPortAllocator(any(), anyString())).thenReturn(portAllocator);
-
-        when(info.getAuthorizationEndpoint()).thenReturn(input.authorizationEndpoint);
-        when(domain.getName()).thenReturn(input.defaultDomain);
-        when(domain.getMeta()).thenReturn(new Meta(CLOUD_DOMAIN_GUID, null, null));
-
-        when(client.getDefaultDomain()).thenReturn(domain);
-        when(client.getCloudInfo()).thenReturn(info);
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        Map<String, Object> generalParameters = descriptor.getParameters();
+        assertEquals(USER, generalParameters.get(SupportedParameters.USER));
+        assertEquals(ORG, generalParameters.get(SupportedParameters.ORG));
+        assertEquals(SPACE, generalParameters.get(SupportedParameters.SPACE));
+        assertEquals(DEFAULT_DOMAIN, generalParameters.get(SupportedParameters.DEFAULT_DOMAIN));
+        assertEquals(AUTHORIZATION_URL, generalParameters.get(SupportedParameters.XS_AUTHORIZATION_ENDPOINT));
+        assertEquals(AUTHORIZATION_URL, generalParameters.get(SupportedParameters.AUTHORIZATION_URL));
+        assertEquals(CONTROLLER_URL, generalParameters.get(SupportedParameters.XS_TARGET_API_URL));
+        assertEquals(CONTROLLER_URL, generalParameters.get(SupportedParameters.CONTROLLER_URL));
+        assertEquals(MULTIAPPS_CONTROLLER_URL, generalParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
     }
 
     @Test
-    public void testExecute() throws Exception {
+    public void testGeneralParametersWithXsaPlaceholders() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(true);
+
+        when(configuration.areXsPlaceholdersSupported()).thenReturn(true);
+
         step.execute(context);
 
-        assertStepFinishedSuccessfully();
-
-        if (output.allocatedPortsExpectation != null) {
-            TestUtil.test(() -> {
-                
-                return StepsUtil.getAllocatedPorts(context);
-                
-            }, output.allocatedPortsExpectation, getClass());
-        }
-        
-
-        TestUtil.test(() -> {
-
-            return StepsUtil.getSystemParameters(context);
-
-        }, output.systemParametersExpectation, getClass());
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        Map<String, Object> generalParameters = descriptor.getParameters();
+        assertEquals(USER, generalParameters.get(SupportedParameters.USER));
+        assertEquals(ORG, generalParameters.get(SupportedParameters.ORG));
+        assertEquals(SPACE, generalParameters.get(SupportedParameters.SPACE));
+        assertEquals(SupportedParameters.XSA_DEFAULT_DOMAIN_PLACEHOLDER, generalParameters.get(SupportedParameters.DEFAULT_DOMAIN));
+        assertEquals(SupportedParameters.XSA_AUTHORIZATION_ENDPOINT_PLACEHOLDER,
+            generalParameters.get(SupportedParameters.XS_AUTHORIZATION_ENDPOINT));
+        assertEquals(SupportedParameters.XSA_AUTHORIZATION_ENDPOINT_PLACEHOLDER,
+            generalParameters.get(SupportedParameters.AUTHORIZATION_URL));
+        assertEquals(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER, generalParameters.get(SupportedParameters.XS_TARGET_API_URL));
+        assertEquals(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER, generalParameters.get(SupportedParameters.CONTROLLER_URL));
+        assertEquals(SupportedParameters.XSA_DEPLOY_SERVICE_URL_PLACEHOLDER, generalParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
     }
 
-    @Override
-    protected CollectSystemParametersStep createStep() {
-        return new CollectSystemParametersStep();
+    @Test
+    public void testWithPortBasedRouting() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(true);
+
+        step.execute(context);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(2, modules.size());
+        for (int index = 0; index < modules.size(); index++) {
+            Module module = modules.get(index);
+            validatePortBasedModuleParameters(module, PortValidator.MIN_PORT_VALUE + index);
+        }
+    }
+
+    @Test
+    public void testWithTcpRouting() {
+        prepareDescriptor("system-parameters/mtad-with-tcp.yaml");
+        prepareClient(true);
+
+        step.execute(context);
+
+        verify(portAllocator).allocateTcpPort("foo", false);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(2, modules.size());
+        validatePortBasedModuleParameters(modules.get(0), PortValidator.MIN_PORT_VALUE, "tcp");
+    }
+
+    @Test
+    public void testWithTcpRoutingAndExistingApplicationsWithHostBasedRoutes() {
+        prepareDescriptor("system-parameters/mtad-with-tcp.yaml");
+        prepareClient(false);
+        List<DeployedMtaModule> deployedMtaModules = Arrays.asList(createDeployedMtaModule("foo", Arrays.asList("https://foo.localhost")));
+        StepsUtil.setDeployedMta(context, createDeployedMta("1.0.0", deployedMtaModules));
+
+        step.execute(context);
+
+        verify(portAllocator).allocateTcpPort("foo", false);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(2, modules.size());
+        validatePortBasedModuleParameters(modules.get(0), PortValidator.MIN_PORT_VALUE, "tcp");
+    }
+
+    private DeployedMta createDeployedMta(String version, List<DeployedMtaModule> deployedModules) {
+        DeployedMtaMetadata metadata = new DeployedMtaMetadata("system-parameters-test", Version.parseVersion(version));
+        return new DeployedMta(metadata, deployedModules, Collections.emptySet());
+    }
+
+    private DeployedMtaModule createDeployedMtaModule(String name, List<String> uris) {
+        return new DeployedMtaModule("foo", "foo", null, null, Collections.emptyList(), Collections.emptyList(), uris);
+    }
+
+    @Test
+    public void testWithTcpsRouting() {
+        prepareDescriptor("system-parameters/mtad-with-tcps.yaml");
+        prepareClient(true);
+
+        step.execute(context);
+
+        verify(portAllocator).allocateTcpPort("foo", true);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(2, modules.size());
+        validatePortBasedModuleParameters(modules.get(0), PortValidator.MIN_PORT_VALUE, "tcps");
+    }
+
+    @Test(expected = ContentException.class)
+    public void testWithTcpAndTcpsRouting() {
+        prepareDescriptor("system-parameters/mtad-with-tcp-and-tcps.yaml");
+        prepareClient(true);
+
+        step.execute(context);
+    }
+
+    private void validatePortBasedModuleParameters(Module module, int expectedPort) {
+        validatePortBasedModuleParameters(module, expectedPort, DEFAULT_PROTOCOL);
+    }
+
+    private void validatePortBasedModuleParameters(Module module, int expectedPort, String expectedProtocol) {
+        Map<String, Object> parameters = module.getParameters();
+        assertEquals(expectedPort, parameters.get(SupportedParameters.DEFAULT_PORT));
+        assertEquals(expectedPort, parameters.get(SupportedParameters.PORT));
+        assertEquals(SystemParametersBuilder.DEFAULT_PORT_BASED_URI, parameters.get(SupportedParameters.DEFAULT_URI));
+        assertEquals(SystemParametersBuilder.DEFAULT_URL, parameters.get(SupportedParameters.DEFAULT_URL));
+        assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.DOMAIN));
+        assertEquals(expectedProtocol, parameters.get(SupportedParameters.PROTOCOL));
+    }
+
+    @Test
+    public void testWithHostBasedRouting() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(false);
+
+        step.execute(context);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(2, modules.size());
+        for (Module module : modules) {
+            validateHostBasedModuleParameters(module);
+        }
+    }
+
+    @Test
+    public void testWithRoutePath() {
+        prepareDescriptor("system-parameters/mtad-with-route-path.yaml");
+        prepareClient(false);
+
+        step.execute(context);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(1, modules.size());
+        validateHostBasedModuleParameters(modules.get(0), "/foo");
+    }
+
+    private void validateHostBasedModuleParameters(Module module) {
+        validateHostBasedModuleParameters(module, null);
+    }
+
+    private void validateHostBasedModuleParameters(Module module, String path) {
+        Map<String, Object> parameters = module.getParameters();
+
+        String expectedDefaultHost = computeExpectedDefaultHost(module);
+        String expectedDefaultUri = computeExpectedDefaultUri(path);
+        assertEquals(expectedDefaultHost, parameters.get(SupportedParameters.DEFAULT_HOST));
+        assertEquals(expectedDefaultHost, parameters.get(SupportedParameters.HOST));
+        assertEquals(expectedDefaultUri, parameters.get(SupportedParameters.DEFAULT_URI));
+        assertEquals(SystemParametersBuilder.DEFAULT_URL, parameters.get(SupportedParameters.DEFAULT_URL));
+        assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.DOMAIN));
+        assertEquals(DEFAULT_PROTOCOL, parameters.get(SupportedParameters.PROTOCOL));
+    }
+
+    private String computeExpectedDefaultHost(Module module) {
+        return String.format("%s-%s-%s", ORG, SPACE, module.getName());
+    }
+
+    private String computeExpectedDefaultUri(String path) {
+        return SystemParametersBuilder.DEFAULT_HOST_BASED_URI + (path == null ? "" : SystemParametersBuilder.ROUTE_PATH_PLACEHOLDER);
+    }
+
+    @Test
+    public void testTimestampAndCredentialsGeneration() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(true);
+        when(credentialsGenerator.next(anyInt())).thenReturn("abc", "def", "ghi", "jkl", "mno", "pqr", "stu", "vwx");
+
+        step.execute(context);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(2, modules.size());
+
+        Map<String, Object> fooParameters = modules.get(0)
+            .getParameters();
+        assertEquals(DEFAULT_TIMESTAMP, fooParameters.get(SupportedParameters.TIMESTAMP));
+        assertEquals("abc", fooParameters.get(SupportedParameters.GENERATED_USER));
+        assertEquals("def", fooParameters.get(SupportedParameters.GENERATED_PASSWORD));
+
+        Map<String, Object> barParameters = modules.get(1)
+            .getParameters();
+        assertEquals(DEFAULT_TIMESTAMP, barParameters.get(SupportedParameters.TIMESTAMP));
+        assertEquals("ghi", barParameters.get(SupportedParameters.GENERATED_USER));
+        assertEquals("jkl", barParameters.get(SupportedParameters.GENERATED_PASSWORD));
+
+        List<Resource> resources = descriptor.getResources2();
+        assertEquals(2, resources.size());
+
+        Map<String, Object> bazParameters = resources.get(0)
+            .getParameters();
+        assertEquals("mno", bazParameters.get(SupportedParameters.GENERATED_USER));
+        assertEquals("pqr", bazParameters.get(SupportedParameters.GENERATED_PASSWORD));
+
+        Map<String, Object> quxParameters = resources.get(1)
+            .getParameters();
+        assertEquals("stu", quxParameters.get(SupportedParameters.GENERATED_USER));
+        assertEquals("vwx", quxParameters.get(SupportedParameters.GENERATED_PASSWORD));
+    }
+
+    @Test
+    public void testReuseOfPorts() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(true);
+        List<DeployedMtaModule> deployedMtaModules = Arrays
+            .asList(createDeployedMtaModule("foo", Arrays.asList("https://localhost:" + USED_PORT)));
+        StepsUtil.setDeployedMta(context, createDeployedMta("0.9.0", deployedMtaModules));
+
+        step.execute(context);
+
+        verify(portAllocator, never()).allocatePort("foo");
+        verify(portAllocator, never()).allocateTcpPort(eq("foo"), anyBoolean());
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(2, modules.size());
+        validatePortBasedModuleParameters(modules.get(0), USED_PORT);
+    }
+
+    @Test(expected = ContentException.class)
+    public void testVersionRuleWithDowngrade() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(true);
+        StepsUtil.setDeployedMta(context, createDeployedMta("2.0.0", Collections.emptyList()));
+
+        step.execute(context);
+    }
+
+    @Test(expected = ContentException.class)
+    public void testVersionRuleWithReinstallation() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(true);
+        context.setVariable(Constants.PARAM_VERSION_RULE, VersionRule.HIGHER.toString());
+        StepsUtil.setDeployedMta(context, createDeployedMta("1.0.0", Collections.emptyList()));
+
+        step.execute(context);
+    }
+
+    @Test
+    public void testWithNonApplications() {
+        prepareDescriptor("system-parameters/mtad.yaml");
+        prepareClient(true);
+        when(moduleToDeployHelper.isApplication(any())).thenReturn(false);
+
+        step.execute(context);
+
+        verify(portAllocator, never()).allocatePort(anyString());
+        verify(portAllocator, never()).allocateTcpPort(anyString(), anyBoolean());
     }
 
 }

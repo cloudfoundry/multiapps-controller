@@ -82,7 +82,6 @@ public class Messages {
     public static final String ERROR_PROCESSING_MTA_ARCHIVE = "Error processing MTA archive";
     public static final String ERROR_PROCESSING_MTA_EXTENSION_DESCRIPTORS = "Error processing MTA extension descriptors";
     public static final String ERROR_DETECTING_MTA_MAJOR_SCHEMA_VERSION = "Error detecting MTA major schema version";
-    public static final String ERROR_DETECTING_TARGET = "Error detecting deploy target";
     public static final String ERROR_MERGING_DESCRIPTORS = "Error merging descriptors";
     public static final String ERROR_DETECTING_DEPLOYED_MTA = "Error detecting deployed MTA";
     public static final String ERROR_RENAMING_MODULES = "Error renaming modules";
@@ -302,7 +301,6 @@ public class Messages {
     public static final String PROCESSING_MTA_EXTENSION_DESCRIPTORS = "Processing MTA extension descriptors...";
     public static final String MTA_EXTENSION_DESCRIPTORS_PROCESSED = "MTA extension descriptors processed";
     public static final String DETECTING_MTA_MAJOR_SCHEMA_VERSION = "Detecting MTA major schema version...";
-    public static final String DETECTING_TARGET = "Detecting deploy target...";
     public static final String MERGING_DESCRIPTORS = "Validating and merging descriptors...";
     public static final String DESCRIPTORS_MERGED = "Descriptors validated and merged";
     public static final String DETECTING_DEPLOYED_MTA = "Detecting deployed MTA...";
@@ -407,7 +405,7 @@ public class Messages {
     public static final String MISSING_SERVICE_URL_FOR_APPLICATION = "Missing service URL for application \"{0}\"";
     public static final String PUBLISHED_ENTRIES = "Published entries: {0}";
     public static final String DELETED_ENTRIES = "Deleted entries: {0}";
-    public static final String SYSTEM_PARAMETERS = "System parameters: {0}";
+    public static final String DESCRIPTOR_WITH_SYSTEM_PARAMETERS = "Descriptor with system parameters: {0}";
     public static final String APPS_TO_UNDEPLOY = "Cloud applications to undeploy: {0}";
     public static final String MTA_MODULES = "MTA modules: {0}";
     public static final String PUBLISHED_DEPENDENCIES_TO_DELETE = "Published dependencies to delete: {0}";
