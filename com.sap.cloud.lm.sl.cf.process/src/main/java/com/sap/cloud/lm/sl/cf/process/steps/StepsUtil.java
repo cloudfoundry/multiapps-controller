@@ -76,9 +76,8 @@ import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
 public class StepsUtil {
 
-    private static org.apache.log4j.Logger getAppLogger(DelegateExecution context, String appName,
-        ProcessLoggerProvider processLoggerProvider) {
-        return processLoggerProvider.getLogger(context, appName);
+    public static org.apache.log4j.Logger getLogger(DelegateExecution context, String name, ProcessLoggerProvider processLoggerProvider) {
+        return processLoggerProvider.getLogger(context, name);
     }
 
     static CloudControllerClient getControllerClient(DelegateExecution context, CloudControllerClientProvider clientProvider,
@@ -809,7 +808,7 @@ public class StepsUtil {
 
     static void appLog(DelegateExecution context, String appName, String message, Logger logger,
         ProcessLoggerProvider processLoggerProvider) {
-        getAppLogger(context, appName, processLoggerProvider).debug(getPrefix(logger) + "[" + appName + "] " + message);
+        getLogger(context, appName, processLoggerProvider).debug(getLoggerPrefix(logger) + "[" + appName + "] " + message);
     }
 
     public static StartingInfo getStartingInfo(DelegateExecution context) {
@@ -905,7 +904,7 @@ public class StepsUtil {
         return (T) context.getVariable(name);
     }
 
-    private static String getPrefix(Logger logger) {
+    public static String getLoggerPrefix(Logger logger) {
         String name = logger.getName();
         return "[" + name.substring(name.lastIndexOf('.') + 1) + "] ";
     }
