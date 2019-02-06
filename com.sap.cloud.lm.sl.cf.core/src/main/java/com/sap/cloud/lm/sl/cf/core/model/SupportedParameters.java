@@ -79,9 +79,6 @@ public class SupportedParameters {
     public static final String IDLE_PORTS = "idle-ports";
     public static final String IDLE_DOMAINS = "idle-domains";
     public static final String IDLE_HOSTS = "idle-hosts";
-    public static final String CREATE_USER_PROVIDED_SERVICE = "create-user-provided-service";
-    public static final String USER_PROVIDED_SERVICE_NAME = "user-provided-service-name";
-    public static final String USER_PROVIDED_SERVICE_CONFIG = "user-provided-service-config";
     public static final String DEPENDENCY_TYPE = "dependency-type";
     public static final String TASKS = "tasks";
     public static final String RESTART_ON_ENV_CHANGE = "restart-on-env-change";

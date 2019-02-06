@@ -15,8 +15,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v2.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.ResourceTypeFinder;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -94,19 +92,8 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     }
 
     @Override
-    public ResourceTypeFinder getResourceTypeFinder(String resourceType) {
-        return getHelperDelegate().getResourceTypeFinder(resourceType);
-    }
-
-    @Override
     public PlatformMerger getPlatformMerger(Platform platform) {
         return getHelperDelegate().getPlatformMerger(platform);
-    }
-
-    @Override
-    public UserProvidedResourceResolver getUserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
-        Platform platform) {
-        return getHelperDelegate().getUserProvidedResourceResolver(resourceHelper, descriptor, platform);
     }
 
     @Override
