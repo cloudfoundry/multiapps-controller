@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -61,11 +60,7 @@ public class UpdateAppStep extends CreateAppStep {
             // Update the application
             if (hasChanged(staging, existingApp.getStaging())) {
                 getStepLogger().debug("Updating staging of application \"{0}\"", appName);
-                if (configuration.getPlatformType() == PlatformType.CF) {
-                    applicationStagingUpdater.updateApplicationStaging(client, appName, staging);
-                } else {
-                    client.updateApplicationStaging(appName, staging);
-                }
+                client.updateApplicationStaging(appName, staging);
                 appPropertiesChanged = true;
             }
             if (memory != null && !memory.equals(existingApp.getMemory())) {
