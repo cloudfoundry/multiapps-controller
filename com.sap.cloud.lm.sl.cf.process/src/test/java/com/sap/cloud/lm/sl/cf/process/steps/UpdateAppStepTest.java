@@ -30,7 +30,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationStagingUpdater;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
@@ -46,8 +45,6 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
 
     private List<String> notRequiredServices = new ArrayList<>();
     private List<String> expectedServicesToBind = new ArrayList<>();
-
-    private ApplicationStagingUpdater applicationUpdaterMock = Mockito.mock(ApplicationStagingUpdater.class);
 
     private PlatformType platform;
 
@@ -181,8 +178,8 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
                 .updateApplicationEnv(appName, cloudApp.getEnvAsMap());
         }
         if (platform == PlatformType.CF) {
-            Mockito.verify(applicationUpdaterMock)
-                .updateApplicationStaging(eq(client), eq(cloudApp.getName()),
+            Mockito.verify(client)
+                .updateApplicationStaging(eq(cloudApp.getName()),
                     Matchers.argThat(GenericArgumentMatcher.forObject(cloudApp.getStaging())));
         }
     }
