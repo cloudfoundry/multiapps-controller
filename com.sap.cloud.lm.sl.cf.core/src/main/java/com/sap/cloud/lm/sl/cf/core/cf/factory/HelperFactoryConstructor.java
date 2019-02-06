@@ -13,8 +13,6 @@ import com.sap.cloud.lm.sl.cf.core.helpers.v2.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.ResourceTypeFinder;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
@@ -53,12 +51,7 @@ public interface HelperFactoryConstructor {
 
     ApplicationColorAppender getApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationType);
 
-    ResourceTypeFinder getResourceTypeFinder(String resourceType);
-
     PlatformMerger getPlatformMerger(Platform platform);
-
-    UserProvidedResourceResolver getUserProvidedResourceResolver(ResourceTypeFinder resourceHelper, DeploymentDescriptor descriptor,
-        Platform platform);
 
     ConfigurationSubscriptionFactory getConfigurationSubscriptionFactory();
 

@@ -14,14 +14,11 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolverInvoker;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.ResourceTypeFinder;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.UserProvidedResourceResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -54,11 +51,6 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         return new MtaDescriptorPropertiesResolver(factory, platform, systemParameters, spaceIdSupplier, dao, cloudTarget, configuration);
     }
 
-    protected UserProvidedResourceResolver getUserProvidedResourceResolver(DeploymentDescriptor descriptor, HandlerFactory handlerFactory,
-        Platform platform, ResourceTypeFinder resourceHelper) {
-        return handlerFactory.getUserProvidedResourceResolver(resourceHelper, descriptor, platform);
-    }
-
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
@@ -68,17 +60,11 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
             Platform platform = StepsUtil.getPlatform(execution.getContext());
-            ResourceTypeFinder resourceHelper = handlerFactory.getResourceTypeFinder(ResourceType.USER_PROVIDED_SERVICE.toString());
-            platform.accept(resourceHelper);
             MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, platform,
                 StepsUtil.getSystemParameters(execution.getContext()), configurationEntryDao, getSpaceIdSupplier(client),
                 new CloudTarget(StepsUtil.getOrg(execution.getContext()), StepsUtil.getSpace(execution.getContext())));
 
             DeploymentDescriptor descriptor = resolver.resolve(StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext()));
-            UserProvidedResourceResolver userProvidedServiceResolver = getUserProvidedResourceResolver(descriptor, handlerFactory, platform,
-                resourceHelper);
-
-            descriptor = userProvidedServiceResolver.resolve();
 
             // Merge DeploymentDescriptor and Platform
             handlerFactory.getPlatformMerger(platform)
