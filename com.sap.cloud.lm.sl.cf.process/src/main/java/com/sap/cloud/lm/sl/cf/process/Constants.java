@@ -53,8 +53,8 @@ public class Constants {
     public static final String VAR_USER = "user";
 
     public static final String VAR_MTA_MANIFEST = "mtaManifest";
+    public static final String VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR = "completeMtaDeploymentDescriptor";
     public static final String VAR_MTA_DEPLOYMENT_DESCRIPTOR = "mtaDeploymentDescriptor";
-    public static final String VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR = "mtaUnresolvedDeploymentDescriptor";
     public static final String VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN = "mtaExtensionDescriptorChain";
     public static final String VAR_MTA_MAJOR_SCHEMA_VERSION = "mtaMajorSchemaVersion";
     public static final String VAR_MTA_MODULE_CONTENT_PREFIX = "mtaModuleContent_";
@@ -73,7 +73,6 @@ public class Constants {
     public static final String VAR_SYSTEM_PARAMETERS = "systemParameters";
     public static final String VAR_PORT_BASED_ROUTING = "portBasedRouting";
     public static final String VAR_ALLOCATED_PORTS = "allocatedPorts";
-    public static final String VAR_PLATFORM = "platform";
     public static final String VAR_ORG = "org";
     public static final String VAR_SPACE = "space";
     public static final String VAR_CUSTOM_DOMAINS = "customDomains";

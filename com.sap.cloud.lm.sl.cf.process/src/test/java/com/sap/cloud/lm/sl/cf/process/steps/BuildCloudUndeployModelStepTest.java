@@ -211,7 +211,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         StepsUtil.setSubscriptionsToCreate(context, subscriptionsToCreate);
         StepsUtil.setSpaceId(context, SPACE_ID);
         StepsUtil.setMtaModules(context, input.mtaModules);
-        StepsUtil.setDeploymentDescriptor(context, deploymentDescriptor);
+        StepsUtil.setCompleteDeploymentDescriptor(context, deploymentDescriptor);
     }
 
     private void prepareDao() {

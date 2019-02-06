@@ -18,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v3.Module;
 import com.sap.cloud.lm.sl.mta.model.v3.RequiredDependency;
@@ -28,9 +27,8 @@ public class ApplicationCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
     private static final int MTA_MAJOR_VERSION = 3;
 
     public ApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
-        UserMessageLogger stepLogger) {
-        super(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver, deployId, stepLogger);
+        DeployedMta deployedMta, XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger stepLogger) {
+        super(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver, deployId, stepLogger);
     }
 
     @Override

@@ -64,7 +64,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
                 String descriptorString = ArchiveHandler.getDescriptor(appArchiveStream, configuration.getMaxMtaDescriptorSize());
                 DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
                 DeploymentDescriptor deploymentDescriptor = descriptorParserFacade.parseDeploymentDescriptor(descriptorString);
-                StepsUtil.setUnresolvedDeploymentDescriptor(context, deploymentDescriptor);
+                StepsUtil.setDeploymentDescriptor(context, deploymentDescriptor);
             });
 
         fileService.processFileContent(deploymentDescriptorProcessor);
@@ -105,7 +105,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
     }
 
     private void setMtaIdForProcess(DelegateExecution context) {
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getUnresolvedDeploymentDescriptor(context);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
         String mtaId = deploymentDescriptor.getId();
         context.setVariable(Constants.PARAM_MTA_ID, mtaId);
         conflictPreventerSupplier.apply(operationDao)

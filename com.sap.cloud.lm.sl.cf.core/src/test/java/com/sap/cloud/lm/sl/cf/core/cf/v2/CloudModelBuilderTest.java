@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +42,6 @@ import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
 import com.sap.cloud.lm.sl.mta.model.Platform;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
@@ -518,20 +515,15 @@ public class CloudModelBuilderTest {
     }
 
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver) {
+        CloudModelConfiguration configuration, DeployedMta deployedMta, XsPlaceholderResolver xsPlaceholderResolver) {
         deploymentDescriptor = new DescriptorReferenceResolver(deploymentDescriptor, new ResolverBuilder(), new ResolverBuilder())
             .resolve();
-        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
-            DEPLOY_ID, Mockito.mock(UserMessageLogger.class));
+        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver, DEPLOY_ID,
+            Mockito.mock(UserMessageLogger.class));
     }
 
     protected PlatformMerger getPlatformMerger(Platform platform, DescriptorHandler handler) {
         return getHandlerFactory().getPlatformMerger(platform);
-    }
-
-    protected void setParameters(Module module, Map<String, Object> parameters) {
-        module.setParameters(parameters);
     }
 
     protected DescriptorMerger getDescriptorMerger() {
@@ -546,18 +538,17 @@ public class CloudModelBuilderTest {
         DeployedMta deployedMta = loadDeployedMta();
 
         deploymentDescriptor = getDescriptorMerger().merge(deploymentDescriptor, Arrays.asList(extensionDescriptor));
-        insertProperAppNames(deploymentDescriptor);
         PlatformMerger platformMerger = getPlatformMerger(platform, descriptorHandler);
         platformMerger.mergeInto(deploymentDescriptor);
 
         String defaultDomain = getDefaultDomain(platform.getName());
 
-        SystemParameters systemParameters = createSystemParameters(deploymentDescriptor, defaultDomain);
+        insertProperAppNames(deploymentDescriptor);
+        injectSystemParameters(deploymentDescriptor, defaultDomain);
         XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
         xsPlaceholderResolver.setDefaultDomain(defaultDomain);
         CloudModelConfiguration configuration = createCloudModelConfiguration(defaultDomain);
-        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver);
+        appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver);
         servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
 
         modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, null, getUserMessageLogger(),
@@ -594,30 +585,33 @@ public class CloudModelBuilderTest {
 
     protected void insertProperAppNames(DeploymentDescriptor descriptor) throws Exception {
         for (Module module : descriptor.getModules2()) {
-            Map<String, Object> parameters = new TreeMap<>(getParameters(module));
-            String appName = NameUtil.getApplicationName(module.getName(), descriptor.getId(), useNamespaces);
-            if (parameters.containsKey(SupportedParameters.APP_NAME)) {
-                appName = NameUtil.getApplicationName((String) parameters.get(SupportedParameters.APP_NAME), descriptor.getId(),
-                    useNamespaces);
-            }
+            String appName = computeAppName(descriptor, module);
+            Map<String, Object> parameters = new TreeMap<>(module.getParameters());
             parameters.put(SupportedParameters.APP_NAME, appName);
-            setParameters(module, parameters);
+            module.setParameters(parameters);
         }
+    }
+
+    private String computeAppName(DeploymentDescriptor descriptor, Module module) {
+        String userDefinedAppName = (String) module.getParameters()
+            .get(SupportedParameters.APP_NAME);
+        if (userDefinedAppName != null) {
+            return NameUtil.getApplicationName(userDefinedAppName, descriptor.getId(), useNamespaces);
+        }
+        return NameUtil.getApplicationName(module.getName(), descriptor.getId(), useNamespaces);
     }
 
     protected String getDefaultDomain(String targetName) {
-        return (targetName.equals("CLOUD-FOUNDRY")) ? DEFAULT_DOMAIN_CF : DEFAULT_DOMAIN_XS;
+        return targetName.equals("CLOUD-FOUNDRY") ? DEFAULT_DOMAIN_CF : DEFAULT_DOMAIN_XS;
     }
 
-    protected SystemParameters createSystemParameters(DeploymentDescriptor descriptor, String defaultDomain) {
-        Map<String, Object> generalParameters = new HashMap<>();
-        generalParameters.put(SupportedParameters.DEFAULT_DOMAIN, defaultDomain);
-        Map<String, Map<String, Object>> moduleParameters = new HashMap<>();
+    protected void injectSystemParameters(DeploymentDescriptor descriptor, String defaultDomain) {
+        Map<String, Object> generalSystemParameters = MapUtil.asMap(SupportedParameters.DEFAULT_DOMAIN, defaultDomain);
+        descriptor.setParameters(MapUtil.merge(generalSystemParameters, descriptor.getParameters()));
         for (Module module : descriptor.getModules2()) {
-            String moduleName = module.getName();
-            moduleParameters.put(moduleName, MapUtil.asMap(SupportedParameters.DEFAULT_HOST, moduleName));
+            Map<String, Object> moduleSystemParameters = MapUtil.asMap(SupportedParameters.DEFAULT_HOST, module.getName());
+            module.setParameters(MapUtil.merge(moduleSystemParameters, module.getParameters()));
         }
-        return new SystemParameters(generalParameters, moduleParameters, Collections.emptyMap(), Collections.emptyMap());
     }
 
     private CloudModelConfiguration createCloudModelConfiguration(String defaultDomain) {

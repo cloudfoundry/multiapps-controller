@@ -1,13 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatform;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.function.BiFunction;
 
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
@@ -28,8 +26,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.model.Platform;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorStep> {
@@ -41,14 +37,12 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
         ProcessDescriptorStepTest.class);
-    private static final Platform PLATFORM = loadPlatform("platform-01.json", ProcessDescriptorStepTest.class);
 
     private class ProcessDescriptorStepMock extends ProcessDescriptorStep {
 
         @Override
-        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory,
-            SystemParameters systemParameters, ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier,
-            CloudTarget cloudTarget) {
+        protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, ConfigurationEntryDao dao,
+            BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
             return resolver;
         }
     }
@@ -64,15 +58,10 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     }
 
     private void prepareContext() throws Exception {
-        StepsUtil.setSystemParameters(context,
-            new SystemParameters(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap()));
-
-        StepsUtil.setUnresolvedDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        StepsUtil.setCompleteDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setXsPlaceholderReplacementValues(context, MapUtil.asMap(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER, 999));
 
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
-
-        StepsUtil.setPlatform(context, PLATFORM);
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
     }
@@ -87,7 +76,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
         TestUtil.test(() -> StepsUtil.getSubscriptionsToCreate(context), new Expectation("[]"), getClass());
 
-        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context),
+        TestUtil.test(() -> StepsUtil.getCompleteDeploymentDescriptor(context),
             new Expectation(Expectation.Type.RESOURCE, "node-hello-mtad-1.yaml.json"), getClass());
     }
 

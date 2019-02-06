@@ -91,15 +91,7 @@
           "properties": {}
         }
       ],
-      "parameters": {
-        "check-deploy-id": true,
-        "execute-app": true,
-        "failure-marker": "STDERR:Deployment to container .* failure.*",
-        "memory": "256M",
-        "no-route": true,
-        "stop-app": true,
-        "success-marker": "STDOUT:Deployment to container .* success.*"
-      },
+      "parameters": {},
       "name": "node-hello-world-db",
       "type": "com.sap.xs.hdi",
       "properties": {}
@@ -107,18 +99,13 @@
   ],
   "resources2": [
     {
-      "parameters": {
-        "service": "hana",
-        "service-plan": "hdi-shared"
-      },
+      "parameters": {},
       "name": "nodejs-hdi-container",
       "type": "com.sap.xs.hdi-container",
       "properties": {}
     },
     {
-      "parameters": {
-        "type": "existing-service"
-      },
+      "parameters": {},
       "name": "uaa",
       "type": "org.cloudfoundry.existing-service",
       "properties": {}
@@ -131,10 +118,7 @@
       "properties": {}
     }
   ],
-  "parameters": {
-    "org": "initial",
-    "space": "initial"
-  },
+  "parameters": {},
   "schemaVersion": "2.0.0",
   "id": "com.sap.xs2.samples.helloworld",
   "version": "0.1.0"

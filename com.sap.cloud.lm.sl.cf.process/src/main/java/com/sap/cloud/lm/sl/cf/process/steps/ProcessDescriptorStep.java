@@ -25,8 +25,6 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.Platform;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 
@@ -45,9 +43,9 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     @Inject
     private SpaceGetter spaceGetter;
 
-    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, SystemParameters systemParameters,
-        ConfigurationEntryDao dao, BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
-        return new MtaDescriptorPropertiesResolver(factory, systemParameters, spaceIdSupplier, dao, cloudTarget, configuration);
+    protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, ConfigurationEntryDao dao,
+        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
+        return new MtaDescriptorPropertiesResolver(factory, spaceIdSupplier, dao, cloudTarget, configuration);
     }
 
     @Override
@@ -56,16 +54,12 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
             CloudControllerClient client = execution.getControllerClient();
-
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
-            Platform platform = StepsUtil.getPlatform(execution.getContext());
-            MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory,
-                StepsUtil.getSystemParameters(execution.getContext()), configurationEntryDao, getSpaceIdSupplier(client),
-                new CloudTarget(StepsUtil.getOrg(execution.getContext()), StepsUtil.getSpace(execution.getContext())));
 
-            DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext());
-            handlerFactory.getPlatformMerger(platform)
-                .mergeInto(descriptor);
+            DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(execution.getContext());
+            MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, configurationEntryDao,
+                getSpaceIdSupplier(client),
+                new CloudTarget(StepsUtil.getOrg(execution.getContext()), StepsUtil.getSpace(execution.getContext())));
 
             descriptor = resolver.resolve(descriptor);
 
@@ -75,7 +69,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
             resolveXsPlaceholders(descriptor, xsPlaceholderResolver);
 
-            StepsUtil.setDeploymentDescriptor(execution.getContext(), descriptor);
+            StepsUtil.setCompleteDeploymentDescriptor(execution.getContext(), descriptor);
             // Set MTA modules in the context
             List<String> modulesForDeployment = StepsUtil.getModulesForDeployment(execution.getContext());
             List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);

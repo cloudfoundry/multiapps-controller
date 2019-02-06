@@ -1,13 +1,12 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -15,26 +14,26 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters.RoutingParameterSet
 import com.sap.cloud.lm.sl.cf.core.parser.IdleUriParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.UriParametersParser;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 
 public class ApplicationUrisCloudModelBuilder {
 
-    private boolean portBasedRouting;
-    private SystemParameters systemParameters;
-    private AttributeUpdateStrategy applicationAttributesUpdateStrategy;
+    private final DeploymentDescriptor descriptor;
+    private final boolean portBasedRouting;
+    private final CloudApplicationExtended.AttributeUpdateStrategy applicationAttributeUpdateStrategy;
 
-    public ApplicationUrisCloudModelBuilder(boolean portBasedRouting, SystemParameters systemParameters,
-        AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
+    public ApplicationUrisCloudModelBuilder(DeploymentDescriptor descriptor, boolean portBasedRouting,
+        CloudApplicationExtended.AttributeUpdateStrategy applicationAttributeUpdateStrategy) {
+        this.descriptor = descriptor;
         this.portBasedRouting = portBasedRouting;
-        this.systemParameters = systemParameters;
-        this.applicationAttributesUpdateStrategy = applicationAttributesUpdateStrategy;
+        this.applicationAttributeUpdateStrategy = applicationAttributeUpdateStrategy;
     }
 
     private boolean includeProtocol() {
-        Map<String, Object> generalParameters = systemParameters.getGeneralParameters();
-        String platform = (String) generalParameters.get(SupportedParameters.XS_TYPE);
+        Map<String, Object> parameters = descriptor.getParameters();
+        String platform = (String) parameters.get(SupportedParameters.XS_TYPE);
         return PlatformType.XS2.toString()
             .equals(platform);
     }
@@ -49,7 +48,7 @@ public class ApplicationUrisCloudModelBuilder {
 
     private boolean shouldKeepExistingUris(List<Map<String, Object>> propertiesList) {
         return (boolean) getPropertyValue(propertiesList, SupportedParameters.KEEP_EXISTING_ROUTES, false)
-            || applicationAttributesUpdateStrategy.shouldKeepExistingRoutes();
+            || applicationAttributeUpdateStrategy.shouldKeepExistingRoutes();
     }
 
     private Object getPropertyValue(List<Map<String, Object>> propertiesList, String propertyName, Object defaultValue) {
@@ -74,38 +73,36 @@ public class ApplicationUrisCloudModelBuilder {
 
     public List<String> getIdleApplicationUris(Module module, List<Map<String, Object>> propertiesList) {
         RoutingParameterSet parametersType = RoutingParameterSet.DEFAULT_IDLE;
-        Map<String, Object> moduleSystemParameters = systemParameters.getModuleParameters()
-            .getOrDefault(module.getName(), Collections.emptyMap());
-        String defaultHost = (String) moduleSystemParameters.getOrDefault(parametersType.host, null);
-        int defaultPort = (Integer) moduleSystemParameters.getOrDefault(parametersType.port, 0);
+        Map<String, Object> moduleParameters = module.getParameters();
+        String defaultHost = (String) moduleParameters.getOrDefault(parametersType.host, null);
+        int defaultPort = (Integer) moduleParameters.getOrDefault(parametersType.port, 0);
         String defaultRoutePath = (String) module.getParameters()
             .get(SupportedParameters.ROUTE_PATH);
-        String defaultDomain = getDefaultDomain(parametersType, moduleSystemParameters);
-        String protocol = MapUtils.getString(moduleSystemParameters, SupportedParameters.PROTOCOL);
+        String defaultDomain = getDefaultDomain(parametersType, moduleParameters);
+        String protocol = MapUtils.getString(moduleParameters, SupportedParameters.PROTOCOL);
         return new IdleUriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, defaultRoutePath, includeProtocol(),
             protocol).parse(propertiesList);
     }
 
     private UriParametersParser getUriParametersParser(Module module) {
         RoutingParameterSet parametersType = RoutingParameterSet.DEFAULT;
-        Map<String, Object> moduleSystemParameters = systemParameters.getModuleParameters()
-            .getOrDefault(module.getName(), Collections.emptyMap());
-        String defaultHost = (String) moduleSystemParameters.getOrDefault(parametersType.host, null);
-        int defaultPort = (Integer) moduleSystemParameters.getOrDefault(parametersType.port, 0);
+        Map<String, Object> moduleParameters = module.getParameters();
+        String defaultHost = (String) moduleParameters.getOrDefault(parametersType.host, null);
+        int defaultPort = (Integer) moduleParameters.getOrDefault(parametersType.port, 0);
         String routePath = (String) module.getParameters()
             .get(SupportedParameters.ROUTE_PATH);
-        String defaultDomain = getDefaultDomain(parametersType, moduleSystemParameters);
-        String protocol = MapUtils.getString(moduleSystemParameters, SupportedParameters.PROTOCOL);
+        String defaultDomain = getDefaultDomain(parametersType, moduleParameters);
+        String protocol = MapUtils.getString(moduleParameters, SupportedParameters.PROTOCOL);
         return new UriParametersParser(portBasedRouting, defaultHost, defaultDomain, defaultPort, routePath, includeProtocol(), protocol);
     }
 
-    private String getDefaultDomain(RoutingParameterSet parametersType, Map<String, Object> moduleSystemParameters) {
-        if (systemParameters.getGeneralParameters()
+    private String getDefaultDomain(RoutingParameterSet parametersType, Map<String, Object> moduleParameters) {
+        if (descriptor.getParameters()
             .containsKey(parametersType.domain)) {
-            return (String) systemParameters.getGeneralParameters()
+            return (String) descriptor.getParameters()
                 .get(parametersType.domain);
         }
-        return (String) moduleSystemParameters.getOrDefault(parametersType.domain, null);
+        return (String) moduleParameters.getOrDefault(parametersType.domain, null);
     }
 
 }

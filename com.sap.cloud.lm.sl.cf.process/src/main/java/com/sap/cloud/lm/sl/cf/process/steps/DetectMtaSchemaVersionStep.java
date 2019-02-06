@@ -26,7 +26,7 @@ public class DetectMtaSchemaVersionStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DETECTING_MTA_MAJOR_SCHEMA_VERSION);
         try {
-            DeploymentDescriptor deploymentDescriptor = StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext());
+            DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
             List<ExtensionDescriptor> extensionDescriptors = StepsUtil.getExtensionDescriptorChain(execution.getContext());
 
             SchemaVersionDetector detector = detectorSupplier.get();

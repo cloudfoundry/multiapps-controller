@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
-import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadPlatform;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -29,8 +28,6 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
         MergeDescriptorsStepTest.class);
 
-    private static final Platform PLATFORM = loadPlatform("platform-01.json", MergeDescriptorsStepTest.class);
-
     private class MergeDescriptorsStepMock extends MergeDescriptorsStep {
 
         @Override
@@ -51,10 +48,8 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
     private void prepareContext() {
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
 
-        StepsUtil.setUnresolvedDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        StepsUtil.setDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setExtensionDescriptorChain(context, Collections.emptyList());
-
-        StepsUtil.setAsJsonBinary(context, Constants.VAR_PLATFORM, PLATFORM);
     }
 
     @Test
@@ -65,11 +60,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> {
-
-            return StepsUtil.getUnresolvedDeploymentDescriptor(context);
-
-        }, new Expectation(Expectation.Type.RESOURCE, "node-hello-mtad.yaml.json"), getClass());
+        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-mtad.yaml.json"), getClass());
     }
 
     @Test(expected = SLException.class)

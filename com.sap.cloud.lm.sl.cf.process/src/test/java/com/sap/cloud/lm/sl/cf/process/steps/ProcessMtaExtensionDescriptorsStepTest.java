@@ -73,7 +73,7 @@ public class ProcessMtaExtensionDescriptorsStepTest extends SyncFlowableStepTest
 
         context.setVariable(Constants.PARAM_EXT_DESCRIPTOR_FILE_ID, String.join(",", fileIdToExtensionDescriptor.keySet()));
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
-        StepsUtil.setUnresolvedDeploymentDescriptor(context, StepsTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
+        StepsUtil.setDeploymentDescriptor(context, StepsTestUtil.loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
 
         prepareFileService(fileIdToExtensionDescriptor);
     }

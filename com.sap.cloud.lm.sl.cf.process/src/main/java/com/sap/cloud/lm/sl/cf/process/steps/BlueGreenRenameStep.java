@@ -30,7 +30,7 @@ public class BlueGreenRenameStep extends SyncFlowableStep {
         try {
             getStepLogger().debug(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
 
-            DeploymentDescriptor descriptor = StepsUtil.getUnresolvedDeploymentDescriptor(execution.getContext());
+            DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
             DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
 
             ApplicationColorDetector detector = colorDetectorSupplier.get();
@@ -72,7 +72,7 @@ public class BlueGreenRenameStep extends SyncFlowableStep {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
         ApplicationColorAppender appender = handlerFactory.getApplicationColorAppender(deployedMtaColor, mtaColor);
         descriptor.accept(appender);
-        StepsUtil.setUnresolvedDeploymentDescriptor(execution.getContext(), descriptor);
+        StepsUtil.setDeploymentDescriptor(execution.getContext(), descriptor);
     }
 
 }

@@ -27,7 +27,6 @@ import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
 import com.sap.cloud.lm.sl.mta.model.Platform;
-import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 public class HelperFactory implements HelperFactoryConstructor {
@@ -44,9 +43,9 @@ public class HelperFactory implements HelperFactoryConstructor {
 
     @Override
     public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
+        CloudModelConfiguration configuration, DeployedMta deployedMta,
         XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger stepLogger) {
-        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
+        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver,
             deployId, stepLogger);
     }
 
