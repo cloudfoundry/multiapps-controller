@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
+import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -58,10 +58,10 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
         assertEquals(expectedIdleHost, parameters.get(SupportedParameters.IDLE_HOST));
         assertEquals(expectedIdleHost, parameters.get(SupportedParameters.DEFAULT_HOST));
         assertEquals(expectedIdleHost, parameters.get(SupportedParameters.HOST));
-        assertEquals(SystemParametersBuilder.DEFAULT_HOST_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_IDLE_URI));
-        assertEquals(SystemParametersBuilder.DEFAULT_HOST_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_URI));
-        assertEquals(SystemParametersBuilder.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_IDLE_URL));
-        assertEquals(SystemParametersBuilder.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_URL));
+        assertEquals(SystemParameters.DEFAULT_HOST_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_IDLE_URI));
+        assertEquals(SystemParameters.DEFAULT_HOST_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_URI));
+        assertEquals(SystemParameters.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_IDLE_URL));
+        assertEquals(SystemParameters.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_URL));
     }
 
     @Test
@@ -87,10 +87,10 @@ public class CollectBlueGreenSystemParametersStepTest extends CollectSystemParam
         assertEquals(expectedPort, parameters.get(SupportedParameters.IDLE_PORT));
         assertEquals(expectedPort, parameters.get(SupportedParameters.DEFAULT_PORT));
         assertEquals(expectedPort, parameters.get(SupportedParameters.PORT));
-        assertEquals(SystemParametersBuilder.DEFAULT_PORT_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_IDLE_URI));
-        assertEquals(SystemParametersBuilder.DEFAULT_PORT_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_URI));
-        assertEquals(SystemParametersBuilder.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_IDLE_URL));
-        assertEquals(SystemParametersBuilder.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_URL));
+        assertEquals(SystemParameters.DEFAULT_PORT_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_IDLE_URI));
+        assertEquals(SystemParameters.DEFAULT_PORT_BASED_IDLE_URI, parameters.get(SupportedParameters.DEFAULT_URI));
+        assertEquals(SystemParameters.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_IDLE_URL));
+        assertEquals(SystemParameters.DEFAULT_IDLE_URL, parameters.get(SupportedParameters.DEFAULT_URL));
     }
 
     @Override

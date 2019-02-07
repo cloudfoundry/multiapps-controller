@@ -17,7 +17,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
+import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -168,8 +168,8 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         Map<String, Object> parameters = module.getParameters();
         assertEquals(expectedPort, parameters.get(SupportedParameters.DEFAULT_PORT));
         assertEquals(expectedPort, parameters.get(SupportedParameters.PORT));
-        assertEquals(SystemParametersBuilder.DEFAULT_PORT_BASED_URI, parameters.get(SupportedParameters.DEFAULT_URI));
-        assertEquals(SystemParametersBuilder.DEFAULT_URL, parameters.get(SupportedParameters.DEFAULT_URL));
+        assertEquals(SystemParameters.DEFAULT_PORT_BASED_URI, parameters.get(SupportedParameters.DEFAULT_URI));
+        assertEquals(SystemParameters.DEFAULT_URL, parameters.get(SupportedParameters.DEFAULT_URL));
         assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.DOMAIN));
         assertEquals(expectedProtocol, parameters.get(SupportedParameters.PROTOCOL));
     }
@@ -214,7 +214,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         assertEquals(expectedDefaultHost, parameters.get(SupportedParameters.DEFAULT_HOST));
         assertEquals(expectedDefaultHost, parameters.get(SupportedParameters.HOST));
         assertEquals(expectedDefaultUri, parameters.get(SupportedParameters.DEFAULT_URI));
-        assertEquals(SystemParametersBuilder.DEFAULT_URL, parameters.get(SupportedParameters.DEFAULT_URL));
+        assertEquals(SystemParameters.DEFAULT_URL, parameters.get(SupportedParameters.DEFAULT_URL));
         assertEquals(DEFAULT_DOMAIN, parameters.get(SupportedParameters.DOMAIN));
         assertEquals(DEFAULT_PROTOCOL, parameters.get(SupportedParameters.PROTOCOL));
     }
@@ -224,7 +224,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     }
 
     private String computeExpectedDefaultUri(String path) {
-        return SystemParametersBuilder.DEFAULT_HOST_BASED_URI + (path == null ? "" : SystemParametersBuilder.ROUTE_PATH_PLACEHOLDER);
+        return SystemParameters.DEFAULT_HOST_BASED_URI + (path == null ? "" : SystemParameters.ROUTE_PATH_PLACEHOLDER);
     }
 
     @Test
