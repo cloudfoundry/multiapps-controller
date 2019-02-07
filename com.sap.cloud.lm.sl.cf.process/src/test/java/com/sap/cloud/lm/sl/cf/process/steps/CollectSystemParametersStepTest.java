@@ -228,7 +228,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     }
 
     @Test
-    public void testTimestampAndCredentialsGeneration() {
+    public void testGeneralModuleAndResourceParameters() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient(true);
         when(credentialsGenerator.next(anyInt())).thenReturn("abc", "def", "ghi", "jkl", "mno", "pqr", "stu", "vwx");
@@ -238,31 +238,32 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
         List<Module> modules = descriptor.getModules2();
         assertEquals(2, modules.size());
-
-        Map<String, Object> fooParameters = modules.get(0)
-            .getParameters();
-        assertEquals(DEFAULT_TIMESTAMP, fooParameters.get(SupportedParameters.TIMESTAMP));
-        assertEquals("abc", fooParameters.get(SupportedParameters.GENERATED_USER));
-        assertEquals("def", fooParameters.get(SupportedParameters.GENERATED_PASSWORD));
-
-        Map<String, Object> barParameters = modules.get(1)
-            .getParameters();
-        assertEquals(DEFAULT_TIMESTAMP, barParameters.get(SupportedParameters.TIMESTAMP));
-        assertEquals("ghi", barParameters.get(SupportedParameters.GENERATED_USER));
-        assertEquals("jkl", barParameters.get(SupportedParameters.GENERATED_PASSWORD));
+        Module foo = modules.get(0);
+        validateGeneralModuleParameters(foo, "abc", "def");
+        Module bar = modules.get(1);
+        validateGeneralModuleParameters(bar, "ghi", "jkl");
 
         List<Resource> resources = descriptor.getResources2();
         assertEquals(2, resources.size());
+        Resource baz = resources.get(0);
+        validateGeneralResourceParameters(baz, "mno", "pqr");
+        Resource qux = resources.get(1);
+        validateGeneralResourceParameters(qux, "stu", "vwx");
+    }
 
-        Map<String, Object> bazParameters = resources.get(0)
-            .getParameters();
-        assertEquals("mno", bazParameters.get(SupportedParameters.GENERATED_USER));
-        assertEquals("pqr", bazParameters.get(SupportedParameters.GENERATED_PASSWORD));
+    private void validateGeneralModuleParameters(Module module, String expectedGeneratedUsername, String expectedGeneratedPassword) {
+        Map<String, Object> parameters = module.getParameters();
+        assertEquals(DEFAULT_TIMESTAMP, parameters.get(SupportedParameters.TIMESTAMP));
+        assertEquals(expectedGeneratedUsername, parameters.get(SupportedParameters.GENERATED_USER));
+        assertEquals(expectedGeneratedPassword, parameters.get(SupportedParameters.GENERATED_PASSWORD));
+        assertEquals(module.getName(), parameters.get(SupportedParameters.APP_NAME));
+    }
 
-        Map<String, Object> quxParameters = resources.get(1)
-            .getParameters();
-        assertEquals("stu", quxParameters.get(SupportedParameters.GENERATED_USER));
-        assertEquals("vwx", quxParameters.get(SupportedParameters.GENERATED_PASSWORD));
+    private void validateGeneralResourceParameters(Resource resource, String expectedGeneratedUsername, String expectedGeneratedPassword) {
+        Map<String, Object> parameters = resource.getParameters();
+        assertEquals(expectedGeneratedUsername, parameters.get(SupportedParameters.GENERATED_USER));
+        assertEquals(expectedGeneratedPassword, parameters.get(SupportedParameters.GENERATED_PASSWORD));
+        assertEquals(resource.getName(), parameters.get(SupportedParameters.SERVICE_NAME));
     }
 
     @Test
@@ -313,6 +314,27 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         verify(portAllocator, never()).allocatePort(anyString());
         verify(portAllocator, never()).allocateTcpPort(anyString(), anyBoolean());
+    }
+
+    @Test
+    public void testExistingParametersAreNotOverridden() {
+        prepareDescriptor("system-parameters/mtad-with-existing-parameters.yaml");
+        prepareClient(true);
+
+        step.execute(context);
+
+        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        List<Module> modules = descriptor.getModules2();
+        assertEquals(1, modules.size());
+        Module foo = modules.get(0);
+        assertEquals("bar", foo.getParameters()
+            .get(SupportedParameters.APP_NAME));
+
+        List<Resource> resources = descriptor.getResources2();
+        assertEquals(1, resources.size());
+        Resource baz = resources.get(0);
+        assertEquals("qux", baz.getParameters()
+            .get(SupportedParameters.SERVICE_NAME));
     }
 
 }

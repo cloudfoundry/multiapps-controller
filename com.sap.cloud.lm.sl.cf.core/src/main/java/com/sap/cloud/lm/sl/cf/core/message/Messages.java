@@ -31,6 +31,8 @@ public final class Messages {
     public static final String COULD_NOT_CREATE_VALID_HOST = "Could not create a valid host from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_PORT = "Could not create a valid port from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_ROUTE = "Could not create a valid route from \"{0}\"";
+    public static final String COULD_NOT_CREATE_VALID_APPLICATION_NAME_FROM_0 = "Could not create a valid application name from \"{0}\"";
+    public static final String COULD_NOT_CREATE_VALID_SERVICE_NAME_FROM_0 = "Could not create a valid service name from \"{0}\"";
     public static final String COULD_NOT_PARSE_ROUTE = "Cannot parse 'routes' property - check documentation for correct format.";
     public static final String COULD_NOT_CREATE_VALID_ROUTE_NESTED_EXCEPTION = "Invalid route \"{0}\" : {1}";
     public static final String COULD_NOT_CREATE_VALID_VISIBILITY_PARAMETER = "Could not create a valid visibility parameter from \"{0}\"";

@@ -50,8 +50,6 @@ public class SystemParametersBuilder {
     private final int routerPort;
     private final boolean portBasedRouting;
     private final PortAllocator portAllocator;
-    private final boolean useNamespaces;
-    private final boolean useNamespacesForServices;
     private final DeployedMta deployedMta;
     private final boolean reserveTemporaryRoutes;
     private final boolean areXsPlaceholdersSupported;
@@ -60,9 +58,8 @@ public class SystemParametersBuilder {
 
     public SystemParametersBuilder(String organization, String space, String user, String defaultDomain, PlatformType platformType,
         URL controllerUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting,
-        boolean reserveTemporaryRoutes, PortAllocator portAllocator, boolean useNamespaces, boolean useNamespacesForServices,
-        DeployedMta deployedMta, CredentialsGenerator credentialsGenerator, boolean areXsPlaceholdersSupported,
-        Supplier<String> timestampSupplier, ModuleToDeployHelper moduleToDeployHelper) {
+        boolean reserveTemporaryRoutes, PortAllocator portAllocator, DeployedMta deployedMta, CredentialsGenerator credentialsGenerator,
+        boolean areXsPlaceholdersSupported, Supplier<String> timestampSupplier, ModuleToDeployHelper moduleToDeployHelper) {
         this.targetName = organization + " " + space;
         this.organization = organization;
         this.space = space;
@@ -75,8 +72,6 @@ public class SystemParametersBuilder {
         this.routerPort = routerPort;
         this.portBasedRouting = portBasedRouting;
         this.portAllocator = portAllocator;
-        this.useNamespacesForServices = useNamespacesForServices;
-        this.useNamespaces = useNamespaces;
         this.deployedMta = deployedMta;
         this.credentialsGenerator = credentialsGenerator;
         this.reserveTemporaryRoutes = reserveTemporaryRoutes;
@@ -87,11 +82,11 @@ public class SystemParametersBuilder {
 
     public void injectInto(DeploymentDescriptor descriptor) {
         for (Module module : descriptor.getModules2()) {
-            Map<String, Object> moduleSystemParameters = getModuleParameters(module, descriptor.getId());
+            Map<String, Object> moduleSystemParameters = getModuleParameters(module);
             module.setParameters(MapUtil.merge(moduleSystemParameters, module.getParameters()));
         }
         for (Resource resource : descriptor.getResources2()) {
-            Map<String, Object> resourceSystemParameters = getResourceParameters(resource, descriptor.getId());
+            Map<String, Object> resourceSystemParameters = getResourceParameters(resource);
             resource.setParameters(MapUtil.merge(resourceSystemParameters, resource.getParameters()));
         }
         Map<String, Object> generalSystemParameters = getGeneralParameters();
@@ -119,7 +114,7 @@ public class SystemParametersBuilder {
         return systemParameters;
     }
 
-    private Map<String, Object> getModuleParameters(Module module, String mtaId) {
+    private Map<String, Object> getModuleParameters(Module module) {
         Map<String, Object> moduleSystemParameters = new HashMap<>();
 
         Map<String, Object> moduleParameters = Collections.unmodifiableMap(module.getParameters());
@@ -127,7 +122,7 @@ public class SystemParametersBuilder {
         if (shouldReserveTemporaryRoutes()) {
             moduleSystemParameters.put(SupportedParameters.IDLE_DOMAIN, getDefaultDomain());
         }
-        moduleSystemParameters.put(SupportedParameters.APP_NAME, NameUtil.getApplicationName(module.getName(), mtaId, useNamespaces));
+        moduleSystemParameters.put(SupportedParameters.APP_NAME, module.getName());
         moduleSystemParameters.put(SupportedParameters.INSTANCES, 1);
         moduleSystemParameters.put(SupportedParameters.TIMESTAMP, getDefaultTimestamp());
 
@@ -210,11 +205,10 @@ public class SystemParametersBuilder {
         return uri;
     }
 
-    private Map<String, Object> getResourceParameters(Resource resource, String mtaId) {
+    private Map<String, Object> getResourceParameters(Resource resource) {
         Map<String, Object> resourceSystemParameters = new HashMap<>();
 
-        String serviceName = NameUtil.getServiceName(resource.getName(), mtaId, useNamespaces, useNamespacesForServices);
-        resourceSystemParameters.put(SupportedParameters.SERVICE_NAME, serviceName);
+        resourceSystemParameters.put(SupportedParameters.SERVICE_NAME, resource.getName());
         resourceSystemParameters.put(SupportedParameters.DEFAULT_CONTAINER_NAME,
             NameUtil.createValidContainerName(organization, space, resource.getName()));
         resourceSystemParameters.put(SupportedParameters.DEFAULT_XS_APP_NAME, NameUtil.createValidXsAppName(resource.getName()));
@@ -227,7 +221,6 @@ public class SystemParametersBuilder {
 
     private Integer getDefaultPort(String moduleName, Map<String, Object> moduleParameters) {
         DeployedMtaModule deployedModule = getDeployedModule(moduleName);
-
         if (deployedModule != null && !CollectionUtils.isEmpty(deployedModule.getUris())) {
             Integer usedPort = UriUtil.getPort(deployedModule.getUris()
                 .get(0));
@@ -235,7 +228,6 @@ public class SystemParametersBuilder {
                 return usedPort;
             }
         }
-
         return allocatePort(moduleName, moduleParameters);
     }
 

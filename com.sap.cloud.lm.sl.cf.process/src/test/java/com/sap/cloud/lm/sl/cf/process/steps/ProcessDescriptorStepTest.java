@@ -42,9 +42,11 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
         @Override
         protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, ConfigurationEntryDao dao,
-            BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
+            BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, boolean useNamespaces,
+            boolean useNamespacesForServices) {
             return resolver;
         }
+
     }
 
     @Mock
@@ -62,6 +64,8 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
         StepsUtil.setXsPlaceholderReplacementValues(context, MapUtil.asMap(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER, 999));
 
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);
+        context.setVariable(Constants.PARAM_USE_NAMESPACES, false);
+        context.setVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
 
         context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, MTA_MAJOR_SCHEMA_VERSION);
     }

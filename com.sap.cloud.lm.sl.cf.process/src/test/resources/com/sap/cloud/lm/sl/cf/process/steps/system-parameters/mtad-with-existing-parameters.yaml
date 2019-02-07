@@ -1,0 +1,15 @@
+_schema-version: 3
+ID: system-parameters-test
+version: 1.0.0
+
+modules:
+  - name: foo
+    type: foo
+    parameters:
+      app-name: bar
+
+resources:
+  - name: baz
+    type: baz
+    parameters:
+      service-name: qux
