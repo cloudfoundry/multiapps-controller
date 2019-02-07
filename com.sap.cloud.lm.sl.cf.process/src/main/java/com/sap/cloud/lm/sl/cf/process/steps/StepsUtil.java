@@ -1096,6 +1096,10 @@ public class StepsUtil {
         }
         return JsonUtil.fromJson(service, CloudServiceExtended.class);
     }
+    
+    public static void setServiceToProcess(CloudServiceExtended service, DelegateExecution context) {
+        context.setVariable(Constants.VAR_SERVICE_TO_PROCESS, JsonUtil.toJson(service));
+    }
 
     public static void setServiceActionsToExecute(List<ServiceAction> actions, DelegateExecution context) {
         List<String> actionsStrings = actions.stream()
