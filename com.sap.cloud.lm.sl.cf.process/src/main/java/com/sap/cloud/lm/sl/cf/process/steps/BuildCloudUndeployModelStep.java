@@ -21,6 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 @Component("buildCloudUndeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -36,6 +37,9 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         getStepLogger().debug(Messages.BUILDING_CLOUD_UNDEPLOY_MODEL);
         try {
             DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
+
+            List<String> deploymentDescriptorModules = getDeploymentDescriptorModules(execution.getContext());
+
             if (deployedMta == null) {
                 setComponentsToUndeploy(execution.getContext(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
                 return StepPhase.DONE;
@@ -52,7 +56,8 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                 .map(CloudApplication::getName)
                 .collect(Collectors.toList());
 
-            List<DeployedMtaModule> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames);
+            List<DeployedMtaModule> modulesToUndeploy = computeModulesToUndeploy(deployedMta, mtaModules, appNames,
+                deploymentDescriptorModules);
             getStepLogger().debug(Messages.MODULES_TO_UNDEPLOY, secureSerializer.toJson(modulesToUndeploy));
 
             List<DeployedMtaModule> modulesToKeep = computeModulesToKeep(modulesToUndeploy, deployedMta);
@@ -76,6 +81,17 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
             getStepLogger().error(e, Messages.ERROR_BUILDING_CLOUD_UNDEPLOY_MODEL);
             throw e;
         }
+    }
+
+    private List<String> getDeploymentDescriptorModules(DelegateExecution context) {
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+        if (deploymentDescriptor == null) {
+            return Collections.emptyList();
+        }
+        return deploymentDescriptor.getModules2()
+            .stream()
+            .map(module -> module.getName())
+            .collect(Collectors.toList());
     }
 
     private List<DeployedMtaModule> computeModulesToKeep(List<DeployedMtaModule> modulesToUndeploy, DeployedMta deployedMta) {
@@ -116,16 +132,18 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
                 .noneMatch(appService -> appService.contains(service));
     }
 
-    private List<DeployedMtaModule> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules, List<String> appsToDeploy) {
+    private List<DeployedMtaModule> computeModulesToUndeploy(DeployedMta deployedMta, Set<String> mtaModules, List<String> appsToDeploy,
+        List<String> deploymentDescriptorModules) {
         return deployedMta.getModules()
             .stream()
-            .filter(deployedModule -> shouldBeCheckedforUndeployment(deployedModule, mtaModules))
+            .filter(deployedModule -> shouldBeCheckedforUndeployment(deployedModule, mtaModules, deploymentDescriptorModules))
             .filter(deployedModule -> shouldUndeployModule(deployedModule, mtaModules, appsToDeploy))
             .collect(Collectors.toList());
     }
 
-    private boolean shouldBeCheckedforUndeployment(DeployedMtaModule deployedModule, Set<String> mtaModules) {
-        return mtaModules.contains(deployedModule.getModuleName());
+    private boolean shouldBeCheckedforUndeployment(DeployedMtaModule deployedModule, Set<String> mtaModules,
+        List<String> deploymentDescriptorModules) {
+        return mtaModules.contains(deployedModule.getModuleName()) || !deploymentDescriptorModules.contains(deployedModule.getModuleName());
     }
 
     private boolean shouldUndeployModule(DeployedMtaModule deployedModule, Set<String> mtaModules, List<String> appsToDeploy) {
