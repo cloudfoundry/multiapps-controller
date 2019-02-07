@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
-public class SystemParametersBuilder {
+public class SystemParameters {
 
     public static final int GENERATED_CREDENTIALS_LENGTH = 16;
     public static final String IDLE_HOST_SUFFIX = "-idle";
@@ -56,28 +56,25 @@ public class SystemParametersBuilder {
     private final Supplier<String> timestampSupplier;
     private final ModuleToDeployHelper moduleToDeployHelper;
 
-    public SystemParametersBuilder(String organization, String space, String user, String defaultDomain, PlatformType platformType,
-        URL controllerUrl, String authorizationEndpoint, String deployServiceUrl, int routerPort, boolean portBasedRouting,
-        boolean reserveTemporaryRoutes, PortAllocator portAllocator, DeployedMta deployedMta, CredentialsGenerator credentialsGenerator,
-        boolean areXsPlaceholdersSupported, Supplier<String> timestampSupplier, ModuleToDeployHelper moduleToDeployHelper) {
-        this.targetName = organization + " " + space;
-        this.organization = organization;
-        this.space = space;
-        this.user = user;
-        this.defaultDomain = defaultDomain;
-        this.platformType = platformType;
-        this.controllerUrl = controllerUrl;
-        this.authorizationEndpoint = authorizationEndpoint;
-        this.deployServiceUrl = deployServiceUrl;
-        this.routerPort = routerPort;
-        this.portBasedRouting = portBasedRouting;
-        this.portAllocator = portAllocator;
-        this.deployedMta = deployedMta;
-        this.credentialsGenerator = credentialsGenerator;
-        this.reserveTemporaryRoutes = reserveTemporaryRoutes;
-        this.areXsPlaceholdersSupported = areXsPlaceholdersSupported;
-        this.timestampSupplier = timestampSupplier;
-        this.moduleToDeployHelper = moduleToDeployHelper;
+    public SystemParameters(Builder builder) {
+        this.targetName = builder.organization + " " + builder.space;
+        this.organization = builder.organization;
+        this.space = builder.space;
+        this.user = builder.user;
+        this.defaultDomain = builder.defaultDomain;
+        this.platformType = builder.platformType;
+        this.controllerUrl = builder.controllerUrl;
+        this.authorizationEndpoint = builder.authorizationEndpoint;
+        this.deployServiceUrl = builder.deployServiceUrl;
+        this.routerPort = builder.routerPort;
+        this.portBasedRouting = builder.portBasedRouting;
+        this.portAllocator = builder.portAllocator;
+        this.deployedMta = builder.deployedMta;
+        this.credentialsGenerator = builder.credentialsGenerator;
+        this.reserveTemporaryRoutes = builder.reserveTemporaryRoutes;
+        this.areXsPlaceholdersSupported = builder.areXsPlaceholdersSupported;
+        this.timestampSupplier = builder.timestampSupplier;
+        this.moduleToDeployHelper = builder.moduleToDeployHelper;
     }
 
     public void injectInto(DeploymentDescriptor descriptor) {
@@ -319,4 +316,116 @@ public class SystemParametersBuilder {
     private boolean shouldUseXsPlaceholders() {
         return platformType.equals(PlatformType.XS2) && areXsPlaceholdersSupported;
     }
+
+    public static class Builder {
+
+        private CredentialsGenerator credentialsGenerator;
+        private String organization;
+        private String space;
+        private String user;
+        private String defaultDomain;
+        private PlatformType platformType;
+        private URL controllerUrl;
+        private String authorizationEndpoint;
+        private String deployServiceUrl;
+        private int routerPort;
+        private boolean portBasedRouting;
+        private PortAllocator portAllocator;
+        private DeployedMta deployedMta;
+        private boolean reserveTemporaryRoutes;
+        private boolean areXsPlaceholdersSupported;
+        private Supplier<String> timestampSupplier;
+        private ModuleToDeployHelper moduleToDeployHelper;
+
+        public Builder credentialsGenerator(CredentialsGenerator credentialsGenerator) {
+            this.credentialsGenerator = credentialsGenerator;
+            return this;
+        }
+
+        public Builder organization(String organization) {
+            this.organization = organization;
+            return this;
+        }
+
+        public Builder space(String space) {
+            this.space = space;
+            return this;
+        }
+
+        public Builder user(String user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder defaultDomain(String defaultDomain) {
+            this.defaultDomain = defaultDomain;
+            return this;
+        }
+
+        public Builder platformType(PlatformType platformType) {
+            this.platformType = platformType;
+            return this;
+        }
+
+        public Builder controllerUrl(URL controllerUrl) {
+            this.controllerUrl = controllerUrl;
+            return this;
+        }
+
+        public Builder authorizationEndpoint(String authorizationEndpoint) {
+            this.authorizationEndpoint = authorizationEndpoint;
+            return this;
+        }
+
+        public Builder deployServiceUrl(String deployServiceUrl) {
+            this.deployServiceUrl = deployServiceUrl;
+            return this;
+        }
+
+        public Builder routerPort(int routerPort) {
+            this.routerPort = routerPort;
+            return this;
+        }
+
+        public Builder portBasedRouting(boolean portBasedRouting) {
+            this.portBasedRouting = portBasedRouting;
+            return this;
+        }
+
+        public Builder portAllocator(PortAllocator portAllocator) {
+            this.portAllocator = portAllocator;
+            return this;
+        }
+
+        public Builder deployedMta(DeployedMta deployedMta) {
+            this.deployedMta = deployedMta;
+            return this;
+        }
+
+        public Builder reserveTemporaryRoutes(boolean reserveTemporaryRoutes) {
+            this.reserveTemporaryRoutes = reserveTemporaryRoutes;
+            return this;
+        }
+
+        public Builder areXsPlaceholdersSupported(boolean areXsPlaceholdersSupported) {
+            this.areXsPlaceholdersSupported = areXsPlaceholdersSupported;
+            return this;
+        }
+
+        public Builder timestampSupplier(Supplier<String> timestampSupplier) {
+            this.timestampSupplier = timestampSupplier;
+            return this;
+        }
+
+        public Builder moduleToDeployHelper(ModuleToDeployHelper moduleToDeployHelper) {
+            this.moduleToDeployHelper = moduleToDeployHelper;
+            return this;
+        }
+
+        public SystemParameters build() {
+            return new SystemParameters(this);
+        }
+
+    }
+
 }

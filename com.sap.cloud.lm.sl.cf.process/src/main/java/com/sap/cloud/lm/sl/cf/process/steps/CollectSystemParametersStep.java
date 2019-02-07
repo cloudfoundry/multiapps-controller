@@ -25,7 +25,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.CredentialsGenerator;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocator;
-import com.sap.cloud.lm.sl.cf.core.helpers.SystemParametersBuilder;
+import com.sap.cloud.lm.sl.cf.core.helpers.SystemParameters;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -73,10 +73,10 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
                 portAllocator = clientProvider.getPortAllocator(xsClient, defaultDomainName);
             }
 
-            SystemParametersBuilder systemParametersBuilder = createParametersBuilder(execution.getContext(), client, portAllocator,
-                portBasedRouting, defaultDomainName, reserveTemporaryRoutes);
             DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
-            systemParametersBuilder.injectInto(descriptor);
+            SystemParameters systemParameters = createSystemParameters(execution.getContext(), client, portAllocator, portBasedRouting,
+                defaultDomainName, reserveTemporaryRoutes);
+            systemParameters.injectInto(descriptor);
             getStepLogger().debug(Messages.DESCRIPTOR_WITH_SYSTEM_PARAMETERS, secureSerializer.toJson(descriptor));
 
             determineIsVersionAccepted(execution.getContext(), descriptor);
@@ -112,8 +112,8 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         return null;
     }
 
-    private SystemParametersBuilder createParametersBuilder(DelegateExecution context, CloudControllerClient client,
-        PortAllocator portAllocator, boolean portBasedRouting, String defaultDomainName, boolean reserveTemporaryRoutes) {
+    private SystemParameters createSystemParameters(DelegateExecution context, CloudControllerClient client, PortAllocator portAllocator,
+        boolean portBasedRouting, String defaultDomain, boolean reserveTemporaryRoutes) {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
 
         String authorizationEndpoint = client.getCloudInfo()
@@ -124,16 +124,28 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
         URL controllerUrl = configuration.getControllerUrl();
 
         String deployServiceUrl = getDeployServiceUrl(client);
-        Map<String, Object> xsPlaceholderReplacementValues = buildXsPlaceholderReplacementValues(defaultDomainName, authorizationEndpoint,
+        Map<String, Object> xsPlaceholderReplacementValues = buildXsPlaceholderReplacementValues(defaultDomain, authorizationEndpoint,
             deployServiceUrl, routerPort, controllerUrl.toString(), controllerUrl.getProtocol());
         StepsUtil.setXsPlaceholderReplacementValues(context, xsPlaceholderReplacementValues);
 
-        boolean areXsPlaceholdersSupported = configuration.areXsPlaceholdersSupported();
-
-        return new SystemParametersBuilder(StepsUtil.getOrg(context), StepsUtil.getSpace(context), user, defaultDomainName,
-            configuration.getPlatformType(), controllerUrl, authorizationEndpoint, deployServiceUrl, routerPort, portBasedRouting,
-            reserveTemporaryRoutes, portAllocator, deployedMta, credentialsGeneratorSupplier.get(), areXsPlaceholdersSupported,
-            timestampSupplier, moduleToDeployHelper);
+        return new SystemParameters.Builder().organization(StepsUtil.getOrg(context))
+            .space(StepsUtil.getSpace(context))
+            .user(user)
+            .defaultDomain(defaultDomain)
+            .platformType(configuration.getPlatformType())
+            .controllerUrl(controllerUrl)
+            .authorizationEndpoint(authorizationEndpoint)
+            .deployServiceUrl(deployServiceUrl)
+            .routerPort(routerPort)
+            .portBasedRouting(portBasedRouting)
+            .reserveTemporaryRoutes(reserveTemporaryRoutes)
+            .portAllocator(portAllocator)
+            .deployedMta(deployedMta)
+            .credentialsGenerator(credentialsGeneratorSupplier.get())
+            .areXsPlaceholdersSupported(configuration.areXsPlaceholdersSupported())
+            .timestampSupplier(timestampSupplier)
+            .moduleToDeployHelper(moduleToDeployHelper)
+            .build();
     }
 
     private Map<String, Object> buildXsPlaceholderReplacementValues(String defaultDomain, String authorizationEndpoint,
