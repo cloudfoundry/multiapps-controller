@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
@@ -23,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
@@ -44,34 +46,39 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     private SpaceGetter spaceGetter;
 
     protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, ConfigurationEntryDao dao,
-        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget) {
-        return new MtaDescriptorPropertiesResolver(factory, spaceIdSupplier, dao, cloudTarget, configuration);
+        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, boolean useNamespaces,
+        boolean useNamespacesForServices) {
+        return new MtaDescriptorPropertiesResolver(factory, spaceIdSupplier, dao, cloudTarget, configuration, useNamespaces,
+            useNamespacesForServices);
     }
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
+        DelegateExecution context = execution.getContext();
         try {
             getStepLogger().debug(Messages.RESOLVING_DESCRIPTOR_PROPERTIES);
 
             CloudControllerClient client = execution.getControllerClient();
-            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
+            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
 
             DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(execution.getContext());
+            boolean useNamespacesForServices = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES);
+            boolean useNamespaces = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES);
             MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, configurationEntryDao,
-                getSpaceIdSupplier(client),
-                new CloudTarget(StepsUtil.getOrg(execution.getContext()), StepsUtil.getSpace(execution.getContext())));
+                getSpaceIdSupplier(client), new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)), useNamespaces,
+                useNamespacesForServices);
 
             descriptor = resolver.resolve(descriptor);
 
             List<ConfigurationSubscription> subscriptions = resolver.getSubscriptions();
-            StepsUtil.setSubscriptionsToCreate(execution.getContext(), subscriptions);
-            XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(execution.getContext());
+            StepsUtil.setSubscriptionsToCreate(context, subscriptions);
+            XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(context);
 
             resolveXsPlaceholders(descriptor, xsPlaceholderResolver);
 
             StepsUtil.setCompleteDeploymentDescriptor(execution.getContext(), descriptor);
             // Set MTA modules in the context
-            List<String> modulesForDeployment = StepsUtil.getModulesForDeployment(execution.getContext());
+            List<String> modulesForDeployment = StepsUtil.getModulesForDeployment(context);
             List<String> invalidModulesSpecifiedForDeployment = findInvalidModulesSpecifiedForDeployment(descriptor, modulesForDeployment);
             if (!invalidModulesSpecifiedForDeployment.isEmpty()) {
                 throw new IllegalStateException(
@@ -80,7 +87,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             }
             Set<String> mtaModules = getModuleNames(descriptor, modulesForDeployment);
             getStepLogger().debug("MTA Modules: {0}", mtaModules);
-            StepsUtil.setMtaModules(execution.getContext(), mtaModules);
+            StepsUtil.setMtaModules(context, mtaModules);
 
             getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.RESOLVED_DEPLOYMENT_DESCRIPTOR,
                 secureSerializer.toJson(descriptor));

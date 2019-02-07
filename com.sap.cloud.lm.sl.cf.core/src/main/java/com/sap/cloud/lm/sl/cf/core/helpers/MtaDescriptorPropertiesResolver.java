@@ -20,12 +20,14 @@ import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.ApplicationNameValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.DomainValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RestartOnEnvChangeValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.RoutesValidator;
+import com.sap.cloud.lm.sl.cf.core.validators.parameters.ServiceNameValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v3.VisibilityValidator;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
@@ -44,14 +46,19 @@ public class MtaDescriptorPropertiesResolver {
     private final CloudTarget cloudTarget;
     private List<ConfigurationSubscription> subscriptions;
     private final ApplicationConfiguration configuration;
+    private final boolean useNamespaces;
+    private final boolean useNamespacesForServices;
 
     public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, BiFunction<String, String, String> spaceIdSupplier,
-        ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+        ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration, boolean useNamespaces,
+        boolean useNamespacesForServices) {
         this.handlerFactory = handlerFactory;
         this.spaceIdSupplier = spaceIdSupplier;
         this.dao = dao;
         this.cloudTarget = cloudTarget;
         this.configuration = configuration;
+        this.useNamespaces = useNamespaces;
+        this.useNamespacesForServices = useNamespacesForServices;
     }
 
     public List<ParameterValidator> getValidatorsList() {
@@ -60,6 +67,7 @@ public class MtaDescriptorPropertiesResolver {
     }
 
     public DeploymentDescriptor resolve(DeploymentDescriptor descriptor) {
+        descriptor = correctEntityNames(descriptor);
         // Resolve placeholders in parameters:
         descriptor = handlerFactory
             .getDescriptorPlaceholderResolver(descriptor, new NullPropertiesResolverBuilder(), new ResolverBuilder(),
@@ -96,6 +104,13 @@ public class MtaDescriptorPropertiesResolver {
             .validate();
 
         return descriptor;
+    }
+
+    private DeploymentDescriptor correctEntityNames(DeploymentDescriptor descriptor) {
+        List<ParameterValidator> correctors = Arrays.asList(new ApplicationNameValidator(descriptor.getId(), useNamespaces),
+            new ServiceNameValidator(descriptor.getId(), useNamespaces, useNamespacesForServices));
+        return handlerFactory.getDescriptorParametersValidator(descriptor, correctors)
+            .validate();
     }
 
     private List<ConfigurationSubscription> createSubscriptions(DeploymentDescriptor descriptorWithUnresolvedReferences,
