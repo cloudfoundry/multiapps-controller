@@ -66,6 +66,7 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
 
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
+        recentLogsRetriever.setFailSafe(true);
         return Arrays.asList(new PollExecuteTaskStatusExecution(recentLogsRetriever, currentTimeSupplier));
     }
 
