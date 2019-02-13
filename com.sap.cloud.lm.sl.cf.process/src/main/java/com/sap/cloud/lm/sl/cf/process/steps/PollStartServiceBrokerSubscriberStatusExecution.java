@@ -4,13 +4,11 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 
 public class PollStartServiceBrokerSubscriberStatusExecution extends PollStartAppStatusExecution {
 
-    public PollStartServiceBrokerSubscriberStatusExecution(RecentLogsRetriever recentLogsRetriever,
-        ApplicationConfiguration configuration) {
-        super(recentLogsRetriever, configuration);
+    public PollStartServiceBrokerSubscriberStatusExecution(RecentLogsRetriever recentLogsRetriever) {
+        super(recentLogsRetriever);
     }
 
     @Override

@@ -18,9 +18,15 @@ public class ExecutionRetrier {
     private static final long DEFAULT_RETRY_COUNT = 3;
     private static final long DEFAULT_WAIT_TIME_BETWEEN_RETRIES_IN_MILLIS = 5000;
 
+    private boolean failSafe;
     private long retryCount = DEFAULT_RETRY_COUNT;
     private long waitTimeBetweenRetriesInMillis = DEFAULT_WAIT_TIME_BETWEEN_RETRIES_IN_MILLIS;
-
+    
+    public ExecutionRetrier failSafe() {
+        this.failSafe = true;
+        return this;
+    }
+    
     public ExecutionRetrier withRetryCount(long retryCount) {
         this.retryCount = retryCount;
         return this;
@@ -44,10 +50,22 @@ public class ExecutionRetrier {
                     throw e;
                 }
                 LOGGER.warn("Retrying failed request with status: " + e.getStatusCode() + " and message: " + e.getMessage());
+            } catch (Exception e) {
+                if (!failSafe) {
+                    throw e;
+                }
+                LOGGER.warn("Retrying failed request with message: " + e.getMessage());
             }
             sleep(waitTimeBetweenRetriesInMillis);
         }
-        return supplier.get();
+        try {
+            return supplier.get();
+        } catch (Exception e) {
+            if (!failSafe) {
+                throw e;
+            }
+            return null;
+        } 
     }
 
     public void executeWithRetry(Runnable runnable, HttpStatus... httpStatusesToIgnore) {
@@ -58,6 +76,9 @@ public class ExecutionRetrier {
     }
 
     private boolean shouldIgnoreException(CloudOperationException e, Set<HttpStatus> httpStatusesToIgnore) {
+        if(failSafe) {
+            return true;
+        }
         for (HttpStatus status : httpStatusesToIgnore) {
             if (e.getStatusCode()
                 .equals(status)) {

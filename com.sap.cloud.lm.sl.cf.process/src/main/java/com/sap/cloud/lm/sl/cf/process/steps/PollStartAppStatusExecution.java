@@ -36,9 +36,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     private RecentLogsRetriever recentLogsRetriever;
     private ApplicationConfiguration configuration;
 
-    public PollStartAppStatusExecution(RecentLogsRetriever recentLogsRetriever, ApplicationConfiguration configuration) {
+    public PollStartAppStatusExecution(RecentLogsRetriever recentLogsRetriever) {
         this.recentLogsRetriever = recentLogsRetriever;
-        this.configuration = configuration;
     }
 
     @Override
