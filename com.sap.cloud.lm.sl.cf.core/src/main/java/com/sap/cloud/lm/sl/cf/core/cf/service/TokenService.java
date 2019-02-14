@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.cf.service;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Component;
@@ -11,10 +12,11 @@ import org.springframework.stereotype.Component;
  * Provides functionality for persisting, updating and removing tokens from a token store
  */
 @Component
+@Profile("cf")
 public class TokenService {
 
     @Autowired
-    private JdbcTokenStore tokenStore;
+    protected JdbcTokenStore tokenStore;
 
     /**
      * Chooses a token among all tokens for this user in the token store.

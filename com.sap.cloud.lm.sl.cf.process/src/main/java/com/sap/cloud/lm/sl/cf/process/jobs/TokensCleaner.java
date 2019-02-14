@@ -10,6 +10,7 @@ import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -20,11 +21,12 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component
 @Order(10)
+@Profile("cf")
 public class TokensCleaner implements Cleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokensCleaner.class);
 
-    private TokenStore tokenStore;
+    protected TokenStore tokenStore;
 
     @Inject
     public TokensCleaner(@Named("tokenStore") TokenStore tokenStore) {
@@ -33,9 +35,9 @@ public class TokensCleaner implements Cleaner {
 
     @Override
     public void execute(Date expirationTime) {
-        Collection<OAuth2AccessToken> allTokens = tokenStore.findTokensByClientId(SecurityUtil.CLIENT_ID);
+        Collection<OAuth2AccessToken> tokensokens = tokenStore.findTokensByClientId(SecurityUtil.CLIENT_ID);
         LOGGER.debug(CleanUpJob.LOG_MARKER, Messages.REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE);
-        long removedTokens = allTokens.stream()
+        long removedTokens = tokensokens.stream()
             .filter(OAuth2AccessToken::isExpired)
             .peek(tokenStore::removeAccessToken)
             .count();
