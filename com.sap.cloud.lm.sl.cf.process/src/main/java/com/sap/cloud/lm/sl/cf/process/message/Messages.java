@@ -201,6 +201,7 @@ public class Messages {
     public static final String DELETED_PROCESS_LOGS_0 = "Deleted process logs: {0}";
     public static final String DELETED_PROGRESS_MESSAGES_0 = "Deleted progress messages: {0}";
     public static final String REMOVED_TOKENS_0 = "Removed tokens: {0}";
+    public static final String REMOVED_TOKENS_1 = "Removed tokens: {0} with clientId: {1}";
     public static final String DELETED_DATA_FOR_NON_EXISTING_USERS = "Deleted data for no-longer existing users.";
     public static final String CREATING_APP_FROM_DOCKER_IMAGE = "Creating app \"{0}\" from Docker image \"{1}\"...";
 
