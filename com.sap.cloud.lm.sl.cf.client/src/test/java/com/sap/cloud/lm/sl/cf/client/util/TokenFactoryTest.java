@@ -3,6 +3,7 @@ package com.sap.cloud.lm.sl.cf.client.util;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -11,6 +12,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+
+import com.sap.cloud.lm.sl.common.util.MapUtil;
+import com.sap.cloud.lm.sl.common.util.Pair;
 
 @RunWith(Enclosed.class)
 public class TokenFactoryTest {
@@ -99,11 +103,65 @@ public class TokenFactoryTest {
 
     }
 
+    @RunWith(Parameterized.class)
+    public static class ExchangedTokenFactoryTest {
+
+        @Parameters
+        public static Iterable<Object[]> getParameters() {
+            return Arrays.asList(new Object[][] {
+// @formatter:off
+                // (0) Include exchangeToken:
+                {
+                    "a25723f22ac754f792c50f07623dzd75",
+                    "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
+                    MapUtil.of(new Pair<>("scope", Arrays.asList("controller.read")), new Pair<>("exp", 999)),
+                    "a25723f22ac754f792c50f07623dzd75"
+                },
+                // (1) Missing exchangedToken:
+                {
+                    null,
+                    "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
+                    MapUtil.of(new Pair<>("scope", Arrays.asList("controller.read")), new Pair<>("exp", 999)),
+                    null               
+                }
+// @formatter:on
+            });
+        }
+
+        private final String exchangedTokenString;
+        private final String tokenString;
+        private final Map<String, Object> tokenInfo;
+        private final String expectedExchangedToken;
+
+        private TokenFactory tokenFactory = new TokenFactory();
+
+        public ExchangedTokenFactoryTest(String exchangedTokenString, String tokenString, Map<String, Object> tokenInfo,
+            String expectedExchangedToken) {
+            this.exchangedTokenString = exchangedTokenString;
+            this.tokenString = tokenString;
+            this.tokenInfo = tokenInfo;
+            this.expectedExchangedToken = expectedExchangedToken;
+        }
+
+        @Test
+        public void testExchangedToken() {
+            OAuth2AccessToken token = tokenFactory.createExchangedToken(exchangedTokenString, tokenString, tokenInfo);
+            validateExchangedToken(token, expectedExchangedToken);
+        }
+
+    }
+
     private static void validateToken(OAuth2AccessToken token, TokenProperties expectedTokenProperties) {
         TokenProperties tokenProperties = TokenProperties.fromToken(token);
         assertEquals(expectedTokenProperties.getClientId(), tokenProperties.getClientId());
         assertEquals(expectedTokenProperties.getUserName(), tokenProperties.getUserName());
         assertEquals(expectedTokenProperties.getUserId(), tokenProperties.getUserId());
+    }
+
+    private static void validateExchangedToken(OAuth2AccessToken token, String expectedExchangedToken) {
+        String exchangedToken = (String) token.getAdditionalInformation()
+            .get("exchangedToken");
+        assertEquals(expectedExchangedToken, exchangedToken);
     }
 
 }
