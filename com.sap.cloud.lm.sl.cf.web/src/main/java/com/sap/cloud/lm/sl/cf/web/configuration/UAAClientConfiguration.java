@@ -32,12 +32,7 @@ public class UAAClientConfiguration {
 
     private URL readTokenEndpoint(URL targetURL) {
         try {
-            String infoURL = targetURL.toString() + "/v2/info";
-            ResponseEntity<String> infoResponse = new RestTemplate().getForEntity(infoURL, String.class);
-            if (infoResponse == null) {
-                throw new IllegalStateException("Invalid response returned from /v2/info");
-            }
-            Map<String, Object> infoMap = JsonUtil.convertJsonToMap(infoResponse.getBody());
+            Map<String, Object> infoMap = getControllerInfo(targetURL);
             Object endpoint = infoMap.get("token_endpoint");
             if (endpoint == null) {
                 endpoint = infoMap.get("authorizationEndpoint");
@@ -49,6 +44,15 @@ public class UAAClientConfiguration {
         } catch (Exception e) {
             throw new IllegalStateException("Could not read token endpoint", e);
         }
+    }
+
+    protected Map<String, Object> getControllerInfo(URL targetURL) {
+        String infoURL = targetURL.toString() + "/v2/info";
+        ResponseEntity<String> infoResponse = new RestTemplate().getForEntity(infoURL, String.class);
+        if (infoResponse == null) {
+            throw new IllegalStateException("Invalid response returned from /v2/info");
+        }
+        return JsonUtil.convertJsonToMap(infoResponse.getBody());
     }
 
 }
