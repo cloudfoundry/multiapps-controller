@@ -31,6 +31,8 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     @Autowired
     protected RecentLogsRetriever recentLogsRetriever;
     @Autowired
+    protected RecentLogsRetriever recentLogsRetrieverFailSafe;
+    @Autowired
     protected ApplicationConfiguration configuration;
 
     @Override
@@ -110,8 +112,9 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         List<AsyncExecution> stepExecutions = new LinkedList<>();
-
-        stepExecutions.add(new PollStartAppStatusExecution(recentLogsRetriever, configuration));
+        
+        recentLogsRetrieverFailSafe.setFailSafe(true);
+        stepExecutions.add(new PollStartAppStatusExecution(recentLogsRetrieverFailSafe));
         stepExecutions.add(new PollExecuteAppStatusExecution(recentLogsRetriever));
         return stepExecutions;
     }

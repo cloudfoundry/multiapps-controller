@@ -26,12 +26,15 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.sap.cloud.lm.sl.cf.client.events.EventFactory;
 import com.sap.cloud.lm.sl.cf.client.events.LogFactory.LogMessage;
 import com.sap.cloud.lm.sl.cf.client.events.LogFactory.LogMessage.MessageType;
+import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class RecentLogsRetriever extends CustomControllerClient {
-
+    
+    public static final String RECENT_LOGS_ENDPOINT = "/apps/{guid}/recentlogs";
     private final LoggingEndpointGetter loggingEndpointGetter;
+    private boolean failSafe;
 
     @Inject
     public RecentLogsRetriever(RestTemplateFactory restTemplateFactory, LoggingEndpointGetter loggingEndpointGetter) {
@@ -40,7 +43,23 @@ public class RecentLogsRetriever extends CustomControllerClient {
     }
 
     public List<ApplicationLog> getRecentLogs(CloudControllerClient client, String appName) {
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToGetRecentLogs(client, appName));
+        return new CustomControllerClientErrorHandler(getRetrier()).handleErrorsOrReturnResult(() -> attemptToGetRecentLogs(client, appName));
+    }
+
+    protected ExecutionRetrier getRetrier() {
+        ExecutionRetrier retrier = new ExecutionRetrier();
+        if (failSafe) {
+            retrier = retrier.failSafe();
+        }
+        return retrier;
+    }
+
+    public void setFailSafe(boolean failSafe) {
+        this.failSafe = failSafe;
+    }
+
+    public boolean isFailSafe() {
+        return this.failSafe;
     }
 
     private List<ApplicationLog> attemptToGetRecentLogs(CloudControllerClient client, String appName) {
@@ -49,7 +68,7 @@ public class RecentLogsRetriever extends CustomControllerClient {
             .getGuid();
         String dopplerEndpoint = getDopplerEndpoint(loggingEndpointGetter.getLoggingEndpoint(client));
 
-        String recentLogsUrl = dopplerEndpoint + "/apps/{guid}/recentlogs";
+        String recentLogsUrl = dopplerEndpoint + RECENT_LOGS_ENDPOINT;
         ResponseEntity<Resource> responseResource = getRestTemplate(client).exchange(recentLogsUrl, HttpMethod.GET, null, Resource.class,
             applicationGuid);
         List<LogMessageConverter> logMessages = null;
