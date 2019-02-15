@@ -10,9 +10,9 @@ public class ProcessLogger extends Logger {
     private Logger logger;
     private File log;
     private String logName;
-    private String spaceId;
-    private String processId;
-    private String activityId;
+    protected String spaceId;
+    protected String processId;
+    protected String activityId;
 
     public ProcessLogger(Logger logger, File log, String logName, String spaceId, String processId, String activityId) {
         super(logger.getName());

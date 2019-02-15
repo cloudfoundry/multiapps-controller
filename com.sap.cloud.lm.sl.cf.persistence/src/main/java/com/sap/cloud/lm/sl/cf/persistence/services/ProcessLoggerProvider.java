@@ -35,7 +35,14 @@ public class ProcessLoggerProvider {
 
     public ProcessLogger getLogger(DelegateExecution context, String logName, PatternLayout layout) {
         String name = getLoggerName(context, logName);
-        return loggersCache.computeIfAbsent(name, (String loggerName) -> createProcessLogger(context, loggerName, logName, layout));
+        String correlationId = getCorrelationId(context);
+        String spaceId = getSpaceId(context);
+        String activityId = getTaskId(context);
+        if (correlationId == null || activityId == null) {
+            return new NullProcessLogger(spaceId, context.getProcessInstanceId(), activityId);
+        }
+        return loggersCache.computeIfAbsent(name,
+            (String loggerName) -> createProcessLogger(spaceId, correlationId, activityId, loggerName, logName, layout));
     }
 
     private String getLoggerName(DelegateExecution context, String logName) {
@@ -57,12 +64,13 @@ public class ProcessLoggerProvider {
         return taskId != null ? taskId : context.getCurrentActivityId();
     }
 
-    private ProcessLogger createProcessLogger(DelegateExecution context, String loggerName, String logName, PatternLayout layout) {
+    private ProcessLogger createProcessLogger(String spaceId, String correlationId, String activityId, String loggerName, String logName,
+        PatternLayout layout) {
         Logger logger = Logger.getLogger(loggerName);
         File logFile = getLocalFile(loggerName);
         logger.removeAllAppenders();
         logger.addAppender(createAppender(logger.getLevel(), logFile, layout));
-        return new ProcessLogger(logger, logFile, logName, getSpaceId(context), getCorrelationId(context), getTaskId(context));
+        return new ProcessLogger(logger, logFile, logName, spaceId, correlationId, activityId);
     }
 
     private File getLocalFile(String loggerName) {
@@ -96,10 +104,8 @@ public class ProcessLoggerProvider {
     }
 
     private boolean hasLoggerSpecificProcessIdAndActivityId(String processId, String activityId, ProcessLogger logger) {
-        return logger.getProcessId()
-            .equals(processId)
-            && logger.getActivityId()
-                .equals(activityId);
+        return processId.equals(logger.getProcessId()) && activityId
+            .equals(logger.getActivityId());
     }
 
     public void remove(ProcessLogger processLogger) {
