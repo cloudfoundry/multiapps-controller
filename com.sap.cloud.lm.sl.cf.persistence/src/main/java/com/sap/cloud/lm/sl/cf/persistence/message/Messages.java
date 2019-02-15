@@ -35,6 +35,7 @@ public final class Messages {
     public static final String ERROR_DELETING_DIRECTORY = "Error deleting directory \"{0}\"";
     public static final String ERROR_STORING_LOG_FILE = "Error storing log file \"{0}\"";
     public static final String ERROR_UPDATING_LOG_FILE = "Error updating log file \"{0}\"";
+    public static final String ERROR_CORRELATION_ID_OR_ACTIVITY_ID_NULL = "Unable to retrieve correlation id or activity id for process \"{0}\" at activity \"{1}\" and space \"{2}\"";
 
     // ERROR log messages:
     public static final String UPLOAD_STREAM_FAILED_TO_CLOSE = "Cannot close file upload stream";
