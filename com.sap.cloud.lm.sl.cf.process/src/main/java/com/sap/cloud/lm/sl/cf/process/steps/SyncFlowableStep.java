@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 
-public abstract class SyncFlowableStep implements TaskIndexProvider, JavaDelegate {
+public abstract class SyncFlowableStep implements JavaDelegate, TaskIdProvider {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -125,12 +125,8 @@ public abstract class SyncFlowableStep implements TaskIndexProvider, JavaDelegat
     }
 
     @Override
-    public int getTaskIndex(DelegateExecution context) {
-        return (getIndexVariable() != null ? (int) context.getVariable(getIndexVariable()) : 0) - 1;
-    }
-
-    protected String getIndexVariable() {
-        return null;
+    public String getTaskId(DelegateExecution context) {
+        return context.getCurrentActivityId();
     }
 
 }

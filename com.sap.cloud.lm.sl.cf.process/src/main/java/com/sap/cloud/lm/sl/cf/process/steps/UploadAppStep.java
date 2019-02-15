@@ -222,11 +222,6 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_MODULES_INDEX;
-    }
-
-    @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         return Arrays.asList(new PollUploadAppStatusExecution());
     }

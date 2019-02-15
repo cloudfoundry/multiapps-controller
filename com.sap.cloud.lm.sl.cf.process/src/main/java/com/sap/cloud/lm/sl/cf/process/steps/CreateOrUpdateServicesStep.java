@@ -495,11 +495,6 @@ public class CreateOrUpdateServicesStep extends AsyncFlowableStep {
     }
 
     @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_SERVICES_TO_CREATE_COUNT;
-    }
-
-    @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         return Arrays.asList(new PollServiceCreateOrUpdateOperationsExecution(serviceInstanceGetter));
     }

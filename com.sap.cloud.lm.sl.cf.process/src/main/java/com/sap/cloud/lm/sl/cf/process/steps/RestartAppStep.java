@@ -103,11 +103,6 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     }
 
     @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_MODULES_INDEX;
-    }
-
-    @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         List<AsyncExecution> stepExecutions = new LinkedList<>();
 

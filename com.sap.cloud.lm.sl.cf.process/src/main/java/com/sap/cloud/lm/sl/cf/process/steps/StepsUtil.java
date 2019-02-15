@@ -370,7 +370,7 @@ public class StepsUtil {
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_APPS_TO_DEPLOY, cloudApplicationsAsStrings);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static List<ModuleToDeploy> getModulesToDeploy(DelegateExecution context) {
         List<String> cldoudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_MODULES_TO_DEPLOY);
@@ -385,7 +385,7 @@ public class StepsUtil {
             .collect(Collectors.toList());
         context.setVariable(Constants.VAR_MODULES_TO_DEPLOY, cloudApplicationsAsStrings);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static List<ModuleToDeploy> getAllModulesToDeploy(DelegateExecution context) {
         List<String> cldoudApplicationsAsStrings = (List<String>) context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY);
@@ -890,10 +890,6 @@ public class StepsUtil {
         return (String) context.getVariable(Constants.TASK_ID);
     }
 
-    public static String getTaskIndex(DelegateExecution context) {
-        return (String) context.getVariable(Constants.TASK_INDEX);
-    }
-
     public static ErrorType getErrorType(DelegateExecution context) {
         String errorType = (String) context.getVariable(Constants.VAR_ERROR_TYPE);
         return errorType == null ? null : ErrorType.valueOf(errorType);
@@ -1104,7 +1100,6 @@ public class StepsUtil {
 
     public static boolean shouldDeleteServices(DelegateExecution context) {
         boolean deleteServicesFlag = (boolean) context.getVariable(Constants.PARAM_DELETE_SERVICES);
-
         return deleteServicesFlag;
     }
 
@@ -1120,7 +1115,7 @@ public class StepsUtil {
         String variableWithCommaSeparator = (String) context.getVariable(variableName);
         return variableWithCommaSeparator == null ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
     }
-    
+
     public static void setUploadToken(UploadToken uploadToken, DelegateExecution context) {
         String jsonString = JsonUtil.toJson(uploadToken);
 

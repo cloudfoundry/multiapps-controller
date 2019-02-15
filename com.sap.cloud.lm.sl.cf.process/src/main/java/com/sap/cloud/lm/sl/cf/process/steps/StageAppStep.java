@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.Arrays;
 import java.util.List;
+
 import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
@@ -27,11 +28,6 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
     @Inject
     protected RecentLogsRetriever recentLogsRetriever;
 
-    @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_MODULES_INDEX;
-    }
-    
     @Autowired
     private ApplicationConfiguration configuration;
 
