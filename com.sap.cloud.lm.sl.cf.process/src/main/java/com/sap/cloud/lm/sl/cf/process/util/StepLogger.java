@@ -153,9 +153,8 @@ public class StepLogger implements UserMessageLogger {
     private void sendProgressMessage(String message, ProgressMessageType type) {
         try {
             String taskId = StepsUtil.getTaskId(context);
-            String taskIndex = StepsUtil.getTaskIndex(context);
-            progressMessageService.add(new ProgressMessage(StepsUtil.getCorrelationId(context), taskId, taskIndex, type, message,
-                new Timestamp(System.currentTimeMillis())));
+            progressMessageService.add(
+                new ProgressMessage(StepsUtil.getCorrelationId(context), taskId, type, message, new Timestamp(System.currentTimeMillis())));
         } catch (SLException e) {
             getProcessLogger().error(e);
         }

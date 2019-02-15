@@ -8,7 +8,6 @@ public class ProgressMessage {
     private long id;
     private String processId;
     private String taskId;
-    private String taskExecutionId;
     private ProgressMessageType type;
     private String text;
     private Date timestamp;
@@ -16,10 +15,9 @@ public class ProgressMessage {
     public ProgressMessage() {
     }
 
-    public ProgressMessage(String processId, String taskId, String taskExecutionId, ProgressMessageType type, String text, Date timestamp) {
+    public ProgressMessage(String processId, String taskId, ProgressMessageType type, String text, Date timestamp) {
         this.processId = processId;
         this.taskId = taskId;
-        this.taskExecutionId = taskExecutionId;
         this.type = type;
         setText(text);
         this.timestamp = timestamp;
@@ -47,18 +45,6 @@ public class ProgressMessage {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
-    }
-
-    public String getTaskExecutionId() {
-        return taskExecutionId;
-    }
-
-    public void setTaskExecutionId(String taskExecutionId) {
-        this.taskExecutionId = taskExecutionId;
-    }
-
-    public String getFullTaskId() {
-        return getTaskExecutionId() == null ? getTaskId() : getTaskId() + getTaskExecutionId();
     }
 
     public ProgressMessageType getType() {
@@ -95,7 +81,7 @@ public class ProgressMessage {
 
     @Override
     public String toString() {
-        return "ProgressMessage [id=" + id + ", processId=" + processId + ", taskId=" + taskId + ", taskExecutionId=" + taskExecutionId
-            + ", type=" + type + ", text=" + text + ", timestamp=" + timestamp + "]";
+        return "ProgressMessage [id=" + id + ", processId=" + processId + ", taskId=" + taskId + ", type=" + type + ", text=" + text
+            + ", timestamp=" + timestamp + "]";
     }
 }

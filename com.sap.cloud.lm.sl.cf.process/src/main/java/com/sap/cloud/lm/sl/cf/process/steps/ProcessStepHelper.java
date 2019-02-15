@@ -29,23 +29,19 @@ public class ProcessStepHelper {
     private static final String CORRELATION_ID = "correlationId";
 
     private ProgressMessageService progressMessageService;
-    private TaskIndexProvider taskIndexProvider;
     private ProcessLogsPersister processLogsPersister;
     private StepLogger stepLogger;
+    private TaskIdProvider taskIdProvider;
 
     private ProcessEngineConfiguration processEngineConfiguration;
 
-    String taskId;
-    String taskIndex;
-
-    public ProcessStepHelper(ProgressMessageService progressMessageService,
-        StepLogger stepLogger, TaskIndexProvider stepIndexProvider, ProcessLogsPersister processLogsPersister,
-        ProcessEngineConfiguration processEngineConfigurationSupplier) {
+    public ProcessStepHelper(ProgressMessageService progressMessageService, StepLogger stepLogger, TaskIdProvider taskIdProvider,
+        ProcessLogsPersister processLogsPersister, ProcessEngineConfiguration processEngineConfigurationSupplier) {
         this.progressMessageService = progressMessageService;
         this.stepLogger = stepLogger;
-        this.taskIndexProvider = stepIndexProvider;
         this.processLogsPersister = processLogsPersister;
         this.processEngineConfiguration = processEngineConfigurationSupplier;
+        this.taskIdProvider = taskIdProvider;
     }
 
     protected void postExecuteStep(DelegateExecution context, StepPhase state) {
@@ -57,14 +53,13 @@ public class ProcessStepHelper {
     }
 
     void preExecuteStep(DelegateExecution context, StepPhase initialPhase) {
-        init(context, initialPhase);
+        String taskId = taskIdProvider.getTaskId(context);
 
         context.setVariable(Constants.TASK_ID, taskId);
-        context.setVariable(Constants.TASK_INDEX, taskIndex);
 
         deletePreviousErrorType(context);
 
-        logTaskStartup(context);
+        logTaskStartup(context, taskId);
     }
 
     protected void deletePreviousErrorType(DelegateExecution context) {
@@ -77,37 +72,15 @@ public class ProcessStepHelper {
         context.removeVariable(Constants.VAR_ERROR_TYPE);
     }
 
-    private void init(DelegateExecution context, StepPhase initialPhase) {
-        this.taskId = context.getCurrentActivityId();
-        this.taskIndex = Integer.toString(computeTaskIndex(context, initialPhase));
-    }
-
-    private int computeTaskIndex(DelegateExecution context, StepPhase initialPhase) {
-        int taskIndex = getLastTaskIndex(context);
-        if (!initialPhase.equals(StepPhase.RETRY) && !initialPhase.equals(StepPhase.POLL)) {
-            return taskIndex + 1;
-        }
-        return taskIndex;
-    }
-
-    private int getLastTaskIndex(DelegateExecution context) {
-        String taskId = context.getCurrentActivityId();
-        String lastTaskExecutionId = progressMessageService.findLastTaskExecutionId(getCorrelationId(context), taskId);
-        if (lastTaskExecutionId == null) {
-            return taskIndexProvider.getTaskIndex(context);
-        }
-        return Integer.parseInt(lastTaskExecutionId);
-    }
-
     private String getCorrelationId(DelegateExecution context) {
         return (String) context.getVariable(CORRELATION_ID);
     }
 
-    private void logTaskStartup(DelegateExecution context) {
+    private void logTaskStartup(DelegateExecution context, String taskId) {
         stepLogger.logFlowableTask();
-        String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getId());
-        progressMessageService.add(new ProgressMessage(getCorrelationId(context), taskId, taskIndex, ProgressMessageType.TASK_STARTUP,
-            message, new Timestamp(System.currentTimeMillis())));
+        String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getProcessInstanceId());
+        progressMessageService.add(new ProgressMessage(getCorrelationId(context), taskId, ProgressMessageType.TASK_STARTUP, message,
+            new Timestamp(System.currentTimeMillis())));
     }
 
     protected void logException(DelegateExecution context, Throwable t) {
@@ -125,9 +98,8 @@ public class ProcessStepHelper {
 
     public void storeExceptionInProgressMessageService(DelegateExecution context, Throwable t) {
         try {
-            ProgressMessage msg = new ProgressMessage(getCorrelationId(context), getCurrentActivityId(context), taskIndex,
-                ProgressMessageType.ERROR, MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()),
-                new Timestamp(System.currentTimeMillis()));
+            ProgressMessage msg = new ProgressMessage(getCorrelationId(context), getCurrentActivityId(context), ProgressMessageType.ERROR,
+                MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()), new Timestamp(System.currentTimeMillis()));
             progressMessageService.add(msg);
         } catch (SLException e) {
             getProcessLogger().error(Messages.SAVING_ERROR_MESSAGE_FAILED, e);

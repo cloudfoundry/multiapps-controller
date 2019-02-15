@@ -59,10 +59,9 @@ public class FlowableExceptionEventHandler {
         FlowableEngineEvent flowableEngineEvent = (FlowableEngineEvent) event;
 
         String taskId = getCurrentTaskId(flowableEngineEvent);
-        String taskIndex = getVariable(flowableEngineEvent, Constants.TASK_INDEX);
         String errorMessage = MessageFormat.format(Messages.EXCEPTION_OCCURED_ERROR_MSG, flowableExceptionMessage);
         String processInstanceId = getProcessInstanceId(flowableEngineEvent);
-        progressMessageService.add(new ProgressMessage(processInstanceId, taskId, taskIndex, ProgressMessageType.ERROR, errorMessage,
+        progressMessageService.add(new ProgressMessage(processInstanceId, taskId, ProgressMessageType.ERROR, errorMessage,
             new Timestamp(System.currentTimeMillis())));
     }
 

@@ -868,10 +868,6 @@ public class StepsUtil {
         return (String) context.getVariable(Constants.TASK_ID);
     }
 
-    public static String getTaskIndex(DelegateExecution context) {
-        return (String) context.getVariable(Constants.TASK_INDEX);
-    }
-
     public static ErrorType getErrorType(DelegateExecution context) {
         String errorType = (String) context.getVariable(Constants.VAR_ERROR_TYPE);
         return errorType == null ? null : ErrorType.valueOf(errorType);
@@ -1096,7 +1092,7 @@ public class StepsUtil {
         }
         return JsonUtil.fromJson(service, CloudServiceExtended.class);
     }
-    
+
     public static void setServiceToProcess(CloudServiceExtended service, DelegateExecution context) {
         context.setVariable(Constants.VAR_SERVICE_TO_PROCESS, JsonUtil.toJson(service));
     }
