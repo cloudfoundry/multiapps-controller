@@ -2,8 +2,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import org.flowable.engine.delegate.DelegateExecution;
 
-public interface TaskIndexProvider {
+public interface TaskIdProvider {
 
-    int getTaskIndex(DelegateExecution context);
+    String getTaskId(DelegateExecution context);
 
 }

@@ -32,11 +32,6 @@ public class ExecuteTaskStep extends TimeoutAsyncFlowableStep {
     private RecentLogsRetriever recentLogsRetriever;
 
     @Override
-    protected String getIndexVariable() {
-        return Constants.VAR_TASKS_INDEX;
-    }
-
-    @Override
     protected StepPhase executeAsyncStep(ExecutionWrapper execution) throws Exception {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
         CloudTask taskToExecute = StepsUtil.getTask(execution.getContext());
