@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -44,8 +45,7 @@ public class SecurityUtil {
     }
 
     private static OAuth2AccessToken getExchangedToken(OAuth2AccessToken token) {
-        String exchangedTokenValue = (String) token.getAdditionalInformation()
-            .get(Constants.EXCHANGED_TOKEN);
+        String exchangedTokenValue = MapUtils.getString(token.getAdditionalInformation(), Constants.EXCHANGED_TOKEN);
         if (exchangedTokenValue == null) {
             return null;
         }

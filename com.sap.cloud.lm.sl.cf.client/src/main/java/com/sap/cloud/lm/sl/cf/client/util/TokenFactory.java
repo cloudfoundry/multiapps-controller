@@ -68,21 +68,6 @@ public class TokenFactory {
         return token;
     }
 
-    @SuppressWarnings("unchecked")
-    public OAuth2AccessToken createExchangedToken(String exchangedTokenString, String userString, Map<String, Object> tokenInfo) {
-        List<String> scope = (List<String>) tokenInfo.get(SCOPE);
-        Number exp = (Number) tokenInfo.get(EXP);
-        if (scope == null || exp == null) {
-            return null;
-        }
-        DefaultOAuth2AccessToken token = new DefaultOAuth2AccessToken(userString);
-        token.setExpiration(new Date(exp.longValue() * 1000));
-        token.setScope(new HashSet<String>(scope));
-        tokenInfo.put("exchangedToken", exchangedTokenString);
-        token.setAdditionalInformation(tokenInfo);
-        return token;
-    }
-
     private Map<String, Object> parseToken(String tokenString) {
         String[] tokenParts = tokenString.split("\\.");
         if (tokenParts.length != 3) {
