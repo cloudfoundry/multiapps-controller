@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.configuration;
 
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -20,6 +21,8 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 @Configuration
 public class UAAClientConfiguration {
 
+    private static final String CONTROLLER_INFO_ENDPOINT = "/v2/info";
+
     @Inject
     @Bean
     @Profile("cf")
@@ -38,7 +41,8 @@ public class UAAClientConfiguration {
                 endpoint = infoMap.get("authorizationEndpoint");
             }
             if (endpoint == null) {
-                throw new IllegalStateException("Response from /v2/info does not contain a valid token endpoint");
+                throw new IllegalStateException(
+                    MessageFormat.format("Response from {0} does not contain a valid token endpoint", CONTROLLER_INFO_ENDPOINT));
             }
             return new URL(endpoint.toString());
         } catch (Exception e) {
@@ -47,10 +51,10 @@ public class UAAClientConfiguration {
     }
 
     protected Map<String, Object> getControllerInfo(URL targetURL) {
-        String infoURL = targetURL.toString() + "/v2/info";
+        String infoURL = targetURL.toString() + CONTROLLER_INFO_ENDPOINT;
         ResponseEntity<String> infoResponse = new RestTemplate().getForEntity(infoURL, String.class);
         if (infoResponse == null) {
-            throw new IllegalStateException("Invalid response returned from /v2/info");
+            throw new IllegalStateException(MessageFormat.format("Invalid response returned from {0}", CONTROLLER_INFO_ENDPOINT));
         }
         return JsonUtil.convertJsonToMap(infoResponse.getBody());
     }
