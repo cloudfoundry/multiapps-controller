@@ -35,9 +35,9 @@ public class TokensCleaner implements Cleaner {
 
     @Override
     public void execute(Date expirationTime) {
-        Collection<OAuth2AccessToken> tokensokens = tokenStore.findTokensByClientId(SecurityUtil.CLIENT_ID);
+        Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientId(SecurityUtil.CLIENT_ID);
         LOGGER.debug(CleanUpJob.LOG_MARKER, Messages.REMOVING_EXPIRED_TOKENS_FROM_TOKEN_STORE);
-        long removedTokens = tokensokens.stream()
+        long removedTokens = tokens.stream()
             .filter(OAuth2AccessToken::isExpired)
             .peek(tokenStore::removeAccessToken)
             .count();

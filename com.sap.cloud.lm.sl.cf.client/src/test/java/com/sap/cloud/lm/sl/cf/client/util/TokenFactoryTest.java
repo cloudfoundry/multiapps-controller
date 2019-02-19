@@ -104,7 +104,7 @@ public class TokenFactoryTest {
     }
 
     @RunWith(Parameterized.class)
-    public static class ExchangedTokenFactoryTest {
+    public static class AdditionalInfoTokenFactoryTest {
 
         @Parameters
         public static Iterable<Object[]> getParameters() {
@@ -114,39 +114,35 @@ public class TokenFactoryTest {
                 {
                     "a25723f22ac754f792c50f07623dzd75",
                     "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                    MapUtil.of(new Pair<>("scope", Arrays.asList("controller.read")), new Pair<>("exp", 999)),
-                    "a25723f22ac754f792c50f07623dzd75"
+                    MapUtil.of(new Pair<>("scope", Arrays.asList("controller.read")), new Pair<>("exp", 999))
                 },
                 // (1) Missing exchangedToken:
                 {
                     null,
                     "aRh98oYD80teGrkjDFzg3ln55EV3O96y",
-                    MapUtil.of(new Pair<>("scope", Arrays.asList("controller.read")), new Pair<>("exp", 999)),
-                    null               
+                    MapUtil.of(new Pair<>("scope", Arrays.asList("controller.read")), new Pair<>("exp", 999))               
                 }
 // @formatter:on
             });
         }
 
-        private final String exchangedTokenString;
+        private final String additionalTokenString;
         private final String tokenString;
         private final Map<String, Object> tokenInfo;
-        private final String expectedExchangedToken;
 
         private TokenFactory tokenFactory = new TokenFactory();
 
-        public ExchangedTokenFactoryTest(String exchangedTokenString, String tokenString, Map<String, Object> tokenInfo,
-            String expectedExchangedToken) {
-            this.exchangedTokenString = exchangedTokenString;
+        public AdditionalInfoTokenFactoryTest(String additionalTokenString, String tokenString, Map<String, Object> tokenInfo) {
+            this.additionalTokenString = additionalTokenString;
             this.tokenString = tokenString;
             this.tokenInfo = tokenInfo;
-            this.expectedExchangedToken = expectedExchangedToken;
         }
 
         @Test
-        public void testExchangedToken() {
-            OAuth2AccessToken token = tokenFactory.createExchangedToken(exchangedTokenString, tokenString, tokenInfo);
-            validateExchangedToken(token, expectedExchangedToken);
+        public void testAdditionalInfoToken() {
+            tokenInfo.put("exchangedToken", additionalTokenString);
+            OAuth2AccessToken token = tokenFactory.createToken(tokenString, tokenInfo);
+            validateTokenAdditionalInfo(token, tokenInfo);
         }
 
     }
@@ -158,10 +154,9 @@ public class TokenFactoryTest {
         assertEquals(expectedTokenProperties.getUserId(), tokenProperties.getUserId());
     }
 
-    private static void validateExchangedToken(OAuth2AccessToken token, String expectedExchangedToken) {
-        String exchangedToken = (String) token.getAdditionalInformation()
-            .get("exchangedToken");
-        assertEquals(expectedExchangedToken, exchangedToken);
+    private static void validateTokenAdditionalInfo(OAuth2AccessToken token, Map<String, Object> tokenInfo) {
+        Map<String, Object> tokenAdditionalInformation = token.getAdditionalInformation();
+        assertEquals(tokenInfo, tokenAdditionalInformation);
     }
 
 }
