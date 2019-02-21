@@ -14,7 +14,7 @@ import liquibase.database.jvm.JdbcConnection;
 public class DropConfigurationRegistryUniqueConstraintPostgresqlChange extends AbstractChange {
 
     private static final String POSTGRESQL_SEARCH_QUERY = "SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_NAME='configuration_registry' and CONSTRAINT_TYPE='UNIQUE'";
-    private static final String DROP_QUERY = "ALTER TABLE configuration_registry DROP CONSTRAINT %s";
+    private static final String DROP_QUERY = "ALTER TABLE configuration_registry DROP CONSTRAINT ?";
     private static final String CONSTRAINT_NAME_COLUMN = "CONSTRAINT_NAME";
 
     @Override
@@ -51,13 +51,13 @@ public class DropConfigurationRegistryUniqueConstraintPostgresqlChange extends A
     }
 
     private void dropConstraint(JdbcConnection jdbcConnection, String constraintName) throws Exception {
-        Statement statement = null;
+        PreparedStatement statement = null;
 
         try {
-            statement = jdbcConnection.createStatement();
-            String dropQuery = String.format(DROP_QUERY, constraintName);
-            statement.execute(dropQuery);
-            logger.info(String.format("Executed statement '%s'.", dropQuery));
+            statement = jdbcConnection.prepareStatement(DROP_QUERY);
+            statement.setString(1, constraintName);
+            statement.execute();
+            logger.info(String.format("Executed statement '%s' with parameters %s.", DROP_QUERY, constraintName));
         } finally {
             JdbcUtil.closeQuietly(statement);
         }
