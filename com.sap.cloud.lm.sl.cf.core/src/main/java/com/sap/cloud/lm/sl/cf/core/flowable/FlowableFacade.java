@@ -333,17 +333,25 @@ public class FlowableFacade {
     public void shutdownJobExecutor(long secondsToWaitOnShutdown) {
         setSecondsToWaitOnJobExecutorShutdown(secondsToWaitOnShutdown);
         LOGGER.info(Messages.SHUTTING_DOWN_FLOWABLE_JOB_EXECUTOR);
-        AsyncExecutor asyncExecutor = processEngine.getProcessEngineConfiguration().getAsyncExecutor();
+        AsyncExecutor asyncExecutor = processEngine.getProcessEngineConfiguration()
+            .getAsyncExecutor();
         asyncExecutor.shutdown();
     }
 
     private void setSecondsToWaitOnJobExecutorShutdown(long secondsToWaitOnShutdown) {
         LOGGER.info(format(Messages.SETTING_SECONDS_TO_WAIT_BEFORE_FLOWABLE_JOB_EXECUTOR_SHUTDOWN, secondsToWaitOnShutdown));
-        AsyncExecutor asyncExecutor = processEngine.getProcessEngineConfiguration().getAsyncExecutor();
+        AsyncExecutor asyncExecutor = processEngine.getProcessEngineConfiguration()
+            .getAsyncExecutor();
         ((DefaultAsyncJobExecutor) asyncExecutor).setSecondsToWaitOnShutdown(secondsToWaitOnShutdown);
     }
 
     public boolean isJobExecutorActive() {
-        return processEngine.getProcessEngineConfiguration().getAsyncExecutor().isActive();
+        return processEngine.getProcessEngineConfiguration()
+            .getAsyncExecutor()
+            .isActive();
+    }
+
+    public ProcessEngine getProcessEngine() {
+        return processEngine;
     }
 }
