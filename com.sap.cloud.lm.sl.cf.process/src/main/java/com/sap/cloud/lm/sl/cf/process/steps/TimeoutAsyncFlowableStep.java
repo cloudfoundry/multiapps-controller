@@ -27,11 +27,16 @@ public abstract class TimeoutAsyncFlowableStep extends AsyncFlowableStep {
 
     private long getStepStartTime(DelegateExecution context) {
         Long stepStartTime = (Long) context.getVariable(getStepStartTimeVariable());
-        if (stepStartTime == null) {
+        if (stepStartTime == null || isInRetry(context)) {
             stepStartTime = System.currentTimeMillis();
             context.setVariable(getStepStartTimeVariable(), stepStartTime);
         }
+
         return stepStartTime;
+    }
+
+    private boolean isInRetry(DelegateExecution context) {
+        return StepsUtil.getStepPhase(context) == StepPhase.RETRY;
     }
 
     private String getStepStartTimeVariable() {
