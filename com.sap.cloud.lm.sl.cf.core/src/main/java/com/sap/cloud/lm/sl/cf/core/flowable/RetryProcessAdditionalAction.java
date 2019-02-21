@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.persistence.model.ProgressMessage.ProgressMessageType;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.common.SLException;
 
@@ -32,7 +33,8 @@ public class RetryProcessAdditionalAction implements AdditionalProcessAction {
         List<String> failedActivityIds = findFailedActivityIds(processInstanceId);
         for (String failedActivityId : failedActivityIds) {
             try {
-                progressMessageService.removeByProcessInstanceIdAndTaskId(processInstanceId, failedActivityId);
+                progressMessageService.removeByProcessInstanceIdAndTaskIdAndType(processInstanceId, failedActivityId,
+                    ProgressMessageType.ERROR);
             } catch (SLException e) {
                 LOGGER.error(Messages.ERROR_DELETING_PROGRESS_MESSAGE, e);
             }

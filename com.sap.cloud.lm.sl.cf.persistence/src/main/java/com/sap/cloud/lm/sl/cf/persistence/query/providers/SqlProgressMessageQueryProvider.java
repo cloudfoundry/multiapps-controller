@@ -35,7 +35,7 @@ public class SqlProgressMessageQueryProvider {
     private static final String INSERT_MESSAGE = "INSERT INTO %s (ID, PROCESS_ID, TASK_ID, TASK_EXECUTION_ID, TYPE, TEXT, TIMESTAMP) VALUES(%s, ?, ?, ?, ?, ?, ?)";
     private static final String DELETE_MESSAGES_BY_PROCESS_AND_TASK_ID = "DELETE FROM %s WHERE PROCESS_ID=? AND TASK_ID=? AND TASK_EXECUTION_ID=?";
     private static final String DELETE_MESSAGES_BY_PROCESS_ID = "DELETE FROM %s WHERE PROCESS_ID=?";
-    private static final String DELETE_MESSAGES_BY_PROCESS_ID_AND_TASK_ID = "DELETE FROM %s WHERE PROCESS_ID=? AND TASK_ID=?";
+    private static final String DELETE_MESSAGES_BY_PROCESS_ID_AND_TASK_ID_AND_TYPE = "DELETE FROM %s WHERE PROCESS_ID=? AND TASK_ID=? AND TYPE=?";
     private static final String DELETE_MESSAGES_OLDER_THAN = "DELETE FROM %s WHERE TIMESTAMP < ?";
     private static final String UPDATE_MESSAGE_BY_ID = "UPDATE %s SET TEXT=?, TIMESTAMP=? WHERE ID=?";
 
@@ -129,13 +129,15 @@ public class SqlProgressMessageQueryProvider {
         };
     }
 
-    public SqlQuery<Integer> getRemoveByProcessInstanceIdAndTaskIdQuery(final String processId, String taskId) {
+    public SqlQuery<Integer> getRemoveByProcessInstanceIdAndTaskIdAndTypeQuery(final String processId, String taskId,
+        ProgressMessageType progressMessageType) {
         return (Connection connection) -> {
             PreparedStatement statement = null;
             try {
-                statement = connection.prepareStatement(getQuery(DELETE_MESSAGES_BY_PROCESS_ID_AND_TASK_ID, tableName));
+                statement = connection.prepareStatement(getQuery(DELETE_MESSAGES_BY_PROCESS_ID_AND_TASK_ID_AND_TYPE, tableName));
                 statement.setString(1, processId);
                 statement.setString(2, taskId);
+                statement.setString(3, progressMessageType.toString());
                 return statement.executeUpdate();
             } finally {
                 JdbcUtil.closeQuietly(statement);
