@@ -77,9 +77,9 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
 
         List<ServiceAction> actions = determineActions(controllerClient, spaceId, serviceToProcess, existingService, serviceDefaultTags,
             serviceKeys, execution);
-        
+
         setServiceParameters(serviceToProcess, actions, execution.getContext());
-        
+
         StepsUtil.setServiceActionsToExecute(actions, execution.getContext());
         StepsUtil.isServiceUpdated(false, execution.getContext());
         StepsUtil.setServiceToProcessName(serviceToProcess.getName(), execution.getContext());
@@ -226,7 +226,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (service.isUserProvided()) {
             return false;
         }
-        existingServiceTags = ObjectUtils.defaultIfNull(existingServiceTags, Collections.emptyList());
+        existingServiceTags = ObjectUtils.defaultIfNull(existingServiceTags, Collections.<String> emptyList());
         existingServiceTags = ListUtils.removeAll(existingServiceTags, defaultTags);
         List<String> newServiceTags = ListUtils.removeAll(service.getTags(), defaultTags);
         return !existingServiceTags.equals(newServiceTags);
