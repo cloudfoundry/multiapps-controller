@@ -452,7 +452,7 @@ public class Messages {
     public static final String UPDATING_SUBSCRIBER_0 = "Updating subscriber: {0} ";
     public static final String DELETED_APP_ROUTES = "App routes for applications \"{0}\" deleted";
     public static final String MODULES_TO_UNDEPLOY = "Modules to undeploy: {0}";
-    public static final String MODULES_TO_KEEP = "Modules to keep: {0}";
+    public static final String MODULES_NOT_TO_BE_CHANGED = "Modules that won't be changed: {0}";
     public static final String PROCESS_WAS_ABORTED = "Process was aborted";
     public static final String EXCEPTION_CAUGHT = "Exception caught";
     public static final String UNEXPECTED_ERROR = "Unexpected error: {0}";
