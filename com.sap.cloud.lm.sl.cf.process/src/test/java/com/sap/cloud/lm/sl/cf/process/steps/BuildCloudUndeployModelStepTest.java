@@ -4,11 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -20,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -76,7 +72,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
             },
             // (6) There are no obsolete services:
             {
-                new StepInput("apps-to-deploy-01.json", Collections.emptyList(), "deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-08.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
+                new StepInput("apps-to-deploy-01.json", Arrays.asList("s-1", "s-2", "s-3"), "deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-08.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
                 new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
             },
             // (7) There are no obsolete modules:
@@ -103,6 +99,11 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
             {
                 new StepInput("apps-to-deploy-01.json", Collections.emptyList(),"deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-03.json", "empty-list.json",  "existing-subscriptions-01.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
                 new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "subscriptions-to-delete-02.json")),
+            },
+            // (12) There are obsolete services because they are all unbound
+            {
+                new StepInput("apps-to-deploy-01.json", Collections.emptyList(), "deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-08.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
+                new StepOutput(Arrays.asList("d", "e"), Arrays.asList("s-1", "s-2", "s-3"), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
             },
 // @formatter:on
         });
@@ -143,7 +144,9 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     private void prepareDeploymentDescriptor() {
         DeploymentDescriptor.Builder builder = new DeploymentDescriptor.Builder();
-        List<Module>  modules = input.deploymentDescriptorModules.stream().map(this::getModuleFromName).collect(Collectors.toList());
+        List<Module> modules = input.deploymentDescriptorModules.stream()
+            .map(this::getModuleFromName)
+            .collect(Collectors.toList());
         builder.setModules2(modules);
         builder.setSchemaVersion("1");
         builder.setId("id");
@@ -238,7 +241,8 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         public Set<String> deploymentDescriptorModules;
 
         public StepInput(String appsToDeployLocation, List<String> services, String deployedAppsLocation, Set<String> mtaModules,
-            String deployedMtaLocation, String subscriptionsToCreateLocation, String existingSubscriptionsLocation, Set<String> deploymentDescriptorModules) {
+            String deployedMtaLocation, String subscriptionsToCreateLocation, String existingSubscriptionsLocation,
+            Set<String> deploymentDescriptorModules) {
             this.appsToDeployLocation = appsToDeployLocation;
             this.services = services;
             this.deployedAppsLocation = deployedAppsLocation;
