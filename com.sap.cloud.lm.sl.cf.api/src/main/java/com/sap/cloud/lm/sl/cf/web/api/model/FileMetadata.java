@@ -146,12 +146,24 @@ public class FileMetadata implements AuditableConfiguration {
         StringBuilder sb = new StringBuilder();
         sb.append("class FileMetadata {\n");
 
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    size: ").append(toIndentedString(size)).append("\n");
-        sb.append("    digest: ").append(toIndentedString(digest)).append("\n");
-        sb.append("    digestAlgorithm: ").append(toIndentedString(digestAlgorithm)).append("\n");
-        sb.append("    space: ").append(toIndentedString(space)).append("\n");
+        sb.append("    id: ")
+            .append(toIndentedString(id))
+            .append("\n");
+        sb.append("    name: ")
+            .append(toIndentedString(name))
+            .append("\n");
+        sb.append("    size: ")
+            .append(toIndentedString(size))
+            .append("\n");
+        sb.append("    digest: ")
+            .append(toIndentedString(digest))
+            .append("\n");
+        sb.append("    digestAlgorithm: ")
+            .append(toIndentedString(digestAlgorithm))
+            .append("\n");
+        sb.append("    space: ")
+            .append(toIndentedString(space))
+            .append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -163,7 +175,8 @@ public class FileMetadata implements AuditableConfiguration {
         if (o == null) {
             return "null";
         }
-        return o.toString().replace("\n", "\n    ");
+        return o.toString()
+            .replace("\n", "\n    ");
     }
 
     @Override
@@ -173,7 +186,7 @@ public class FileMetadata implements AuditableConfiguration {
 
     @Override
     public String getConfigurationName() {
-        return name;
+        return getName();
     }
 
     @Override

@@ -5,17 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import org.cloudfoundry.client.lib.CloudOperationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.ResourceAccessException;
 
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 public class ExecutionRetrier {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionRetrier.class);
 
     private static final long DEFAULT_RETRY_COUNT = 3;
     private static final long DEFAULT_WAIT_TIME_BETWEEN_RETRIES_IN_MILLIS = 5000;
@@ -23,12 +17,12 @@ public class ExecutionRetrier {
     private boolean failSafe;
     private long retryCount = DEFAULT_RETRY_COUNT;
     private long waitTimeBetweenRetriesInMillis = DEFAULT_WAIT_TIME_BETWEEN_RETRIES_IN_MILLIS;
-    
+
     public ExecutionRetrier failSafe() {
         this.failSafe = true;
         return this;
     }
-    
+
     public ExecutionRetrier withRetryCount(long retryCount) {
         this.retryCount = retryCount;
         return this;
@@ -45,29 +39,22 @@ public class ExecutionRetrier {
         for (int i = 1; i < retryCount; i++) {
             try {
                 return supplier.get();
-            } catch (ResourceAccessException e) {
-                LOGGER.warn(e.getMessage(), e);
-            } catch (CloudOperationException e) {
-                if (!shouldIgnoreException(e, httpStatuses)) {
-                    throw e;
-                }
-                LOGGER.warn("Retrying failed request with status: " + e.getStatusCode() + " and message: " + e.getMessage());
             } catch (Exception e) {
-                if (!failSafe) {
-                    throw e;
-                }
-                LOGGER.warn("Retrying failed request with message: " + e.getMessage());
+                new ExceptionHandlerFactory().geExceptionHandler(e, httpStatuses, failSafe)
+                    .handleException(e);
             }
             CommonUtil.sleep(waitTimeBetweenRetriesInMillis);
         }
+        return executeWithGenericExceptionHandler(supplier);
+    }
+
+    private <T> T executeWithGenericExceptionHandler(Supplier<T> supplier) {
         try {
             return supplier.get();
         } catch (Exception e) {
-            if (!failSafe) {
-                throw e;
-            }
-            return null;
-        } 
+            new GenericExceptionHandler(failSafe).handleException(e);
+        }
+        return null;
     }
 
     public void executeWithRetry(Runnable runnable, HttpStatus... httpStatusesToIgnore) {
@@ -75,24 +62,6 @@ public class ExecutionRetrier {
             runnable.run();
             return null;
         }, httpStatusesToIgnore);
-    }
-
-    private boolean shouldIgnoreException(CloudOperationException e, Set<HttpStatus> httpStatusesToIgnore) {
-        if(failSafe) {
-            return true;
-        }
-        for (HttpStatus status : httpStatusesToIgnore) {
-            if (e.getStatusCode()
-                .equals(status)) {
-                return true;
-            }
-        }
-        return e.getStatusCode()
-            .equals(HttpStatus.INTERNAL_SERVER_ERROR)
-            || e.getStatusCode()
-                .equals(HttpStatus.BAD_GATEWAY)
-            || e.getStatusCode()
-                .equals(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
 }

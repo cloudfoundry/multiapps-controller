@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,7 +10,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -73,9 +71,7 @@ public class ServiceWithAlternativesCreator {
 
     private boolean containsPlan(List<CloudServicePlan> plans, String servicePlanName) {
         return plans.stream()
-            .filter(p -> servicePlanName.equalsIgnoreCase(p.getName()))
-            .findFirst()
-            .isPresent();
+            .anyMatch(p -> servicePlanName.equalsIgnoreCase(p.getName()));
     }
 
     private List<String> computePossibleServiceOfferings(CloudServiceExtended service) {

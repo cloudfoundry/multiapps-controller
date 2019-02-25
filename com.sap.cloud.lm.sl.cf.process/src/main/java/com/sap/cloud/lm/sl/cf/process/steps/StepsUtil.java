@@ -1067,7 +1067,7 @@ public class StepsUtil {
         return applications.stream()
             .filter(app -> hasGuid(app, appGuid))
             .findFirst()
-            .get();
+            .orElse(null);
     }
 
     private static boolean hasGuid(CloudApplication app, UUID appGuid) {

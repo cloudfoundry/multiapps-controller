@@ -17,7 +17,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
@@ -34,7 +33,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private static final String CREATE_SERVICE_URL = "/v2/service_instances?accepts_incomplete=true";
     private static final String SPACE_ID = "TEST_SPACE";
 
-    @Parameters(name="{0}")
+    @Parameters(name = "{0}")
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
@@ -111,7 +110,7 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
 
     @Mock
     private UserMessageLogger userMessageLogger;
-    
+
     private ServiceCreator serviceCreator;
     private ServiceWithAlternativesCreator serviceWithAlternativesCreator;
 
@@ -119,8 +118,8 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private String expectedExceptionMessage;
     private Class<? extends RuntimeException> expectedExceptionType;
 
-    public ServiceWithAlternativesCreatorTest(String inputLocation, String expected, Class<? extends RuntimeException> expectedExceptionClass)
-        throws ParsingException, IOException {
+    public ServiceWithAlternativesCreatorTest(String inputLocation, String expected,
+        Class<? extends RuntimeException> expectedExceptionClass) throws ParsingException, IOException {
         this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(inputLocation, ServiceWithAlternativesCreatorTest.class), Input.class);
         this.expectedExceptionMessage = expected;
         this.expectedExceptionType = expectedExceptionClass;
@@ -141,7 +140,9 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
                 continue;
             }
             HttpStatus httpStatusCode = HttpStatus.valueOf(exchange.responseCode);
-            Mockito.when(getMockedRestTemplate().exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL), Matchers.eq(HttpMethod.POST), Matchers.any(), Matchers.eq(String.class)))
+            Mockito
+                .when(getMockedRestTemplate().exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL), Matchers.eq(HttpMethod.POST),
+                    Matchers.any(), Matchers.eq(String.class)))
                 .thenThrow(new CloudOperationException(httpStatusCode));
         }
     }
@@ -163,7 +164,8 @@ public class ServiceWithAlternativesCreatorTest extends CloudServiceOperatorTest
     private void validateRestCall() {
         for (Exchange exchange : input.expectedExchanges) {
             Mockito.verify(getMockedRestTemplate())
-                .exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL), Matchers.eq(HttpMethod.POST), Matchers.any(), Matchers.eq(String.class));
+                .exchange(Matchers.eq(getControllerUrl() + CREATE_SERVICE_URL), Matchers.eq(HttpMethod.POST), Matchers.any(),
+                    Matchers.eq(String.class));
         }
     }
 

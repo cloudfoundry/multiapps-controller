@@ -69,6 +69,8 @@ public class Messages {
     public static final String COULD_NOT_DELETE_PROCESS_LOGS_MODIFIED_BEFORE_0 = "Could not delete process logs modified before {0}";
     public static final String MODULES_0_SPECIFIED_FOR_DEPLOYMENT_ARE_NOT_PART_OF_DEPLOYMENT_DESCRIPTOR_MODULES = "Modules {0}, specified for deployment, are not part of deployment descriptor modules";
     public static final String MODULE_0_IS_NOT_MATCHING_THE_MODULES_IN_DESCRIPTOR = "Application module name {0} is not matching any of the modules in the deployment descriptor";
+    public static final String SERVICE_BROKER_0_DOES_NOT_EXIST = "Service broker \"{0}\" does not exist";
+    public static final String COULD_NOT_FIND_APPLICATION_WITH_GUID_0 = "Could not find application with guid \"{0}\"";
 
     // Audit log messages
 

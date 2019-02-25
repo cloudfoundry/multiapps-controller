@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
@@ -29,6 +29,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.common.NotFoundException;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("createOrUpdateServiceBrokersStep")
@@ -77,8 +78,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
         }
     }
 
-    private List<CloudApplication> mapApplicationsFromContextToCloudApplications(ExecutionWrapper execution,
-        CloudControllerClient client) {
+    private List<CloudApplication> mapApplicationsFromContextToCloudApplications(ExecutionWrapper execution, CloudControllerClient client) {
         return StepsUtil.getAppsToDeploy(execution.getContext())
             .stream()
             .map(app -> client.getApplication(app.getName()))
@@ -103,7 +103,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
             .filter(broker -> broker.getName()
                 .equals(name))
             .findFirst()
-            .get();
+            .orElseThrow(() -> new NotFoundException(MessageFormat.format(Messages.SERVICE_BROKER_0_DOES_NOT_EXIST, name)));
     }
 
     private List<CloudServiceBrokerExtended> getServiceBrokersToCreate(List<CloudApplication> appsToDeploy, DelegateExecution context) {

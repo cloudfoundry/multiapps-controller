@@ -65,11 +65,10 @@ public class OperationDtoDao {
     }
 
     public int removeExpiredInFinalState(Date expirationTime) {
-        return new TransactionalExecutor<Integer>(createEntityManager()).execute(manager -> {
-            return manager.createNamedQuery("remove_expired_in_final_state")
+        return new TransactionalExecutor<Integer>(createEntityManager())
+            .execute(manager -> manager.createNamedQuery("remove_expired_in_final_state")
                 .setParameter("expirationTime", expirationTime, TemporalType.TIMESTAMP)
-                .executeUpdate();
-        });
+                .executeUpdate());
     }
 
     public OperationDto find(String processId) {
