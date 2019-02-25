@@ -17,8 +17,9 @@ public class SqlQueryExecutor {
     }
 
     public <R> R executeWithAutoCommit(SqlQuery<R> sqlQuery) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        Connection connection = null;
         try {
+            connection = dataSource.getConnection();
             connection.setAutoCommit(true);
             return sqlQuery.execute(connection);
         } catch (SQLException e) {
@@ -30,8 +31,9 @@ public class SqlQueryExecutor {
     }
 
     public <R> R execute(SqlQuery<R> sqlQuery) throws SQLException {
-        Connection connection = dataSource.getConnection();
+        Connection connection = null;
         try {
+            connection = dataSource.getConnection();
             connection.setAutoCommit(false);
             R result = sqlQuery.execute(connection);
             JdbcUtil.commit(connection);
@@ -40,8 +42,14 @@ public class SqlQueryExecutor {
             JdbcUtil.rollback(connection);
             throw e;
         } finally {
-            connection.setAutoCommit(true);
+            setAutocommitSafely(connection);
             JdbcUtil.closeQuietly(connection);
+        }
+    }
+
+    private void setAutocommitSafely(Connection connection) throws SQLException {
+        if (connection != null) {
+            connection.setAutoCommit(true);
         }
     }
 

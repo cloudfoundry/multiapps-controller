@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -99,6 +100,10 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         Set<String> idsOfMtasThatOwnTheService = new LinkedHashSet<>();
         for (CloudServiceBinding binding : bindings) {
             CloudApplication boundApplication = StepsUtil.getBoundApplication(deployedApps, binding.getAppGuid());
+            if (boundApplication == null) {
+                throw new IllegalStateException(
+                    MessageFormat.format(Messages.COULD_NOT_FIND_APPLICATION_WITH_GUID_0, binding.getAppGuid()));
+            }
             ApplicationMtaMetadata boundMtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(boundApplication);
             if (boundMtaMetadata == null) {
                 namesOfBoundStandaloneApplications.add(boundApplication.getName());

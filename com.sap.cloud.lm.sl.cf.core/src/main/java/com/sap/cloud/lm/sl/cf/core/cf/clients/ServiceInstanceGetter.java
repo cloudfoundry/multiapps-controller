@@ -1,9 +1,7 @@
 package com.sap.cloud.lm.sl.cf.core.cf.clients;
 
-import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 

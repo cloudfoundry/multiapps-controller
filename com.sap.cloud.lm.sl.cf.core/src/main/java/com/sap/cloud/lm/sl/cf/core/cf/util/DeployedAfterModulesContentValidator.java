@@ -25,7 +25,7 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
     }
 
     @Override
-    public void validate(List<Module> modules) throws ContentException {
+    public void validate(List<Module> modules) {
         List<String> modulesInModelNames = getModuleNames(modules);
 
         Map<String, List<String>> modulesWithDependenciesNotInModel = modules.stream()
@@ -36,7 +36,7 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
         List<String> modulesWithDependeciesNotDeployed = modulesWithDependenciesNotInModel.entrySet()
             .stream()
             .filter(moduleWithDependencies -> !areModulesAlreadyDeployed(client, moduleWithDependencies.getValue()))
-            .map(moduleWithDependencies -> moduleWithDependencies.getKey())
+            .map(Map.Entry::getKey)
             .collect(Collectors.toList());
 
         if (modulesWithDependeciesNotDeployed.isEmpty()) {

@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.io.IOUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.springframework.core.io.Resource;
@@ -31,7 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 public class RecentLogsRetriever extends CustomControllerClient {
-    
+
     public static final String RECENT_LOGS_ENDPOINT = "/apps/{guid}/recentlogs";
     private final LoggingEndpointGetter loggingEndpointGetter;
     private boolean failSafe;
@@ -43,7 +42,8 @@ public class RecentLogsRetriever extends CustomControllerClient {
     }
 
     public List<ApplicationLog> getRecentLogs(CloudControllerClient client, String appName) {
-        return new CustomControllerClientErrorHandler(getRetrier()).handleErrorsOrReturnResult(() -> attemptToGetRecentLogs(client, appName));
+        return new CustomControllerClientErrorHandler(getRetrier())
+            .handleErrorsOrReturnResult(() -> attemptToGetRecentLogs(client, appName));
     }
 
     protected ExecutionRetrier getRetrier() {
@@ -94,23 +94,16 @@ public class RecentLogsRetriever extends CustomControllerClient {
         MediaType contentType = responseResource.getHeaders()
             .getContentType();
         String boundary = contentType.getParameter("boundary");
-        InputStream responseInputStream = responseResource.getBody()
-            .getInputStream();
-        try {
+        try (InputStream responseInputStream = responseResource.getBody()
+            .getInputStream()) {
             MultipartStream multipartStream = new MultipartStream(responseInputStream, boundary.getBytes(StandardCharsets.UTF_8), 16 * 1024,
                 null);
             while (multipartStream.skipPreamble()) {
-                ByteArrayOutputStream part = null;
-                try {
-                    part = new ByteArrayOutputStream();
+                try (ByteArrayOutputStream part = new ByteArrayOutputStream()) {
                     multipartStream.readBodyData(part);
                     parseProtoBufPart(parsedLogs, part);
-                } finally {
-                    IOUtils.closeQuietly(part);
                 }
             }
-        } finally {
-            IOUtils.closeQuietly(responseInputStream);
         }
         return parsedLogs;
     }

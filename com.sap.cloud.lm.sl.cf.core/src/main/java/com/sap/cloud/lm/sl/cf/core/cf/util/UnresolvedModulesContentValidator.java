@@ -21,7 +21,7 @@ public class UnresolvedModulesContentValidator implements ModulesContentValidato
     }
 
     @Override
-    public void validate(List<Module> modules) throws ContentException {
+    public void validate(List<Module> modules) {
         Set<String> unresolvedModules = getUnresolvedModules(modules);
         if (unresolvedModules.isEmpty()) {
             return;

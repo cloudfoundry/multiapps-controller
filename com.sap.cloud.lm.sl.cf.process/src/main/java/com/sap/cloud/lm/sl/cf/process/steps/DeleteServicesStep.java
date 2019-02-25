@@ -62,9 +62,9 @@ public class DeleteServicesStep extends AsyncFlowableStep {
             if (xsClient == null) {
                 Map<String, CloudServiceExtended> servicesData = getServicesData(servicesToDelete, execution);
                 List<String> servicesWithoutData = getServicesWithoutData(servicesToDelete, servicesData);
-                if(!servicesWithoutData.isEmpty()) {
+                if (!servicesWithoutData.isEmpty()) {
                     execution.getStepLogger()
-                    .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
+                        .info(Messages.SERVICES_ARE_ALREADY_DELETED, servicesWithoutData);
                     servicesToDelete.removeAll(servicesWithoutData);
                 }
                 StepsUtil.setServicesData(execution.getContext(), servicesData);
@@ -129,6 +129,10 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         logBindings(bindings);
         for (CloudServiceBinding binding : bindings) {
             CloudApplication application = StepsUtil.getBoundApplication(client.getApplications(), binding.getAppGuid());
+            if (application == null) {
+                throw new IllegalStateException(
+                    MessageFormat.format(Messages.COULD_NOT_FIND_APPLICATION_WITH_GUID_0, binding.getAppGuid()));
+            }
             getStepLogger().info(Messages.UNBINDING_APP_FROM_SERVICE, application.getName(), serviceName);
             client.unbindService(application.getName(), serviceName);
         }

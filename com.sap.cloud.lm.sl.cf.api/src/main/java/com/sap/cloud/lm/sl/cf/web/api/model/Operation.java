@@ -302,7 +302,7 @@ public class Operation implements AuditableConfiguration {
 
     @Override
     public String getConfigurationName() {
-        return processId;
+        return getProcessId();
     }
 
     @Override
