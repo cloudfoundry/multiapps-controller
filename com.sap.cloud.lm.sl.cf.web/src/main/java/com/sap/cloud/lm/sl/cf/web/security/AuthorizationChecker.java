@@ -1,6 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -23,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.model.CachedMap;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -34,6 +36,7 @@ import com.sap.cloud.lm.sl.common.util.ResponseRenderer;
 public class AuthorizationChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationChecker.class);
+    private CachedMap<UUID, List<String>> spaceDevelopersCache = null;
 
     private final ExecutionRetrier retrier = new ExecutionRetrier();
     private final CloudControllerClientProvider clientProvider;
@@ -46,6 +49,15 @@ public class AuthorizationChecker {
         this.clientProvider = clientProvider;
         this.spaceGetter = spaceGetter;
         this.applicationConfiguration = applicationConfiguration;
+        initSpaceDevelopersCache();
+    }
+
+    private synchronized void initSpaceDevelopersCache() {
+        if (spaceDevelopersCache != null) {
+            return;
+        }
+        Integer cacheExpirationInSeconds = applicationConfiguration.getSpaceDeveloperCacheExpirationInSeconds();
+        spaceDevelopersCache = new CachedMap<>(cacheExpirationInSeconds);
     }
 
     public void ensureUserIsAuthorized(HttpServletRequest request, UserInfo userInfo, String organization, String space, String action) {
@@ -111,22 +123,38 @@ public class AuthorizationChecker {
     }
 
     private boolean hasPermissions(CloudControllerClientSupportingCustomUserIds client, String userId, UUID spaceGuid, boolean readOnly) {
-
-        if (client.getSpaceDeveloperIdsAsStrings(spaceGuid)
-            .contains(userId)) {
+        if (isUserInSpaceDevelopersUsingCache(client, userId, spaceGuid)) {
             return true;
         }
+        if (isUserInSpaceDevelopersAfterCacheRefresh(client, userId, spaceGuid)) {
+            return true;
+        }
+
         if (readOnly) {
-            if (client.getSpaceAuditorIdsAsStrings(spaceGuid)
-                .contains(userId)) {
-                return true;
-            }
-            if (client.getSpaceManagerIdsAsStrings(spaceGuid)
-                .contains(userId)) {
-                return true;
-            }
+            return isUserInSpaceAuditors(client, userId, spaceGuid) || isUserInSpaceManagers(client, userId, spaceGuid);
         }
         return false;
+    }
+
+    private boolean isUserInSpaceAuditors(CloudControllerClientSupportingCustomUserIds client, String userId, UUID spaceGuid) {
+        return client.getSpaceAuditorIdsAsStrings(spaceGuid)
+            .contains(userId);
+    }
+
+    private boolean isUserInSpaceManagers(CloudControllerClientSupportingCustomUserIds client, String userId, UUID spaceGuid) {
+        return client.getSpaceManagerIdsAsStrings(spaceGuid)
+            .contains(userId);
+    }
+
+    private boolean isUserInSpaceDevelopersUsingCache(CloudControllerClientSupportingCustomUserIds client, String userId, UUID spaceGuid) {
+        return spaceDevelopersCache.get(spaceGuid, (() -> client.getSpaceDeveloperIdsAsStrings(spaceGuid)))
+            .contains(userId);
+    }
+
+    private boolean isUserInSpaceDevelopersAfterCacheRefresh(CloudControllerClientSupportingCustomUserIds client, String userId,
+        UUID spaceGuid) {
+        return spaceDevelopersCache.forceRefresh(spaceGuid, (() -> client.getSpaceDeveloperIdsAsStrings(spaceGuid)))
+            .contains(userId);
     }
 
     private boolean hasPermissions(CloudControllerClientSupportingCustomUserIds client, String userId, String orgName, String spaceName,

@@ -1,12 +1,15 @@
 package com.sap.cloud.lm.sl.cf.web.security;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
@@ -27,6 +30,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.sap.cloud.lm.sl.cf.client.CloudControllerClientSupportingCustomUserIds;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
+import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -41,6 +45,8 @@ public class AuthorizationCheckerTest {
     private static final String USER_ID = "userId";
     private static final String USERNAME = "userName";
     private static final String SPACE_ID = "a72df2e8-b06c-44b2-a8fa-5cadb0239573";
+    private static final String SECOND_SPACE_ID = "a72df2e8-b06c-44b2-a8fa-00001234abcd";
+    private static final String THIRD_SPACE_ID = "1234f2e8-b06c-44b2-a8fa-000012344321";
 
     @Mock
     private CloudControllerClientProvider clientProvider;
@@ -120,6 +126,49 @@ public class AuthorizationCheckerTest {
         assertThrows(Exception.class, () -> authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
     }
 
+    @Test
+    public void testSpaceDevelopersCache() {
+        setUpMocks(true, true, null);
+        when(applicationConfiguration.getPlatformType()).thenReturn(PlatformType.CF);
+        when(client.getSpaceDeveloperIdsAsStrings(Mockito.eq(UUID.fromString(SPACE_ID)))).thenReturn(Arrays.asList(USER_ID));
+        when(client.getSpaceDeveloperIdsAsStrings(Mockito.eq(UUID.fromString(SECOND_SPACE_ID)))).thenReturn(Arrays.asList(USER_ID));
+
+        assertTrue(authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
+        Mockito.verify(client, Mockito.times(1))
+            .getSpaceDeveloperIdsAsStrings(Mockito.eq(UUID.fromString(SPACE_ID)));
+
+        assertTrue(authorizationChecker.checkPermissions(userInfo, SPACE_ID, false));
+        Mockito.verify(client, Mockito.times(1))
+            .getSpaceDeveloperIdsAsStrings(Mockito.eq(UUID.fromString(SPACE_ID)));
+
+        assertTrue(authorizationChecker.checkPermissions(userInfo, SECOND_SPACE_ID, false));
+        Mockito.verify(client, Mockito.times(1))
+            .getSpaceDeveloperIdsAsStrings(Mockito.eq(UUID.fromString(SPACE_ID)));
+        Mockito.verify(client, Mockito.times(1))
+            .getSpaceDeveloperIdsAsStrings(Mockito.eq(UUID.fromString(SECOND_SPACE_ID)));
+    }
+
+    @Test
+    public void testSpaceDevelopersCacheNegativeResult() {
+        setUpMocks(true, true, null);
+        when(applicationConfiguration.getPlatformType()).thenReturn(PlatformType.CF);
+        when(client.getSpaceDeveloperIdsAsStrings(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)))).thenReturn(Arrays.asList(USER_ID));
+
+        assertTrue(authorizationChecker.checkPermissions(userInfo, THIRD_SPACE_ID, false));
+        Mockito.verify(client, Mockito.times(1))
+            .getSpaceDeveloperIdsAsStrings(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)));
+
+        String newUserId = "newId";
+        UserInfo negativeUser = new UserInfo(newUserId, "newUser", userInfo.getToken());
+        when(client.getSpaceDeveloperIdsAsStrings(Mockito.eq(UUID.fromString(THIRD_SPACE_ID))))
+            .thenReturn(Arrays.asList(USER_ID, newUserId));
+        when(clientProvider.getControllerClient(negativeUser.getName())).thenReturn(client);
+
+        assertTrue(authorizationChecker.checkPermissions(negativeUser, THIRD_SPACE_ID, false));
+        Mockito.verify(client, Mockito.times(2))
+            .getSpaceDeveloperIdsAsStrings(Mockito.eq(UUID.fromString(THIRD_SPACE_ID)));
+    }
+
     private void setUpMocks(boolean hasPermissions, boolean hasAccess, Exception e) {
         DefaultOAuth2AccessToken accessToken = new DefaultOAuth2AccessToken("testTokenValue");
         accessToken.setScope(new HashSet<>());
@@ -146,5 +195,7 @@ public class AuthorizationCheckerTest {
         }
 
         when(clientProvider.getControllerClient(userInfo.getName())).thenReturn(client);
+        when(applicationConfiguration.getFssCacheUpdateTimeoutMinutes())
+            .thenReturn(ApplicationConfiguration.DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
     }
 }
