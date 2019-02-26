@@ -30,4 +30,10 @@ public class CachedObject<T> {
         return object;
     }
 
+    public synchronized T forceRefresh(Supplier<T> refreshFunction) {
+        lastRefreshTime = currentTimeSupplier.get();
+        object = refreshFunction.get();
+        return object;
+    }
+
 }
