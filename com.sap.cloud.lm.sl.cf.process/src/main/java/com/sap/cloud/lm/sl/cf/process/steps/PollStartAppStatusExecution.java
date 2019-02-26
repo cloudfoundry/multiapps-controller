@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
-import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -34,7 +33,6 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     private RecentLogsRetriever recentLogsRetriever;
-    private ApplicationConfiguration configuration;
 
     public PollStartAppStatusExecution(RecentLogsRetriever recentLogsRetriever) {
         this.recentLogsRetriever = recentLogsRetriever;
@@ -50,7 +48,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
                 .debug(Messages.CHECKING_APP_STATUS, app.getName());
 
             StartupStatus status = getStartupStatus(execution, client, app.getName());
-            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger().getProcessLoggerProvider();
+            ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
+                .getProcessLoggerProvider();
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
             return checkStartupStatus(execution, app, status);
         } catch (CloudOperationException coe) {
@@ -165,7 +164,8 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         }
 
         // Print message
-        String message = format(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances, String.join(",", stateStrings));
+        String message = format(Messages.APPLICATION_0_X_OF_Y_INSTANCES_RUNNING, appName, runningInstances, expectedInstances,
+            String.join(",", stateStrings));
         execution.getStepLogger()
             .debug(message);
     }
