@@ -89,6 +89,7 @@ public class ApplicationConfiguration {
     static final String CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = "AUDIT_LOG_CLIENT_QUEUE_CAPACITY";
     static final String CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE = "AUDIT_LOG_CLIENT_KEEP_ALIVE";
     static final String CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = "FSS_CACHE_UPDATE_TIMEOUT_MINUTES";
+    static final String CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = "SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -136,6 +137,7 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = 8;
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE = 60;
     public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
+    public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
 
     // Type names
     private static final Map<String, PlatformType> TYPE_NAMES = createTypeNames();
@@ -188,6 +190,7 @@ public class ApplicationConfiguration {
     private Integer auditLogClientQueueCapacity;
     private Integer auditLogClientKeepAlive;
     private Integer fssCacheUpdateTimeoutMinutes;
+    private Integer spaceDeveloperCacheTimeInSeconds;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -545,6 +548,13 @@ public class ApplicationConfiguration {
             fssCacheUpdateTimeoutMinutes = getFssCacheUpdateTimeoutMinutesFromEnvironment();
         }
         return fssCacheUpdateTimeoutMinutes;
+    }
+
+    public Integer getSpaceDeveloperCacheExpirationInSeconds() {
+        if (spaceDeveloperCacheTimeInSeconds == null) {
+            spaceDeveloperCacheTimeInSeconds = getSpaceDeveloperCacheTimeInSecondsFromEnvironment();
+        }
+        return spaceDeveloperCacheTimeInSeconds;
     }
 
     private PlatformType getPlatformTypeFromEnvironment() {
@@ -917,6 +927,13 @@ public class ApplicationConfiguration {
     private Integer getFssCacheUpdateTimeoutMinutesFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES, DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES);
         LOGGER.info(format(Messages.FSS_CACHE_UPDATE_TIMEOUT, value));
+        return value;
+    }
+
+    private Integer getSpaceDeveloperCacheTimeInSecondsFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS,
+            DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
+        LOGGER.info(format(Messages.SPACE_DEVELOPERS_CACHE_TIME_IN_SECONDS, value));
         return value;
     }
 
