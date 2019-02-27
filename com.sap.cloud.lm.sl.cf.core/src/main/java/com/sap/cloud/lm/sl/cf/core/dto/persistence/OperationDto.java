@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.core.dto.persistence;
 
 import java.util.Date;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -13,6 +14,7 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "operation")
+@Cacheable(false)
 @NamedQueries({ @NamedQuery(name = "find_all", query = "SELECT o FROM OperationDto o ORDER BY o.startedAt"),
     // TODO: Replace this named query by building it dynamically with JPA's criteria API (requires JPA 2.1).
     @NamedQuery(name = "remove_expired_in_final_state", query = "DELETE FROM OperationDto o WHERE o.finalState IS NOT NULL AND o.startedAt < :expirationTime") })
