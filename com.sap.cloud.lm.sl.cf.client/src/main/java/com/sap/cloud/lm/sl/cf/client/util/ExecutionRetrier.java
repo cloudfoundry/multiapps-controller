@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.ResourceAccessException;
 
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
+
 public class ExecutionRetrier {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionRetrier.class);
@@ -56,7 +58,7 @@ public class ExecutionRetrier {
                 }
                 LOGGER.warn("Retrying failed request with message: " + e.getMessage());
             }
-            sleep(waitTimeBetweenRetriesInMillis);
+            CommonUtil.sleep(waitTimeBetweenRetriesInMillis);
         }
         try {
             return supplier.get();
@@ -91,14 +93,6 @@ public class ExecutionRetrier {
                 .equals(HttpStatus.BAD_GATEWAY)
             || e.getStatusCode()
                 .equals(HttpStatus.SERVICE_UNAVAILABLE);
-    }
-
-    private void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            throw new IllegalStateException("Waiting to retry operation was interrupted", e);
-        }
     }
 
 }
