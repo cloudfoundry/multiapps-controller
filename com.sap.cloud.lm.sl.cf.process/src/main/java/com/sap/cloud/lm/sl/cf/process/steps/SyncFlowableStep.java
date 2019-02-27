@@ -68,7 +68,7 @@ public abstract class SyncFlowableStep implements JavaDelegate, TaskIdProvider {
         return StepPhase.EXECUTE;
     }
 
-    protected ExecutionWrapper createExecutionWrapper(DelegateExecution context) {
+    public ExecutionWrapper createExecutionWrapper(DelegateExecution context) {
         return new ExecutionWrapper(context, stepLogger, clientProvider);
     }
 
@@ -96,7 +96,7 @@ public abstract class SyncFlowableStep implements JavaDelegate, TaskIdProvider {
         return stepLogger;
     }
 
-    protected void initializeStepLogger(DelegateExecution context) {
+    public void initializeStepLogger(DelegateExecution context) {
         stepLogger = stepLoggerFactory.create(context, progressMessageService, processLoggerProvider, logger);
     }
 
