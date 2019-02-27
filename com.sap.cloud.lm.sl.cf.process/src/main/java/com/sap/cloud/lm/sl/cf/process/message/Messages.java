@@ -25,7 +25,7 @@ public class Messages {
     public static final String CANT_DELETE_SERVICE = "Service \"{0}\" cannot be deleted because there are external applications bound to it";
     public static final String ERROR_RETRIEVING_REQUIRED_SERVICE_KEY_ELEMENT = "Unable to retrieve required service key element \"{0}\" for service \"{1}\"";
     public static final String EMPTY_CREDENTIALS_FOR_SERVICE_KEY_FOR_SERVICE = "Error retrieving credentials for service key \"{0}\" for service \"{1}\"";
-    public static final String MISSING_REQUIRED_PROPERTY_IN_SERVICE_KEY_CREDENTIALS = "Error retrieving required property \"{0}\" for service key \"{1}\" for service \"{12}\"";
+    public static final String MISSING_REQUIRED_PROPERTY_IN_SERVICE_KEY_CREDENTIALS = "Error retrieving required property \"{0}\" for service key \"{1}\" for service \"{2}\"";
     public static final String TARGETED_ORG_DOES_NOT_MATCH_URL_ORG = "Deploy target organization \"{0}\" does not match the organization \"{1}\" specified in the URL";
     public static final String TARGETED_SPACE_DOES_NOT_MATCH_URL_SPACE = "Deploy target space \"{0}\" does not match the space \"{1}\" specified in the URL";
     public static final String ERROR_PARAMETER_1_MUST_NOT_BE_NEGATIVE = "Value \"{0}\" of parameter \"{1}\" must not be negative";
