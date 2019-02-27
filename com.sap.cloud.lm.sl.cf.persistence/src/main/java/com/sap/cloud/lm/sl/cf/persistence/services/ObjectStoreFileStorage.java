@@ -26,6 +26,7 @@ import com.google.common.net.MediaType;
 import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
+import com.sap.cloud.lm.sl.common.util.CommonUtil;
 
 public class ObjectStoreFileStorage implements FileStorage {
 
@@ -124,7 +125,7 @@ public class ObjectStoreFileStorage implements FileStorage {
                     throw e;
                 }
             }
-            sleep(i * RETRY_BASE_WAIT_TIME_IN_MILLIS);
+            CommonUtil.sleep(i * RETRY_BASE_WAIT_TIME_IN_MILLIS);
         }
     }
 
@@ -199,14 +200,6 @@ public class ObjectStoreFileStorage implements FileStorage {
             is.close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
-        }
-    }
-
-    private void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            throw new IllegalStateException("Waiting to retry blob upload was interrupted", e);
         }
     }
 
