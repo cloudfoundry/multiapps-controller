@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.cloudfoundry.client.lib.util.RestUtil;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +98,7 @@ public class EndProcessListener extends AbstractProcessExecutionListener {
     }
 
     protected void sendStatistics(DelegateExecution context) {
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = new RestUtil().createRestTemplate(null, false);
         AnalyticsData collectedData = dataSender.collectAnalyticsData(context, State.FINISHED);
         dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(context, collectedData));
     }

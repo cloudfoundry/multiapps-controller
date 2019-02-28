@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.util.RestUtil;
 import org.flowable.common.engine.api.delegate.event.AbstractFlowableEventListener;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
@@ -168,7 +169,7 @@ public class AbortProcessListener extends AbstractFlowableEventListener implemen
 
     protected void sendStatistics(FlowableEngineEvent event) {
         DelegateExecution context = new FlowableEngineEventToDelegateExecutionAdapter(event);
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = new RestUtil().createRestTemplate(null, false);
         AnalyticsData collectedData = dataSender.collectAnalyticsData(context, State.ABORTED);
         dataSender.sendCollectedData(restTemplate, dataSender.convertCollectedAnalyticsDataToXml(context, collectedData));
     }
