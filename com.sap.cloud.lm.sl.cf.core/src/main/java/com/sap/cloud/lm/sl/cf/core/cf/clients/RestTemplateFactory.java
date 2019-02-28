@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.cloudfoundry.client.lib.util.RestUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
@@ -15,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateFactory {
 
     public RestTemplate getRestTemplate(CloudControllerClient client) {
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = new RestUtil().createRestTemplate(null, false);
         restTemplate.setRequestFactory(new HttpRequestFactory(restTemplate.getRequestFactory(), client));
         return restTemplate;
     }
