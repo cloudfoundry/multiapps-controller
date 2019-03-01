@@ -5,8 +5,9 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Component;
+
+import com.sap.cloud.lm.sl.cf.core.security.token.store.SingleUserTokenStore;
 
 /**
  * Provides functionality for persisting, updating and removing tokens from a token store
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class TokenService {
 
     @Autowired
-    protected JdbcTokenStore tokenStore;
+    protected SingleUserTokenStore tokenStore;
 
     /**
      * Chooses a token among all tokens for this user in the token store.

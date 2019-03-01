@@ -45,4 +45,6 @@
     <include
         file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_configuration_registry_table_extend_provider_id_column.xml" />
     <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-drop_deploy_target_tables.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-delete_content_oauth_access_token_table.xml" />
+    <include file="com/sap/cloud/lm/sl/cf/core/db/changelog/db-changelog-alter_oauth_access_token_table_add_username_constraint.xml" />
 </databaseChangeLog>

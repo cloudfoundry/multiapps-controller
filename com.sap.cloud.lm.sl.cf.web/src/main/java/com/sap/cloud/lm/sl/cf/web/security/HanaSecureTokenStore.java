@@ -24,13 +24,13 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.common.util.SerializationUtils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
+import com.sap.cloud.lm.sl.cf.core.security.token.store.SingleUserTokenStore;
 import com.sap.cloud.lm.sl.cf.web.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.util.CompressUtil;
 
-public class HanaSecureTokenStore extends JdbcTokenStore {
+public class HanaSecureTokenStore extends SingleUserTokenStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HanaSecureTokenStore.class);
 
