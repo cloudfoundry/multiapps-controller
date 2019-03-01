@@ -88,6 +88,9 @@ public class ApplicationConfiguration {
     static final String CFG_AUDIT_LOG_CLIENT_MAX_THREADS = "AUDIT_LOG_CLIENT_MAX_THREADS";
     static final String CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = "AUDIT_LOG_CLIENT_QUEUE_CAPACITY";
     static final String CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE = "AUDIT_LOG_CLIENT_KEEP_ALIVE";
+    static final String CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS = "FLOWABLE_JOB_EXECUTOR_CORE_THREADS";
+    static final String CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS = "FLOWABLE_JOB_EXECUTOR_MAX_THREADS";
+    static final String CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = "FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY";
     static final String CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = "FSS_CACHE_UPDATE_TIMEOUT_MINUTES";
     static final String CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = "SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS";
 
@@ -136,6 +139,9 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_MAX_THREADS = 8;
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_QUEUE_CAPACITY = 8;
     public static final Integer DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE = 60;
+    public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS = 8;
+    public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS = 32;
+    public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = 16;
     public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
     public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
 
@@ -189,6 +195,9 @@ public class ApplicationConfiguration {
     private Integer auditLogClientMaxThreads;
     private Integer auditLogClientQueueCapacity;
     private Integer auditLogClientKeepAlive;
+    private Integer flowableJobExecutorCoreThreads;
+    private Integer flowableJobExecutorMaxThreads;
+    private Integer flowableJobExecutorQueueCapacity;
     private Integer fssCacheUpdateTimeoutMinutes;
     private Integer spaceDeveloperCacheTimeInSeconds;
 
@@ -541,6 +550,27 @@ public class ApplicationConfiguration {
             auditLogClientKeepAlive = getAuditLogClientKeepAliveFromEnvironment();
         }
         return auditLogClientKeepAlive;
+    }
+
+    public Integer getFlowableJobExecutorCoreThreads() {
+        if (flowableJobExecutorCoreThreads == null) {
+            flowableJobExecutorCoreThreads = getFlowableJobExecutorCoreThreadsFromEnvironment();
+        }
+        return flowableJobExecutorCoreThreads;
+    }
+
+    public Integer getFlowableJobExecutorMaxThreads() {
+        if (flowableJobExecutorMaxThreads == null) {
+            flowableJobExecutorMaxThreads = getFlowableJobExecutorMaxThreadsFromEnvironment();
+        }
+        return flowableJobExecutorMaxThreads;
+    }
+
+    public Integer getFlowableJobExecutorQueueCapacity() {
+        if (flowableJobExecutorQueueCapacity == null) {
+            flowableJobExecutorQueueCapacity = getFlowableJobExecutorQueueCapacityFromEnvironment();
+        }
+        return flowableJobExecutorQueueCapacity;
     }
 
     public Integer getFssCacheUpdateTimeoutMinutes() {
@@ -912,6 +942,25 @@ public class ApplicationConfiguration {
     private Integer getAuditLogClientKeepAliveFromEnvironment() {
         Integer value = environment.getPositiveInteger(CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, DEFAULT_AUDIT_LOG_CLIENT_KEEP_ALIVE);
         LOGGER.info(format(Messages.AUDIT_LOG_CLIENT_KEEP_ALIVE, value));
+        return value;
+    }
+
+    private Integer getFlowableJobExecutorCoreThreadsFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, DEFAULT_FLOWABLE_JOB_EXECUTOR_CORE_THREADS);
+        LOGGER.info(format(Messages.FLOWABLE_JOB_EXECUTOR_CORE_THREADS, value));
+        return value;
+    }
+
+    private Integer getFlowableJobExecutorMaxThreadsFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, DEFAULT_FLOWABLE_JOB_EXECUTOR_MAX_THREADS);
+        LOGGER.info(format(Messages.FLOWABLE_JOB_EXECUTOR_MAX_THREADS, value));
+        return value;
+    }
+
+    private Integer getFlowableJobExecutorQueueCapacityFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
+            DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY);
+        LOGGER.info(format(Messages.FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, value));
         return value;
     }
 

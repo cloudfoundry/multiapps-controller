@@ -36,9 +36,6 @@ public class FlowableConfiguration {
 
     private static final String DATABASE_SCHEMA_UPDATE = "true";
 
-    private static final int JOB_EXECUTOR_QUEUE_SIZE = 16;
-    private static final int JOB_EXECUTOR_CORE_POOL_SIZE = 8;
-    private static final int JOB_EXECUTOR_MAX_POOL_SIZE = 32;
     private static final int JOB_EXECUTOR_LOCK_TIME_IN_MILLIS = (int) TimeUnit.MINUTES.toMillis(30);
     private static final String JOB_EXECUTOR_ID_TEMPLATE = "ds-%s/%d/%s";
 
@@ -49,7 +46,7 @@ public class FlowableConfiguration {
 
     @Inject
     @Bean
-    @DependsOn ("coreChangelog")
+    @DependsOn("coreChangelog")
     public ProcessEngine processEngine(ApplicationContext applicationContext, SpringProcessEngineConfiguration processEngineConfiguration)
         throws Exception {
         ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
@@ -60,7 +57,7 @@ public class FlowableConfiguration {
 
     @Inject
     @Bean
-    @DependsOn ("coreChangelog")
+    @DependsOn("coreChangelog")
     public SpringProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager,
         AsyncExecutor jobExecutor) {
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
@@ -92,18 +89,18 @@ public class FlowableConfiguration {
 
     @Inject
     @Bean
-    public AsyncExecutor jobExecutor(String jobExecutorId) {
+    public AsyncExecutor jobExecutor(ApplicationConfiguration configuration, String jobExecutorId) {
         DefaultAsyncJobExecutor jobExecutor = new DefaultAsyncJobExecutor();
-        scale(jobExecutor);
+        scale(configuration, jobExecutor);
         jobExecutor.setAsyncJobLockTimeInMillis(JOB_EXECUTOR_LOCK_TIME_IN_MILLIS);
         jobExecutor.setLockOwner(jobExecutorId);
         return jobExecutor;
     }
 
-    protected void scale(DefaultAsyncJobExecutor jobExecutor) {
-        jobExecutor.setQueueSize(JOB_EXECUTOR_QUEUE_SIZE);
-        jobExecutor.setCorePoolSize(JOB_EXECUTOR_CORE_POOL_SIZE);
-        jobExecutor.setMaxPoolSize(JOB_EXECUTOR_MAX_POOL_SIZE);
+    protected void scale(ApplicationConfiguration configuration, DefaultAsyncJobExecutor jobExecutor) {
+        jobExecutor.setQueueSize(configuration.getFlowableJobExecutorQueueCapacity());
+        jobExecutor.setCorePoolSize(configuration.getFlowableJobExecutorCoreThreads());
+        jobExecutor.setMaxPoolSize(configuration.getFlowableJobExecutorMaxThreads());
     }
 
     @Inject
