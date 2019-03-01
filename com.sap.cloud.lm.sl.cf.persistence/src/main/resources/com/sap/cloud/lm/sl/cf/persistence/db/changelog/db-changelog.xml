@@ -43,5 +43,7 @@
         file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-postgresql_add_unlink_file_content_triggers.xml" />
     <include
         file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-alter_progress_message_drop_task_execution_id_column.xml" />
+    <include
+        file="com/sap/cloud/lm/sl/cf/persistence/db/changelog/db-changelog-remove_process_log_unique_constraint.xml" />
 
 </databaseChangeLog>

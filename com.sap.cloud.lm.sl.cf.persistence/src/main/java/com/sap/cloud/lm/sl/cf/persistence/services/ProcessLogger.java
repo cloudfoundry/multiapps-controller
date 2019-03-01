@@ -74,7 +74,7 @@ public class ProcessLogger extends Logger {
 
     public synchronized void persistLogFile(ProcessLogsPersistenceService processLogsPersistenceService) {
         if (log.exists()) {
-            processLogsPersistenceService.appendLog(spaceId, processId, log, logName);
+            processLogsPersistenceService.persistLog(spaceId, processId, log, logName);
         }
     }
 
