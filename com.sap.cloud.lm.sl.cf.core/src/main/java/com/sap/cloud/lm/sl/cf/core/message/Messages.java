@@ -157,6 +157,9 @@ public final class Messages {
     public static final String AUDIT_LOG_CLIENT_MAX_THREADS = "Audit log client max threads: {0}";
     public static final String AUDIT_LOG_CLIENT_QUEUE_CAPACITY = "Audit log client queue capacity: {0}";
     public static final String AUDIT_LOG_CLIENT_KEEP_ALIVE = "Audit log client keep alive: {0}";
+    public static final String FLOWABLE_JOB_EXECUTOR_CORE_THREADS = "Flowable job executor core threads: {0}";
+    public static final String FLOWABLE_JOB_EXECUTOR_MAX_THREADS = "Flowable job executor max threads: {0}";
+    public static final String FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = "Flowable job executor queue capacity: {0}";
 
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION = "About to perform action \"{0}\"";
     public static final String AUDIT_LOG_ABOUT_TO_PERFORM_ACTION_WITH_PARAMS = "About to perform action \"{0}\" with parameters \"{1}\"";
