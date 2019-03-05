@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileUploadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.query.providers.ExternalSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.security.VirusScanner;
 import com.sap.cloud.lm.sl.cf.persistence.security.VirusScannerException;
@@ -46,8 +47,12 @@ public class FileService {
     }
 
     public FileService(String tableName, DataSourceWithDialect dataSourceWithDialect, FileStorage fileStorage) {
+        this(dataSourceWithDialect, new ExternalSqlFileQueryProvider(tableName, dataSourceWithDialect.getDataSourceDialect()), fileStorage);
+    }
+
+    protected FileService(DataSourceWithDialect dataSourceWithDialect, SqlFileQueryProvider sqlFileQueryProvider, FileStorage fileStorage) {
         this.sqlQueryExecutor = new SqlQueryExecutor(dataSourceWithDialect.getDataSource());
-        this.sqlFileQueryProvider = new SqlFileQueryProvider(tableName, dataSourceWithDialect.getDataSourceDialect(), logger);
+        this.sqlFileQueryProvider = sqlFileQueryProvider.withLogger(logger);
         this.fileStorage = fileStorage;
     }
 

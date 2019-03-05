@@ -24,6 +24,12 @@
     </bean>
 
     <beans profile="cf">
+        <bean id="processLogsPersistenceService" class="com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersistenceService">
+            <constructor-arg name="dataSourceWithDialect" ref="dataSourceWithDialect" />
+            <constructor-arg name="isContentStoredAsBlob">
+                <value>false</value>
+            </constructor-arg>
+        </bean>
         <bean id="objectStoreFileStorage" class="com.sap.cloud.lm.sl.cf.web.configuration.bean.factory.ObjectStoreFileStorageFactoryBean">
             <constructor-arg name="serviceName" value="deploy-service-os" />
         </bean>
