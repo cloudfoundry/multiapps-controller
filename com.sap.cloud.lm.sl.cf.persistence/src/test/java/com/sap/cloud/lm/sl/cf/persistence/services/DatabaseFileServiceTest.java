@@ -204,7 +204,7 @@ public class DatabaseFileServiceTest {
     }
 
     protected FileService createFileService(DataSourceWithDialect dataSource) {
-        return new DatabaseFileService(FileService.DEFAULT_TABLE_NAME, dataSource);
+        return new DatabaseFileService(dataSource);
     }
 
     protected FileEntry addTestFile(String space, String namespace) throws Exception {

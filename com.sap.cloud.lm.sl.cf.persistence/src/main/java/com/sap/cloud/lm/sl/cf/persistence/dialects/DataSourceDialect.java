@@ -14,6 +14,10 @@ public interface DataSourceDialect {
 
     void setBlobAsBinaryStream(PreparedStatement ps, int index, InputStream is) throws SQLException;
 
+    InputStream getBinaryStreamFromByteArray(ResultSet rs, String columnName) throws SQLException;
+
+    void setByteArrayAsBinaryStream(PreparedStatement ps, int index, InputStream is) throws SQLException;
+
     BigInteger getBigInteger(ResultSet rs, String columnName) throws SQLException;
 
     void setBigInteger(PreparedStatement ps, int index, BigInteger bi) throws SQLException;

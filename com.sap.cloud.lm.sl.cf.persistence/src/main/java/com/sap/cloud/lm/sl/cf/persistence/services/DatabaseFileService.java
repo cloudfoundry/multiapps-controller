@@ -9,15 +9,21 @@ import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.query.providers.BlobSqlFileQueryProvider;
+import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
 
 public class DatabaseFileService extends FileService {
 
     public DatabaseFileService(DataSourceWithDialect dataSourceWithDialect) {
-        super(dataSourceWithDialect, null);
+        this(DEFAULT_TABLE_NAME, dataSourceWithDialect);
     }
 
     public DatabaseFileService(String tableName, DataSourceWithDialect dataSourceWithDialect) {
-        super(tableName, dataSourceWithDialect, null);
+        this(dataSourceWithDialect, new BlobSqlFileQueryProvider(tableName, dataSourceWithDialect.getDataSourceDialect()));
+    }
+
+    protected DatabaseFileService(DataSourceWithDialect dataSourceWithDialect, SqlFileQueryProvider sqlFileQueryProvider) {
+        super(dataSourceWithDialect, sqlFileQueryProvider, null);
     }
 
     @Override

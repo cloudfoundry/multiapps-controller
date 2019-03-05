@@ -34,4 +34,14 @@ public class DefaultDataSourceDialect implements DataSourceDialect {
         ps.setString(index, bi.toString());
     }
 
+    @Override
+    public InputStream getBinaryStreamFromByteArray(ResultSet rs, String columnName) throws SQLException {
+        return rs.getBinaryStream(columnName);
+    }
+
+    @Override
+    public void setByteArrayAsBinaryStream(PreparedStatement ps, int index, InputStream is) throws SQLException {
+        ps.setBinaryStream(index, is);
+    }
+
 }

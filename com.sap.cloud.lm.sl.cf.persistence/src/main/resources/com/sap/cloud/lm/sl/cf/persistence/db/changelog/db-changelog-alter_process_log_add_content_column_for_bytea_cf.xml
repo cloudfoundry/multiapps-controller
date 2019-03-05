@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    logicalFilePath="com/sap/cloud/lm/sl/persistence/db/changelog/db-changelog-add_trigger_for_lm_sl_persistance_file_process_log_cf.xml"
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet author="sap.com" id="alter_process_log_add_content_column_for_bytea_cf">
+        <preConditions onFail="MARK_RAN">
+            <dbms type="postgresql" />
+            <tableExists tableName="process_log" />
+        </preConditions>
+        <addColumn tableName="process_log" >
+            <column name="content_bytea" type="bytea" />
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

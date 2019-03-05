@@ -150,7 +150,7 @@ public class FileServiceTest extends DatabaseFileServiceTest {
 
     @Override
     protected FileService createFileService(DataSourceWithDialect dataSource) {
-        return new FileService(FileService.DEFAULT_TABLE_NAME, dataSource, fileStorage);
+        return new FileService(dataSource, fileStorage);
     }
 
     @Override
