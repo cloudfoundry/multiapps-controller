@@ -22,6 +22,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersValidator;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
@@ -46,9 +47,9 @@ public class HelperFactory implements HelperFactoryConstructor {
     @Override
     public ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
         CloudModelConfiguration configuration, DeployedMta deployedMta, SystemParameters systemParameters,
-        XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
+        XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger stepLogger) {
         return new ApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters, xsPlaceholderResolver,
-            deployId);
+            deployId, stepLogger);
     }
 
     @Override

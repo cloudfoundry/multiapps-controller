@@ -70,7 +70,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
             new ResolverBuilder(), new ResolverBuilder()).resolve();
         return new com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationsCloudModelBuilder(
             (com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor) deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, DEPLOY_ID);
+            xsPlaceholderResolver, DEPLOY_ID, Mockito.mock(UserMessageLogger.class));
     }
 
     @Override

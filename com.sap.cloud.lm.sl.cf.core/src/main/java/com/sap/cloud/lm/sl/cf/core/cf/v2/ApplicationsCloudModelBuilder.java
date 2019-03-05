@@ -39,6 +39,7 @@ import com.sap.cloud.lm.sl.cf.core.parser.RestartParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.StagingParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.TaskParametersParser;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -70,11 +71,12 @@ public class ApplicationsCloudModelBuilder {
     protected CloudServiceNameMapper cloudServiceNameMapper;
     protected XsPlaceholderResolver xsPlaceholderResolver;
     protected DeployedMta deployedMta;
+    protected UserMessageLogger stepLogger;
 
     protected ParametersChainBuilder parametersChainBuilder;
 
     public ApplicationsCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration,
-        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId) {
+        DeployedMta deployedMta, SystemParameters systemParameters, XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger stepLogger) {
         HandlerFactory handlerFactory = createHandlerFactory();
         this.handler = handlerFactory.getDescriptorHandler();
         this.deploymentDescriptor = deploymentDescriptor;
@@ -86,6 +88,7 @@ public class ApplicationsCloudModelBuilder {
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployedMta = deployedMta;
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
+        this.stepLogger = stepLogger;
     }
 
     protected HandlerFactory createHandlerFactory() {
@@ -207,7 +210,9 @@ public class ApplicationsCloudModelBuilder {
         applicationEnvCloudModelBuilder.removeSpecialApplicationProperties(merged);
         applicationEnvCloudModelBuilder.removeSpecialServiceProperties(merged);
         for (String parameterName : merged.keySet()) {
-            LOGGER.warn(MessageFormat.format(Messages.UNSUPPORTED_PARAMETER, parameterName));
+            String warningMessage = MessageFormat.format(Messages.UNSUPPORTED_PARAMETER, parameterName);
+            stepLogger.warnWithoutProgressMessage(warningMessage);
+            LOGGER.debug(warningMessage);
         }
     }
 
