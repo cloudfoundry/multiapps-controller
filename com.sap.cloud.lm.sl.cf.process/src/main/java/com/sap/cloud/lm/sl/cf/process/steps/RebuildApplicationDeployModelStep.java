@@ -97,7 +97,7 @@ public class RebuildApplicationDeployModelStep extends SyncFlowableStep {
     }
 
     private ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getApplicationsCloudModelBuilder(context);
+        return StepsUtil.getApplicationsCloudModelBuilder(context,getStepLogger());
     }
 
     private ConfigurationEntriesCloudModelBuilder getConfigurationEntriesCloudModelBuilder(DelegateExecution context) {

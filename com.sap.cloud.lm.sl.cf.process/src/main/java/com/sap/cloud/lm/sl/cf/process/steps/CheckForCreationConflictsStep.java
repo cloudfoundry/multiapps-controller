@@ -38,7 +38,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class CheckForCreationConflictsStep extends SyncFlowableStep {
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
+    protected StepPhase executeStep(ExecutionWrapper execution) throws CloudOperationException, SLException {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
         List<CloudApplication> deployedApps = StepsUtil.getDeployedApps(execution.getContext());
         try {

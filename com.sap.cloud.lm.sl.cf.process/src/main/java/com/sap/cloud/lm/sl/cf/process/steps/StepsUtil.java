@@ -58,6 +58,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
 import com.sap.cloud.lm.sl.cf.core.model.ModuleToDeploy;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
@@ -944,7 +945,7 @@ public class StepsUtil {
 
     public static final String DEPLOY_ID_PREFIX = "deploy-";
 
-    static ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {
+    static ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context, UserMessageLogger stepLogger) {
 
         CloudModelConfiguration configuration = getCloudBuilderConfiguration(context, true);
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
@@ -959,7 +960,7 @@ public class StepsUtil {
         DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
 
         return handlerFactory.getApplicationsCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
-            xsPlaceholderResolver, deployId);
+            xsPlaceholderResolver, deployId, stepLogger);
     }
 
     static List<String> getDomainsFromApps(DelegateExecution context, List<CloudApplicationExtended> apps) {

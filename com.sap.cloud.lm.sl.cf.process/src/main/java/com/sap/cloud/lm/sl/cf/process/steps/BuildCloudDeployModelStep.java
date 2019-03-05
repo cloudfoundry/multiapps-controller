@@ -210,7 +210,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getApplicationsCloudModelBuilder(context);
+        return StepsUtil.getApplicationsCloudModelBuilder(context,getStepLogger());
     }
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {
