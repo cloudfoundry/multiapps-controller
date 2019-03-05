@@ -200,6 +200,7 @@ public class ApplicationConfiguration {
     private Integer flowableJobExecutorQueueCapacity;
     private Integer fssCacheUpdateTimeoutMinutes;
     private Integer spaceDeveloperCacheTimeInSeconds;
+    private Map<Integer, Platform> platforms = new HashMap<>();
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -302,6 +303,15 @@ public class ApplicationConfiguration {
     }
 
     public Platform getPlatform(ConfigurationParser parser, int majorVersion) {
+        if (platforms.containsKey(majorVersion)) {
+            return platforms.get(majorVersion);
+        }
+        Platform platform = getPlatformFromEnvironment(parser, majorVersion);
+        platforms.put(majorVersion, platform);
+        return platform;
+    }
+
+    private Platform getPlatformFromEnvironment(ConfigurationParser parser, int majorVersion) {
         switch (majorVersion) {
             case 1:
                 return parsePlatform(environment.getString(CFG_PLATFORM));
@@ -649,8 +659,9 @@ public class ApplicationConfiguration {
         if (json == null) {
             throw new IllegalStateException(Messages.PLATFORMS_NOT_SPECIFIED);
         }
+
         Platform result = parser.parsePlatformJson(json);
-        LOGGER.info(format(Messages.PLATFORMS, JsonUtil.toJson(result, true)));
+        LOGGER.debug(format(Messages.PLATFORMS, JsonUtil.toJson(result, true)));
         return result;
     }
 
@@ -720,7 +731,7 @@ public class ApplicationConfiguration {
             LOGGER.info(format(Messages.ORG_NAME, orgName));
             return orgName.toString();
         }
-        LOGGER.warn(Messages.ORG_NAME_NOT_SPECIFIED);
+        LOGGER.debug(Messages.ORG_NAME_NOT_SPECIFIED);
         return null;
     }
 
@@ -865,7 +876,7 @@ public class ApplicationConfiguration {
 
     private String getGlobalConfigSpaceFromEnvironment() {
         String value = environment.getString(CFG_GLOBAL_CONFIG_SPACE);
-        LOGGER.info(format(Messages.GLOBAL_CONFIG_SPACE, value));
+        LOGGER.debug(format(Messages.GLOBAL_CONFIG_SPACE, value));
         return value;
     }
 
