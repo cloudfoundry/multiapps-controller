@@ -1,5 +1,7 @@
 package com.sap.cloud.lm.sl.cf.web.bootstrap;
 
+import static java.text.MessageFormat.format;
+
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.List;
@@ -56,7 +58,7 @@ public class BootstrapServlet extends HttpServlet {
         super.init(config);
         try {
             SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
-            configuration.load();
+            initializeApplicationConfiguration();
             initializeProviders();
             initializeFileService();
             initExtras();
@@ -69,6 +71,12 @@ public class BootstrapServlet extends HttpServlet {
             LOGGER.error("Initialization error", e);
             throw new ServletException(e);
         }
+    }
+
+    private void initializeApplicationConfiguration() {
+        configuration.load();
+        LOGGER.info(format(com.sap.cloud.lm.sl.cf.core.message.Messages.ORG_NAME, configuration.getOrgName()));
+        LOGGER.info(format(com.sap.cloud.lm.sl.cf.core.message.Messages.GLOBAL_CONFIG_SPACE, configuration.getGlobalConfigSpace()));
     }
 
     protected void initializeFileService() {
