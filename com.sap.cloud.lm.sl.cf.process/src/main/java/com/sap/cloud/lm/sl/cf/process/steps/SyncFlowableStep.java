@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 
-public abstract class SyncFlowableStep implements JavaDelegate, TaskIdProvider {
+public abstract class SyncFlowableStep implements JavaDelegate {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -110,7 +110,7 @@ public abstract class SyncFlowableStep implements JavaDelegate, TaskIdProvider {
 
     protected ProcessStepHelper getStepHelper() {
         if (stepHelper == null) {
-            stepHelper = new ProcessStepHelper(getProgressMessageService(), getStepLogger(), this, getProcessLogsPersister(),
+            stepHelper = new ProcessStepHelper(getProgressMessageService(), getStepLogger(), getProcessLogsPersister(),
                 processEngineConfiguration);
         }
         return stepHelper;
@@ -122,11 +122,6 @@ public abstract class SyncFlowableStep implements JavaDelegate, TaskIdProvider {
 
     protected ProcessLogsPersister getProcessLogsPersister() {
         return processLogsPersister;
-    }
-
-    @Override
-    public String getTaskId(DelegateExecution context) {
-        return context.getCurrentActivityId();
     }
 
 }

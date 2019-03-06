@@ -31,17 +31,15 @@ public class ProcessStepHelper {
     private ProgressMessageService progressMessageService;
     private ProcessLogsPersister processLogsPersister;
     private StepLogger stepLogger;
-    private TaskIdProvider taskIdProvider;
 
     private ProcessEngineConfiguration processEngineConfiguration;
 
-    public ProcessStepHelper(ProgressMessageService progressMessageService, StepLogger stepLogger, TaskIdProvider taskIdProvider,
+    public ProcessStepHelper(ProgressMessageService progressMessageService, StepLogger stepLogger,
         ProcessLogsPersister processLogsPersister, ProcessEngineConfiguration processEngineConfigurationSupplier) {
         this.progressMessageService = progressMessageService;
         this.stepLogger = stepLogger;
         this.processLogsPersister = processLogsPersister;
         this.processEngineConfiguration = processEngineConfigurationSupplier;
-        this.taskIdProvider = taskIdProvider;
     }
 
     protected void postExecuteStep(DelegateExecution context, StepPhase state) {
@@ -53,12 +51,10 @@ public class ProcessStepHelper {
     }
 
     void preExecuteStep(DelegateExecution context, StepPhase initialPhase) {
-        String taskId = taskIdProvider.getTaskId(context);
-
+        String taskId = context.getCurrentActivityId();
         context.setVariable(Constants.TASK_ID, taskId);
 
         deletePreviousErrorType(context);
-
         logTaskStartup(context, taskId);
     }
 
