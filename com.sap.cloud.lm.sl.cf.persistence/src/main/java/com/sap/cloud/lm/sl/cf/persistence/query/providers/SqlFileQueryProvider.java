@@ -28,6 +28,7 @@ public abstract class SqlFileQueryProvider {
     private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s";
     private static final String SELECT_FILES_BY_NAMESPACE_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=?";
+    private static final String SELECT_FILES_BY_NAMESPACE_SPACE_AND_NAME = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE NAMESPACE=? AND SPACE=? AND FILE_NAME=?";
     private static final String SELECT_FILES_BY_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE SPACE=?";
     private static final String SELECT_FILE_BY_ID_AND_SPACE = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s WHERE FILE_ID=? AND SPACE=?";
     private static final String SELECT_FILE_WITH_CONTENT_BY_ID_AND_SPACE = "SELECT FILE_ID, SPACE, %s FROM %s WHERE FILE_ID=? AND SPACE=?";
@@ -106,6 +107,28 @@ public abstract class SqlFileQueryProvider {
                     statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_SPACE));
                     statement.setString(1, space);
                 }
+                resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    files.add(getFileEntry(resultSet));
+                }
+                return files;
+            } finally {
+                JdbcUtil.closeQuietly(resultSet);
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    public SqlQuery<List<FileEntry>> getListFilesQuery(final String space, final String namespace, final String fileName) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            ResultSet resultSet = null;
+            try {
+                List<FileEntry> files = new ArrayList<>();
+                statement = connection.prepareStatement(getQuery(SELECT_FILES_BY_NAMESPACE_SPACE_AND_NAME));
+                statement.setString(1, namespace);
+                statement.setString(2, space);
+                statement.setString(3, fileName);
                 resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     files.add(getFileEntry(resultSet));
