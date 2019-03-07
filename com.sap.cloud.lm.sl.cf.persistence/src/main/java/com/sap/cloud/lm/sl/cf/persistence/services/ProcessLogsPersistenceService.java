@@ -51,7 +51,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     public String getLogContent(String space, String namespace, String logName) throws FileStorageException {
         final StringBuilder builder = new StringBuilder();
-        List<String> logIds = getSortedFileIds(space, namespace, logName);
+        List<String> logIds = getSortedByTimestampFileIds(space, namespace, logName);
 
         FileContentProcessor streamProcessor = new FileContentProcessor() {
             @Override
@@ -65,14 +65,22 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         return builder.toString();
     }
 
-    private List<String> getSortedFileIds(String space, String namespace, String fileName) throws FileStorageException {
-        List<FileEntry> listFiles = listFiles(space, namespace);
+    private List<String> getSortedByTimestampFileIds(String space, String namespace, String fileName) throws FileStorageException {
+        List<FileEntry> listFiles = listFiles(space, namespace, fileName);
         return listFiles.stream()
-            .filter(file -> fileName.equals(file.getName()))
             .sorted((FileEntry f1, FileEntry f2) -> f1.getModified()
                 .compareTo(f2.getModified()))
             .map(file -> file.getId())
             .collect(Collectors.toList());
+    }
+
+    private List<FileEntry> listFiles(final String space, final String namespace, final String fileName) throws FileStorageException {
+        try {
+            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesQuery(space, namespace, fileName));
+        } catch (SQLException e) {
+            throw new FileStorageException(
+                MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_NAMESPACE_AND_NAME, space, namespace, fileName), e);
+        }
     }
 
     public void persistLog(String space, String namespace, File localLog, String remoteLogName) {
