@@ -44,7 +44,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     public List<String> getLogNames(String space, String namespace) throws FileStorageException {
         List<FileEntry> logFiles = listFiles(space, namespace);
         return logFiles.stream()
-            .map(entry -> entry.getName())
+            .map(FileEntry::getName)
             .distinct()
             .collect(Collectors.toList());
     }
@@ -52,6 +52,9 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
     public String getLogContent(String space, String namespace, String logName) throws FileStorageException {
         final StringBuilder builder = new StringBuilder();
         List<String> logIds = getSortedByTimestampFileIds(space, namespace, logName);
+        if (logIds.isEmpty()) {
+            return null;
+        }
 
         FileContentProcessor streamProcessor = new FileContentProcessor() {
             @Override
@@ -70,7 +73,7 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         return listFiles.stream()
             .sorted((FileEntry f1, FileEntry f2) -> f1.getModified()
                 .compareTo(f2.getModified()))
-            .map(file -> file.getId())
+            .map(FileEntry::getId)
             .collect(Collectors.toList());
     }
 
