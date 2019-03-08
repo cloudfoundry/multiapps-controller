@@ -113,7 +113,7 @@ public class Messages {
     public static final String ERROR_STAGING_APP_2 = "Staging of application \"{0}\" failed. Download the application logs via the dmol command and check them for more information.";
     public static final String ERROR_PUBLISHING_PUBLIC_PROVIDED_DEPENDENCIES = "Error publishing public provided dependecies";
     public static final String ERROR_STARTING_APP_1 = "Error starting application \"{0}\"";
-    public static final String ERROR_STARTING_APP_2 = "Staging of application \"{0}\" failed. Download the application logs via the dmol command and check them for more information.";
+    public static final String ERROR_STARTING_APP_2 = "Starting of application \"{0}\" failed. Download the application logs via the dmol command and check them for more information.";
     public static final String ERROR_EXECUTING_APP_1 = "Error executing application \"{0}\"";
     public static final String ERROR_EXECUTING_APP_2 = "Error executing application \"{0}\": {1}";
     public static final String ERROR_PREPARING_TO_EXECUTE_TASKS_ON_APP = "Error preparing to execute tasks on application \"{0}\"";
