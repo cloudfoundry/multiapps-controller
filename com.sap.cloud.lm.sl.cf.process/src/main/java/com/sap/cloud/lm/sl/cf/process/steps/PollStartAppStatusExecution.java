@@ -40,24 +40,28 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
-        CloudApplication app = getAppToPoll(execution.getContext());
+        String appToPoll = getAppToPoll(execution.getContext()).getName();
         CloudControllerClient client = execution.getControllerClient();
 
         try {
             execution.getStepLogger()
-                .debug(Messages.CHECKING_APP_STATUS, app.getName());
+                .debug(Messages.CHECKING_APP_STATUS, appToPoll);
 
-            StartupStatus status = getStartupStatus(execution, client, app.getName());
+            // We're using the app object returned by the controller, because it includes the router port in its URIs, while the app model
+            // we've built doesn't.
+            CloudApplication app = client.getApplication(appToPoll);
+            List<InstanceInfo> appInstances = getApplicationInstances(client, app);
+            StartupStatus status = getStartupStatus(execution, app, appInstances);
             ProcessLoggerProvider processLoggerProvider = execution.getStepLogger()
                 .getProcessLoggerProvider();
             StepsUtil.saveAppLogs(execution.getContext(), client, recentLogsRetriever, app, LOGGER, processLoggerProvider);
             return checkStartupStatus(execution, app, status);
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
-            onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
+            onError(execution, format(Messages.ERROR_STARTING_APP_1, appToPoll), e);
             throw e;
         } catch (SLException e) {
-            onError(execution, format(Messages.ERROR_STARTING_APP_1, app.getName()), e);
+            onError(execution, format(Messages.ERROR_STARTING_APP_1, appToPoll), e);
             throw e;
         }
     }
@@ -76,21 +80,18 @@ public class PollStartAppStatusExecution implements AsyncExecution {
         return StepsUtil.getApp(context);
     }
 
-    private StartupStatus getStartupStatus(ExecutionWrapper execution, CloudControllerClient client, String appName) {
-        CloudApplication app = client.getApplication(appName);
-        List<InstanceInfo> instances = getApplicationInstances(client, app);
-
+    private StartupStatus getStartupStatus(ExecutionWrapper execution, CloudApplication app, List<InstanceInfo> appInstances) {
         // The default value here is provided for undeploy processes:
         boolean failOnCrashed = StepsUtil.getVariableOrDefault(execution.getContext(), Constants.PARAM_FAIL_ON_CRASHED, true);
 
-        if (instances != null) {
+        if (appInstances != null) {
             int expectedInstances = app.getInstances();
-            int runningInstances = getInstanceCount(instances, InstanceState.RUNNING);
-            int flappingInstances = getInstanceCount(instances, InstanceState.FLAPPING);
-            int crashedInstances = getInstanceCount(instances, InstanceState.CRASHED);
-            int startingInstances = getInstanceCount(instances, InstanceState.STARTING);
+            int runningInstances = getInstanceCount(appInstances, InstanceState.RUNNING);
+            int flappingInstances = getInstanceCount(appInstances, InstanceState.FLAPPING);
+            int crashedInstances = getInstanceCount(appInstances, InstanceState.CRASHED);
+            int startingInstances = getInstanceCount(appInstances, InstanceState.STARTING);
 
-            showInstancesStatus(execution, appName, instances, runningInstances, expectedInstances);
+            showInstancesStatus(execution, app.getName(), appInstances, runningInstances, expectedInstances);
 
             if (runningInstances == expectedInstances) {
                 return StartupStatus.STARTED;
@@ -110,7 +111,6 @@ public class PollStartAppStatusExecution implements AsyncExecution {
     }
 
     private AsyncExecutionState checkStartupStatus(ExecutionWrapper execution, CloudApplication app, StartupStatus status) {
-
         if (status.equals(StartupStatus.CRASHED) || status.equals(StartupStatus.FLAPPING)) {
             // Application failed to start
             String message = format(Messages.ERROR_STARTING_APP_2, app.getName(), getMessageForStatus(status));
