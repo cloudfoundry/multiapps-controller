@@ -1,5 +1,9 @@
 <p align="center"><img width="335" height="281" src="logo.png" alt="MultiApps logo"></p>
 
+![MTA logo](logo.png)
+
+
+
 # MultiApps Controller [![Build Status](https://travis-ci.org/cloudfoundry-incubator/multiapps-controller.svg?branch=master)](https://travis-ci.org/cloudfoundry-incubator/multiapps-controller)
 
 The MultiApps Controller (formerly known as *deploy service*) for [Cloud Foundry](https://www.cloudfoundry.org/) is based on the [Multi-Target Application (MTA)](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) model in which CF applications are modeled as modules, while CF services as resources. The MTA model enables the delivery of packaged applications, where any target specific configuration could be specified on deployment time without changing application code.
