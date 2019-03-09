@@ -1,8 +1,6 @@
 <p align="center"><img width="335" height="281" src="logo.png" alt="MultiApps logo"></p>
 
-![MTA logo](logo.png)
-
-
+TODO: link landing page here?
 
 # MultiApps Controller [![Build Status](https://travis-ci.org/cloudfoundry-incubator/multiapps-controller.svg?branch=master)](https://travis-ci.org/cloudfoundry-incubator/multiapps-controller)
 
