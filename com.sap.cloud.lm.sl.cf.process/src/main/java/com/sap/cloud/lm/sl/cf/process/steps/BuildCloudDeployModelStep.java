@@ -45,6 +45,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
 import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 public class BuildCloudDeployModelStep extends SyncFlowableStep {
@@ -102,16 +103,20 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
             StepsUtil.setCustomDomains(execution.getContext(), customDomainsFromApps);
             getStepLogger().debug(Messages.CUSTOM_DOMAINS, customDomainsFromApps);
 
-            List<Resource> resourcesCalculatedForDeployment = calculateResourcesForDeployment(execution, deploymentDescriptor);
+            ServicesCloudModelBuilder servicesCloudModelBuilder = getServicesCloudModelBuilder(execution.getContext());
 
-            List<CloudServiceExtended> allServices = getServicesCloudModelBuilder(execution.getContext())
-                .build(resourcesCalculatedForDeployment);
+            List<Resource> resourcesUsedForBindings = calculateResourcesUsedForBindings(deploymentDescriptor,
+                modulesCalculatedForDeployment);
+            List<CloudServiceExtended> servicesForBindings = servicesCloudModelBuilder.build(resourcesUsedForBindings);
 
             // Build a list of services for binding and save them in the context:
-            StepsUtil.setServicesToBind(execution.getContext(), allServices);
+            StepsUtil.setServicesToBind(execution.getContext(), servicesForBindings);
+
+            List<Resource> resourcesForDeployment = calculateResourcesForDeployment(execution, deploymentDescriptor);
+            List<CloudServiceExtended> servicesCalculatedForDeployment = servicesCloudModelBuilder.build(resourcesForDeployment);
 
             // Build a list of services for creation and save them in the context:
-            List<CloudServiceExtended> servicesToCreate = allServices.stream()
+            List<CloudServiceExtended> servicesToCreate = servicesCalculatedForDeployment.stream()
                 .filter(CloudServiceExtended::isManaged)
                 .collect(Collectors.toList());
             getStepLogger().debug(Messages.SERVICES_TO_CREATE, secureSerializer.toJson(servicesToCreate));
@@ -149,6 +154,36 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         List<Resource> resourcesCalculatedForDeployment = calculateResourcesForDeployment(deploymentDescriptor,
             resourcesCloudModelBuilderContentCalculator);
         return resourcesCalculatedForDeployment;
+    }
+
+    private List<Resource> calculateResourcesUsedForBindings(DeploymentDescriptor deploymentDescriptor,
+        List<Module> modulesCalculatedForDeployment) {
+        List<String> resourcesRequiredByModules = calculateResourceNamesRequiredByModules(modulesCalculatedForDeployment,
+            deploymentDescriptor.getResources2());
+        CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(
+            resourcesRequiredByModules, getStepLogger());
+        return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources2());
+    }
+
+    private List<String> calculateResourceNamesRequiredByModules(List<Module> modulesCalculatedForDeployment,
+        List<Resource> resourcesInDeploymentDescriptor) {
+        Set<String> requiredDependencies = getRequireDependencyNamesFromModules(modulesCalculatedForDeployment);
+        return getDependencyNamesToResources(resourcesInDeploymentDescriptor, requiredDependencies);
+    }
+
+    private Set<String> getRequireDependencyNamesFromModules(List<Module> modules) {
+        return modules.stream()
+            .flatMap(module -> module.getRequiredDependencies2()
+                .stream()
+                .map(RequiredDependency::getName))
+            .collect(Collectors.toSet());
+    }
+
+    private List<String> getDependencyNamesToResources(List<Resource> resources, Set<String> requiredDependencies) {
+        return resources.stream()
+            .map(Resource::getName)
+            .filter(requiredDependencies::contains)
+            .collect(Collectors.toList());
     }
 
     private List<Module> calculateModulesForDeployment(ExecutionWrapper execution, DeploymentDescriptor deploymentDescriptor,
@@ -210,7 +245,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     protected ApplicationsCloudModelBuilder getApplicationsCloudModelBuilder(DelegateExecution context) {
-        return StepsUtil.getApplicationsCloudModelBuilder(context,getStepLogger());
+        return StepsUtil.getApplicationsCloudModelBuilder(context, getStepLogger());
     }
 
     protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {
