@@ -27,7 +27,7 @@ public class SetRetryPhaseAdditionalProcessAction implements AdditionalProcessAc
             .map(execution -> execution.getProcessInstanceId())
             .forEach(executionProcessId -> flowableFacade.getProcessEngine()
                 .getRuntimeService()
-                .setVariable(executionProcessId, Constants.VAR_STEP_PHASE, StepPhase.RETRY));
+                .setVariable(executionProcessId, Constants.VAR_STEP_PHASE, StepPhase.RETRY.toString()));
     }
 
     @Override
