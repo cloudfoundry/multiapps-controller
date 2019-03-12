@@ -74,7 +74,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
         private void reportCurrentState(CloudTask.State currentState) {
             execution.getStepLogger()
-                .info(Messages.TASK_EXECUTION_STATUS, currentState.toString()
+                .debug(Messages.TASK_EXECUTION_STATUS, currentState.toString()
                     .toLowerCase());
         }
 
