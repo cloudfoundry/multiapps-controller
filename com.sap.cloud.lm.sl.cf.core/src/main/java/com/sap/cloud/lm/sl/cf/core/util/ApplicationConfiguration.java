@@ -50,7 +50,7 @@ public class ApplicationConfiguration {
         DEFAULTDB, HANA, POSTGRESQL
     }
 
-    // Environment variables
+    // Environment variables:
     static final String CFG_TYPE = "XS_TYPE";
     static final String CFG_DB_TYPE = "DB_TYPE";
     static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
@@ -96,7 +96,7 @@ public class ApplicationConfiguration {
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
-    // Default values
+    // Default values:
     public static final PlatformType DEFAULT_TYPE = PlatformType.XS2;
     public static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.DEFAULTDB;
     public static final List<Platform> DEFAULT_PLATFORMS = Collections.emptyList();
@@ -117,17 +117,7 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_DB_CONNECTION_THREADS = 30;
     public static final String DEFAULT_CRON_EXPRESSION_FOR_OLD_DATA = "0 0 0/6 * * ?"; // every 6 hours
     public static final long DEFAULT_MAX_TTL_FOR_OLD_DATA = TimeUnit.DAYS.toSeconds(5); // 5 days
-    /**
-     * The minimum duration for an Activiti timer is 5 seconds, because when the job manager schedules a new timer, it checks whether that
-     * timer should fire in the next 5 seconds. If so, it hints the job executor that it should execute that timer ASAP. However, there is
-     * some delay between the time when Activiti creates the timer object and when it checks whether its due date is in the next 5 seconds.
-     * This is why we set the controller polling interval to 6 seconds.
-     * 
-     * TODO Revert this back to 3 seconds when we adopt version 5.16.0 of Activiti, where the behaviour described above is fixed.
-     * 
-     * @see org.activiti.engine.impl.persistence.entity.JobEntityManager#schedule()
-     */
-    public static final Integer DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS = 6;
+    public static final Integer DEFAULT_STEP_POLLING_INTERVAL_IN_SECONDS = 5;
     public static final Boolean DEFAULT_SKIP_SSL_VALIDATION = false;
     public static final String DEFAULT_VERSION = "N/A";
     public static final Integer DEFAULT_CHANGE_LOG_LOCK_POLL_RATE = 1; // 1 minute(s)
