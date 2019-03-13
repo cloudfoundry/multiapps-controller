@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudJob;
 import org.cloudfoundry.client.lib.domain.Status;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
@@ -63,9 +62,13 @@ public class PollUploadAppStatusExecutionTest extends AsyncStepOperationTest<Upl
             {
                 Status.PROCESSING_UPLOAD, AsyncExecutionState.RUNNING, null,
             },
-            // (04) The previous step used asynchronous upload but it failed:
+            // (04) The previous step used asynchronous upload but it failed with status EXPIRED:
             {
                 Status.EXPIRED, AsyncExecutionState.ERROR, null,
+            },
+            // (05) The previous step used asynchronous upload but it failed with status FAILED:
+            {
+              Status.FAILED, AsyncExecutionState.ERROR, null,
             },
 // @formatter:on
         });

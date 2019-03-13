@@ -16,7 +16,7 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
 
     @Override
     public AsyncExecutionState execute(ExecutionWrapper execution) {
-        CloudApplication app = StepsUtil.getApp(execution.getContext());    
+        CloudApplication app = StepsUtil.getApp(execution.getContext());
 
         try {
             execution.getStepLogger()
@@ -27,7 +27,10 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
             UploadToken uploadToken = StepsUtil.getUploadToken(execution.getContext());
             Upload upload = client.getUploadStatus(uploadToken.getToken());
             switch (upload.getStatus()) {
+                case FAILED:
                 case EXPIRED:
+                    execution.getStepLogger()
+                        .debug(Messages.ERROR_UPLOADING_APP_WITH_DETAILS, app.getName(), upload.getStatus(), upload.getErrorDetails());
                     execution.getStepLogger()
                         .error(Messages.ERROR_UPLOADING_APP, app.getName());
                     return AsyncExecutionState.ERROR;
@@ -53,7 +56,5 @@ public class PollUploadAppStatusExecution implements AsyncExecution {
             throw e;
         }
     }
-    
-    
 
 }
