@@ -17,9 +17,6 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class PrepareToRestartServiceBrokerSubscribersStep extends SyncFlowableStep {
 
-    @Inject
-    private ApplicationConfiguration configuration;
-
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         DelegateExecution context = execution.getContext();
@@ -28,7 +25,6 @@ public class PrepareToRestartServiceBrokerSubscribersStep extends SyncFlowableSt
         context.setVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT, serviceBrokersToRestart.size());
         context.setVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX, 0);
         context.setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
-        context.setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
         return StepPhase.DONE;
     }
 

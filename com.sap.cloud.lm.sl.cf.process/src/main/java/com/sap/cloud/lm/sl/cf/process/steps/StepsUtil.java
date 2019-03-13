@@ -24,6 +24,7 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
@@ -41,6 +42,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -145,6 +147,15 @@ public class StepsUtil {
         context.setVariable(Constants.VAR_USER, userId);
 
         return userId;
+    }
+
+    public static boolean isPortBasedRouting(ExecutionWrapper execution) {
+        CloudControllerClient client = execution.getControllerClient();
+        CloudInfo info = client.getCloudInfo();
+        if (info instanceof CloudInfoExtended) {
+            return ((CloudInfoExtended) info).isPortBasedRouting();
+        }
+        return false;
     }
 
     public static MtaArchiveElements getMtaArchiveElements(DelegateExecution context) {

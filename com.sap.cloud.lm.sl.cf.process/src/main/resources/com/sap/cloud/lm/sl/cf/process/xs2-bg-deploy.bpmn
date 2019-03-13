@@ -91,7 +91,7 @@
     <exclusiveGateway id="isServiceBrokerSubscriberStartedGateway" name="Is Service Broker Subscriber Started" default="waitForServiceBrokerSubscriberToStartFlow"></exclusiveGateway>
     <intermediateCatchEvent id="timerintermediatecatchevent4" name="TimerCatchEvent">
       <timerEventDefinition>
-        <timeDuration>PT10S</timeDuration>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <serviceTask id="incrementServiceBrokerSubscribersToRestartIndexTask" name="Increment Index" flowable:async="true" flowable:delegateExpression="${incrementIndexStep}"></serviceTask>
@@ -684,7 +684,7 @@
         <omgdi:waypoint x="84.0" y="216.0"></omgdi:waypoint>
         <omgdi:waypoint x="914.0" y="216.0"></omgdi:waypoint>
         <omgdi:waypoint x="914.0" y="264.0"></omgdi:waypoint>
-        <omgdi:waypoint x="791.9499999999999" y="264.0"></omgdi:waypoint>
+        <omgdi:waypoint x="791.9499999999981" y="264.6759002770083"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow156" id="BPMNEdge_flow156">
         <omgdi:waypoint x="1574.9499999999953" y="373.7231914893617"></omgdi:waypoint>
