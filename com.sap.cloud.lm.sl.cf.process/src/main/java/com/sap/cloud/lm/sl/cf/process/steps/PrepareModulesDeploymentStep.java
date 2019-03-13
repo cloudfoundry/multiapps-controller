@@ -42,8 +42,6 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
             .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_MODULES_INDEX);
 
         execution.getContext()
-            .setVariable(Constants.VAR_CONTROLLER_POLLING_INTERVAL, configuration.getControllerPollingInterval());
-        execution.getContext()
             .setVariable(Constants.VAR_PLATFORM_TYPE, configuration.getPlatformType()
                 .toString());
 

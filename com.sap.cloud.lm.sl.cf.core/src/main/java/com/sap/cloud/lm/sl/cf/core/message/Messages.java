@@ -144,7 +144,7 @@ public final class Messages {
     public static final String ADMIN_USERNAME = "Admin username: {0}";
     public static final String USE_XS_AUDIT_LOGGING = "Use XSA audit logging: {0}";
     public static final String DB_CONNECTION_THREADS = "Database connection thread pool size: {0}";
-    public static final String CONTROLLER_POLLING_INTERVAL = "Controller polling interval: {0}";
+    public static final String STEP_POLLING_INTERVAL_IN_SECONDS = "Step polling interval in seconds: {0}";
     public static final String SKIP_SSL_VALIDATION = "Skip SSL validation: {0}";
     public static final String XS_PLACEHOLDERS_SUPPORTED = "XS placeholders supported: {0}";
     public static final String DS_VERSION = "Deploy service version: {0}";

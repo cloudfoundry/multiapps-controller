@@ -9,16 +9,16 @@
     <serviceTask id="CreateServiceTask" name="Create" flowable:async="true" flowable:delegateExpression="${createServiceStep}"></serviceTask>
     <sequenceFlow id="flow19" sourceRef="startevent3" targetRef="DetermineServiceCreateUpdateActionsTask"></sequenceFlow>
     <sequenceFlow id="flow20" sourceRef="DetermineServiceCreateUpdateActionsTask" targetRef="exclusivegateway2"></sequenceFlow>
-    <callActivity id="DeleteServiceCallActivity" name="Delete" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key"></callActivity>
+    <callActivity id="DeleteServiceCallActivity" name="Delete" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:fallbackToDefaultTenant="false"></callActivity>
     <serviceTask id="UpdateServicePlanTask" name="Update service plan" flowable:async="true" flowable:delegateExpression="${updateServicePlanStep}"></serviceTask>
     <sequenceFlow id="flow48" sourceRef="UpdateServicePlanTask" targetRef="exclusivegateway10"></sequenceFlow>
     <serviceTask id="UpdateServiceCredentialsTask" name="Update credentials" flowable:async="true" flowable:delegateExpression="${updateServiceCredentialsStep}"></serviceTask>
     <serviceTask id="UpdateServiceTagsTask" name="Update Tags" flowable:async="true" flowable:delegateExpression="${updateServiceTagsStep}"></serviceTask>
     <serviceTask id="UpdateServiceKeysTask" name="Update Keys" flowable:async="true" flowable:delegateExpression="${updateServiceKeysStep}"></serviceTask>
-    <endEvent id="endevent2" name="End">    
-	    <extensionElements>
-	      <flowable:executionListener event="end" delegateExpression="${createOrUpdateServiceEndListener}"></flowable:executionListener>
-	    </extensionElements>
+    <endEvent id="endevent2" name="End">
+      <extensionElements>
+        <flowable:executionListener event="end" delegateExpression="${createOrUpdateServiceEndListener}"></flowable:executionListener>
+      </extensionElements>
     </endEvent>
     <sequenceFlow id="flow57" sourceRef="UpdateServiceKeysTask" targetRef="endevent2"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway" default="ContinueUK"></exclusiveGateway>
@@ -41,7 +41,7 @@
     <sequenceFlow id="WaitForUpdateServicePlan" name="Wait" sourceRef="exclusivegateway10" targetRef="timerintermediatecatchevent1"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent1" name="TimerCatchEvent">
       <timerEventDefinition>
-        <timeDuration>PT10S</timeDuration>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="flow70" sourceRef="timerintermediatecatchevent1" targetRef="UpdateServicePlanTask"></sequenceFlow>
@@ -49,7 +49,7 @@
     <sequenceFlow id="WaitForUpdateServiceCredentials" name="Wait" sourceRef="exclusivegateway11" targetRef="timerintermediatecatchevent2"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent2" name="TimerCatchEvent">
       <timerEventDefinition>
-        <timeDuration>PT10S</timeDuration>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="flow73" sourceRef="timerintermediatecatchevent2" targetRef="UpdateServiceCredentialsTask"></sequenceFlow>
@@ -58,7 +58,7 @@
     </sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent3" name="TimerCatchEvent">
       <timerEventDefinition>
-        <timeDuration>PT10S</timeDuration>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <exclusiveGateway id="exclusivegateway12" name="Exclusive Gateway" default="WaitForUpdateServiceTags"></exclusiveGateway>
@@ -69,7 +69,7 @@
     </sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent4" name="TimerCatchEvent">
       <timerEventDefinition>
-        <timeDuration>PT10S</timeDuration>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <exclusiveGateway id="exclusivegateway13" name="Exclusive Gateway" default="WaitForCreate"></exclusiveGateway>

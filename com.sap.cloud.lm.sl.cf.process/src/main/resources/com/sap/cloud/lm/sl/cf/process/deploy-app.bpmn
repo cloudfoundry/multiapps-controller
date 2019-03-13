@@ -34,7 +34,7 @@
     <exclusiveGateway id="isTaskExecutedGateway" name="Is Task Executed" default="waitForTaskToBeExecutedFlow"></exclusiveGateway>
     <intermediateCatchEvent id="taskExecutionPollingIntervalTimer" name="Task Execution Polling Interval Timer">
       <timerEventDefinition>
-        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="waitForTaskToBeExecutedFlow" sourceRef="isTaskExecutedGateway" targetRef="taskExecutionPollingIntervalTimer"></sequenceFlow>
@@ -67,9 +67,6 @@
     <sequenceFlow id="startAppFlow" sourceRef="shouldStartAppGateway" targetRef="startAppTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${appStateActionsToExecute.contains('START')}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="appExecutedFlow" sourceRef="exclusivegateway4" targetRef="shouldExecuteTasks">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
-    </sequenceFlow>
     <exclusiveGateway id="exclusivegateway3" name="Does App Exist" default="uploadAppContentFlow"></exclusiveGateway>
     <sequenceFlow id="uploadAppContentFlow" sourceRef="exclusivegateway3" targetRef="uploadAppTask"></sequenceFlow>
     <sequenceFlow id="flow82" name="Do not upload application content" sourceRef="exclusivegateway3" targetRef="scaleAppTask">
@@ -80,7 +77,7 @@
     <serviceTask id="startAppTask" name="Start App" flowable:async="true" flowable:delegateExpression="${restartAppStep}"></serviceTask>
     <intermediateCatchEvent id="timerintermediatecatchevent1" name="TimerCatchEvent">
       <timerEventDefinition>
-        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="waitStartAppFlow" sourceRef="exclusivegateway4" targetRef="timerintermediatecatchevent1"></sequenceFlow>
@@ -93,7 +90,7 @@
     <sequenceFlow id="flow87" sourceRef="exclusivegateway5" targetRef="timerintermediatecatchevent2"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent2" name="TimerCatchEvent">
       <timerEventDefinition>
-        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="flow88" sourceRef="timerintermediatecatchevent2" targetRef="uploadAppTask"></sequenceFlow>
@@ -103,7 +100,7 @@
     <sequenceFlow id="flow90" sourceRef="exclusivegateway6" targetRef="timerintermediatecatchevent3"></sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent3" name="TimerCatchEvent">
       <timerEventDefinition>
-        <timeDuration>PT${controllerPollingInterval}S</timeDuration>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="flow91" sourceRef="timerintermediatecatchevent3" targetRef="stageAppTask"></sequenceFlow>
@@ -139,10 +136,12 @@
     <sequenceFlow id="deleteIdleRoutesFlow" sourceRef="shouldDeleteIdleRoutes" targetRef="deleteIdleRoutesTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${deleteIdleUris}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="createOrUpdateServiceBrokerTask" name="Create Or Update Service Broker
-" flowable:async="true" flowable:delegateExpression="${createOrUpdateServiceBrokerStep}"></serviceTask>
+    <serviceTask id="createOrUpdateServiceBrokerTask" name="Create Or Update Service Broker " flowable:async="true" flowable:delegateExpression="${createOrUpdateServiceBrokerStep}"></serviceTask>
     <sequenceFlow id="sid-9BACABBD-1FE1-4432-8302-5CCBECBD81ED" sourceRef="registerServiceUrlTask" targetRef="createOrUpdateServiceBrokerTask"></sequenceFlow>
     <sequenceFlow id="sid-8B42E9D6-790B-41B6-AF13-AF5128A73785" sourceRef="createOrUpdateServiceBrokerTask" targetRef="endevent"></sequenceFlow>
+    <sequenceFlow id="appExecutedFlow" sourceRef="exclusivegateway4" targetRef="shouldExecuteTasks">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
+    </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deployAppSubProcess">
     <bpmndi:BPMNPlane bpmnElement="deployAppSubProcess" id="BPMNPlane_deployAppSubProcess">

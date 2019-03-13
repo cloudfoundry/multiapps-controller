@@ -67,7 +67,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
             CloudControllerClient client = execution.getControllerClient();
             String defaultDomainName = getDefaultDomain(client);
             getStepLogger().debug(Messages.DEFAULT_DOMAIN, defaultDomainName);
-            boolean portBasedRouting = isPortBasedRouting(client);
+            boolean portBasedRouting = StepsUtil.isPortBasedRouting(execution);
             getStepLogger().debug(Messages.PORT_BASED_ROUTING, portBasedRouting);
             if (client instanceof XsCloudControllerClient) {
                 XsCloudControllerClient xsClient = execution.getXsControllerClient();
@@ -111,14 +111,6 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
             return defaultDomain.getName();
         }
         return null;
-    }
-
-    private boolean isPortBasedRouting(CloudControllerClient client) {
-        CloudInfo info = client.getCloudInfo();
-        if (info instanceof CloudInfoExtended) {
-            return ((CloudInfoExtended) info).isPortBasedRouting();
-        }
-        return false;
     }
 
     private SystemParametersBuilder createParametersBuilder(DelegateExecution context, CloudControllerClient client,

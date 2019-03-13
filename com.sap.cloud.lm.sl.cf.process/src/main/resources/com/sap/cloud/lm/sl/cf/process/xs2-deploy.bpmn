@@ -92,7 +92,7 @@
     <exclusiveGateway id="isServiceBrokerSubscriberStartedGateway" name="Is Service Broker Subscriber Started" default="waitForServiceBrokerSubscriberToStartFlow"></exclusiveGateway>
     <intermediateCatchEvent id="timerintermediatecatchevent3" name="TimerCatchEvent">
       <timerEventDefinition>
-        <timeDuration>PT10S</timeDuration>
+        <timeDuration>PT${applicationConfiguration.getStepPollingIntervalInSeconds()}S</timeDuration>
       </timerEventDefinition>
     </intermediateCatchEvent>
     <sequenceFlow id="notAllServiceBrokerSubscribersAreRestartedFlow" sourceRef="areAllServiceBrokerSubscribersRestartedGateway" targetRef="restartServiceBrokerSubscriberTask"></sequenceFlow>
@@ -380,8 +380,8 @@
         <omgdi:waypoint x="1307.0" y="60.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow121" id="BPMNEdge_flow121">
-        <omgdi:waypoint x="854.9999999997231" y="622.5"></omgdi:waypoint>
-        <omgdi:waypoint x="717.4045117280996" y="622.5"></omgdi:waypoint>
+        <omgdi:waypoint x="855.0" y="622.3747016706444"></omgdi:waypoint>
+        <omgdi:waypoint x="717.8574440209503" y="622.0475"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
         <omgdi:waypoint x="1411.95" y="60.272727272727266"></omgdi:waypoint>
@@ -470,8 +470,8 @@
       <bpmndi:BPMNEdge bpmnElement="doNotDeleteDiscontinuedServiceBrokersFlow" id="BPMNEdge_doNotDeleteDiscontinuedServiceBrokersFlow">
         <omgdi:waypoint x="698.0" y="602.0"></omgdi:waypoint>
         <omgdi:waypoint x="698.0" y="557.0"></omgdi:waypoint>
-        <omgdi:waypoint x="431.5" y="557.0"></omgdi:waypoint>
-        <omgdi:waypoint x="431.5" y="592.0"></omgdi:waypoint>
+        <omgdi:waypoint x="431.0" y="557.0"></omgdi:waypoint>
+        <omgdi:waypoint x="431.2671755725191" y="592.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow57" id="BPMNEdge_flow57">
         <omgdi:waypoint x="378.0" y="622.2579185520362"></omgdi:waypoint>
@@ -522,8 +522,8 @@
       <bpmndi:BPMNEdge bpmnElement="doNotDeleteDiscontinuedServicesFlow" id="BPMNEdge_doNotDeleteDiscontinuedServicesFlow">
         <omgdi:waypoint x="1091.0" y="641.9361650485438"></omgdi:waypoint>
         <omgdi:waypoint x="1091.0" y="694.0"></omgdi:waypoint>
-        <omgdi:waypoint x="698.5" y="694.0"></omgdi:waypoint>
-        <omgdi:waypoint x="698.5" y="641.413200280112"></omgdi:waypoint>
+        <omgdi:waypoint x="698.0" y="694.0"></omgdi:waypoint>
+        <omgdi:waypoint x="698.0" y="641.9138038942975"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow98" id="BPMNEdge_flow98">
         <omgdi:waypoint x="1223.0" y="633.9499999999999"></omgdi:waypoint>
