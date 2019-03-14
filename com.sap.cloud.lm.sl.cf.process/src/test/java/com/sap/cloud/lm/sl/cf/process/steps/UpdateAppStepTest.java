@@ -327,7 +327,7 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
 
         CloudServiceBinding toCloudServiceBinding() {
             CloudServiceBinding binding = new CloudServiceBinding();
-            binding.setAppGuid(NameUtil.getUUID(applicationName));
+            binding.setApplicationGuid(NameUtil.getUUID(applicationName));
             binding.setBindingOptions(bindingOptions);
             return binding;
         }

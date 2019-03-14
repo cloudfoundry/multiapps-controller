@@ -99,10 +99,10 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         Set<String> namesOfBoundStandaloneApplications = new LinkedHashSet<>();
         Set<String> idsOfMtasThatOwnTheService = new LinkedHashSet<>();
         for (CloudServiceBinding binding : bindings) {
-            CloudApplication boundApplication = StepsUtil.getBoundApplication(deployedApps, binding.getAppGuid());
+            CloudApplication boundApplication = StepsUtil.getBoundApplication(deployedApps, binding.getApplicationGuid());
             if (boundApplication == null) {
                 throw new IllegalStateException(
-                    MessageFormat.format(Messages.COULD_NOT_FIND_APPLICATION_WITH_GUID_0, binding.getAppGuid()));
+                    MessageFormat.format(Messages.COULD_NOT_FIND_APPLICATION_WITH_GUID_0, binding.getApplicationGuid()));
             }
             ApplicationMtaMetadata boundMtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(boundApplication);
             if (boundMtaMetadata == null) {

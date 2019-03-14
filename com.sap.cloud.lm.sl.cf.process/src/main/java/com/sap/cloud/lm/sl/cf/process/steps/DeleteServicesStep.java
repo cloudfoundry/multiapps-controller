@@ -128,10 +128,10 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         }
         logBindings(bindings);
         for (CloudServiceBinding binding : bindings) {
-            CloudApplication application = StepsUtil.getBoundApplication(client.getApplications(), binding.getAppGuid());
+            CloudApplication application = StepsUtil.getBoundApplication(client.getApplications(), binding.getApplicationGuid());
             if (application == null) {
                 throw new IllegalStateException(
-                    MessageFormat.format(Messages.COULD_NOT_FIND_APPLICATION_WITH_GUID_0, binding.getAppGuid()));
+                    MessageFormat.format(Messages.COULD_NOT_FIND_APPLICATION_WITH_GUID_0, binding.getApplicationGuid()));
             }
             getStepLogger().info(Messages.UNBINDING_APP_FROM_SERVICE, application.getName(), serviceName);
             client.unbindService(application.getName(), serviceName);

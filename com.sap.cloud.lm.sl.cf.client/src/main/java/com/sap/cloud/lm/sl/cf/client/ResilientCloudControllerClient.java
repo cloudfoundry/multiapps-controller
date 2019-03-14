@@ -99,20 +99,20 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public List<String> getSpaceAuditorIdsAsStrings(String orgName, String spaceName) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceAuditors(orgName, spaceName), HttpStatus.NOT_FOUND);
+    public List<String> getSpaceAuditorIdsAsStrings(String organizationName, String spaceName) {
+        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceAuditors(organizationName, spaceName), HttpStatus.NOT_FOUND);
         return toStrings(uuids);
     }
 
     @Override
-    public List<String> getSpaceManagerIdsAsStrings(String orgName, String spaceName) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceManagers(orgName, spaceName), HttpStatus.NOT_FOUND);
+    public List<String> getSpaceManagerIdsAsStrings(String organizationName, String spaceName) {
+        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceManagers(organizationName, spaceName), HttpStatus.NOT_FOUND);
         return toStrings(uuids);
     }
 
     @Override
-    public List<String> getSpaceDeveloperIdsAsStrings(String orgName, String spaceName) {
-        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceDevelopers(orgName, spaceName), HttpStatus.NOT_FOUND);
+    public List<String> getSpaceDeveloperIdsAsStrings(String organizationName, String spaceName) {
+        List<UUID> uuids = executeWithRetry(() -> cc.getSpaceDevelopers(organizationName, spaceName), HttpStatus.NOT_FOUND);
         return toStrings(uuids);
     }
 
@@ -132,14 +132,14 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void bindService(String appName, String serviceName) {
-        executeWithRetry(() -> cc.bindService(appName, serviceName));
+    public void bindService(String applicationName, String serviceName) {
+        executeWithRetry(() -> cc.bindService(applicationName, serviceName));
     }
 
     @Override
-    public void createApplication(String appName, Staging staging, Integer disk, Integer memory, List<String> uris,
+    public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, List<String> uris,
         List<String> serviceNames, DockerInfo dockerInfo) {
-        executeWithRetry(() -> cc.createApplication(appName, staging, disk, memory, uris, serviceNames, dockerInfo));
+        executeWithRetry(() -> cc.createApplication(applicationName, staging, disk, memory, uris, serviceNames, dockerInfo));
     }
 
     @Override
@@ -153,8 +153,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void deleteApplication(String appName) {
-        executeWithRetry(() -> cc.deleteApplication(appName));
+    public void deleteApplication(String applicationName) {
+        executeWithRetry(() -> cc.deleteApplication(applicationName));
     }
 
     @Override
@@ -183,13 +183,13 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public CloudApplication getApplication(String appName) {
-        return executeWithRetry(() -> cc.getApplication(appName));
+    public CloudApplication getApplication(String applicationName) {
+        return executeWithRetry(() -> cc.getApplication(applicationName));
     }
 
     @Override
-    public CloudApplication getApplication(String appName, boolean required) {
-        return executeWithRetry(() -> cc.getApplication(appName, required));
+    public CloudApplication getApplication(String applicationName, boolean required) {
+        return executeWithRetry(() -> cc.getApplication(applicationName, required));
     }
 
     @Override
@@ -203,8 +203,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public InstancesInfo getApplicationInstances(String appName) {
-        return executeWithRetry(() -> cc.getApplicationInstances(appName));
+    public InstancesInfo getApplicationInstances(String applicationName) {
+        return executeWithRetry(() -> cc.getApplicationInstances(applicationName));
     }
 
     @Override
@@ -218,8 +218,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public List<CloudApplication> getApplications(String inlineDepth) {
-        return executeWithRetry(() -> cc.getApplications(inlineDepth), HttpStatus.NOT_FOUND);
+    public List<CloudApplication> getApplications(boolean fetchAdditionalInfo) {
+        return executeWithRetry(() -> cc.getApplications(fetchAdditionalInfo), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -233,18 +233,18 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public List<CloudDomain> getDomainsForOrg() {
-        return executeWithRetry(() -> cc.getDomainsForOrg(), HttpStatus.NOT_FOUND);
+    public List<CloudDomain> getDomainsForOrganization() {
+        return executeWithRetry(() -> cc.getDomainsForOrganization(), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public CloudOrganization getOrganization(String orgName) {
-        return executeWithRetry(() -> cc.getOrganization(orgName));
+    public CloudOrganization getOrganization(String organizationName) {
+        return executeWithRetry(() -> cc.getOrganization(organizationName));
     }
 
     @Override
-    public CloudOrganization getOrganization(String orgName, boolean required) {
-        return executeWithRetry(() -> cc.getOrganization(orgName, required));
+    public CloudOrganization getOrganization(String organizationName, boolean required) {
+        return executeWithRetry(() -> cc.getOrganization(organizationName, required));
     }
 
     @Override
@@ -253,8 +253,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public List<ApplicationLog> getRecentLogs(String appName) {
-        return executeWithRetry(() -> cc.getRecentLogs(appName), HttpStatus.NOT_FOUND);
+    public List<ApplicationLog> getRecentLogs(String applicationName) {
+        return executeWithRetry(() -> cc.getRecentLogs(applicationName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -314,73 +314,73 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void rename(String appName, String newName) {
-        executeWithRetry(() -> cc.rename(appName, newName));
+    public void rename(String applicationName, String newName) {
+        executeWithRetry(() -> cc.rename(applicationName, newName));
     }
 
     @Override
-    public StartingInfo restartApplication(String appName) {
-        return executeWithRetry(() -> cc.restartApplication(appName));
+    public StartingInfo restartApplication(String applicationName) {
+        return executeWithRetry(() -> cc.restartApplication(applicationName));
     }
 
     @Override
-    public StartingInfo startApplication(String appName) {
-        return executeWithRetry(() -> cc.startApplication(appName));
+    public StartingInfo startApplication(String applicationName) {
+        return executeWithRetry(() -> cc.startApplication(applicationName));
     }
 
     @Override
-    public void stopApplication(String appName) {
-        executeWithRetry(() -> cc.stopApplication(appName));
+    public void stopApplication(String applicationName) {
+        executeWithRetry(() -> cc.stopApplication(applicationName));
     }
 
     @Override
-    public StreamingLogToken streamLogs(String appName, ApplicationLogListener listener) {
-        return executeWithRetry(() -> cc.streamLogs(appName, listener), HttpStatus.NOT_FOUND);
+    public StreamingLogToken streamLogs(String applicationName, ApplicationLogListener listener) {
+        return executeWithRetry(() -> cc.streamLogs(applicationName, listener), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public void unbindService(String appName, String serviceName) {
-        executeWithRetry(() -> cc.unbindService(appName, serviceName));
+    public void unbindService(String applicationName, String serviceName) {
+        executeWithRetry(() -> cc.unbindService(applicationName, serviceName));
     }
 
     @Override
-    public void updateApplicationDiskQuota(String appName, int disk) {
-        executeWithRetry(() -> cc.updateApplicationDiskQuota(appName, disk));
+    public void updateApplicationDiskQuota(String applicationName, int disk) {
+        executeWithRetry(() -> cc.updateApplicationDiskQuota(applicationName, disk));
     }
 
     @Override
-    public void updateApplicationEnv(String appName, Map<String, String> env) {
-        executeWithRetry(() -> cc.updateApplicationEnv(appName, env));
+    public void updateApplicationEnv(String applicationName, Map<String, String> env) {
+        executeWithRetry(() -> cc.updateApplicationEnv(applicationName, env));
     }
 
     @Override
-    public void updateApplicationEnv(String appName, List<String> env) {
-        executeWithRetry(() -> cc.updateApplicationEnv(appName, env));
+    public void updateApplicationEnv(String applicationName, List<String> env) {
+        executeWithRetry(() -> cc.updateApplicationEnv(applicationName, env));
     }
 
     @Override
-    public void updateApplicationInstances(String appName, int instances) {
-        executeWithRetry(() -> cc.updateApplicationInstances(appName, instances));
+    public void updateApplicationInstances(String applicationName, int instances) {
+        executeWithRetry(() -> cc.updateApplicationInstances(applicationName, instances));
     }
 
     @Override
-    public void updateApplicationMemory(String appName, int memory) {
-        executeWithRetry(() -> cc.updateApplicationMemory(appName, memory));
+    public void updateApplicationMemory(String applicationName, int memory) {
+        executeWithRetry(() -> cc.updateApplicationMemory(applicationName, memory));
     }
 
     @Override
-    public void updateApplicationServices(String appName, List<String> services) {
-        executeWithRetry(() -> cc.updateApplicationServices(appName, services), HttpStatus.NOT_FOUND);
+    public void updateApplicationServices(String applicationName, List<String> services) {
+        executeWithRetry(() -> cc.updateApplicationServices(applicationName, services), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public void updateApplicationStaging(String appName, Staging staging) {
-        executeWithRetry(() -> cc.updateApplicationStaging(appName, staging));
+    public void updateApplicationStaging(String applicationName, Staging staging) {
+        executeWithRetry(() -> cc.updateApplicationStaging(applicationName, staging));
     }
 
     @Override
-    public void updateApplicationUris(String appName, List<String> uris) {
-        executeWithRetry(() -> cc.updateApplicationUris(appName, uris), HttpStatus.NOT_FOUND);
+    public void updateApplicationUris(String applicationName, List<String> uris) {
+        executeWithRetry(() -> cc.updateApplicationUris(applicationName, uris), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -394,10 +394,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void uploadApplication(String appName, File file, UploadStatusCallback callback) throws IOException {
+    public void uploadApplication(String applicationName, File file, UploadStatusCallback callback) throws IOException {
         executeWithRetry(() -> {
             try {
-                cc.uploadApplication(appName, file, callback);
+                cc.uploadApplication(applicationName, file, callback);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -405,10 +405,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void uploadApplication(String appName, InputStream inputStream, UploadStatusCallback callback) throws IOException {
+    public void uploadApplication(String applicationName, InputStream inputStream, UploadStatusCallback callback) throws IOException {
         executeWithRetry(() -> {
             try {
-                cc.uploadApplication(appName, inputStream, callback);
+                cc.uploadApplication(applicationName, inputStream, callback);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -416,10 +416,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void uploadApplication(String appName, ApplicationArchive archive, UploadStatusCallback callback) throws IOException {
+    public void uploadApplication(String applicationName, ApplicationArchive archive, UploadStatusCallback callback) throws IOException {
         executeWithRetry(() -> {
             try {
-                cc.uploadApplication(appName, archive, callback);
+                cc.uploadApplication(applicationName, archive, callback);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -427,10 +427,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String appName, File file, UploadStatusCallback callback) throws IOException {
+    public UploadToken asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback) throws IOException {
         return executeWithRetry(() -> {
             try {
-                return cc.asyncUploadApplication(appName, file, callback);
+                return cc.asyncUploadApplication(applicationName, file, callback);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -438,11 +438,11 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String appName, ApplicationArchive archive, UploadStatusCallback callback)
+    public UploadToken asyncUploadApplication(String applicationName, ApplicationArchive archive, UploadStatusCallback callback)
         throws IOException {
         return executeWithRetry(() -> {
             try {
-                return cc.asyncUploadApplication(appName, archive, callback);
+                return cc.asyncUploadApplication(applicationName, archive, callback);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -475,13 +475,13 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void associateAuditorWithSpace(String orgName, String spaceName) {
-        executeWithRetry(() -> cc.associateAuditorWithSpace(orgName, spaceName));
+    public void associateAuditorWithSpace(String organizationName, String spaceName) {
+        executeWithRetry(() -> cc.associateAuditorWithSpace(organizationName, spaceName));
     }
 
     @Override
-    public void associateAuditorWithSpace(String orgName, String spaceName, String userGuid) {
-        executeWithRetry(() -> cc.associateAuditorWithSpace(orgName, spaceName, userGuid));
+    public void associateAuditorWithSpace(String organizationName, String spaceName, String userGuid) {
+        executeWithRetry(() -> cc.associateAuditorWithSpace(organizationName, spaceName, userGuid));
     }
 
     @Override
@@ -490,13 +490,13 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void associateDeveloperWithSpace(String orgName, String spaceName) {
-        executeWithRetry(() -> cc.associateDeveloperWithSpace(orgName, spaceName));
+    public void associateDeveloperWithSpace(String organizationName, String spaceName) {
+        executeWithRetry(() -> cc.associateDeveloperWithSpace(organizationName, spaceName));
     }
 
     @Override
-    public void associateDeveloperWithSpace(String orgName, String spaceName, String userGuid) {
-        executeWithRetry(() -> cc.associateDeveloperWithSpace(orgName, spaceName, userGuid));
+    public void associateDeveloperWithSpace(String organizationName, String spaceName, String userGuid) {
+        executeWithRetry(() -> cc.associateDeveloperWithSpace(organizationName, spaceName, userGuid));
     }
 
     @Override
@@ -505,13 +505,13 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void associateManagerWithSpace(String orgName, String spaceName) {
-        executeWithRetry(() -> cc.associateManagerWithSpace(orgName, spaceName));
+    public void associateManagerWithSpace(String organizationName, String spaceName) {
+        executeWithRetry(() -> cc.associateManagerWithSpace(organizationName, spaceName));
     }
 
     @Override
-    public void associateManagerWithSpace(String orgName, String spaceName, String userGuid) {
-        executeWithRetry(() -> cc.associateManagerWithSpace(orgName, spaceName, userGuid));
+    public void associateManagerWithSpace(String organizationName, String spaceName, String userGuid) {
+        executeWithRetry(() -> cc.associateManagerWithSpace(organizationName, spaceName, userGuid));
     }
 
     @Override
@@ -520,8 +520,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void bindSecurityGroup(String orgName, String spaceName, String securityGroupName) {
-        executeWithRetry(() -> cc.bindSecurityGroup(orgName, spaceName, securityGroupName));
+    public void bindSecurityGroup(String organizationName, String spaceName, String securityGroupName) {
+        executeWithRetry(() -> cc.bindSecurityGroup(organizationName, spaceName, securityGroupName));
     }
 
     @Override
@@ -530,8 +530,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void createApplication(String appName, Staging staging, Integer memory, List<String> uris, List<String> serviceNames) {
-        executeWithRetry(() -> cc.createApplication(appName, staging, memory, uris, serviceNames));
+    public void createApplication(String applicationName, Staging staging, Integer memory, List<String> uris, List<String> serviceNames) {
+        executeWithRetry(() -> cc.createApplication(applicationName, staging, memory, uris, serviceNames));
     }
 
     @Override
@@ -565,8 +565,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void debugApplication(String appName, DebugMode mode) {
-        executeWithRetry(() -> cc.debugApplication(appName, mode));
+    public void debugApplication(String applicationName, DebugMode mode) {
+        executeWithRetry(() -> cc.debugApplication(applicationName, mode));
     }
 
     @Override
@@ -600,8 +600,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public Map<String, Object> getApplicationEnvironment(String appName) {
-        return executeWithRetry(() -> cc.getApplicationEnvironment(appName));
+    public Map<String, Object> getApplicationEnvironment(String applicationName) {
+        return executeWithRetry(() -> cc.getApplicationEnvironment(applicationName));
     }
 
     @Override
@@ -610,13 +610,13 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public List<CloudEvent> getApplicationEvents(String appName) {
-        return executeWithRetry(() -> cc.getApplicationEvents(appName), HttpStatus.NOT_FOUND);
+    public List<CloudEvent> getApplicationEvents(String applicationName) {
+        return executeWithRetry(() -> cc.getApplicationEvents(applicationName), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public ApplicationStats getApplicationStats(String appName) {
-        return executeWithRetry(() -> cc.getApplicationStats(appName));
+    public ApplicationStats getApplicationStats(String applicationName) {
+        return executeWithRetry(() -> cc.getApplicationStats(applicationName));
     }
 
     @Override
@@ -630,13 +630,13 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public Map<String, String> getCrashLogs(String appName) {
-        return executeWithRetry(() -> cc.getCrashLogs(appName), HttpStatus.NOT_FOUND);
+    public Map<String, String> getCrashLogs(String applicationName) {
+        return executeWithRetry(() -> cc.getCrashLogs(applicationName), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public CrashesInfo getCrashes(String appName) {
-        return executeWithRetry(() -> cc.getCrashes(appName), HttpStatus.NOT_FOUND);
+    public CrashesInfo getCrashes(String applicationName) {
+        return executeWithRetry(() -> cc.getCrashes(applicationName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -645,33 +645,33 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public String getFile(String appName, int instanceIndex, String filePath) {
-        return executeWithRetry(() -> cc.getFile(appName, instanceIndex, filePath));
+    public String getFile(String applicationName, int instanceIndex, String filePath) {
+        return executeWithRetry(() -> cc.getFile(applicationName, instanceIndex, filePath));
     }
 
     @Override
-    public String getFile(String appName, int instanceIndex, String filePath, int startPosition) {
-        return executeWithRetry(() -> cc.getFile(appName, instanceIndex, filePath, startPosition));
+    public String getFile(String applicationName, int instanceIndex, String filePath, int startPosition) {
+        return executeWithRetry(() -> cc.getFile(applicationName, instanceIndex, filePath, startPosition));
     }
 
     @Override
-    public String getFile(String appName, int instanceIndex, String filePath, int startPosition, int endPosition) {
-        return executeWithRetry(() -> cc.getFile(appName, instanceIndex, filePath, startPosition, endPosition));
+    public String getFile(String applicationName, int instanceIndex, String filePath, int startPosition, int endPosition) {
+        return executeWithRetry(() -> cc.getFile(applicationName, instanceIndex, filePath, startPosition, endPosition));
     }
 
     @Override
-    public String getFileTail(String appName, int instanceIndex, String filePath, int length) {
-        return executeWithRetry(() -> cc.getFileTail(appName, instanceIndex, filePath, length));
+    public String getFileTail(String applicationName, int instanceIndex, String filePath, int length) {
+        return executeWithRetry(() -> cc.getFileTail(applicationName, instanceIndex, filePath, length));
     }
 
     @Override
-    public Map<String, String> getLogs(String appName) {
-        return executeWithRetry(() -> cc.getLogs(appName), HttpStatus.NOT_FOUND);
+    public Map<String, String> getLogs(String applicationName) {
+        return executeWithRetry(() -> cc.getLogs(applicationName), HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public Map<String, CloudUser> getOrganizationUsers(String orgName) {
-        return executeWithRetry(() -> cc.getOrganizationUsers(orgName), HttpStatus.NOT_FOUND);
+    public Map<String, CloudUser> getOrganizationUsers(String organizationName) {
+        return executeWithRetry(() -> cc.getOrganizationUsers(organizationName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -735,8 +735,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public List<UUID> getSpaceAuditors(String orgName, String spaceName) {
-        return executeWithRetry(() -> cc.getSpaceAuditors(orgName, spaceName), HttpStatus.NOT_FOUND);
+    public List<UUID> getSpaceAuditors(String organizationName, String spaceName) {
+        return executeWithRetry(() -> cc.getSpaceAuditors(organizationName, spaceName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -750,8 +750,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public List<UUID> getSpaceDevelopers(String orgName, String spaceName) {
-        return executeWithRetry(() -> cc.getSpaceDevelopers(orgName, spaceName), HttpStatus.NOT_FOUND);
+    public List<UUID> getSpaceDevelopers(String organizationName, String spaceName) {
+        return executeWithRetry(() -> cc.getSpaceDevelopers(organizationName, spaceName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -765,8 +765,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public List<UUID> getSpaceManagers(String orgName, String spaceName) {
-        return executeWithRetry(() -> cc.getSpaceManagers(orgName, spaceName), HttpStatus.NOT_FOUND);
+    public List<UUID> getSpaceManagers(String organizationName, String spaceName) {
+        return executeWithRetry(() -> cc.getSpaceManagers(organizationName, spaceName), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -805,8 +805,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void openFile(String appName, int instanceIndex, String filePath, ClientHttpResponseCallback clientHttpResponseCallback) {
-        executeWithRetry(() -> cc.openFile(appName, instanceIndex, filePath, clientHttpResponseCallback));
+    public void openFile(String applicationName, int instanceIndex, String filePath, ClientHttpResponseCallback clientHttpResponseCallback) {
+        executeWithRetry(() -> cc.openFile(applicationName, instanceIndex, filePath, clientHttpResponseCallback));
     }
 
     @Override
@@ -825,8 +825,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void setQuotaToOrg(String orgName, String quotaName) {
-        executeWithRetry(() -> cc.setQuotaToOrg(orgName, quotaName));
+    public void setQuotaToOrganization(String organizationName, String quotaName) {
+        executeWithRetry(() -> cc.setQuotaToOrganization(organizationName, quotaName));
     }
 
     @Override
@@ -845,8 +845,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void unbindSecurityGroup(String orgName, String spaceName, String securityGroupName) {
-        executeWithRetry(() -> cc.unbindSecurityGroup(orgName, spaceName, securityGroupName));
+    public void unbindSecurityGroup(String organizationName, String spaceName, String securityGroupName) {
+        executeWithRetry(() -> cc.unbindSecurityGroup(organizationName, spaceName, securityGroupName));
     }
 
     @Override
@@ -885,10 +885,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void uploadApplication(String appName, String file) throws IOException {
+    public void uploadApplication(String applicationName, String file) throws IOException {
         executeWithRetry(() -> {
             try {
-                cc.uploadApplication(appName, file);
+                cc.uploadApplication(applicationName, file);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -896,10 +896,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void uploadApplication(String appName, File file) throws IOException {
+    public void uploadApplication(String applicationName, File file) throws IOException {
         executeWithRetry(() -> {
             try {
-                cc.uploadApplication(appName, file);
+                cc.uploadApplication(applicationName, file);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -907,10 +907,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void uploadApplication(String appName, InputStream inputStream) throws IOException {
+    public void uploadApplication(String applicationName, InputStream inputStream) throws IOException {
         executeWithRetry(() -> {
             try {
-                cc.uploadApplication(appName, inputStream);
+                cc.uploadApplication(applicationName, inputStream);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -918,10 +918,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void uploadApplication(String appName, ApplicationArchive archive) throws IOException {
+    public void uploadApplication(String applicationName, ApplicationArchive archive) throws IOException {
         executeWithRetry(() -> {
             try {
-                cc.uploadApplication(appName, archive);
+                cc.uploadApplication(applicationName, archive);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -929,10 +929,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String appName, File file) throws IOException {
+    public UploadToken asyncUploadApplication(String applicationName, File file) throws IOException {
         return executeWithRetry(() -> {
             try {
-                return cc.asyncUploadApplication(appName, file);
+                return cc.asyncUploadApplication(applicationName, file);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -940,10 +940,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public UploadToken asyncUploadApplication(String appName, ApplicationArchive archive) throws IOException {
+    public UploadToken asyncUploadApplication(String applicationName, ApplicationArchive archive) throws IOException {
         return executeWithRetry(() -> {
             try {
-                return cc.asyncUploadApplication(appName, archive);
+                return cc.asyncUploadApplication(applicationName, archive);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }

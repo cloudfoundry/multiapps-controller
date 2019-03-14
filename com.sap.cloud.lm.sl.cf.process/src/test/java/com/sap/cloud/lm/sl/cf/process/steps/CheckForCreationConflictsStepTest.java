@@ -191,7 +191,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private CloudServiceBinding createServiceBinding(SimpleApplication boundApplication) {
         CloudServiceBinding binding = new CloudServiceBinding();
-        binding.setAppGuid(NameUtil.getUUID(boundApplication.name));
+        binding.setApplicationGuid(NameUtil.getUUID(boundApplication.name));
         return binding;
     }
 
