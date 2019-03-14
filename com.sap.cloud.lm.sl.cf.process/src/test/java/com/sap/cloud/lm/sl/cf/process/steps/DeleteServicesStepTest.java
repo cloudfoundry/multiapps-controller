@@ -235,7 +235,7 @@ public class DeleteServicesStepTest extends SyncFlowableStepTest<DeleteServicesS
         CloudServiceInstance instance = new CloudServiceInstance();
         CloudServiceBinding binding = new CloudServiceBinding();
         if (service.hasBoundApplications) {
-            binding.setAppGuid(meta.getGuid());
+            binding.setApplicationGuid(meta.getGuid());
             instance.setBindings(Arrays.asList(binding));
         } else {
             instance.setBindings(Collections.emptyList());

@@ -41,7 +41,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
 
     @Test(expected = CloudControllerException.class)
     public void testExecute2() throws Exception {
-        when(client.getApplications("0")).thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
+        when(client.getApplications(false)).thenThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         step.execute(context);
     }

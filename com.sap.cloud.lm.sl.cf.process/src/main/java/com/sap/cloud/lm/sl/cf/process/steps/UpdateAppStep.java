@@ -193,7 +193,7 @@ public class UpdateAppStep extends CreateAppStep {
         Optional<CloudServiceBinding> optCloudServiceBinding = serviceBindings.stream()
             .filter(serviceBinding -> existingApp.getMeta()
                 .getGuid()
-                .equals(serviceBinding.getAppGuid()))
+                .equals(serviceBinding.getApplicationGuid()))
             .findFirst();
         if (optCloudServiceBinding.isPresent()) {
             return optCloudServiceBinding.get();
