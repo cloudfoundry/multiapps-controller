@@ -24,11 +24,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -49,9 +47,6 @@ import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 public class CreateAppStep extends SyncFlowableStep {
 
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
-
-    @Autowired(required = false)
-    ServiceBindingCreator serviceBindingCreator;
 
     @Autowired
     protected ApplicationConfiguration configuration;
@@ -238,33 +233,14 @@ public class CreateAppStep extends SyncFlowableStep {
 
     private void bindServiceToApplication(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
         Map<String, Object> bindingParameters) {
-        if (bindingParameters != null) {
-            XsCloudControllerClient xsClient = execution.getXsControllerClient();
-            bindServiceWithParameters(xsClient, client, appName, serviceName, bindingParameters);
-        } else {
-            bindService(client, appName, serviceName);
-        }
-    }
-
-    // TODO Fix update of service bindings parameters
-    private void bindServiceWithParameters(XsCloudControllerClient xsClient, CloudControllerClient client, String appName,
-        String serviceName, Map<String, Object> bindingParameters) {
-        getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters.get(serviceName));
-        if (xsClient == null) {
-            serviceBindingCreator.bindService(client, appName, serviceName, bindingParameters);
-        } else {
-            xsClient.bindService(appName, serviceName, bindingParameters);
-        }
-    }
-
-    private void bindService(CloudControllerClient client, String appName, String serviceName) {
-        getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE, appName, serviceName);
-        client.bindService(appName, serviceName);
+        getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters);
+        // TODO Fix update of service bindings parameters:
+        client.bindService(appName, serviceName, bindingParameters);
     }
 
     protected static Map<String, Object> getBindingParametersForService(String serviceName,
         Map<String, Map<String, Object>> bindingParameters) {
-        return (bindingParameters == null) ? null : bindingParameters.get(serviceName);
+        return bindingParameters == null ? null : bindingParameters.get(serviceName);
     }
 
     protected static Map<String, Object> getBindingParametersOrDefault(CloudServiceBinding cloudServiceBinding) {
