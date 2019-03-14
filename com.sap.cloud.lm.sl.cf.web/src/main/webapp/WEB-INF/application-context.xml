@@ -22,8 +22,6 @@
 
         <bean id="serviceCreator" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceCreator" />
 
-        <bean id="serviceBindingCreator" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBindingCreator" />
-
         <bean id="cloudInfoGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.LoggingEndpointGetter" />
 
         <bean id="applicationRoutesGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter" />

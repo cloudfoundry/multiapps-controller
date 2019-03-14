@@ -16,8 +16,6 @@ public interface XsCloudControllerClient extends CloudControllerClientSupporting
 
     void updateServiceParameters(String serviceName, Map<String, Object> parameters);
 
-    void bindService(String appName, String serviceName, Map<String, Object> parameters);
-
     void updateUserProvidedServiceCredentials(String serviceName, Map<String, Object> credentials);
 
     StartingInfo startApplication(String appName, boolean staging);

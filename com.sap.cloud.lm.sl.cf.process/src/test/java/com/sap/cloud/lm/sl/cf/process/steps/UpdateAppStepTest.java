@@ -188,14 +188,14 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp()
             .getBindingParameters();
         for (String serviceToBind : expectedServicesToBind) {
-            if (currentBindingParameters != null && currentBindingParameters.get(serviceToBind) != null) {
-                Mockito.verify(client)
-                    .bindService(input.existingApplication.name, serviceToBind, currentBindingParameters.get(serviceToBind));
-            } else {
-                Mockito.verify(client)
-                    .bindService(input.existingApplication.name, serviceToBind);
-            }
+            Mockito.verify(client)
+                .bindService(input.existingApplication.name, serviceToBind,
+                    getBindingParametersForService(currentBindingParameters, serviceToBind));
         }
+    }
+
+    private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {
+        return bindingParameters == null ? null : bindingParameters.get(serviceName);
     }
 
     private void validateUnbindServices() {

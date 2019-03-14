@@ -137,6 +137,11 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
+    public void bindService(String applicationName, String serviceName, Map<String, Object> parameters) {
+        executeWithRetry(() -> cc.bindService(applicationName, serviceName, parameters));
+    }
+
+    @Override
     public void createApplication(String applicationName, Staging staging, Integer disk, Integer memory, List<String> uris,
         List<String> serviceNames, DockerInfo dockerInfo) {
         executeWithRetry(() -> cc.createApplication(applicationName, staging, disk, memory, uris, serviceNames, dockerInfo));
@@ -805,7 +810,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void openFile(String applicationName, int instanceIndex, String filePath, ClientHttpResponseCallback clientHttpResponseCallback) {
+    public void openFile(String applicationName, int instanceIndex, String filePath,
+        ClientHttpResponseCallback clientHttpResponseCallback) {
         executeWithRetry(() -> cc.openFile(applicationName, instanceIndex, filePath, clientHttpResponseCallback));
     }
 

@@ -177,19 +177,17 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
                 eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(null));
         for (String service : application.getServices()) {
             if (!isOptional(service)) {
-                if (application.getBindingParameters() == null || application.getBindingParameters()
-                    .get(service) == null) {
-                    Mockito.verify(client)
-                        .bindService(application.getName(), service);
-                } else {
-                    Mockito.verify(client)
-                        .bindService(application.getName(), service, application.getBindingParameters()
-                            .get(service));
-                }
+                Mockito.verify(client)
+                    .bindService(application.getName(), service,
+                        getBindingParametersForService(application.getBindingParameters(), service));
             }
         }
         Mockito.verify(client)
             .updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
+    }
+
+    private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {
+        return bindingParameters == null ? null : bindingParameters.get(serviceName);
     }
 
     private boolean isOptional(String service) {
