@@ -12,7 +12,7 @@ public class NullProcessLogger extends ProcessLogger {
     private static final Logger LOGGER = LoggerFactory.getLogger(NullProcessLogger.class);
 
     public NullProcessLogger(String spaceId, String processId, String activityId) {
-        super(null, null, null, spaceId, processId, activityId);
+        super(spaceId, processId, activityId);
     }
 
     @Override
