@@ -23,7 +23,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.CreateOrUpdateServiceBrokersStepTest.SimpleApplication;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -125,14 +124,14 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
         StepsUtil.setServiceBrokersToCreate(context, toCloudServiceBrokers(input.serviceBrokersToCreate));
     }
 
-    private List<CloudServiceBrokerExtended> toCloudServiceBrokers(List<String> serviceBrokerNames) {
+    private List<CloudServiceBroker> toCloudServiceBrokers(List<String> serviceBrokerNames) {
         return serviceBrokerNames.stream()
-            .map((serviceBrokerName) -> toCloudServiceBroker(serviceBrokerName))
+            .map(serviceBrokerName -> toCloudServiceBroker(serviceBrokerName))
             .collect(Collectors.toList());
     }
 
-    private CloudServiceBrokerExtended toCloudServiceBroker(String serviceBrokerName) {
-        return new CloudServiceBrokerExtended(null, serviceBrokerName, null, null, null, null);
+    private CloudServiceBroker toCloudServiceBroker(String serviceBrokerName) {
+        return new CloudServiceBroker(null, serviceBrokerName);
     }
 
     private List<CloudApplication> toCloudApplications(List<SimpleApplication> applications) {
@@ -148,7 +147,7 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
                 public CloudServiceBroker answer(InvocationOnMock invocation) {
                     String serviceBrokerName = (String) invocation.getArguments()[0];
                     if (input.existingServiceBrokers.contains(serviceBrokerName)) {
-                        return new CloudServiceBroker(null, serviceBrokerName, null, null, null);
+                        return new CloudServiceBroker(null, serviceBrokerName);
                     }
                     return null;
                 }

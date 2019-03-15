@@ -22,6 +22,7 @@ import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.UploadToken;
@@ -35,7 +36,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -523,14 +523,14 @@ public class StepsUtil {
         return Arrays.asList(configurationEntriesArray);
     }
 
-    static void setServiceBrokersToCreate(DelegateExecution context, List<CloudServiceBrokerExtended> serviceBrokers) {
+    static void setServiceBrokersToCreate(DelegateExecution context, List<CloudServiceBroker> serviceBrokers) {
         context.setVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE,
-            JsonUtil.toBinaryJson(serviceBrokers.toArray(new CloudServiceBrokerExtended[] {})));
+            JsonUtil.toBinaryJson(serviceBrokers.toArray(new CloudServiceBroker[] {})));
     }
 
-    public static List<CloudServiceBrokerExtended> getServiceBrokersToCreate(DelegateExecution context) {
-        CloudServiceBrokerExtended[] serviceBrokers = JsonUtil
-            .fromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE), CloudServiceBrokerExtended[].class);
+    public static List<CloudServiceBroker> getServiceBrokersToCreate(DelegateExecution context) {
+        CloudServiceBroker[] serviceBrokers = JsonUtil
+            .fromBinaryJson((byte[]) context.getVariable(Constants.VAR_SERVICE_BROKERS_TO_CREATE), CloudServiceBroker[].class);
         return Arrays.asList(serviceBrokers);
     }
 

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,15 +21,11 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokerCreator;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokersGetter;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -45,11 +42,6 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
 
     private StepInput input;
     private StepOutput expectedOutput;
-
-    @Mock
-    private ServiceBrokerCreator serviceBrokerCreator;
-    @Mock
-    private ServiceBrokersGetter serviceBrokersGetter;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -173,10 +165,10 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
                 .warn(expectedWarningMessage);
         }
 
-        List<CloudServiceBrokerExtended> actuallyCreatedServiceBrokers = StepsUtil.getServiceBrokersToCreate(context);
+        List<CloudServiceBroker> actuallyCreatedServiceBrokers = StepsUtil.getServiceBrokersToCreate(context);
         Collections.sort(actuallyCreatedServiceBrokers, (broker1, broker2) -> broker1.getName()
             .compareTo(broker2.getName()));
-        List<CloudServiceBrokerExtended> expectedServiceBrokersToCreate = new ArrayList<>(expectedOutput.createdServiceBrokers);
+        List<CloudServiceBroker> expectedServiceBrokersToCreate = new ArrayList<>(expectedOutput.createdServiceBrokers);
         expectedServiceBrokersToCreate.addAll(expectedOutput.updatedServiceBrokers);
         Collections.sort(expectedServiceBrokersToCreate, (broker1, broker2) -> broker1.getName()
             .compareTo(broker2.getName()));
@@ -211,7 +203,7 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
     }
 
     private void prepareClient() {
-        Mockito.when(serviceBrokersGetter.getServiceBrokers(client))
+        Mockito.when(client.getServiceBrokers())
             .thenReturn(input.existingServiceBrokers);
         if (updateException != null) {
             Mockito.doThrow(updateException)
@@ -220,8 +212,8 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
         }
         if (createException != null) {
             Mockito.doThrow(createException)
-                .when(serviceBrokerCreator)
-                .createServiceBroker(Mockito.any(), Mockito.any());
+                .when(client)
+                .createServiceBroker(Mockito.any());
         }
         for (SimpleApplication application : input.applications) {
             Mockito.when(client.getApplication(application.name))
@@ -233,13 +225,13 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
 
         StepOutput actualOutput = new StepOutput();
 
-        ArgumentCaptor<CloudServiceBrokerExtended> createArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBrokerExtended.class);
+        ArgumentCaptor<CloudServiceBroker> createArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBroker.class);
         int expectedCreatedBrokersCnt = expectedOutput.createdServiceBrokers.size();
-        Mockito.verify(serviceBrokerCreator, Mockito.times(expectedCreatedBrokersCnt))
-            .createServiceBroker(Mockito.eq(client), createArgumentCaptor.capture());
+        Mockito.verify(client, Mockito.times(expectedCreatedBrokersCnt))
+            .createServiceBroker(createArgumentCaptor.capture());
         actualOutput.createdServiceBrokers = createArgumentCaptor.getAllValues();
 
-        ArgumentCaptor<CloudServiceBrokerExtended> updateArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBrokerExtended.class);
+        ArgumentCaptor<CloudServiceBroker> updateArgumentCaptor = ArgumentCaptor.forClass(CloudServiceBroker.class);
         int expectedUpdatedBrokersCnt = expectedOutput.updatedServiceBrokers.size();
         Mockito.verify(client, Mockito.times(expectedUpdatedBrokersCnt))
             .updateServiceBroker(updateArgumentCaptor.capture());
@@ -249,15 +241,15 @@ public class CreateOrUpdateServiceBrokersStepTest extends SyncFlowableStepTest<C
     }
 
     private static class StepInput {
-        List<CloudServiceBrokerExtended> existingServiceBrokers;
+        List<CloudServiceBroker> existingServiceBrokers;
         List<SimpleApplication> applications;
         String spaceGuid;
         PlatformType platformType = PlatformType.CF;
     }
 
     private static class StepOutput {
-        List<CloudServiceBrokerExtended> createdServiceBrokers;
-        List<CloudServiceBrokerExtended> updatedServiceBrokers;
+        List<CloudServiceBroker> createdServiceBrokers;
+        List<CloudServiceBroker> updatedServiceBrokers;
     }
 
     static class SimpleApplication {

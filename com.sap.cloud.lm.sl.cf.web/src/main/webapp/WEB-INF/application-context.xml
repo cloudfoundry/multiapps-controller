@@ -26,10 +26,6 @@
 
         <bean id="applicationRoutesGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter" />
 
-        <bean id="serviceBrokerCreator" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokerCreator" />
-
-        <bean id="serviceBrokersGetter" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokersGetter" />
-
         <bean id="serviceUpdater" class="com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceUpdater" />
 
         <bean id="buildCloudDeployModelStep" class="com.sap.cloud.lm.sl.cf.process.steps.BuildCloudDeployModelStep"

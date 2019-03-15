@@ -18,10 +18,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokerCreator;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceBrokersGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -36,10 +33,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
 
-    @Inject
-    private ServiceBrokerCreator serviceBrokerCreator;
-    @Inject
-    private ServiceBrokersGetter serviceBrokersGetter;
     private SecureSerializationFacade secureSerializer = new SecureSerializationFacade();
     @Inject
     private ApplicationConfiguration configuration;
@@ -50,15 +43,15 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.CREATING_SERVICE_BROKERS);
 
             CloudControllerClient client = execution.getControllerClient();
-            List<CloudServiceBrokerExtended> existingServiceBrokers = serviceBrokersGetter.getServiceBrokers(client);
-            List<CloudServiceBrokerExtended> serviceBrokersToCreate = getServiceBrokersToCreate(
+            List<CloudServiceBroker> existingServiceBrokers = client.getServiceBrokers();
+            List<CloudServiceBroker> serviceBrokersToCreate = getServiceBrokersToCreate(
                 mapApplicationsFromContextToCloudApplications(execution, client), execution.getContext());
             getStepLogger().debug(MessageFormat.format(Messages.SERVICE_BROKERS, secureSerializer.toJson(serviceBrokersToCreate)));
             List<String> existingServiceBrokerNames = getServiceBrokerNames(existingServiceBrokers);
 
-            for (CloudServiceBrokerExtended serviceBroker : serviceBrokersToCreate) {
+            for (CloudServiceBroker serviceBroker : serviceBrokersToCreate) {
                 if (existingServiceBrokerNames.contains(serviceBroker.getName())) {
-                    CloudServiceBrokerExtended existingBroker = findServiceBroker(existingServiceBrokers, serviceBroker.getName());
+                    CloudServiceBroker existingBroker = findServiceBroker(existingServiceBrokers, serviceBroker.getName());
                     updateServiceBroker(execution.getContext(), serviceBroker, existingBroker, client);
                 } else {
                     createServiceBroker(execution.getContext(), serviceBroker, client);
@@ -85,8 +78,8 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
             .collect(Collectors.toList());
     }
 
-    private void updateServiceBroker(DelegateExecution context, CloudServiceBrokerExtended serviceBroker,
-        CloudServiceBrokerExtended existingBroker, CloudControllerClient client) {
+    private void updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudServiceBroker existingBroker,
+        CloudControllerClient client) {
         serviceBroker.setMeta(existingBroker.getMeta());
         if (existingBroker.getSpaceGuid() != null && serviceBroker.getSpaceGuid() == null) {
             getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL,
@@ -98,7 +91,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
         updateServiceBroker(context, serviceBroker, client);
     }
 
-    private CloudServiceBrokerExtended findServiceBroker(List<CloudServiceBrokerExtended> serviceBrokers, String name) {
+    private CloudServiceBroker findServiceBroker(List<CloudServiceBroker> serviceBrokers, String name) {
         return serviceBrokers.stream()
             .filter(broker -> broker.getName()
                 .equals(name))
@@ -106,10 +99,10 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
             .orElseThrow(() -> new NotFoundException(MessageFormat.format(Messages.SERVICE_BROKER_0_DOES_NOT_EXIST, name)));
     }
 
-    private List<CloudServiceBrokerExtended> getServiceBrokersToCreate(List<CloudApplication> appsToDeploy, DelegateExecution context) {
-        List<CloudServiceBrokerExtended> serviceBrokersToCreate = new ArrayList<>();
+    private List<CloudServiceBroker> getServiceBrokersToCreate(List<CloudApplication> appsToDeploy, DelegateExecution context) {
+        List<CloudServiceBroker> serviceBrokersToCreate = new ArrayList<>();
         for (CloudApplication app : appsToDeploy) {
-            CloudServiceBrokerExtended serviceBroker = getServiceBrokerFromApp(app, context);
+            CloudServiceBroker serviceBroker = getServiceBrokerFromApp(app, context);
             if (serviceBroker == null) {
                 continue;
             }
@@ -120,7 +113,7 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
         return serviceBrokersToCreate;
     }
 
-    protected CloudServiceBrokerExtended getServiceBrokerFromApp(CloudApplication app, DelegateExecution context) {
+    protected CloudServiceBroker getServiceBrokerFromApp(CloudApplication app, DelegateExecution context) {
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
         if (!appAttributes.get(SupportedParameters.CREATE_SERVICE_BROKER, Boolean.class, false)) {
             return null;
@@ -145,8 +138,12 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
             throw new ContentException(Messages.MISSING_SERVICE_BROKER_URL, app.getName());
         }
 
-        return new CloudServiceBrokerExtended(serviceBrokerName, serviceBrokerUrl, serviceBrokerUsername, serviceBrokerPassword,
-            serviceBrokerSpaceGuid);
+        CloudServiceBroker serviceBroker = new CloudServiceBroker(null, serviceBrokerName);
+        serviceBroker.setUsername(serviceBrokerUsername);
+        serviceBroker.setPassword(serviceBrokerPassword);
+        serviceBroker.setUrl(serviceBrokerUrl);
+        serviceBroker.setSpaceGuid(serviceBrokerSpaceGuid);
+        return serviceBroker;
     }
 
     private String getServiceBrokerSpaceGuid(DelegateExecution context, String serviceBrokerName, ApplicationAttributes appAttributes) {
@@ -190,10 +187,10 @@ public class CreateOrUpdateServiceBrokersStep extends SyncFlowableStep {
         }
     }
 
-    private void createServiceBroker(DelegateExecution context, CloudServiceBrokerExtended serviceBroker, CloudControllerClient client) {
+    private void createServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudControllerClient client) {
         try {
             getStepLogger().info(MessageFormat.format(Messages.CREATING_SERVICE_BROKER, serviceBroker.getName()));
-            serviceBrokerCreator.createServiceBroker(client, serviceBroker);
+            client.createServiceBroker(serviceBroker);
             getStepLogger().debug(MessageFormat.format(Messages.CREATED_SERVICE_BROKER, serviceBroker.getName()));
         } catch (CloudOperationException e) {
             switch (e.getStatusCode()) {
