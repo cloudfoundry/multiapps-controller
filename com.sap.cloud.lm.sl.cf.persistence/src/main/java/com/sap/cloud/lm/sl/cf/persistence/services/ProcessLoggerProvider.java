@@ -104,8 +104,7 @@ public class ProcessLoggerProvider {
     }
 
     private boolean hasLoggerSpecificProcessIdAndActivityId(String processId, String activityId, ProcessLogger logger) {
-        return processId.equals(logger.getProcessId()) && activityId
-            .equals(logger.getActivityId());
+        return processId.equals(logger.getProcessId()) && activityId.equals(logger.getActivityId());
     }
 
     public void remove(ProcessLogger processLogger) {

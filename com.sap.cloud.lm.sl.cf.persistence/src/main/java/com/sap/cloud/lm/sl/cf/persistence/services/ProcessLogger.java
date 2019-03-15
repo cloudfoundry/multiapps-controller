@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 
 public class ProcessLogger extends Logger {
 
+    private static final String NULL_LOGGER_NAME = "Null logger";
+
     private Logger logger;
     private File log;
     private String logName;
@@ -19,6 +21,13 @@ public class ProcessLogger extends Logger {
         this.logger = logger;
         this.log = log;
         this.logName = logName;
+        this.spaceId = spaceId;
+        this.processId = processId;
+        this.activityId = activityId;
+    }
+
+    public ProcessLogger(String spaceId, String processId, String activityId) {
+        super(NULL_LOGGER_NAME);
         this.spaceId = spaceId;
         this.processId = processId;
         this.activityId = activityId;
@@ -58,7 +67,7 @@ public class ProcessLogger extends Logger {
     public void warn(Object message, Throwable t) {
         logger.warn(message, t);
     }
-    
+
     @Override
     public void removeAllAppenders() {
         logger.removeAllAppenders();
