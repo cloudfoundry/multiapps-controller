@@ -112,8 +112,10 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
             Mockito.verify(stepLogger)
                 .warn(warningMessage);
         } else {
-            CloudServiceBroker expectedBroker = new CloudServiceBroker(null, input.brokerApplication.brokerName,
-                input.brokerApplication.brokerUrl, input.brokerApplication.brokerUsername, input.brokerApplication.brokerPassword);
+            CloudServiceBroker expectedBroker = new CloudServiceBroker(null, input.brokerApplication.brokerName);
+            expectedBroker.setUsername(input.brokerApplication.brokerUsername);
+            expectedBroker.setPassword(input.brokerApplication.brokerPassword);
+            expectedBroker.setUrl(input.brokerApplication.brokerUrl);
             Mockito.verify(client)
                 .updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
         }
@@ -162,7 +164,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
         String name;
 
         CloudServiceBroker toServiceBroker() {
-            return (name == null) ? null : new CloudServiceBroker(null, name, null, null);
+            return (name == null) ? null : new CloudServiceBroker(null, name);
         }
     }
 }

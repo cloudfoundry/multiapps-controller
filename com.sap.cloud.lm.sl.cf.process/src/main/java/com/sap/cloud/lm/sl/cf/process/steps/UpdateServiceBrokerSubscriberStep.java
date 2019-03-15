@@ -11,7 +11,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceBrokerExtended;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 
 @Component("updateServiceBrokerSubscriberStep")
@@ -21,7 +20,7 @@ public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrok
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         CloudApplication serviceBrokerAppication = StepsUtil.getServiceBrokerSubscriberToRestart(execution.getContext());
-        CloudServiceBrokerExtended serviceBroker = getServiceBrokerFromApp(serviceBrokerAppication, execution.getContext());
+        CloudServiceBroker serviceBroker = getServiceBrokerFromApp(serviceBrokerAppication, execution.getContext());
 
         try {
             CloudControllerClient client = execution.getControllerClient();
