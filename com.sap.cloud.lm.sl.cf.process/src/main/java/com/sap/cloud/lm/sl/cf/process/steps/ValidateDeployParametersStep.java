@@ -60,11 +60,11 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private void validateVersionRule(DelegateExecution context) {
-        String parameter = (String) context.getVariable(Constants.PARAM_VERSION_RULE);
+        String versionRuleString = (String) context.getVariable(Constants.PARAM_VERSION_RULE);
         try {
-            VersionRule.valueOf(parameter);
+            VersionRule.value(versionRuleString);
         } catch (IllegalArgumentException e) {
-            throw new SLException(e, Messages.ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2, parameter, Constants.PARAM_VERSION_RULE,
+            throw new SLException(e, Messages.ERROR_PARAMETER_1_IS_NOT_VALID_VALID_VALUES_ARE_2, versionRuleString, Constants.PARAM_VERSION_RULE,
                 Arrays.asList(VersionRule.values()));
         }
     }
