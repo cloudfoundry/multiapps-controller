@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
+import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,8 +37,6 @@ public class RecentLogsRetrieverTest {
     private RestTemplateFactory restTemplateFactory;
     @Mock
     private RestTemplate restTemplate;
-    @Mock
-    LoggingEndpointGetter loggingEndpointGetter;
 
     private ExecutionRetrier fastRetrier = new ExecutionRetrier().withRetryCount(1)
         .withWaitTimeBetweenRetriesInMillis(1);
@@ -46,8 +45,8 @@ public class RecentLogsRetrieverTest {
 
     private class RecentLogsRetrieverMock extends RecentLogsRetriever {
 
-        public RecentLogsRetrieverMock(RestTemplateFactory restTemplateFactory, LoggingEndpointGetter loggingEndpointGetter) {
-            super(restTemplateFactory, loggingEndpointGetter);
+        public RecentLogsRetrieverMock(RestTemplateFactory restTemplateFactory) {
+            super(restTemplateFactory);
         }
 
         @Override
@@ -59,9 +58,11 @@ public class RecentLogsRetrieverTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        this.recentLogsRetriever = new RecentLogsRetrieverMock(restTemplateFactory, loggingEndpointGetter);
-        Mockito.when(loggingEndpointGetter.getLoggingEndpoint(client))
-            .thenReturn(LOGGING_ENDPOINT_URL);
+        this.recentLogsRetriever = new RecentLogsRetrieverMock(restTemplateFactory);
+        CloudInfo cloudInfo = Mockito.mock(CloudInfo.class);
+        Mockito.when(cloudInfo.getLoggingEndpoint()).thenReturn(LOGGING_ENDPOINT_URL);
+        Mockito.when(client.getCloudInfo())
+            .thenReturn(cloudInfo);
         Mockito.when(client.getApplication(APP_NAME))
             .thenReturn(createDummpyApp());
         Mockito.when(client.getCloudControllerUrl())

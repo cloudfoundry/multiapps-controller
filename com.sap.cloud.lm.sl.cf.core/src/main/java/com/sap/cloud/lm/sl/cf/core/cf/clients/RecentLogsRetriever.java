@@ -32,13 +32,11 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class RecentLogsRetriever extends CustomControllerClient {
 
     public static final String RECENT_LOGS_ENDPOINT = "/apps/{guid}/recentlogs";
-    private final LoggingEndpointGetter loggingEndpointGetter;
     private boolean failSafe;
 
     @Inject
-    public RecentLogsRetriever(RestTemplateFactory restTemplateFactory, LoggingEndpointGetter loggingEndpointGetter) {
+    public RecentLogsRetriever(RestTemplateFactory restTemplateFactory) {
         super(restTemplateFactory);
-        this.loggingEndpointGetter = loggingEndpointGetter;
     }
 
     public List<ApplicationLog> getRecentLogs(CloudControllerClient client, String appName) {
@@ -66,7 +64,8 @@ public class RecentLogsRetriever extends CustomControllerClient {
         UUID applicationGuid = client.getApplication(appName)
             .getMeta()
             .getGuid();
-        String dopplerEndpoint = getDopplerEndpoint(loggingEndpointGetter.getLoggingEndpoint(client));
+        String dopplerEndpoint = getDopplerEndpoint(client.getCloudInfo()
+            .getLoggingEndpoint());
 
         String recentLogsUrl = dopplerEndpoint + RECENT_LOGS_ENDPOINT;
         ResponseEntity<Resource> responseResource = getRestTemplate(client).exchange(recentLogsUrl, HttpMethod.GET, null, Resource.class,
