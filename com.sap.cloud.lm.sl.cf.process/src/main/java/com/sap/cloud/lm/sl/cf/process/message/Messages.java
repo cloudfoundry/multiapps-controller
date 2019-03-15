@@ -479,5 +479,6 @@ public class Messages {
     public static final String REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0 = "Registered cleaners in clean-up job: {0}";
     public static final String MISSING_SERVICES_TO_DELETE = "Missing services to delete.";
     public static final String NO_CONTENT_TO_UPLOAD = "No content to upload";
+    public static final String STARTING_OPERATION = "Starting operation \"{0}\"";
 
 }

@@ -43,6 +43,7 @@ public class StartProcessListener extends AbstractProcessExecutionListener {
     @Override
     protected void notifyInternal(DelegateExecution context) {
         String correlationId = StepsUtil.getCorrelationId(context);
+        getStepLogger().info(Messages.STARTING_OPERATION, correlationId);
         ProcessType processType = processTypeParser.getProcessType(context);
 
         if (operationDao.find(correlationId) == null) {
