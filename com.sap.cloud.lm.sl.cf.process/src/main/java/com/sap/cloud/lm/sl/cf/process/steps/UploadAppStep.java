@@ -55,7 +55,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             getStepLogger().info(Messages.UPLOADING_APP, app.getName());
             CloudControllerClient client = execution.getControllerClient();
 
-            String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+            String appArchiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
             MtaArchiveElements mtaArchiveElements = StepsUtil.getMtaArchiveElements(execution.getContext());
             String fileName = mtaArchiveElements.getModuleFileName(app.getModuleName());
 

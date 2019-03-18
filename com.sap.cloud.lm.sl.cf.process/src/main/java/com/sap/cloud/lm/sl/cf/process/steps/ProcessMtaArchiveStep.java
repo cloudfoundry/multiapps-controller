@@ -43,7 +43,7 @@ public class ProcessMtaArchiveStep extends SyncFlowableStep {
         try {
             getStepLogger().debug(Messages.PROCESSING_MTA_ARCHIVE);
 
-            String appArchiveId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
+            String appArchiveId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_APP_ARCHIVE_ID);
             processApplicationArchive(execution.getContext(), appArchiveId);
             setMtaIdForProcess(execution.getContext());
             getStepLogger().debug(Messages.MTA_ARCHIVE_PROCESSED);

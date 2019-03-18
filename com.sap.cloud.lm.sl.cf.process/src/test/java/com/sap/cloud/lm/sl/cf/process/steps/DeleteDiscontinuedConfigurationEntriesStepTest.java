@@ -103,7 +103,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     }
 
     private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {
-        return JsonUtil.toBinaryJson(publishedEntries.toArray(new ConfigurationEntry[] {}));
+        return JsonUtil.toJsonBinary(publishedEntries.toArray(new ConfigurationEntry[] {}));
     }
 
     @Test

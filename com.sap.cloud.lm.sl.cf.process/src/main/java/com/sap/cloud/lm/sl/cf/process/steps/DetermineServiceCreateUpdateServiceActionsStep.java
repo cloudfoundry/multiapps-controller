@@ -156,7 +156,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         String fileName = mtaArchiveElements.getResourceFileName(service.getResourceName());
         if (fileName != null) {
             getStepLogger().info(Messages.SETTING_SERVICE_PARAMETERS, service.getName(), fileName);
-            String appArchiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
+            String appArchiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
             setServiceParameters(context, service, appArchiveId, fileName);
         }
     }

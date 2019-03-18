@@ -306,7 +306,7 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         StepsUtil.setTriggeredServiceOperations(context, Collections.emptyMap());
         context.setVariable(Constants.VAR_MODULES_INDEX, 0);
         context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "dummy");
-        byte[] serviceKeysToInjectByteArray = JsonUtil.toBinaryJson(new HashMap<>());
+        byte[] serviceKeysToInjectByteArray = JsonUtil.toJsonBinary(new HashMap<>());
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
     }
 

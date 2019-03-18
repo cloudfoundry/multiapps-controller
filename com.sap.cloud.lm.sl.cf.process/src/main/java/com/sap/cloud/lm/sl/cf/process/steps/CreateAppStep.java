@@ -177,7 +177,7 @@ public class CreateAppStep extends SyncFlowableStep {
 
     private void addFileProvidedBindingParameters(DelegateExecution context, String serviceName, String requiredDependencyName,
         Map<String, Map<String, Object>> result) throws FileStorageException {
-        String archiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
+        String archiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
         MtaArchiveElements mtaArchiveElements = StepsUtil.getMtaArchiveElements(context);
         String fileName = mtaArchiveElements.getRequiredDependencyFileName(requiredDependencyName);
         if (fileName == null) {

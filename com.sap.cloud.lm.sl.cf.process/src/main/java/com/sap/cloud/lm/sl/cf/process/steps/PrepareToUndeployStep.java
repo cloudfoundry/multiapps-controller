@@ -36,7 +36,7 @@ public class PrepareToUndeployStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DETECTING_COMPONENTS_TO_UNDEPLOY);
         try {
-            String mtaId = StepsUtil.getRequiredStringParameter(execution.getContext(), Constants.PARAM_MTA_ID);
+            String mtaId = StepsUtil.getRequiredString(execution.getContext(), Constants.PARAM_MTA_ID);
 
             StepsUtil.setMtaModules(execution.getContext(), getMtaModules(execution.getContext()));
             StepsUtil.setPublishedEntries(execution.getContext(), Collections.emptyList());

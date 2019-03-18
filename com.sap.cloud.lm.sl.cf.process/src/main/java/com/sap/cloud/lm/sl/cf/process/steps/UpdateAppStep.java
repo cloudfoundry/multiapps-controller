@@ -183,7 +183,7 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     private boolean isServiceUpdated(String serviceName, ExecutionWrapper execution) {
-        return StepsUtil.getIsServiceUpdatedExportedVariable(serviceName, execution.getContext());
+        return StepsUtil.getIsServiceUpdatedExportedVariable(execution.getContext(), serviceName);
     }
 
     protected CloudServiceBinding getServiceBindingsForApplication(CloudApplication existingApp,
