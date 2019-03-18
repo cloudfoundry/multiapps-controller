@@ -94,7 +94,7 @@ public class ValidateDeployParametersStep extends SyncFlowableStep {
     }
 
     private void validateAppArchiveId(DelegateExecution context) {
-        String appArchiveId = StepsUtil.getRequiredStringParameter(context, Constants.PARAM_APP_ARCHIVE_ID);
+        String appArchiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
 
         String[] appArchivePartsId = appArchiveId.split(",");
         if (appArchivePartsId.length == 1) {

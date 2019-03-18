@@ -82,7 +82,7 @@ public class PollStartAppStatusExecution implements AsyncExecution {
 
     private StartupStatus getStartupStatus(ExecutionWrapper execution, CloudApplication app, List<InstanceInfo> appInstances) {
         // The default value here is provided for undeploy processes:
-        boolean failOnCrashed = StepsUtil.getVariableOrDefault(execution.getContext(), Constants.PARAM_FAIL_ON_CRASHED, true);
+        boolean failOnCrashed = StepsUtil.getBoolean(execution.getContext(), Constants.PARAM_FAIL_ON_CRASHED, true);
 
         if (appInstances != null) {
             int expectedInstances = app.getInstances();

@@ -116,7 +116,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
 
     @Override
     public Integer getTimeout(DelegateExecution context) {
-        return StepsUtil.getVariableOrDefault(context, Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
+        return StepsUtil.getInteger(context, Constants.PARAM_START_TIMEOUT, Constants.DEFAULT_START_TIMEOUT);
     }
 
 }

@@ -78,7 +78,7 @@ public class DetermineDesiredStateAchievingActionsStep extends SyncFlowableStep 
     }
 
     private boolean determineAppRestart(DelegateExecution context) {
-        String appContentChangedString = StepsUtil.getVariableOrDefault(context, Constants.VAR_APP_CONTENT_CHANGED,
+        String appContentChangedString = StepsUtil.getString(context, Constants.VAR_APP_CONTENT_CHANGED,
             Boolean.toString(false));
         if (Boolean.valueOf(appContentChangedString)) {
             return true;

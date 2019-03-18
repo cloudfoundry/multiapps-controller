@@ -35,7 +35,7 @@ public class DeleteUnusedReservedRoutesStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
             getStepLogger().debug(Messages.DELETING_UNUSED_RESERVED_ROUTES);
-            boolean portBasedRouting = StepsUtil.getVariableOrDefault(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
+            boolean portBasedRouting = StepsUtil.getBoolean(execution.getContext(), Constants.VAR_PORT_BASED_ROUTING, false);
 
             String defaultDomain = getDefaultDomain(execution.getContext());
 
