@@ -75,8 +75,9 @@ public class ProcessMtaExtensionDescriptorsStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.EXTENSION_DESCRIPTORS, secureSerializationFacade.toJson(extensionDescriptors));
             return extensionDescriptors;
         } catch (FileStorageException e) {
-            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_EXTENSION_DESCRIPTOR);
+            throw new SLException(e, e.getMessage());
         }
+
     }
 
 }

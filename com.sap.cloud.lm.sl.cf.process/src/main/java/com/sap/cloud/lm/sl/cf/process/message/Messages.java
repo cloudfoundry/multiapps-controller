@@ -13,7 +13,6 @@ public class Messages {
     public static final String REQUIRED_PARAMETER_IS_MISSING = "Required parameter \"{0}\" is missing";
     public static final String REQUIRED_PARAMETERS_ARE_MISSING = "Required parameters \"{0}\" are missing";
     public static final String ERROR_RETRIEVING_MTA_ARCHIVE = "Error retrieving MTA archive \"{0}\"";
-    public static final String ERROR_RETRIEVING_MTA_EXTENSION_DESCRIPTOR = "Error retrieving MTA extension descriptor";
     public static final String ERROR_RETRIEVING_MTA_MODULE_CONTENT = "Error retrieving content of MTA module \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_REQUIRED_DEPENDENCY_CONTENT = "Error retrieving content of MTA required dependency \"{0}\"";
     public static final String ERROR_MODULE_NOT_FOUND = "Module with name \"{0}\" not found";
