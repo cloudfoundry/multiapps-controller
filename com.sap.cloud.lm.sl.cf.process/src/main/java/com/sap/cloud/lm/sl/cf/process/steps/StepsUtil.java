@@ -74,6 +74,7 @@ import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
@@ -342,7 +343,7 @@ public class StepsUtil {
         String className = (!CollectionUtils.isEmpty(modules)) ? modules.get(0)
             .getClass()
             .getName() : Module.class.getName();
-            scope.setVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME, className);
+        scope.setVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME, className);
     }
 
     @SuppressWarnings("unchecked")
@@ -380,8 +381,7 @@ public class StepsUtil {
         scope.setVariable(Constants.VAR_DEPLOYMENT_MODE, deploymentMode);
     }
 
-    static void setServiceKeysCredentialsToInject(VariableScope scope,
-        Map<String, Map<String, String>> serviceKeysCredentialsToInject) {
+    static void setServiceKeysCredentialsToInject(VariableScope scope, Map<String, Map<String, String>> serviceKeysCredentialsToInject) {
         setAsJsonBinary(scope, Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysCredentialsToInject);
     }
 
@@ -831,7 +831,7 @@ public class StepsUtil {
         setAsJsonBinary(scope, Constants.VAR_STARTING_INFO, startingInfo);
         String className = startingInfo != null ? startingInfo.getClass()
             .getName() : StartingInfo.class.getName();
-            scope.setVariable(Constants.VAR_STARTING_INFO_CLASSNAME, className);
+        scope.setVariable(Constants.VAR_STARTING_INFO_CLASSNAME, className);
     }
 
     @SuppressWarnings("unchecked")
@@ -945,7 +945,9 @@ public class StepsUtil {
             if (!moduleToDeployHelper.isApplication(module)) {
                 continue;
             }
-            List<String> appDomains = applicationCloudModelBuilder.getApplicationDomains(module);
+            ParametersChainBuilder parametersChainBuilder = new ParametersChainBuilder(StepsUtil.getDeploymentDescriptor(scope));
+            List<String> appDomains = applicationCloudModelBuilder
+                .getApplicationDomains(parametersChainBuilder.buildModuleChain(module.getName()), module);
             if (appDomains != null) {
                 domains.addAll(appDomains);
             }

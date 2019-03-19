@@ -11,12 +11,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.MapUtils;
+import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -206,46 +205,50 @@ public class CreateAppStep extends SyncFlowableStep {
         return bindingParameters;
     }
 
-    private CloudServiceExtended findServiceCloudModel(List<CloudServiceExtended> servicesCloudModel, String serviceName) {
-        return servicesCloudModel.stream()
-            .filter(service -> service.getName()
-                .equals(serviceName))
-            .findAny()
-            .orElse(null);
-    }
-
     protected void bindService(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
         Map<String, Object> bindingParameters) {
 
-        try {
-            bindServiceToApplication(client, appName, serviceName, bindingParameters);
-        } catch (CloudOperationException e) {
-            List<CloudServiceExtended> servicesToBind = StepsUtil.getServicesToBind(execution.getContext());
-            CloudServiceExtended serviceToBind = findServiceCloudModel(servicesToBind, serviceName);
-
-            if (serviceToBind != null && serviceToBind.isOptional()) {
-                getStepLogger().warn(e, Messages.COULD_NOT_BIND_APP_TO_OPTIONAL_SERVICE, appName, serviceName);
-                return;
-            }
-            throw new SLException(e, Messages.COULD_NOT_BIND_APP_TO_SERVICE, appName, serviceName, e.getMessage());
-        }
-    }
-
-    private void bindServiceToApplication(CloudControllerClient client, String appName, String serviceName,
-        Map<String, Object> bindingParameters) {
         getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters);
-        // TODO Fix update of service bindings parameters:
-        client.bindService(appName, serviceName, bindingParameters);
+        client.bindService(appName, serviceName, bindingParameters, getApplicationServicesUpdateCallback(execution.getContext()));
     }
 
     protected static Map<String, Object> getBindingParametersForService(String serviceName,
         Map<String, Map<String, Object>> bindingParameters) {
-        return bindingParameters == null ? null : bindingParameters.get(serviceName);
+        return bindingParameters == null ? Collections.emptyMap() : bindingParameters.getOrDefault(serviceName, Collections.emptyMap());
     }
 
-    protected static Map<String, Object> getBindingParametersOrDefault(CloudServiceBinding cloudServiceBinding) {
-        Map<String, Object> bindingParameters = cloudServiceBinding.getBindingOptions();
-        return MapUtils.isEmpty(bindingParameters) ? null : bindingParameters;
+    protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution context) {
+        return new DefaultApplicationServicesUpdateCallback(context);
+    }
+
+    private class DefaultApplicationServicesUpdateCallback implements ApplicationServicesUpdateCallback {
+
+        private DelegateExecution context;
+
+        private DefaultApplicationServicesUpdateCallback(DelegateExecution context) {
+            this.context = context;
+        }
+
+        @Override
+        public void onError(CloudOperationException e, String applicationName, String serviceName) throws RuntimeException {
+            List<CloudServiceExtended> servicesToBind = StepsUtil.getServicesToBind(context);
+            CloudServiceExtended serviceToBind = findServiceCloudModel(servicesToBind, serviceName);
+
+            if (serviceToBind != null && serviceToBind.isOptional()) {
+                getStepLogger().warn(e, Messages.COULD_NOT_BIND_APP_TO_OPTIONAL_SERVICE, applicationName, serviceName);
+                return;
+            }
+            throw new SLException(e, Messages.COULD_NOT_BIND_APP_TO_SERVICE, applicationName, serviceName, e.getMessage());
+        }
+
+        private CloudServiceExtended findServiceCloudModel(List<CloudServiceExtended> servicesCloudModel, String serviceName) {
+            return servicesCloudModel.stream()
+                .filter(service -> service.getName()
+                    .equals(serviceName))
+                .findAny()
+                .orElse(null);
+        }
+
     }
 
 }

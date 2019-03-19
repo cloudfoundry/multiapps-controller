@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.DockerCredentials;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +40,13 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
 
     private final StepInput stepInput;
-    private final String expectedExceptionMessage;
+    private static String expectedExceptionMessage;
+
+    private static final ApplicationServicesUpdateCallback CALLBACK = (e, applicationName, serviceName) -> {
+        if (expectedExceptionMessage != null) {
+            throw new RuntimeException(expectedExceptionMessage, e);
+        }
+    };
 
     private CloudApplicationExtended application;
 
@@ -157,9 +165,9 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
             String serviceName = stepInput.bindingErrors.get(appName);
             Mockito
                 .doThrow(new CloudOperationException(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                    "Something happened!"))
+                    expectedExceptionMessage + "Something happened!"))
                 .when((XsCloudControllerClient) client)
-                .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any());
+                .bindService(Mockito.eq(appName), Mockito.eq(serviceName), Mockito.any(), Mockito.any());
         }
 
         for (String serviceName : stepInput.existingServiceKeys.keySet()) {
@@ -180,7 +188,8 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
             if (!isOptional(service)) {
                 Mockito.verify(client)
                     .bindService(application.getName(), service,
-                        getBindingParametersForService(application.getBindingParameters(), service));
+                        getBindingParametersForService(application.getBindingParameters(), service),
+                        step.getApplicationServicesUpdateCallback(context));
             }
         }
         Mockito.verify(client)
@@ -188,7 +197,7 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
     }
 
     private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {
-        return bindingParameters == null ? null : bindingParameters.get(serviceName);
+        return bindingParameters == null ? Collections.emptyMap() : bindingParameters.getOrDefault(serviceName, Collections.emptyMap());
     }
 
     private boolean isOptional(String service) {
@@ -223,10 +232,14 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
 
     @Override
     protected CreateAppStep createStep() {
-        return new CreateAppStep();
+        return new CreateAppStepMock();
     }
 
-    public static class TestWithDocker extends SyncFlowableStepTest<CreateAppStep> {
+    public static class TestWithDocker extends CreateAppStepTest {
+
+        public TestWithDocker(String stepInput, String expectedExceptionMessage, PlatformType platform) throws Exception {
+            super(stepInput, expectedExceptionMessage, platform);
+        }
 
         // Required for autowiring
         private CloudApplicationExtended application;
@@ -336,7 +349,15 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
 
         @Override
         protected CreateAppStep createStep() {
-            return new CreateAppStep();
+            return new CreateAppStepTest.CreateAppStepMock();
+        }
+
+    }
+
+    private class CreateAppStepMock extends CreateAppStep {
+        @Override
+        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution context) {
+            return CALLBACK;
         }
     }
 }

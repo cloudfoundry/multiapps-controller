@@ -13,7 +13,7 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateBehavior": {
+    "applicationAttributesUpdateStrategy": {
       "shouldKeepExistingEnv": true,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false

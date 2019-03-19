@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ApplicationPort.ApplicationPortType;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.RestartParameters;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
@@ -113,11 +114,10 @@ public class ApplicationCloudModelBuilder {
         int memory = parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.MEMORY, "0"));
         int instances = (Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0);
         DockerInfo dockerInfo = parseParameters(parametersList, new DockerInfoParser());
-        CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateBehavior = parseParameters(parametersList,
-            new ApplicationAttributeUpdateStrategyParser());
-        ApplicationUrisCloudModelBuilder urisCloudModelBuilder = new ApplicationUrisCloudModelBuilder(configuration.isPortBasedRouting(),
-            systemParameters, applicationAttributesUpdateBehavior);
-        List<String> uris = getApplicationUris(urisCloudModelBuilder, module);
+        CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy = getApplicationAttributesUpdateStrategy(
+            parametersList);
+        ApplicationUrisCloudModelBuilder urisCloudModelBuilder = getApplicationUrisCloudModelBuilder(parametersList);
+        List<String> uris = getApplicationUris(module);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
         List<String> resolvedUris = xsPlaceholderResolver.resolve(uris);
         List<String> resolvedIdleUris = xsPlaceholderResolver.resolve(idleUris);
@@ -127,17 +127,26 @@ public class ApplicationCloudModelBuilder {
         List<CloudTask> tasks = getTasks(parametersList);
         Map<String, Map<String, Object>> bindingParameters = getBindingParameters(module);
         List<ApplicationPort> applicationPorts = getApplicationPorts(urisCloudModelBuilder, module, parametersList);
-        List<String> applicationDomains = getApplicationDomains(urisCloudModelBuilder, module);
+        List<String> applicationDomains = getApplicationDomains(parametersList, module);
         RestartParameters restartParameters = parseParameters(parametersList, new RestartParametersParser());
         return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
             resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains, restartParameters,
-            dockerInfo, applicationAttributesUpdateBehavior);
+            dockerInfo, applicationAttributesUpdateStrategy);
     }
 
-    public List<String> getApplicationUris(ApplicationUrisCloudModelBuilder urisCloudModelBuilder, Module module) {
+    private AttributeUpdateStrategy getApplicationAttributesUpdateStrategy(List<Map<String, Object>> parametersList) {
+        return parseParameters(parametersList, new ApplicationAttributeUpdateStrategyParser());
+    }
+
+    private ApplicationUrisCloudModelBuilder getApplicationUrisCloudModelBuilder(List<Map<String, Object>> parametersList) {
+        return new ApplicationUrisCloudModelBuilder(configuration.isPortBasedRouting(), systemParameters,
+            getApplicationAttributesUpdateStrategy(parametersList));
+    }
+
+    public List<String> getApplicationUris(Module module) {
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
         DeployedMtaModule deployedModule = findDeployedModule(deployedMta, module);
-        return urisCloudModelBuilder.getApplicationUris(module, parametersList, deployedModule);
+        return getApplicationUrisCloudModelBuilder(parametersList).getApplicationUris(module, parametersList, deployedModule);
     }
 
     protected <R> R parseParameters(List<Map<String, Object>> parametersList, ParametersParser<R> parser) {
@@ -325,8 +334,8 @@ public class ApplicationCloudModelBuilder {
         return applicationRoutes;
     }
 
-    public List<String> getApplicationDomains(ApplicationUrisCloudModelBuilder urisCloudModelBuilder, Module module) {
-        List<String> applicationDomains = urisCloudModelBuilder.getApplicationDomains(module,
+    public List<String> getApplicationDomains(List<Map<String, Object>> parametersList, Module module) {
+        List<String> applicationDomains = getApplicationUrisCloudModelBuilder(parametersList).getApplicationDomains(module,
             parametersChainBuilder.buildModuleChain(module.getName()));
         return xsPlaceholderResolver.resolve(applicationDomains);
     }
