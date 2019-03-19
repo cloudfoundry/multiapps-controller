@@ -31,6 +31,11 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
+    "applicationAttributesUpdateBehavior": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"no-start\":true}",
@@ -63,6 +68,11 @@
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
+    },
+    "applicationAttributesUpdateBehavior": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
     },
     "diskQuota": 0,
     "env": [
@@ -97,6 +107,11 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
+    "applicationAttributesUpdateBehavior": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
@@ -129,6 +144,11 @@
       "shouldRestartOnVcapAppChange": true,
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
+    },
+    "applicationAttributesUpdateBehavior": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
     },
     "diskQuota": 0,
     "env": [

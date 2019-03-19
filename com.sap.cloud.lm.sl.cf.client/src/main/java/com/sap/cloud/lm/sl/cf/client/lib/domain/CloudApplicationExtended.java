@@ -24,6 +24,7 @@ public class CloudApplicationExtended extends CloudApplication {
     private List<String> domains;
     private RestartParameters restartParameters;
     private DockerInfo dockerInfo;
+    private AttributeUpdateStrategy applicationAttributesUpdateBehavior;
 
     public CloudApplicationExtended(Meta meta, String name) {
         super(meta, name);
@@ -115,6 +116,70 @@ public class CloudApplicationExtended extends CloudApplication {
 
     public void setDockerInfo(DockerInfo dockerInfo) {
         this.dockerInfo = dockerInfo;
+    }
+
+    public AttributeUpdateStrategy getApplicationAttributesUpdateBehavior() {
+        return applicationAttributesUpdateBehavior;
+    }
+
+    public void setApplicationAttributesUpdateBehavior(AttributeUpdateStrategy applicationAttributesUpdateBehavior) {
+        this.applicationAttributesUpdateBehavior = applicationAttributesUpdateBehavior;
+    }
+
+    public static class AttributeUpdateStrategy {
+        private boolean shouldKeepExistingEnv;
+        private boolean shouldKeepExistingServiceBindings;
+        private boolean shouldKeepExistingRoutes;
+
+        public AttributeUpdateStrategy(Builder attrbiuteUpdateStrategyBuilder) {
+            this.shouldKeepExistingEnv = attrbiuteUpdateStrategyBuilder.shouldKeepExistingEnv;
+            this.shouldKeepExistingServiceBindings = attrbiuteUpdateStrategyBuilder.shouldKeepExistingServiceBindings;
+            this.shouldKeepExistingRoutes = attrbiuteUpdateStrategyBuilder.shouldKeepExistingRoutes;
+        }
+
+        public boolean shouldKeepExistingEnv() {
+            return shouldKeepExistingEnv;
+        }
+
+        public boolean shouldKeepExistingServiceBindings() {
+            return shouldKeepExistingServiceBindings;
+        }
+
+        public boolean shouldKeepExistingRoutes() {
+            return shouldKeepExistingRoutes;
+        }
+
+        public static class Builder {
+            private boolean shouldKeepExistingEnv = false;
+            private boolean shouldKeepExistingServiceBindings = false;
+            private boolean shouldKeepExistingRoutes = false;
+
+            public Builder shouldKeepExistingEnv(Boolean shouldKeepExistingEnv) {
+                if (shouldKeepExistingEnv != null) {
+                    this.shouldKeepExistingEnv = shouldKeepExistingEnv;
+                }
+                return this;
+            }
+
+            public Builder shouldKeepExistingServiceBindings(Boolean shouldKeepExistingServiceBindings) {
+                if (shouldKeepExistingServiceBindings != null) {
+                    this.shouldKeepExistingServiceBindings = shouldKeepExistingServiceBindings;
+                }
+                return this;
+            }
+
+            public Builder shouldKeepExistingRoutes(Boolean shouldKeepExistingRoutes) {
+                if (shouldKeepExistingRoutes != null) {
+                    this.shouldKeepExistingRoutes = shouldKeepExistingRoutes;
+                }
+                return this;
+            }
+
+            public AttributeUpdateStrategy build() {
+                return new AttributeUpdateStrategy(this);
+            }
+        }
+
     }
 
 }

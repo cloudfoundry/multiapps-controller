@@ -13,3 +13,5 @@ modules:
       # adding parameters which will be ignored
       host: deprecated-host
       route-path: /deprecated-path
+      keep-existing:
+        env: true
