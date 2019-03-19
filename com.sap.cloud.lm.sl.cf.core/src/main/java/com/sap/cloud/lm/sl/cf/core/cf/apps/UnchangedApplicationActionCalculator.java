@@ -9,15 +9,18 @@ import com.sap.cloud.lm.sl.cf.core.message.Messages;
 public class UnchangedApplicationActionCalculator implements ActionCalculator {
 
     @Override
-    public Set<ApplicationStateAction> determineActionsToExecute(ApplicationStartupState currentState,
-        ApplicationStartupState desiredState) {
+    public Set<ApplicationStateAction> determineActionsToExecute(ApplicationStartupState currentState, ApplicationStartupState desiredState,
+        boolean isApplicationStagedCorrectly) {
         Set<ApplicationStateAction> actionsToExecute = new HashSet<>();
-        if (currentState.equals(desiredState)) {
+        if (currentState.equals(desiredState) && isApplicationStagedCorrectly) {
             return actionsToExecute;
+        }
+        if (!isApplicationStagedCorrectly) {
+            actionsToExecute.add(ApplicationStateAction.STAGE);
         }
         switch (desiredState) {
             case STARTED:
-                if (currentState.equals(ApplicationStartupState.INCONSISTENT)) {
+                if (currentState.equals(ApplicationStartupState.STARTED) || currentState.equals(ApplicationStartupState.INCONSISTENT)) {
                     actionsToExecute.add(ApplicationStateAction.STOP);
                 }
                 actionsToExecute.add(ApplicationStateAction.STAGE);
@@ -31,13 +34,16 @@ public class UnchangedApplicationActionCalculator implements ActionCalculator {
             case EXECUTED:
                 if (currentState.equals(ApplicationStartupState.STARTED)) {
                     actionsToExecute.add(ApplicationStateAction.STOP);
+                    actionsToExecute.add(ApplicationStateAction.EXECUTE);
                 } else {
                     actionsToExecute.add(ApplicationStateAction.STAGE);
                     actionsToExecute.add(ApplicationStateAction.START);
                     actionsToExecute.add(ApplicationStateAction.EXECUTE);
                 }
+                if (currentState.equals(ApplicationStartupState.INCONSISTENT)) {
+                    actionsToExecute.add(ApplicationStateAction.STOP);
+                }
                 return actionsToExecute;
-
             default:
                 throw new IllegalStateException(MessageFormat.format(Messages.ILLEGAL_DESIRED_STATE, desiredState));
         }

@@ -178,7 +178,8 @@ public class Messages {
     public static final String COULD_NOT_ABORT_OPERATION_0 = "Could not abort operation \"{0}\"";
     public static final String SKIP_SERVICES_DELETION = "Skipping deletion of services, because the command line option \"--delete-services\" is not specified.";
     public static final String UNSUPPORTED_MINOR_VERSION = "Used verion \"{0}\" is higher than the supported ones. Some features might not be implemented.";
-
+    public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
+    
     // INFO log messages
     public static final String MTA_NOT_FOUND = "An MTA with id \"{0}\" does not exist";
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";
@@ -478,5 +479,7 @@ public class Messages {
     public static final String REGISTERED_CLEANERS_IN_CLEAN_UP_JOB_0 = "Registered cleaners in clean-up job: {0}";
     public static final String MISSING_SERVICES_TO_DELETE = "Missing services to delete.";
     public static final String NO_CONTENT_TO_UPLOAD = "No content to upload";
+    public static final String NO_BUILD_FOUND_FOR_APPLICATION = "No build found for application \"{0}\"";
+    public static final String LAST_BUILD = "Last build: {0}";
 
 }

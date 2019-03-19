@@ -46,6 +46,11 @@ public class XS2ApplicationStager extends ApplicationStager {
             return getStagingStateIfExceptionHasOccurred(e);
         }
     }
+    
+    @Override
+    public boolean isApplicationStagedCorrectly(ExecutionWrapper execution, CloudApplication cloudApplication) {
+        return true;
+    }
 
     private StagingLogs getStagingLogs(String stagingLogs, int offset) {
         // Staging logs successfully retrieved

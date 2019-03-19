@@ -1009,4 +1009,9 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     public void bindDropletToApp(UUID dropletGuid, UUID appGuid) {
         executeWithRetry(() -> cc.bindDropletToApp(dropletGuid, appGuid));
     }
+
+    @Override
+    public List<CloudBuild> getBuildsForApplication(UUID applicationGuid) {
+        return executeWithRetry(() -> cc.getBuildsForApplication(applicationGuid));
+    }
 }
