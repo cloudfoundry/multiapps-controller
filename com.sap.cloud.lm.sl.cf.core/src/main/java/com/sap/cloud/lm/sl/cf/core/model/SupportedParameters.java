@@ -47,6 +47,7 @@ public class SupportedParameters {
     public static final String DEFAULT_PORT = "default-port";
     public static final String PORT = "port";
     public static final String PORTS = "ports";
+    public static final String KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY = "keep-existing";
     public static final String KEEP_EXISTING_ROUTES = "keep-existing-routes";
     public static final String ROUTE = "route";
     public static final String ROUTES = "routes";
@@ -154,11 +155,11 @@ public class SupportedParameters {
     public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID, MTA_VERSION, MTA_PROVIDES_DEPENDENCY)));
 
-    public static final Set<String> APP_PROPS = Collections
-        .unmodifiableSet(new HashSet<>(Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN, DOMAINS, PORT, PORTS, COMMAND, BUILDPACK,
-            HEALTH_CHECK_TYPE, HEALTH_CHECK_HTTP_ENDPOINT, ENABLE_SSH, STACK, HEALTH_CHECK_TIMEOUT, IDLE_HOST, MEMORY, INSTANCES,
-            NO_HOSTNAME, NO_ROUTE, IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS, RESTART_ON_ENV_CHANGE,
-            VCAP_APPLICATION_ENV, VCAP_SERVICES_ENV, USER_PROVIDED_ENV, KEEP_EXISTING_ROUTES)));
+    public static final Set<String> APP_PROPS = Collections.unmodifiableSet(
+        new HashSet<>(Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN, DOMAINS, PORT, PORTS, COMMAND, BUILDPACK, HEALTH_CHECK_TYPE,
+            HEALTH_CHECK_HTTP_ENDPOINT, ENABLE_SSH, STACK, HEALTH_CHECK_TIMEOUT, IDLE_HOST, MEMORY, INSTANCES, NO_HOSTNAME, NO_ROUTE,
+            IDLE_PORT, IDLE_DOMAIN, DISK_QUOTA, IDLE_PORTS, IDLE_DOMAINS, IDLE_HOSTS, TASKS, RESTART_ON_ENV_CHANGE, VCAP_APPLICATION_ENV,
+            VCAP_SERVICES_ENV, USER_PROVIDED_ENV, KEEP_EXISTING_ROUTES, KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY)));
 
     public static final Set<String> SERVICE_PROPS = Collections
         .unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE, SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER,
@@ -203,6 +204,12 @@ public class SupportedParameters {
             this.host = host;
             this.domain = domain;
         }
+    }
+
+    public static class ApplicationUpdateStarategy {
+        public static final String SERVICE_BINDINGS_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY = "service-bindings";
+        public static final String EXISTING_ROUTES_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY = "routes";
+        public static final String ENV_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY = "env";
     }
 
 }

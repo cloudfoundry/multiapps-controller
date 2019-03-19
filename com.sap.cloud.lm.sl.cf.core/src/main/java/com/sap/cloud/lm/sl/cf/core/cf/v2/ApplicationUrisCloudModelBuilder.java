@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -22,10 +23,13 @@ public class ApplicationUrisCloudModelBuilder {
 
     private boolean portBasedRouting;
     private SystemParameters systemParameters;
+    private AttributeUpdateStrategy applicationAttributesUpdateStrategy;
 
-    public ApplicationUrisCloudModelBuilder(boolean portBasedRouting, SystemParameters systemParameters) {
+    public ApplicationUrisCloudModelBuilder(boolean portBasedRouting, SystemParameters systemParameters,
+        AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
         this.portBasedRouting = portBasedRouting;
         this.systemParameters = systemParameters;
+        this.applicationAttributesUpdateStrategy = applicationAttributesUpdateStrategy;
     }
 
     private boolean includeProtocol() {
@@ -44,7 +48,12 @@ public class ApplicationUrisCloudModelBuilder {
     }
 
     private boolean shouldKeepExistingUris(List<Map<String, Object>> propertiesList) {
-        return (boolean) PropertiesUtil.getPropertyValue(propertiesList, SupportedParameters.KEEP_EXISTING_ROUTES, false);
+        return (boolean) getPropertyValue(propertiesList, SupportedParameters.KEEP_EXISTING_ROUTES, false)
+            || applicationAttributesUpdateStrategy.shouldKeepExistingRoutes();
+    }
+
+    private Object getPropertyValue(List<Map<String, Object>> propertiesList, String propertyName, Object defaultValue) {
+        return PropertiesUtil.getPropertyValue(propertiesList, propertyName, defaultValue);
     }
 
     private List<String> appendExistingUris(List<String> uris, DeployedMtaModule deployedModule) {
