@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.process.actions;
+package com.sap.cloud.lm.sl.cf.process.action;
 
 import javax.inject.Inject;
 

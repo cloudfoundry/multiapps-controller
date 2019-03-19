@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.client.lib.domain;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
@@ -24,7 +25,7 @@ public class CloudApplicationExtended extends CloudApplication {
     private List<String> domains;
     private RestartParameters restartParameters;
     private DockerInfo dockerInfo;
-    private AttributeUpdateStrategy applicationAttributesUpdateBehavior;
+    private AttributeUpdateStrategy applicationAttributesUpdateStrategy;
 
     public CloudApplicationExtended(Meta meta, String name) {
         super(meta, name);
@@ -118,12 +119,12 @@ public class CloudApplicationExtended extends CloudApplication {
         this.dockerInfo = dockerInfo;
     }
 
-    public AttributeUpdateStrategy getApplicationAttributesUpdateBehavior() {
-        return applicationAttributesUpdateBehavior;
+    public AttributeUpdateStrategy getApplicationAttributesUpdateStrategy() {
+        return applicationAttributesUpdateStrategy;
     }
 
-    public void setApplicationAttributesUpdateBehavior(AttributeUpdateStrategy applicationAttributesUpdateBehavior) {
-        this.applicationAttributesUpdateBehavior = applicationAttributesUpdateBehavior;
+    public void setApplicationAttributesUpdateBehavior(AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
+        this.applicationAttributesUpdateStrategy = applicationAttributesUpdateStrategy;
     }
 
     public static class AttributeUpdateStrategy {
@@ -180,6 +181,16 @@ public class CloudApplicationExtended extends CloudApplication {
             }
         }
 
+    }
+
+    public static void main(String[] args) {
+        double a = 1.0;
+        double b = 1;
+        System.out.println(a == (int) b);
+        IntStream.rangeClosed(0, 2 * 2019)
+            .mapToDouble(i -> Math.sqrt(Math.pow(i, 2) + 2019))
+            .filter(d -> d == (int) d)
+            .forEach(result -> System.out.println(result));
     }
 
 }

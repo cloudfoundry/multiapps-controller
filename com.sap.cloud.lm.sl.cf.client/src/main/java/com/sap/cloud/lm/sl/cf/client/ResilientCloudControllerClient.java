@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.ApplicationLogListener;
+import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.ClientHttpResponseCallback;
 import org.cloudfoundry.client.lib.CloudControllerClientImpl;
 import org.cloudfoundry.client.lib.CloudCredentials;
@@ -137,8 +138,9 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void bindService(String applicationName, String serviceName, Map<String, Object> parameters) {
-        executeWithRetry(() -> cc.bindService(applicationName, serviceName, parameters));
+    public void bindService(String applicationName, String serviceName, Map<String, Object> parameters,
+        ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+        executeWithRetry(() -> cc.bindService(applicationName, serviceName, parameters, applicationServicesUpdateCallback));
     }
 
     @Override
@@ -374,8 +376,12 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void updateApplicationServices(String applicationName, List<String> services) {
-        executeWithRetry(() -> cc.updateApplicationServices(applicationName, services), HttpStatus.NOT_FOUND);
+    public List<String> updateApplicationServices(String applicationName,
+        Map<String, Map<String, Object>> serviceNamesWithBindingParameters,
+        ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+        return executeWithRetry(
+            () -> cc.updateApplicationServices(applicationName, serviceNamesWithBindingParameters, applicationServicesUpdateCallback),
+            HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -1014,4 +1020,11 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     public List<CloudBuild> getBuildsForApplication(UUID applicationGuid) {
         return executeWithRetry(() -> cc.getBuildsForApplication(applicationGuid));
     }
+
+    @Override
+    public void unbindService(String applicationName, String serviceName,
+        ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
+        executeWithRetry(() -> cc.unbindService(applicationName, serviceName, applicationServicesUpdateCallback));
+    }
+
 }

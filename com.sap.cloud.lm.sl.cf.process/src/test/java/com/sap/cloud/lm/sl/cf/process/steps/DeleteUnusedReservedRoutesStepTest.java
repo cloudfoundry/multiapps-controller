@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
@@ -52,7 +53,7 @@ public class DeleteUnusedReservedRoutesStepTest extends SyncFlowableStepTest<Del
         protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DelegateExecution context) {
             return applicationCloudModelBuilder;
         }
-        
+
         @Override
         protected List<Module> getModulesToDeploy(DelegateExecution context) {
             return input.modulesToDeploy;
@@ -109,7 +110,7 @@ public class DeleteUnusedReservedRoutesStepTest extends SyncFlowableStepTest<Del
     private void loadParameters() throws Exception {
         when(moduleToDeployHelper.isApplication(any())).thenReturn(true);
         for (Module module : input.modulesToDeploy) {
-            when(applicationCloudModelBuilder.getApplicationUris(module)).thenReturn(input.modulesUrls.get(module.getName()));
+            when(applicationCloudModelBuilder.getApplicationUris(Mockito.eq(module))).thenReturn(input.modulesUrls.get(module.getName()));
         }
     }
 

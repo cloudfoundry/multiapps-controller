@@ -10,12 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.ListUtils;
+import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.cloudfoundry.client.lib.domain.Staging;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +30,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
@@ -39,6 +43,8 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
 public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
+
+    private static final ApplicationServicesUpdateCallback CALLBACK = ApplicationServicesUpdateCallback.DEFAULT_APPLICATION_SERVICES_UPDATE_CALLBACK;
 
     private final StepInput input;
     private final String expectedExceptionMessage;
@@ -187,15 +193,16 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
     private void validateBindServices() {
         Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp()
             .getBindingParameters();
+        Map<String, Map<String, Object>> test = new HashMap<>();
         for (String serviceToBind : expectedServicesToBind) {
-            Mockito.verify(client)
-                .bindService(input.existingApplication.name, serviceToBind,
-                    getBindingParametersForService(currentBindingParameters, serviceToBind));
+            test.put(mapToCloudService(serviceToBind).getName(), getBindingParametersForService(currentBindingParameters, serviceToBind));
         }
+        Mockito.verify(client)
+            .updateApplicationServices(input.existingApplication.name, test, step.getApplicationServicesUpdateCallback(context));
     }
 
     private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {
-        return bindingParameters == null ? null : bindingParameters.get(serviceName);
+        return bindingParameters == null ? Collections.emptyMap() : bindingParameters.getOrDefault(serviceName, Collections.emptyMap());
     }
 
     private void validateUnbindServices() {
@@ -208,12 +215,29 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
     private void prepareClient() {
         prepareDiscontinuedServices();
 
-        prepareServicesToBind();
+        expectedServicesToBind = prepareServicesToBind();
 
         Mockito.when(configuration.getPlatformType())
             .thenReturn(platform);
 
         prepareExistingServiceBindings();
+        for (String service : input.application.services) {
+            mockServiceRetrieval(service);
+        }
+
+        for (String service : input.existingApplication.services) {
+            mockServiceRetrieval(service);
+        }
+
+        for (String service : expectedServicesToBind) {
+            mockServiceRetrieval(service);
+        }
+
+    }
+
+    private void mockServiceRetrieval(String service) {
+        Mockito.when(client.getService(service))
+            .thenReturn(mapToCloudService(service));
     }
 
     private void prepareExistingServiceBindings() {
@@ -246,37 +270,13 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         return new SimpleService(serviceName).toCloudService();
     }
 
-    private void prepareServicesToBind() {
-        for (String service : this.input.application.services) {
-            if (!this.input.existingApplication.services.contains(service)) {
-                expectedServicesToBind.add(service);
-                continue;
-            }
-            SimpleBinding existingBindingForApplication = getExistingBindingForApplication(service, this.input.existingApplication.name);
-            if (existingBindingForApplication == null) {
-                expectedServicesToBind.add(service);
-                continue;
-            }
-
-            Map<String, Map<String, Object>> currentBindingParameters = input.application.toCloudApp()
-                .getBindingParameters();
-
-            boolean existingBindingParametersAreEmptyOrNull = existingBindingForApplication.bindingOptions == null
-                || existingBindingForApplication.bindingOptions.isEmpty();
-
-            boolean currentBindingParametersAreNull = currentBindingParameters == null || currentBindingParameters.get(service) == null;
-
-            if (!existingBindingParametersAreEmptyOrNull && (currentBindingParametersAreNull
-                || !existingBindingForApplication.bindingOptions.equals(currentBindingParameters.get(service)))) {
-                expectedServicesToBind.add(service);
-                continue;
-            }
-            if (!currentBindingParametersAreNull && !currentBindingParameters.get(service)
-                .equals(existingBindingForApplication.bindingOptions)) {
-                expectedServicesToBind.add(service);
-                continue;
-            }
+    private List<String> prepareServicesToBind() {
+        if (input.application.shouldKeepServiceBindings) {
+            return ListUtils.union(input.application.services, input.existingApplication.services);
         }
+
+        return input.application.services;
+
     }
 
     private void prepareDiscontinuedServices() {
@@ -284,15 +284,6 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
             .filter((service) -> !input.application.services.contains(service))
             .collect(Collectors.toList());
         notRequiredServices.addAll(discontinuedServices);
-    }
-
-    private SimpleBinding getExistingBindingForApplication(String service, String application) {
-        for (SimpleBinding simpleBinding : this.input.existingServiceBindings.get(service)) {
-            if (application.equals(simpleBinding.applicationName)) {
-                return simpleBinding;
-            }
-        }
-        return null;
     }
 
     private void prepareContext() {
@@ -348,12 +339,17 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         String healthCheckType;
         String healthCheckHttpEndpoint;
         Boolean sshEnabled;
+        boolean shouldKeepServiceBindings;
 
         CloudApplicationExtended toCloudApp() {
+            AttributeUpdateStrategy applicationAttributeUpdateStrategy = new CloudApplicationExtended.AttributeUpdateStrategy.Builder()
+                .shouldKeepExistingServiceBindings(shouldKeepServiceBindings)
+                .build();
             CloudApplicationExtended cloudApp = new CloudApplicationExtended(name, command, buildpackUrl, memory, instances, uris, services,
                 AppState.STARTED, Collections.emptyList(), Collections.emptyList(), null);
             cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
             cloudApp.setDiskQuota(diskQuota);
+            cloudApp.setApplicationAttributesUpdateBehavior(applicationAttributeUpdateStrategy);
             cloudApp.setStaging(new Staging.StagingBuilder().command(command)
                 .buildpackUrl(buildpackUrl)
                 .stack(null)
@@ -384,7 +380,14 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
 
     @Override
     protected UpdateAppStep createStep() {
-        return new UpdateAppStep();
+        return new UpdateAppStepMock();
+    }
+
+    private class UpdateAppStepMock extends UpdateAppStep {
+        @Override
+        protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution context) {
+            return CALLBACK;
+        }
     }
 
 }

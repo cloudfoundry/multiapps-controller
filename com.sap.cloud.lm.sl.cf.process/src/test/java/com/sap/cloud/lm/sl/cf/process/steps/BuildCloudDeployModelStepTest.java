@@ -217,7 +217,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         }
         when(moduleToDeployHelper.isApplication(any())).thenReturn(true);
         when(modulesCloudModelBuilderContentCalculator.calculateContentForBuilding(any())).thenReturn(modulesToDeploy);
-        when(applicationCloudModelBuilder.getApplicationDomains(any())).thenReturn(input.customDomains);
+        when(applicationCloudModelBuilder.getApplicationDomains(any(), any())).thenReturn(input.customDomains);
         when(servicesCloudModelBuilder.build(any())).thenReturn(servicesToBind);
         when(serviceKeysCloudModelBuilder.build()).thenReturn(serviceKeys);
         StepsUtil.setDeployedMta(context, deployedMta);

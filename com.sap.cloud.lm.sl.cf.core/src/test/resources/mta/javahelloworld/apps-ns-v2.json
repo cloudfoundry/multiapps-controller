@@ -13,7 +13,7 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateBehavior": {
+    "applicationAttributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
@@ -54,7 +54,7 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateBehavior": {
+    "applicationAttributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
@@ -98,7 +98,7 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateBehavior": {
+    "applicationAttributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
