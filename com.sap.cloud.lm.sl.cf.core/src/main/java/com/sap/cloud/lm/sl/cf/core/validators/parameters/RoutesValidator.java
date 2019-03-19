@@ -19,7 +19,7 @@ public class RoutesValidator implements ParameterValidator {
     private final Map<String, ParameterValidator> validators;
 
     public RoutesValidator() {
-        this.validators = new HashMap<String, ParameterValidator>();
+        this.validators = new HashMap<>();
         ParameterValidator routeValidator = new RouteValidator();
         this.validators.put(routeValidator.getParameterName(), routeValidator);
     }
@@ -61,7 +61,7 @@ public class RoutesValidator implements ParameterValidator {
     }
 
     private Map<String, Object> attemptToCorrectParameterMap(Map<String, Object> originalElem) {
-        Map<String, Object> correctedElem = new TreeMap<String, Object>();
+        Map<String, Object> correctedElem = new TreeMap<>();
 
         for (String key : originalElem.keySet()) {
             if (validators.containsKey(key)) {
@@ -89,7 +89,7 @@ public class RoutesValidator implements ParameterValidator {
         if (routes instanceof List) {
             List<Map<String, Object>> routesList = (List<Map<String, Object>>) routes;
             if (CollectionUtils.isEmpty(routesList)) {
-                return new ArrayList<Map<String, Object>>();
+                return new ArrayList<>();
             }
 
             if (routesList.stream()

@@ -218,7 +218,7 @@ public class CreateAppStep extends SyncFlowableStep {
         Map<String, Object> bindingParameters) {
 
         try {
-            bindServiceToApplication(execution, client, appName, serviceName, bindingParameters);
+            bindServiceToApplication(client, appName, serviceName, bindingParameters);
         } catch (CloudOperationException e) {
             List<CloudServiceExtended> servicesToBind = StepsUtil.getServicesToBind(execution.getContext());
             CloudServiceExtended serviceToBind = findServiceCloudModel(servicesToBind, serviceName);
@@ -231,7 +231,7 @@ public class CreateAppStep extends SyncFlowableStep {
         }
     }
 
-    private void bindServiceToApplication(ExecutionWrapper execution, CloudControllerClient client, String appName, String serviceName,
+    private void bindServiceToApplication(CloudControllerClient client, String appName, String serviceName,
         Map<String, Object> bindingParameters) {
         getStepLogger().debug(Messages.BINDING_APP_TO_SERVICE_WITH_PARAMETERS, appName, serviceName, bindingParameters);
         // TODO Fix update of service bindings parameters:

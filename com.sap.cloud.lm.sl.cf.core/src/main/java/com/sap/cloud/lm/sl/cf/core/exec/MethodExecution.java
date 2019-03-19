@@ -27,7 +27,7 @@ public class MethodExecution<T> {
         }
         ExecutionState state = response.getStatusCode().equals(HttpStatus.ACCEPTED) ? ExecutionState.EXECUTING : ExecutionState.FINISHED;
         String responseEntity = response.getBody();
-        return new MethodExecution<String>(responseEntity, state);
+        return new MethodExecution<>(responseEntity, state);
     }
 
     public enum ExecutionState {

@@ -135,7 +135,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     }
 
     private List<ModuleToDeploy> getModulesToDeploy(List<Module> modules) {
-        List<ModuleToDeploy> modulesToDeploy = new ArrayList<ModuleToDeploy>();
+        List<ModuleToDeploy> modulesToDeploy = new ArrayList<>();
         for (Module module : modules) {
             ModuleToDeploy moduleToDeploy = new ModuleToDeploy(module.getName(), module.getType());
             if (module instanceof com.sap.cloud.lm.sl.mta.model.v3.Module) {

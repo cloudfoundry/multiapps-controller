@@ -27,7 +27,7 @@ public class UpdateServiceTagsStep extends ServiceStep {
         // See the following issue for more info:
         // https://www.pivotaltracker.com/n/projects/966314/stories/105674948
         if (service.isUserProvided()) {
-            return new MethodExecution<String>(null, ExecutionState.FINISHED);
+            return new MethodExecution<>(null, ExecutionState.FINISHED);
         }
         getStepLogger().info(Messages.UPDATING_SERVICE_TAGS, service.getName());
 

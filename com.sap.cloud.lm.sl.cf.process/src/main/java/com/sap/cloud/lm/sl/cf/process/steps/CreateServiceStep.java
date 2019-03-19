@@ -47,14 +47,14 @@ public class CreateServiceStep extends ServiceStep {
             throw new SLException(e, e.getMessage());
         }
 
-        return new MethodExecution<String>(null, ExecutionState.FINISHED);
+        return new MethodExecution<>(null, ExecutionState.FINISHED);
     }
 
     private MethodExecution<String> createCloudService(DelegateExecution context, CloudControllerClient client,
         CloudServiceExtended service) throws FileStorageException {
         if (service.isUserProvided()) {
             client.createUserProvidedService(service, service.getCredentials());
-            return new MethodExecution<String>(null, ExecutionState.FINISHED);
+            return new MethodExecution<>(null, ExecutionState.FINISHED);
         }
         return createManagedService(context, client, service);
     }

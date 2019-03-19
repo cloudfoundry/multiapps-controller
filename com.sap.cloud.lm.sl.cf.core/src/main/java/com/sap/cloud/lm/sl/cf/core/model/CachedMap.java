@@ -22,7 +22,7 @@ public class CachedMap<K, V> {
     public synchronized V get(K key, Supplier<V> refreshFunction) {
         CachedObject<V> value = referenceMap.get(key);
         if (value == null) {
-            value = new CachedObject<V>(expirationTimeInSeconds, currentTimeSupplier);
+            value = new CachedObject<>(expirationTimeInSeconds, currentTimeSupplier);
             referenceMap.put(key, value);
         }
         return value.get(refreshFunction);
@@ -31,7 +31,7 @@ public class CachedMap<K, V> {
     public synchronized V forceRefresh(K key, Supplier<V> refreshFunction) {
         CachedObject<V> value = referenceMap.get(key);
         if (value == null) {
-            value = new CachedObject<V>(expirationTimeInSeconds, currentTimeSupplier);
+            value = new CachedObject<>(expirationTimeInSeconds, currentTimeSupplier);
             referenceMap.put(key, value);
         }
         return value.forceRefresh(refreshFunction);
