@@ -3,11 +3,8 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

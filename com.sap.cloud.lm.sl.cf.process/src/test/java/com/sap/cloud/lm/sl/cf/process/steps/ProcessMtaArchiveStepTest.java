@@ -96,11 +96,9 @@ public class ProcessMtaArchiveStepTest extends SyncFlowableStepTest<ProcessMtaAr
     }
 
     private void testModules() throws Exception {
-        List<String> actualModules = StepsUtil.getArrayVariableAsList(context,
-            com.sap.cloud.lm.sl.cf.process.Constants.VAR_MTA_ARCHIVE_MODULES);
+        Set<String> actualModules = StepsUtil.getMtaArchiveModules(context);
 
         assertEquals(input.expectedModules.size(), actualModules.size());
-
         for (String actualModuleName : actualModules) {
             assertTrue(input.expectedModules.contains(actualModuleName));
         }
