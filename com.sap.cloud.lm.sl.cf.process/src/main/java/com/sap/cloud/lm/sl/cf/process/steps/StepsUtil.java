@@ -120,9 +120,9 @@ public class StepsUtil {
         return null;
     }
 
-    public static String determineCurrentUser(DelegateExecution context, StepLogger stepLogger) {
+    public static String determineCurrentUser(VariableScope scope, StepLogger stepLogger) {
         String userId = Authentication.getAuthenticatedUserId();
-        String previousUser = (String) context.getVariable(Constants.VAR_USER);
+        String previousUser = (String) scope.getVariable(Constants.VAR_USER);
         // Determine the current user
         if (userId != null && !userId.equals(previousUser)) {
             stepLogger.debug(Messages.AUTHENTICATED_USER_ID, userId);
@@ -135,7 +135,7 @@ public class StepsUtil {
             if (userId == null) {
                 // If there is no previous user, this must be the first service task
                 // Use the process initiator in this case
-                userId = (String) context.getVariable(Constants.PARAM_INITIATOR);
+                userId = (String) scope.getVariable(Constants.PARAM_INITIATOR);
                 stepLogger.debug(Messages.PROCESS_INITIATOR, userId);
                 if (userId == null) {
                     throw new SLException(Messages.CANT_DETERMINE_CURRENT_USER);
@@ -143,7 +143,7 @@ public class StepsUtil {
             }
         }
         // Set the current user in the context for use by later service tasks
-        context.setVariable(Constants.VAR_USER, userId);
+        scope.setVariable(Constants.VAR_USER, userId);
 
         return userId;
     }
@@ -157,44 +157,44 @@ public class StepsUtil {
         return false;
     }
 
-    public static MtaArchiveElements getMtaArchiveElements(DelegateExecution context) {
-        return getFromJsonString(context, Constants.VAR_MTA_ARCHIVE_ELEMENTS, MtaArchiveElements.class, new MtaArchiveElements());
+    public static MtaArchiveElements getMtaArchiveElements(VariableScope scope) {
+        return getFromJsonString(scope, Constants.VAR_MTA_ARCHIVE_ELEMENTS, MtaArchiveElements.class, new MtaArchiveElements());
     }
 
-    public static void setMtaArchiveElements(DelegateExecution context, MtaArchiveElements mtaArchiveElements) {
-        setAsJsonString(context, Constants.VAR_MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
+    public static void setMtaArchiveElements(VariableScope scope, MtaArchiveElements mtaArchiveElements) {
+        setAsJsonString(scope, Constants.VAR_MTA_ARCHIVE_ELEMENTS, mtaArchiveElements);
     }
 
-    static InputStream getModuleContentAsStream(DelegateExecution context, String moduleName) {
-        byte[] moduleContent = getModuleContent(context, moduleName);
+    static InputStream getModuleContentAsStream(VariableScope scope, String moduleName) {
+        byte[] moduleContent = getModuleContent(scope, moduleName);
         if (moduleContent == null) {
             throw new SLException(Messages.MODULE_CONTENT_NA, moduleName);
         }
         return new ByteArrayInputStream(moduleContent);
     }
 
-    static byte[] getModuleContent(DelegateExecution context, String moduleName) {
-        return getObject(context, getModuleContentVariable(moduleName));
+    static byte[] getModuleContent(VariableScope scope, String moduleName) {
+        return getObject(scope, getModuleContentVariable(moduleName));
     }
 
-    static void setModuleContent(DelegateExecution context, String moduleName, byte[] moduleContent) {
-        context.setVariable(getModuleContentVariable(moduleName), moduleContent);
+    static void setModuleContent(VariableScope scope, String moduleName, byte[] moduleContent) {
+        scope.setVariable(getModuleContentVariable(moduleName), moduleContent);
     }
 
-    public static ApplicationColor getDeployedMtaColor(DelegateExecution context) {
-        return getEnum(context, Constants.VAR_DEPLOYED_MTA_COLOR, ApplicationColor::valueOf);
+    public static ApplicationColor getDeployedMtaColor(VariableScope scope) {
+        return getEnum(scope, Constants.VAR_DEPLOYED_MTA_COLOR, ApplicationColor::valueOf);
     }
 
-    public static void setDeployedMtaColor(DelegateExecution context, ApplicationColor deployedMtaColor) {
-        setEnum(context, Constants.VAR_DEPLOYED_MTA_COLOR, deployedMtaColor);
+    public static void setDeployedMtaColor(VariableScope scope, ApplicationColor deployedMtaColor) {
+        setEnum(scope, Constants.VAR_DEPLOYED_MTA_COLOR, deployedMtaColor);
     }
 
-    public static ApplicationColor getMtaColor(DelegateExecution context) {
-        return getEnum(context, Constants.VAR_MTA_COLOR, ApplicationColor::valueOf);
+    public static ApplicationColor getMtaColor(VariableScope scope) {
+        return getEnum(scope, Constants.VAR_MTA_COLOR, ApplicationColor::valueOf);
     }
 
-    public static void setMtaColor(DelegateExecution context, ApplicationColor mtaColor) {
-        setEnum(context, Constants.VAR_MTA_COLOR, mtaColor);
+    public static void setMtaColor(VariableScope scope, ApplicationColor mtaColor) {
+        setEnum(scope, Constants.VAR_MTA_COLOR, mtaColor);
     }
 
     private static String getModuleContentVariable(String moduleName) {
@@ -207,10 +207,10 @@ public class StepsUtil {
         return new BinaryJson(gson);
     }
 
-    static Platform getPlatform(DelegateExecution context) {
-        byte[] binaryJson = (byte[]) context.getVariable(Constants.VAR_PLATFORM);
+    static Platform getPlatform(VariableScope scope) {
+        byte[] binaryJson = (byte[]) scope.getVariable(Constants.VAR_PLATFORM);
 
-        int majorSchemaVersion = (int) context.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
+        int majorSchemaVersion = (int) scope.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
         switch (majorSchemaVersion) {
             case 2:
                 return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v2.Platform.class);
@@ -221,133 +221,133 @@ public class StepsUtil {
         }
     }
 
-    static void setPlatform(DelegateExecution context, Platform platform) {
-        context.setVariable(Constants.VAR_PLATFORM, getBinaryJsonForMtaModel().marshal(platform));
+    static void setPlatform(VariableScope scope, Platform platform) {
+        scope.setVariable(Constants.VAR_PLATFORM, getBinaryJsonForMtaModel().marshal(platform));
     }
 
-    public static HandlerFactory getHandlerFactory(DelegateExecution context) {
-        int majorSchemaVersion = getInteger(context, Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
+    public static HandlerFactory getHandlerFactory(VariableScope scope) {
+        int majorSchemaVersion = getInteger(scope, Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
         return new HandlerFactory(majorSchemaVersion);
     }
 
-    public static String getOrg(DelegateExecution context) {
-        return getString(context, Constants.VAR_ORG);
+    public static String getOrg(VariableScope scope) {
+        return getString(scope, Constants.VAR_ORG);
     }
 
-    public static String getSpaceId(DelegateExecution context) {
-        return getString(context, com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID);
+    public static String getSpaceId(VariableScope scope) {
+        return getString(scope, com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID);
     }
 
-    public static void setSpaceId(DelegateExecution context, String spaceId) {
-        context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, spaceId);
+    public static void setSpaceId(VariableScope scope, String spaceId) {
+        scope.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, spaceId);
     }
 
-    public static String getSpace(DelegateExecution context) {
-        return getString(context, Constants.VAR_SPACE);
+    public static String getSpace(VariableScope scope) {
+        return getString(scope, Constants.VAR_SPACE);
     }
 
-    static String getNewMtaVersion(DelegateExecution context) {
-        return getString(context, Constants.VAR_NEW_MTA_VERSION);
+    static String getNewMtaVersion(VariableScope scope) {
+        return getString(scope, Constants.VAR_NEW_MTA_VERSION);
     }
 
-    static void setNewMtaVersion(DelegateExecution context, String version) {
-        context.setVariable(Constants.VAR_NEW_MTA_VERSION, version);
+    static void setNewMtaVersion(VariableScope scope, String version) {
+        scope.setVariable(Constants.VAR_NEW_MTA_VERSION, version);
     }
 
-    public static List<String> getCustomDomains(DelegateExecution context) {
+    public static List<String> getCustomDomains(VariableScope scope) {
         Type type = new TypeToken<List<String>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_CUSTOM_DOMAINS, type);
+        return getFromJsonBinary(scope, Constants.VAR_CUSTOM_DOMAINS, type);
     }
 
-    static void setCustomDomains(DelegateExecution context, List<String> customDomains) {
-        setAsJsonBinary(context, Constants.VAR_CUSTOM_DOMAINS, customDomains);
+    static void setCustomDomains(VariableScope scope, List<String> customDomains) {
+        setAsJsonBinary(scope, Constants.VAR_CUSTOM_DOMAINS, customDomains);
     }
 
-    public static List<CloudServiceExtended> getServicesToCreate(DelegateExecution context) {
-        return getFromJsonStrings(context, Constants.VAR_SERVICES_TO_CREATE, CloudServiceExtended.class);
+    public static List<CloudServiceExtended> getServicesToCreate(VariableScope scope) {
+        return getFromJsonStrings(scope, Constants.VAR_SERVICES_TO_CREATE, CloudServiceExtended.class);
     }
 
-    static void setServicesToCreate(DelegateExecution context, List<CloudServiceExtended> services) {
-        setAsJsonStrings(context, Constants.VAR_SERVICES_TO_CREATE, services);
+    static void setServicesToCreate(VariableScope scope, List<CloudServiceExtended> services) {
+        setAsJsonStrings(scope, Constants.VAR_SERVICES_TO_CREATE, services);
     }
 
-    public static List<CloudServiceExtended> getServicesToBind(DelegateExecution context) {
-        return getFromJsonStrings(context, Constants.VAR_SERVICES_TO_BIND, CloudServiceExtended.class);
+    public static List<CloudServiceExtended> getServicesToBind(VariableScope scope) {
+        return getFromJsonStrings(scope, Constants.VAR_SERVICES_TO_BIND, CloudServiceExtended.class);
     }
 
-    static void setServicesToBind(DelegateExecution context, List<CloudServiceExtended> services) {
-        setAsJsonStrings(context, Constants.VAR_SERVICES_TO_BIND, services);
+    static void setServicesToBind(VariableScope scope, List<CloudServiceExtended> services) {
+        setAsJsonStrings(scope, Constants.VAR_SERVICES_TO_BIND, services);
     }
 
-    static void setServicesToPoll(DelegateExecution context, List<CloudServiceExtended> servicesToPoll) {
-        setAsJsonBinary(context, Constants.VAR_SERVICES_TO_POLL, servicesToPoll);
+    static void setServicesToPoll(VariableScope scope, List<CloudServiceExtended> servicesToPoll) {
+        setAsJsonBinary(scope, Constants.VAR_SERVICES_TO_POLL, servicesToPoll);
     }
 
-    static List<CloudServiceExtended> getServicesToPoll(DelegateExecution context) {
+    static List<CloudServiceExtended> getServicesToPoll(VariableScope scope) {
         Type type = new TypeToken<List<CloudServiceExtended>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_SERVICES_TO_POLL, type);
+        return getFromJsonBinary(scope, Constants.VAR_SERVICES_TO_POLL, type);
     }
 
-    static void setTriggeredServiceOperations(DelegateExecution context, Map<String, ServiceOperationType> triggeredServiceOperations) {
-        setAsJsonBinary(context, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
+    static void setTriggeredServiceOperations(VariableScope scope, Map<String, ServiceOperationType> triggeredServiceOperations) {
+        setAsJsonBinary(scope, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, triggeredServiceOperations);
     }
 
-    public static Map<String, ServiceOperationType> getTriggeredServiceOperations(DelegateExecution context) {
+    public static Map<String, ServiceOperationType> getTriggeredServiceOperations(VariableScope scope) {
         Type type = new TypeToken<Map<String, ServiceOperationType>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, type);
+        return getFromJsonBinary(scope, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, type);
     }
 
-    public static Map<String, List<ServiceKey>> getServiceKeysToCreate(DelegateExecution context) {
+    public static Map<String, List<ServiceKey>> getServiceKeysToCreate(VariableScope scope) {
         Type type = new TypeToken<Map<String, List<ServiceKey>>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_SERVICE_KEYS_TO_CREATE, type);
+        return getFromJsonBinary(scope, Constants.VAR_SERVICE_KEYS_TO_CREATE, type);
     }
 
-    static void setServiceKeysToCreate(DelegateExecution context, Map<String, List<ServiceKey>> serviceKeys) {
-        setAsJsonBinary(context, Constants.VAR_SERVICE_KEYS_TO_CREATE, serviceKeys);
+    static void setServiceKeysToCreate(VariableScope scope, Map<String, List<ServiceKey>> serviceKeys) {
+        setAsJsonBinary(scope, Constants.VAR_SERVICE_KEYS_TO_CREATE, serviceKeys);
     }
 
-    static List<CloudApplication> getDeployedApps(DelegateExecution context) {
+    static List<CloudApplication> getDeployedApps(VariableScope scope) {
         Type type = new TypeToken<List<CloudApplication>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_DEPLOYED_APPS, type);
+        return getFromJsonBinary(scope, Constants.VAR_DEPLOYED_APPS, type);
     }
 
-    static void setDeployedApps(DelegateExecution context, List<CloudApplication> apps) {
-        setAsJsonBinary(context, Constants.VAR_DEPLOYED_APPS, apps);
+    static void setDeployedApps(VariableScope scope, List<CloudApplication> apps) {
+        setAsJsonBinary(scope, Constants.VAR_DEPLOYED_APPS, apps);
     }
 
-    public static List<String> getAppsToDeploy(DelegateExecution context) {
+    public static List<String> getAppsToDeploy(VariableScope scope) {
         Type type = new TypeToken<List<String>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_APPS_TO_DEPLOY, type, Collections.emptyList());
+        return getFromJsonBinary(scope, Constants.VAR_APPS_TO_DEPLOY, type, Collections.emptyList());
     }
 
-    public static void setAppsToDeploy(DelegateExecution context, List<String> apps) {
-        setAsJsonBinary(context, Constants.VAR_APPS_TO_DEPLOY, apps);
+    public static void setAppsToDeploy(VariableScope scope, List<String> apps) {
+        setAsJsonBinary(scope, Constants.VAR_APPS_TO_DEPLOY, apps);
     }
 
-    public static List<Module> getModulesToDeploy(DelegateExecution context) {
-        return getFromJsonBinaries(context, Constants.VAR_MODULES_TO_DEPLOY, getModuleToDeployClass(context));
+    public static List<Module> getModulesToDeploy(VariableScope scope) {
+        return getFromJsonBinaries(scope, Constants.VAR_MODULES_TO_DEPLOY, getModuleToDeployClass(scope));
     }
 
-    public static void setModulesToDeploy(DelegateExecution context, List<? extends Module> modules) {
-        setAsJsonBinaries(context, Constants.VAR_MODULES_TO_DEPLOY, modules);
+    public static void setModulesToDeploy(VariableScope scope, List<? extends Module> modules) {
+        setAsJsonBinaries(scope, Constants.VAR_MODULES_TO_DEPLOY, modules);
     }
 
-    private static void setModuleToDeployClass(DelegateExecution context, List<? extends Module> modules) {
+    private static void setModuleToDeployClass(VariableScope scope, List<? extends Module> modules) {
         String className = (!CollectionUtils.isEmpty(modules)) ? modules.get(0)
             .getClass()
             .getName() : Module.class.getName();
-        context.setVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME, className);
+            scope.setVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME, className);
     }
 
     @SuppressWarnings("unchecked")
-    public static Class<? extends Module> getModuleToDeployClass(DelegateExecution context) {
-        String className = (String) context.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME);
+    public static Class<? extends Module> getModuleToDeployClass(VariableScope scope) {
+        String className = (String) scope.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME);
         try {
             return (Class<? extends Module>) Class.forName(className);
         } catch (ClassNotFoundException e) {
@@ -355,167 +355,167 @@ public class StepsUtil {
         }
     }
 
-    public static List<Module> getAllModulesToDeploy(DelegateExecution context) {
-        return getFromJsonBinaries(context, Constants.VAR_ALL_MODULES_TO_DEPLOY, getModuleToDeployClass(context));
+    public static List<Module> getAllModulesToDeploy(VariableScope scope) {
+        return getFromJsonBinaries(scope, Constants.VAR_ALL_MODULES_TO_DEPLOY, getModuleToDeployClass(scope));
     }
 
-    public static void setAllModulesToDeploy(DelegateExecution context, List<? extends Module> modules) {
-        setAsJsonBinaries(context, Constants.VAR_ALL_MODULES_TO_DEPLOY, modules);
-        setModuleToDeployClass(context, modules);
+    public static void setAllModulesToDeploy(VariableScope scope, List<? extends Module> modules) {
+        setAsJsonBinaries(scope, Constants.VAR_ALL_MODULES_TO_DEPLOY, modules);
+        setModuleToDeployClass(scope, modules);
     }
 
-    public static List<Module> getIteratedModulesInParallel(DelegateExecution context) {
-        return getFromJsonBinaries(context, Constants.VAR_ITERATED_MODULES_IN_PARALLEL, getModuleToDeployClass(context));
+    public static List<Module> getIteratedModulesInParallel(VariableScope scope) {
+        return getFromJsonBinaries(scope, Constants.VAR_ITERATED_MODULES_IN_PARALLEL, getModuleToDeployClass(scope));
     }
 
-    public static void setIteratedModulesInParallel(DelegateExecution context, List<? extends Module> modules) {
-        setAsJsonBinaries(context, Constants.VAR_ITERATED_MODULES_IN_PARALLEL, modules);
+    public static void setIteratedModulesInParallel(VariableScope scope, List<? extends Module> modules) {
+        setAsJsonBinaries(scope, Constants.VAR_ITERATED_MODULES_IN_PARALLEL, modules);
     }
 
-    public static void setModulesToIterateInParallel(DelegateExecution context, List<? extends Module> modules) {
-        setAsJsonBinaries(context, Constants.VAR_MODULES_TO_ITERATE_IN_PARALLEL, modules);
+    public static void setModulesToIterateInParallel(VariableScope scope, List<? extends Module> modules) {
+        setAsJsonBinaries(scope, Constants.VAR_MODULES_TO_ITERATE_IN_PARALLEL, modules);
     }
 
-    public static void setDeploymentMode(DelegateExecution context, DeploymentMode deploymentMode) {
-        context.setVariable(Constants.VAR_DEPLOYMENT_MODE, deploymentMode);
+    public static void setDeploymentMode(VariableScope scope, DeploymentMode deploymentMode) {
+        scope.setVariable(Constants.VAR_DEPLOYMENT_MODE, deploymentMode);
     }
 
-    static void setServiceKeysCredentialsToInject(DelegateExecution context,
+    static void setServiceKeysCredentialsToInject(VariableScope scope,
         Map<String, Map<String, String>> serviceKeysCredentialsToInject) {
-        setAsJsonBinary(context, Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysCredentialsToInject);
+        setAsJsonBinary(scope, Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysCredentialsToInject);
     }
 
-    static Map<String, Map<String, String>> getServiceKeysCredentialsToInject(DelegateExecution context) {
+    static Map<String, Map<String, String>> getServiceKeysCredentialsToInject(VariableScope scope) {
         Type type = new TypeToken<Map<String, Map<String, String>>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, type);
+        return getFromJsonBinary(scope, Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, type);
     }
 
-    public static List<CloudApplication> getUpdatedSubscribers(DelegateExecution context) {
+    public static List<CloudApplication> getUpdatedSubscribers(VariableScope scope) {
         Type type = new TypeToken<List<CloudApplicationExtended>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_UPDATED_SUBSCRIBERS, type);
+        return getFromJsonBinary(scope, Constants.VAR_UPDATED_SUBSCRIBERS, type);
     }
 
-    static void setUpdatedSubscribers(DelegateExecution context, List<CloudApplication> apps) {
-        setAsJsonBinary(context, Constants.VAR_UPDATED_SUBSCRIBERS, apps);
+    static void setUpdatedSubscribers(VariableScope scope, List<CloudApplication> apps) {
+        setAsJsonBinary(scope, Constants.VAR_UPDATED_SUBSCRIBERS, apps);
     }
 
-    public static List<CloudApplication> getServiceBrokerSubscribersToRestart(DelegateExecution context) {
+    public static List<CloudApplication> getServiceBrokerSubscribersToRestart(VariableScope scope) {
         Type type = new TypeToken<List<CloudApplication>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS, type);
+        return getFromJsonBinary(scope, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS, type);
     }
 
-    static CloudApplication getServiceBrokerSubscriberToRestart(DelegateExecution context) {
-        List<CloudApplication> apps = getServiceBrokerSubscribersToRestart(context);
-        int index = (Integer) context.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
+    static CloudApplication getServiceBrokerSubscriberToRestart(VariableScope scope) {
+        List<CloudApplication> apps = getServiceBrokerSubscribersToRestart(scope);
+        int index = (Integer) scope.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX);
         return apps.get(index);
     }
 
-    static void setUpdatedServiceBrokerSubscribers(DelegateExecution context, List<CloudApplication> apps) {
-        setAsJsonBinary(context, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS, apps);
+    static void setUpdatedServiceBrokerSubscribers(VariableScope scope, List<CloudApplication> apps) {
+        setAsJsonBinary(scope, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS, apps);
     }
 
-    static List<CloudTask> getTasksToExecute(DelegateExecution context) {
+    static List<CloudTask> getTasksToExecute(VariableScope scope) {
         Type type = new TypeToken<List<CloudTask>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_TASKS_TO_EXECUTE, type);
+        return getFromJsonBinary(scope, Constants.VAR_TASKS_TO_EXECUTE, type);
     }
 
-    static void setTasksToExecute(DelegateExecution context, List<CloudTask> tasks) {
-        setAsJsonBinary(context, Constants.VAR_TASKS_TO_EXECUTE, tasks);
+    static void setTasksToExecute(VariableScope scope, List<CloudTask> tasks) {
+        setAsJsonBinary(scope, Constants.VAR_TASKS_TO_EXECUTE, tasks);
     }
 
-    static CloudTask getStartedTask(DelegateExecution context) {
-        return getFromJsonBinary(context, Constants.VAR_STARTED_TASK, CloudTask.class);
+    static CloudTask getStartedTask(VariableScope scope) {
+        return getFromJsonBinary(scope, Constants.VAR_STARTED_TASK, CloudTask.class);
     }
 
-    static void setStartedTask(DelegateExecution context, CloudTask task) {
-        setAsJsonBinary(context, Constants.VAR_STARTED_TASK, task);
+    static void setStartedTask(VariableScope scope, CloudTask task) {
+        setAsJsonBinary(scope, Constants.VAR_STARTED_TASK, task);
     }
 
-    public static List<CloudApplication> getAppsToUndeploy(DelegateExecution context) {
+    public static List<CloudApplication> getAppsToUndeploy(VariableScope scope) {
         Type type = new TypeToken<List<CloudApplication>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_APPS_TO_UNDEPLOY, type);
+        return getFromJsonBinary(scope, Constants.VAR_APPS_TO_UNDEPLOY, type);
     }
 
-    public static CloudApplication getAppToUndeploy(DelegateExecution context) {
-        List<CloudApplication> appsToUndeploy = getAppsToUndeploy(context);
-        int index = (Integer) context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY_INDEX);
+    public static CloudApplication getAppToUndeploy(VariableScope scope) {
+        List<CloudApplication> appsToUndeploy = getAppsToUndeploy(scope);
+        int index = (Integer) scope.getVariable(Constants.VAR_APPS_TO_UNDEPLOY_INDEX);
         return appsToUndeploy.get(index);
     }
 
-    static void setAppsToUndeploy(DelegateExecution context, List<CloudApplication> apps) {
-        setAsJsonBinary(context, Constants.VAR_APPS_TO_UNDEPLOY, apps);
+    static void setAppsToUndeploy(VariableScope scope, List<CloudApplication> apps) {
+        setAsJsonBinary(scope, Constants.VAR_APPS_TO_UNDEPLOY, apps);
     }
 
-    public static List<String> getServicesToDelete(DelegateExecution context) {
+    public static List<String> getServicesToDelete(VariableScope scope) {
         Type type = new TypeToken<List<String>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_SERVICES_TO_DELETE, type);
+        return getFromJsonBinary(scope, Constants.VAR_SERVICES_TO_DELETE, type);
     }
 
-    public static void setServicesToDelete(DelegateExecution context, List<String> services) {
-        setAsJsonBinary(context, Constants.VAR_SERVICES_TO_DELETE, services);
+    public static void setServicesToDelete(VariableScope scope, List<String> services) {
+        setAsJsonBinary(scope, Constants.VAR_SERVICES_TO_DELETE, services);
     }
 
-    public static List<ConfigurationSubscription> getSubscriptionsToDelete(DelegateExecution context) {
+    public static List<ConfigurationSubscription> getSubscriptionsToDelete(VariableScope scope) {
         Type type = new TypeToken<List<ConfigurationSubscription>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_SUBSCRIPTIONS_TO_DELETE, type);
+        return getFromJsonBinary(scope, Constants.VAR_SUBSCRIPTIONS_TO_DELETE, type);
     }
 
-    static void setSubscriptionsToDelete(DelegateExecution context, List<ConfigurationSubscription> subscriptions) {
-        setAsJsonBinary(context, Constants.VAR_SUBSCRIPTIONS_TO_DELETE, subscriptions);
+    static void setSubscriptionsToDelete(VariableScope scope, List<ConfigurationSubscription> subscriptions) {
+        setAsJsonBinary(scope, Constants.VAR_SUBSCRIPTIONS_TO_DELETE, subscriptions);
     }
 
-    public static List<ConfigurationSubscription> getSubscriptionsToCreate(DelegateExecution context) {
+    public static List<ConfigurationSubscription> getSubscriptionsToCreate(VariableScope scope) {
         Type type = new TypeToken<List<ConfigurationSubscription>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_SUBSCRIPTIONS_TO_CREATE, type);
+        return getFromJsonBinary(scope, Constants.VAR_SUBSCRIPTIONS_TO_CREATE, type);
     }
 
-    static void setSubscriptionsToCreate(DelegateExecution context, List<ConfigurationSubscription> subscriptions) {
-        setAsJsonBinary(context, Constants.VAR_SUBSCRIPTIONS_TO_CREATE, subscriptions);
+    static void setSubscriptionsToCreate(VariableScope scope, List<ConfigurationSubscription> subscriptions) {
+        setAsJsonBinary(scope, Constants.VAR_SUBSCRIPTIONS_TO_CREATE, subscriptions);
     }
 
-    static void setConfigurationEntriesToPublish(DelegateExecution context, List<ConfigurationEntry> configurationEntries) {
-        setAsJsonBinary(context, Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH, configurationEntries);
+    static void setConfigurationEntriesToPublish(VariableScope scope, List<ConfigurationEntry> configurationEntries) {
+        setAsJsonBinary(scope, Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH, configurationEntries);
     }
 
-    static List<ConfigurationEntry> getConfigurationEntriesToPublish(DelegateExecution context) {
+    static List<ConfigurationEntry> getConfigurationEntriesToPublish(VariableScope scope) {
         Type type = new TypeToken<List<ConfigurationEntry>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH, type);
+        return getFromJsonBinary(scope, Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH, type);
     }
 
-    static void setCreatedOrUpdatedServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker) {
-        setAsJsonBinary(context, Constants.VAR_CREATED_OR_UPDATED_SERVICE_BROKER, serviceBroker);
+    static void setCreatedOrUpdatedServiceBroker(VariableScope scope, CloudServiceBroker serviceBroker) {
+        setAsJsonBinary(scope, Constants.VAR_CREATED_OR_UPDATED_SERVICE_BROKER, serviceBroker);
     }
 
-    public static CloudServiceBroker getCreatedOrUpdatedServiceBroker(DelegateExecution context) {
-        return getFromJsonBinary(context, Constants.VAR_CREATED_OR_UPDATED_SERVICE_BROKER, CloudServiceBroker.class);
+    public static CloudServiceBroker getCreatedOrUpdatedServiceBroker(VariableScope scope) {
+        return getFromJsonBinary(scope, Constants.VAR_CREATED_OR_UPDATED_SERVICE_BROKER, CloudServiceBroker.class);
     }
 
-    public static CloudServiceBroker getServiceBrokersToCreateForModule(DelegateExecution context, String moduleName) {
-        return getFromJsonBinary(context, Constants.VAR_APP_SERVICE_BROKER_VAR_PREFIX + moduleName, CloudServiceBroker.class);
+    public static CloudServiceBroker getServiceBrokersToCreateForModule(VariableScope scope, String moduleName) {
+        return getFromJsonBinary(scope, Constants.VAR_APP_SERVICE_BROKER_VAR_PREFIX + moduleName, CloudServiceBroker.class);
     }
 
-    public static List<String> getCreatedOrUpdatedServiceBrokerNames(DelegateExecution context) {
-        List<Module> allModulesToDeploy = getAllModulesToDeploy(context);
+    public static List<String> getCreatedOrUpdatedServiceBrokerNames(VariableScope scope) {
+        List<Module> allModulesToDeploy = getAllModulesToDeploy(scope);
         return allModulesToDeploy.stream()
-            .map(module -> getServiceBrokersToCreateForModule(context, module.getName()))
+            .map(module -> getServiceBrokersToCreateForModule(scope, module.getName()))
             .filter(Objects::nonNull)
             .map(CloudServiceBroker::getName)
             .collect(Collectors.toList());
     }
 
-    public static List<ConfigurationEntry> getDeletedEntries(DelegateExecution context) {
+    public static List<ConfigurationEntry> getDeletedEntries(VariableScope scope) {
         Type type = new TypeToken<List<ConfigurationEntry>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_DELETED_ENTRIES, type, Collections.emptyList());
+        return getFromJsonBinary(scope, Constants.VAR_DELETED_ENTRIES, type, Collections.emptyList());
     }
 
     static List<ConfigurationEntry> getDeletedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {
@@ -528,24 +528,24 @@ public class StepsUtil {
         return Arrays.asList(JsonUtil.fromJsonBinary(deletedEntriesByteArray, ConfigurationEntry[].class));
     }
 
-    static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(DelegateExecution context, FlowableFacade flowableFacade) {
+    static List<ConfigurationEntry> getDeletedEntriesFromAllProcesses(VariableScope scope, FlowableFacade flowableFacade) {
         List<ConfigurationEntry> configurationEntries = new ArrayList<>(
-            StepsUtil.getDeletedEntriesFromProcess(flowableFacade, StepsUtil.getCorrelationId(context)));
-        List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(context));
+            StepsUtil.getDeletedEntriesFromProcess(flowableFacade, StepsUtil.getCorrelationId(scope)));
+        List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(scope));
         for (String subProcessId : subProcessIds) {
             configurationEntries.addAll(getDeletedEntriesFromProcess(flowableFacade, subProcessId));
         }
         return configurationEntries;
     }
 
-    static void setDeletedEntries(DelegateExecution context, List<ConfigurationEntry> deletedEntries) {
-        setAsJsonBinary(context, Constants.VAR_DELETED_ENTRIES, deletedEntries);
+    static void setDeletedEntries(VariableScope scope, List<ConfigurationEntry> deletedEntries) {
+        setAsJsonBinary(scope, Constants.VAR_DELETED_ENTRIES, deletedEntries);
     }
 
-    public static List<ConfigurationEntry> getPublishedEntries(DelegateExecution context) {
+    public static List<ConfigurationEntry> getPublishedEntries(VariableScope scope) {
         Type type = new TypeToken<List<ConfigurationEntry>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_PUBLISHED_ENTRIES, type);
+        return getFromJsonBinary(scope, Constants.VAR_PUBLISHED_ENTRIES, type);
     }
 
     static List<ConfigurationEntry> getPublishedEntriesFromProcess(FlowableFacade flowableFacade, String processInstanceId) {
@@ -558,25 +558,25 @@ public class StepsUtil {
         return Arrays.asList(JsonUtil.fromJsonBinary(binaryJson, ConfigurationEntry[].class));
     }
 
-    static List<ConfigurationEntry> getPublishedEntriesFromSubProcesses(DelegateExecution context, FlowableFacade flowableFacade) {
+    static List<ConfigurationEntry> getPublishedEntriesFromSubProcesses(VariableScope scope, FlowableFacade flowableFacade) {
         List<ConfigurationEntry> result = new ArrayList<>();
-        List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(context));
+        List<String> subProcessIds = flowableFacade.getHistoricSubProcessIds(StepsUtil.getCorrelationId(scope));
         for (String subProcessId : subProcessIds) {
             result.addAll(getPublishedEntriesFromProcess(flowableFacade, subProcessId));
         }
         return result;
     }
 
-    static void setPublishedEntries(DelegateExecution context, List<ConfigurationEntry> publishedEntries) {
-        setAsJsonBinary(context, Constants.VAR_PUBLISHED_ENTRIES, publishedEntries);
+    static void setPublishedEntries(VariableScope scope, List<ConfigurationEntry> publishedEntries) {
+        setAsJsonBinary(scope, Constants.VAR_PUBLISHED_ENTRIES, publishedEntries);
     }
 
-    static void setServiceUrlToRegister(DelegateExecution context, ServiceUrl serviceUrl) {
-        setAsJsonBinary(context, Constants.VAR_SERVICE_URL_TO_REGISTER, serviceUrl);
+    static void setServiceUrlToRegister(VariableScope scope, ServiceUrl serviceUrl) {
+        setAsJsonBinary(scope, Constants.VAR_SERVICE_URL_TO_REGISTER, serviceUrl);
     }
 
-    public static ServiceUrl getServiceUrlToRegister(DelegateExecution context) {
-        return getFromJsonBinary(context, Constants.VAR_SERVICE_URL_TO_REGISTER, ServiceUrl.class);
+    public static ServiceUrl getServiceUrlToRegister(VariableScope scope) {
+        return getFromJsonBinary(scope, Constants.VAR_SERVICE_URL_TO_REGISTER, ServiceUrl.class);
     }
 
     public static void setVariableInParentProcess(DelegateExecution context, String variablePrefix, Object variableValue) {
@@ -600,50 +600,50 @@ public class StepsUtil {
         runtimeService.setVariable(superExecutionId, exportedVariableName, binaryJson);
     }
 
-    public static ServiceUrl getServiceUrlToRegisterForModule(DelegateExecution context, String moduleName) {
-        return getFromJsonBinary(context, Constants.VAR_APP_SERVICE_URL_VAR_PREFIX + moduleName, ServiceUrl.class);
+    public static ServiceUrl getServiceUrlToRegisterForModule(VariableScope scope, String moduleName) {
+        return getFromJsonBinary(scope, Constants.VAR_APP_SERVICE_URL_VAR_PREFIX + moduleName, ServiceUrl.class);
     }
 
-    public static List<String> getRegisteredServiceUrlsNames(DelegateExecution context) {
-        List<Module> allModulesToDeploy = getAllModulesToDeploy(context);
+    public static List<String> getRegisteredServiceUrlsNames(VariableScope scope) {
+        List<Module> allModulesToDeploy = getAllModulesToDeploy(scope);
         return allModulesToDeploy.stream()
-            .map(module -> getServiceUrlToRegisterForModule(context, module.getName()))
+            .map(module -> getServiceUrlToRegisterForModule(scope, module.getName()))
             .filter(Objects::nonNull)
             .map(ServiceUrl::getServiceName)
             .collect(Collectors.toList());
     }
 
-    static void setDeployedMta(DelegateExecution context, DeployedMta deployedMta) {
-        setAsJsonBinary(context, Constants.VAR_DEPLOYED_MTA, deployedMta);
+    static void setDeployedMta(VariableScope scope, DeployedMta deployedMta) {
+        setAsJsonBinary(scope, Constants.VAR_DEPLOYED_MTA, deployedMta);
     }
 
-    protected static DeployedMta getDeployedMta(DelegateExecution context) {
-        return getFromJsonBinary(context, Constants.VAR_DEPLOYED_MTA, DeployedMta.class);
+    protected static DeployedMta getDeployedMta(VariableScope scope) {
+        return getFromJsonBinary(scope, Constants.VAR_DEPLOYED_MTA, DeployedMta.class);
     }
 
-    static Map<String, Set<Integer>> getAllocatedPorts(DelegateExecution context) {
+    static Map<String, Set<Integer>> getAllocatedPorts(VariableScope scope) {
         Type type = new TypeToken<Map<String, Set<Integer>>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_ALLOCATED_PORTS, type);
+        return getFromJsonBinary(scope, Constants.VAR_ALLOCATED_PORTS, type);
     }
 
-    static void setAllocatedPorts(DelegateExecution context, Map<String, Set<Integer>> allocatedPorts) {
-        setAsJsonBinary(context, Constants.VAR_ALLOCATED_PORTS, allocatedPorts);
+    static void setAllocatedPorts(VariableScope scope, Map<String, Set<Integer>> allocatedPorts) {
+        setAsJsonBinary(scope, Constants.VAR_ALLOCATED_PORTS, allocatedPorts);
     }
 
-    static void setXsPlaceholderReplacementValues(DelegateExecution context, Map<String, Object> replacementValues) {
-        setAsJsonBinary(context, Constants.VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES, replacementValues);
+    static void setXsPlaceholderReplacementValues(VariableScope scope, Map<String, Object> replacementValues) {
+        setAsJsonBinary(scope, Constants.VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES, replacementValues);
     }
 
-    static Map<String, Object> getXsPlaceholderReplacementValues(DelegateExecution context) {
-        String json = new String(getObject(context, Constants.VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES), StandardCharsets.UTF_8);
+    static Map<String, Object> getXsPlaceholderReplacementValues(VariableScope scope) {
+        String json = new String(getObject(scope, Constants.VAR_XS_PLACEHOLDER_REPLACEMENT_VALUES), StandardCharsets.UTF_8);
         // JsonUtil.convertJsonToMap does some magic under the hood that converts doubles to integers whenever possible. We need it for
         // SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER. That's why we can't use getFromJsonBinary here.
         return JsonUtil.convertJsonToMap(json);
     }
 
-    static XsPlaceholderResolver getXsPlaceholderResolver(DelegateExecution context) {
-        Map<String, Object> replacementValues = getXsPlaceholderReplacementValues(context);
+    static XsPlaceholderResolver getXsPlaceholderResolver(VariableScope scope) {
+        Map<String, Object> replacementValues = getXsPlaceholderReplacementValues(scope);
         XsPlaceholderResolver resolver = new XsPlaceholderResolver();
         resolver.setControllerEndpoint((String) replacementValues.get(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER));
         resolver.setRouterPort((int) replacementValues.get(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER));
@@ -654,14 +654,14 @@ public class StepsUtil {
         return resolver;
     }
 
-    public static DeploymentDescriptor getUnresolvedDeploymentDescriptor(DelegateExecution context) {
-        byte[] binaryYaml = (byte[]) context.getVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR);
+    public static DeploymentDescriptor getUnresolvedDeploymentDescriptor(VariableScope scope) {
+        byte[] binaryYaml = (byte[]) scope.getVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR);
         String yaml = new String(binaryYaml, StandardCharsets.UTF_8);
         return parseDeploymentDescriptor(yaml);
     }
 
-    public static DeploymentDescriptor getDeploymentDescriptor(DelegateExecution context) {
-        byte[] binaryYaml = (byte[]) context.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR);
+    public static DeploymentDescriptor getDeploymentDescriptor(VariableScope scope) {
+        byte[] binaryYaml = (byte[]) scope.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR);
         if (binaryYaml == null) {
             return null;
         }
@@ -669,9 +669,9 @@ public class StepsUtil {
         return parseDeploymentDescriptor(yaml);
     }
 
-    public static Module findModuleInDeploymentDescriptor(DelegateExecution context, String module) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
-        DeploymentDescriptor deploymentDescriptor = getDeploymentDescriptor(context);
+    public static Module findModuleInDeploymentDescriptor(VariableScope scope, String module) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
+        DeploymentDescriptor deploymentDescriptor = getDeploymentDescriptor(scope);
         return handlerFactory.getDescriptorHandler()
             .findModule(deploymentDescriptor, module);
     }
@@ -682,8 +682,8 @@ public class StepsUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<ExtensionDescriptor> getExtensionDescriptorChain(DelegateExecution context) {
-        List<byte[]> binaryYamlList = (List<byte[]>) context.getVariable(Constants.VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN);
+    public static List<ExtensionDescriptor> getExtensionDescriptorChain(VariableScope scope) {
+        List<byte[]> binaryYamlList = (List<byte[]>) scope.getVariable(Constants.VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN);
         List<String> yamlList = binaryYamlList.stream()
             .map(binaryYaml -> new String(binaryYaml, StandardCharsets.UTF_8))
             .collect(Collectors.toList());
@@ -697,16 +697,16 @@ public class StepsUtil {
             .collect(Collectors.toList());
     }
 
-    public static void setUnresolvedDeploymentDescriptor(DelegateExecution context, DeploymentDescriptor unresolvedDeploymentDescriptor) {
-        context.setVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(unresolvedDeploymentDescriptor));
+    public static void setUnresolvedDeploymentDescriptor(VariableScope scope, DeploymentDescriptor unresolvedDeploymentDescriptor) {
+        scope.setVariable(Constants.VAR_MTA_UNRESOLVED_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(unresolvedDeploymentDescriptor));
     }
 
-    public static void setDeploymentDescriptor(DelegateExecution context, DeploymentDescriptor deploymentDescriptor) {
-        context.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(deploymentDescriptor));
+    public static void setDeploymentDescriptor(VariableScope scope, DeploymentDescriptor deploymentDescriptor) {
+        scope.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(deploymentDescriptor));
     }
 
-    static void setExtensionDescriptorChain(DelegateExecution context, List<ExtensionDescriptor> extensionDescriptors) {
-        context.setVariable(Constants.VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN, toBinaryYamlList(extensionDescriptors));
+    static void setExtensionDescriptorChain(VariableScope scope, List<ExtensionDescriptor> extensionDescriptors) {
+        scope.setVariable(Constants.VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN, toBinaryYamlList(extensionDescriptors));
     }
 
     private static List<byte[]> toBinaryYamlList(List<?> objects) {
@@ -720,93 +720,93 @@ public class StepsUtil {
         return yaml.getBytes(StandardCharsets.UTF_8);
     }
 
-    static SystemParameters getSystemParameters(DelegateExecution context) {
-        return getFromJsonBinary(context, Constants.VAR_SYSTEM_PARAMETERS, SystemParameters.class);
+    static SystemParameters getSystemParameters(VariableScope scope) {
+        return getFromJsonBinary(scope, Constants.VAR_SYSTEM_PARAMETERS, SystemParameters.class);
     }
 
-    static void setSystemParameters(DelegateExecution context, SystemParameters systemParameters) {
-        setAsJsonBinary(context, Constants.VAR_SYSTEM_PARAMETERS, systemParameters);
+    static void setSystemParameters(VariableScope scope, SystemParameters systemParameters) {
+        setAsJsonBinary(scope, Constants.VAR_SYSTEM_PARAMETERS, systemParameters);
     }
 
-    static void setVcapAppPropertiesChanged(DelegateExecution context, boolean state) {
-        context.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, state);
+    static void setVcapAppPropertiesChanged(VariableScope scope, boolean state) {
+        scope.setVariable(Constants.VAR_VCAP_APP_PROPERTIES_CHANGED, state);
     }
 
-    static boolean getVcapAppPropertiesChanged(DelegateExecution context) {
-        return getBoolean(context, Constants.VAR_VCAP_APP_PROPERTIES_CHANGED);
+    static boolean getVcapAppPropertiesChanged(VariableScope scope) {
+        return getBoolean(scope, Constants.VAR_VCAP_APP_PROPERTIES_CHANGED);
     }
 
-    static void setVcapServicesPropertiesChanged(DelegateExecution context, boolean state) {
-        context.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, state);
+    static void setVcapServicesPropertiesChanged(VariableScope scope, boolean state) {
+        scope.setVariable(Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED, state);
     }
 
-    static boolean getVcapServicesPropertiesChanged(DelegateExecution context) {
-        return getBoolean(context, Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED);
+    static boolean getVcapServicesPropertiesChanged(VariableScope scope) {
+        return getBoolean(scope, Constants.VAR_VCAP_SERVICES_PROPERTIES_CHANGED);
     }
 
-    static void setUserPropertiesChanged(DelegateExecution context, boolean state) {
-        context.setVariable(Constants.VAR_USER_PROPERTIES_CHANGED, state);
+    static void setUserPropertiesChanged(VariableScope scope, boolean state) {
+        scope.setVariable(Constants.VAR_USER_PROPERTIES_CHANGED, state);
     }
 
-    static boolean getUserPropertiesChanged(DelegateExecution context) {
-        return getBoolean(context, Constants.VAR_USER_PROPERTIES_CHANGED);
+    static boolean getUserPropertiesChanged(VariableScope scope) {
+        return getBoolean(scope, Constants.VAR_USER_PROPERTIES_CHANGED);
     }
 
-    public static CloudApplicationExtended getApp(DelegateExecution context) {
-        return getFromJsonString(context, Constants.VAR_APP_TO_DEPLOY, CloudApplicationExtended.class);
+    public static CloudApplicationExtended getApp(VariableScope scope) {
+        return getFromJsonString(scope, Constants.VAR_APP_TO_DEPLOY, CloudApplicationExtended.class);
     }
 
-    static void setApp(DelegateExecution context, CloudApplicationExtended app) {
-        setAsJsonString(context, Constants.VAR_APP_TO_DEPLOY, app);
+    static void setApp(VariableScope scope, CloudApplicationExtended app) {
+        setAsJsonString(scope, Constants.VAR_APP_TO_DEPLOY, app);
     }
 
-    public static void setModuleToDeploy(DelegateExecution context, Module module) {
-        setAsJsonBinary(context, Constants.VAR_MODULE_TO_DEPLOY, module);
+    public static void setModuleToDeploy(VariableScope scope, Module module) {
+        setAsJsonBinary(scope, Constants.VAR_MODULE_TO_DEPLOY, module);
     }
 
-    public static Module getModuleToDeploy(DelegateExecution context) {
-        return getFromJsonBinary(context, Constants.VAR_MODULE_TO_DEPLOY, getModuleToDeployClass(context));
+    public static Module getModuleToDeploy(VariableScope scope) {
+        return getFromJsonBinary(scope, Constants.VAR_MODULE_TO_DEPLOY, getModuleToDeployClass(scope));
     }
 
-    static CloudTask getTask(DelegateExecution context) {
-        List<CloudTask> tasks = StepsUtil.getTasksToExecute(context);
-        int index = (Integer) context.getVariable(Constants.VAR_TASKS_INDEX);
+    static CloudTask getTask(VariableScope scope) {
+        List<CloudTask> tasks = StepsUtil.getTasksToExecute(scope);
+        int index = (Integer) scope.getVariable(Constants.VAR_TASKS_INDEX);
         return tasks.get(index);
     }
 
-    static CloudApplication getExistingApp(DelegateExecution context) {
-        return getFromJsonBinary(context, Constants.VAR_EXISTING_APP, CloudApplication.class);
+    static CloudApplication getExistingApp(VariableScope scope) {
+        return getFromJsonBinary(scope, Constants.VAR_EXISTING_APP, CloudApplication.class);
     }
 
-    static void setExistingApp(DelegateExecution context, CloudApplication app) {
-        setAsJsonBinary(context, Constants.VAR_EXISTING_APP, app);
+    static void setExistingApp(VariableScope scope, CloudApplication app) {
+        setAsJsonBinary(scope, Constants.VAR_EXISTING_APP, app);
     }
 
-    static Set<ApplicationStateAction> getAppStateActionsToExecute(DelegateExecution context) {
+    static Set<ApplicationStateAction> getAppStateActionsToExecute(VariableScope scope) {
         @SuppressWarnings("unchecked")
-        Set<String> actionsAsStrings = (Set<String>) context.getVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE);
+        Set<String> actionsAsStrings = (Set<String>) scope.getVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE);
         return actionsAsStrings.stream()
             .map(ApplicationStateAction::valueOf)
             .collect(Collectors.toSet());
     }
 
-    static void setAppStateActionsToExecute(DelegateExecution context, Set<ApplicationStateAction> actions) {
+    static void setAppStateActionsToExecute(VariableScope scope, Set<ApplicationStateAction> actions) {
         Set<String> actionsAsStrings = actions.stream()
             .map(ApplicationStateAction::toString)
             .collect(Collectors.toSet());
-        context.setVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE, actionsAsStrings);
+        scope.setVariable(Constants.VAR_APP_STATE_ACTIONS_TO_EXECUTE, actionsAsStrings);
     }
 
-    public static void setSubProcessId(DelegateExecution context, String subProcessId) {
-        context.setVariable(Constants.VAR_SUBPROCESS_ID, subProcessId);
+    public static void setSubProcessId(VariableScope scope, String subProcessId) {
+        scope.setVariable(Constants.VAR_SUBPROCESS_ID, subProcessId);
     }
 
-    public static String getSubProcessId(DelegateExecution context) {
-        return getString(context, Constants.VAR_SUBPROCESS_ID);
+    public static String getSubProcessId(VariableScope scope) {
+        return getString(scope, Constants.VAR_SUBPROCESS_ID);
     }
 
-    static String getParentProcessId(DelegateExecution context) {
-        return getString(context, Constants.VAR_PARENTPROCESS_ID);
+    static String getParentProcessId(VariableScope scope) {
+        return getString(scope, Constants.VAR_PARENTPROCESS_ID);
     }
 
     static void saveAppLogs(DelegateExecution context, CloudControllerClient client, RecentLogsRetriever recentLogsRetriever,
@@ -822,16 +822,16 @@ public class StepsUtil {
         getLogger(context, appName, processLoggerProvider).debug(getLoggerPrefix(logger) + "[" + appName + "] " + message);
     }
 
-    public static StartingInfo getStartingInfo(DelegateExecution context) {
-        String className = getString(context, Constants.VAR_STARTING_INFO_CLASSNAME);
-        return getFromJsonBinary(context, Constants.VAR_STARTING_INFO, getStartingInfoClass(className));
+    public static StartingInfo getStartingInfo(VariableScope scope) {
+        String className = getString(scope, Constants.VAR_STARTING_INFO_CLASSNAME);
+        return getFromJsonBinary(scope, Constants.VAR_STARTING_INFO, getStartingInfoClass(className));
     }
 
-    public static void setStartingInfo(DelegateExecution context, StartingInfo startingInfo) {
-        setAsJsonBinary(context, Constants.VAR_STARTING_INFO, startingInfo);
+    public static void setStartingInfo(VariableScope scope, StartingInfo startingInfo) {
+        setAsJsonBinary(scope, Constants.VAR_STARTING_INFO, startingInfo);
         String className = startingInfo != null ? startingInfo.getClass()
             .getName() : StartingInfo.class.getName();
-        context.setVariable(Constants.VAR_STARTING_INFO_CLASSNAME, className);
+            scope.setVariable(Constants.VAR_STARTING_INFO_CLASSNAME, className);
     }
 
     @SuppressWarnings("unchecked")
@@ -843,57 +843,57 @@ public class StepsUtil {
         }
     }
 
-    static StreamingLogToken getStreamingLogsToken(DelegateExecution context) {
-        return getFromJsonBinary(context, Constants.VAR_STREAMING_LOGS_TOKEN, StreamingLogToken.class);
+    static StreamingLogToken getStreamingLogsToken(VariableScope scope) {
+        return getFromJsonBinary(scope, Constants.VAR_STREAMING_LOGS_TOKEN, StreamingLogToken.class);
     }
 
-    static void setStreamingLogsToken(DelegateExecution context, StreamingLogToken streamingLogToken) {
-        setAsJsonBinary(context, Constants.VAR_STREAMING_LOGS_TOKEN, streamingLogToken);
+    static void setStreamingLogsToken(VariableScope scope, StreamingLogToken streamingLogToken) {
+        setAsJsonBinary(scope, Constants.VAR_STREAMING_LOGS_TOKEN, streamingLogToken);
     }
 
-    static void setMtaArchiveModules(DelegateExecution context, Set<String> mtaArchiveModules) {
-        setAsJsonBinary(context, Constants.VAR_MTA_ARCHIVE_MODULES, mtaArchiveModules);
+    static void setMtaArchiveModules(VariableScope scope, Set<String> mtaArchiveModules) {
+        setAsJsonBinary(scope, Constants.VAR_MTA_ARCHIVE_MODULES, mtaArchiveModules);
     }
 
-    static Set<String> getMtaArchiveModules(DelegateExecution context) {
+    static Set<String> getMtaArchiveModules(VariableScope scope) {
         Type type = new TypeToken<Set<String>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_MTA_ARCHIVE_MODULES, type);
+        return getFromJsonBinary(scope, Constants.VAR_MTA_ARCHIVE_MODULES, type);
     }
 
-    static void setMtaModules(DelegateExecution context, Set<String> mtaModules) {
-        setAsJsonBinary(context, Constants.VAR_MTA_MODULES, mtaModules);
+    static void setMtaModules(VariableScope scope, Set<String> mtaModules) {
+        setAsJsonBinary(scope, Constants.VAR_MTA_MODULES, mtaModules);
     }
 
-    static Set<String> getMtaModules(DelegateExecution context) {
+    static Set<String> getMtaModules(VariableScope scope) {
         Type type = new TypeToken<Set<String>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_MTA_MODULES, type);
+        return getFromJsonBinary(scope, Constants.VAR_MTA_MODULES, type);
     }
 
-    public static String getCorrelationId(DelegateExecution context) {
-        return getString(context, Constants.VAR_CORRELATION_ID);
+    public static String getCorrelationId(VariableScope scope) {
+        return getString(scope, Constants.VAR_CORRELATION_ID);
     }
 
-    public static String getTaskId(DelegateExecution context) {
-        return getString(context, Constants.TASK_ID);
+    public static String getTaskId(VariableScope scope) {
+        return getString(scope, Constants.TASK_ID);
     }
 
-    public static ErrorType getErrorType(DelegateExecution context) {
-        return getEnum(context, Constants.VAR_ERROR_TYPE, ErrorType::valueOf);
+    public static ErrorType getErrorType(VariableScope scope) {
+        return getEnum(scope, Constants.VAR_ERROR_TYPE, ErrorType::valueOf);
     }
 
-    static void setErrorType(DelegateExecution context, ErrorType errorType) {
-        setEnum(context, Constants.VAR_ERROR_TYPE, errorType);
+    static void setErrorType(VariableScope scope, ErrorType errorType) {
+        setEnum(scope, Constants.VAR_ERROR_TYPE, errorType);
     }
 
-    static StepPhase getStepPhase(DelegateExecution context) {
-        StepPhase stepPhase = getEnum(context, Constants.VAR_STEP_PHASE, StepPhase::valueOf);
+    static StepPhase getStepPhase(VariableScope scope) {
+        StepPhase stepPhase = getEnum(scope, Constants.VAR_STEP_PHASE, StepPhase::valueOf);
         return stepPhase == null ? StepPhase.EXECUTE : stepPhase;
     }
 
-    public static void setStepPhase(DelegateExecution context, StepPhase stepPhase) {
-        setEnum(context, Constants.VAR_STEP_PHASE, stepPhase);
+    public static void setStepPhase(VariableScope scope, StepPhase stepPhase) {
+        setEnum(scope, Constants.VAR_STEP_PHASE, stepPhase);
     }
 
     public static String getLoggerPrefix(Logger logger) {
@@ -901,42 +901,42 @@ public class StepsUtil {
         return "[" + name.substring(name.lastIndexOf('.') + 1) + "] ";
     }
 
-    public static void setArchiveFileId(DelegateExecution context, String uploadedMtarId) {
-        context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedMtarId);
+    public static void setArchiveFileId(VariableScope scope, String uploadedMtarId) {
+        scope.setVariable(Constants.PARAM_APP_ARCHIVE_ID, uploadedMtarId);
     }
 
-    public static String getServiceId(DelegateExecution context) {
-        return getString(context, com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID);
+    public static String getServiceId(VariableScope scope) {
+        return getString(scope, com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID);
     }
 
-    public static void incrementVariable(DelegateExecution context, String name) {
-        int value = getInteger(context, name);
-        context.setVariable(name, value + 1);
+    public static void incrementVariable(VariableScope scope, String name) {
+        int value = getInteger(scope, name);
+        scope.setVariable(name, value + 1);
     }
 
     public static final String DEPLOY_ID_PREFIX = "deploy-";
 
-    static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DelegateExecution context, UserMessageLogger stepLogger) {
-        CloudModelConfiguration configuration = getCloudBuilderConfiguration(context, true);
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
+    static ApplicationCloudModelBuilder getApplicationCloudModelBuilder(VariableScope scope, UserMessageLogger stepLogger) {
+        CloudModelConfiguration configuration = getCloudBuilderConfiguration(scope, true);
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
 
-        SystemParameters systemParameters = StepsUtil.getSystemParameters(context);
+        SystemParameters systemParameters = StepsUtil.getSystemParameters(scope);
 
-        String deployId = DEPLOY_ID_PREFIX + getCorrelationId(context);
+        String deployId = DEPLOY_ID_PREFIX + getCorrelationId(scope);
 
-        XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(context);
+        XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(scope);
 
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
-        DeployedMta deployedMta = StepsUtil.getDeployedMta(context);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(scope);
+        DeployedMta deployedMta = StepsUtil.getDeployedMta(scope);
 
         return handlerFactory.getApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, systemParameters,
             xsPlaceholderResolver, deployId, stepLogger);
     }
 
-    static List<String> getDomainsFromApps(DelegateExecution context, ApplicationCloudModelBuilder applicationCloudModelBuilder,
+    static List<String> getDomainsFromApps(VariableScope scope, ApplicationCloudModelBuilder applicationCloudModelBuilder,
         List<? extends Module> modules, ModuleToDeployHelper moduleToDeployHelper) {
-        SystemParameters systemParameters = StepsUtil.getSystemParameters(context);
-        XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(context);
+        SystemParameters systemParameters = StepsUtil.getSystemParameters(scope);
+        XsPlaceholderResolver xsPlaceholderResolver = StepsUtil.getXsPlaceholderResolver(scope);
         String defaultDomain = (String) systemParameters.getGeneralParameters()
             .getOrDefault(SupportedParameters.DEFAULT_DOMAIN, null);
 
@@ -962,24 +962,24 @@ public class StepsUtil {
         return new ArrayList<>(domains);
     }
 
-    static ServicesCloudModelBuilder getServicesCloudModelBuilder(DelegateExecution context) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
-        CloudModelConfiguration configuration = getCloudBuilderConfiguration(context, true);
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+    static ServicesCloudModelBuilder getServicesCloudModelBuilder(VariableScope scope) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
+        CloudModelConfiguration configuration = getCloudBuilderConfiguration(scope, true);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(scope);
 
         return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, configuration);
     }
 
-    static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DelegateExecution context) {
-        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
-        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+    static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(VariableScope scope) {
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(scope);
         return handlerFactory.getServiceKeysCloudModelBuilder(deploymentDescriptor);
     }
 
-    protected static CloudModelConfiguration getCloudBuilderConfiguration(DelegateExecution context, boolean prettyPrinting) {
-        Boolean useNamespaces = getBoolean(context, Constants.PARAM_USE_NAMESPACES, false);
-        Boolean useNamespacesForServices = getBoolean(context, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
-        Boolean portBasedRouting = getBoolean(context, Constants.VAR_PORT_BASED_ROUTING, false);
+    protected static CloudModelConfiguration getCloudBuilderConfiguration(VariableScope scope, boolean prettyPrinting) {
+        Boolean useNamespaces = getBoolean(scope, Constants.PARAM_USE_NAMESPACES, false);
+        Boolean useNamespacesForServices = getBoolean(scope, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
+        Boolean portBasedRouting = getBoolean(scope, Constants.VAR_PORT_BASED_ROUTING, false);
         CloudModelConfiguration configuration = new CloudModelConfiguration();
         configuration.setPortBasedRouting(portBasedRouting);
         configuration.setPrettyPrinting(prettyPrinting);
@@ -988,58 +988,58 @@ public class StepsUtil {
         return configuration;
     }
 
-    static String getGitRepoRef(DelegateExecution context) {
-        Object gitRepoConfigObject = context.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
+    static String getGitRepoRef(VariableScope scope) {
+        Object gitRepoConfigObject = scope.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
         if (gitRepoConfigObject == null) {
-            return (String) context.getVariable(Constants.PARAM_GIT_REF);
+            return (String) scope.getVariable(Constants.PARAM_GIT_REF);
         }
         @SuppressWarnings("unchecked")
         Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
         return gitRepoConfigMap.get(Constants.PARAM_GIT_REF);
     }
 
-    static String getGitRepoUri(DelegateExecution context) {
-        Object gitRepoConfigObject = context.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
+    static String getGitRepoUri(VariableScope scope) {
+        Object gitRepoConfigObject = scope.getVariable(Constants.VAR_GIT_REPOSITORY_CONFIG_MAP);
         if (gitRepoConfigObject == null) {
-            return (String) context.getVariable(Constants.PARAM_GIT_URI);
+            return (String) scope.getVariable(Constants.PARAM_GIT_URI);
         }
         @SuppressWarnings("unchecked")
         Map<String, String> gitRepoConfigMap = (Map<String, String>) gitRepoConfigObject;
         return gitRepoConfigMap.get(Constants.PARAM_GIT_URI);
     }
 
-    static void setUseIdleUris(DelegateExecution context, boolean state) {
-        context.setVariable(Constants.VAR_USE_IDLE_URIS, state);
+    static void setUseIdleUris(VariableScope scope, boolean state) {
+        scope.setVariable(Constants.VAR_USE_IDLE_URIS, state);
     }
 
-    static boolean getUseIdleUris(DelegateExecution context) {
-        return getBoolean(context, Constants.VAR_USE_IDLE_URIS);
+    static boolean getUseIdleUris(VariableScope scope) {
+        return getBoolean(scope, Constants.VAR_USE_IDLE_URIS);
     }
 
-    public static void setDeleteIdleUris(DelegateExecution context, boolean state) {
-        context.setVariable(Constants.VAR_DELETE_IDLE_URIS, state);
+    public static void setDeleteIdleUris(VariableScope scope, boolean state) {
+        scope.setVariable(Constants.VAR_DELETE_IDLE_URIS, state);
     }
 
-    static boolean getDeleteIdleUris(DelegateExecution context) {
-        return (boolean) context.getVariable(Constants.VAR_DELETE_IDLE_URIS);
+    static boolean getDeleteIdleUris(VariableScope scope) {
+        return (boolean) scope.getVariable(Constants.VAR_DELETE_IDLE_URIS);
     }
 
-    public static void setSkipUpdateConfigurationEntries(DelegateExecution context, boolean update) {
-        context.setVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES, update);
+    public static void setSkipUpdateConfigurationEntries(VariableScope scope, boolean update) {
+        scope.setVariable(Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES, update);
     }
 
-    public static boolean getSkipUpdateConfigurationEntries(DelegateExecution context) {
-        return getBoolean(context, Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES);
+    public static boolean getSkipUpdateConfigurationEntries(VariableScope scope) {
+        return getBoolean(scope, Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES);
     }
 
-    public static void setServicesData(DelegateExecution context, Map<String, CloudServiceExtended> servicesData) {
-        context.setVariable(Constants.VAR_SERVICES_DATA, JsonUtil.toJsonBinary(servicesData));
+    public static void setServicesData(VariableScope scope, Map<String, CloudServiceExtended> servicesData) {
+        scope.setVariable(Constants.VAR_SERVICES_DATA, JsonUtil.toJsonBinary(servicesData));
     }
 
-    public static Map<String, CloudServiceExtended> getServicesData(DelegateExecution context) {
+    public static Map<String, CloudServiceExtended> getServicesData(VariableScope scope) {
         Type type = new TypeToken<Map<String, CloudServiceExtended>>() {
         }.getType();
-        return getFromJsonBinary(context, Constants.VAR_SERVICES_DATA, type, Collections.emptyMap());
+        return getFromJsonBinary(scope, Constants.VAR_SERVICES_DATA, type, Collections.emptyMap());
     }
 
     public static CloudApplication getBoundApplication(List<CloudApplication> applications, UUID appGuid) {
@@ -1055,75 +1055,75 @@ public class StepsUtil {
             .equals(appGuid);
     }
 
-    public static boolean shouldDeleteServices(DelegateExecution context) {
-        return getBoolean(context, Constants.PARAM_DELETE_SERVICES, false);
+    public static boolean shouldDeleteServices(VariableScope scope) {
+        return getBoolean(scope, Constants.PARAM_DELETE_SERVICES, false);
     }
 
-    public static CloudServiceExtended getServiceToProcess(DelegateExecution context) {
-        return getFromJsonString(context, Constants.VAR_SERVICE_TO_PROCESS, CloudServiceExtended.class);
+    public static CloudServiceExtended getServiceToProcess(VariableScope scope) {
+        return getFromJsonString(scope, Constants.VAR_SERVICE_TO_PROCESS, CloudServiceExtended.class);
     }
 
-    public static void setServiceToProcess(CloudServiceExtended service, DelegateExecution context) {
-        setAsJsonString(context, Constants.VAR_SERVICE_TO_PROCESS, service);
+    public static void setServiceToProcess(CloudServiceExtended service, VariableScope scope) {
+        setAsJsonString(scope, Constants.VAR_SERVICE_TO_PROCESS, service);
     }
 
-    public static void setServiceActionsToExecute(List<ServiceAction> actions, DelegateExecution context) {
+    public static void setServiceActionsToExecute(List<ServiceAction> actions, VariableScope scope) {
         List<String> actionsStrings = actions.stream()
             .map(ServiceAction::toString)
             .collect(Collectors.toList());
-        context.setVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE, actionsStrings);
+        scope.setVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE, actionsStrings);
     }
 
     @SuppressWarnings("unchecked")
-    public static List<ServiceAction> getServiceActionsToExecute(DelegateExecution execution) {
+    public static List<ServiceAction> getServiceActionsToExecute(VariableScope execution) {
         List<String> actionStrings = (List<String>) execution.getVariable(Constants.VAR_SERVICE_ACTIONS_TO_EXCECUTE);
         return actionStrings.stream()
             .map(ServiceAction::valueOf)
             .collect(Collectors.toList());
     }
 
-    public static void isServiceUpdated(boolean isUpdated, DelegateExecution context) {
-        context.setVariable(Constants.VAR_IS_SERVICE_UPDATED, isUpdated);
+    public static void isServiceUpdated(boolean isUpdated, VariableScope scope) {
+        scope.setVariable(Constants.VAR_IS_SERVICE_UPDATED, isUpdated);
     }
 
-    public static boolean getIsServiceUpdated(DelegateExecution context) {
-        return getBoolean(context, Constants.VAR_IS_SERVICE_UPDATED, false);
+    public static boolean getIsServiceUpdated(VariableScope scope) {
+        return getBoolean(scope, Constants.VAR_IS_SERVICE_UPDATED, false);
     }
 
-    public static void setServiceToProcessName(String name, DelegateExecution context) {
-        context.setVariable(Constants.VAR_SERVICE_TO_PROCESS_NAME, name);
+    public static void setServiceToProcessName(String name, VariableScope scope) {
+        scope.setVariable(Constants.VAR_SERVICE_TO_PROCESS_NAME, name);
     }
 
-    public static String getServiceToProcessName(DelegateExecution context) {
-        return getString(context, Constants.VAR_SERVICE_TO_PROCESS_NAME);
+    public static String getServiceToProcessName(VariableScope scope) {
+        return getString(scope, Constants.VAR_SERVICE_TO_PROCESS_NAME);
     }
 
-    public static boolean getIsServiceUpdatedExportedVariable(DelegateExecution context, String serviceName) {
-        return getBoolean(context, Constants.VAR_IS_SERVICE_UPDATED_VAR_PREFIX + serviceName, false);
+    public static boolean getIsServiceUpdatedExportedVariable(VariableScope scope, String serviceName) {
+        return getBoolean(scope, Constants.VAR_IS_SERVICE_UPDATED_VAR_PREFIX + serviceName, false);
     }
 
-    public static List<String> getModulesForDeployment(DelegateExecution context) {
-        return getVariableWithCommaSepearator(context, Constants.PARAM_MODULES_FOR_DEPLOYMENT);
+    public static List<String> getModulesForDeployment(VariableScope scope) {
+        return getVariableWithCommaSepearator(scope, Constants.PARAM_MODULES_FOR_DEPLOYMENT);
     }
 
-    public static List<String> getResourcesForDeployment(DelegateExecution context) {
-        return getVariableWithCommaSepearator(context, Constants.PARAM_RESOURCES_FOR_DEPLOYMENT);
+    public static List<String> getResourcesForDeployment(VariableScope scope) {
+        return getVariableWithCommaSepearator(scope, Constants.PARAM_RESOURCES_FOR_DEPLOYMENT);
     }
 
-    private static List<String> getVariableWithCommaSepearator(DelegateExecution context, String variableName) {
-        String variableWithCommaSeparator = (String) context.getVariable(variableName);
+    private static List<String> getVariableWithCommaSepearator(VariableScope scope, String variableName) {
+        String variableWithCommaSeparator = (String) scope.getVariable(variableName);
         if (variableWithCommaSeparator == null) {
             return null;
         }
         return variableWithCommaSeparator.isEmpty() ? Collections.emptyList() : Arrays.asList(variableWithCommaSeparator.split(","));
     }
 
-    public static void setUploadToken(UploadToken uploadToken, DelegateExecution context) {
-        setAsJsonString(context, Constants.VAR_UPLOAD_TOKEN, uploadToken);
+    public static void setUploadToken(UploadToken uploadToken, VariableScope scope) {
+        setAsJsonString(scope, Constants.VAR_UPLOAD_TOKEN, uploadToken);
     }
 
-    public static UploadToken getUploadToken(DelegateExecution context) {
-        return getFromJsonString(context, Constants.VAR_UPLOAD_TOKEN, UploadToken.class);
+    public static UploadToken getUploadToken(VariableScope scope) {
+        return getFromJsonString(scope, Constants.VAR_UPLOAD_TOKEN, UploadToken.class);
     }
 
     public static <E> E getEnum(VariableScope scope, String name, Function<String, E> factory) {
