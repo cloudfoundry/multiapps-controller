@@ -6,9 +6,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -257,11 +255,13 @@ public class StepsUtil {
     }
 
     public static List<String> getCustomDomains(DelegateExecution context) {
-        return getArrayVariableAsList(context, Constants.VAR_CUSTOM_DOMAINS);
+        Type type = new TypeToken<List<String>>() {
+        }.getType();
+        return getFromJsonBinary(context, Constants.VAR_CUSTOM_DOMAINS, type);
     }
 
     static void setCustomDomains(DelegateExecution context, List<String> customDomains) {
-        setArrayVariableFromCollection(context, Constants.VAR_CUSTOM_DOMAINS, customDomains);
+        setAsJsonBinary(context, Constants.VAR_CUSTOM_DOMAINS, customDomains);
     }
 
     public static List<CloudServiceExtended> getServicesToCreate(DelegateExecution context) {
@@ -321,12 +321,13 @@ public class StepsUtil {
     }
 
     public static List<String> getAppsToDeploy(DelegateExecution context) {
-        List<String> arrayVariableAsList = getArrayVariableAsList(context, Constants.VAR_APPS_TO_DEPLOY);
-        return arrayVariableAsList != null ? arrayVariableAsList : Collections.emptyList();
+        Type type = new TypeToken<List<String>>() {
+        }.getType();
+        return getFromJsonBinary(context, Constants.VAR_APPS_TO_DEPLOY, type, Collections.emptyList());
     }
 
     public static void setAppsToDeploy(DelegateExecution context, List<String> apps) {
-        setArrayVariableFromCollection(context, Constants.VAR_APPS_TO_DEPLOY, apps);
+        setAsJsonBinary(context, Constants.VAR_APPS_TO_DEPLOY, apps);
     }
 
     public static List<Module> getModulesToDeploy(DelegateExecution context) {
@@ -451,12 +452,13 @@ public class StepsUtil {
     }
 
     public static List<String> getServicesToDelete(DelegateExecution context) {
-        List<String> arrayVariableAsList = getArrayVariableAsList(context, Constants.VAR_SERVICES_TO_DELETE);
-        return arrayVariableAsList != null ? arrayVariableAsList : Collections.emptyList();
+        Type type = new TypeToken<List<String>>() {
+        }.getType();
+        return getFromJsonBinary(context, Constants.VAR_SERVICES_TO_DELETE, type);
     }
 
     public static void setServicesToDelete(DelegateExecution context, List<String> services) {
-        setArrayVariableFromCollection(context, Constants.VAR_SERVICES_TO_DELETE, services);
+        setAsJsonBinary(context, Constants.VAR_SERVICES_TO_DELETE, services);
     }
 
     public static List<ConfigurationSubscription> getSubscriptionsToDelete(DelegateExecution context) {
@@ -850,19 +852,23 @@ public class StepsUtil {
     }
 
     static void setMtaArchiveModules(DelegateExecution context, Set<String> mtaArchiveModules) {
-        setArrayVariableFromCollection(context, Constants.VAR_MTA_ARCHIVE_MODULES, mtaArchiveModules);
+        setAsJsonBinary(context, Constants.VAR_MTA_ARCHIVE_MODULES, mtaArchiveModules);
     }
 
     static Set<String> getMtaArchiveModules(DelegateExecution context) {
-        return getArrayVariableAsSet(context, Constants.VAR_MTA_ARCHIVE_MODULES);
+        Type type = new TypeToken<Set<String>>() {
+        }.getType();
+        return getFromJsonBinary(context, Constants.VAR_MTA_ARCHIVE_MODULES, type);
     }
 
     static void setMtaModules(DelegateExecution context, Set<String> mtaModules) {
-        setArrayVariableFromCollection(context, Constants.VAR_MTA_MODULES, mtaModules);
+        setAsJsonBinary(context, Constants.VAR_MTA_MODULES, mtaModules);
     }
 
     static Set<String> getMtaModules(DelegateExecution context) {
-        return getArrayVariableAsSet(context, Constants.VAR_MTA_MODULES);
+        Type type = new TypeToken<Set<String>>() {
+        }.getType();
+        return getFromJsonBinary(context, Constants.VAR_MTA_MODULES, type);
     }
 
     public static String getCorrelationId(DelegateExecution context) {
@@ -906,26 +912,6 @@ public class StepsUtil {
     public static void incrementVariable(DelegateExecution context, String name) {
         int value = getInteger(context, name);
         context.setVariable(name, value + 1);
-    }
-
-    public static void setArrayVariable(DelegateExecution context, String name, String[] array) {
-        context.setVariable(name, JsonUtil.toJsonBinary(array));
-    }
-
-    public static void setArrayVariableFromCollection(DelegateExecution context, String name, Collection<String> collection) {
-        setArrayVariable(context, name, collection.toArray(new String[collection.size()]));
-    }
-
-    public static String[] getArrayVariable(DelegateExecution context, String name) {
-        return getFromJsonBinary(context, name, String[].class);
-    }
-
-    public static List<String> getArrayVariableAsList(DelegateExecution context, String name) {
-        return Arrays.asList(getArrayVariable(context, name));
-    }
-
-    public static Set<String> getArrayVariableAsSet(DelegateExecution context, String name) {
-        return new HashSet<>(Arrays.asList(getArrayVariable(context, name)));
     }
 
     public static final String DEPLOY_ID_PREFIX = "deploy-";
