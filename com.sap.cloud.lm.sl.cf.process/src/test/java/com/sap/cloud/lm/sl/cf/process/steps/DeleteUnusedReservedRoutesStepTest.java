@@ -116,7 +116,6 @@ public class DeleteUnusedReservedRoutesStepTest extends SyncFlowableStepTest<Del
     private void prepareContext() throws Exception {
         StepsUtil.setXsPlaceholderReplacementValues(context, getReplacementValues());
         StepsUtil.setModulesToDeploy(context, input.modulesToDeploy);
-        StepsUtil.setModuleToDeployClass(context, input.modulesToDeploy);
         StepsUtil.setMtaModules(context, input.modulesToDeploy.stream()
             .map(Module::getName)
             .collect(Collectors.toSet()));

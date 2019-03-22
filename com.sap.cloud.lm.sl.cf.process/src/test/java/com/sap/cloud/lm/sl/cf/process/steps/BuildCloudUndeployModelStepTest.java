@@ -204,7 +204,6 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         StepsUtil.setDeployedMta(context, deployedMta);
         StepsUtil.setModulesToDeploy(context, modulesToDeploy);
         StepsUtil.setAllModulesToDeploy(context, modulesToDeploy);
-        StepsUtil.setModuleToDeployClass(context, modulesToDeploy);
         StepsUtil.setDeployedApps(context, ListUtil.upcastUnmodifiable(deployedApps));
         List<String> appNamesToDeploy = new ArrayList<>();
         appsToDeploy.forEach(app -> appNamesToDeploy.add(app.getName()));

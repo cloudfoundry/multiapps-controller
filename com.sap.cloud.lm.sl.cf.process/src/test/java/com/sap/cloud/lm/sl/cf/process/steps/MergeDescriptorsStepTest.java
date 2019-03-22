@@ -57,7 +57,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
         StepsUtil.setUnresolvedDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setExtensionDescriptorChain(context, Collections.emptyList());
 
-        StepsUtil.setAsBinaryJson(context, Constants.VAR_PLATFORM, PLATFORM);
+        StepsUtil.setAsJsonBinary(context, Constants.VAR_PLATFORM, PLATFORM);
     }
 
     @Test
