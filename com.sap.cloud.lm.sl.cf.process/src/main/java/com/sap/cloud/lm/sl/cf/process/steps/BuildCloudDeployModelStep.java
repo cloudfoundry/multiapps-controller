@@ -78,7 +78,6 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
             getStepLogger().debug(Messages.MODULES_TO_DEPLOY, secureSerializer.toJson(modulesCalculatedForDeployment));
             StepsUtil.setAllModulesToDeploy(execution.getContext(), modulesCalculatedForDeployment);
             StepsUtil.setModulesToDeploy(execution.getContext(), modulesCalculatedForDeployment);
-            StepsUtil.setModuleToDeployClass(execution.getContext(), modulesCalculatedForDeployment);
 
             ApplicationCloudModelBuilder applicationCloudModelBuilder = getApplicationCloudModelBuilder(execution.getContext());
 
