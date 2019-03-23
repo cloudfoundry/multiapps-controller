@@ -290,15 +290,20 @@ public class ApplicationCloudModelBuilder {
     protected ServiceKeyToInject getServiceKeyToInject(RequiredDependency dependency) {
         Resource resource = getResource(dependency.getName());
         if (resource != null && CloudModelBuilderUtil.isServiceKey(resource)) {
-            Map<String, Object> resourceParameters = resource.getParameters();
-            String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
-            String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
-            String envVarName = (String) dependency.getParameters()
-                .getOrDefault(SupportedParameters.ENV_VAR_NAME, serviceKeyName);
-            return new ServiceKeyToInject(envVarName, serviceName, serviceKeyName);
+            return buildServiceKeyToInject(dependency, resource);
         }
         return null;
     }
+
+    protected ServiceKeyToInject buildServiceKeyToInject(RequiredDependency dependency, Resource resource) {
+        Map<String, Object> resourceParameters = resource.getParameters();
+        String serviceName = PropertiesUtil.getRequiredParameter(resourceParameters, SupportedParameters.SERVICE_NAME);
+        String serviceKeyName = (String) resourceParameters.getOrDefault(SupportedParameters.SERVICE_KEY_NAME, resource.getName());
+        String envVarName = (String) dependency.getParameters()
+            .getOrDefault(SupportedParameters.ENV_VAR_NAME, serviceKeyName);
+        return new ServiceKeyToInject(envVarName, serviceName, serviceKeyName);
+    }
+
 
     protected List<ApplicationPort> getApplicationPorts(Module module, List<Map<String, Object>> parametersList) {
         List<Integer> ports = urisCloudModelBuilder.getApplicationPorts(module, parametersList);
