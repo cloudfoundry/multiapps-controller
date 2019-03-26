@@ -24,6 +24,7 @@ import com.sap.cloud.lm.sl.cf.persistence.util.JdbcUtil;
 
 public abstract class SqlFileQueryProvider {
 
+    private static final String UPDATE_FILE_ENTRY_AND_CONTENT = "UPDATE %s SET FILE_SIZE=?, DIGEST=?, DIGEST_ALGORITHM=?, MODIFIED=?, %s=? WHERE FILE_ID=?";
     private static final String INSERT_FILE_ATTRIBUTES_AND_CONTENT = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String INSERT_FILE_ATTRIBUTES = "INSERT INTO %s (FILE_ID, SPACE, FILE_NAME, NAMESPACE, FILE_SIZE, DIGEST, DIGEST_ALGORITHM, MODIFIED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_ALL_FILES = "SELECT FILE_ID, SPACE, DIGEST, DIGEST_ALGORITHM, MODIFIED, FILE_NAME, NAMESPACE, FILE_SIZE FROM %s";
@@ -63,6 +64,25 @@ public abstract class SqlFileQueryProvider {
                 statement.setTimestamp(8, new Timestamp(fileEntry.getModified()
                     .getTime()));
                 setContentBinaryStream(statement, 9, content);
+                return statement.executeUpdate() > 0;
+            } finally {
+                JdbcUtil.closeQuietly(statement);
+            }
+        };
+    }
+
+    public SqlQuery<Boolean> getUpdateFileQuery(FileEntry fileEntry, InputStream content) {
+        return (Connection connection) -> {
+            PreparedStatement statement = null;
+            try {
+                statement = connection.prepareStatement(getUpdateWithContentQuery());
+                getDataSourceDialect().setBigInteger(statement, 1, fileEntry.getSize());
+                statement.setString(2, fileEntry.getDigest());
+                statement.setString(3, fileEntry.getDigestAlgorithm());
+                statement.setTimestamp(4, new Timestamp(fileEntry.getModified()
+                    .getTime()));
+                setContentBinaryStream(statement, 5, content);
+                statement.setString(6, fileEntry.getId());
                 return statement.executeUpdate() > 0;
             } finally {
                 JdbcUtil.closeQuietly(statement);
@@ -322,6 +342,10 @@ public abstract class SqlFileQueryProvider {
 
     private String getInsertWithContentQuery() {
         return String.format(INSERT_FILE_ATTRIBUTES_AND_CONTENT, tableName, getContentColumnName());
+    }
+
+    private String getUpdateWithContentQuery() {
+        return String.format(UPDATE_FILE_ENTRY_AND_CONTENT, tableName, getContentColumnName());
     }
 
     private String getSelectWithContentQuery() {
