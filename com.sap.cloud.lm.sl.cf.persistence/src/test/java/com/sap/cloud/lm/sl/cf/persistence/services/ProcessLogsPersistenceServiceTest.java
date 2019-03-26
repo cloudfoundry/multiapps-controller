@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.persistence.DataSourceWithDialect;
+import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.common.util.TestDataSourceProvider;
 
 public class ProcessLogsPersistenceServiceTest {
@@ -55,7 +56,7 @@ public class ProcessLogsPersistenceServiceTest {
         String logName = LOG_1;
         File file = getResourceAsFile(LOG_1);
 
-        processLogsService.persistLog(space, namespace, file, LOG_1);
+        processLogsService.appendLog(space, namespace, file, LOG_1);
 
         List<String> logNames = processLogsService.getLogNames(space, namespace);
         assertEquals(1, logNames.size());
@@ -74,8 +75,8 @@ public class ProcessLogsPersistenceServiceTest {
         File file1 = getResourceAsFile(LOG_1);
         File file2 = getResourceAsFile(LOG_2);
 
-        processLogsService.persistLog(space, namespace, file1, logName);
-        processLogsService.persistLog(space, namespace, file2, logName);
+        processLogsService.appendLog(space, namespace, file1, logName);
+        processLogsService.appendLog(space, namespace, file2, logName);
 
         List<String> logNames = processLogsService.getLogNames(space, namespace);
         assertEquals(1, logNames.size());
@@ -85,6 +86,9 @@ public class ProcessLogsPersistenceServiceTest {
         String persistedLogContent = processLogsService.getLogContent(space, namespace, persistedLogName);
 
         assertEquals(buildExpectedContent(file1, file2), persistedLogContent);
+
+        List<FileEntry> files = processLogsService.listFiles(space, namespace);
+        assertEquals(1, files.size());
     }
 
     @Test
@@ -96,8 +100,8 @@ public class ProcessLogsPersistenceServiceTest {
         File file1 = getResourceAsFile(LOG_1);
         File file2 = getResourceAsFile(LOG_2);
 
-        processLogsService.persistLog(space, namespaceToKeep, file1, logName);
-        processLogsService.persistLog(space, namespaceToDelete, file2, logName);
+        processLogsService.appendLog(space, namespaceToKeep, file1, logName);
+        processLogsService.appendLog(space, namespaceToDelete, file2, logName);
 
         processLogsService.deleteByNamespace(namespaceToDelete);
 

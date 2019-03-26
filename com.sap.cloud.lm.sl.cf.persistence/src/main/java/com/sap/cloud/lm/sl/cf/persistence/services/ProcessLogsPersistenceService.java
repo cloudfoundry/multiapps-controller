@@ -2,11 +2,15 @@ package com.sap.cloud.lm.sl.cf.persistence.services;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +23,7 @@ import com.sap.cloud.lm.sl.cf.persistence.message.Messages;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileEntry;
 import com.sap.cloud.lm.sl.cf.persistence.model.FileInfo;
 import com.sap.cloud.lm.sl.cf.persistence.processors.DefaultFileDownloadProcessor;
+import com.sap.cloud.lm.sl.cf.persistence.query.SqlQuery;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.BlobSqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.ByteArraySqlFileQueryProvider;
 import com.sap.cloud.lm.sl.cf.persistence.query.providers.SqlFileQueryProvider;
@@ -51,8 +56,8 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
 
     public String getLogContent(String space, String namespace, String logName) throws FileStorageException {
         final StringBuilder builder = new StringBuilder();
-        List<String> logIds = getSortedByTimestampFileIds(space, namespace, logName);
-        if (logIds.isEmpty()) {
+        String logId = findFileId(space, namespace, logName);
+        if (logId == null) {
             return null;
         }
 
@@ -62,42 +67,57 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
                 builder.append(IOUtils.toString(is));
             }
         };
-        for (String logId : logIds) {
-            processFileContent(new DefaultFileDownloadProcessor(space, logId, streamProcessor));
-        }
+        processFileContent(new DefaultFileDownloadProcessor(space, logId, streamProcessor));
         return builder.toString();
     }
 
-    private List<String> getSortedByTimestampFileIds(String space, String namespace, String fileName) throws FileStorageException {
-        List<FileEntry> listFiles = listFiles(space, namespace, fileName);
-        return listFiles.stream()
-            .sorted((FileEntry f1, FileEntry f2) -> f1.getModified()
-                .compareTo(f2.getModified()))
-            .map(FileEntry::getId)
-            .collect(Collectors.toList());
+    public boolean deleteLog(String space, String namespace, String logName) throws FileStorageException {
+        String fileId = findFileId(space, namespace, logName);
+        return deleteFile(space, fileId);
     }
 
-    private List<FileEntry> listFiles(final String space, final String namespace, final String fileName) throws FileStorageException {
-        try {
-            return getSqlQueryExecutor().execute(getSqlFileQueryProvider().getListFilesQuery(space, namespace, fileName));
-        } catch (SQLException e) {
-            throw new FileStorageException(
-                MessageFormat.format(Messages.ERROR_GETTING_FILES_WITH_SPACE_NAMESPACE_AND_NAME, space, namespace, fileName), e);
+    private String findFileId(String space, String namespace, String fileName) throws FileStorageException {
+        List<FileEntry> listFiles = listFiles(space, namespace);
+        for (FileEntry fileEntry : listFiles) {
+            if (fileEntry.getName()
+                .equals(fileName)) {
+                return fileEntry.getId();
+            }
         }
+        return null;
     }
 
-    public void persistLog(String space, String namespace, File localLog, String remoteLogName) {
+    public void appendLog(String space, String namespace, File localLog, String remoteLogName) {
         try {
-            storeLogFile(space, namespace, remoteLogName, localLog);
+            appendLog(space, namespace, remoteLogName, localLog);
         } catch (FileStorageException e) {
             logger.warn(MessageFormat.format(Messages.COULD_NOT_PERSIST_LOGS_FILE, localLog.getName()));
         }
+    }
+
+    private void appendLog(final String space, final String namespace, final String remoteLogName, File localLog)
+        throws FileStorageException {
+        final String fileId = findFileId(space, namespace, remoteLogName);
+
+        if (fileId == null) {
+            storeLogFile(space, namespace, remoteLogName, localLog);
+            return;
+        }
+
+        FileContentProcessor fileProcessor = new FileContentProcessor() {
+            @Override
+            public void processFileContent(InputStream remoteLogStream) throws FileStorageException, FileNotFoundException {
+                updateLogFile(space, fileId, localLog, remoteLogStream);
+            }
+        };
+        processFileContent(new DefaultFileDownloadProcessor(space, fileId, fileProcessor));
     }
 
     private void storeLogFile(final String space, final String namespace, final String remoteLogName, File localLog)
         throws FileStorageException {
         try (InputStream inputStream = new FileInputStream(localLog)) {
             FileEntry localLogFileEntry = createFileEntry(space, namespace, remoteLogName, localLog);
+
             getSqlQueryExecutor().execute(getSqlFileQueryProvider().getStoreFileQuery(localLogFileEntry, inputStream));
         } catch (SQLException | IOException | NoSuchAlgorithmException e) {
             throw new FileStorageException(MessageFormat.format(Messages.ERROR_STORING_LOG_FILE, localLog.getName()), e);
@@ -109,6 +129,43 @@ public class ProcessLogsPersistenceService extends DatabaseFileService {
         FileInfo localLogFileInfo = new FileInfo(localLog, BigInteger.valueOf(localLog.length()),
             DigestHelper.computeFileChecksum(localLog.toPath(), DIGEST_METHOD), DIGEST_METHOD);
         return createFileEntry(space, namespace, remoteLogName, localLogFileInfo);
+    }
+
+    private void updateLogFile(String space, String fileId, File localLog, InputStream remoteLogStream) throws FileStorageException {
+        try (InputStream localLogStream = new FileInputStream(localLog);
+            InputStream appendedLog = new SequenceInputStream(remoteLogStream, localLogStream)) {
+            SqlQuery<Void> updateLogQuery = getUpdateLogQueries(space, fileId, localLog, appendedLog);
+            getSqlQueryExecutor().execute(updateLogQuery);
+        } catch (SQLException | IOException e) {
+            throw new FileStorageException(MessageFormat.format(Messages.ERROR_UPDATING_LOG_FILE, localLog.getName()), e);
+        }
+    }
+
+    private SqlQuery<Void> getUpdateLogQueries(String space, String fileId, File localLog, InputStream appendedLog) {
+        return (Connection connection) -> {
+            try {
+                FileEntry dbFileEntry = getSqlFileQueryProvider().getRetrieveFileQuery(space, fileId)
+                    .execute(connection);
+                FileEntry newFileEntry = addSizeAndDigest(dbFileEntry, localLog);
+                getSqlFileQueryProvider().getUpdateFileQuery(newFileEntry, appendedLog)
+                    .execute(connection);
+            } catch (NoSuchAlgorithmException e) {
+                throw new SLException(Messages.ERROR_CALCULATING_FILE_DIGEST, localLog.getName(), e);
+            } catch (IOException e) {
+                throw new SLException(e);
+            }
+            return null;
+        };
+    }
+
+    private FileEntry addSizeAndDigest(FileEntry dbFileEntry, File localLog) throws NoSuchAlgorithmException, IOException {
+        dbFileEntry.setSize(dbFileEntry.getSize()
+            .add(BigInteger.valueOf(localLog.length())));
+        dbFileEntry.setDigest(DigestHelper.appendDigests(dbFileEntry.getDigest(),
+            DigestHelper.computeFileChecksum(localLog.toPath(), dbFileEntry.getDigestAlgorithm()), dbFileEntry.getDigestAlgorithm()));
+        dbFileEntry.setDigestAlgorithm(dbFileEntry.getDigestAlgorithm());
+        dbFileEntry.setModified(new Timestamp(System.currentTimeMillis()));
+        return dbFileEntry;
     }
 
     public int deleteByNamespace(final String namespace) {

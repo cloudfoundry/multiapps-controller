@@ -83,7 +83,7 @@ public class ProcessLogger extends Logger {
 
     public synchronized void persistLogFile(ProcessLogsPersistenceService processLogsPersistenceService) {
         if (log.exists()) {
-            processLogsPersistenceService.persistLog(spaceId, processId, log, logName);
+            processLogsPersistenceService.appendLog(spaceId, processId, log, logName);
         }
     }
 
