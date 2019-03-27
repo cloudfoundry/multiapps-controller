@@ -6,12 +6,11 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 
 @Component("detectTargetStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -24,8 +23,7 @@ public class DetectTargetStep extends SyncFlowableStep {
     protected StepPhase executeStep(ExecutionWrapper execution) {
         getStepLogger().debug(Messages.DETECTING_TARGET);
         try {
-            HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(execution.getContext());
-            Platform platform = configuration.getPlatform(handlerFactory.getConfigurationParser(), handlerFactory.getMajorVersion());
+            Platform platform = configuration.getPlatform();
             StepsUtil.setPlatform(execution.getContext(), platform);
 
             String space = (String) execution.getContext()

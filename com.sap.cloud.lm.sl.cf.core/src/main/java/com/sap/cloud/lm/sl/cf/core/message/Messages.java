@@ -127,8 +127,7 @@ public final class Messages {
     public static final String XS_TYPE = "XS type: {0}";
     public static final String CONTROLLER_URL = "Controller URL: {0}";
     public static final String DB_TYPE = "Database type: {0}";
-    public static final String PLATFORMS = "Platforms: {0}";
-    public static final String TARGETS = "Targets: {0}";
+    public static final String PLATFORM = "Platform: {0}";
     public static final String MAX_UPLOAD_SIZE = "Max upload size: {0}";
     public static final String MAX_MTA_DESCRIPTOR_SIZE = "Max mta descriptor size: {0}";
     public static final String MAX_MANIFEST_SIZE = "Max manifest size is set to: {0}";

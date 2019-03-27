@@ -14,10 +14,10 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.common.util.Callable;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 @RunWith(Parameterized.class)
 public class UserProvidedResourceResolverTest {
@@ -35,13 +35,13 @@ public class UserProvidedResourceResolverTest {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                "mtad-09.yaml", "/mta/cf-platform-v2.json", new Expectation(Expectation.Type.RESOURCE, "mtad-09.yaml.json"),
+                "mtad-09.yaml", "/mta/cf-platform.json", new Expectation(Expectation.Type.RESOURCE, "mtad-09.yaml.json"),
             },
             {
-                "mtad-10.yaml", "/mta/cf-platform-v2.json", new Expectation(Expectation.Type.RESOURCE, "mtad-10.yaml.json"),
+                "mtad-10.yaml", "/mta/cf-platform.json", new Expectation(Expectation.Type.RESOURCE, "mtad-10.yaml.json"),
             },
             {
-                "mtad-11.yaml", "/mta/cf-platform-v2.json", new Expectation(Expectation.Type.RESOURCE, "mtad-11.yaml.json"),
+                "mtad-11.yaml", "/mta/cf-platform.json", new Expectation(Expectation.Type.RESOURCE, "mtad-11.yaml.json"),
             },
 // @formatter:on
         });

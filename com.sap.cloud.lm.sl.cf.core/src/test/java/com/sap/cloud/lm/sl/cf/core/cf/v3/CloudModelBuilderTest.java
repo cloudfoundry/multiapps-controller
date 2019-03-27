@@ -39,7 +39,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
 // @formatter:off
             // (00) Test missing resource type definition:
             {
-                "mtad-missing-resource-type-definition.yaml", "config-01.mtaext", "/mta/cf-platform-v2.json", null,
+                "mtad-missing-resource-type-definition.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules

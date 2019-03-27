@@ -16,7 +16,7 @@ applications:
     XS_TYPE: CF
     DB_TYPE: POSTGRESQL
     CATALINA_OPTS: "-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
-    PLATFORM_V2: &V2_LIKE_PLATFORM >
+    PLATFORM: >
       {
         "name": "CLOUD-FOUNDRY",
         "module-types": [
@@ -43,5 +43,4 @@ applications:
           { "name": "configuration", "parameters": { "type": "configuration" }}
         ]
       }
-    PLATFORM_V3: *V2_LIKE_PLATFORM
     SKIP_SSL_VALIDATION: true

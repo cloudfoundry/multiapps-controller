@@ -24,10 +24,10 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
-import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 @RunWith(Parameterized.class)
 public class ConfigurationReferencesResolverTest {
@@ -103,7 +103,7 @@ public class ConfigurationReferencesResolverTest {
     @BeforeClass
     public static void initializeTargetAndPlatformType() throws Exception {
         ConfigurationParser parser = new ConfigurationParser();
-        platform = parser.parsePlatformJson2(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/xs-platform-v2.json"));
+        platform = parser.parsePlatformJson(ConfigurationReferencesResolverTest.class.getResourceAsStream("/mta/xs-platform.json"));
     }
 
     @Before

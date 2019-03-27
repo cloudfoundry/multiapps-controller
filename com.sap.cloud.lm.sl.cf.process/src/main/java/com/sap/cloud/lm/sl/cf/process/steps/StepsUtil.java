@@ -36,8 +36,6 @@ import org.flowable.variable.api.delegate.VariableScope;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
@@ -69,18 +67,16 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.analytics.model.ServiceAction;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.BinaryJson;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
 public class StepsUtil {
@@ -202,28 +198,12 @@ public class StepsUtil {
         return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + moduleName;
     }
 
-    private static BinaryJson getBinaryJsonForMtaModel() {
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MapWithNumbersAdapterFactory())
-            .create();
-        return new BinaryJson(gson);
-    }
-
     static Platform getPlatform(VariableScope scope) {
-        byte[] binaryJson = (byte[]) scope.getVariable(Constants.VAR_PLATFORM);
-
-        int majorSchemaVersion = (int) scope.getVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION);
-        switch (majorSchemaVersion) {
-            case 2:
-                return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v2.Platform.class);
-            case 3:
-                return getBinaryJsonForMtaModel().unmarshal(binaryJson, com.sap.cloud.lm.sl.mta.model.v3.Platform.class);
-            default:
-                return null;
-        }
+        return getFromJsonBinary(scope, Constants.VAR_PLATFORM, Platform.class);
     }
 
     static void setPlatform(VariableScope scope, Platform platform) {
-        scope.setVariable(Constants.VAR_PLATFORM, getBinaryJsonForMtaModel().marshal(platform));
+        setAsJsonBinary(scope, Constants.VAR_PLATFORM, platform);
     }
 
     public static HandlerFactory getHandlerFactory(VariableScope scope) {

@@ -37,8 +37,8 @@ import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MiscUtil;
 import com.sap.cloud.lm.sl.common.util.Pair;
-import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
+import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 
 @Component
 @Lazy(false)
@@ -54,8 +54,6 @@ public class ApplicationConfiguration {
     static final String CFG_TYPE = "XS_TYPE";
     static final String CFG_DB_TYPE = "DB_TYPE";
     static final String CFG_PLATFORM = "PLATFORM"; // Mandatory
-    static final String CFG_PLATFORM_V2 = "PLATFORM_V2"; // Mandatory
-    static final String CFG_PLATFORM_V3 = "PLATFORM_V3"; // Mandatory
     static final String CFG_MAX_UPLOAD_SIZE = "MAX_UPLOAD_SIZE";
     static final String CFG_MAX_MTA_DESCRIPTOR_SIZE = "MAX_MTA_DESCRIPTOR_SIZE";
     static final String CFG_MAX_MANIFEST_SIZE = "DEFAULT_MAX_MANIFEST_SIZE";
@@ -190,7 +188,7 @@ public class ApplicationConfiguration {
     private Integer flowableJobExecutorQueueCapacity;
     private Integer fssCacheUpdateTimeoutMinutes;
     private Integer spaceDeveloperCacheTimeInSeconds;
-    private Map<Integer, Platform> platforms = new HashMap<>();
+    private Platform platform;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -254,14 +252,14 @@ public class ApplicationConfiguration {
     }
 
     private Set<String> getNotSensitiveConfigVariables() {
-        return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_DB_TYPE, CFG_PLATFORM, CFG_PLATFORM_V2, CFG_PLATFORM_V3, CFG_MAX_UPLOAD_SIZE,
-            CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING,
-            CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER, CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION,
-            CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION,
-            CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL,
-            CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
-            CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
-            CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE));
+        return new HashSet<>(
+            Arrays.asList(CFG_TYPE, CFG_DB_TYPE, CFG_PLATFORM, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE,
+                CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
+                CFG_GLOBAL_AUDITOR_USER, CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED,
+                CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS,
+                CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS,
+                CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
+                CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE));
     }
 
     public Configuration getFileConfiguration() {
@@ -290,29 +288,10 @@ public class ApplicationConfiguration {
     }
 
     public Platform getPlatform() {
-        return getPlatform(null, 1);
-    }
-
-    public Platform getPlatform(ConfigurationParser parser, int majorVersion) {
-        if (platforms.containsKey(majorVersion)) {
-            return platforms.get(majorVersion);
+        if (platform == null) {
+            platform = getPlatformFromEnvironment();
         }
-        Platform platform = getPlatformFromEnvironment(parser, majorVersion);
-        platforms.put(majorVersion, platform);
         return platform;
-    }
-
-    private Platform getPlatformFromEnvironment(ConfigurationParser parser, int majorVersion) {
-        switch (majorVersion) {
-            case 1:
-                return parsePlatform(environment.getString(CFG_PLATFORM));
-            case 2:
-                return parsePlatform(environment.getString(CFG_PLATFORM_V2), parser);
-            case 3:
-                return parsePlatform(environment.getString(CFG_PLATFORM_V3), parser);
-            default:
-                throw new UnsupportedOperationException();
-        }
     }
 
     public Long getMaxUploadSize() {
@@ -642,20 +621,6 @@ public class ApplicationConfiguration {
         return DEFAULT_DB_TYPE;
     }
 
-    private Platform parsePlatform(String json) {
-        return parsePlatform(json, new ConfigurationParser());
-    }
-
-    private Platform parsePlatform(String json, ConfigurationParser parser) {
-        if (json == null) {
-            throw new IllegalStateException(Messages.PLATFORMS_NOT_SPECIFIED);
-        }
-
-        Platform result = parser.parsePlatformJson(json);
-        LOGGER.debug(format(Messages.PLATFORMS, JsonUtil.toJson(result, true)));
-        return result;
-    }
-
     private Long getMaxUploadSizeFromEnvironment() {
         Long value = environment.getLong(CFG_MAX_UPLOAD_SIZE, DEFAULT_MAX_UPLOAD_SIZE);
         LOGGER.info(format(Messages.MAX_UPLOAD_SIZE, value));
@@ -666,6 +631,16 @@ public class ApplicationConfiguration {
         Long value = environment.getLong(CFG_MAX_MTA_DESCRIPTOR_SIZE, DEFAULT_MAX_MTA_DESCRIPTOR_SIZE);
         LOGGER.info(format(Messages.MAX_MTA_DESCRIPTOR_SIZE, value));
         return value;
+    }
+
+    private Platform getPlatformFromEnvironment() {
+        String platformJson = environment.getString(CFG_PLATFORM);
+        if (platformJson == null) {
+            throw new IllegalStateException(Messages.PLATFORMS_NOT_SPECIFIED);
+        }
+        Platform platform = new ConfigurationParser().parsePlatformJson(platformJson);
+        LOGGER.debug(format(Messages.PLATFORM, JsonUtil.toJson(platform, true)));
+        return platform;
     }
 
     private Long getMaxManifestSizeFromEnviroment() {

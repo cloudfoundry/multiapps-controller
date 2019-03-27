@@ -36,22 +36,20 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 @RunWith(Parameterized.class)
 public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
-
-    private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("build-cloud-model.yaml",
         BuildCloudDeployModelStepTest.class);
-    private static final Platform PLATFORM = loadPlatform(CONFIGURATION_PARSER, "platform-01.json", BuildCloudDeployModelStepTest.class);
+    private static final Platform PLATFORM = loadPlatform("platform-01.json", BuildCloudDeployModelStepTest.class);
 
     private static final SystemParameters EMPTY_SYSTEM_PARAMETERS = new SystemParameters(Collections.emptyMap(), Collections.emptyMap(),
         Collections.emptyMap(), Collections.emptyMap());

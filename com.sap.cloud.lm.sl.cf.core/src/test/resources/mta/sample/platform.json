@@ -1,6 +1,6 @@
-{
+    {
   "name": "CLOUD-FOUNDRY",
-  "properties": {
+  "parameters": {
     "org.cf.api": "https://api.sap.cf.com"
   },
   "module-types": [
@@ -9,7 +9,7 @@
     },
     {
       "name": "org.nodejs",
-      "properties": {
+      "parameters": {
         "buildpack": "nodejs-test"
       }
     },
@@ -23,7 +23,7 @@
   "resource-types": [
     {
       "name": "com.sap.xs.hdi-container",
-      "properties": {
+      "parameters": {
         "type": "managed-service",
         "service": "hdi-hana",
         "service-plan": "hdi-shared"
@@ -31,7 +31,7 @@
     },
     {
       "name": "org.cloudfoundry.user-provided-service",
-      "properties": {
+      "parameters": {
         "type": "user-provided-service"
       }
     }

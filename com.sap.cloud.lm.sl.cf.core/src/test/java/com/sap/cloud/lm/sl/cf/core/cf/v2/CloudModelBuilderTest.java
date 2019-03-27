@@ -38,16 +38,16 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger;
+import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
 
@@ -60,7 +60,7 @@ public class CloudModelBuilderTest {
     protected static final String DEPLOY_ID = "123";
 
     protected final DescriptorParser descriptorParser = getDescriptorParser();
-    protected final ConfigurationParser configurationParser = getConfigurationParser();
+    protected final ConfigurationParser configurationParser = new ConfigurationParser();
     protected final DescriptorHandler descriptorHandler = getDescriptorHandler();
     protected DeploymentDescriptor deploymentDescriptor;
 
@@ -87,7 +87,7 @@ public class CloudModelBuilderTest {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             // (00) Full MTA:
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform-v2.json", null,
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -96,7 +96,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-v2.json"),
             },
             // (01)
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/xs2-config1-v2.mtaext", "/mta/xs-platform-v2.json", null,
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/xs2-config1-v2.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -105,7 +105,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/xs2-apps-v2.json"),
             },
             // (02) Full MTA with namespaces:
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform-v2.json", null,
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
                 true, true,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -114,7 +114,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-ns-v2.json"),
             },
             // (03) Full MTA with namespaces (w/o services):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform-v2.json", null,
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
                 true, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -123,7 +123,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-ns2-v2.json"),
             },
             // (04) Patch MTA (resolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform-v2.json", null,
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -132,7 +132,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch1.json"),
             },
             // (05) Patch MTA with namespaces (resolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform-v2.json", null,
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
                 true, true,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -141,7 +141,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch1-ns.json"),
             },
             // (06) Patch MTA (unresolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform-v2.json", null,
+            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
@@ -150,7 +150,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-db, java-hello-world-backend]") 
             },
             // (07)
-            { "/mta/shine/mtad-v2.yaml", "/mta/shine/config1-v2.mtaext", "/mta/cf-platform-v2.json", null,
+            { "/mta/shine/mtad-v2.yaml", "/mta/shine/config1-v2.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaArchiveModules
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaModules
@@ -159,7 +159,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/shine/apps-v2.json"),
             },
             // (08)
-            { "/mta/sample/mtad-v2.yaml", "/mta/sample/config1-v2.mtaext", "/mta/sample/platform-v2.json", null,
+            { "/mta/sample/mtad-v2.yaml", "/mta/sample/config1-v2.mtaext", "/mta/sample/platform.json", null,
                 false, false,
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
@@ -168,7 +168,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/sample/apps-v2.json"),
             },
             // (09)
-            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/config1-v2.mtaext", "/mta/cf-platform-v2.json", null,
+            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/config1-v2.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -177,7 +177,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/apps.json"),
             },
             // (10)
-            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/xs2-config1-v2.mtaext", "/mta/xs-platform-v2.json", null,
+            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/xs2-config1-v2.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -186,7 +186,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps.json"),
             },
             // (11)
-            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/config1-v2.mtaext", "/mta/cf-platform-v2.json", null,
+            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/config1-v2.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
@@ -195,7 +195,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/apps-v2.json"),
             },
             // (12)
-            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config1-v2.mtaext", "/mta/xs-platform-v2.json", null,
+            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config1-v2.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
@@ -204,7 +204,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps-v2.json"),
             },
             // (13)
-            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/xs2-config2-v2.mtaext", "/mta/xs-platform-v2.json", null,
+            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/xs2-config2-v2.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -213,7 +213,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps.json"), 
             },
             // (14) Unknown typed resource parameters:
-            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config2-v2.mtaext", "/mta/xs-platform-v2.json", null,
+            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config2-v2.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
@@ -222,7 +222,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps-v2.json"),
             },
             // (15) Service binding parameters in requires dependency:
-            { "mtad-01.yaml", "config-01.mtaext", "/mta/cf-platform-v2.json", null,
+            { "mtad-01.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
@@ -231,7 +231,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "apps-01.json"),
             },
             // (16) Service binding parameters in requires dependency:
-            { "mtad-02.yaml", "config-01.mtaext", "/mta/cf-platform-v2.json", null,
+            { "mtad-02.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
@@ -241,7 +241,7 @@ public class CloudModelBuilderTest {
             },
             // (17) Custom application names are used:
             {
-                "mtad-03.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-03.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
@@ -251,7 +251,7 @@ public class CloudModelBuilderTest {
             },
             // (18) Custom application names are used:
             {
-                "mtad-03.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-03.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 true, true,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
@@ -261,7 +261,7 @@ public class CloudModelBuilderTest {
             },
             // (19) Temporary URIs are used:
             {
-                "mtad-05.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-05.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "module-1", "module-2" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2" }, // mtaModules
@@ -271,7 +271,7 @@ public class CloudModelBuilderTest {
             },
             // (20) Use list parameter:
             {
-                "mtad-06.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-06.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "framework" }, // mtaArchiveModules
                 new String[] { "framework" }, // mtaModules
@@ -281,7 +281,7 @@ public class CloudModelBuilderTest {
             },
             // (21) Use partial plugin:
             {
-                "mtad-07.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-07.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "framework" }, // mtaArchiveModules
                 new String[] { "framework" }, // mtaModules
@@ -291,7 +291,7 @@ public class CloudModelBuilderTest {
             },
             // (22) Overwrite service-name resource property in ext. descriptor:
             {
-                "mtad-08.yaml", "config-03.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-08.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
@@ -301,7 +301,7 @@ public class CloudModelBuilderTest {
             },
             // (23) Test support for one-off tasks:
             {
-                "mtad-09.yaml", "config-03.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-09.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2", "module-3", "module-4" }, // mtaModules
@@ -311,7 +311,7 @@ public class CloudModelBuilderTest {
             },
             // (24) With 'health-check-type' set to 'port':
             { 
-                "mtad-health-check-type-port.yaml", "config-03.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-health-check-type-port.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -321,7 +321,7 @@ public class CloudModelBuilderTest {
             },
             // (25) With 'health-check-type' set to 'http' and a non-default 'health-check-http-endpoint':
             { 
-                "mtad-health-check-type-http-with-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-health-check-type-http-with-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -331,7 +331,7 @@ public class CloudModelBuilderTest {
             },
             // (26) With 'health-check-type' set to 'http' and no 'health-check-http-endpoint':
             { 
-                "mtad-health-check-type-http-without-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-health-check-type-http-without-endpoint.yaml", "config-03.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -341,7 +341,7 @@ public class CloudModelBuilderTest {
             },
             // (27) Test inject service keys:
             {
-                "mtad-10.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-10.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "module-1" }, // mtaArchiveModules
                 new String[] { "module-1" }, // mtaModules
@@ -351,7 +351,7 @@ public class CloudModelBuilderTest {
             },
             // (28) With 'enable-ssh' set to true: 
             {
-                "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-ssh-enabled-true.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -361,7 +361,7 @@ public class CloudModelBuilderTest {
             },
             // (29) With 'enable-ssh' set to false: 
             {
-                "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-ssh-enabled-false.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -371,7 +371,7 @@ public class CloudModelBuilderTest {
             },
             // (30) With TCPS routes
             {
-                "mtad-11.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+                "mtad-11.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2", "module-3" }, // mtaModules
@@ -380,7 +380,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "apps-with-tcp-routes.json"),
             },
             // (31) Do not restart on env change - bg-deploy
-            { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+            { "mtad-restart-on-env-change.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false, 
                 new String[] { "module-1", "module-2", "module-3" }, // mtaArchiveModules
                 new String[] { "module-1", "module-2", "module-3" }, // mtaModules
@@ -390,7 +390,7 @@ public class CloudModelBuilderTest {
             },
             // (32) With 'keep-existing-routes' set to true and no deployed MTA:
             {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", null,
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
                 new String[] { "foo" }, // mtaModules
@@ -400,7 +400,7 @@ public class CloudModelBuilderTest {
             },
             // (33) With 'keep-existing-routes' set to true and no deployed module:
             {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta-without-foo-module.json",
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -411,7 +411,7 @@ public class CloudModelBuilderTest {
             },
             // (34) With 'keep-existing-routes' set to true and an already deployed module with no URIs:
             {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta-without-uris.json",
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -422,7 +422,7 @@ public class CloudModelBuilderTest {
             },
             // (35) With 'keep-existing-routes' set to true and an already deployed module:
             {
-                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
+                "keep-existing-routes/mtad.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta.json",
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -433,7 +433,7 @@ public class CloudModelBuilderTest {
             },
             // (36) With global 'keep-existing-routes' set to true and an already deployed module:
             {
-                "keep-existing-routes/mtad-with-global-parameter.yaml", "config-02.mtaext", "/mta/xs-platform-v2.json", 
+                "keep-existing-routes/mtad-with-global-parameter.yaml", "config-02.mtaext", "/mta/xs-platform.json", 
                 "keep-existing-routes/deployed-mta.json",
                 false, false,
                 new String[] { "foo" }, // mtaArchiveModules
@@ -444,7 +444,7 @@ public class CloudModelBuilderTest {
             },
             // (37) With new parameter - 'route'
             {
-                "mtad-12.yaml", "config-01.mtaext", "/mta/cf-platform-v2.json", null,
+                "mtad-12.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
@@ -454,7 +454,7 @@ public class CloudModelBuilderTest {
             },
             // (38) With new parameter - 'routes'
             {
-                "mtad-13.yaml", "config-01.mtaext", "/mta/cf-platform-v2.json", null,
+                "mtad-13.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
@@ -464,7 +464,7 @@ public class CloudModelBuilderTest {
             },
             // (39) With parameter - 'route', using tcp
             {
-                "mtad-14.yaml", "config-01.mtaext", "/mta/cf-platform-v2.json", null,
+                "mtad-14.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "foo", }, // mtaArchiveModules
                 new String[] { "foo", }, // mtaModules
@@ -498,10 +498,6 @@ public class CloudModelBuilderTest {
 
     protected DescriptorParser getDescriptorParser() {
         return getHandlerFactory().getDescriptorParser();
-    }
-
-    protected ConfigurationParser getConfigurationParser() {
-        return getHandlerFactory().getConfigurationParser();
     }
 
     protected HandlerFactory getHandlerFactory() {

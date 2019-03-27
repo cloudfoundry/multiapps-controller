@@ -19,20 +19,17 @@ import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescriptorsStep> {
-
-    private static final ConfigurationParser CONFIGURATION_PARSER = new ConfigurationParser();
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("node-hello-mtad.yaml",
         MergeDescriptorsStepTest.class);
 
-    private static final Platform PLATFORM = loadPlatform(CONFIGURATION_PARSER, "platform-01.json", MergeDescriptorsStepTest.class);
+    private static final Platform PLATFORM = loadPlatform("platform-01.json", MergeDescriptorsStepTest.class);
 
     private class MergeDescriptorsStepMock extends MergeDescriptorsStep {
 
