@@ -77,6 +77,16 @@ public class DatabaseFileServiceTest {
     }
 
     @Test
+    public void testCorrectFileEntryTimestamp() throws Exception {
+        FileEntry fileEntry = addTestFile(SPACE_1, NAMESPACE_1);
+        FileEntry fileEntryMetadata = fileService.getFile(SPACE_1, fileEntry.getId());
+        assertEquals(fileEntry.getModified()
+            .getTime(),
+            fileEntryMetadata.getModified()
+                .getTime());
+    }
+
+    @Test
     public void successfulUploadAndGetFileTest() throws Exception {
         String space = SPACE_1;
         String namespace = NAMESPACE_1;

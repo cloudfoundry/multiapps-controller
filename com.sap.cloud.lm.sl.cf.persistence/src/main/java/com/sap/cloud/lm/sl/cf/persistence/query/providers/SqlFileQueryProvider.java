@@ -372,7 +372,8 @@ public abstract class SqlFileQueryProvider {
         fileEntry.setNamespace(resultSet.getString(FileServiceColumnNames.NAMESPACE));
         fileEntry.setSize(getDataSourceDialect().getBigInteger(resultSet, FileServiceColumnNames.FILE_SIZE));
         fileEntry.setDigestAlgorithm(resultSet.getString(FileServiceColumnNames.DIGEST_ALGORITHM));
-        fileEntry.setModified(resultSet.getDate(FileServiceColumnNames.MODIFIED));
+        Timestamp modifiedAsTimestamp = resultSet.getTimestamp(FileServiceColumnNames.MODIFIED);
+        fileEntry.setModified(new Date(modifiedAsTimestamp.getTime()));
         return fileEntry;
     }
 
