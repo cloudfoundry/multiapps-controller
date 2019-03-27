@@ -24,7 +24,7 @@ public class EnvironmentApplicationAttributeUpdater extends ApplicationAttribute
     @Override
     protected UpdateState updateApplicationAttribute(CloudControllerClient client, CloudApplication app) {
         stepLogger.debug("Updating env of application \"{0}\"", app.getName());
-        stepLogger.debug("Updated env: {0}", JsonUtil.toJson(app.getEnv(), true));
+        stepLogger.debug("Updated env: {0}", JsonUtil.toJson(app.getEnvAsMap(), true));
 
         Map<String, String> updateEnv = ElementUpdater.getUpdater(updateBehavior)
             .updateMap(existingApp.getEnvAsMap(), app.getEnvAsMap());

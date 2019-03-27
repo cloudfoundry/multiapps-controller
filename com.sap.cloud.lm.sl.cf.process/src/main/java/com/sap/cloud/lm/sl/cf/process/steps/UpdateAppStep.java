@@ -30,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.process.util.StagingApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.cf.process.util.UrisApplicationAttributeUpdater;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 @Component("updateAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -47,23 +48,24 @@ public class UpdateAppStep extends CreateAppStep {
 
             CloudControllerClient client = execution.getControllerClient();
 
-            CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateBehavior = app
+            CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy = app
                 .getApplicationAttributesUpdateStrategy();
             List<UpdateState> applicationAttributesUpdateStates = updateApplicationAttributes(app, existingApp, client,
-                applicationAttributesUpdateBehavior);
+                applicationAttributesUpdateStrategy);
 
             boolean appPropertiesChanged = applicationAttributesUpdateStates.stream()
                 .anyMatch(updateState -> updateState == UpdateState.UPDATED);
 
-            UpdateState updateApplicationEnvironmentState = updateApplicationEnvironment(app, existingApp, client,
-                applicationAttributesUpdateBehavior);
-            boolean userPropertiesChanged = updateApplicationEnvironmentState == UpdateState.UPDATED;
-
             boolean servicesPropertiesChanged = updateApplicationServices(app, existingApp, client, execution);
 
-            Map<String, String> env = app.getEnvAsMap();
-            injectServiceKeysCredentialsInAppEnv(execution.getContext(), client, app, env);
-            updateAppDigest(env, existingApp.getEnvAsMap());
+            Map<String, String> applicationEnvironment = app.getEnvAsMap();
+            injectServiceKeysCredentialsInAppEnv(execution.getContext(), client, app, applicationEnvironment);
+            updateAppDigest(applicationEnvironment, existingApp.getEnvAsMap());
+            resetApplicationEnvironment(app, applicationEnvironment);
+
+            UpdateState updateApplicationEnvironmentState = updateApplicationEnvironment(app, existingApp, client,
+                applicationAttributesUpdateStrategy);
+            boolean userPropertiesChanged = updateApplicationEnvironmentState == UpdateState.UPDATED;
 
             reportApplicationUpdateStatus(app, appPropertiesChanged);
 
@@ -81,10 +83,14 @@ public class UpdateAppStep extends CreateAppStep {
         }
     }
 
+    private void resetApplicationEnvironment(CloudApplicationExtended app, Map<String, String> applicationEnvironment) {
+        app.setEnv(MapUtil.unmodifiable(applicationEnvironment));
+    }
+
     private UpdateState updateApplicationEnvironment(CloudApplicationExtended app, CloudApplication existingApp,
-        CloudControllerClient client, CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateBehavior) {
+        CloudControllerClient client, CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
         return new EnvironmentApplicationAttributeUpdater(existingApp,
-            getUpdateStrategy(applicationAttributesUpdateBehavior.shouldKeepExistingEnv()), getStepLogger()).updateApplication(client, app);
+            getUpdateStrategy(applicationAttributesUpdateStrategy.shouldKeepExistingEnv()), getStepLogger()).updateApplication(client, app);
     }
 
     private List<UpdateState> updateApplicationAttributes(CloudApplicationExtended app, CloudApplication existingApp,
@@ -184,13 +190,13 @@ public class UpdateAppStep extends CreateAppStep {
         List<String> updatedServices = client.updateApplicationServices(applicationName, serviceNamesWithBindingParameters,
             getApplicationServicesUpdateCallback(context));
 
-        reportNonUpdatedServices(services, updatedServices);
+        reportNonUpdatedServices(services, applicationName, updatedServices);
         return !updatedServices.isEmpty();
     }
 
-    private void reportNonUpdatedServices(List<String> services, List<String> updatedServices) {
+    private void reportNonUpdatedServices(List<String> services, String applicationName, List<String> updatedServices) {
         List<String> nonUpdatesServices = ListUtils.removeAll(services, updatedServices);
-        nonUpdatesServices.forEach(service -> getStepLogger().warn(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, service));
+        nonUpdatesServices.forEach(service -> getStepLogger().warn(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, service, applicationName));
     }
 
 }
