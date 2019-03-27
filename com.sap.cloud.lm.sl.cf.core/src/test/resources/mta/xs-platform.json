@@ -18,7 +18,7 @@
     },
     {
       "name": "com.sap.xs.hdi",
-      "properties": {
+      "parameters": {
         "no-route": true,
         "memory": "256M",
         "execute-app": false
@@ -28,7 +28,7 @@
   "resource-types": [
     {
       "name": "com.sap.xs.hdi-container",
-      "properties": {
+      "parameters": {
         "type": "managed-service",
         "service": "hana",
         "service-plan": "hdi-shared"
@@ -36,7 +36,7 @@
     },
     {
       "name": "com.sap.xs.uaa-space",
-      "properties": {
+      "parameters": {
         "type": "managed-service",
         "service": "xsuaa",
         "service-plan": "space"
@@ -44,24 +44,30 @@
     },
     {
       "name": "org.cloudfoundry.user-provided-service",
-      "properties": {
+      "parameters": {
         "type": "user-provided-service"
       }
     },
     {
       "name": "org.cloudfoundry.existing-service",
-      "properties": {
+      "parameters": {
         "type": "existing-service"
       }
     },
     {
       "name": "mta-provides-dependency",
-      "properties": {
+      "parameters": {
         "type": "mta-provides-dependency"
+      }
+    },
+    {
+      "name": "configuration",
+      "parameters": {
+        "type": "configuration"
       }
     }
   ],
-  "properties": {
+  "parameters": {
     "org": "initial",
     "space": "initial"
   }

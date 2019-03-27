@@ -14,11 +14,11 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
+import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
-import com.sap.cloud.lm.sl.mta.handlers.v2.ConfigurationParser;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 public class StepsTestUtil {
 
@@ -26,9 +26,9 @@ public class StepsTestUtil {
     private static final String COULD_NOT_LOAD_DEPLOYMENT_DESCRIPTOR = "Could not load test deployment descriptor: {0}";
     private static final DescriptorParserFacade DESCRIPTOR_PARSER_FACADE = new DescriptorParserFacade();
 
-    public static Platform loadPlatform(ConfigurationParser parser, String filePath, Class<?> testClass) {
+    public static Platform loadPlatform(String filePath, Class<?> testClass) {
         try {
-            return parser.parsePlatformJson(TestUtil.getResourceAsString(filePath, testClass));
+            return new ConfigurationParser().parsePlatformJson(TestUtil.getResourceAsString(filePath, testClass));
         } catch (Exception e) {
             fail(format(COULD_NOT_LOAD_PLATFORM, e.getMessage()));
             return null;

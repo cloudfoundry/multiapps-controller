@@ -1,9 +1,9 @@
 {
   "name": "CF_PLATFORM",
-  "properties": {
+  "moduleTypes": [],
+  "resourceTypes": [],
+  "parameters": {
     "org": "initial",
     "space": "initial"
-  },
-  "moduleTypes1": [],
-  "resourceTypes1": []
+  }
 }

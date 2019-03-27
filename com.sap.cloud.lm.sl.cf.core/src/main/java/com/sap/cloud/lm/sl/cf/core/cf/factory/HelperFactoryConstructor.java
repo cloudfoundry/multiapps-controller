@@ -22,10 +22,10 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersValidator;
-import com.sap.cloud.lm.sl.mta.mergers.v2.PlatformMerger;
+import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
+import com.sap.cloud.lm.sl.mta.model.Platform;
 import com.sap.cloud.lm.sl.mta.model.SystemParameters;
 import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Platform;
 
 public interface HelperFactoryConstructor {
 

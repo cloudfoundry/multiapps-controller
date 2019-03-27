@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.mta.model.ElementContext;
+import com.sap.cloud.lm.sl.mta.model.ResourceType;
 import com.sap.cloud.lm.sl.mta.model.Visitor;
-import com.sap.cloud.lm.sl.mta.model.v2.ResourceType;
 
 public class ResourceTypeFinder extends Visitor {
 
