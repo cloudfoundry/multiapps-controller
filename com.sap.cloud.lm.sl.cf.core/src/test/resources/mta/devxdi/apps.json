@@ -4,6 +4,20 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "applicationAttributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
@@ -12,11 +26,10 @@
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"di-core\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"di-core-genbuilder-buildpack\",\"di-core-url\"]",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"di-core-url\",\"di-core\"]",
       "MTA_SERVICES=[\"di-core-hdi\"]",
       "SERVICE_TO_JNDI_NAME_MAPPING={\"di-core-hdi\":\"jdbc/DefaultDB\"}\n",
-      "TARGET_RUNTIME=tomcat",
-      "route-path=/test"
+      "TARGET_RUNTIME=tomcat"
     ],
     "instances": 1,
     "memory": 512,
@@ -29,7 +42,7 @@
       "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
     },
     "uris": [
-      "i027947-di-core.cfapps.neo.ondemand.com/test"
+      "i027947-di-core.cfapps.neo.ondemand.com"
     ],
     "meta": {},
     "name": "di-core"
@@ -39,6 +52,20 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "applicationAttributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
@@ -46,7 +73,7 @@
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"di-builder\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"di-builder\"]",
       "MTA_SERVICES=[]",
       "TARGET_RUNTIME=tomcat"
     ],
@@ -70,6 +97,20 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "applicationAttributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
@@ -77,7 +118,7 @@
       "JBP_CONFIG_TOMCAT=[tomcat: {version: 7.0.+}]",
       "MTA_METADATA={\"id\":\"com.sap.devx.di\",\"version\":\"1.0.0\"}",
       "MTA_MODULE_METADATA={\"name\":\"di-runner\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"di-runner\"]",
       "MTA_SERVICES=[]",
       "TARGET_RUNTIME=tomcat",
       "UI5_CONTENT_URL=http://i027947-ui5-content.cfapps.neo.ondemand.com"

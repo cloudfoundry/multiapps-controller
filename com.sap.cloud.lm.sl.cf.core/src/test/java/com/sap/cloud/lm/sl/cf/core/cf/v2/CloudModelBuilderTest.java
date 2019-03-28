@@ -87,88 +87,88 @@ public class CloudModelBuilderTest {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             // (00) Full MTA:
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-v2.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps.json"),
             },
             // (01)
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/xs2-config1-v2.mtaext", "/mta/xs-platform.json", null,
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/xs2-config.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/xs2-services.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/xs2-apps-v2.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/xs2-apps.json"),
             },
             // (02) Full MTA with namespaces:
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
                 true, true,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-ns.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-ns-v2.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-ns-1.json"),
             },
             // (03) Full MTA with namespaces (w/o services):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
                 true, false,
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-ns2-v2.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-ns-2.json"),
             },
             // (04) Patch MTA (resolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
-                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch1.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch-1.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch.json"),
             },
             // (05) Patch MTA with namespaces (resolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
                 true, true,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
-                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1-ns.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch1-ns.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch-ns.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch-ns.json"),
             },
             // (06) Patch MTA (unresolved inter-module dependencies):
-            { "/mta/javahelloworld/mtad-v2.yaml", "/mta/javahelloworld/config1-v2.mtaext", "/mta/cf-platform.json", null,
+            { "/mta/javahelloworld/mtad.yaml", "/mta/javahelloworld/config.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", }, // deployedApps
-                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch1.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch.json"),
                 new Expectation(Expectation.Type.EXCEPTION, "Unresolved MTA modules [java-hello-world-db, java-hello-world-backend]") 
             },
             // (07)
-            { "/mta/shine/mtad-v2.yaml", "/mta/shine/config1-v2.mtaext", "/mta/cf-platform.json", null,
+            { "/mta/shine/mtad.yaml", "/mta/shine/config.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaArchiveModules
                 new String[] { "shine", "shine-xsjs", "shine-odata" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/shine/services.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/shine/apps-v2.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/shine/apps.json"),
             },
             // (08)
-            { "/mta/sample/mtad-v2.yaml", "/mta/sample/config1-v2.mtaext", "/mta/sample/platform.json", null,
+            { "/mta/sample/mtad.yaml", "/mta/sample/config.mtaext", "/mta/sample/platform.json", null,
                 false, false,
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaArchiveModules
                 new String[] { "pricing", "pricing-db", "web-server" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/sample/services.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/sample/apps-v2.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/sample/apps.json"),
             },
             // (09)
-            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/config1-v2.mtaext", "/mta/cf-platform.json", null,
+            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/config.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -177,7 +177,7 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/apps.json"),
             },
             // (10)
-            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/xs2-config1-v2.mtaext", "/mta/xs-platform.json", null,
+            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config-1.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -186,25 +186,25 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps.json"),
             },
             // (11)
-            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/config1-v2.mtaext", "/mta/cf-platform.json", null,
+            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/config.mtaext", "/mta/cf-platform.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/services.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/apps-v2.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/apps.json"),
             },
             // (12)
-            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config1-v2.mtaext", "/mta/xs-platform.json", null,
+            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config-1.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-services.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps-v2.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps.json"),
             },
             // (13)
-            { "/mta/devxwebide/mtad-v2.yaml", "/mta/devxwebide/xs2-config2-v2.mtaext", "/mta/xs-platform.json", null,
+            { "/mta/devxwebide/mtad.yaml", "/mta/devxwebide/xs2-config-2.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "webide" }, // mtaArchiveModules
                 new String[] { "webide" }, // mtaModules
@@ -213,13 +213,13 @@ public class CloudModelBuilderTest {
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxwebide/xs2-apps.json"), 
             },
             // (14) Unknown typed resource parameters:
-            { "/mta/devxdi/mtad-v2.yaml", "/mta/devxdi/xs2-config2-v2.mtaext", "/mta/xs-platform.json", null,
+            { "/mta/devxdi/mtad.yaml", "/mta/devxdi/xs2-config-2.mtaext", "/mta/xs-platform.json", null,
                 false, false,
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaArchiveModules
                 new String[] { "di-core", "di-builder", "di-runner" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-services.json"),
-                new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps-v2.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/devxdi/xs2-apps.json"),
             },
             // (15) Service binding parameters in requires dependency:
             { "mtad-01.yaml", "config-01.mtaext", "/mta/cf-platform.json", null,

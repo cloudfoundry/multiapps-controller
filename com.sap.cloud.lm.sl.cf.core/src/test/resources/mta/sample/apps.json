@@ -4,12 +4,26 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "bestprice.sap.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "applicationAttributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"web-server\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"web-server\"]",
       "MTA_SERVICES=[\"internal-odata-service\"]",
       "default-locale=zho",
       "docu-url=http://help.sap.com/saphelp_nw74/en/5c",
@@ -33,12 +47,26 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "bestprice.sap.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "applicationAttributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"pricing\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"internal-odata\"]",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"internal-odata\",\"pricing\"]",
       "MTA_SERVICES=[\"pricing-db-service\"]",
       "application-key=25892e17-80f6-415f-9c65-7395632f0223",
       "default-locale=zho",
@@ -66,12 +94,26 @@
     "idleUris": [],
     "tasks": [],
     "serviceKeysToInject": [],
+    "applicationPorts": [],
+    "domains": [
+      "cfapps.neo.ondemand.com"
+    ],
+    "restartParameters": {
+      "shouldRestartOnVcapAppChange": true,
+      "shouldRestartOnVcapServicesChange": true,
+      "shouldRestartOnUserProvidedChange": true
+    },
+    "applicationAttributesUpdateStrategy": {
+      "shouldKeepExistingEnv": false,
+      "shouldKeepExistingServiceBindings": false,
+      "shouldKeepExistingRoutes": false
+    },
     "diskQuota": 0,
     "env": [
       "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
       "MTA_METADATA={\"id\":\"com.sap.mta.sample\",\"version\":\"1.2.1-beta+20150403144937853\"}",
       "MTA_MODULE_METADATA={\"name\":\"pricing-db\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"price-optimization\"]",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"pricing-db\"]",
       "MTA_SERVICES=[\"pricing-db-service\"]",
       "default-locale=zho"
     ],

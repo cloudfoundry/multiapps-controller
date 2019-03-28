@@ -1,22 +1,31 @@
-_schema-version: 1.0.0
+_schema-version: "2.0.0"
 ID: com.sap.devx.webide
-version: 1.0.0              
- 
-modules:    
-  - name: webide              
+version: 1.0.0
+
+modules:
+  - name: webide
     type: javascript.nodejs
-    requires: [uaa, sapui5, che]
-    
+    requires:
+      - name: uaa
+      - name: sapui5
+        group: destinations
+        properties:
+          name: sapui5
+          url: ~{url}
+      - name: che
+        group: destinations
+        properties:
+          name: che
+          url: ~{url}
+
 resources:
   - name: uaa
     type: org.cloudfoundry.existing-service
 
   - name: sapui5
-    groups: [destinations]
     properties:
       url:
-      
+
   - name: che
-    groups: [destinations]
     properties:
       url:
