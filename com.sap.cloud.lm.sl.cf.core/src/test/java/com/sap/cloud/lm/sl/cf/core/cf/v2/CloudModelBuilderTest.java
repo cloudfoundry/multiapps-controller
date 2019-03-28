@@ -128,7 +128,7 @@ public class CloudModelBuilderTest {
                 new String[] { "java-hello-world" }, // mtaArchiveModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // mtaModules
                 new String[] { "java-hello-world", "java-hello-world-db", "java-hello-world-backend" }, // deployedApps
-                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch-1.json"),
+                new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/services-patch.json"),
                 new Expectation(Expectation.Type.RESOURCE, "/mta/javahelloworld/apps-patch.json"),
             },
             // (05) Patch MTA with namespaces (resolved inter-module dependencies):
