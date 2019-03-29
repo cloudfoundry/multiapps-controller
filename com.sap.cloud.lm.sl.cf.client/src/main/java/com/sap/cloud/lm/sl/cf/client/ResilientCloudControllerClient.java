@@ -30,6 +30,7 @@ import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudQuota;
+import org.cloudfoundry.client.lib.domain.CloudResources;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudSecurityGroup;
 import org.cloudfoundry.client.lib.domain.CloudService;
@@ -457,6 +458,18 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
         return executeWithRetry(() -> {
             try {
                 return cc.asyncUploadApplication(applicationName, file, callback);
+            } catch (IOException e) {
+                throw new IllegalStateException(e.getMessage(), e);
+            }
+        });
+    }
+
+    @Override
+    public UploadToken asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback,
+        CloudResources knownRemoteResources) throws IOException {
+        return executeWithRetry(() -> {
+            try {
+                return cc.asyncUploadApplication(applicationName, file, callback, knownRemoteResources);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -1031,7 +1044,6 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
         executeWithRetry(() -> cc.bindDropletToApp(dropletGuid, appGuid));
     }
 
-    @Override
     public List<CloudBuild> getBuildsForApplication(UUID applicationGuid) {
         return executeWithRetry(() -> cc.getBuildsForApplication(applicationGuid));
     }
@@ -1042,4 +1054,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
         executeWithRetry(() -> cc.unbindService(applicationName, serviceName, applicationServicesUpdateCallback));
     }
 
+	@Override
+    public CloudResources getKnownRemoteResources(CloudResources applicationResources) {
+        return executeWithRetry(() -> {
+            return cc.getKnownRemoteResources(applicationResources);
+        });
+	}
 }

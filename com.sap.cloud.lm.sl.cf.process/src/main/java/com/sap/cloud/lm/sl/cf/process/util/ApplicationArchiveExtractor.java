@@ -5,12 +5,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.DigestException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.FilenameUtils;
+import org.cloudfoundry.client.lib.domain.CloudResource;
+import org.cloudfoundry.client.lib.io.UtcAdjustedZipEntry;
 
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
+import com.sap.cloud.lm.sl.cf.persistence.services.FileUploader;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -24,26 +37,44 @@ public class ApplicationArchiveExtractor {
     private String moduleFileName;
     private long maxSizeInBytes;
     private long currentSizeInBytes;
+    private MessageDigest applicationDigest;
+    private Set<String> knownFileNames;
 
-    public ApplicationArchiveExtractor(InputStream inputStream, String moduleFileName, long maxSizeInBytes, StepLogger logger) {
+    public ApplicationArchiveExtractor(InputStream inputStream, String moduleFileName, long maxSizeInBytes, Set<String> knownFileNames,
+        StepLogger logger) {
         this.inputStream = new ZipInputStream(inputStream);
         this.moduleFileName = moduleFileName;
         this.maxSizeInBytes = maxSizeInBytes;
+        this.knownFileNames = knownFileNames;
         this.logger = logger;
     }
 
-    public Path extract() {
+    public Collection<CloudResource> getApplicationMetaData() {
+        try {
+            moveStreamToApplicationEntry();
+            return collectApplicationMetadata();
+        } catch (Exception e) {
+            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, moduleFileName);
+        }
+    }
+
+    private Collection<CloudResource> collectApplicationMetadata() throws IOException, NoSuchAlgorithmException, DigestException {
+        this.applicationDigest = MessageDigest.getInstance(FileUploader.DIGEST_METHOD);
+        Collection<CloudResource> cloudResourceCollection = new ArrayList<>();
+        do {
+            if (isFile(zipEntryName)) {
+                String zipEntryDigest = getDigestOfZipEntry(inputStream, "SHA");
+                cloudResourceCollection.add(new CloudResource(zipEntryName, currentSizeInBytes, zipEntryDigest));
+            }
+        } while (getNextEntryByName(moduleFileName) != null);
+        return cloudResourceCollection;
+    }
+
+    public Path extractApplicationInNewArchive() {
         Path appPath = null;
         try {
             moveStreamToApplicationEntry();
-
-            if (isFile(moduleFileName)) {
-                appPath = createTempFile();
-                saveEntry(appPath);
-                return appPath;
-            }
-
-            appPath = createTempDirectory();
+            appPath = createTempFile();
             saveAllEntries(appPath);
             return appPath;
         } catch (Exception e) {
@@ -58,21 +89,64 @@ public class ApplicationArchiveExtractor {
         }
     }
 
-    private void saveEntry(Path filePath) throws IOException {
-        try (OutputStream outputStream = Files.newOutputStream(filePath)) {
-            copy(inputStream, outputStream);
+    private void saveAllEntries(Path dirPath) throws IOException {
+        try (OutputStream fileOutputStream = Files.newOutputStream(dirPath)) {
+            if (isDirectory(moduleFileName)) {
+                saveAsZip(fileOutputStream);
+            } else {
+                saveToFile(fileOutputStream);
+            }
         }
     }
 
-    private void saveAllEntries(Path dirPath) throws IOException {
+    private void saveAsZip(OutputStream fileOutputStream) throws IOException {
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+            do {
+                if (!hasEntryInCache() && isFile(zipEntryName)) {
+                    zipOutputStream.putNextEntry(createZipEntry());
+                    copy(inputStream, zipOutputStream);
+                    zipOutputStream.closeEntry();
+
+                }
+            } while (getNextEntryByName(moduleFileName) != null);
+        }
+    }
+
+    private ZipEntry createZipEntry() {
+        return new UtcAdjustedZipEntry(getRelativePathOfZipEntry());
+    }
+
+    private String getRelativePathOfZipEntry() {
+        return Paths.get(moduleFileName)
+            .relativize(Paths.get(zipEntryName))
+            .toString();
+    }
+
+    private void saveToFile(OutputStream fileOutputStream) throws IOException {
         do {
-            if (isFile(zipEntryName)) {
-                Path filePath = resolveEntryPath(dirPath);
-                Files.createDirectories(filePath.getParent());
-                filePath = Files.createFile(filePath);
-                saveEntry(filePath);
+            if (!hasEntryInCache()) {
+                copy(inputStream, fileOutputStream);
             }
         } while (getNextEntryByName(moduleFileName) != null);
+    }
+
+    private boolean hasEntryInCache() {
+        return knownFileNames.contains(zipEntryName);
+    }
+
+    private String getDigestOfZipEntry(InputStream input, String algorithm) throws DigestException, IOException, NoSuchAlgorithmException {
+        MessageDigest zipEntryMessageDigest = MessageDigest.getInstance(algorithm);
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int numberOfReadBytes = 0;
+        while ((numberOfReadBytes = input.read(buffer)) != -1) {
+            if (currentSizeInBytes + numberOfReadBytes > maxSizeInBytes) {
+                throw new ContentException(Messages.SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT, maxSizeInBytes);
+            }
+            zipEntryMessageDigest.update(buffer, 0, numberOfReadBytes);
+            applicationDigest.update(buffer, 0, numberOfReadBytes);
+            currentSizeInBytes += numberOfReadBytes;
+        }
+        return DatatypeConverter.printHexBinary(zipEntryMessageDigest.digest());
     }
 
     private void copy(InputStream input, OutputStream output) throws IOException {
@@ -99,29 +173,28 @@ public class ApplicationArchiveExtractor {
         return null;
     }
 
+    public String getApplicationDigest() {
+        return DatatypeConverter.printHexBinary(applicationDigest.digest());
+    }
+
     protected void validateEntry(ZipEntry entry) {
         FileUtils.validatePath(entry.getName());
     }
 
-    private Path resolveEntryPath(Path dirPath) {
-        return dirPath.resolve(zipEntryName.substring(moduleFileName.length()));
-    }
-
-    private Path createTempFile() throws IOException {
+    protected Path createTempFile() throws IOException {
         return Files.createTempFile(null, getFileExtension());
     }
 
-    private Path createTempDirectory() throws IOException {
-        return Files.createTempDirectory(null);
-    }
-
     private String getFileExtension() {
-        String extension = FilenameUtils.getExtension(moduleFileName);
-        return extension.isEmpty() ? extension : FilenameUtils.EXTENSION_SEPARATOR_STR + extension;
+        return FilenameUtils.EXTENSION_SEPARATOR_STR + "zip";
     }
 
     private boolean isFile(String fileName) {
         return !FileUtils.isDirectory(fileName);
+    }
+
+    private boolean isDirectory(String fileName) {
+        return FileUtils.isDirectory(fileName);
     }
 
     protected void cleanUp(Path appPath) {
