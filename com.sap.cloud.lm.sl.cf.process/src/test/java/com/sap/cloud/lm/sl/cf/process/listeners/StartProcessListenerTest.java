@@ -40,6 +40,7 @@ import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 @RunWith(Parameterized.class)
 public class StartProcessListenerTest {
 
+    private static final String TASK_ID = "test-task-id";
     private static final String USER = "current-user";
     private static final String SPACE_ID = "test-space-id";
     private static final ZonedDateTime START_TIME = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.of("UTC"));
@@ -104,7 +105,9 @@ public class StartProcessListenerTest {
         prepareContext();
         Mockito.when(stepLoggerFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenReturn(stepLogger);
-        Mockito.doNothing().when(processLogsPersister).persistLogs(Mockito.any());
+        Mockito.doNothing()
+            .when(processLogsPersister)
+            .persistLogs(processInstanceId, TASK_ID);
     }
 
     @Test
@@ -124,6 +127,8 @@ public class StartProcessListenerTest {
             .thenReturn(processType);
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SPACE_ID, SPACE_ID);
         context.setVariable(Constants.VAR_USER, USER);
+        context.setVariable(Constants.VAR_CORRELATION_ID, processInstanceId);
+        context.setVariable(Constants.TASK_ID, TASK_ID);
     }
 
     private void loadParameters() {
@@ -143,6 +148,8 @@ public class StartProcessListenerTest {
             .acquiredLock(false);
         Mockito.verify(dao)
             .add(Mockito.argThat(GenericArgumentMatcher.forObject(operation)));
+        Mockito.verify(processLogsPersister, Mockito.atLeastOnce())
+            .persistLogs(processInstanceId, TASK_ID);
     }
 
 }

@@ -11,6 +11,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLogsPersister;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
@@ -70,9 +71,18 @@ public abstract class AbstractProcessExecutionListener implements ExecutionListe
     }
 
     protected void finalizeLogs(DelegateExecution context) {
-        processLogsPersister.persistLogs(context);
+        processLogsPersister.persistLogs(getCorrelationId(context), getTaskId(context));
     }
 
+    private String getCorrelationId(DelegateExecution context) {
+        return (String) context.getVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.CORRELATION_ID);
+    }
+
+    private String getTaskId(DelegateExecution context) {
+        String taskId = (String) context.getVariable(Constants.TASK_ID);
+        return taskId != null ? taskId : context.getCurrentActivityId();
+    }
+    
     protected StepLogger getStepLogger() {
         if (stepLogger == null) {
             throw new IllegalStateException(Messages.STEP_LOGGER_NOT_INITIALIZED);

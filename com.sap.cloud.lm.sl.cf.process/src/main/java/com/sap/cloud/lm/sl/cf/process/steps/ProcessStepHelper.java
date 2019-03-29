@@ -26,7 +26,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class ProcessStepHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessStepHelper.class);
-    private static final String CORRELATION_ID = "correlationId";
 
     private ProgressMessageService progressMessageService;
     private ProcessLogsPersister processLogsPersister;
@@ -46,7 +45,7 @@ public class ProcessStepHelper {
         logDebug(MessageFormat.format(Messages.STEP_FINISHED, context.getCurrentFlowElement()
             .getName()));
 
-        processLogsPersister.persistLogs(context);
+        processLogsPersister.persistLogs(StepsUtil.getCorrelationId(context), StepsUtil.getTaskId(context));
         context.setVariable(Constants.VAR_STEP_EXECUTION, state.toString());
     }
 
@@ -68,14 +67,10 @@ public class ProcessStepHelper {
         context.removeVariable(Constants.VAR_ERROR_TYPE);
     }
 
-    private String getCorrelationId(DelegateExecution context) {
-        return (String) context.getVariable(CORRELATION_ID);
-    }
-
     private void logTaskStartup(DelegateExecution context, String taskId) {
         stepLogger.logFlowableTask();
         String message = MessageFormat.format(Messages.EXECUTING_TASK, context.getCurrentActivityId(), context.getProcessInstanceId());
-        progressMessageService.add(new ProgressMessage(getCorrelationId(context), taskId, ProgressMessageType.TASK_STARTUP, message,
+        progressMessageService.add(new ProgressMessage(StepsUtil.getCorrelationId(context), taskId, ProgressMessageType.TASK_STARTUP, message,
             new Timestamp(System.currentTimeMillis())));
     }
 
@@ -94,7 +89,7 @@ public class ProcessStepHelper {
 
     public void storeExceptionInProgressMessageService(DelegateExecution context, Throwable t) {
         try {
-            ProgressMessage msg = new ProgressMessage(getCorrelationId(context), getCurrentActivityId(context), ProgressMessageType.ERROR,
+            ProgressMessage msg = new ProgressMessage(StepsUtil.getCorrelationId(context), getCurrentActivityId(context), ProgressMessageType.ERROR,
                 MessageFormat.format(Messages.UNEXPECTED_ERROR, t.getMessage()), new Timestamp(System.currentTimeMillis()));
             progressMessageService.add(msg);
         } catch (SLException e) {
