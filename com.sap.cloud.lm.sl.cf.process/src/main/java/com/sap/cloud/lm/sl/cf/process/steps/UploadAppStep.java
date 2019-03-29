@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +17,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudResources;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -36,6 +38,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveExtractor;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationResources;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("uploadAppStep")
@@ -67,7 +70,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
             getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
 
-            UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName);
+            ApplicationResources applicationResources = getApplicationResources(execution, client, app, appArchiveId, fileName);
+            UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName, applicationResources);
             getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
             StepsUtil.setUploadToken(uploadToken, execution.getContext());
         } catch (CloudOperationException coe) {
@@ -81,8 +85,33 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return StepPhase.POLL;
     }
 
+    private ApplicationResources getApplicationResources(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app,
+        String appArchiveId,
+        String fileName)
+        throws FileStorageException {
+        ApplicationResources applicationResources = new ApplicationResources();
+        final DelegateExecution context = execution.getContext();
+        FileDownloadProcessor calculateDigestOfApplication = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
+            appArchiveId, appArchiveStream -> {
+                long maxSize = configuration.getMaxResourceFileSize();
+                try {
+                    ApplicationArchiveExtractor appExtractor = getApplicationArchiveExtractor(appArchiveStream, fileName, maxSize,
+                        Collections.emptySet());
+                    applicationResources.createCloudResources(appExtractor.getApplicationMetaData());
+                    String newApplicationDigest = appExtractor.getApplicationDigest();
+                    detectApplicationFileDigestChanges(execution, app, newApplicationDigest, client);
+                } catch (CloudOperationException e) {
+                    throw e;
+                }
+            });
+
+        fileService.processFileContent(calculateDigestOfApplication);
+
+        return applicationResources;
+    }
+
     private UploadToken asyncUploadFiles(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app,
-        String appArchiveId, String fileName) throws FileStorageException {
+        String appArchiveId, String fileName, ApplicationResources applicationResources) throws FileStorageException {
         UploadToken uploadToken = new UploadToken();
         final DelegateExecution context = execution.getContext();
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
@@ -90,8 +119,11 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                 Path filePath = null;
                 long maxSize = configuration.getMaxResourceFileSize();
                 try {
-                    filePath = extractFromMtar(appArchiveStream, fileName, maxSize);
-                    upload(execution, client, app, filePath, uploadToken);
+                    CloudResources knownRemoteResources = applicationResources.getKnownRemoteResources(client);
+                    ApplicationArchiveExtractor appExtractor = getApplicationArchiveExtractor(appArchiveStream, fileName, maxSize,
+                        knownRemoteResources.getFilenames());
+                    filePath = extractFromMtar(appExtractor);
+                    upload(execution, client, app, filePath, uploadToken, knownRemoteResources);
                 } catch (IOException e) {
                     cleanUp(filePath);
                     throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, fileName);
@@ -106,28 +138,30 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return uploadToken;
     }
 
-    protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) {
-        ApplicationArchiveExtractor appExtractor = new ApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, getStepLogger());
-        return appExtractor.extract();
+    protected ApplicationArchiveExtractor getApplicationArchiveExtractor(InputStream appArchiveStream, String fileName, long maxSize,
+        Set<String> knownFileNames) {
+        return new ApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, knownFileNames, getStepLogger());
+    }
+
+    protected Path extractFromMtar(ApplicationArchiveExtractor appExtractor) {
+        return appExtractor.extractApplicationInNewArchive();
     }
 
     private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath,
-        UploadToken uploadToken) throws IOException {
-        detectApplicationFileDigestChanges(execution, app, filePath.toFile(), client);
-        UploadToken currentUploadTokent = client.asyncUploadApplication(app.getName(), filePath.toFile(),
-            getMonitorUploadStatusCallback(app, filePath.toFile(), execution.getContext()));
-        uploadToken.setPackageGuid(currentUploadTokent.getPackageGuid());
-        uploadToken.setToken(currentUploadTokent.getToken());
+        UploadToken uploadToken, CloudResources knownRemoteResources) throws IOException {
+        UploadToken currentUploadToken = client.asyncUploadApplication(app.getName(), filePath.toFile(),
+            getMonitorUploadStatusCallback(app, filePath.toFile(), execution.getContext()), knownRemoteResources);
+        uploadToken.setPackageGuid(currentUploadToken.getPackageGuid());
+        uploadToken.setToken(currentUploadToken.getToken());
     }
 
-    private void detectApplicationFileDigestChanges(ExecutionWrapper execution, CloudApplication app, File applicationFile,
+    private void detectApplicationFileDigestChanges(ExecutionWrapper execution, CloudApplication app, String newApplicationDigest,
         CloudControllerClient client) {
         CloudApplication existingApp = client.getApplication(app.getName());
         ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(existingApp);
-        String appNewFileDigest = applicationFileDigestDetector.detectNewAppFileDigest(applicationFile);
         String currentFileDigest = applicationFileDigestDetector.detectCurrentAppFileDigest();
-        attemptToUpdateApplicationDigest(client, app, appNewFileDigest, currentFileDigest);
-        setAppContentChanged(execution, hasAppFileDigestChanged(appNewFileDigest, currentFileDigest));
+        attemptToUpdateApplicationDigest(client, app, newApplicationDigest, currentFileDigest);
+        setAppContentChanged(execution, hasAppFileDigestChanged(newApplicationDigest, currentFileDigest));
     }
 
     private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newFileDigest,

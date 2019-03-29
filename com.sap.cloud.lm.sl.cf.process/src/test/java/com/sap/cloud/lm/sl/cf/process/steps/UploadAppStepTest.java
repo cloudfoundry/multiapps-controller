@@ -3,7 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static java.text.MessageFormat.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -12,10 +11,9 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Set;
 
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -36,12 +34,12 @@ import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
+import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveExtractor;
-import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -156,15 +154,16 @@ public class UploadAppStepTest {
             mtaArchiveElements.addModuleFileName(APP_NAME, APP_FILE);
             StepsUtil.setMtaArchiveElements(context, mtaArchiveElements);
             StepsUtil.setVcapAppPropertiesChanged(context, false);
+            when(configuration.getMaxResourceFileSize()).thenReturn(ApplicationConfiguration.DEFAULT_MAX_RESOURCE_FILE_SIZE);
         }
 
         public void prepareClients() throws Exception {
             if (expectedIOExceptionMessage == null && expectedCFExceptionMessage == null) {
-                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(new UploadToken(TOKEN, null));
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any(), any())).thenReturn(new UploadToken(TOKEN, null));
             } else if (expectedIOExceptionMessage != null) {
-                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(IO_EXCEPTION);
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any(), any())).thenThrow(IO_EXCEPTION);
             } else if (expectedCFExceptionMessage != null) {
-                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CO_EXCEPTION);
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any(), any())).thenThrow(CO_EXCEPTION);
             }
             when(client.getApplication(APP_NAME)).thenReturn(new SimpleApplication(APP_NAME, 2).toCloudApplication());
         }
@@ -182,31 +181,17 @@ public class UploadAppStepTest {
         }
 
         private class UploadAppStepMock extends UploadAppStep {
-
             @Override
-            protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize) {
-                try {
-                    ApplicationArchiveExtractor extractor = getApplicationArchiveExtractor(appArchiveStream, fileName, maxSize,
-                        getStepLogger());
-                    InputStream stream = extractor.getNextEntryByName(fileName);
-                    assertNotNull(stream);
-                    Files.copy(stream, appFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    return appFile.toPath();
-                } catch (IOException e) {
-                    return null;
-                }
-            }
+            protected ApplicationArchiveExtractor getApplicationArchiveExtractor(InputStream appArchiveStream, String fileName,
+                long maxSize, Set<String> knownFileNames) {
+                return new ApplicationArchiveExtractor(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize, knownFileNames,
+                    getStepLogger()) {
 
-            private ApplicationArchiveExtractor getApplicationArchiveExtractor(InputStream appArchiveStream, String fileName, long maxSize,
-                StepLogger logger) throws SLException {
-                if (!fileName.equals(APP_FILE)) {
-                    return new ApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, logger);
-                }
-                return new ApplicationArchiveExtractor(getClass().getResourceAsStream(APP_FILE), APP_FILE, maxSize, logger) {
                     @Override
-                    public InputStream getNextEntryByName(String name) throws IOException {
-                        return getClass().getResourceAsStream(APP_FILE);
+                    protected Path createTempFile() throws IOException {
+                        return appFile.toPath();
                     }
+
                 };
             }
 
