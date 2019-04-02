@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.security.serialization.model;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureJsonSerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializerConfiguration;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.masking.RequiredDependencyMasker;
-import com.sap.cloud.lm.sl.mta.model.v3.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 
 public class RequiredDependencySerializer extends SecureJsonSerializer {
 
@@ -15,7 +15,7 @@ public class RequiredDependencySerializer extends SecureJsonSerializer {
 
     @Override
     public String serialize(Object object) {
-        RequiredDependency clonedDependency = ((RequiredDependency) object).copyOf();
+        RequiredDependency clonedDependency = RequiredDependency.copyOf((RequiredDependency) object);
         masker.mask(clonedDependency);
         return super.serialize(clonedDependency);
     }

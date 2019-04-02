@@ -19,9 +19,9 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.HostValidator;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class SystemParameters {
 
@@ -78,11 +78,11 @@ public class SystemParameters {
     }
 
     public void injectInto(DeploymentDescriptor descriptor) {
-        for (Module module : descriptor.getModules2()) {
+        for (Module module : descriptor.getModules()) {
             Map<String, Object> moduleSystemParameters = getModuleParameters(module);
             module.setParameters(MapUtil.merge(moduleSystemParameters, module.getParameters()));
         }
-        for (Resource resource : descriptor.getResources2()) {
+        for (Resource resource : descriptor.getResources()) {
             Map<String, Object> resourceSystemParameters = getResourceParameters(resource);
             resource.setParameters(MapUtil.merge(resourceSystemParameters, resource.getParameters()));
         }

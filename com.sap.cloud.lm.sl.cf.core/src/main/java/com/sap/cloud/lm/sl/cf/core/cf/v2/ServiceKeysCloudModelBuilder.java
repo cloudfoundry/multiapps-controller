@@ -13,8 +13,8 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class ServiceKeysCloudModelBuilder {
@@ -27,7 +27,7 @@ public class ServiceKeysCloudModelBuilder {
 
     public Map<String, List<ServiceKey>> build() {
         Map<String, List<ServiceKey>> serviceKeys = new HashMap<>();
-        for (Resource resource : deploymentDescriptor.getResources2()) {
+        for (Resource resource : deploymentDescriptor.getResources()) {
             if (CloudModelBuilderUtil.isService(resource)) {
                 serviceKeys.put(resource.getName(), getServiceKeysForService(resource));
             }

@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.security.serialization.model;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureJsonSerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializerConfiguration;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.masking.DeploymentDescriptorMasker;
-import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class DeploymentDescriptorSerializer extends SecureJsonSerializer {
 
@@ -15,7 +15,7 @@ public class DeploymentDescriptorSerializer extends SecureJsonSerializer {
 
     @Override
     public String serialize(Object object) {
-        DeploymentDescriptor clonedDescriptor = ((DeploymentDescriptor) object).copyOf();
+        DeploymentDescriptor clonedDescriptor = DeploymentDescriptor.copyOf((DeploymentDescriptor) object);
         masker.mask(clonedDescriptor);
         return super.serialize(clonedDescriptor);
     }

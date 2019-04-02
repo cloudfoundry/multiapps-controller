@@ -1,59 +1,111 @@
 {
-  "modules2": [
+  "schemaVersion": "2.0.0",
+  "id": "com.sap.test",
+  "version": "1.0",
+  "modules": [
     {
-      "requiredDependencies2": [],
-      "providedDependencies2": [
-        {
-          "isPublic": true,
-          "name": "bar",
-          "properties": {
-            "test": "bar"
-          }
-        },
-        {
-          "isPublic": true,
-          "name": "foo",
-          "properties": {}
-        }
-      ],
+      "name": "foo",
+      "type": "foo",
+      "properties": {},
       "parameters": {
         "memory": 512,
         "port": 30030
       },
-      "name": "foo",
-      "type": "foo",
-      "properties": {}
-    },
-    {
-      "requiredDependencies2": [],
-      "providedDependencies2": [
+      "requiredDependencies": [],
+      "providedDependencies": [
         {
+          "name": "bar",
           "isPublic": true,
-          "name": "baz",
-          "properties": {}
+          "properties": {
+            "test": "bar"
+          },
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        },
+        {
+          "name": "foo",
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
+    },
+    {
+      "name": "baz",
+      "type": "baz",
+      "properties": {},
       "parameters": {
         "domain": "com.sap.test.foo",
         "memory": 256
       },
-      "name": "baz",
-      "type": "baz",
-      "properties": {}
+      "requiredDependencies": [],
+      "providedDependencies": [
+        {
+          "name": "baz",
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
     }
   ],
-  "resources2": [
+  "resources": [
     {
+      "name": "qux",
+      "properties": {},
       "parameters": {
         "port": -100,
         "test": "test"
       },
-      "name": "qux",
-      "properties": {}
+      "isActive": true,
+      "isOptional": false,
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "requiredDependencies": [],
+      "majorSchemaVersion": 2
     }
   ],
   "parameters": {},
-  "schemaVersion": "2.0.0",
-  "id": "com.sap.test",
-  "version": "1.0"
+  "parametersMetadata": {
+    "metadata": {}
+  },
+  "majorSchemaVersion": 2
 }

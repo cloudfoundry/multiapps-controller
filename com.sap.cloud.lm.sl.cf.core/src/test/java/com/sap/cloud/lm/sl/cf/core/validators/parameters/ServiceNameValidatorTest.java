@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ServiceNameValidatorTest {
 

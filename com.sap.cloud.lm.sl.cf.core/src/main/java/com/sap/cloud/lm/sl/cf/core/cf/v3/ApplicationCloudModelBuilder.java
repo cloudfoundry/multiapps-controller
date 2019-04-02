@@ -1,12 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v3;
 
-import static com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil.isActive;
-import static com.sap.cloud.lm.sl.common.util.CommonUtil.cast;
-
-import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.collections4.CollectionUtils;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
@@ -16,11 +10,11 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceAndResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v3.Module;
-import com.sap.cloud.lm.sl.mta.model.v3.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ApplicationCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder {
 
@@ -33,8 +27,7 @@ public class ApplicationCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
 
     @Override
     public DeploymentMode getDeploymentMode() {
-        DeploymentDescriptor descriptorV3 = cast(deploymentDescriptor);
-        boolean parallelDeploymentsEnabled = (Boolean) descriptorV3.getParameters()
+        boolean parallelDeploymentsEnabled = (boolean) deploymentDescriptor.getParameters()
             .getOrDefault(SupportedParameters.ENABLE_PARALLEL_DEPLOYMENTS, false);
         return parallelDeploymentsEnabled ? DeploymentMode.PARALLEL : DeploymentMode.SEQUENTIAL;
     }
@@ -45,39 +38,27 @@ public class ApplicationCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
     }
 
     @Override
-    public List<String> getAllApplicationServices(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
-        return getApplicationServices((Module) module, this::onlyActiveServicesRule);
+    public List<String> getAllApplicationServices(Module module) {
+        return getApplicationServices(module, this::onlyActiveServicesRule);
     }
 
     @Override
-    protected List<String> getApplicationServices(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
+    protected List<String> getApplicationServices(Module module) {
         return getApplicationServices(module,
             resourceAndType -> filterExistingServicesRule(resourceAndType) && onlyActiveServicesRule(resourceAndType));
     }
 
     @Override
-    protected List<ServiceKeyToInject> getServicesKeysToInject(com.sap.cloud.lm.sl.mta.model.v2.Module module) {
-        return getServicesKeysToInject((Module) module);
-    }
-
-    protected List<ServiceKeyToInject> getServicesKeysToInject(Module module) {
-        List<ServiceKeyToInject> serviceKeysToInject = new ArrayList<>();
-        for (RequiredDependency dependency : module.getRequiredDependencies3()) {
-            ServiceKeyToInject serviceKey = getServiceKeyToInject(dependency);
-            CollectionUtils.addIgnoreNull(serviceKeysToInject, serviceKey);
-        }
-        return serviceKeysToInject;
-    }
-
     protected ServiceKeyToInject getServiceKeyToInject(RequiredDependency dependency) {
-        com.sap.cloud.lm.sl.mta.model.v3.Resource resource = (com.sap.cloud.lm.sl.mta.model.v3.Resource) getResource(dependency.getName());
-        if (resource != null && CloudModelBuilderUtil.isActive(resource)) {
+        Resource resource = getResource(dependency.getName());
+        if (resource != null && resource.isActive()) {
             return super.getServiceKeyToInject(dependency);
         }
         return null;
     }
 
     private boolean onlyActiveServicesRule(ResourceAndResourceType resourceAndResourceType) {
-        return isActive(resourceAndResourceType.getResource());
+        return resourceAndResourceType.getResource()
+            .isActive();
     }
 }

@@ -25,11 +25,11 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 public class CollectSystemParametersStepTest extends CollectSystemParametersStepBaseTest {
 
@@ -43,7 +43,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
         Map<String, Object> generalParameters = descriptor.getParameters();
         assertEquals(USER, generalParameters.get(SupportedParameters.USER));
         assertEquals(ORG, generalParameters.get(SupportedParameters.ORG));
@@ -65,7 +65,7 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
         Map<String, Object> generalParameters = descriptor.getParameters();
         assertEquals(USER, generalParameters.get(SupportedParameters.USER));
         assertEquals(ORG, generalParameters.get(SupportedParameters.ORG));
@@ -87,8 +87,8 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
-        List<Module> modules = descriptor.getModules2();
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        List<Module> modules = descriptor.getModules();
         assertEquals(2, modules.size());
         for (int index = 0; index < modules.size(); index++) {
             Module module = modules.get(index);
@@ -105,8 +105,8 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         verify(portAllocator).allocateTcpPort("foo", false);
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
-        List<Module> modules = descriptor.getModules2();
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        List<Module> modules = descriptor.getModules();
         assertEquals(2, modules.size());
         validatePortBasedModuleParameters(modules.get(0), PortValidator.MIN_PORT_VALUE, "tcp");
     }
@@ -122,8 +122,8 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         verify(portAllocator).allocateTcpPort("foo", false);
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
-        List<Module> modules = descriptor.getModules2();
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        List<Module> modules = descriptor.getModules();
         assertEquals(2, modules.size());
         validatePortBasedModuleParameters(modules.get(0), PortValidator.MIN_PORT_VALUE, "tcp");
     }
@@ -146,8 +146,8 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         verify(portAllocator).allocateTcpPort("foo", true);
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
-        List<Module> modules = descriptor.getModules2();
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        List<Module> modules = descriptor.getModules();
         assertEquals(2, modules.size());
         validatePortBasedModuleParameters(modules.get(0), PortValidator.MIN_PORT_VALUE, "tcps");
     }
@@ -181,8 +181,8 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
-        List<Module> modules = descriptor.getModules2();
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        List<Module> modules = descriptor.getModules();
         assertEquals(2, modules.size());
         for (Module module : modules) {
             validateHostBasedModuleParameters(module);
@@ -196,8 +196,8 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
-        List<Module> modules = descriptor.getModules2();
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        List<Module> modules = descriptor.getModules();
         assertEquals(1, modules.size());
         validateHostBasedModuleParameters(modules.get(0), "/foo");
     }
@@ -235,15 +235,15 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
-        List<Module> modules = descriptor.getModules2();
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        List<Module> modules = descriptor.getModules();
         assertEquals(2, modules.size());
         Module foo = modules.get(0);
         validateGeneralModuleParameters(foo, "abc", "def");
         Module bar = modules.get(1);
         validateGeneralModuleParameters(bar, "ghi", "jkl");
 
-        List<Resource> resources = descriptor.getResources2();
+        List<Resource> resources = descriptor.getResources();
         assertEquals(2, resources.size());
         Resource baz = resources.get(0);
         validateGeneralResourceParameters(baz, "mno", "pqr");
@@ -279,8 +279,8 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         verify(portAllocator, never()).allocatePort("foo");
         verify(portAllocator, never()).allocateTcpPort(eq("foo"), anyBoolean());
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
-        List<Module> modules = descriptor.getModules2();
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        List<Module> modules = descriptor.getModules();
         assertEquals(2, modules.size());
         validatePortBasedModuleParameters(modules.get(0), USED_PORT);
     }
@@ -323,14 +323,14 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
 
         step.execute(context);
 
-        DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(context);
-        List<Module> modules = descriptor.getModules2();
+        DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(context);
+        List<Module> modules = descriptor.getModules();
         assertEquals(1, modules.size());
         Module foo = modules.get(0);
         assertEquals("bar", foo.getParameters()
             .get(SupportedParameters.APP_NAME));
 
-        List<Resource> resources = descriptor.getResources2();
+        List<Resource> resources = descriptor.getResources();
         assertEquals(1, resources.size());
         Resource baz = resources.get(0);
         assertEquals("qux", baz.getParameters()

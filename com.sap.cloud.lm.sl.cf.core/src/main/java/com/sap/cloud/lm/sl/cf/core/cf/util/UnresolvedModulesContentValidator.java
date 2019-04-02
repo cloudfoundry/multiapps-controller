@@ -8,7 +8,7 @@ import org.apache.commons.collections4.SetUtils;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class UnresolvedModulesContentValidator implements ModulesContentValidator {
 

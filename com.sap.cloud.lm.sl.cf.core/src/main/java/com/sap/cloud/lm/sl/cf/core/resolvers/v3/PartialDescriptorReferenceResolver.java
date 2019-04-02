@@ -3,9 +3,9 @@ package com.sap.cloud.lm.sl.cf.core.resolvers.v3;
 import java.util.List;
 
 import com.sap.cloud.lm.sl.cf.core.resolvers.v2.PartialModuleReferenceResolver;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v3.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.ModuleReferenceResolver;
 import com.sap.cloud.lm.sl.mta.resolvers.v3.DescriptorReferenceResolver;
@@ -27,7 +27,7 @@ public class PartialDescriptorReferenceResolver extends DescriptorReferenceResol
 
     @Override
     protected ResourceReferenceResolver createResourceResolver(Resource resource) {
-        return new PartialResourceReferenceResolver((DeploymentDescriptor) descriptor, resource, "", dependenciesToIgnore);
+        return new PartialResourceReferenceResolver(descriptor, resource, "", dependenciesToIgnore);
     }
 
 }

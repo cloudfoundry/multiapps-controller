@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
 import com.sap.cloud.lm.sl.cf.process.Constants;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 @Component("prepareAppsRestartStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -43,7 +43,7 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
 
     @Override
     protected List<Module> getModulesToDeploy(DelegateExecution context) {
-        List<? extends Module> allModulesToDeploy = StepsUtil.getAllModulesToDeploy(context);
+        List<Module> allModulesToDeploy = StepsUtil.getAllModulesToDeploy(context);
         return allModulesToDeploy.stream()
             .filter(module -> moduleToDeployHelper.isApplication(module))
             .collect(Collectors.toList());

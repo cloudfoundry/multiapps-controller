@@ -1,25 +1,44 @@
 {
-  "modules2": [
+  "schemaVersion": "2.0.0",
+  "id": "mta-1",
+  "version": "1.0.0",
+  "modules": [
     {
-      "requiredDependencies2": [],
-      "providedDependencies2": [
-        {
-          "isPublic": true,
-          "name": "framework",
-          "properties": {}
-        }
-      ],
-      "parameters": {},
       "name": "framework",
       "type": "javascript.nodejs",
       "properties": {
         "plugins": []
-      }
+      },
+      "parameters": {},
+      "requiredDependencies": [],
+      "providedDependencies": [
+        {
+          "name": "framework",
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
     }
   ],
-  "resources2": [],
+  "resources": [],
   "parameters": {},
-  "schemaVersion": "2.0.0",
-  "id": "mta-1",
-  "version": "1.0.0"
+  "parametersMetadata": {
+    "metadata": {}
+  },
+  "majorSchemaVersion": 2
 }

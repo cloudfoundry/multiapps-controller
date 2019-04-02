@@ -23,16 +23,16 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.ContentException;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.ElementContext;
+import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.PropertiesContainer;
+import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.model.Visitor;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 public class ConfigurationReferencesResolver extends Visitor {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationReferencesResolver.class);
 
     protected ConfigurationReferenceResolver configurationResolver;
@@ -55,24 +55,24 @@ public class ConfigurationReferencesResolver extends Visitor {
         this.configuration = configuration;
         this.configurationResolver = createReferenceResolver(dao);
     }
-    
+
     public void resolve(DeploymentDescriptor descriptor) {
         descriptor.accept(this);
         insertResolvedResources(descriptor);
     }
-    
+
     protected void insertResolvedResources(DeploymentDescriptor descriptor) {
-        descriptor.setResources2(getResolvedResources(descriptor));
+        descriptor.setResources(getResolvedResources(descriptor));
         updateReferencesToResolvedResources(descriptor);
     }
-    
+
     protected List<Resource> getResolvedResources(DeploymentDescriptor descriptor) {
-        return descriptor.getResources2()
+        return descriptor.getResources()
             .stream()
             .flatMap(resource -> getResolvedResources(resource).stream())
             .collect(Collectors.toList());
     }
-    
+
     protected List<Resource> getResolvedResources(Resource resource) {
         ResolvedConfigurationReference reference = resolvedReferences.get(resource.getName());
         if (reference != null) {
@@ -82,8 +82,8 @@ public class ConfigurationReferencesResolver extends Visitor {
     }
 
     protected void updateReferencesToResolvedResources(DeploymentDescriptor descriptor) {
-        for (Module module : descriptor.getModules2()) {
-            module.setRequiredDependencies2(getUpdatedRequiredDependencies(descriptor, module));
+        for (Module module : descriptor.getModules()) {
+            module.setRequiredDependencies(getUpdatedRequiredDependencies(descriptor, module));
 
             Map<String, Object> properties = module.getProperties();
             for (RequiredDependency originalDependency : expandedDependenciesMap.keySet()) {
@@ -104,21 +104,19 @@ public class ConfigurationReferencesResolver extends Visitor {
 
     protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Module module) {
         List<RequiredDependency> requiredDependencies = new ArrayList<>();
-        for (RequiredDependency dependency : module.getRequiredDependencies2()) {
+        for (RequiredDependency dependency : module.getRequiredDependencies()) {
             requiredDependencies.addAll(expandRequiredDependencyIfNecessary(descriptor, module, dependency));
         }
         return requiredDependencies;
     }
 
-    protected RequiredDependency createRequiredDependency(Resource resource,
-        RequiredDependency dependency) {
-        RequiredDependency.Builder builder = new RequiredDependency.Builder();
-        builder.setName(resource.getName());
-        builder.setGroup(dependency.getGroup());
-        builder.setList(dependency.getList());
-        builder.setParameters(dependency.getParameters());
-        builder.setProperties(dependency.getProperties());
-        return builder.build();
+    protected RequiredDependency createRequiredDependency(Resource resource, RequiredDependency dependency) {
+        return RequiredDependency.createV2()
+            .setName(resource.getName())
+            .setGroup(dependency.getGroup())
+            .setList(dependency.getList())
+            .setParameters(dependency.getParameters())
+            .setProperties(dependency.getProperties());
     }
 
     protected List<RequiredDependency> expandRequiredDependencyIfNecessary(DeploymentDescriptor descriptor,
@@ -147,7 +145,7 @@ public class ConfigurationReferencesResolver extends Visitor {
         expandedDependenciesMap.put(dependency, expandedDependencies);
         return expandedDependencies;
     }
-    
+
     protected void makeSureIsResolvedToSingleResource(String resolvedResourceName, List<Resource> resultingResources) {
         if (resultingResources.size() > 1) {
             LOGGER.debug(Messages.MULTIPLE_CONFIGURATION_ENTRIES, resolvedResourceName, resultingResources);
@@ -178,11 +176,11 @@ public class ConfigurationReferencesResolver extends Visitor {
     public Map<String, ResolvedConfigurationReference> getResolvedReferences() {
         return resolvedReferences;
     }
-    
+
     protected ConfigurationReferenceResolver createReferenceResolver(ConfigurationEntryDao dao) {
         return new ConfigurationReferenceResolver(dao, configuration);
     }
-    
+
     @Override
     public void visit(ElementContext context, Resource sourceResource) {
         ConfigurationFilter configurationFilter = filterParser.parse(sourceResource);

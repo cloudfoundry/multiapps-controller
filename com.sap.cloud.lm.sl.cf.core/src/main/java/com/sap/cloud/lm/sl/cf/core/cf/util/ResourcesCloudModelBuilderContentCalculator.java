@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBuilderContentCalculator<Resource> {
 
@@ -36,11 +36,11 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
     }
 
     private boolean isActive(Resource resource) {
-        if (!(resource instanceof com.sap.cloud.lm.sl.mta.model.v3.Resource)) {
+        if (resource.getMajorSchemaVersion() < 3) {
             return true;
         }
 
-        if (!CloudModelBuilderUtil.isActive(resource)) {
+        if (!resource.isActive()) {
             warnInactiveService(resource);
             return false;
         }
@@ -63,11 +63,10 @@ public class ResourcesCloudModelBuilderContentCalculator implements CloudModelBu
     }
 
     private boolean isOptional(Resource resource) {
-        if (!(resource instanceof com.sap.cloud.lm.sl.mta.model.v3.Resource)) {
+        if (resource.getMajorSchemaVersion() < 3) {
             return false;
         }
-        com.sap.cloud.lm.sl.mta.model.v3.Resource resourceV3 = (com.sap.cloud.lm.sl.mta.model.v3.Resource) resource;
-        return resourceV3.isOptional();
+        return resource.isOptional();
     }
 
     private boolean isResourceSpecifiedForDeployment(Resource resource) {

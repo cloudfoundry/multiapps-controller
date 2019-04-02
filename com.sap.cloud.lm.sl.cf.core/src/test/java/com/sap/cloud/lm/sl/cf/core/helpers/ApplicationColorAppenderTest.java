@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.core.helpers.v2;
+package com.sap.cloud.lm.sl.cf.core.helpers;
 
 import java.util.Arrays;
 
@@ -7,11 +7,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class ApplicationColorAppenderTest {

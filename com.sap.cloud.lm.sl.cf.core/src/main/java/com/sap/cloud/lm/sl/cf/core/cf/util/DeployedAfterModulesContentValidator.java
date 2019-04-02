@@ -12,7 +12,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class DeployedAfterModulesContentValidator implements ModulesContentValidator {
 
@@ -29,8 +29,7 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
         List<String> modulesInModelNames = getModuleNames(modules);
 
         Map<String, List<String>> modulesWithDependenciesNotInModel = modules.stream()
-            .filter(module -> module instanceof com.sap.cloud.lm.sl.mta.model.v3.Module)
-            .map(module -> (com.sap.cloud.lm.sl.mta.model.v3.Module) module)
+            .filter(module -> module.getMajorSchemaVersion() >= 3)
             .collect(Collectors.toMap(Module::getName, module -> getDependenciesNotInModel(module, modulesInModelNames)));
 
         List<String> modulesWithDependeciesNotDeployed = modulesWithDependenciesNotInModel.entrySet()
@@ -46,7 +45,7 @@ public class DeployedAfterModulesContentValidator implements ModulesContentValid
             String.join(DEFAULT_MESSAGE_DELIMITER, modulesWithDependeciesNotDeployed));
     }
 
-    private List<String> getDependenciesNotInModel(com.sap.cloud.lm.sl.mta.model.v3.Module module, List<String> modulesInModelNames) {
+    private List<String> getDependenciesNotInModel(Module module, List<String> modulesInModelNames) {
         Collection<String> moduleDependencies = CollectionUtils.emptyIfNull(module.getDeployedAfter());
         return moduleDependencies.stream()
             .filter(dependency -> !modulesInModelNames.contains(dependency))

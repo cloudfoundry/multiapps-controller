@@ -16,7 +16,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
@@ -72,9 +71,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.util.YamlUtil;
 
 public class StepsUtil {
@@ -302,41 +301,23 @@ public class StepsUtil {
     }
 
     public static List<Module> getModulesToDeploy(VariableScope scope) {
-        return getFromJsonBinaries(scope, Constants.VAR_MODULES_TO_DEPLOY, getModuleToDeployClass(scope));
+        return getFromJsonBinaries(scope, Constants.VAR_MODULES_TO_DEPLOY, Module.class);
     }
 
     public static void setModulesToDeploy(VariableScope scope, List<? extends Module> modules) {
         setAsJsonBinaries(scope, Constants.VAR_MODULES_TO_DEPLOY, modules);
     }
 
-    private static void setModuleToDeployClass(VariableScope scope, List<? extends Module> modules) {
-        String className = (!CollectionUtils.isEmpty(modules)) ? modules.get(0)
-            .getClass()
-            .getName() : Module.class.getName();
-        scope.setVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME, className);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Class<? extends Module> getModuleToDeployClass(VariableScope scope) {
-        String className = (String) scope.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME);
-        try {
-            return (Class<? extends Module>) Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     public static List<Module> getAllModulesToDeploy(VariableScope scope) {
-        return getFromJsonBinaries(scope, Constants.VAR_ALL_MODULES_TO_DEPLOY, getModuleToDeployClass(scope));
+        return getFromJsonBinaries(scope, Constants.VAR_ALL_MODULES_TO_DEPLOY, Module.class);
     }
 
     public static void setAllModulesToDeploy(VariableScope scope, List<? extends Module> modules) {
         setAsJsonBinaries(scope, Constants.VAR_ALL_MODULES_TO_DEPLOY, modules);
-        setModuleToDeployClass(scope, modules);
     }
 
     public static List<Module> getIteratedModulesInParallel(VariableScope scope) {
-        return getFromJsonBinaries(scope, Constants.VAR_ITERATED_MODULES_IN_PARALLEL, getModuleToDeployClass(scope));
+        return getFromJsonBinaries(scope, Constants.VAR_ITERATED_MODULES_IN_PARALLEL, Module.class);
     }
 
     public static void setIteratedModulesInParallel(VariableScope scope, List<? extends Module> modules) {
@@ -625,18 +606,15 @@ public class StepsUtil {
     }
 
     public static DeploymentDescriptor getDeploymentDescriptor(VariableScope scope) {
-        byte[] binaryYaml = (byte[]) scope.getVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR);
-        String yaml = new String(binaryYaml, StandardCharsets.UTF_8);
-        return parseDeploymentDescriptor(yaml);
+        return getFromJsonString(scope, Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, DeploymentDescriptor.class);
+    }
+
+    public static DeploymentDescriptor getDeploymentDescriptorWithSystemParameters(VariableScope scope) {
+        return getFromJsonString(scope, Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, DeploymentDescriptor.class);
     }
 
     public static DeploymentDescriptor getCompleteDeploymentDescriptor(VariableScope scope) {
-        byte[] binaryYaml = (byte[]) scope.getVariable(Constants.VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR);
-        if (binaryYaml == null) {
-            return null;
-        }
-        String yaml = new String(binaryYaml, StandardCharsets.UTF_8);
-        return parseDeploymentDescriptor(yaml);
+        return getFromJsonString(scope, Constants.VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR, DeploymentDescriptor.class);
     }
 
     public static Module findModuleInDeploymentDescriptor(VariableScope scope, String module) {
@@ -644,11 +622,6 @@ public class StepsUtil {
         DeploymentDescriptor deploymentDescriptor = getCompleteDeploymentDescriptor(scope);
         return handlerFactory.getDescriptorHandler()
             .findModule(deploymentDescriptor, module);
-    }
-
-    private static DeploymentDescriptor parseDeploymentDescriptor(String yaml) {
-        DescriptorParserFacade descriptorParserFacade = new DescriptorParserFacade();
-        return descriptorParserFacade.parseDeploymentDescriptor(yaml);
     }
 
     @SuppressWarnings("unchecked")
@@ -667,12 +640,16 @@ public class StepsUtil {
             .collect(Collectors.toList());
     }
 
-    public static void setDeploymentDescriptor(VariableScope scope, DeploymentDescriptor unresolvedDeploymentDescriptor) {
-        scope.setVariable(Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(unresolvedDeploymentDescriptor));
+    public static void setDeploymentDescriptor(VariableScope scope, DeploymentDescriptor deploymentDescriptor) {
+        setAsJsonString(scope, Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
+    }
+
+    public static void setDeploymentDescriptorWithSystemParameters(VariableScope scope, DeploymentDescriptor deploymentDescriptor) {
+        setAsJsonString(scope, Constants.VAR_MTA_DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS, deploymentDescriptor);
     }
 
     public static void setCompleteDeploymentDescriptor(VariableScope scope, DeploymentDescriptor deploymentDescriptor) {
-        scope.setVariable(Constants.VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR, toBinaryYaml(deploymentDescriptor));
+        setAsJsonString(scope, Constants.VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR, deploymentDescriptor);
     }
 
     static void setExtensionDescriptorChain(VariableScope scope, List<ExtensionDescriptor> extensionDescriptors) {
@@ -727,7 +704,7 @@ public class StepsUtil {
     }
 
     public static Module getModuleToDeploy(VariableScope scope) {
-        return getFromJsonBinary(scope, Constants.VAR_MODULE_TO_DEPLOY, getModuleToDeployClass(scope));
+        return getFromJsonBinary(scope, Constants.VAR_MODULE_TO_DEPLOY, Module.class);
     }
 
     static CloudTask getTask(VariableScope scope) {

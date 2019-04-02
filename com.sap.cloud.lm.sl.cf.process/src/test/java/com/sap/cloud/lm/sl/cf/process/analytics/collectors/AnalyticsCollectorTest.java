@@ -36,7 +36,7 @@ import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class AnalyticsCollectorTest {
     protected static final String PROCESS_ID = "process-instance-id";
@@ -113,7 +113,7 @@ public class AnalyticsCollectorTest {
         when(configuration.getPlatformType()).thenReturn(PLATFORM_TYPE);
         context.setVariable(Constants.VAR_SPACE, SPACE_NAME);
         context.setVariable(Constants.VAR_ORG, ORG_NAME);
-        
+
         when(context.getVariable(Constants.VAR_MODULES_TO_DEPLOY_CLASSNAME)).thenReturn(Module.class.getName());
         when(context.getVariable(Constants.VAR_ALL_MODULES_TO_DEPLOY)).thenReturn(mockModulesToDeploy(2));
         when(context.getVariable(Constants.VAR_CUSTOM_DOMAINS)).thenReturn(mockedListAsBytesWithStrings(2));
@@ -156,13 +156,13 @@ public class AnalyticsCollectorTest {
         }
         return JsonUtil.toJsonBinary(list);
     }
-    
+
     private List<byte[]> mockModulesToDeploy(int size) {
         List<byte[]> list = new ArrayList<>();
-        Module.Builder moduleBuilder = new Module.Builder();
+        Module module = Module.createV2();
         for (int i = 0; i < size; i++) {
-            moduleBuilder.setName(Integer.toString(i));
-            list.add(JsonUtil.toJsonBinary(moduleBuilder.build()));
+            module.setName(Integer.toString(i));
+            list.add(JsonUtil.toJsonBinary(module));
         }
         return list;
     }

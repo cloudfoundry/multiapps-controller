@@ -1,19 +1,19 @@
 {
   "schemaVersion": "2.0.0",
-  "id": "com.sap.test",
-  "version": "1.0",
+  "id": "com.sap.mta.test",
+  "version": "1.0.0",
   "modules": [
     {
-      "name": "foo",
-      "type": "foo",
+      "name": "app-1",
+      "type": "javascript.nodejs",
       "properties": {},
       "parameters": {
-        "host": "com-sap-test-foo"
+        "app-name": "app-1-green"
       },
       "requiredDependencies": [],
       "providedDependencies": [
         {
-          "name": "foo",
+          "name": "app-1",
           "isPublic": true,
           "properties": {},
           "parameters": {},
@@ -35,16 +35,47 @@
       "majorSchemaVersion": 2
     },
     {
-      "name": "bar",
-      "type": "bar",
+      "name": "app-2",
+      "type": "javascript.nodejs",
       "properties": {},
       "parameters": {
-        "domain": "com.sap.test.foo"
+        "app-name": "app-2-green"
       },
       "requiredDependencies": [],
       "providedDependencies": [
         {
-          "name": "bar",
+          "name": "app-2",
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
+    },
+    {
+      "name": "app-3",
+      "type": "javascript.nodejs",
+      "properties": {},
+      "parameters": {
+        "app-name": "app-3-green"
+      },
+      "requiredDependencies": [],
+      "providedDependencies": [
+        {
+          "name": "app-3",
           "isPublic": true,
           "properties": {},
           "parameters": {},
@@ -66,25 +97,7 @@
       "majorSchemaVersion": 2
     }
   ],
-  "resources": [
-    {
-      "name": "baz",
-      "properties": {},
-      "parameters": {
-        "host": ".com.sap.test.foo"
-      },
-      "isActive": true,
-      "isOptional": false,
-      "propertiesMetadata": {
-        "metadata": {}
-      },
-      "parametersMetadata": {
-        "metadata": {}
-      },
-      "requiredDependencies": [],
-      "majorSchemaVersion": 2
-    }
-  ],
+  "resources": [],
   "parameters": {},
   "parametersMetadata": {
     "metadata": {}

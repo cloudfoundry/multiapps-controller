@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ConfigurationReferenceResolver {
 
@@ -38,11 +38,11 @@ public class ConfigurationReferenceResolver {
         CloudTarget globalConfigTarget = getGlobalConfigTarget(configuration);
         return asResources(findConfigurationEntries(dao, filter, getCloudTargetsList(cloudTarget), globalConfigTarget), resource);
     }
-    
+
     private List<CloudTarget> getCloudTargetsList(CloudTarget target) {
         return target == null ? null : Arrays.asList(target);
     }
-    
+
     protected List<Resource> asResources(List<ConfigurationEntry> entries, Resource resource) {
         List<Resource> result = new ArrayList<>();
         for (int i = 0; i < entries.size(); i++) {
@@ -55,12 +55,10 @@ public class ConfigurationReferenceResolver {
         String indexedResourceName = getIndexedName(resource.getName(), index, entriesCount, RESOURCE_INDEX_DELIMITER);
         Map<String, Object> properties = mergeProperties(resource, entry);
         Map<String, Object> parameters = removeConfigurationParameters(resource.getParameters());
-        Resource.Builder builder = getResourceBuilder();
-        builder.setName(indexedResourceName);
-        builder.setDescription(resource.getDescription());
-        builder.setProperties(properties);
-        builder.setParameters(parameters);
-        return builder.build();
+        return createResource().setName(indexedResourceName)
+            .setDescription(resource.getDescription())
+            .setProperties(properties)
+            .setParameters(parameters);
     }
 
     protected Map<String, Object> removeConfigurationParameters(Map<String, Object> resourcePropertiesMap) {
@@ -70,8 +68,8 @@ public class ConfigurationReferenceResolver {
         return result;
     }
 
-    protected Resource.Builder getResourceBuilder() {
-        return new Resource.Builder();
+    protected Resource createResource() {
+        return Resource.createV2();
     }
 
     protected Map<String, Object> mergeProperties(Resource resource, ConfigurationEntry configurationEntry) {

@@ -1,25 +1,44 @@
 {
-  "modules2": [
-    {
-      "requiredDependencies2": [],
-      "providedDependencies2": [
-        {
-          "isPublic": true,
-          "name": "foo",
-          "properties": {
-            "port": -1
-          }
-        }
-      ],
-      "parameters": {},
-      "name": "foo",
-      "type": "foo",
-      "properties": {}
-    }
-  ],
-  "resources2": [],
-  "parameters": {},
   "schemaVersion": "2.0.0",
   "id": "com.sap.test",
-  "version": "1.0"
+  "version": "1.0",
+  "modules": [
+    {
+      "name": "foo",
+      "type": "foo",
+      "properties": {},
+      "parameters": {},
+      "requiredDependencies": [],
+      "providedDependencies": [
+        {
+          "name": "foo",
+          "isPublic": true,
+          "properties": {
+            "port": -1
+          },
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
+    }
+  ],
+  "resources": [],
+  "parameters": {},
+  "parametersMetadata": {
+    "metadata": {}
+  },
+  "majorSchemaVersion": 2
 }

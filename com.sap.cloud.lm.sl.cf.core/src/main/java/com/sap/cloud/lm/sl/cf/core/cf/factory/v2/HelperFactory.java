@@ -12,11 +12,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
-import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -26,8 +24,8 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParameters
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Platform;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 public class HelperFactory implements HelperFactoryConstructor {
 
@@ -43,10 +41,10 @@ public class HelperFactory implements HelperFactoryConstructor {
 
     @Override
     public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta,
-        XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger stepLogger) {
-        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver,
-            deployId, stepLogger);
+        CloudModelConfiguration configuration, DeployedMta deployedMta, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
+        UserMessageLogger stepLogger) {
+        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver, deployId,
+            stepLogger);
     }
 
     @Override
@@ -66,20 +64,15 @@ public class HelperFactory implements HelperFactoryConstructor {
     }
 
     @Override
-    public DescriptorParametersValidator getDescriptorParametersValidator(com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor,
+    public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
         List<ParameterValidator> parameterValidators) {
-        return new DescriptorParametersValidator(cast(descriptor), parameterValidators);
+        return new DescriptorParametersValidator(descriptor, parameterValidators);
     }
 
     @Override
     public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
         List<ParameterValidator> parameterValidators, boolean doNotCorrect) {
-        return new DescriptorParametersValidator(cast(descriptor), parameterValidators, doNotCorrect);
-    }
-
-    @Override
-    public ApplicationColorAppender getApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationType) {
-        return new ApplicationColorAppender(deployedMtaColor, applicationType);
+        return new DescriptorParametersValidator(descriptor, parameterValidators, doNotCorrect);
     }
 
     @Override

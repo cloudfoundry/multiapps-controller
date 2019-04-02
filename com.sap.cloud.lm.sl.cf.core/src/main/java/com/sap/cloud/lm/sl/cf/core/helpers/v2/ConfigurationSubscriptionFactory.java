@@ -12,10 +12,10 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.resolvers.v2.PartialDescriptorReferenceResolver;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
 
 public class ConfigurationSubscriptionFactory {
@@ -27,8 +27,8 @@ public class ConfigurationSubscriptionFactory {
         List<String> dependenciesToIgnore = new ArrayList<>(resolvedResources.keySet());
         descriptor = getPartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore).resolve();
         List<ConfigurationSubscription> result = new ArrayList<>();
-        for (com.sap.cloud.lm.sl.mta.model.v2.Module module : descriptor.getModules2()) {
-            for (RequiredDependency dependency : module.getRequiredDependencies2()) {
+        for (Module module : descriptor.getModules()) {
+            for (RequiredDependency dependency : module.getRequiredDependencies()) {
                 if (shouldCreateSubscription(dependency)) {
                     CollectionUtils.addIgnoreNull(result,
                         createSubscription(spaceId, descriptor.getId(), module, dependency, resolvedResources));
@@ -38,8 +38,8 @@ public class ConfigurationSubscriptionFactory {
         return result;
     }
 
-    protected DescriptorReferenceResolver getPartialDescriptorReferenceResolver(
-        com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor descriptor, List<String> dependenciesToIgnore) {
+    protected DescriptorReferenceResolver getPartialDescriptorReferenceResolver(DeploymentDescriptor descriptor,
+        List<String> dependenciesToIgnore) {
         return new PartialDescriptorReferenceResolver(descriptor, dependenciesToIgnore);
     }
 
@@ -56,16 +56,15 @@ public class ConfigurationSubscriptionFactory {
     }
 
     protected Module getContainingOneRequiresDependency(Module module, RequiredDependency dependency) {
-        Module.Builder builder = new Module.Builder();
-        builder.setName(module.getName());
-        builder.setType(module.getType());
-        builder.setPath(module.getPath());
-        builder.setDescription(module.getDescription());
-        builder.setProperties(module.getProperties());
-        builder.setParameters(module.getParameters());
-        builder.setProvidedDependencies2(module.getProvidedDependencies2());
-        builder.setRequiredDependencies2(Arrays.asList(dependency));
-        return builder.build();
+        return Module.createV2()
+            .setName(module.getName())
+            .setType(module.getType())
+            .setPath(module.getPath())
+            .setDescription(module.getDescription())
+            .setProperties(module.getProperties())
+            .setParameters(module.getParameters())
+            .setProvidedDependencies(module.getProvidedDependencies())
+            .setRequiredDependencies(Arrays.asList(dependency));
     }
 
     protected int getMajorSchemaVersion() {

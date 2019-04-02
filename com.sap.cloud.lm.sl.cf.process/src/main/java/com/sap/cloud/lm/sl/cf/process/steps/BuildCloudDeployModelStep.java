@@ -35,10 +35,10 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
@@ -144,10 +144,10 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
     private List<Resource> calculateResourcesUsedForBindings(DeploymentDescriptor deploymentDescriptor,
         List<Module> modulesCalculatedForDeployment) {
         List<String> resourcesRequiredByModules = calculateResourceNamesRequiredByModules(modulesCalculatedForDeployment,
-            deploymentDescriptor.getResources2());
+            deploymentDescriptor.getResources());
         CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator = new ResourcesCloudModelBuilderContentCalculator(
             resourcesRequiredByModules, getStepLogger());
-        return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources2());
+        return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
     }
 
     private List<String> calculateResourceNamesRequiredByModules(List<Module> modulesCalculatedForDeployment,
@@ -158,7 +158,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     private Set<String> getRequireDependencyNamesFromModules(List<Module> modules) {
         return modules.stream()
-            .flatMap(module -> module.getRequiredDependencies2()
+            .flatMap(module -> module.getRequiredDependencies()
                 .stream()
                 .map(RequiredDependency::getName))
             .collect(Collectors.toSet());
@@ -181,7 +181,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
 
     private List<Resource> calculateResourcesForDeployment(DeploymentDescriptor deploymentDescriptor,
         CloudModelBuilderContentCalculator<Resource> resourcesCloudModelBuilderContentCalculator) {
-        return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources2());
+        return resourcesCloudModelBuilderContentCalculator.calculateContentForBuilding(deploymentDescriptor.getResources());
     }
 
     private CloudModelBuilderContentCalculator<Resource> getResourcesCloudModelBuilderContentCalculator(DelegateExecution context) {

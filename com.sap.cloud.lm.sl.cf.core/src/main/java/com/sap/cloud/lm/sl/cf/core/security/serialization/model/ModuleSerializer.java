@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.core.security.serialization.model;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureJsonSerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializerConfiguration;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.masking.ModuleMasker;
-import com.sap.cloud.lm.sl.mta.model.v3.Module;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ModuleSerializer extends SecureJsonSerializer {
 
@@ -15,7 +15,7 @@ public class ModuleSerializer extends SecureJsonSerializer {
 
     @Override
     public String serialize(Object object) {
-        Module clonedModule = ((Module) object).copyOf();
+        Module clonedModule = Module.copyOf((Module) object);
         masker.mask(clonedModule);
         return super.serialize(clonedModule);
     }

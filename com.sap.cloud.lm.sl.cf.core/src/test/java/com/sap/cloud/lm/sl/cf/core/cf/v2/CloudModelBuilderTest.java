@@ -41,10 +41,10 @@ import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorMerger;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.Platform;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
 
@@ -584,7 +584,7 @@ public class CloudModelBuilderTest {
     }
 
     protected void insertProperAppNames(DeploymentDescriptor descriptor) throws Exception {
-        for (Module module : descriptor.getModules2()) {
+        for (Module module : descriptor.getModules()) {
             String appName = computeAppName(descriptor, module);
             Map<String, Object> parameters = new TreeMap<>(module.getParameters());
             parameters.put(SupportedParameters.APP_NAME, appName);
@@ -608,7 +608,7 @@ public class CloudModelBuilderTest {
     protected void injectSystemParameters(DeploymentDescriptor descriptor, String defaultDomain) {
         Map<String, Object> generalSystemParameters = MapUtil.asMap(SupportedParameters.DEFAULT_DOMAIN, defaultDomain);
         descriptor.setParameters(MapUtil.merge(generalSystemParameters, descriptor.getParameters()));
-        for (Module module : descriptor.getModules2()) {
+        for (Module module : descriptor.getModules()) {
             Map<String, Object> moduleSystemParameters = MapUtil.asMap(SupportedParameters.DEFAULT_HOST, module.getName());
             module.setParameters(MapUtil.merge(moduleSystemParameters, module.getParameters()));
         }
@@ -628,8 +628,8 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudApplicationExtended>>() {
             @Override
             public List<CloudApplicationExtended> call() throws Exception {
-                List<CloudApplicationExtended> apps = new ArrayList<CloudApplicationExtended>();
-                List<Module> modulesToDeploy = modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules2());
+                List<CloudApplicationExtended> apps = new ArrayList<>();
+                List<Module> modulesToDeploy = modulesCalculator.calculateContentForBuilding(deploymentDescriptor.getModules());
                 for (Module module : modulesToDeploy) {
                     apps.add(appBuilder.build(module, moduleToDeployHelper));
                 }
@@ -643,7 +643,7 @@ public class CloudModelBuilderTest {
         TestUtil.test(new Callable<List<CloudServiceExtended>>() {
             @Override
             public List<CloudServiceExtended> call() throws Exception {
-                return servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources2()));
+                return servicesBuilder.build(resourcesCalculator.calculateContentForBuilding(deploymentDescriptor.getResources()));
             }
         }, expectedServices, getClass(), new TestUtil.JsonSerializationOptions(false, true));
     }

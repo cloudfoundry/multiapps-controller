@@ -9,17 +9,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.parser.ParametersParser;
-import com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class CloudModelBuilderUtil {
-
-    public static boolean isPublic(ProvidedDependency dependency) {
-        if (dependency instanceof ProvidedDependency) {
-            return dependency.isPublic();
-        }
-        return true;
-    }
 
     public static Set<String> getDeployedModuleNames(List<DeployedMtaModule> deployedModules) {
         Set<String> deployedModuleNames = new TreeSet<>();
@@ -41,11 +33,6 @@ public class CloudModelBuilderUtil {
         Set<ResourceType> resourceTypes = ResourceType.getServiceTypes();
         ResourceType resourceType = getResourceType(resource);
         return resourceTypes.contains(resourceType);
-    }
-
-    public static boolean isActive(Resource resource) {
-        com.sap.cloud.lm.sl.mta.model.v3.Resource resourceV3 = (com.sap.cloud.lm.sl.mta.model.v3.Resource) resource;
-        return resourceV3.isActive();
     }
 
     public static boolean isServiceKey(Resource resource) {

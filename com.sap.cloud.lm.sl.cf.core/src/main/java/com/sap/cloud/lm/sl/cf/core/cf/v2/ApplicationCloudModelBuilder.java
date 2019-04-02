@@ -45,10 +45,10 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
@@ -231,7 +231,7 @@ public class ApplicationCloudModelBuilder {
 
     protected Map<String, Map<String, Object>> getBindingParameters(Module module) {
         Map<String, Map<String, Object>> result = new HashMap<>();
-        for (RequiredDependency dependency : module.getRequiredDependencies2()) {
+        for (RequiredDependency dependency : module.getRequiredDependencies()) {
             addBindingParameters(result, dependency, module);
         }
         if (result.isEmpty()) {
@@ -271,7 +271,7 @@ public class ApplicationCloudModelBuilder {
 
     protected List<String> getApplicationServices(Module module, Predicate<ResourceAndResourceType> filterRule) {
         List<String> services = new ArrayList<>();
-        for (RequiredDependency dependency : module.getRequiredDependencies2()) {
+        for (RequiredDependency dependency : module.getRequiredDependencies()) {
             ResourceAndResourceType pair = getApplicationService(dependency.getName());
             if (pair != null && filterRule.test(pair)) {
                 CollectionUtils.addIgnoreNull(services, cloudServiceNameMapper.mapServiceName(pair.getResource(), pair.getResourceType()));
@@ -291,7 +291,7 @@ public class ApplicationCloudModelBuilder {
 
     protected List<ServiceKeyToInject> getServicesKeysToInject(Module module) {
         List<ServiceKeyToInject> serviceKeysToInject = new ArrayList<>();
-        for (RequiredDependency dependency : module.getRequiredDependencies2()) {
+        for (RequiredDependency dependency : module.getRequiredDependencies()) {
             ServiceKeyToInject serviceKey = getServiceKeyToInject(dependency);
             CollectionUtils.addIgnoreNull(serviceKeysToInject, serviceKey);
         }

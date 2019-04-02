@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.resolvers.v2.PartialPropertiesResolver;
-import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v3.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v3.ResourcePropertiesReferenceResolver;
 

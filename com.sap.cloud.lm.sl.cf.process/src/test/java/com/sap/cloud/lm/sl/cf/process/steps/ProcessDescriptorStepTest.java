@@ -26,7 +26,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescriptorStep> {
 
@@ -60,7 +60,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     }
 
     private void prepareContext() throws Exception {
-        StepsUtil.setCompleteDeploymentDescriptor(context, DEPLOYMENT_DESCRIPTOR);
+        StepsUtil.setDeploymentDescriptorWithSystemParameters(context, DEPLOYMENT_DESCRIPTOR);
         StepsUtil.setXsPlaceholderReplacementValues(context, MapUtil.asMap(SupportedParameters.XSA_ROUTER_PORT_PLACEHOLDER, 999));
 
         context.setVariable(com.sap.cloud.lm.sl.cf.persistence.message.Constants.VARIABLE_NAME_SERVICE_ID, Constants.DEPLOY_SERVICE_ID);

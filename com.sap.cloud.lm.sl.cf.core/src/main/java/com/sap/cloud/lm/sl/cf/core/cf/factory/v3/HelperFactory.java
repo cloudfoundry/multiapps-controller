@@ -19,7 +19,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.HelperFactory {
     public HelperFactory(DescriptorHandler descriptorHandler) {
@@ -37,10 +37,10 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.Hel
 
     @Override
     public ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration, DeployedMta deployedMta,
-        XsPlaceholderResolver xsPlaceholderResolver, String deployId, UserMessageLogger stepLogger) {
-        return new ApplicationCloudModelBuilder((com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor) deploymentDescriptor, configuration,
-            deployedMta, xsPlaceholderResolver, deployId, stepLogger);
+        CloudModelConfiguration configuration, DeployedMta deployedMta, XsPlaceholderResolver xsPlaceholderResolver, String deployId,
+        UserMessageLogger stepLogger) {
+        return new ApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver, deployId,
+            stepLogger);
     }
 
     @Override
