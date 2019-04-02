@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ResourceAndResourceType {
     private final Resource resource;
@@ -13,7 +13,6 @@ public class ResourceAndResourceType {
     public ResourceType getResourceType() {
         return resourceType;
     }
-
 
     public ResourceAndResourceType(Resource resource, ResourceType resourceType) {
         this.resource = resource;

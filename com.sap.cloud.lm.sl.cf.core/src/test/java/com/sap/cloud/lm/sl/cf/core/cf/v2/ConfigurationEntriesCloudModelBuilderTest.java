@@ -9,12 +9,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.HandlerFactory;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class ConfigurationEntriesCloudModelBuilderTest {

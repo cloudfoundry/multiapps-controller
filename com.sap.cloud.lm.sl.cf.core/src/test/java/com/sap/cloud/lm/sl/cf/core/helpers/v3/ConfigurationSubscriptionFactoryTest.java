@@ -12,7 +12,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorParser;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class ConfigurationSubscriptionFactoryTest extends com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactoryTest {

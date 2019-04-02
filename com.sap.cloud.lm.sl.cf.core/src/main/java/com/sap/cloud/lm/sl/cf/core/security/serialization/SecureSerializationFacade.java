@@ -7,11 +7,12 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.model.ModuleSerializer
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.ProvidedDependencySerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.RequiredDependencySerializer;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.model.ResourceSerializer;
-import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v3.Module;
-import com.sap.cloud.lm.sl.mta.model.v3.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.v3.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v3.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.Resource;
+import com.sap.cloud.lm.sl.mta.model.VersionedEntity;
 
 public class SecureSerializationFacade {
 
@@ -41,19 +42,29 @@ public class SecureSerializationFacade {
     }
 
     private SecureJsonSerializer getSerializer(Object object) {
-        if (object instanceof DeploymentDescriptor) {
+        if (object instanceof VersionedEntity) {
+            VersionedEntity versionedEntity = (VersionedEntity) object;
+            if (versionedEntity.getMajorSchemaVersion() >= 3) {
+                return getVersionedEntitySerializer(versionedEntity);
+            }
+        }
+        return new SecureJsonSerializer(configuration);
+    }
+
+    private SecureJsonSerializer getVersionedEntitySerializer(VersionedEntity versionedEntity) {
+        if (versionedEntity instanceof DeploymentDescriptor) {
             return new DeploymentDescriptorSerializer(configuration);
         }
-        if (object instanceof Module) {
+        if (versionedEntity instanceof Module) {
             return new ModuleSerializer(configuration);
         }
-        if (object instanceof Resource) {
+        if (versionedEntity instanceof Resource) {
             return new ResourceSerializer(configuration);
         }
-        if (object instanceof ProvidedDependency) {
+        if (versionedEntity instanceof ProvidedDependency) {
             return new ProvidedDependencySerializer(configuration);
         }
-        if (object instanceof RequiredDependency) {
+        if (versionedEntity instanceof RequiredDependency) {
             return new RequiredDependencySerializer(configuration);
         }
         return new SecureJsonSerializer(configuration);

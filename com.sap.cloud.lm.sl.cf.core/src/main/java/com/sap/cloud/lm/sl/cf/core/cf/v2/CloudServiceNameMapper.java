@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class CloudServiceNameMapper {
 

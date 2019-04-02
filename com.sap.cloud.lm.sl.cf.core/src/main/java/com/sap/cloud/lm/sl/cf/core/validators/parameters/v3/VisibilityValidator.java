@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.common.util.CommonUtil;
-import com.sap.cloud.lm.sl.mta.model.v3.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
 public class VisibilityValidator implements ParameterValidator {
 

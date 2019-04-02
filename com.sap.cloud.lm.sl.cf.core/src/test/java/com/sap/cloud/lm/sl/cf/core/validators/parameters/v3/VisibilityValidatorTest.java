@@ -10,9 +10,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.validators.parameters.v3.VisibilityValidator;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.mta.model.v3.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
 
 @RunWith(Parameterized.class)
 public class VisibilityValidatorTest {

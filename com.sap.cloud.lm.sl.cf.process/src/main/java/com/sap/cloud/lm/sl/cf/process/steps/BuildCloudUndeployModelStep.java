@@ -24,8 +24,8 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 @Component("buildCloudUndeployModelStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -91,9 +91,9 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         if (deploymentDescriptor == null) {
             return Collections.emptyList();
         }
-        return deploymentDescriptor.getModules2()
+        return deploymentDescriptor.getModules()
             .stream()
-            .map(module -> module.getName())
+            .map(Module::getName)
             .collect(Collectors.toList());
     }
 

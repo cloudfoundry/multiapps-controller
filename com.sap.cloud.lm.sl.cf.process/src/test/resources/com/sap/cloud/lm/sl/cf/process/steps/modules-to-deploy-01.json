@@ -1,17 +1,26 @@
 [
   {
-    "requiredDependencies2": [],
     "name": "module-1",
-    "properties": {}
+    "properties": {},
+    "parameters": {},
+    "requiredDependencies": [],
+    "providedDependencies": [],
+    "majorSchemaVersion": 2
   },
   {
-    "requiredDependencies2": [],
     "name": "module-2",
-    "properties": {}
+    "properties": {},
+    "parameters": {},
+    "requiredDependencies": [],
+    "providedDependencies": [],
+    "majorSchemaVersion": 2
   },
   {
-    "requiredDependencies2": [],
     "name": "module-3",
-    "properties": {}
+    "properties": {},
+    "parameters": {},
+    "requiredDependencies": [],
+    "providedDependencies": [],
+    "majorSchemaVersion": 2
   }
 ]

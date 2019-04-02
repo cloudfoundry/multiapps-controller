@@ -10,8 +10,8 @@ import java.net.URL;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.CloudDomain;
-import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
+import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -25,8 +25,8 @@ import com.sap.cloud.lm.sl.cf.core.helpers.PortAllocatorMock;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.PortValidator;
 import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableStepTest<CollectSystemParametersStep> {
 

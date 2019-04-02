@@ -6,9 +6,9 @@ import java.util.Map;
 
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParametersValidator;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class DescriptorParametersValidator extends ParametersValidator<DeploymentDescriptor> {
 
@@ -33,11 +33,11 @@ public class DescriptorParametersValidator extends ParametersValidator<Deploymen
 
     protected void validate(DeploymentDescriptor descriptor) {
         Map<String, Object> parameters = validateParameters(descriptor, descriptor.getParameters());
-        List<Module> modules = validateModules(descriptor.getModules2());
-        List<Resource> resources = validateResources(descriptor.getResources2());
+        List<Module> modules = validateModules(descriptor.getModules());
+        List<Resource> resources = validateResources(descriptor.getResources());
         descriptor.setParameters(parameters);
-        descriptor.setModules2(modules);
-        descriptor.setResources2(resources);
+        descriptor.setModules(modules);
+        descriptor.setResources(resources);
     }
 
     protected List<Module> validateModules(List<Module> modules) {

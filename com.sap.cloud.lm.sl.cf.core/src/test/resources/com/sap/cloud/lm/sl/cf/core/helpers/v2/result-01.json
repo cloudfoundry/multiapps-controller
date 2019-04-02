@@ -1,80 +1,162 @@
 {
-  "modules2": [
+  "schemaVersion": "2.0.0",
+  "id": "mta-1",
+  "version": "1.0.0",
+  "modules": [
     {
-      "requiredDependencies2": [
+      "name": "module-1",
+      "type": "javascript.nodejs",
+      "properties": {},
+      "parameters": {},
+      "requiredDependencies": [
         {
           "name": "module-2",
           "properties": {},
-          "parameters": {}
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         },
         {
           "name": "resource-2",
           "properties": {},
-          "parameters": {}
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
-      "providedDependencies2": [
+      "providedDependencies": [
         {
-          "isPublic": true,
           "name": "module-1",
-          "properties": {}
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
-      "parameters": {},
-      "name": "module-1",
-      "type": "javascript.nodejs",
-      "properties": {}
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
     },
     {
-      "requiredDependencies2": [
+      "name": "module-2",
+      "type": "javascript.nodejs",
+      "properties": {},
+      "parameters": {},
+      "requiredDependencies": [
         {
           "name": "resource-1",
           "properties": {},
-          "parameters": {}
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         },
         {
           "name": "resource-2",
           "properties": {},
-          "parameters": {}
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
-      "providedDependencies2": [
+      "providedDependencies": [
         {
-          "isPublic": true,
           "name": "module-2",
-          "properties": {}
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
-      "parameters": {},
-      "name": "module-2",
-      "type": "javascript.nodejs",
-      "properties": {}
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
     }
   ],
-  "resources2": [
+  "resources": [
     {
-      "parameters": {},
       "name": "resource-1",
       "type": "org.cloudfoundry.user-provided-service",
       "properties": {
         "foo": "foo",
         "bar": "bar"
-      }
+      },
+      "parameters": {},
+      "isActive": true,
+      "isOptional": false,
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "requiredDependencies": [],
+      "majorSchemaVersion": 2
     },
     {
-      "parameters": {},
       "name": "resource-2",
       "properties": {
         "bar": "qux",
         "baz": "baz",
         "foo": "foo"
-      }
+      },
+      "parameters": {},
+      "isActive": true,
+      "isOptional": false,
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "requiredDependencies": [],
+      "majorSchemaVersion": 2
     }
   ],
   "parameters": {
     "test": "test"
   },
-  "schemaVersion": "2.0.0",
-  "id": "mta-1",
-  "version": "1.0.0"
+  "parametersMetadata": {
+    "metadata": {}
+  },
+  "majorSchemaVersion": 2
 }

@@ -33,8 +33,8 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
 import com.sap.cloud.lm.sl.common.util.TestUtil.JsonSerializationOptions;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 @RunWith(Parameterized.class)
 public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUndeployModelStep> {
@@ -153,22 +153,20 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
     }
 
     private void prepareDeploymentDescriptor() {
-        DeploymentDescriptor.Builder builder = new DeploymentDescriptor.Builder();
         List<Module> modules = input.deploymentDescriptorModules.stream()
             .map(this::getModuleFromName)
             .collect(Collectors.toList());
-        builder.setModules2(modules);
-        builder.setSchemaVersion("1");
-        builder.setId("id");
-        builder.setVersion("1");
-        deploymentDescriptor = builder.build();
+        deploymentDescriptor = DeploymentDescriptor.createV2()
+            .setModules(modules)
+            .setSchemaVersion("2")
+            .setId("id")
+            .setVersion("1");
     }
 
     private Module getModuleFromName(String moduleName) {
-        Module.Builder moduleBuilder = new Module.Builder();
-        moduleBuilder.setName(moduleName);
-        moduleBuilder.setType("a");
-        return moduleBuilder.build();
+        return Module.createV2()
+            .setName(moduleName)
+            .setType("a");
     }
 
     private void loadParameters() throws Exception {

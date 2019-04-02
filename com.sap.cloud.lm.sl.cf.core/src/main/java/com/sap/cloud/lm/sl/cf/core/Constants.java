@@ -14,8 +14,6 @@ public class Constants {
     public static final String ATTR_NAME = "name";
     public static final String ATTR_VERSION = "version";
     public static final String ATTR_DESCRIPTION = "description";
-    public static final String ATTR_PROVIDER = "provider";
-    public static final String ATTR_COPYRIGHT = "copyright";
 
     // Deploy attributes:
     public static final String ATTR_APP_CONTENT_DIGEST = "app-content-digest";

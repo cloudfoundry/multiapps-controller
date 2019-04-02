@@ -5,12 +5,12 @@ import java.util.Map;
 import com.sap.cloud.lm.sl.mta.helpers.SimplePropertyVisitor;
 import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
 import com.sap.cloud.lm.sl.mta.model.ElementContext;
+import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.ParametersContainer;
+import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.model.Visitor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 
 public class XsPlaceholderResolverInvoker extends Visitor implements SimplePropertyVisitor {
 
@@ -27,10 +27,7 @@ public class XsPlaceholderResolverInvoker extends Visitor implements SimplePrope
 
     @Override
     public void visit(ElementContext context, ProvidedDependency providedDependency) {
-        if (providedDependency instanceof com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency) {
-            return;
-        }
-        resolveParameters((com.sap.cloud.lm.sl.mta.model.v3.ProvidedDependency) providedDependency);
+        resolveParameters(providedDependency);
     }
 
     @Override

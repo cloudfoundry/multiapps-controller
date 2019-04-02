@@ -13,12 +13,11 @@ import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
-import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.ProvidedDependency;
-import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.ProvidedDependency;
+import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
 
 public class ApplicationEnvironmentCloudModelBuilder {
 
@@ -59,9 +58,6 @@ public class ApplicationEnvironmentCloudModelBuilder {
         Map<String, Object> mtaMetadata = new TreeMap<>();
         MapUtil.addNonNull(mtaMetadata, Constants.ATTR_ID, deploymentDescriptor.getId());
         MapUtil.addNonNull(mtaMetadata, Constants.ATTR_VERSION, deploymentDescriptor.getVersion());
-        MapUtil.addNonNull(mtaMetadata, Constants.ATTR_DESCRIPTION, deploymentDescriptor.getDescription());
-        MapUtil.addNonNull(mtaMetadata, Constants.ATTR_PROVIDER, deploymentDescriptor.getProvider());
-        MapUtil.addNonNull(mtaMetadata, Constants.ATTR_COPYRIGHT, deploymentDescriptor.getCopyright());
         env.put(Constants.ENV_MTA_METADATA, mtaMetadata);
     }
 
@@ -73,9 +69,9 @@ public class ApplicationEnvironmentCloudModelBuilder {
     }
 
     protected void addProvidedDependenciesMetadata(Map<String, Object> env, Module module) {
-        List<String> mtaModuleProvidedDependencies = module.getProvidedDependencies2()
+        List<String> mtaModuleProvidedDependencies = module.getProvidedDependencies()
             .stream()
-            .filter(CloudModelBuilderUtil::isPublic)
+            .filter(ProvidedDependency::isPublic)
             .map(ProvidedDependency::getName)
             .collect(Collectors.toList());
         env.put(Constants.ENV_MTA_MODULE_PUBLIC_PROVIDED_DEPENDENCIES, mtaModuleProvidedDependencies);
@@ -128,7 +124,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
 
     protected void addDependencies(Map<String, Object> env, Module module) {
         Map<String, List<Object>> groupsMap = new TreeMap<>();
-        for (RequiredDependency requiredDependency : module.getRequiredDependencies2()) {
+        for (RequiredDependency requiredDependency : module.getRequiredDependencies()) {
             addDependency(requiredDependency, env, groupsMap);
         }
         env.putAll(groupsMap);

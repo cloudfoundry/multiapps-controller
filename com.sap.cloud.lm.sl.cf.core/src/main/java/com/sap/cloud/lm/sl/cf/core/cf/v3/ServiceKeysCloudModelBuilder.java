@@ -7,8 +7,8 @@ import java.util.Map;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class ServiceKeysCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder {
 
@@ -19,8 +19,8 @@ public class ServiceKeysCloudModelBuilder extends com.sap.cloud.lm.sl.cf.core.cf
     @Override
     public Map<String, List<ServiceKey>> build() {
         Map<String, List<ServiceKey>> serviceKeys = new HashMap<>();
-        for (Resource resource : deploymentDescriptor.getResources2()) {
-            if (CloudModelBuilderUtil.isService(resource) && CloudModelBuilderUtil.isActive(resource)) {
+        for (Resource resource : deploymentDescriptor.getResources()) {
+            if (CloudModelBuilderUtil.isService(resource) && resource.isActive()) {
                 serviceKeys.put(resource.getName(), getServiceKeysForService(resource));
             }
         }

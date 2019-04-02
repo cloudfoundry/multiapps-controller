@@ -40,9 +40,9 @@ import com.sap.cloud.lm.sl.common.util.TestUtil;
 public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
 
     private final StepInput stepInput;
-    private static String expectedExceptionMessage;
+    private String expectedExceptionMessage;
 
-    private static final ApplicationServicesUpdateCallback CALLBACK = (e, applicationName, serviceName) -> {
+    private final ApplicationServicesUpdateCallback callback = (e, applicationName, serviceName) -> {
         if (expectedExceptionMessage != null) {
             throw new RuntimeException(expectedExceptionMessage, e);
         }
@@ -357,7 +357,7 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
     private class CreateAppStepMock extends CreateAppStep {
         @Override
         protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution context) {
-            return CALLBACK;
+            return callback;
         }
     }
 }

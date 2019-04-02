@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 @RunWith(Parameterized.class)
 public class ParametersValidatorHelperTest {
@@ -77,7 +77,7 @@ public class ParametersValidatorHelperTest {
     private List<ParameterValidator> validators = Arrays.asList(new PortValidator(), new HostValidator(), new DomainValidator(),
         new RoutesValidator());
     private ParametersValidatorHelper validatorHelper = new ParametersValidatorHelper(validators, false);
-    private Module container = new Module.Builder().build();
+    private Module container = Module.createV2();
 
     private Map<String, Object> initialParameters;
     private Map<String, Object> correctParameters;

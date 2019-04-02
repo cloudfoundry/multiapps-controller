@@ -31,11 +31,11 @@ import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.RequiredDependency;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.model.Version;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
-import com.sap.cloud.lm.sl.mta.model.v2.RequiredDependency;
-import com.sap.cloud.lm.sl.mta.model.v2.Resource;
 import com.sap.cloud.lm.sl.mta.util.ValidatorUtil;
 
 public class MtaArchiveBuilder {
@@ -131,7 +131,7 @@ public class MtaArchiveBuilder {
     }
 
     private void prepareModules() {
-        Map<String, List<Module>> modulesMap = createModulesMap(deploymentDescriptor.getModules2());
+        Map<String, List<Module>> modulesMap = createModulesMap(deploymentDescriptor.getModules());
         for (Map.Entry<String, List<Module>> entry : modulesMap.entrySet()) {
             prepareModuleEntries(entry.getKey(), entry.getValue());
             prepareDependencies(entry.getValue());
@@ -158,7 +158,7 @@ public class MtaArchiveBuilder {
     }
 
     private void prepareResourceEntries(DeploymentDescriptor deploymentDescriptor) {
-        for (Resource resource : deploymentDescriptor.getResources2()) {
+        for (Resource resource : deploymentDescriptor.getResources()) {
             String resourceConfigPath = (String) resource.getParameters()
                 .get(SupportedParameters.SERVICE_CONFIG_PATH);
             if (resourceConfigPath != null) {
@@ -182,7 +182,7 @@ public class MtaArchiveBuilder {
     }
 
     private void prepareModuleDependencies(Module module) {
-        for (RequiredDependency requiredDependency : module.getRequiredDependencies2()) {
+        for (RequiredDependency requiredDependency : module.getRequiredDependencies()) {
             String requiredDependencyConfigPath = (String) requiredDependency.getParameters()
                 .get(SupportedParameters.SERVICE_BINDING_CONFIG_PATH);
             if (requiredDependencyConfigPath != null) {

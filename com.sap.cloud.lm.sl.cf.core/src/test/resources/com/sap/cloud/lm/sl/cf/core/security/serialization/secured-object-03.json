@@ -1,8 +1,17 @@
 {
-  "modules3": [
+  "schemaVersion": "3.1.0",
+  "id": "com.sap.mta.sample.v2",
+  "version": "1.2.1-beta+20150403144937853",
+  "modules": [
     {
-      "requiredDependencies3": [],
-      "providedDependencies3": [],
+      "name": "test-module",
+      "type": "test-type",
+      "properties": {
+        "test-1": "********"
+      },
+      "parameters": {},
+      "requiredDependencies": [],
+      "providedDependencies": [],
       "propertiesMetadata": {
         "metadata": {
           "test-1": {
@@ -14,16 +23,11 @@
         "metadata": {}
       },
       "deployedAfter": [],
-      "parameters": {},
-      "name": "test-module",
-      "type": "test-type",
-      "properties": {
-        "test-1": "********"
-      }
+      "majorSchemaVersion": 3
     }
   ],
-  "resources3": [],
-  "parametersMetadata": {},
+  "resources": [],
   "parameters": {},
-  "version": "1.2.1-beta+20150403144937853"
+  "parametersMetadata": {},
+  "majorSchemaVersion": 3
 }

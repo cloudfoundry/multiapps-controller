@@ -1,130 +1,274 @@
 {
-  "modules2": [
+  "schemaVersion": "2.0.0",
+  "id": "com.sap.xs2.samples.helloworld",
+  "version": "0.1.0",
+  "modules": [
     {
-      "requiredDependencies2": [
+      "name": "node-hello-world",
+      "type": "javascript.nodejs",
+      "properties": {},
+      "parameters": {
+        "app-name": "node-hello-world-blue",
+        "port": 50050
+      },
+      "requiredDependencies": [
         {
           "name": "uaa",
           "properties": {},
-          "parameters": {}
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         },
         {
           "name": "nodejs",
           "group": "destinations",
           "properties": {},
-          "parameters": {}
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         },
         {
           "name": "ui5",
           "group": "destinations",
           "properties": {},
-          "parameters": {}
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
-      "providedDependencies2": [
+      "providedDependencies": [
         {
-          "isPublic": true,
           "name": "node-hello-world",
-          "properties": {}
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
-      "parameters": {
-        "app-name": "node-hello-world-blue",
-        "port": 50050
+      "propertiesMetadata": {
+        "metadata": {}
       },
-      "name": "node-hello-world",
-      "type": "javascript.nodejs",
-      "properties": {}
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
     },
     {
-      "requiredDependencies2": [
-        {
-          "name": "uaa",
-          "properties": {},
-          "parameters": {}
-        },
-        {
-          "name": "db",
-          "properties": {},
-          "parameters": {}
-        },
-        {
-          "name": "nodejs-hdi-container",
-          "properties": {},
-          "parameters": {}
-        }
-      ],
-      "providedDependencies2": [
-        {
-          "isPublic": true,
-          "name": "nodejs",
-          "properties": {
-            "url": "https://nodejs.hana.ondemand.com"
-          }
-        },
-        {
-          "isPublic": true,
-          "name": "node-hello-world-backend",
-          "properties": {}
-        }
-      ],
+      "name": "node-hello-world-backend",
+      "type": "javascript.nodejs",
+      "properties": {},
       "parameters": {
         "app-name": "node-hello-world-backend-blue"
       },
-      "name": "node-hello-world-backend",
-      "type": "javascript.nodejs",
-      "properties": {}
-    },
-    {
-      "requiredDependencies2": [
+      "requiredDependencies": [
+        {
+          "name": "uaa",
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        },
+        {
+          "name": "db",
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        },
         {
           "name": "nodejs-hdi-container",
           "properties": {},
-          "parameters": {}
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
-      "providedDependencies2": [
+      "providedDependencies": [
         {
+          "name": "nodejs",
           "isPublic": true,
-          "name": "db",
-          "properties": {}
+          "properties": {
+            "url": "https://nodejs.hana.ondemand.com"
+          },
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         },
         {
+          "name": "node-hello-world-backend",
           "isPublic": true,
-          "name": "node-hello-world-db",
-          "properties": {}
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
+    },
+    {
+      "name": "node-hello-world-db",
+      "type": "com.sap.xs.hdi",
+      "properties": {},
       "parameters": {
         "app-name": "node-hello-world-db-blue"
       },
-      "name": "node-hello-world-db",
-      "type": "com.sap.xs.hdi",
-      "properties": {}
+      "requiredDependencies": [
+        {
+          "name": "nodejs-hdi-container",
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "providedDependencies": [
+        {
+          "name": "db",
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        },
+        {
+          "name": "node-hello-world-db",
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
     }
   ],
-  "resources2": [
+  "resources": [
     {
-      "parameters": {},
       "name": "nodejs-hdi-container",
       "type": "com.sap.xs.hdi-container",
-      "properties": {}
+      "properties": {},
+      "parameters": {},
+      "isActive": true,
+      "isOptional": false,
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "requiredDependencies": [],
+      "majorSchemaVersion": 2
     },
     {
-      "parameters": {},
       "name": "uaa",
       "type": "org.cloudfoundry.existing-service",
-      "properties": {}
+      "properties": {},
+      "parameters": {},
+      "isActive": true,
+      "isOptional": false,
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "requiredDependencies": [],
+      "majorSchemaVersion": 2
     },
     {
+      "name": "ui5",
+      "properties": {},
       "parameters": {
         "url": "https://sapui5.hana.ondemand.com"
       },
-      "name": "ui5",
-      "properties": {}
+      "isActive": true,
+      "isOptional": false,
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "requiredDependencies": [],
+      "majorSchemaVersion": 2
     }
   ],
   "parameters": {},
-  "schemaVersion": "2.0.0",
-  "id": "com.sap.xs2.samples.helloworld",
-  "version": "0.1.0"
+  "parametersMetadata": {
+    "metadata": {}
+  },
+  "majorSchemaVersion": 2
 }

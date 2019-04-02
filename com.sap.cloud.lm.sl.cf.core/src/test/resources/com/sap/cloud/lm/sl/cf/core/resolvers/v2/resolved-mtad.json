@@ -1,64 +1,122 @@
 {
-  "modules2": [
+  "schemaVersion": "2.0.0",
+  "id": "com.sap.example.mta",
+  "version": "1.0.0",
+  "modules": [
     {
-      "requiredDependencies2": [
-        {
-          "name": "plugins",
-          "list": "plugins",
-          "properties": {},
-          "parameters": {
-            "managed": true
-          }
-        },
-        {
-          "name": "bar",
-          "properties": {},
-          "parameters": {}
-        }
-      ],
-      "providedDependencies2": [
-        {
-          "isPublic": true,
-          "name": "foo",
-          "properties": {}
-        }
-      ],
-      "parameters": {},
       "name": "foo",
       "type": "foo",
       "properties": {
         "test_1": "YO",
         "test_2": "YO...~{plugins/name}",
         "test_3": "~{plugins/name}"
-      }
-    },
-    {
-      "requiredDependencies2": [],
-      "providedDependencies2": [
+      },
+      "parameters": {},
+      "requiredDependencies": [
         {
-          "isPublic": true,
+          "name": "plugins",
+          "list": "plugins",
+          "properties": {},
+          "parameters": {
+            "managed": true
+          },
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        },
+        {
           "name": "bar",
-          "properties": {
-            "baz": "YO"
-          }
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
-      "parameters": {},
+      "providedDependencies": [
+        {
+          "name": "foo",
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
+    },
+    {
       "name": "bar",
       "type": "bar",
-      "properties": {}
+      "properties": {},
+      "parameters": {},
+      "requiredDependencies": [],
+      "providedDependencies": [
+        {
+          "name": "bar",
+          "isPublic": true,
+          "properties": {
+            "baz": "YO"
+          },
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
+        }
+      ],
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
     }
   ],
-  "resources2": [
+  "resources": [
     {
-      "parameters": {},
       "name": "plugins",
       "type": "configuration",
-      "properties": {}
+      "properties": {},
+      "parameters": {},
+      "isActive": true,
+      "isOptional": false,
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "requiredDependencies": [],
+      "majorSchemaVersion": 2
     }
   ],
   "parameters": {},
-  "schemaVersion": "2.0.0",
-  "id": "com.sap.example.mta",
-  "version": "1.0.0"
+  "parametersMetadata": {
+    "metadata": {}
+  },
+  "majorSchemaVersion": 2
 }

@@ -27,8 +27,8 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 import liquibase.util.StringUtils;
 
@@ -61,7 +61,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             CloudControllerClient client = execution.getControllerClient();
             HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
 
-            DeploymentDescriptor descriptor = StepsUtil.getCompleteDeploymentDescriptor(execution.getContext());
+            DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptorWithSystemParameters(execution.getContext());
             boolean useNamespacesForServices = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES);
             boolean useNamespaces = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES);
             MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, configurationEntryDao,
@@ -102,7 +102,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
     private Set<String> getModuleNames(DeploymentDescriptor deploymentDescriptor, List<String> moduleNamesForDeployment) {
         if (moduleNamesForDeployment == null) {
-            return deploymentDescriptor.getModules2()
+            return deploymentDescriptor.getModules()
                 .stream()
                 .map(Module::getName)
                 .collect(Collectors.toSet());
@@ -116,7 +116,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
         if (CollectionUtils.isEmpty(modulesForDeployment)) {
             return Collections.emptyList();
         }
-        Set<String> deploymentDescriptorModuleNames = descriptor.getModules2()
+        Set<String> deploymentDescriptorModuleNames = descriptor.getModules()
             .stream()
             .map(Module::getName)
             .collect(Collectors.toSet());

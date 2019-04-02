@@ -34,10 +34,10 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.DeploymentType;
 import com.sap.cloud.lm.sl.mta.model.Version;
 import com.sap.cloud.lm.sl.mta.model.VersionRule;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 @Component("collectSystemParametersStep") // rename to collect system parameters and allocate ports?
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -88,7 +88,7 @@ public class CollectSystemParametersStep extends SyncFlowableStep {
             execution.getContext()
                 .setVariable(Constants.VAR_PORT_BASED_ROUTING, portBasedRouting);
 
-            StepsUtil.setCompleteDeploymentDescriptor(execution.getContext(), descriptor);
+            StepsUtil.setDeploymentDescriptorWithSystemParameters(execution.getContext(), descriptor);
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
             cleanUp(portAllocator);

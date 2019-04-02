@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 @RunWith(Parameterized.class)
 public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<PrepareModulesDeploymentStep> {
@@ -86,7 +86,7 @@ public class PrepareModulesDeploymentStepTest extends SyncFlowableStepTest<Prepa
     private List<Module> getDummyModules() {
         List<Module> modules = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            modules.add(new Module.Builder().build());
+            modules.add(Module.createV2());
         }
         return modules;
     }

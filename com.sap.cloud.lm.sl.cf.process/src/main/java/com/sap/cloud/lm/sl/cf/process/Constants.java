@@ -53,8 +53,9 @@ public class Constants {
     public static final String VAR_USER = "user";
 
     public static final String VAR_MTA_MANIFEST = "mtaManifest";
-    public static final String VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR = "completeMtaDeploymentDescriptor";
     public static final String VAR_MTA_DEPLOYMENT_DESCRIPTOR = "mtaDeploymentDescriptor";
+    public static final String VAR_MTA_DEPLOYMENT_DESCRIPTOR_WITH_SYSTEM_PARAMETERS = "mtaDeploymentDescriptorWithSystemParameters";
+    public static final String VAR_COMPLETE_MTA_DEPLOYMENT_DESCRIPTOR = "completeMtaDeploymentDescriptor";
     public static final String VAR_MTA_EXTENSION_DESCRIPTOR_CHAIN = "mtaExtensionDescriptorChain";
     public static final String VAR_MTA_MAJOR_SCHEMA_VERSION = "mtaMajorSchemaVersion";
     public static final String VAR_MTA_MODULE_CONTENT_PREFIX = "mtaModuleContent_";

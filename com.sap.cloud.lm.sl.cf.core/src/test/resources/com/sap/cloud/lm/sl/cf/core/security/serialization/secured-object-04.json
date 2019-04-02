@@ -1,8 +1,26 @@
 {
-  "modules3": [
+  "schemaVersion": "3.1.0",
+  "id": "com.sap.mta.sample.v2",
+  "version": "1.2.1-beta+20150403144937853",
+  "modules": [
     {
-      "requiredDependencies3": [
+      "name": "test-module",
+      "type": "test-type",
+      "properties": {
+        "module-property": "********"
+      },
+      "parameters": {
+        "module-parameter": "********"
+      },
+      "requiredDependencies": [
         {
+          "name": "test-dependency",
+          "properties": {
+            "requiredDependency-property": "********"
+          },
+          "parameters": {
+            "requiredDependency-parameter": "********"
+          },
           "propertiesMetadata": {
             "metadata": {
               "requiredDependency-property": {
@@ -17,17 +35,16 @@
               }
             }
           },
-          "name": "test-dependency",
-          "properties": {
-            "requiredDependency-property": "********"
-          },
-          "parameters": {
-            "requiredDependency-parameter": "********"
-          }
+          "majorSchemaVersion": 3
         }
       ],
-      "providedDependencies3": [
+      "providedDependencies": [
         {
+          "name": "test-dependency",
+          "isPublic": false,
+          "properties": {
+            "providedDependency-property": "********"
+          },
           "parameters": {},
           "propertiesMetadata": {
             "metadata": {
@@ -36,14 +53,7 @@
               }
             }
           },
-          "parametersMetadata": {
-            "metadata": {}
-          },
-          "isPublic": false,
-          "name": "test-dependency",
-          "properties": {
-            "providedDependency-property": "********"
-          }
+          "majorSchemaVersion": 3
         }
       ],
       "propertiesMetadata": {
@@ -61,19 +71,21 @@
         }
       },
       "deployedAfter": [],
-      "parameters": {
-        "module-parameter": "********"
-      },
-      "name": "test-module",
-      "type": "test-type",
-      "properties": {
-        "module-property": "********"
-      }
+      "majorSchemaVersion": 3
     }
   ],
-  "resources3": [
+  "resources": [
     {
+      "name": "test-resource",
+      "type": "test-type",
+      "properties": {
+        "resource-property": "********"
+      },
+      "parameters": {
+        "resource-parameter": "********"
+      },
       "isActive": false,
+      "isOptional": false,
       "propertiesMetadata": {
         "metadata": {
           "resource-property": {
@@ -88,18 +100,13 @@
           }
         }
       },
-      "requiredDependencies3": [],
-      "isOptional": false,
-      "parameters": {
-        "resource-parameter": "********"
-      },
-      "name": "test-resource",
-      "type": "test-type",
-      "properties": {
-        "resource-property": "********"
-      }
+      "requiredDependencies": [],
+      "majorSchemaVersion": 3
     }
   ],
+  "parameters": {
+    "descriptor-parameter": "********"
+  },
   "parametersMetadata": {
     "metadata": {
       "descriptor-parameter": {
@@ -107,8 +114,5 @@
       }
     }
   },
-  "parameters": {
-    "descriptor-parameter": "********"
-  },
-  "version": "1.2.1-beta+20150403144937853"
+  "majorSchemaVersion": 3
 }

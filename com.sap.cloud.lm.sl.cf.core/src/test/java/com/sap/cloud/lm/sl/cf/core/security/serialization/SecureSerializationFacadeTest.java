@@ -13,21 +13,21 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.mta.model.v3.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class SecureSerializationFacadeTest {
 
     private String objectLocation;
     private Collection<String> sensitiveElementNames;
-    private Class<?> clasz;
+    private Class<?> classOfObject;
     private Expectation expectation;
 
-    public SecureSerializationFacadeTest(String objectLocation, Collection<String> sensitiveElementNames, Class<?> expectedType,
+    public SecureSerializationFacadeTest(String objectLocation, Class<?> classOfObject, Collection<String> sensitiveElementNames,
         Expectation expectation) {
         this.objectLocation = objectLocation;
         this.sensitiveElementNames = sensitiveElementNames;
-        this.clasz = expectedType;
+        this.classOfObject = classOfObject;
         this.expectation = expectation;
     }
 
@@ -37,23 +37,23 @@ public class SecureSerializationFacadeTest {
 // @formatter:off
             // (0) Sensitive information should be detected in element keys:
             {
-                "unsecured-object-00.json", Arrays.asList("pwd", "pass"), Object.class, new Expectation(Expectation.Type.RESOURCE, "secured-object-00.json"),
+                "unsecured-object-00.json", Object.class, Arrays.asList("pwd", "pass"), new Expectation(Expectation.Type.RESOURCE, "secured-object-00.json"),
             },
             // (1) Sensitive information should be detected in element keys, but there's a typo in one of the keys:
             {
-                "unsecured-object-01.json", Arrays.asList("pwd", "pass"), Object.class, new Expectation(Expectation.Type.RESOURCE, "secured-object-01.json"),
+                "unsecured-object-01.json", Object.class, Arrays.asList("pwd", "pass"), new Expectation(Expectation.Type.RESOURCE, "secured-object-01.json"),
             },
             // (2) Sensitive information should be detected in element values:
             {
-                "unsecured-object-02.json", Arrays.asList("pwd", "pass"), Object.class, new Expectation(Expectation.Type.RESOURCE, "secured-object-02.json"),
+                "unsecured-object-02.json", Object.class, Arrays.asList("pwd", "pass"), new Expectation(Expectation.Type.RESOURCE, "secured-object-02.json"),
             },
             // (3) Sensitive information should be detected in element values:
             {
-                "unsecured-object-03.json", Arrays.asList(), DeploymentDescriptor.class, new Expectation(Expectation.Type.RESOURCE, "secured-object-03.json"),
+                "unsecured-object-03.json", DeploymentDescriptor.class, Arrays.asList(), new Expectation(Expectation.Type.RESOURCE, "secured-object-03.json"),
             },
             // (4) Sensitive information should be detected in element values:
             {
-                "unsecured-object-04.json", Arrays.asList(), DeploymentDescriptor.class, new Expectation(Expectation.Type.RESOURCE, "secured-object-04.json"),
+                "unsecured-object-04.json", DeploymentDescriptor.class, Arrays.asList(), new Expectation(Expectation.Type.RESOURCE, "secured-object-04.json"),
             },
 // @formatter:on
         });
@@ -61,7 +61,7 @@ public class SecureSerializationFacadeTest {
 
     @Test
     public void testToJson() throws Exception {
-        Object object = JsonUtil.fromJson(TestUtil.getResourceAsString(objectLocation, getClass()), clasz);
+        Object object = JsonUtil.fromJson(TestUtil.getResourceAsString(objectLocation, getClass()), classOfObject);
         test(() -> {
             return new SecureSerializationFacade().setFormattedOutput(true)
                 .setSensitiveElementNames(sensitiveElementNames)

@@ -11,11 +11,9 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
-import com.sap.cloud.lm.sl.cf.core.helpers.v2.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationFilterParser;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationReferencesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.v2.ConfigurationSubscriptionFactory;
-import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -24,8 +22,8 @@ import com.sap.cloud.lm.sl.cf.core.validators.parameters.ParameterValidator;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.v2.DescriptorParametersValidator;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Platform;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
 
 public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFactory implements HelperFactoryConstructor {
 
@@ -83,11 +81,6 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     public DescriptorParametersValidator getDescriptorParametersValidator(DeploymentDescriptor descriptor,
         List<ParameterValidator> parameterValidators, boolean doNotCorrect) {
         return getHelperDelegate().getDescriptorParametersValidator(descriptor, parameterValidators);
-    }
-
-    @Override
-    public ApplicationColorAppender getApplicationColorAppender(ApplicationColor deployedMtaColor, ApplicationColor applicationType) {
-        return getHelperDelegate().getApplicationColorAppender(deployedMtaColor, applicationType);
     }
 
     @Override

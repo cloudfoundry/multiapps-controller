@@ -1,7 +1,14 @@
 {
-  "modules2": [
+  "schemaVersion": "2.0.0",
+  "id": "mta-1",
+  "version": "1.0.0",
+  "modules": [
     {
-      "requiredDependencies2": [
+      "name": "framework",
+      "type": "javascript.nodejs",
+      "properties": {},
+      "parameters": {},
+      "requiredDependencies": [
         {
           "name": "plugins.0",
           "list": "plugins",
@@ -9,7 +16,14 @@
             "plugin_name": "~{plugin_name}",
             "url": "~{url}"
           },
-          "parameters": {}
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         },
         {
           "name": "plugins.1",
@@ -18,29 +32,42 @@
             "plugin_name": "~{plugin_name}",
             "url": "~{url}"
           },
-          "parameters": {}
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
-      "providedDependencies2": [
+      "providedDependencies": [
         {
-          "isPublic": true,
           "name": "framework",
-          "properties": {}
+          "isPublic": true,
+          "properties": {},
+          "parameters": {},
+          "propertiesMetadata": {
+            "metadata": {}
+          },
+          "parametersMetadata": {
+            "metadata": {}
+          },
+          "majorSchemaVersion": 2
         }
       ],
-      "parameters": {},
-      "name": "framework",
-      "type": "javascript.nodejs",
-      "properties": {}
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "majorSchemaVersion": 2
     }
   ],
-  "resources2": [
+  "resources": [
     {
-      "parameters": {
-        "filter": {
-          "type": "com.acme.plugin"
-        }
-      },
       "name": "plugins.0",
       "properties": {
         "baz": "qux",
@@ -48,14 +75,24 @@
         "plugin_name": "plugin-1",
         "type": "com.acme.plugin",
         "url": "https://localhost:52010"
-      }
-    },
-    {
+      },
       "parameters": {
         "filter": {
           "type": "com.acme.plugin"
         }
       },
+      "isActive": true,
+      "isOptional": false,
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "requiredDependencies": [],
+      "majorSchemaVersion": 2
+    },
+    {
       "name": "plugins.1",
       "properties": {
         "baz": "qux",
@@ -63,11 +100,27 @@
         "plugin_name": "plugin-2",
         "type": "com.acme.plugin",
         "url": "https://localhost:52011"
-      }
+      },
+      "parameters": {
+        "filter": {
+          "type": "com.acme.plugin"
+        }
+      },
+      "isActive": true,
+      "isOptional": false,
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "requiredDependencies": [],
+      "majorSchemaVersion": 2
     }
   ],
   "parameters": {},
-  "schemaVersion": "2.0.0",
-  "id": "mta-1",
-  "version": "1.0.0"
+  "parametersMetadata": {
+    "metadata": {}
+  },
+  "majorSchemaVersion": 2
 }

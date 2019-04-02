@@ -1,6 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.helpers;
 
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class ModuleToDeployHelper {
     

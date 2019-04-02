@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 @Component("computeNextModulesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -51,14 +51,13 @@ public class ComputeNextModulesStep extends SyncFlowableStep {
     }
 
     private boolean applicationHasAllDependenciesSatisfied(CloudControllerClient client, List<String> completedModules, Module module) {
-        if (!(module instanceof com.sap.cloud.lm.sl.mta.model.v3.Module)) {
+        if (module.getMajorSchemaVersion() < 3) {
             return true;
         }
-        com.sap.cloud.lm.sl.mta.model.v3.Module upcastModule = (com.sap.cloud.lm.sl.mta.model.v3.Module) module;
 
-        return upcastModule.getDeployedAfter()
-            .isEmpty() || completedModules.containsAll(upcastModule.getDeployedAfter())
-            || areAllDependenciesAlreadyDeployed(client, upcastModule.getDeployedAfter());
+        return module.getDeployedAfter()
+            .isEmpty() || completedModules.containsAll(module.getDeployedAfter())
+            || areAllDependenciesAlreadyDeployed(client, module.getDeployedAfter());
     }
 
     private boolean areAllDependenciesAlreadyDeployed(CloudControllerClient client, List<String> deployedAfter) {

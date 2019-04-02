@@ -54,8 +54,8 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.mta.helpers.VisitableObject;
-import com.sap.cloud.lm.sl.mta.model.v2.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.Module;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.parsers.v2.DeploymentDescriptorParser;
 import com.sap.cloud.lm.sl.mta.parsers.v2.ModuleParser;
 import com.sap.cloud.lm.sl.mta.resolvers.Reference;
@@ -218,7 +218,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             StepsUtil.getCloudBuilderConfiguration(context, shouldUsePrettyPrinting()), null, new XsPlaceholderResolver(), "",
             getStepLogger());
 
-        Module module = dummyDescriptor.getModules2()
+        Module module = dummyDescriptor.getModules()
             .get(0);
 
         CloudApplicationExtended application = applicationCloudModelBuilder.build(module, moduleToDeployHelper);

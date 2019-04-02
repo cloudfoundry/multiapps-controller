@@ -1,16 +1,30 @@
 {
-  "modules2": [],
-  "resources2": [
+  "schemaVersion": "2.0.0",
+  "id": "com.sap.test",
+  "version": "1.0",
+  "modules": [],
+  "resources": [
     {
+      "name": "baz",
+      "properties": {},
       "parameters": {
         "test": "test"
       },
-      "name": "baz",
-      "properties": {}
+      "isActive": true,
+      "isOptional": false,
+      "propertiesMetadata": {
+        "metadata": {}
+      },
+      "parametersMetadata": {
+        "metadata": {}
+      },
+      "requiredDependencies": [],
+      "majorSchemaVersion": 2
     }
   ],
   "parameters": {},
-  "schemaVersion": "2.0.0",
-  "id": "com.sap.test",
-  "version": "1.0"
+  "parametersMetadata": {
+    "metadata": {}
+  },
+  "majorSchemaVersion": 2
 }
