@@ -2,22 +2,21 @@ package com.sap.cloud.lm.sl.cf.core.cf.detect;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.apache.commons.collections4.MapUtils;
+import org.cloudfoundry.client.lib.CloudControllerClient;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedComponents;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.entity.MtaMetadataEntity;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteria;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteriaBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 
 public class DeployedComponentsDetector {
 
@@ -25,96 +24,89 @@ public class DeployedComponentsDetector {
      * Detects all deployed components on this platform.
      * 
      */
-    public DeployedComponents detectAllDeployedComponents(Collection<CloudApplication> apps) {
-        Map<DeployedMtaMetadata, Set<String>> servicesMap = new HashMap<>();
-        Map<DeployedMtaMetadata, List<DeployedMtaModule>> modulesMap = new HashMap<>();
-        List<String> standaloneApps = new ArrayList<>();
 
-        for (CloudApplication app : apps) {
-            String appName = app.getName();
+    @Autowired
+    private List<MtaMetadataCollector<MtaMetadataEntity>> collectors;
+    @Autowired
+    private MtaMetadataExtractorFactory<MtaMetadataEntity> metadataExtractorFactory;
 
-            ApplicationMtaMetadata appMetadata = ApplicationMtaMetadataParser.parseAppMetadata(app);
-
-            if (appMetadata != null) {
-                // This application is an MTA module.
-                String moduleName = (appMetadata.getModuleName() != null) ? appMetadata.getModuleName() : appName;
-                List<String> providedDependencies = (appMetadata.getProvidedDependencyNames() != null)
-                    ? appMetadata.getProvidedDependencyNames()
-                    : new ArrayList<>();
-                List<String> appServices = (appMetadata.getServices() != null) ? appMetadata.getServices() : new ArrayList<>();
-                
-                DeployedMtaMetadata mtaMetadata = appMetadata.getMtaMetadata();
-
-                List<DeployedMtaModule> modules = modulesMap.getOrDefault(mtaMetadata, new ArrayList<>());
-                Date createdOn = app.getMeta()
-                    .getCreated();
-                Date updatedOn = app.getMeta()
-                    .getUpdated();
-                DeployedMtaModule module = new DeployedMtaModule(moduleName, appName, createdOn, updatedOn, appServices,
-                    providedDependencies, app.getUris());
-                modules.add(module);
-                modulesMap.put(mtaMetadata, modules);
-
-                Set<String> services = servicesMap.getOrDefault(mtaMetadata, new HashSet<>());
-                services.addAll(appServices);
-                servicesMap.put(mtaMetadata, services);
-            } else {
-                // This is a standalone application.
-                standaloneApps.add(appName);
-            }
-        }
-
-        return createComponents(modulesMap, servicesMap, standaloneApps);
+    public Optional<DeployedMta> getDeployedMta(String mtaId, CloudControllerClient client) {
+        MtaMetadataCriteria selectionCriteria = new MtaMetadataCriteriaBuilder().label(MtaMetadataCriteriaBuilder.LABEL_MTA_ID)
+                                                                                .haveValue(mtaId)
+                                                                                .build();
+        Optional<List<DeployedMta>> optionalDeployedMtas = fetchDeployedMtas(selectionCriteria, client);
+        return getFirstElement(optionalDeployedMtas);
     }
 
-    private DeployedComponents createComponents(Map<DeployedMtaMetadata, List<DeployedMtaModule>> modulesMap,
-        Map<DeployedMtaMetadata, Set<String>> servicesMap, List<String> standaloneApps) {
-        List<DeployedMta> mtas = new ArrayList<>();
-        for (Entry<DeployedMtaMetadata, List<DeployedMtaModule>> entry : modulesMap.entrySet()) {
-            List<DeployedMtaModule> modules = entry.getValue();
-            DeployedMtaMetadata mtaId = entry.getKey();
-            mtas.add(new DeployedMta(mtaId, modules, servicesMap.get(mtaId)));
+    public Optional<DeployedMta> getDeployedMtaByCriteria(MtaMetadataCriteria criteria, CloudControllerClient client) {
+        Optional<List<DeployedMta>> optionalDeployedMtas = fetchDeployedMtas(criteria, client);
+        return getFirstElement(optionalDeployedMtas);
+    }
+
+    public Optional<List<DeployedMta>> getAllDeployedMta(CloudControllerClient client) {
+        return fetchDeployedMtas(new MtaMetadataCriteria(MtaMetadataCriteria.NONE), client);
+    }
+
+    private Optional<List<DeployedMta>> fetchDeployedMtas(MtaMetadataCriteria criteria, CloudControllerClient client) {
+        Map<String, DeployedMta> deployedMtasById = Collections.synchronizedMap(MapUtils.lazyMap(new HashMap<>(), () -> new DeployedMta()));
+
+        collectors.stream()
+                  .map(c -> c.collect(criteria, client))
+                  .flatMap(List::stream)
+                  .forEach(e -> {
+                      MtaMetadataExtractor<MtaMetadataEntity> mtaMetadataExtractor = metadataExtractorFactory.get(e);
+                      DeployedMta deployedMta = deployedMtasById.get(e.getMtaMetadata()
+                                                                      .getId());
+                      mtaMetadataExtractor.extract(e, deployedMta);
+                  });
+
+        if (deployedMtasById.values()
+                            .isEmpty()) {
+            return Optional.empty();
         }
-        mtas = mergeDifferentVersionsOfMtasWithSameId(mtas);
-        return new DeployedComponents(mtas, standaloneApps);
+
+        List<DeployedMta> deployedMtas = new ArrayList<>(deployedMtasById.values());
+        deployedMtas = processDeployedMtas(deployedMtas);
+        return Optional.of(deployedMtas);
+    }
+
+    private List<DeployedMta> processDeployedMtas(List<DeployedMta> deployedMtas) {
+        return mergeDifferentVersionsOfMtasWithSameId(deployedMtas);
     }
 
     private List<DeployedMta> mergeDifferentVersionsOfMtasWithSameId(List<DeployedMta> mtas) {
-        List<DeployedMta> result = new ArrayList<>();
-        for (String mtaId : getMtaIds(mtas)) {
-            List<DeployedMta> mtasWithSameId = getMtasWithSameId(mtas, mtaId);
-            if (mtasWithSameId.size() > 1) {
-                result.add(mergeMtas(mtaId, mtasWithSameId));
-            } else {
-                result.add(mtasWithSameId.get(0));
-            }
+        Map<String, Optional<DeployedMta>> deployedMtasById = mtas.stream()
+                                                                  .collect(Collectors.groupingBy(e -> e.getMetadata()
+                                                                                                       .getId(),
+                                                                                                 Collectors.reducing(this::mergeMtas)));
+
+        Collection<Optional<DeployedMta>> deployedMtas = deployedMtasById.values();
+
+        List<DeployedMta> mappedDeployedMtas = deployedMtas.stream()
+                                                           .filter(e -> e.isPresent())
+                                                           .map(e -> e.get())
+                                                           .collect(Collectors.toList());
+        return mappedDeployedMtas;
+    }
+
+    private DeployedMta mergeMtas(DeployedMta from, DeployedMta to) {
+        to.getServices()
+          .addAll(from.getServices());
+        to.getModules()
+          .addAll(from.getModules());
+        return to;
+    }
+
+    private <T> Optional<T> getFirstElement(Optional<List<T>> optionalList) {
+        if (!optionalList.isPresent()) {
+            return Optional.empty();
         }
-        return result;
-    }
 
-    private Set<String> getMtaIds(List<DeployedMta> mtas) {
-        return mtas.stream()
-            .map(mta -> mta.getMetadata()
-                .getId())
-            .collect(Collectors.toSet());
-    }
-
-    private List<DeployedMta> getMtasWithSameId(List<DeployedMta> mtas, String id) {
-        return mtas.stream()
-            .filter(mta -> mta.getMetadata()
-                .getId()
-                .equals(id))
-            .collect(Collectors.toList());
-    }
-
-    private DeployedMta mergeMtas(String mtaId, List<DeployedMta> mtas) {
-        List<DeployedMtaModule> modules = new ArrayList<>();
-        Set<String> services = new HashSet<>();
-        for (DeployedMta mta : mtas) {
-            services.addAll(mta.getServices());
-            modules.addAll(mta.getModules());
+        List<T> elements = optionalList.get();
+        if (elements.size() == 0) {
+            return Optional.empty();
         }
-        return new DeployedMta(new DeployedMtaMetadata(mtaId), modules, services);
-    }
 
+        return Optional.ofNullable(elements.get(0));
+    }
 }

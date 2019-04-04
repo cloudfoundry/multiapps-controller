@@ -1059,4 +1059,9 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     public CloudResources getKnownRemoteResources(CloudResources applicationResources) {
         return executeWithRetry(() -> cc.getKnownRemoteResources(applicationResources));
     }
+
+    @Override
+    public List<CloudApplication> getApplicationsByMetadata(String labelSelector) {
+        return executeWithRetry(() -> cc.getApplicationsByMetadata(labelSelector));
+    }
 }

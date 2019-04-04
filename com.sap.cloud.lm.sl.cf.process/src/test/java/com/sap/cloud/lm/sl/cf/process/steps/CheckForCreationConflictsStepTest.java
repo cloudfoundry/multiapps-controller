@@ -29,6 +29,7 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -91,7 +92,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     public CheckForCreationConflictsStepTest(String stepInput, String expectedExceptionMessage, boolean shouldWarn) throws Exception {
         this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CheckForCreationConflictsStepTest.class),
-            StepInput.class);
+                                           StepInput.class);
         this.expectedExceptionMessage = expectedExceptionMessage;
         this.shouldWarn = shouldWarn;
     }
@@ -110,8 +111,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
         assertStepFinishedSuccessfully();
         if (shouldWarn) {
-            Mockito.verify(stepLogger, Mockito.atLeastOnce())
-                .warn(Mockito.anyString());
+            Mockito.verify(stepLogger, Mockito.atLeastOnce()).warn(Mockito.anyString());
         }
     }
 
@@ -137,7 +137,10 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     private void prepareServices(DeployedMta deployedMta) {
         Set<String> servicesNames = new HashSet<>();
         stepInput.servicesFromDeployedMta.forEach(service -> servicesNames.add(service.getName()));
-        deployedMta.setServices(servicesNames);
+        Set<DeployedMtaResource> deployedServices = servicesNames.stream()
+                                                                 .map(s -> DeployedMtaResource.builder().withServiceName(s).build())
+                                                                 .collect(Collectors.toSet());
+        deployedMta.setServices(deployedServices);
     }
 
     private void prepareContext() {
@@ -152,7 +155,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
 
     private List<DeployedMtaModule> simpleAppListToModuleList(List<SimpleApplication> simpleApps) {
         List<DeployedMtaModule> modulesList = new ArrayList<>();
-        simpleApps.forEach(app -> modulesList.add(new DeployedMtaModule(app.name, app.name, null, null, null, null, null)));
+        simpleApps.forEach(app -> modulesList.add(DeployedMtaModule.builder().withAppName(app.name).withModuleName(app.name).build()));
         return modulesList;
     }
 
@@ -171,9 +174,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     private List<SimpleApplication> findBoundApplications(String serviceName, List<SimpleApplication> applications) {
-        return applications.stream()
-            .filter((application) -> application.boundServices.contains(serviceName))
-            .collect(Collectors.toList());
+        return applications.stream().filter((application) -> application.boundServices.contains(serviceName)).collect(Collectors.toList());
     }
 
     private CloudServiceInstance createServiceInstance(CloudServiceExtended service, List<SimpleApplication> boundApplications) {
@@ -184,9 +185,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     private List<CloudServiceBinding> createServiceBindings(List<SimpleApplication> boundApplications) {
-        return boundApplications.stream()
-            .map(boundApplication -> createServiceBinding(boundApplication))
-            .collect(Collectors.toList());
+        return boundApplications.stream().map(boundApplication -> createServiceBinding(boundApplication)).collect(Collectors.toList());
     }
 
     private CloudServiceBinding createServiceBinding(SimpleApplication boundApplication) {
@@ -198,8 +197,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     private void prepareExistingServices() {
         List<CloudService> existingServices = new ArrayList<>();
         stepInput.existingServices.forEach(service -> existingServices.add(service));
-        Mockito.when(client.getServices())
-            .thenReturn(existingServices);
+        Mockito.when(client.getServices()).thenReturn(existingServices);
         prepareServiceInstances();
 
     }
@@ -209,8 +207,7 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     private void prepareServiceInstance(CloudServiceExtended service, CloudServiceInstance instance) {
-        Mockito.when(client.getServiceInstance(service.getName()))
-            .thenReturn(instance);
+        Mockito.when(client.getServiceInstance(service.getName())).thenReturn(instance);
     }
 
     @Override

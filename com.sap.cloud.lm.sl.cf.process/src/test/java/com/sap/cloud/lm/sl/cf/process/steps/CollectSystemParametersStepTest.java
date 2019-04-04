@@ -72,9 +72,9 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         assertEquals(SPACE, generalParameters.get(SupportedParameters.SPACE));
         assertEquals(SupportedParameters.XSA_DEFAULT_DOMAIN_PLACEHOLDER, generalParameters.get(SupportedParameters.DEFAULT_DOMAIN));
         assertEquals(SupportedParameters.XSA_AUTHORIZATION_ENDPOINT_PLACEHOLDER,
-            generalParameters.get(SupportedParameters.XS_AUTHORIZATION_ENDPOINT));
+                     generalParameters.get(SupportedParameters.XS_AUTHORIZATION_ENDPOINT));
         assertEquals(SupportedParameters.XSA_AUTHORIZATION_ENDPOINT_PLACEHOLDER,
-            generalParameters.get(SupportedParameters.AUTHORIZATION_URL));
+                     generalParameters.get(SupportedParameters.AUTHORIZATION_URL));
         assertEquals(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER, generalParameters.get(SupportedParameters.XS_TARGET_API_URL));
         assertEquals(SupportedParameters.XSA_CONTROLLER_ENDPOINT_PLACEHOLDER, generalParameters.get(SupportedParameters.CONTROLLER_URL));
         assertEquals(SupportedParameters.XSA_DEPLOY_SERVICE_URL_PLACEHOLDER, generalParameters.get(SupportedParameters.DEPLOY_SERVICE_URL));
@@ -134,7 +134,13 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     }
 
     private DeployedMtaModule createDeployedMtaModule(String name, List<String> uris) {
-        return new DeployedMtaModule("foo", "foo", null, null, Collections.emptyList(), Collections.emptyList(), uris);
+        return DeployedMtaModule.builder()
+                                .withAppName("foo")
+                                .withModuleName("foo")
+                                .withServices(Collections.emptyList())
+                                .withProvidedDependencyNames(Collections.emptyList())
+                                .withUris(uris)
+                                .build();
     }
 
     @Test
@@ -270,8 +276,8 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
     public void testReuseOfPorts() {
         prepareDescriptor("system-parameters/mtad.yaml");
         prepareClient(true);
-        List<DeployedMtaModule> deployedMtaModules = Arrays
-            .asList(createDeployedMtaModule("foo", Arrays.asList("https://localhost:" + USED_PORT)));
+        List<DeployedMtaModule> deployedMtaModules = Arrays.asList(createDeployedMtaModule("foo", Arrays.asList("https://localhost:"
+            + USED_PORT)));
         StepsUtil.setDeployedMta(context, createDeployedMta("0.9.0", deployedMtaModules));
 
         step.execute(context);
@@ -327,14 +333,12 @@ public class CollectSystemParametersStepTest extends CollectSystemParametersStep
         List<Module> modules = descriptor.getModules();
         assertEquals(1, modules.size());
         Module foo = modules.get(0);
-        assertEquals("bar", foo.getParameters()
-            .get(SupportedParameters.APP_NAME));
+        assertEquals("bar", foo.getParameters().get(SupportedParameters.APP_NAME));
 
         List<Resource> resources = descriptor.getResources();
         assertEquals(1, resources.size());
         Resource baz = resources.get(0);
-        assertEquals("qux", baz.getParameters()
-            .get(SupportedParameters.SERVICE_NAME));
+        assertEquals("qux", baz.getParameters().get(SupportedParameters.SERVICE_NAME));
     }
 
 }

@@ -19,6 +19,7 @@ import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -26,15 +27,21 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.ApplicationMtaMetadataParser;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedComponentsDetector;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteria;
+import com.sap.cloud.lm.sl.cf.core.cf.detect.metadata.criteria.MtaMetadataCriteriaBuilder;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
+import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaResource;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("checkForCreationConflictsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class CheckForCreationConflictsStep extends SyncFlowableStep {
+
+    @Autowired
+    private DeployedComponentsDetector deployedComponentsDetector;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws CloudOperationException, SLException {
@@ -56,7 +63,7 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
 
         try {
             getStepLogger().debug(Messages.VALIDATING_APPLICATIONS);
-            validateApplicationsToDeploy(execution.getContext(), deployedMta, deployedApps);
+            validateApplicationsToDeploy(execution, deployedMta, deployedApps);
             getStepLogger().debug(Messages.APPLICATIONS_VALIDATED);
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);
@@ -74,7 +81,9 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         List<CloudApplication> deployedApps) {
         List<CloudServiceExtended> servicesToCreate = StepsUtil.getServicesToCreate(context);
         Map<String, CloudService> existingServicesMap = createExistingServicesMap(client.getServices());
-        Set<String> servicesInDeployedMta = deployedMta != null ? deployedMta.getServices() : Collections.emptySet();
+        Set<DeployedMtaResource> servicesInDeployedMta = deployedMta != null ? deployedMta.getServices() : Collections.emptySet();
+        servicesInDeployedMta.stream()
+                             .collect(Collectors.toMap(v -> v.getServiceName(), v -> v, (v1, v2) -> v1));
         for (CloudServiceExtended service : servicesToCreate) {
             if (existingServicesMap.containsKey(service.getName())) {
                 validateExistingServiceAssociation(service, client, deployedApps, servicesInDeployedMta);
@@ -83,10 +92,12 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
     }
 
     private void validateExistingServiceAssociation(CloudServiceExtended serviceToCreate, CloudControllerClient client,
-        List<CloudApplication> deployedApps, Set<String> servicesInDeployedMta) {
-
+        List<CloudApplication> deployedApps, Set<DeployedMtaResource> servicesInDeployedMta) {
+        Set<String> serviceNamesInDeployedMta = servicesInDeployedMta.stream()
+                                                                     .map(s -> s.getServiceName())
+                                                                     .collect(Collectors.toSet());
         getStepLogger().debug(Messages.VALIDATING_EXISTING_SERVICE_ASSOCIATION, serviceToCreate.getName());
-        if (servicesInDeployedMta.contains(serviceToCreate.getName())) {
+        if (serviceNamesInDeployedMta.contains(serviceToCreate.getName())) {
             return;
         }
 
@@ -100,9 +111,11 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         for (CloudServiceBinding binding : bindings) {
             CloudApplication boundApplication = StepsUtil.getBoundApplication(deployedApps, binding.getApplicationGuid());
             if (boundApplication == null) {
-                throw new IllegalStateException(
-                    MessageFormat.format(Messages.COULD_NOT_FIND_APPLICATION_WITH_GUID_0, binding.getApplicationGuid()));
+                throw new IllegalStateException(MessageFormat.format(Messages.COULD_NOT_FIND_APPLICATION_WITH_GUID_0,
+                                                                     binding.getApplicationGuid()));
             }
+            
+            //TODO
             ApplicationMtaMetadata boundMtaMetadata = ApplicationMtaMetadataParser.parseAppMetadata(boundApplication);
             if (boundMtaMetadata == null) {
                 namesOfBoundStandaloneApplications.add(boundApplication.getName());
@@ -110,22 +123,27 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
             }
             if (isServicePartOfMta(boundMtaMetadata, serviceToCreate)) {
                 idsOfMtasThatOwnTheService.add(boundMtaMetadata.getMtaMetadata()
-                    .getId());
+                                                               .getId());
             }
         }
         if (!namesOfBoundStandaloneApplications.isEmpty()) {
             getStepLogger().warn(Messages.SERVICE_ASSOCIATED_WITH_OTHER_APPS, serviceToCreate.getName(),
-                String.join(", ", namesOfBoundStandaloneApplications));
+                                 String.join(", ", namesOfBoundStandaloneApplications));
         }
         if (!idsOfMtasThatOwnTheService.isEmpty()) {
-            throw new SLException(Messages.SERVICE_ASSOCIATED_WITH_OTHER_MTAS, serviceToCreate.getName(),
-                String.join(", ", idsOfMtasThatOwnTheService));
+            throw new SLException(Messages.SERVICE_ASSOCIATED_WITH_OTHER_MTAS,
+                                  serviceToCreate.getName(),
+                                  String.join(", ", idsOfMtasThatOwnTheService));
         }
     }
 
     private boolean isServicePartOfMta(ApplicationMtaMetadata mtaMetadata, CloudServiceExtended service) {
         return mtaMetadata.getServices()
-            .contains(service.getName());
+                          .stream()
+                          .filter(s -> s.getServiceName()
+                                        .equals(service.getName()))
+                          .findAny()
+                          .isPresent();
     }
 
     private List<CloudServiceBinding> getServiceBindings(CloudControllerClient client, CloudServiceExtended service) {
@@ -133,53 +151,44 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
         return serviceInstance.getBindings();
     }
 
-    private void validateApplicationsToDeploy(DelegateExecution context, DeployedMta deployedMta, List<CloudApplication> deployedApps) {
-        List<String> appNames = StepsUtil.getAppsToDeploy(context);
+    private void validateApplicationsToDeploy(ExecutionWrapper execution, DeployedMta deployedMta, List<CloudApplication> deployedApps) {
+        List<String> appNames = StepsUtil.getAppsToDeploy(execution.getContext());
         Map<String, CloudApplication> existingApplicationsMap = createExistingApplicationsMap(deployedApps);
         List<DeployedMtaModule> deployedMtaModules = deployedMta != null ? deployedMta.getModules() : Collections.emptyList();
         Set<String> applicationsInDeployedMta = getApplicationsInDeployedMta(deployedMtaModules);
 
         for (String appName : appNames) {
             if (existingApplicationsMap.containsKey(appName)) {
-                validateApplicationToDeploy(applicationsInDeployedMta, appName, existingApplicationsMap);
+                validateApplicationToDeploy(applicationsInDeployedMta, appName, existingApplicationsMap, execution.getControllerClient());
             }
         }
     }
 
     private void validateApplicationToDeploy(Set<String> applicationsInDeployedMta, String appName,
-        Map<String, CloudApplication> existingApplicationsMap) {
+        Map<String, CloudApplication> existingApplicationsMap, CloudControllerClient cloudControllerClient) {
         getStepLogger().debug(Messages.VALIDATING_EXISTING_APPLICATION_ASSOCIATION, appName);
         if (applicationsInDeployedMta.contains(appName)) {
             return;
         }
-        Optional<DeployedMta> owningMta = detectOwningMta(appName, existingApplicationsMap.values());
+        Optional<DeployedMta> owningMta = detectOwningMta(appName, existingApplicationsMap.values(), cloudControllerClient);
         if (!owningMta.isPresent()) {
             getStepLogger().warn(Messages.APPLICATION_EXISTS_AS_STANDALONE, appName);
             return;
         }
         String owningMtaId = owningMta.get()
-            .getMetadata()
-            .getId();
+                                      .getMetadata()
+                                      .getId();
         throw new SLException(Messages.APPLICATION_ASSOCIATED_WITH_ANOTHER_MTA, appName, owningMtaId);
     }
 
-    private Optional<DeployedMta> detectOwningMta(String appName, Collection<CloudApplication> deployedApps) {
-        List<DeployedMta> deployedMtas = getDeployedMtas(deployedApps);
-        return deployedMtas.stream()
-            .filter(mta -> deployedMtaContainsApplication(mta, appName))
-            .findAny();
-    }
-
-    private List<DeployedMta> getDeployedMtas(Collection<CloudApplication> deployedApps) {
-        return new DeployedComponentsDetector().detectAllDeployedComponents(deployedApps)
-            .getMtas();
-    }
-
-    private boolean deployedMtaContainsApplication(DeployedMta deployedMta, String appName) {
-        return deployedMta != null && deployedMta.getModules()
-            .stream()
-            .anyMatch(module -> module.getAppName()
-                .equals(appName));
+    private Optional<DeployedMta> detectOwningMta(String appName, Collection<CloudApplication> deployedApps,
+        CloudControllerClient cloudControllerClient) {
+        // TODO use the embeded metadata in CloudApplication which currently does not exist
+        //It should be included when we start using the pure cf java client for V3 api (and when the metadata is included in it)
+        MtaMetadataCriteria criteria = new MtaMetadataCriteriaBuilder().label(MtaMetadataCriteriaBuilder.LABEL_APP_NAME)
+                                                                       .haveValue(appName)
+                                                                       .build();
+        return deployedComponentsDetector.getDeployedMtaByCriteria(criteria, null);
     }
 
     private Map<String, CloudApplication> createExistingApplicationsMap(List<CloudApplication> existingApps) {
@@ -196,8 +205,8 @@ public class CheckForCreationConflictsStep extends SyncFlowableStep {
 
     private Set<String> getApplicationsInDeployedMta(List<DeployedMtaModule> modules) {
         return modules.stream()
-            .map(DeployedMtaModule::getAppName)
-            .collect(Collectors.toSet());
+                      .map(DeployedMtaModule::getAppName)
+                      .collect(Collectors.toSet());
     }
 
 }

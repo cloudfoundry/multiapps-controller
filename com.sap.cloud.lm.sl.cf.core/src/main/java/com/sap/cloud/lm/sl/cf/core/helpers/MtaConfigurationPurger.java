@@ -104,6 +104,7 @@ public class MtaConfigurationPurger {
     }
 
     private List<ConfigurationEntry> getStillRelevantConfigurationEntries(CloudApplication app) {
+        //TODO
         ApplicationMtaMetadata metadata = ApplicationMtaMetadataParser.parseAppMetadata(app);
         if (metadata == null) {
             return Collections.emptyList();

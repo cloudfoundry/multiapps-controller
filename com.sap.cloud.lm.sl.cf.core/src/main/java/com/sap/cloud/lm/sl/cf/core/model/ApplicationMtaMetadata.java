@@ -7,29 +7,29 @@ import java.util.List;
  */
 public class ApplicationMtaMetadata {
 
-    private final DeployedMtaMetadata mtaMetadata;
-    private final List<String> services;
     private final String moduleName;
+    private final DeployedMtaMetadata mtaMetadata;
+    private final List<DeployedMtaResource> services;
     private final List<String> providedDependencyNames;
 
-    public ApplicationMtaMetadata(DeployedMtaMetadata mtaMetadata, List<String> services, String moduleName,
+    public ApplicationMtaMetadata(DeployedMtaMetadata mtaMetadata, List<DeployedMtaResource> services, String moduleName,
         List<String> providedDependencyNames) {
+        this.moduleName = moduleName;
         this.mtaMetadata = mtaMetadata;
         this.services = services;
-        this.moduleName = moduleName;
         this.providedDependencyNames = providedDependencyNames;
+    }
+
+    public String getModuleName() {
+        return moduleName;
     }
 
     public DeployedMtaMetadata getMtaMetadata() {
         return mtaMetadata;
     }
 
-    public List<String> getServices() {
+    public List<DeployedMtaResource> getServices() {
         return services;
-    }
-
-    public String getModuleName() {
-        return moduleName;
     }
 
     public List<String> getProvidedDependencyNames() {

@@ -1,7 +1,10 @@
 package com.sap.cloud.lm.sl.cf.web.api.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -9,13 +12,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.glassfish.jersey.process.internal.RequestScoped;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.detect.DeployedComponentsDetector;
-import com.sap.cloud.lm.sl.cf.core.model.DeployedComponents;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaMetadata;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -40,29 +42,25 @@ public class MtasApiServiceImpl implements MtasApiService {
     @Inject
     private AuthorizationChecker authorizationChecker;
 
+    @Autowired
+    private DeployedComponentsDetector deployedComponentsDetector;
+
     public Response getMta(String mtaId, SecurityContext securityContext, String spaceGuid, HttpServletRequest request) {
         authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, ACTION);
-        DeployedMta mta = detectDeployedComponents(spaceGuid).findDeployedMta(mtaId);
-        if (mta == null) {
-            throw new NotFoundException(Messages.MTA_NOT_FOUND, mtaId);
-        }
+        Optional<DeployedMta> optionalDeployedMta = deployedComponentsDetector.getDeployedMta(mtaId, getCloudFoundryClient(spaceGuid));
+        DeployedMta deployedMta = optionalDeployedMta.orElseThrow(() -> new NotFoundException(Messages.MTA_NOT_FOUND, mtaId));
         return Response.ok()
-            .entity(getMta(mta))
-            .build();
+                       .entity(getMta(deployedMta))
+                       .build();
     }
 
     public Response getMtas(SecurityContext securityContext, String spaceGuid, HttpServletRequest request) {
         authorizationChecker.ensureUserIsAuthorized(request, SecurityContextUtil.getUserInfo(), spaceGuid, ACTION);
-        DeployedComponents deployedComponents = detectDeployedComponents(spaceGuid);
+        Optional<List<DeployedMta>> deployedMtas = deployedComponentsDetector.getAllDeployedMta(getCloudFoundryClient(spaceGuid));
+        List<Mta> mtas = getMtas(deployedMtas.orElseGet(() -> Collections.emptyList()));
         return Response.ok()
-            .entity(getMtas(deployedComponents))
-            .build();
-
-    }
-
-    private DeployedComponents detectDeployedComponents(String spaceGuid) {
-        List<CloudApplication> applications = getCloudFoundryClient(spaceGuid).getApplications(false);
-        return new DeployedComponentsDetector().detectAllDeployedComponents(applications);
+                       .entity(mtas)
+                       .build();
     }
 
     private CloudControllerClient getCloudFoundryClient(String spaceGuid) {
@@ -70,9 +68,8 @@ public class MtasApiServiceImpl implements MtasApiService {
         return clientProvider.getControllerClient(userInfo.getName(), spaceGuid);
     }
 
-    private List<Mta> getMtas(DeployedComponents components) {
+    private List<Mta> getMtas(List<DeployedMta> deployedMtas) {
         List<Mta> mtas = new ArrayList<>();
-        List<DeployedMta> deployedMtas = components.getMtas();
         for (DeployedMta mta : deployedMtas) {
             mtas.add(getMta(mta));
         }
@@ -84,7 +81,10 @@ public class MtasApiServiceImpl implements MtasApiService {
         Mta result = new Mta();
         result.setMetadata(getMetadata(mta.getMetadata()));
         result.setModules(getModules(mta.getModules()));
-        result.setServices(mta.getServices());
+        result.setServices(mta.getServices()
+                              .stream()
+                              .map(s -> s.getServiceName())
+                              .collect(Collectors.toSet()));
         return result;
     }
 
@@ -102,7 +102,10 @@ public class MtasApiServiceImpl implements MtasApiService {
         result.setModuleName(module.getModuleName());
         result.setProvidedDendencyNames(module.getProvidedDependencyNames());
         result.setUris(module.getUris());
-        result.setServices(module.getServices());
+        result.setServices(module.getServices()
+                                 .stream()
+                                 .map(s -> s.getServiceName())
+                                 .collect(Collectors.toList()));
         return result;
     }
 
@@ -110,7 +113,7 @@ public class MtasApiServiceImpl implements MtasApiService {
         Metadata result = new Metadata();
         result.setId(metadata.getId());
         result.setVersion(metadata.getVersion()
-            .toString());
+                                  .toString());
         return result;
     }
 }

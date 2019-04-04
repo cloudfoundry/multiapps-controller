@@ -7,12 +7,12 @@ public class DeployedMta {
 
     private DeployedMtaMetadata metadata;
     private List<DeployedMtaModule> modules;
-    private Set<String> services;
+    private Set<DeployedMtaResource> services;
 
     public DeployedMta() {
     }
 
-    public DeployedMta(DeployedMtaMetadata metadata, List<DeployedMtaModule> modules, Set<String> services) {
+    public DeployedMta(DeployedMtaMetadata metadata, List<DeployedMtaModule> modules, Set<DeployedMtaResource> services) {
         this.metadata = metadata;
         this.modules = modules;
         this.services = services;
@@ -34,11 +34,11 @@ public class DeployedMta {
         this.modules = modules;
     }
 
-    public Set<String> getServices() {
+    public Set<DeployedMtaResource> getServices() {
         return services;
     }
 
-    public void setServices(Set<String> services) {
+    public void setServices(Set<DeployedMtaResource> services) {
         this.services = services;
     }
 
