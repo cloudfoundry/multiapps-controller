@@ -972,6 +972,14 @@ public class StepsUtil {
         return getBoolean(scope, Constants.VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES);
     }
 
+    public static void setSkipManageServiceBroker(VariableScope scope, boolean manage) {
+        scope.setVariable(Constants.VAR_SKIP_MANAGE_SERVICE_BROKER, manage);
+    }
+
+    public static boolean getSkipManageServiceBroker(VariableScope scope) {
+        return getBoolean(scope, Constants.VAR_SKIP_MANAGE_SERVICE_BROKER);
+    }
+    
     public static void setServicesData(VariableScope scope, Map<String, CloudServiceExtended> servicesData) {
         scope.setVariable(Constants.VAR_SERVICES_DATA, JsonUtil.toJsonBinary(servicesData));
     }

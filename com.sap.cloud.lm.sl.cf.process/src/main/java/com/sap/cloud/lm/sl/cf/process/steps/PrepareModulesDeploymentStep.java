@@ -58,6 +58,7 @@ public class PrepareModulesDeploymentStep extends SyncFlowableStep {
 
         StepsUtil.setDeleteIdleUris(execution.getContext(), false);
         StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
+        StepsUtil.setSkipManageServiceBroker(execution.getContext(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
         StepsUtil.setUseIdleUris(execution.getContext(), ProcessType.BLUE_GREEN_DEPLOY.equals(processType));
 
         return StepPhase.DONE;
