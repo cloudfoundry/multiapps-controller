@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,13 +66,14 @@ public class CreateServiceStep extends ServiceStep {
             .createService(client, service, StepsUtil.getSpaceId(context));
     }
 
-
     private void processServiceCreationFailure(CloudServiceExtended service, CloudOperationException e) {
         if (!service.isOptional()) {
+            String detailedDescription = MessageFormat.format(Messages.ERROR_CREATING_SERVICE, service.getName(), service.getLabel(),
+                service.getPlan(), e.getDescription());
             if (e.getStatusCode() == HttpStatus.BAD_GATEWAY) {
-                throw new CloudServiceBrokerException(e);
+                throw new CloudServiceBrokerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
             }
-            throw new CloudControllerException(e);
+            throw new CloudControllerException(e.getStatusCode(), e.getStatusText(), detailedDescription);
         }
         getStepLogger().warn(e, Messages.COULD_NOT_EXECUTE_OPERATION_OVER_OPTIONAL_SERVICE, service.getName());
     }
