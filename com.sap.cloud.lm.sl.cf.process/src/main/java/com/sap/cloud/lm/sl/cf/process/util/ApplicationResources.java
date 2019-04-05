@@ -1,28 +1,37 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudResource;
 import org.cloudfoundry.client.lib.domain.CloudResources;
 
 public class ApplicationResources {
-    private CloudResources cloudResources;
+    private List<CloudResource> cloudResourceList;
+    private String applicationDigest;
 
-    public void createCloudResources(Collection<CloudResource> cloudResourceCollection) {
-        this.cloudResources = new CloudResources(cloudResourceCollection);
+    public ApplicationResources() {
+        this.cloudResourceList = new ArrayList<>();
     }
 
-    public CloudResources getCloudResources() {
-        if (cloudResources == null) {
-            return new CloudResources();
-        }
-        return cloudResources;
+    public void addCloudResource(CloudResource cloudResource) {
+        cloudResourceList.add(cloudResource);
     }
 
-    public CloudResources getKnownRemoteResources(CloudControllerClient client) {
-        CloudResources knownRemoteResources = client.getKnownRemoteResources(getCloudResources());
-        return knownRemoteResources != null ? knownRemoteResources : new CloudResources();
+    public CloudResources toCloudResources() {
+        return new CloudResources(cloudResourceList);
+    }
+
+    protected List<CloudResource> getCloudResourceList() {
+        return cloudResourceList;
+    }
+
+    public String getApplicationDigest() {
+        return applicationDigest;
+    }
+
+    public void setApplicationDigest(String applicationDigest) {
+        this.applicationDigest = applicationDigest;
     }
 
 }

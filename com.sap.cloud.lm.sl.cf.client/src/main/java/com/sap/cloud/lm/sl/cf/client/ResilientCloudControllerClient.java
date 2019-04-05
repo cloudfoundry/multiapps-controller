@@ -1044,6 +1044,7 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
         executeWithRetry(() -> cc.bindDropletToApp(dropletGuid, appGuid));
     }
 
+    @Override
     public List<CloudBuild> getBuildsForApplication(UUID applicationGuid) {
         return executeWithRetry(() -> cc.getBuildsForApplication(applicationGuid));
     }
@@ -1054,10 +1055,8 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
         executeWithRetry(() -> cc.unbindService(applicationName, serviceName, applicationServicesUpdateCallback));
     }
 
-	@Override
+    @Override
     public CloudResources getKnownRemoteResources(CloudResources applicationResources) {
-        return executeWithRetry(() -> {
-            return cc.getKnownRemoteResources(applicationResources);
-        });
-	}
+        return executeWithRetry(() -> cc.getKnownRemoteResources(applicationResources));
+    }
 }

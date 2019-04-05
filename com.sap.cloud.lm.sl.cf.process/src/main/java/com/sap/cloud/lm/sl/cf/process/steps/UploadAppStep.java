@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +27,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.UploadStatusCallbackExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationAttributes;
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationEnvironmentUpdater;
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationFileDigestDetector;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -37,8 +35,11 @@ import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveExtractor;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationDigestDetector;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationResources;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationZipBuilder;
+import com.sap.cloud.lm.sl.cf.process.util.RemoteApplicationResourcesDetector;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("uploadAppStep")
@@ -71,6 +72,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
 
             ApplicationResources applicationResources = getApplicationResources(execution, client, app, appArchiveId, fileName);
+            detectApplicationFileDigestChanges(execution, app, client, applicationResources);
             UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName, applicationResources);
             getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
             StepsUtil.setUploadToken(uploadToken, execution.getContext());
@@ -86,26 +88,21 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     }
 
     private ApplicationResources getApplicationResources(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app,
-        String appArchiveId,
-        String fileName)
-        throws FileStorageException {
+        String appArchiveId, String fileName) throws FileStorageException {
         ApplicationResources applicationResources = new ApplicationResources();
-        final DelegateExecution context = execution.getContext();
-        FileDownloadProcessor calculateDigestOfApplication = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
-            appArchiveId, appArchiveStream -> {
+        DelegateExecution context = execution.getContext();
+        FileDownloadProcessor fileDownloadProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId,
+            appArchiveStream -> {
                 long maxSize = configuration.getMaxResourceFileSize();
                 try {
-                    ApplicationArchiveExtractor appExtractor = getApplicationArchiveExtractor(appArchiveStream, fileName, maxSize,
-                        Collections.emptySet());
-                    applicationResources.createCloudResources(appExtractor.getApplicationMetaData());
-                    String newApplicationDigest = appExtractor.getApplicationDigest();
-                    detectApplicationFileDigestChanges(execution, app, newApplicationDigest, client);
+                    ApplicationArchiveReader appArchiveReader = getApplicationArchiveReader(appArchiveStream, fileName, maxSize);
+                    appArchiveReader.initializeApplicationResources(applicationResources);
                 } catch (CloudOperationException e) {
                     throw e;
                 }
             });
 
-        fileService.processFileContent(calculateDigestOfApplication);
+        fileService.processFileContent(fileDownloadProcessor);
 
         return applicationResources;
     }
@@ -113,16 +110,16 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
     private UploadToken asyncUploadFiles(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app,
         String appArchiveId, String fileName, ApplicationResources applicationResources) throws FileStorageException {
         UploadToken uploadToken = new UploadToken();
-        final DelegateExecution context = execution.getContext();
+        DelegateExecution context = execution.getContext();
         FileDownloadProcessor uploadFileToControllerProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context),
             appArchiveId, appArchiveStream -> {
                 Path filePath = null;
                 long maxSize = configuration.getMaxResourceFileSize();
                 try {
-                    CloudResources knownRemoteResources = applicationResources.getKnownRemoteResources(client);
-                    ApplicationArchiveExtractor appExtractor = getApplicationArchiveExtractor(appArchiveStream, fileName, maxSize,
-                        knownRemoteResources.getFilenames());
-                    filePath = extractFromMtar(appExtractor);
+                    RemoteApplicationResourcesDetector remoteResourcesDetector = new RemoteApplicationResourcesDetector(client,
+                        applicationResources.toCloudResources());
+                    CloudResources knownRemoteResources = remoteResourcesDetector.getCloudResources();
+                    filePath = extractFromMtar(appArchiveStream, fileName, maxSize, getAlreadyUploadedFiles(knownRemoteResources));
                     upload(execution, client, app, filePath, uploadToken, knownRemoteResources);
                 } catch (IOException e) {
                     cleanUp(filePath);
@@ -138,13 +135,23 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return uploadToken;
     }
 
-    protected ApplicationArchiveExtractor getApplicationArchiveExtractor(InputStream appArchiveStream, String fileName, long maxSize,
-        Set<String> knownFileNames) {
-        return new ApplicationArchiveExtractor(appArchiveStream, fileName, maxSize, knownFileNames, getStepLogger());
+    private Set<String> getAlreadyUploadedFiles(CloudResources knownRemoteResources) {
+        return knownRemoteResources.getFileNames();
     }
 
-    protected Path extractFromMtar(ApplicationArchiveExtractor appExtractor) {
-        return appExtractor.extractApplicationInNewArchive();
+    protected ApplicationArchiveReader getApplicationArchiveReader(InputStream appArchiveStream, String fileName, long maxSize) {
+        return new ApplicationArchiveReader(appArchiveStream, fileName, maxSize);
+    }
+
+    protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize, Set<String> alreadyUploadedFiles) {
+        ApplicationArchiveReader appArchiveReader = getApplicationArchiveReader(appArchiveStream, fileName, maxSize);
+        ApplicationZipBuilder appZipBuilder = getApplicationZipBuilder(fileName, alreadyUploadedFiles, appArchiveReader);
+        return appZipBuilder.extractApplicationInNewArchive();
+    }
+
+    protected ApplicationZipBuilder getApplicationZipBuilder(String fileName, Set<String> alreadyUploadedFiles,
+        ApplicationArchiveReader appArchiveReader) {
+        return new ApplicationZipBuilder(appArchiveReader, fileName, getStepLogger(), alreadyUploadedFiles);
     }
 
     private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath,
@@ -155,27 +162,22 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         uploadToken.setToken(currentUploadToken.getToken());
     }
 
-    private void detectApplicationFileDigestChanges(ExecutionWrapper execution, CloudApplication app, String newApplicationDigest,
-        CloudControllerClient client) {
-        CloudApplication existingApp = client.getApplication(app.getName());
-        ApplicationFileDigestDetector applicationFileDigestDetector = new ApplicationFileDigestDetector(existingApp);
-        String currentFileDigest = applicationFileDigestDetector.detectCurrentAppFileDigest();
-        attemptToUpdateApplicationDigest(client, app, newApplicationDigest, currentFileDigest);
-        setAppContentChanged(execution, hasAppFileDigestChanged(newApplicationDigest, currentFileDigest));
+    private void detectApplicationFileDigestChanges(ExecutionWrapper execution, CloudApplication app, CloudControllerClient client,
+        ApplicationResources applicationResources) {
+        ApplicationDigestDetector digestDetector = new ApplicationDigestDetector(app, client);
+        String currentApplicationDigest = digestDetector.getExistingApplicationDigest();
+        String newApplicationDigest = applicationResources.getApplicationDigest();
+        boolean contentChanged = digestDetector.hasApplicationContentDigestChanged(newApplicationDigest, currentApplicationDigest);
+        if (contentChanged) {
+            attemptToUpdateApplicationDigest(client, app, newApplicationDigest);
+        }
+        setAppContentChanged(execution, contentChanged);
     }
 
-    private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newFileDigest,
-        String currentFileDigest) {
-        if (!hasAppFileDigestChanged(newFileDigest, currentFileDigest)) {
-            return;
-        }
+    private void attemptToUpdateApplicationDigest(CloudControllerClient client, CloudApplication app, String newApplicationDigest) {
         new ApplicationEnvironmentUpdater(app, client).updateApplicationEnvironment(
             com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST,
-            newFileDigest);
-    }
-
-    private boolean hasAppFileDigestChanged(String newFileDigest, String currentFileDigest) {
-        return !newFileDigest.equals(currentFileDigest);
+            newApplicationDigest);
     }
 
     private void setAppContentChanged(ExecutionWrapper execution, boolean appContentChanged) {
