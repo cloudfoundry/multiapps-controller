@@ -150,6 +150,7 @@ public class Constants {
     public static final String VAR_USE_IDLE_URIS = "useIdleUris";
     public static final String VAR_DELETE_IDLE_URIS = "deleteIdleUris";
     public static final String VAR_SKIP_UPDATE_CONFIGURATION_ENTRIES = "skipUpdateConfigurationEntries";
+    public static final String VAR_SKIP_MANAGE_SERVICE_BROKER = "skipManageServiceBroker";
     public static final String PROCESS_ABORTED = "__PROCESS_ABORTED";
     public static final String TASK_ID = "__TASK_ID";
     public static final String EXECUTE_ONE_OFF_TASKS = "executeOneOffTasks";

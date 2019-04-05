@@ -35,7 +35,7 @@ public class PrepareAppsRestartStep extends PrepareModulesDeploymentStep {
         StepsUtil.setUseIdleUris(execution.getContext(), false);
         StepsUtil.setDeleteIdleUris(execution.getContext(), true);
         StepsUtil.setSkipUpdateConfigurationEntries(execution.getContext(), false);
-
+        StepsUtil.setSkipManageServiceBroker(execution.getContext(), false);
         StepsUtil.setIteratedModulesInParallel(execution.getContext(), Collections.emptyList());
 
         return StepPhase.DONE;
