@@ -15,9 +15,12 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.CloudResources;
 import org.cloudfoundry.client.lib.domain.UploadToken;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +42,8 @@ import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
-import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveExtractor;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationZipBuilder;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -114,6 +118,11 @@ public class UploadAppStepTest {
             prepareClients();
         }
 
+        @After
+        public void tearDown() throws IOException {
+            FileUtils.deleteQuietly(appFile.getParentFile());
+        }
+
         @Test
         public void test() throws Throwable {
             try {
@@ -166,6 +175,7 @@ public class UploadAppStepTest {
                 when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any(), any())).thenThrow(CO_EXCEPTION);
             }
             when(client.getApplication(APP_NAME)).thenReturn(new SimpleApplication(APP_NAME, 2).toCloudApplication());
+            when(client.getKnownRemoteResources(any())).thenReturn(new CloudResources());
         }
 
         public void prepareFileService() throws Exception {
@@ -182,19 +192,20 @@ public class UploadAppStepTest {
 
         private class UploadAppStepMock extends UploadAppStep {
             @Override
-            protected ApplicationArchiveExtractor getApplicationArchiveExtractor(InputStream appArchiveStream, String fileName,
-                long maxSize, Set<String> knownFileNames) {
-                return new ApplicationArchiveExtractor(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize, knownFileNames,
-                    getStepLogger()) {
+            protected ApplicationArchiveReader getApplicationArchiveReader(InputStream appArchiveStream, String fileName, long maxSize) {
+                return new ApplicationArchiveReader(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize);
+            }
 
+            @Override
+            protected ApplicationZipBuilder getApplicationZipBuilder(String fileName, Set<String> alreadyUploadedFiles,
+                ApplicationArchiveReader appArchiveReader) {
+                return new ApplicationZipBuilder(appArchiveReader, fileName, getStepLogger(), alreadyUploadedFiles) {
                     @Override
                     protected Path createTempFile() throws IOException {
                         return appFile.toPath();
                     }
-
                 };
             }
-
         }
 
         @Override
