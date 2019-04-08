@@ -60,7 +60,7 @@ public class NameUtilTest {
 
     @Test
     public void testCreateValidContainerName() throws Exception {
-        String containerName = NameUtil.createValidContainerName("initial", "initial",
+        String containerName = NameUtil.computeValidContainerName("initial", "initial",
             "com.sap.cloud.lm.sl.xs2.a.very.very.long.service.name.with.illegal.container.name.characters");
         assertEquals("INITIAL_INITIAL_COM_SAP_CLOUD_LM_SL_XS2_A_VERY_VERY_LONG3AC0B612", containerName);
         assertTrue(NameUtil.isValidName(containerName, NameRequirements.CONTAINER_NAME_PATTERN));
@@ -68,15 +68,15 @@ public class NameUtilTest {
 
     @Test
     public void testCreateValidXsAppName() throws Exception {
-        String xsAppName1 = NameUtil.createValidXsAppName("sap_system_com.sap.cloud.lm.sl.xs2.deploy-service-database");
+        String xsAppName1 = NameUtil.computeValidXsAppName("sap_system_com.sap.cloud.lm.sl.xs2.deploy-service-database");
         assertEquals("_com.sap.cloud.lm.sl.xs2.deploy-service-database", xsAppName1);
         assertTrue(NameUtil.isValidName(xsAppName1, NameRequirements.XS_APP_NAME_PATTERN));
 
-        String xsAppName2 = NameUtil.createValidXsAppName("sap_system");
+        String xsAppName2 = NameUtil.computeValidXsAppName("sap_system");
         assertEquals("_", xsAppName2);
         assertTrue(NameUtil.isValidName(xsAppName2, NameRequirements.XS_APP_NAME_PATTERN));
 
-        String xsAppName3 = NameUtil.createValidXsAppName("com.sap.cloud.lm.sl.xs@.deploy-service-database");
+        String xsAppName3 = NameUtil.computeValidXsAppName("com.sap.cloud.lm.sl.xs@.deploy-service-database");
         assertEquals("com.sap.cloud.lm.sl.xs_.deploy-service-database", xsAppName3);
         assertTrue(NameUtil.isValidName(xsAppName3, NameRequirements.XS_APP_NAME_PATTERN));
     }

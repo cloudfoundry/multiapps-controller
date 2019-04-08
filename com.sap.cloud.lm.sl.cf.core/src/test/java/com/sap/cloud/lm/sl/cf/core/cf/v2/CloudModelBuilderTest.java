@@ -44,6 +44,7 @@ import com.sap.cloud.lm.sl.mta.mergers.PlatformMerger;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.Platform;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
@@ -509,9 +510,8 @@ public class CloudModelBuilderTest {
         return getHandlerFactory().getDescriptorHandler();
     }
 
-    protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration) {
-        return new ServicesCloudModelBuilder(deploymentDescriptor, configuration);
+    protected ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
+        return new ServicesCloudModelBuilder(deploymentDescriptor);
     }
 
     protected ApplicationCloudModelBuilder getApplicationCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
@@ -543,13 +543,13 @@ public class CloudModelBuilderTest {
 
         String defaultDomain = getDefaultDomain(platform.getName());
 
-        insertProperAppNames(deploymentDescriptor);
+        insertProperNames(deploymentDescriptor);
         injectSystemParameters(deploymentDescriptor, defaultDomain);
         XsPlaceholderResolver xsPlaceholderResolver = new XsPlaceholderResolver();
         xsPlaceholderResolver.setDefaultDomain(defaultDomain);
         CloudModelConfiguration configuration = createCloudModelConfiguration(defaultDomain);
         appBuilder = getApplicationCloudModelBuilder(deploymentDescriptor, configuration, deployedMta, xsPlaceholderResolver);
-        servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor, configuration);
+        servicesBuilder = getServicesCloudModelBuilder(deploymentDescriptor);
 
         modulesCalculator = new ModulesCloudModelBuilderContentCalculator(mtaArchiveModules, deployedApps, null, getUserMessageLogger(),
             new ModuleToDeployHelper(), Arrays.asList(new UnresolvedModulesContentValidator(mtaModules, deployedApps)));
@@ -583,7 +583,12 @@ public class CloudModelBuilderTest {
         return JsonUtil.fromJson(deployedMtaJson, DeployedMta.class);
     }
 
-    protected void insertProperAppNames(DeploymentDescriptor descriptor) throws Exception {
+    protected void insertProperNames(DeploymentDescriptor descriptor) throws Exception {
+        insertProperAppNames(descriptor);
+        insertProperServiceNames(descriptor);
+    }
+
+    private void insertProperAppNames(DeploymentDescriptor descriptor) {
         for (Module module : descriptor.getModules()) {
             String appName = computeAppName(descriptor, module);
             Map<String, Object> parameters = new TreeMap<>(module.getParameters());
@@ -592,13 +597,27 @@ public class CloudModelBuilderTest {
         }
     }
 
-    private String computeAppName(DeploymentDescriptor descriptor, Module module) {
-        String userDefinedAppName = (String) module.getParameters()
-            .get(SupportedParameters.APP_NAME);
-        if (userDefinedAppName != null) {
-            return NameUtil.getApplicationName(userDefinedAppName, descriptor.getId(), useNamespaces);
+    private void insertProperServiceNames(DeploymentDescriptor descriptor) {
+        for (Resource resource : descriptor.getResources()) {
+            String serviceName = computeServiceName(descriptor, resource);
+            Map<String, Object> parameters = new TreeMap<>(resource.getParameters());
+            parameters.put(SupportedParameters.SERVICE_NAME, serviceName);
+            resource.setParameters(parameters);
         }
-        return NameUtil.getApplicationName(module.getName(), descriptor.getId(), useNamespaces);
+    }
+
+    private String computeAppName(DeploymentDescriptor descriptor, Module module) {
+        String appName = (String) module.getParameters()
+            .get(SupportedParameters.APP_NAME);
+        appName = appName != null ? appName : module.getName();
+        return NameUtil.computeValidApplicationName(appName, descriptor.getId(), useNamespaces);
+    }
+
+    private String computeServiceName(DeploymentDescriptor descriptor, Resource resource) {
+        String serviceName = (String) resource.getParameters()
+            .get(SupportedParameters.SERVICE_NAME);
+        serviceName = serviceName != null ? serviceName : resource.getName();
+        return NameUtil.computeValidServiceName(serviceName, descriptor.getId(), useNamespaces, useNamespacesForServices);
     }
 
     protected String getDefaultDomain(String targetName) {
@@ -618,8 +637,6 @@ public class CloudModelBuilderTest {
         CloudModelConfiguration configuration = new CloudModelConfiguration();
         configuration.setPortBasedRouting(defaultDomain.equals(DEFAULT_DOMAIN_XS));
         configuration.setPrettyPrinting(false);
-        configuration.setUseNamespaces(useNamespaces);
-        configuration.setUseNamespacesForServices(useNamespacesForServices);
         return configuration;
     }
 

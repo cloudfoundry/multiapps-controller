@@ -904,10 +904,9 @@ public class StepsUtil {
 
     static ServicesCloudModelBuilder getServicesCloudModelBuilder(VariableScope scope) {
         HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(scope);
-        CloudModelConfiguration configuration = getCloudBuilderConfiguration(scope, true);
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getCompleteDeploymentDescriptor(scope);
 
-        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor, configuration);
+        return handlerFactory.getServicesCloudModelBuilder(deploymentDescriptor);
     }
 
     static ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(VariableScope scope) {
@@ -917,14 +916,10 @@ public class StepsUtil {
     }
 
     protected static CloudModelConfiguration getCloudBuilderConfiguration(VariableScope scope, boolean prettyPrinting) {
-        Boolean useNamespaces = getBoolean(scope, Constants.PARAM_USE_NAMESPACES, false);
-        Boolean useNamespacesForServices = getBoolean(scope, Constants.PARAM_USE_NAMESPACES_FOR_SERVICES, false);
         Boolean portBasedRouting = getBoolean(scope, Constants.VAR_PORT_BASED_ROUTING, false);
         CloudModelConfiguration configuration = new CloudModelConfiguration();
         configuration.setPortBasedRouting(portBasedRouting);
         configuration.setPrettyPrinting(prettyPrinting);
-        configuration.setUseNamespaces(useNamespaces);
-        configuration.setUseNamespacesForServices(useNamespacesForServices);
         return configuration;
     }
 

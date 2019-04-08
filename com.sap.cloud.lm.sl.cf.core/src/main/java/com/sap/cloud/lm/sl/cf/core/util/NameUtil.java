@@ -7,7 +7,10 @@ import java.util.Locale;
 import java.util.UUID;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
+import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.common.SLException;
+import com.sap.cloud.lm.sl.mta.model.Module;
+import com.sap.cloud.lm.sl.mta.model.Resource;
 
 public class NameUtil {
 
@@ -27,8 +30,8 @@ public class NameUtil {
 
     }
 
-    public static String getNamespacePrefix(String namespaceId) {
-        return namespaceId + ".";
+    public static String getNamespacePrefix(String namespace) {
+        return namespace + ".";
     }
 
     public static String getWithoutNamespacePrefix(String name) {
@@ -40,17 +43,18 @@ public class NameUtil {
         return name.matches(namePattern);
     }
 
-    public static String getApplicationName(String moduleName, String mtaId, boolean useNamespaces) {
-        String prefix = (useNamespaces ? getNamespacePrefix(mtaId) : "");
-        return prefix + getNameWithProperLength(moduleName, NameRequirements.APP_NAME_MAX_LENGTH - prefix.length());
+    public static String computeValidApplicationName(String applicationName, String namespace, boolean useNamespaces) {
+        String prefix = useNamespaces ? getNamespacePrefix(namespace) : "";
+        return prefix + getNameWithProperLength(applicationName, NameRequirements.APP_NAME_MAX_LENGTH - prefix.length());
     }
 
-    public static String getServiceName(String resourceName, String mtaId, boolean useNamespaces, boolean useNamespacesForServices) {
-        String prefix = (useNamespaces && useNamespacesForServices ? getNamespacePrefix(mtaId) : "");
-        return prefix + getNameWithProperLength(resourceName, NameRequirements.SERVICE_NAME_MAX_LENGTH - prefix.length());
+    public static String computeValidServiceName(String serviceName, String namespace, boolean useNamespaces,
+        boolean useNamespacesForServices) {
+        String prefix = useNamespaces && useNamespacesForServices ? getNamespacePrefix(namespace) : "";
+        return prefix + getNameWithProperLength(serviceName, NameRequirements.SERVICE_NAME_MAX_LENGTH - prefix.length());
     }
 
-    public static String createValidContainerName(String organization, String space, String serviceName) {
+    public static String computeValidContainerName(String organization, String space, String serviceName) {
         String properOrganization = organization.toUpperCase(Locale.US)
             .replaceAll(NameRequirements.CONTAINER_NAME_ILLEGAL_CHARACTERS, "_");
         String properSpace = space.toUpperCase(Locale.US)
@@ -61,7 +65,7 @@ public class NameUtil {
             NameRequirements.CONTAINER_NAME_MAX_LENGTH).toUpperCase(Locale.US);
     }
 
-    public static String createValidXsAppName(String serviceName) {
+    public static String computeValidXsAppName(String serviceName) {
         if (serviceName.startsWith("sap_system")) {
             serviceName = serviceName.replaceFirst("sap_system", "");
         }
@@ -104,6 +108,16 @@ public class NameUtil {
             return getPrefixedName(resourceName, Integer.toString(index), delimiter);
         }
         return resourceName;
+    }
+
+    public static String getApplicationName(Module module) {
+        return (String) module.getParameters()
+            .get(SupportedParameters.APP_NAME);
+    }
+
+    public static String getServiceName(Resource resource) {
+        return (String) resource.getParameters()
+            .get(SupportedParameters.SERVICE_NAME);
     }
 
 }
