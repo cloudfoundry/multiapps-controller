@@ -166,6 +166,9 @@ public class OperationDtoDao {
         if (operationFilter.getEndedAfter() != null) {
             predicates.add(criteriaBuilder.greaterThan(root.get(OperationDto.AttributeNames.ENDED_AT), operationFilter.getEndedAfter()));
         }
+        if (operationFilter.getProcessType() != null) {
+            predicates.add(criteriaBuilder.equal(root.get(OperationDto.AttributeNames.PROCESS_TYPE), operationFilter.getProcessType()));
+        }
 
         return predicates.toArray(new Predicate[0]);
     }
@@ -179,7 +182,7 @@ public class OperationDtoDao {
         }
     }
 
-    private Object toStrings(List<State> states) {
+    private List<String> toStrings(List<State> states) {
         return states.stream()
             .map(State::toString)
             .collect(Collectors.toList());

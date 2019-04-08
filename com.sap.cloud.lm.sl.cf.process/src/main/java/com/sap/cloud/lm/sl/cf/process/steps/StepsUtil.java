@@ -60,6 +60,7 @@ import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.ErrorType;
+import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.cf.persistence.services.ProcessLoggerProvider;
@@ -190,7 +191,11 @@ public class StepsUtil {
     public static void setMtaColor(VariableScope scope, ApplicationColor mtaColor) {
         setEnum(scope, Constants.VAR_MTA_COLOR, mtaColor);
     }
-
+    
+    public static void setPhase(VariableScope scope, Phase phase) {
+        setEnum(scope, Constants.VAR_PHASE, phase);
+    }
+    
     private static String getModuleContentVariable(String moduleName) {
         return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + moduleName;
     }

@@ -73,5 +73,4 @@ public class OperationDao {
             .map(dto -> operationFactory.fromPersistenceDto(dto))
             .collect(Collectors.toList());
     }
-
 }
