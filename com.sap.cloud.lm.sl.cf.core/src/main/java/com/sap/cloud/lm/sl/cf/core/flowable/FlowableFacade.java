@@ -6,6 +6,7 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -354,4 +355,19 @@ public class FlowableFacade {
     public ProcessEngine getProcessEngine() {
         return processEngine;
     }
+
+    public String findHistoricProcessInstanceIdByProcessDefinitionKey(String processInstanceId, String processDefinitionKey) {
+        return findHistoricProcessInstanceIdsAndProcessDefinitionKey(getHistoricSubProcessIds(processInstanceId).stream()
+            .collect(Collectors.toSet()), processDefinitionKey);
+    }
+
+    private String findHistoricProcessInstanceIdsAndProcessDefinitionKey(Set<String> processInstanceIds, String processDefinitionKey) {
+        return processEngine.getHistoryService()
+            .createHistoricProcessInstanceQuery()
+            .processInstanceIds(processInstanceIds)
+            .processDefinitionKey(processDefinitionKey)
+            .singleResult()
+            .getId();
+    }
+
 }

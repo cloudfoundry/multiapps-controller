@@ -166,6 +166,7 @@ public class Constants {
     public static final String VAR_MTA_COLOR = "mtaColor";
     public static final String VAR_BUILD_GUID = "buildGuid";
     public static final String VAR_MTA_ARCHIVE_ELEMENTS = "mtaArchiveElements";
+    public static final String VAR_PHASE = "phase";
 
     public static final String TOOL_TYPE = "tool_type";
     public static final String FEEDBACK_MAIL = "feedback_form";

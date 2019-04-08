@@ -23,6 +23,7 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.helpers.OperationFactory;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.NotFoundException;
@@ -298,6 +299,42 @@ public class OperationDaoTest {
         testFiltering(databaseContent, filter, expectedResult);
     }
 
+    @Test
+    public void testFindFirstByMtaIdAndEndedAtIsNotNullOrderByEndedAtDesc() {
+        String mtaId = "mtaId";
+        Operation operation1 = createOperation("1");
+        operation1.setEndedAt(ZonedDateTime.parse("2019-01-01T22:00:00.000Z[UTC]"));
+        operation1.setMtaId(mtaId);
+        operation1.setProcessType(ProcessType.BLUE_GREEN_DEPLOY);
+        operation1.setState(State.FINISHED);
+        Operation operation2 = createOperation("2");
+        operation2.setEndedAt(ZonedDateTime.parse("2019-01-02T22:00:00.000Z[UTC]"));
+        operation2.setProcessType(ProcessType.BLUE_GREEN_DEPLOY);
+        operation2.setMtaId(mtaId);
+        operation2.setState(State.FINISHED);
+        Operation operation3 = createOperation("3");
+        operation3.setEndedAt(ZonedDateTime.parse("2019-01-03T22:00:00.000Z[UTC]"));
+        operation3.setMtaId(mtaId);
+        operation3.setState(State.FINISHED);
+        operation3.setProcessType(ProcessType.BLUE_GREEN_DEPLOY);
+        Operation operation4 = createOperation("4");
+        operation4.setMtaId(mtaId);
+        operation4.setState(State.FINISHED);
+        Operation operation5 = createOperation("5");
+        operation5.setMtaId("anotherMtaId");
+        operation5.setEndedAt(ZonedDateTime.parse("2019-01-04T22:00:00.000Z[UTC]"));
+        addOperations(Arrays.asList(operation1, operation2, operation3, operation4, operation5));
+        Operation firstByMtaIdAndEndedAtIsNotNullOrderByEndedAtDesc = dao.find(new OperationFilter.Builder().mtaId(mtaId)
+            .processType(ProcessType.BLUE_GREEN_DEPLOY)
+            .inFinalState()
+            .orderByEndTime()
+            .descending()
+            .maxResults(1)
+            .build())
+            .get(0);
+        assertEquals(operation3, firstByMtaIdAndEndedAtIsNotNullOrderByEndedAtDesc);
+    }
+
     private void testFiltering(List<Operation> databaseContent, OperationFilter filter, List<Operation> expectedResult) {
         addOperations(databaseContent);
         List<Operation> result = dao.find(filter);
@@ -305,9 +342,7 @@ public class OperationDaoTest {
     }
 
     private void addOperations(List<Operation> operations) {
-        for (Operation operation : operations) {
-            dao.add(operation);
-        }
+        operations.forEach(dao::add);
     }
 
     private static OperationDao createDao() {

@@ -5,15 +5,18 @@
   "modules": [
     {
       "moduleName": "app-1",
-      "appName": "app-1-green"
+      "appName": "app-1-green",
+      "createdOn": "2019-04-04"
     },
     {
       "moduleName": "app-2",
-      "appName": "app-2-green"
+      "appName": "app-2-green",
+      "createdOn": "2019-04-05"
     },
     {
       "moduleName": "app-3",
-      "appName": "app-3-green"
+      "appName": "app-3-green",
+      "createdOn": "2019-04-06"
     }
   ]
 }

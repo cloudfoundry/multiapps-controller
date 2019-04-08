@@ -8,6 +8,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.sap.cloud.lm.sl.cf.core.dto.persistence.OperationDto;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 
 public class OperationFilter {
@@ -23,6 +24,7 @@ public class OperationFilter {
     private boolean withoutAcquiredLock;
     private boolean withAcquiredLock;
     private List<State> states;
+    private ProcessType processType;
 
     private String orderAttribute;
     private OrderDirection orderDirection;
@@ -40,6 +42,7 @@ public class OperationFilter {
         this.inFinalState = builder.inFinalState;
         this.withoutAcquiredLock = builder.withoutAcquiredLock;
         this.withAcquiredLock = builder.withAcquiredLock;
+        this.processType = builder.processType;
         this.orderAttribute = builder.orderAttribute;
         this.orderDirection = builder.orderDirection;
         this.firstElement = builder.firstElement;
@@ -91,6 +94,10 @@ public class OperationFilter {
         return states;
     }
 
+    public ProcessType getProcessType() {
+        return processType;
+    }
+
     public String getOrderAttribute() {
         return orderAttribute;
     }
@@ -130,6 +137,7 @@ public class OperationFilter {
         private boolean withoutAcquiredLock;
         private boolean withAcquiredLock;
         private List<State> states;
+        private ProcessType processType;
 
         private String orderAttribute;
         private OrderDirection orderDirection = OrderDirection.ASCENDING;
@@ -198,6 +206,11 @@ public class OperationFilter {
 
         public Builder stateIn(List<State> states) {
             this.states = states;
+            return this;
+        }
+
+        public Builder processType(ProcessType processType) {
+            this.processType = processType;
             return this;
         }
 

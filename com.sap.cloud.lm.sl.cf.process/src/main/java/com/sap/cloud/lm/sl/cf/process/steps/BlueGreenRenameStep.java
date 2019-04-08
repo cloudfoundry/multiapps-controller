@@ -2,15 +2,17 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorAppender;
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
+import com.sap.cloud.lm.sl.cf.process.Constants;
+import com.sap.cloud.lm.sl.cf.process.helpers.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -22,21 +24,21 @@ public class BlueGreenRenameStep extends SyncFlowableStep {
 
     private static final ApplicationColor DEFAULT_MTA_COLOR = ApplicationColor.BLUE;
 
-    protected Supplier<ApplicationColorDetector> colorDetectorSupplier = ApplicationColorDetector::new;
+    @Inject
+    protected ApplicationColorDetector applicationColorDetector;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
+
         try {
             getStepLogger().debug(Messages.DETECTING_COLOR_OF_DEPLOYED_MTA);
 
             DeploymentDescriptor descriptor = StepsUtil.getDeploymentDescriptor(execution.getContext());
             DeployedMta deployedMta = StepsUtil.getDeployedMta(execution.getContext());
-
-            ApplicationColorDetector detector = colorDetectorSupplier.get();
             ApplicationColor mtaColor;
             ApplicationColor deployedMtaColor = null;
             try {
-                deployedMtaColor = detector.detectSingularDeployedApplicationColor(deployedMta);
+                deployedMtaColor = applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta);
                 if (deployedMtaColor != null) {
                     getStepLogger().info(Messages.DEPLOYED_MTA_COLOR, deployedMtaColor);
                     mtaColor = deployedMtaColor.getAlternativeColor();
@@ -45,9 +47,12 @@ public class BlueGreenRenameStep extends SyncFlowableStep {
                 }
             } catch (ConflictException e) {
                 getStepLogger().warn(e.getMessage());
-                // Assume that the last deployed color was not deployed successfully and try to update (fix) it in this process:
-                ApplicationColor liveMtaColor = detector.detectFirstDeployedApplicationColor(deployedMta);
+
+                ApplicationColor liveMtaColor = applicationColorDetector.detectLiveApplicationColor(deployedMta,
+                    (String) execution.getContext()
+                        .getVariable(Constants.VAR_CORRELATION_ID));
                 ApplicationColor idleMtaColor = liveMtaColor.getAlternativeColor();
+
                 getStepLogger().info(Messages.ASSUMED_LIVE_AND_IDLE_COLORS, liveMtaColor, idleMtaColor);
                 mtaColor = idleMtaColor;
             }
