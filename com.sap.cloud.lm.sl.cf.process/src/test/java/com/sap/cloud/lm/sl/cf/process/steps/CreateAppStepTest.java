@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.DockerCredentials;
-import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.ServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
@@ -27,7 +25,6 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -37,9 +34,8 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
+public class CreateAppStepTest extends CreateAppStepBaseTest {
 
-    private final StepInput stepInput;
     private String expectedExceptionMessage;
 
     private final ApplicationServicesUpdateCallback callback = (e, applicationName, serviceName) -> {
@@ -47,8 +43,6 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
             throw new RuntimeException(expectedExceptionMessage, e);
         }
     };
-
-    private CloudApplicationExtended application;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -124,7 +118,7 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
     }
 
     private void prepareContext() {
-        //TODO
+        // TODO
         StepsUtil.setAppsToDeploy(context, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
         StepsUtil.setServicesToBind(context, mapToCloudServiceExtended());
@@ -209,149 +203,9 @@ public class CreateAppStepTest extends SyncFlowableStepTest<CreateAppStep> {
         return false;
     }
 
-    private static class StepInput {
-        List<CloudApplicationExtended> applications = Collections.emptyList();
-        List<SimpleService> services = Collections.emptyList();
-        int applicationIndex;
-        PlatformType platform;
-        Map<String, String> bindingErrors = new HashMap<>();
-        Map<String, List<ServiceKey>> existingServiceKeys = new HashMap<>();
-    }
-
-    private static class SimpleService {
-        String name;
-        boolean isOptional;
-
-        CloudServiceExtended toCloudServiceExtended() {
-            CloudServiceExtended service = new CloudServiceExtended();
-            service.setName(name);
-            service.setOptional(isOptional);
-            return service;
-        }
-    }
-
     @Override
     protected CreateAppStep createStep() {
         return new CreateAppStepMock();
-    }
-
-    public static class TestWithDocker extends CreateAppStepTest {
-
-        public TestWithDocker(String stepInput, String expectedExceptionMessage, PlatformType platform) throws Exception {
-            super(stepInput, expectedExceptionMessage, platform);
-        }
-
-        // Required for autowiring
-        private CloudApplicationExtended application;
-        private StepInput stepInput;
-        private DockerInfo dockerInfo;
-
-        public void initParametersContextClient() {
-            loadParameters();
-            prepareContext();
-            prepareConfiguration();
-        }
-
-        private void prepareContext() {
-            context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, "archive_id");
-            context.setVariable(Constants.VAR_MODULES_INDEX, stepInput.applicationIndex);
-            StepsUtil.setServicesToBind(context, Collections.emptyList());
-
-            byte[] serviceKeysToInjectByteArray = JsonUtil.toJsonBinary(new HashMap<>());
-            context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
-            stepInput.applications.get(0)
-                .setDockerInfo(dockerInfo);
-            //TODO
-            StepsUtil.setAppsToDeploy(context, Collections.emptyList());
-            StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
-        }
-
-        private void loadParameters() {
-            dockerInfo = createDockerInfo();
-            application = stepInput.applications.get(stepInput.applicationIndex);
-        }
-
-        private DockerInfo createDockerInfo() {
-            String image = "cloudfoundry/test-app";
-            String username = "someUser";
-            String password = "somePassword";
-            DockerInfo dockerInfo = new DockerInfo(image);
-            DockerCredentials dockerCredentials = new DockerCredentials(username, password);
-            dockerInfo.setDockerCredentials(dockerCredentials);
-
-            return dockerInfo;
-        }
-
-        private void prepareConfiguration() {
-            Mockito.when(configuration.getPlatformType())
-                .thenReturn(stepInput.platform);
-        }
-
-        @Test
-        public void testWithDockerImageXS2() {
-            stepInput = createStepInput(PlatformType.XS2);
-            initParametersContextClient();
-
-            step.execute(context);
-            assertStepFinishedSuccessfully();
-
-            validateClient();
-        }
-
-        @Test
-        public void testWithDockerImageCF() {
-            stepInput = createStepInput(PlatformType.CF);
-            initParametersContextClient();
-
-            step.execute(context);
-            assertStepFinishedSuccessfully();
-
-            validateClient();
-        }
-
-        private StepInput createStepInput(PlatformType platformType) {
-            StepInput stepInput = new StepInput();
-
-            CloudApplicationExtended cloudApplicationExtended = createFakeCloudApplicationExtended();
-
-            stepInput.applicationIndex = 0;
-            stepInput.platform = platformType;
-            stepInput.applications = Arrays.asList(cloudApplicationExtended);
-
-            return stepInput;
-        }
-
-        private CloudApplicationExtended createFakeCloudApplicationExtended() {
-            CloudApplicationExtended cloudApplicationExtended = new CloudApplicationExtended(null, "application1");
-
-            cloudApplicationExtended.setInstances(1);
-            cloudApplicationExtended.setMemory(0);
-            cloudApplicationExtended.setDiskQuota(512);
-            cloudApplicationExtended.setEnv(Collections.emptyMap());
-            cloudApplicationExtended.setServices(Collections.emptyList());
-            cloudApplicationExtended.setServiceKeysToInject(Collections.emptyList());
-            cloudApplicationExtended.setUris(Collections.emptyList());
-            cloudApplicationExtended.setDockerInfo(dockerInfo);
-
-            return cloudApplicationExtended;
-        }
-
-        private void validateClient() {
-            Integer diskQuota = (application.getDiskQuota() != 0) ? application.getDiskQuota() : null;
-            Integer memory = (application.getMemory() != 0) ? application.getMemory() : null;
-
-            Mockito.verify(client)
-                .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
-                    eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(dockerInfo));
-            Mockito.verify(client)
-                .updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
-        }
-
-        @Override
-        protected CreateAppStep createStep() {
-            return new CreateAppStepTest.CreateAppStepMock();
-        }
-
     }
 
     private class CreateAppStepMock extends CreateAppStep {
