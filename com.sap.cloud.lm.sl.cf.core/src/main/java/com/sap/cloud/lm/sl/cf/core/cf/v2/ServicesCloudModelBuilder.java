@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
+import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.SpecialResourceTypesRequiredParametersUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -26,12 +27,10 @@ public class ServicesCloudModelBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServicesCloudModelBuilder.class);
 
-    private CloudServiceNameMapper cloudServiceNameMapper;
     protected final DeploymentDescriptor deploymentDescriptor;
 
-    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor, CloudModelConfiguration configuration) {
+    public ServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
         this.deploymentDescriptor = deploymentDescriptor;
-        this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, deploymentDescriptor);
     }
 
     public List<CloudServiceExtended> build(List<Resource> resourcesToProcess) {
@@ -46,7 +45,7 @@ public class ServicesCloudModelBuilder {
         ResourceType serviceType = getResourceType(parameters);
         boolean isOptional = isOptional(resource);
         boolean shouldIgnoreUpdateErrors = (boolean) parameters.getOrDefault(SupportedParameters.IGNORE_UPDATE_ERRORS, false);
-        CloudServiceExtended service = createService(cloudServiceNameMapper.mapServiceName(resource, serviceType), serviceType, isOptional,
+        CloudServiceExtended service = createService(NameUtil.getServiceName(resource), serviceType, isOptional,
             shouldIgnoreUpdateErrors, parameters);
         if (service != null) {
             service.setResourceName(resource.getName());

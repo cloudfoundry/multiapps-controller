@@ -42,7 +42,7 @@ public class ApplicationNameValidator implements ParameterValidator {
         if (!(applicationName instanceof String)) {
             throw new ContentException(Messages.COULD_NOT_CREATE_VALID_APPLICATION_NAME_FROM_0, applicationName);
         }
-        return NameUtil.getApplicationName((String) applicationName, namespace, useNamespaces);
+        return NameUtil.computeValidApplicationName((String) applicationName, namespace, useNamespaces);
     }
 
 }

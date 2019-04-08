@@ -39,6 +39,7 @@ import com.sap.cloud.lm.sl.cf.core.parser.RestartParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.StagingParametersParser;
 import com.sap.cloud.lm.sl.cf.core.parser.TaskParametersParser;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
+import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
@@ -65,7 +66,6 @@ public class ApplicationCloudModelBuilder {
     protected DeploymentDescriptor deploymentDescriptor;
     protected CloudModelConfiguration configuration;
     protected ApplicationEnvironmentCloudModelBuilder applicationEnvCloudModelBuilder;
-    protected CloudServiceNameMapper cloudServiceNameMapper;
     protected XsPlaceholderResolver xsPlaceholderResolver;
     protected DeployedMta deployedMta;
     protected UserMessageLogger stepLogger;
@@ -80,7 +80,6 @@ public class ApplicationCloudModelBuilder {
         this.configuration = configuration;
         this.applicationEnvCloudModelBuilder = new ApplicationEnvironmentCloudModelBuilder(configuration, deploymentDescriptor,
             xsPlaceholderResolver, deployId);
-        this.cloudServiceNameMapper = new CloudServiceNameMapper(configuration, deploymentDescriptor);
         this.xsPlaceholderResolver = xsPlaceholderResolver;
         this.deployedMta = deployedMta;
         this.parametersChainBuilder = new ParametersChainBuilder(deploymentDescriptor);
@@ -125,7 +124,7 @@ public class ApplicationCloudModelBuilder {
         List<ApplicationPort> applicationPorts = getApplicationPorts(urisCloudModelBuilder, module, parametersList);
         List<String> applicationDomains = getApplicationDomains(parametersList, module);
         RestartParameters restartParameters = parseParameters(parametersList, new RestartParametersParser());
-        return createCloudApplication(getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
+        return createCloudApplication(NameUtil.getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, resolvedUris,
             resolvedIdleUris, services, serviceKeys, env, bindingParameters, tasks, applicationPorts, applicationDomains, restartParameters,
             dockerInfo, applicationAttributesUpdateStrategy);
     }
@@ -151,11 +150,6 @@ public class ApplicationCloudModelBuilder {
 
     protected DeployedMtaModule findDeployedModule(DeployedMta deployedMta, Module module) {
         return deployedMta == null ? null : deployedMta.findDeployedModule(module.getName());
-    }
-
-    public String getApplicationName(Module module) {
-        return (String) module.getParameters()
-            .get(SupportedParameters.APP_NAME);
     }
 
     public List<String> getAllApplicationServices(Module module) {
@@ -243,8 +237,7 @@ public class ApplicationCloudModelBuilder {
     protected void addBindingParameters(Map<String, Map<String, Object>> result, RequiredDependency dependency, Module module) {
         Resource resource = getResource(dependency.getName());
         if (resource != null) {
-            MapUtil.addNonNull(result, cloudServiceNameMapper.getServiceName(resource.getName()),
-                getBindingParameters(dependency, module.getName()));
+            MapUtil.addNonNull(result, NameUtil.getServiceName(resource), getBindingParameters(dependency, module.getName()));
         }
     }
 
@@ -274,7 +267,7 @@ public class ApplicationCloudModelBuilder {
         for (RequiredDependency dependency : module.getRequiredDependencies()) {
             ResourceAndResourceType pair = getApplicationService(dependency.getName());
             if (pair != null && filterRule.test(pair)) {
-                CollectionUtils.addIgnoreNull(services, cloudServiceNameMapper.mapServiceName(pair.getResource(), pair.getResourceType()));
+                CollectionUtils.addIgnoreNull(services, NameUtil.getServiceName(pair.getResource()));
             }
         }
         return ListUtil.removeDuplicates(services);

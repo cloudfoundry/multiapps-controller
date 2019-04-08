@@ -86,9 +86,8 @@ public class HelperFactory implements HelperFactoryConstructor {
     }
 
     @Override
-    public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration) {
-        return new ServicesCloudModelBuilder(deploymentDescriptor, configuration);
+    public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
+        return new ServicesCloudModelBuilder(deploymentDescriptor);
     }
 
     @Override

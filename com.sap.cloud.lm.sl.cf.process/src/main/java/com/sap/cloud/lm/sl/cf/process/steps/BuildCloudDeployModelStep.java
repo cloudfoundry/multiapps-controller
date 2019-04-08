@@ -31,6 +31,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
+import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -128,7 +129,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
         List<Module> modulesCalculatedForDeployment) {
         return modulesCalculatedForDeployment.stream()
             .filter(module -> moduleToDeployHelper.isApplication(module))
-            .map(module -> applicationCloudModelBuilder.getApplicationName(module))
+            .map(module -> NameUtil.getApplicationName(module))
             .collect(Collectors.toList());
     }
 

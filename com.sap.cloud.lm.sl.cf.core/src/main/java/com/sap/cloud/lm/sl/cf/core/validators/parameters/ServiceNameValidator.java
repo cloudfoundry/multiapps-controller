@@ -44,7 +44,7 @@ public class ServiceNameValidator implements ParameterValidator {
         if (!(serviceName instanceof String)) {
             throw new ContentException(Messages.COULD_NOT_CREATE_VALID_SERVICE_NAME_FROM_0, serviceName);
         }
-        return NameUtil.getServiceName((String) serviceName, namespace, useNamespaces, useNamespacesForServices);
+        return NameUtil.computeValidServiceName((String) serviceName, namespace, useNamespaces, useNamespacesForServices);
     }
 
 }

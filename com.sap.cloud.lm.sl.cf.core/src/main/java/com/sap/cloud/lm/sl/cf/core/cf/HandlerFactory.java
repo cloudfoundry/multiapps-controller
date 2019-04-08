@@ -102,9 +102,8 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
     }
 
     @Override
-    public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor,
-        CloudModelConfiguration configuration) {
-        return getHelperDelegate().getServicesCloudModelBuilder(deploymentDescriptor, configuration);
+    public ServicesCloudModelBuilder getServicesCloudModelBuilder(DeploymentDescriptor deploymentDescriptor) {
+        return getHelperDelegate().getServicesCloudModelBuilder(deploymentDescriptor);
     }
 
     @Override
