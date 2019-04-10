@@ -107,7 +107,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
     @Override
     protected List<AsyncExecution> getAsyncStepExecutions(ExecutionWrapper execution) {
         List<AsyncExecution> stepExecutions = new LinkedList<>();
-        
+
         recentLogsRetrieverFailSafe.setFailSafe(true);
         stepExecutions.add(new PollStartAppStatusExecution(recentLogsRetrieverFailSafe));
         stepExecutions.add(new PollExecuteAppStatusExecution(recentLogsRetriever));

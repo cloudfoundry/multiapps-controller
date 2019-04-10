@@ -14,11 +14,11 @@ import com.sap.cloud.lm.sl.mta.util.PropertiesUtil;
 public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
 
     private String parameterName;
-    private boolean prettyPrinting;
+    private CloudTaskMapper cloudTaskMapper;
 
     public TaskParametersParser(String parameterName, boolean prettyPrinting) {
         this.parameterName = parameterName;
-        this.prettyPrinting = prettyPrinting;
+        this.cloudTaskMapper = new CloudTaskMapper(prettyPrinting);
     }
 
     @Override
@@ -28,35 +28,49 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
             Collections.emptyList());
 
         return tasks.stream()
-            .map(this::toCloudTask)
+            .map(cloudTaskMapper::toCloudTask)
             .collect(Collectors.toList());
     }
 
-    private CloudTask toCloudTask(Map<String, Object> rawTask) {
-        CloudTask task = new CloudTask(null, getProperty(rawTask, TasksValidator.TASK_NAME_KEY));
-        task.setCommand(getProperty(rawTask, TasksValidator.TASK_COMMAND_KEY));
-        task.setEnvironmentVariables(getEnvironmentVariables(rawTask));
-        task.setMemory(parseMemory(rawTask));
-        task.setDiskQuota(parseDiskQuota(rawTask));
-        return task;
-    }
+    public static class CloudTaskMapper {
 
-    private Map<String, String> getEnvironmentVariables(Map<String, Object> rawTask) {
-        Map<String, Object> env = getProperty(rawTask, TasksValidator.TASK_ENV_KEY);
-        return env == null ? null : new MapToEnvironmentConverter(prettyPrinting).asEnv(env);
-    }
+        private boolean prettyPrinting;
 
-    private Integer parseMemory(Map<String, Object> rawTask) {
-        return MemoryParametersParser.parseMemory(getProperty(rawTask, TasksValidator.TASK_MEMORY_KEY));
-    }
+        public CloudTaskMapper() {
+            this(false);
+        }
 
-    private Integer parseDiskQuota(Map<String, Object> rawTask) {
-        return MemoryParametersParser.parseMemory(getProperty(rawTask, TasksValidator.TASK_DISK_QUOTA_KEY));
-    }
+        public CloudTaskMapper(boolean prettyPrinting) {
+            this.prettyPrinting = prettyPrinting;
+        }
 
-    @SuppressWarnings("unchecked")
-    private <T> T getProperty(Map<String, Object> rawTask, String key) {
-        return (T) rawTask.get(key);
+        public CloudTask toCloudTask(Map<String, Object> rawTask) {
+            CloudTask task = new CloudTask(null, getProperty(rawTask, TasksValidator.TASK_NAME_KEY));
+            task.setCommand(getProperty(rawTask, TasksValidator.TASK_COMMAND_KEY));
+            task.setEnvironmentVariables(getEnvironmentVariables(rawTask));
+            task.setMemory(parseMemory(rawTask));
+            task.setDiskQuota(parseDiskQuota(rawTask));
+            return task;
+        }
+
+        private Map<String, String> getEnvironmentVariables(Map<String, Object> rawTask) {
+            Map<String, Object> env = getProperty(rawTask, TasksValidator.TASK_ENV_KEY);
+            return env == null ? null : new MapToEnvironmentConverter(prettyPrinting).asEnv(env);
+        }
+
+        private Integer parseMemory(Map<String, Object> rawTask) {
+            return MemoryParametersParser.parseMemory(getProperty(rawTask, TasksValidator.TASK_MEMORY_KEY));
+        }
+
+        private Integer parseDiskQuota(Map<String, Object> rawTask) {
+            return MemoryParametersParser.parseMemory(getProperty(rawTask, TasksValidator.TASK_DISK_QUOTA_KEY));
+        }
+
+        @SuppressWarnings("unchecked")
+        private <T> T getProperty(Map<String, Object> rawTask, String key) {
+            return (T) rawTask.get(key);
+        }
+
     }
 
 }

@@ -27,6 +27,7 @@
           
         }
       },
+      "hooks": [],
       "majorSchemaVersion": 3
     }
   ],

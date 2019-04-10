@@ -74,6 +74,7 @@
           }
         }
       },
+      "hooks": [],
       "majorSchemaVersion": 3
     }
   ],

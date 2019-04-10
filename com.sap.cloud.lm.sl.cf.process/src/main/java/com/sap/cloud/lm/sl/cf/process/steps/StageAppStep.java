@@ -36,7 +36,6 @@ public class StageAppStep extends TimeoutAsyncFlowableStep {
         CloudApplication app = StepsUtil.getApp(execution.getContext());
         try {
             ApplicationStager applicationStager = ApplicationStagerFactory.createApplicationStager(configuration.getPlatformType());
-
             return applicationStager.stageApp(execution.getContext(), execution.getControllerClient(), app, getStepLogger());
         } catch (CloudOperationException coe) {
             CloudControllerException e = new CloudControllerException(coe);

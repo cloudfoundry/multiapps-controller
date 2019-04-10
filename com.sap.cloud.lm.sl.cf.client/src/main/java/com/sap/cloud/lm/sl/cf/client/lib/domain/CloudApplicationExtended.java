@@ -2,7 +2,6 @@ package com.sap.cloud.lm.sl.cf.client.lib.domain;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
@@ -182,15 +181,4 @@ public class CloudApplicationExtended extends CloudApplication {
         }
 
     }
-
-    public static void main(String[] args) {
-        double a = 1.0;
-        double b = 1;
-        System.out.println(a == (int) b);
-        IntStream.rangeClosed(0, 2 * 2019)
-            .mapToDouble(i -> Math.sqrt(Math.pow(i, 2) + 2019))
-            .filter(d -> d == (int) d)
-            .forEach(result -> System.out.println(result));
-    }
-
 }

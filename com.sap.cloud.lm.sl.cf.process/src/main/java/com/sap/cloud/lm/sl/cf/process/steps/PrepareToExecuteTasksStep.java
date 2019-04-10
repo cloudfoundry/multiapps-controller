@@ -22,7 +22,7 @@ public class PrepareToExecuteTasksStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
-        List<CloudTask> tasksToExecute = app.getTasks();
+        List<CloudTask> tasksToExecute = StepsUtil.getTasksToExecute(execution.getContext());
         try {
             return attemptToPrepareExecutionOfTasks(execution, tasksToExecute);
         } catch (CloudOperationException coe) {
@@ -48,7 +48,6 @@ public class PrepareToExecuteTasksStep extends SyncFlowableStep {
             .setVariable(Constants.VAR_TASKS_INDEX, 0);
         execution.getContext()
             .setVariable(Constants.VAR_INDEX_VARIABLE_NAME, Constants.VAR_TASKS_INDEX);
-
         return StepPhase.DONE;
     }
 

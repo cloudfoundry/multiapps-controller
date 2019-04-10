@@ -38,6 +38,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.mta.model.Module;
 
 public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
 
@@ -98,6 +99,8 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
         context.setVariable("__TASK_ID", getTaskId());
         prepareExecution();
         prepareProcessEngineConfiguration();
+        StepsUtil.setModuleToDeploy(context, Module.createV3()
+            .setName("testModule"));
     }
 
     private void prepareProcessEngineConfiguration() {
