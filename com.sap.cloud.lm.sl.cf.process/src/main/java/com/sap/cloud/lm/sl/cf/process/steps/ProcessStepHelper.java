@@ -55,6 +55,7 @@ public class ProcessStepHelper {
 
         deletePreviousErrorType(context);
         logTaskStartup(context, taskId);
+        StepsUtil.setStepPhase(context, initialPhase);
     }
 
     protected void deletePreviousErrorType(DelegateExecution context) {

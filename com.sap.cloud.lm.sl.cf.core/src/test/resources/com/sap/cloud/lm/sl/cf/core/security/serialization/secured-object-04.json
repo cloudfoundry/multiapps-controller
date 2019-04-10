@@ -71,6 +71,7 @@
         }
       },
       "deployedAfter": [],
+      "hooks": [],
       "majorSchemaVersion": 3
     }
   ],

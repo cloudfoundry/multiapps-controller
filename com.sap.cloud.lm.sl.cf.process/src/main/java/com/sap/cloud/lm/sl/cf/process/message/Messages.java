@@ -280,6 +280,7 @@ public class Messages {
     public static final String STAGING_FAILED = "Staging failed. Please check the application logs for details.";
     public static final String SERVICE_BROKER_DOES_NOT_EXIST = "Service broker with name \"{0}\" does not exist";
     public static final String EXCEPTION_OCCURED_ERROR_MSG = "Exception occured during execution: \"{0}\"";
+    public static final String EXECUTING_HOOK_0 = "Executing hook \"{0}\"";
 
     // DEBUG log messages
     public static final String CLIENT_EXTENSIONS_ARE_NOT_SUPPORTED = "Client extensions are not supported";

@@ -173,7 +173,11 @@ public class ApplicationCloudModelBuilder {
     }
 
     protected List<CloudTask> getTasks(List<Map<String, Object>> propertiesList) {
-        return parseParameters(propertiesList, new TaskParametersParser(SupportedParameters.TASKS, configuration.isPrettyPrinting()));
+        return parseParameters(propertiesList, getTasksParametersParser());
+    }
+
+    private TaskParametersParser getTasksParametersParser() {
+        return new TaskParametersParser(SupportedParameters.TASKS, configuration.isPrettyPrinting());
     }
 
     protected CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota, int memory,

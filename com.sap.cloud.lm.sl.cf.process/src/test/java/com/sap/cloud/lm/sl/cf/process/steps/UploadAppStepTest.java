@@ -182,6 +182,7 @@ public class UploadAppStepTest {
             tempDir.create();
             appFile = tempDir.newFile(APP_FILE);
             doAnswer(new Answer<Void>() {
+                @Override
                 public Void answer(InvocationOnMock invocation) throws Exception {
                     ((FileDownloadProcessor) invocation.getArguments()[0]).processContent(null);
                     return null;

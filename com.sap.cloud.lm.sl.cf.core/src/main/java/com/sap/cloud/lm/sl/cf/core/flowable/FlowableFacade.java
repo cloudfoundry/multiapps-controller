@@ -59,6 +59,16 @@ public class FlowableFacade {
         }
     }
 
+    public void startProcessByMessage(String message, Map<String, Object> processVariables) {
+        processEngine.getRuntimeService()
+            .startProcessInstanceByMessage(message, processVariables);
+    }
+
+    public void messageEventReceived(String messageName, String executionId) {
+        processEngine.getRuntimeService()
+            .messageEventReceived(messageName, executionId);
+    }
+
     public State getProcessInstanceState(String processInstanceId) {
         ProcessInstance processInstance = getProcessInstance(processInstanceId);
         if (processInstance != null) {

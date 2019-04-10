@@ -74,6 +74,7 @@ import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.common.util.YamlUtil;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
 import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
 
@@ -379,7 +380,7 @@ public class StepsUtil {
         return getFromJsonBinary(scope, Constants.VAR_TASKS_TO_EXECUTE, type);
     }
 
-    static void setTasksToExecute(VariableScope scope, List<CloudTask> tasks) {
+    public static void setTasksToExecute(VariableScope scope, List<CloudTask> tasks) {
         setAsJsonBinary(scope, Constants.VAR_TASKS_TO_EXECUTE, tasks);
     }
 
@@ -991,7 +992,7 @@ public class StepsUtil {
     public static boolean getSkipManageServiceBroker(VariableScope scope) {
         return getBoolean(scope, Constants.VAR_SKIP_MANAGE_SERVICE_BROKER);
     }
-    
+
     public static void setServicesData(VariableScope scope, Map<String, CloudServiceExtended> servicesData) {
         scope.setVariable(Constants.VAR_SERVICES_DATA, JsonUtil.toJsonBinary(servicesData));
     }
@@ -1084,6 +1085,24 @@ public class StepsUtil {
 
     public static UploadToken getUploadToken(VariableScope scope) {
         return getFromJsonString(scope, Constants.VAR_UPLOAD_TOKEN, UploadToken.class);
+    }
+
+    static void setExecutedHooksForModule(VariableScope scope, String moduleName, Map<String, List<String>> moduleHooks) {
+        setAsJsonBinary(scope, getExecutedHooksForModuleVariableName(moduleName), moduleHooks);
+    }
+
+    static Map<String, List<String>> getExecutedHooksForModule(VariableScope scope, String moduleName) {
+        Type type = new TypeToken<Map<String, List<String>>>() {
+        }.getType();
+        return getFromJsonBinary(scope, getExecutedHooksForModuleVariableName(moduleName), type, Collections.emptyMap());
+    }
+
+    private static String getExecutedHooksForModuleVariableName(String moduleName) {
+        return Constants.VAR_EXECUTED_HOOKS_FOR_PREFIX + moduleName;
+    }
+
+    static void setHooksForExecution(VariableScope scope, List<Hook> hooksForExecution) {
+        setAsJsonStrings(scope, Constants.VAR_HOOKS_FOR_EXECUTION, hooksForExecution);
     }
 
     public static <E> E getEnum(VariableScope scope, String name, Function<String, E> factory) {

@@ -1,23 +1,26 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("stopAppStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class StopAppStep extends SyncFlowableStep {
+public class StopAppStep extends SyncFlowableStepWithHooks {
+
+    private static final String STOP_APP_ON_COMPLETE_HOOK_MESSAGE = "stopAppHookMessage";
 
     @Override
-    protected StepPhase executeStep(ExecutionWrapper execution) {
+    protected StepPhase executeStepInternal(ExecutionWrapper execution) {
         // Get the next cloud application from the context
         CloudApplication app = StepsUtil.getApp(execution.getContext());
 
@@ -49,6 +52,16 @@ public class StopAppStep extends SyncFlowableStep {
             getStepLogger().error(e, Messages.ERROR_STOPPING_APP, app.getName());
             throw e;
         }
+    }
+
+    @Override
+    protected HookPhase getHookPhaseBeforeStep() {
+        return HookPhase.APPLICATION_BEFORE_STOP;
+    }
+
+    @Override
+    protected String getOnCompleteHookMessageName() {
+        return STOP_APP_ON_COMPLETE_HOOK_MESSAGE;
     }
 
 }

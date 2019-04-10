@@ -44,6 +44,7 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
             StepsUtil.setApp(execution.getContext(), modifiedApp);
 
             buildConfigurationEntries(execution.getContext(), modifiedApp);
+            StepsUtil.setTasksToExecute(execution.getContext(), modifiedApp.getTasks());
 
             getStepLogger().debug(Messages.CLOUD_APP_MODEL_BUILT);
         } catch (SLException e) {

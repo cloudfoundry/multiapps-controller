@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
@@ -24,7 +23,7 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     @Test
     public void testIterationOverTasksIsInitialized() throws Exception {
         // Given:
-        StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(createDummyApplicationWithTasks(3)), context);
+        StepsUtil.setTasksToExecute(context, createDummyApplicationWithTasks(3).getTasks());
 
         // When:
         step.execute(context);
@@ -41,7 +40,7 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     @Test
     public void testExecuteWhenTasksAreSupported() throws Exception {
         // Given:
-        StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(createDummyApplicationWithTasks(0)), context);
+        StepsUtil.setTasksToExecute(context, createDummyApplicationWithTasks(0).getTasks());
         when(client.areTasksSupported()).thenReturn(true);
 
         // When:

@@ -23,6 +23,7 @@
         "metadata": {}
       },
       "deployedAfter": [],
+      "hooks": [],
       "majorSchemaVersion": 3
     }
   ],
