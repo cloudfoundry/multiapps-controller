@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
@@ -98,8 +97,6 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
     @Inject
     private FlowableFacade flowableFacade;
     @Inject
-    private SpaceGetter spaceGetter;
-    @Inject
     private ApplicationConfiguration configuration;
     @Inject
     private ModuleToDeployHelper moduleToDeployHelper;
@@ -118,7 +115,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
             List<CloudApplication> updatedSubscribers = new ArrayList<>();
             List<CloudApplication> updatedServiceBrokerSubscribers = new ArrayList<>();
             for (ConfigurationSubscription subscription : subscriptionsDao.findAll(updatedEntries)) {
-                ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace, spaceGetter);
+                ClientHelper clientHelper = new ClientHelper(clientForCurrentSpace);
                 Pair<String, String> orgAndSpace = orgAndSpaceCalculator.apply(clientHelper, subscription.getSpaceId());
                 if (orgAndSpace == null) {
                     getStepLogger().warn(Messages.COULD_NOT_COMPUTE_ORG_AND_SPACE, subscription.getSpaceId());

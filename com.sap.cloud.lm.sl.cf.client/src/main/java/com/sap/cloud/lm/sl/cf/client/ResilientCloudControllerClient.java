@@ -205,11 +205,6 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public CloudApplication getApplication(UUID appGuid, boolean required) {
-        return executeWithRetry(() -> cc.getApplication(appGuid, required));
-    }
-
-    @Override
     public InstancesInfo getApplicationInstances(String applicationName) {
         return executeWithRetry(() -> cc.getApplicationInstances(applicationName));
     }
@@ -301,6 +296,21 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
+    public CloudSpace getSpace(UUID spaceGuid) {
+        return executeWithRetry(() -> cc.getSpace(spaceGuid));
+    }
+
+    @Override
+    public CloudSpace getSpace(String organizationName, String spaceName) {
+        return executeWithRetry(() -> cc.getSpace(organizationName, spaceName));
+    }
+
+    @Override
+    public CloudSpace getSpace(String organizationName, String spaceName, boolean required) {
+        return executeWithRetry(() -> cc.getSpace(organizationName, spaceName, required));
+    }
+
+    @Override
     public CloudSpace getSpace(String spaceName) {
         return executeWithRetry(() -> cc.getSpace(spaceName));
     }
@@ -313,6 +323,11 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     @Override
     public List<CloudSpace> getSpaces() {
         return executeWithRetry(() -> cc.getSpaces(), HttpStatus.NOT_FOUND);
+    }
+
+    @Override
+    public List<CloudSpace> getSpaces(String organizationName) {
+        return executeWithRetry(() -> cc.getSpaces(organizationName), HttpStatus.NOT_FOUND);
     }
 
     @Override

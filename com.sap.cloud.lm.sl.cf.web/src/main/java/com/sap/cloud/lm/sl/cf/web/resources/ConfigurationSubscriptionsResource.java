@@ -22,7 +22,6 @@ import org.cloudfoundry.client.lib.domain.CloudSpace;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
@@ -41,9 +40,6 @@ public class ConfigurationSubscriptionsResource {
     @Inject
     private CloudControllerClientProvider clientProvider;
 
-    @Inject
-    private SpaceGetter spaceGetter;
-
     @Context
     private HttpServletRequest request;
 
@@ -61,9 +57,9 @@ public class ConfigurationSubscriptionsResource {
 
     private List<CloudSpace> getClientSpaces(String org, String space, CloudControllerClient client) {
         if (space == null) {
-            return spaceGetter.findSpaces(client, org);
+            return client.getSpaces(org);
         }
-        return Arrays.asList(spaceGetter.findSpace(client, org, space));
+        return Arrays.asList(client.getSpace(org, space));
     }
 
     private List<ConfigurationSubscription> getConfigurationEntries(List<CloudSpace> clientSpaces, CloudControllerClient client) {
@@ -84,7 +80,7 @@ public class ConfigurationSubscriptionsResource {
     }
 
     private String computeSpaceId(CloudControllerClient client, String orgName, String spaceName) {
-        return new ClientHelper(client, spaceGetter).computeSpaceId(orgName, spaceName);
+        return new ClientHelper(client).computeSpaceId(orgName, spaceName);
     }
 
 }

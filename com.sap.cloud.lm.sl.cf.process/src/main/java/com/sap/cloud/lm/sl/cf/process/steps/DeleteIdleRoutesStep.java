@@ -3,8 +3,6 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -14,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -23,9 +20,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 @Component("deleteIdleRoutesStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DeleteIdleRoutesStep extends SyncFlowableStep {
-
-    @Inject
-    private SpaceGetter spaceGetter;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -55,7 +49,7 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
     private void deleteRoute(String uri, boolean portBasedRouting, CloudControllerClient client) {
         try {
             boolean portRoute = portBasedRouting || UriUtil.isTcpOrTcpsUri(uri);
-            new ClientHelper(client, spaceGetter).deleteRoute(uri, portRoute);
+            new ClientHelper(client).deleteRoute(uri, portRoute);
         } catch (CloudOperationException e) {
             if (!e.getStatusCode()
                 .equals(HttpStatus.CONFLICT)) {
