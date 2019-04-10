@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -25,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.CFOptimizedSpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.OperationFilter;
 import com.sap.cloud.lm.sl.cf.core.flowable.AbortProcessAction;
@@ -240,7 +240,7 @@ public class OperationsApiServiceImpl implements OperationsApiService {
         String processDefinitionKey = operationsHelper.getProcessDefinitionKey(operation);
         Map<String, Object> parameters = operation.getParameters();
         CloudControllerClient client = getCloudFoundryClient(spaceGuid);
-        CloudSpace space = new CFOptimizedSpaceGetter().getSpace(client, spaceGuid);
+        CloudSpace space = client.getSpace(UUID.fromString(spaceGuid));
         parameters.put(Constants.VARIABLE_NAME_SPACE_ID, spaceGuid);
         parameters.put(Constants.VARIABLE_NAME_SERVICE_ID, processDefinitionKey);
         parameters.put(com.sap.cloud.lm.sl.cf.process.Constants.VAR_ORG, space.getOrganization()

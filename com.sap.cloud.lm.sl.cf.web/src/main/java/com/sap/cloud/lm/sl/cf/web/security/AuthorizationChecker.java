@@ -16,12 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.CloudControllerClientSupportingCustomUserIds;
-import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
 import com.sap.cloud.lm.sl.cf.client.util.TokenFactory;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CachedMap;
@@ -38,16 +36,12 @@ public class AuthorizationChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationChecker.class);
     private CachedMap<UUID, List<String>> spaceDevelopersCache = null;
 
-    private final ExecutionRetrier retrier = new ExecutionRetrier();
     private final CloudControllerClientProvider clientProvider;
-    private final SpaceGetter spaceGetter;
     private final ApplicationConfiguration applicationConfiguration;
 
     @Inject
-    public AuthorizationChecker(CloudControllerClientProvider clientProvider, SpaceGetter spaceGetter,
-        ApplicationConfiguration applicationConfiguration) {
+    public AuthorizationChecker(CloudControllerClientProvider clientProvider, ApplicationConfiguration applicationConfiguration) {
         this.clientProvider = clientProvider;
-        this.spaceGetter = spaceGetter;
         this.applicationConfiguration = applicationConfiguration;
         initSpaceDevelopersCache();
     }
@@ -177,7 +171,7 @@ public class AuthorizationChecker {
     }
 
     private boolean hasAccess(CloudControllerClientSupportingCustomUserIds client, String orgName, String spaceName) {
-        return retrier.executeWithRetry(() -> spaceGetter.findSpace(client, orgName, spaceName)) != null;
+        return client.getSpace(orgName, spaceName, false) != null;
     }
 
     private boolean isDummyToken(UserInfo userInfo) {
@@ -208,6 +202,6 @@ public class AuthorizationChecker {
     }
 
     public ClientHelper getClientHelper(CloudControllerClient client) {
-        return new ClientHelper(client, spaceGetter);
+        return new ClientHelper(client);
     }
 }

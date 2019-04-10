@@ -14,7 +14,6 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
@@ -41,9 +40,6 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
 
     @Inject
     private ApplicationConfiguration configuration;
-
-    @Inject
-    private SpaceGetter spaceGetter;
 
     protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, ConfigurationEntryDao dao,
         BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, boolean useNamespaces,
@@ -131,7 +127,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     }
 
     protected BiFunction<String, String, String> getSpaceIdSupplier(CloudControllerClient client) {
-        return (orgName, spaceName) -> new ClientHelper(client, spaceGetter).computeSpaceId(orgName, spaceName);
+        return (orgName, spaceName) -> new ClientHelper(client).computeSpaceId(orgName, spaceName);
     }
 
 }

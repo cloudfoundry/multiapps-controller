@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ApplicationRoutesGetter;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.util.UriUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -32,8 +31,6 @@ public class UndeployAppStep extends SyncFlowableStep {
 
     @Inject
     private ApplicationRoutesGetter applicationRoutesGetter;
-    @Inject
-    private SpaceGetter spaceGetter;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
@@ -112,7 +109,7 @@ public class UndeployAppStep extends SyncFlowableStep {
             getStepLogger().debug(com.sap.cloud.lm.sl.cf.core.message.Messages.ROUTE_NOT_FOUND, uri);
             return;
         }
-        new ClientHelper(client, spaceGetter).deleteRoute(uri, isPortBasedRouting);
+        new ClientHelper(client).deleteRoute(uri, isPortBasedRouting);
         getStepLogger().debug(Messages.ROUTE_DELETED, uri);
     }
 

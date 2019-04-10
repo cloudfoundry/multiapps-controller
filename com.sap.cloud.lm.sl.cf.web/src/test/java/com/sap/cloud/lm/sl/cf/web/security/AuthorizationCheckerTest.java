@@ -31,7 +31,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import com.sap.cloud.lm.sl.cf.client.CloudControllerClientSupportingCustomUserIds;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.PlatformType;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.core.util.UserInfo;
@@ -52,8 +51,6 @@ public class AuthorizationCheckerTest {
     private CloudControllerClientProvider clientProvider;
     @Mock
     private CloudControllerClientSupportingCustomUserIds client;
-    @Mock
-    private SpaceGetter spaceGetter;
     @Mock
     private ApplicationConfiguration applicationConfiguration;
     @Spy
@@ -176,7 +173,7 @@ public class AuthorizationCheckerTest {
         ClientHelper clientHelper = Mockito.mock(ClientHelper.class);
 
         if (hasAccess) {
-            when(spaceGetter.findSpace(client, ORG, SPACE)).thenReturn(space);
+            when(client.getSpace(ORG, SPACE, false)).thenReturn(space);
             when(clientHelper.computeOrgAndSpace(SPACE_ID)).thenReturn(new Pair<String, String>(ORG, SPACE));
         } else {
             when(clientHelper.computeOrgAndSpace(SPACE_ID)).thenReturn(null);

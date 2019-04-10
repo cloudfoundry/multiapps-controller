@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -51,8 +50,6 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
 
     @Mock
     private MtaDescriptorPropertiesResolver resolver;
-    @Mock
-    private SpaceGetter spaceGetter;
 
     @Before
     public void setUp() throws Exception {
@@ -95,7 +92,7 @@ public class ProcessDescriptorStepTest extends SyncFlowableStepTest<ProcessDescr
     public void testGetSpaceIdSupplier1() {
         CloudSpace space = new CloudSpace(new Meta(NameUtil.getUUID(SPACE_NAME), null, null), SPACE_NAME, null);
 
-        when(spaceGetter.findSpace(client, ORG_NAME, SPACE_NAME)).thenReturn(space);
+        when(client.getSpace(ORG_NAME, SPACE_NAME, false)).thenReturn(space);
 
         assertEquals("cc51b819-7428-3ab7-9cef-9e94fe778cc9", step.getSpaceIdSupplier(client)
             .apply(ORG_NAME, SPACE_NAME));

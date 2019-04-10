@@ -39,7 +39,6 @@ import org.springframework.stereotype.Component;
 import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
-import com.sap.cloud.lm.sl.cf.core.cf.clients.SpaceGetter;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
@@ -85,9 +84,6 @@ public class ConfigurationEntriesResource {
 
     @Inject
     private CloudControllerClientProvider clientProvider;
-
-    @Inject
-    private SpaceGetter spaceGetter;
 
     @Inject
     private AuthorizationChecker authorizationChecker;
@@ -279,7 +275,7 @@ public class ConfigurationEntriesResource {
         UserInfo userInfo = SecurityContextUtil.getUserInfo();
         authorizationChecker.ensureUserIsAuthorized(request, userInfo, org, space, PURGE_COMMAND);
         CloudControllerClient client = clientProvider.getControllerClient(userInfo.getName(), org, space, null);
-        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, spaceGetter, entryDao, subscriptionDao);
+        MtaConfigurationPurger purger = new MtaConfigurationPurger(client, entryDao, subscriptionDao);
         purger.purge(org, space);
         return Response.status(Response.Status.NO_CONTENT)
             .build();
