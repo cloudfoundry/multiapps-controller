@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
@@ -28,9 +27,9 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
 
     private List<Resource> inactiveConfigResources = new ArrayList<>();
 
-    public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
-        super(dao, filterParser, spaceIdSupplier, cloudTarget, configuration);
+    public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser, CloudTarget cloudTarget,
+        ApplicationConfiguration configuration) {
+        super(dao, filterParser, cloudTarget, configuration);
     }
 
     @Override

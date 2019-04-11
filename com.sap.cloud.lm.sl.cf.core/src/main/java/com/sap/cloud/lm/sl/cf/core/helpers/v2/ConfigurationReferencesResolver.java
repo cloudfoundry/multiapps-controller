@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -39,18 +38,16 @@ public class ConfigurationReferencesResolver extends Visitor {
     protected ConfigurationEntryDao dao;
     protected Map<String, ResolvedConfigurationReference> resolvedReferences = new TreeMap<>();
     protected ConfigurationFilterParser filterParser;
-    protected BiFunction<String, String, String> spaceIdSupplier;
     protected CloudTarget cloudTarget;
     protected ApplicationConfiguration configuration;
 
     protected Map<RequiredDependency, List<RequiredDependency>> expandedDependenciesMap = new HashMap<>();
     private List<String> expandedProperties = new ArrayList<>();
 
-    public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
-        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+    public ConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser, CloudTarget cloudTarget,
+        ApplicationConfiguration configuration) {
         this.dao = dao;
         this.filterParser = filterParser;
-        this.spaceIdSupplier = spaceIdSupplier;
         this.cloudTarget = cloudTarget;
         this.configuration = configuration;
         this.configurationResolver = createReferenceResolver(dao);

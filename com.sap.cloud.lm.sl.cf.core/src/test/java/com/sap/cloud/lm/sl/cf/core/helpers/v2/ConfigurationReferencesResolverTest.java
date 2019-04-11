@@ -32,8 +32,6 @@ import com.sap.cloud.lm.sl.mta.model.Platform;
 @RunWith(Parameterized.class)
 public class ConfigurationReferencesResolverTest {
 
-    protected static final String SPACE_ID = "SAP";
-
     protected static class DaoMockConfiguration {
 
         ConfigurationFilter filter;
@@ -135,8 +133,8 @@ public class ConfigurationReferencesResolverTest {
         String currentSpace = (String) platform.getParameters()
             .get("space");
         return new ConfigurationReferencesResolver(dao,
-            new ConfigurationFilterParser(new CloudTarget(currentOrg, currentSpace), getPropertiesChainBuilder(descriptor)),
-            (org, space) -> SPACE_ID, null, configuration);
+            new ConfigurationFilterParser(new CloudTarget(currentOrg, currentSpace), getPropertiesChainBuilder(descriptor)), null,
+            configuration);
     }
 
     protected ParametersChainBuilder getPropertiesChainBuilder(DeploymentDescriptor descriptor) {

@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf;
 
 import java.util.List;
-import java.util.function.BiFunction;
 
 import com.sap.cloud.lm.sl.cf.core.cf.factory.HelperFactoryConstructor;
 import com.sap.cloud.lm.sl.cf.core.cf.factory.v2.HelperFactory;
@@ -59,10 +58,8 @@ public class HandlerFactory extends com.sap.cloud.lm.sl.mta.handlers.HandlerFact
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor,
-        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-        ApplicationConfiguration configuration) {
-        return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, spaceIdSupplier, dao, cloudTarget,
-            configuration);
+        ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+        return getHelperDelegate().getConfigurationReferencesResolver(deploymentDescriptor, dao, cloudTarget, configuration);
     }
 
     @Override

@@ -1,9 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.cf.factory.v3;
 
-import static com.sap.cloud.lm.sl.common.util.CommonUtil.cast;
-
-import java.util.function.BiFunction;
-
 import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServiceKeysCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ServicesCloudModelBuilder;
@@ -28,11 +24,10 @@ public class HelperFactory extends com.sap.cloud.lm.sl.cf.core.cf.factory.v2.Hel
 
     @Override
     public ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor,
-        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-        ApplicationConfiguration configuration) {
-        ParametersChainBuilder v2ParameterChainBuilder = new ParametersChainBuilder(cast(deploymentDescriptor), null);
+        ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration) {
+        ParametersChainBuilder v2ParameterChainBuilder = new ParametersChainBuilder(deploymentDescriptor, null);
         ConfigurationFilterParser v2FilterParser = new ConfigurationFilterParser(cloudTarget, v2ParameterChainBuilder);
-        return new ConfigurationReferencesResolver(dao, v2FilterParser, spaceIdSupplier, cloudTarget, configuration);
+        return new ConfigurationReferencesResolver(dao, v2FilterParser, cloudTarget, configuration);
     }
 
     @Override
