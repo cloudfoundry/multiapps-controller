@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.factory;
 
 import java.util.List;
-import java.util.function.BiFunction;
 
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
@@ -32,9 +31,8 @@ public interface HelperFactoryConstructor {
 
     ServiceKeysCloudModelBuilder getServiceKeysCloudModelBuilder(DeploymentDescriptor deploymentDescriptor);
 
-    ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor,
-        BiFunction<String, String, String> spaceIdSupplier, ConfigurationEntryDao dao, CloudTarget cloudTarget,
-        ApplicationConfiguration configuration);
+    ConfigurationReferencesResolver getConfigurationReferencesResolver(DeploymentDescriptor deploymentDescriptor, ConfigurationEntryDao dao,
+        CloudTarget cloudTarget, ApplicationConfiguration configuration);
 
     ConfigurationReferencesResolver getConfigurationReferencesResolver(ConfigurationEntryDao dao, ConfigurationFilterParser filterParser,
         CloudTarget cloudTarget, ApplicationConfiguration configuration);

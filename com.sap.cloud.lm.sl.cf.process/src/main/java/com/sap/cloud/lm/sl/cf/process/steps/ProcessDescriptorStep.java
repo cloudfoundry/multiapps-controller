@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -15,7 +14,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
-import com.sap.cloud.lm.sl.cf.core.helpers.ClientHelper;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolverInvoker;
@@ -42,9 +40,8 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     private ApplicationConfiguration configuration;
 
     protected MtaDescriptorPropertiesResolver getMtaDescriptorPropertiesResolver(HandlerFactory factory, ConfigurationEntryDao dao,
-        BiFunction<String, String, String> spaceIdSupplier, CloudTarget cloudTarget, boolean useNamespaces,
-        boolean useNamespacesForServices) {
-        return new MtaDescriptorPropertiesResolver(factory, spaceIdSupplier, dao, cloudTarget, configuration, useNamespaces,
+        CloudTarget cloudTarget, String currentSpaceId, boolean useNamespaces, boolean useNamespacesForServices) {
+        return new MtaDescriptorPropertiesResolver(factory, dao, cloudTarget, currentSpaceId, configuration, useNamespaces,
             useNamespacesForServices);
     }
 
@@ -61,7 +58,7 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
             boolean useNamespacesForServices = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES_FOR_SERVICES);
             boolean useNamespaces = (boolean) context.getVariable(Constants.PARAM_USE_NAMESPACES);
             MtaDescriptorPropertiesResolver resolver = getMtaDescriptorPropertiesResolver(handlerFactory, configurationEntryDao,
-                getSpaceIdSupplier(client), new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)), useNamespaces,
+                new CloudTarget(StepsUtil.getOrg(context), StepsUtil.getSpace(context)), StepsUtil.getSpaceId(context), useNamespaces,
                 useNamespacesForServices);
 
             descriptor = resolver.resolve(descriptor);
@@ -124,10 +121,6 @@ public class ProcessDescriptorStep extends SyncFlowableStep {
     private void resolveXsPlaceholders(DeploymentDescriptor descriptor, XsPlaceholderResolver xsPlaceholderResolver) {
         XsPlaceholderResolverInvoker resolverInvoker = new XsPlaceholderResolverInvoker(xsPlaceholderResolver);
         descriptor.accept(resolverInvoker);
-    }
-
-    protected BiFunction<String, String, String> getSpaceIdSupplier(CloudControllerClient client) {
-        return (orgName, spaceName) -> new ClientHelper(client).computeSpaceId(orgName, spaceName);
     }
 
 }

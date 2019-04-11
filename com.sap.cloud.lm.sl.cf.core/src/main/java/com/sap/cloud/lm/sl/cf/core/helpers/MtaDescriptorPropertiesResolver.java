@@ -5,7 +5,6 @@ import static java.text.MessageFormat.format;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,21 +40,20 @@ public class MtaDescriptorPropertiesResolver {
     private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade().setFormattedOutput(true);
 
     private final HandlerFactory handlerFactory;
-    private BiFunction<String, String, String> spaceIdSupplier;
     private final ConfigurationEntryDao dao;
     private final CloudTarget cloudTarget;
+    private final String currentSpaceId;
     private List<ConfigurationSubscription> subscriptions;
     private final ApplicationConfiguration configuration;
     private final boolean useNamespaces;
     private final boolean useNamespacesForServices;
 
-    public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, BiFunction<String, String, String> spaceIdSupplier,
-        ConfigurationEntryDao dao, CloudTarget cloudTarget, ApplicationConfiguration configuration, boolean useNamespaces,
-        boolean useNamespacesForServices) {
+    public MtaDescriptorPropertiesResolver(HandlerFactory handlerFactory, ConfigurationEntryDao dao, CloudTarget cloudTarget,
+        String currentSpaceId, ApplicationConfiguration configuration, boolean useNamespaces, boolean useNamespacesForServices) {
         this.handlerFactory = handlerFactory;
-        this.spaceIdSupplier = spaceIdSupplier;
         this.dao = dao;
         this.cloudTarget = cloudTarget;
+        this.currentSpaceId = currentSpaceId;
         this.configuration = configuration;
         this.useNamespaces = useNamespaces;
         this.useNamespacesForServices = useNamespacesForServices;
@@ -87,8 +85,8 @@ public class MtaDescriptorPropertiesResolver {
 
         DeploymentDescriptor descriptorWithUnresolvedReferences = DeploymentDescriptor.copyOf(descriptor);
 
-        ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor, spaceIdSupplier, dao,
-            cloudTarget, configuration);
+        ConfigurationReferencesResolver resolver = handlerFactory.getConfigurationReferencesResolver(descriptor, dao, cloudTarget,
+            configuration);
         resolver.resolve(descriptor);
         LOGGER.debug(format(Messages.DEPLOYMENT_DESCRIPTOR_AFTER_CROSS_MTA_DEPENDENCY_RESOLUTION, secureSerializer.toJson(descriptor)));
 
@@ -115,9 +113,8 @@ public class MtaDescriptorPropertiesResolver {
 
     private List<ConfigurationSubscription> createSubscriptions(DeploymentDescriptor descriptorWithUnresolvedReferences,
         Map<String, ResolvedConfigurationReference> resolvedResources) {
-        String spaceId = spaceIdSupplier.apply(cloudTarget.getOrg(), cloudTarget.getSpace());
         return handlerFactory.getConfigurationSubscriptionFactory()
-            .create(descriptorWithUnresolvedReferences, resolvedResources, spaceId);
+            .create(descriptorWithUnresolvedReferences, resolvedResources, currentSpaceId);
     }
 
     public List<ConfigurationSubscription> getSubscriptions() {
