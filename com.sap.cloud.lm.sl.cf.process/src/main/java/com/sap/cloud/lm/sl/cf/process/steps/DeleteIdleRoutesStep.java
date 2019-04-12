@@ -1,11 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
+import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -24,14 +25,22 @@ public class DeleteIdleRoutesStep extends SyncFlowableStep {
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) {
         try {
+            boolean deleteIdleRoutes = StepsUtil.getDeleteIdleUris(execution.getContext());
+            CloudApplication existingApp = StepsUtil.getExistingApp(execution.getContext());
+            if (!deleteIdleRoutes || existingApp == null) {
+                return StepPhase.DONE;
+            }
+
             getStepLogger().debug(Messages.DELETING_IDLE_URIS);
             CloudControllerClient client = execution.getControllerClient();
             boolean portBasedRouting = (boolean) execution.getContext()
                 .getVariable(Constants.VAR_PORT_BASED_ROUTING);
 
-            CloudApplicationExtended app = StepsUtil.getApp(execution.getContext());
+            CloudApplication app = StepsUtil.getApp(execution.getContext());
 
-            List<String> idleUris = new ArrayList<>(app.getIdleUris());
+            List<String> idleUris = ListUtils.subtract(existingApp.getUris(), app.getUris());
+            getStepLogger().debug(Messages.IDLE_URIS_FOR_APPLICATION, idleUris);
+
             for (String idleUri : idleUris) {
                 deleteRoute(idleUri, portBasedRouting, client);
                 getStepLogger().debug(Messages.ROUTE_DELETED, idleUri);
