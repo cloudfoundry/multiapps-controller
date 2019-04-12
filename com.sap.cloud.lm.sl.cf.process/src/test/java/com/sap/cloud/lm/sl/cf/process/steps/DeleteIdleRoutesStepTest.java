@@ -88,7 +88,6 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
     public void setUp() throws Exception {
         loadParameters();
         prepareContext();
-        prepareClient();
     }
 
     private void loadParameters() throws Exception {
@@ -102,16 +101,16 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
 
     private void prepareContext() {
         context.setVariable(Constants.VAR_PORT_BASED_ROUTING, false);
+        
+        if (!output.urisToDelete.isEmpty()) {
+            StepsUtil.setDeleteIdleUris(context, true);
+        }
+        
+        CloudApplicationExtended existingApp = new CloudApplicationExtended(null, expectedAppToDeploy.getName());
+        existingApp.setUris(output.urisToDelete);
+        StepsUtil.setExistingApp(context, existingApp);
 
         StepsUtil.setApp(context, appToDeploy);
-    }
-
-    private void prepareClient() {
-        CloudApplicationExtended existingApp = new CloudApplicationExtended(null, expectedAppToDeploy.getName());
-        List<String> existingUris = new ArrayList<>(expectedAppToDeploy.getUris());
-        existingUris.addAll(output.urisToDelete);
-        existingApp.setUris(existingUris);
-        when(client.getApplication(expectedAppToDeploy.getName())).thenReturn(existingApp);
     }
 
     @Test

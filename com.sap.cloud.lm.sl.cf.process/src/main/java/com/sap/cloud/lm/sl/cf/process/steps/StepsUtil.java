@@ -1021,7 +1021,7 @@ public class StepsUtil {
     }
 
     static boolean getDeleteIdleUris(VariableScope scope) {
-        return (boolean) scope.getVariable(Constants.VAR_DELETE_IDLE_URIS);
+        return getBoolean(scope, Constants.VAR_DELETE_IDLE_URIS, false);
     }
 
     public static void setSkipUpdateConfigurationEntries(VariableScope scope, boolean update) {

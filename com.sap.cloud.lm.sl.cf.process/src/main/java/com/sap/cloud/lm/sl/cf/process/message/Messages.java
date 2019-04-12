@@ -371,6 +371,7 @@ public class Messages {
     public static final String CANCELED_TASK_ON_APP = "Canceled task \"{0}\" on application \"{1}\"";
     public static final String APP_DELETED = "Application \"{0}\" deleted";
     public static final String DELETING_IDLE_URIS = "Deleting idle URIs from applications...";
+    public static final String IDLE_URIS_FOR_APPLICATION = "Assuming existing URIs to be deleted as idle: {0}";
     public static final String IDLE_URIS_DELETED = "Idle URIs deleted";
     public static final String ROUTE_DELETED = "Route \"{0}\" deleted";
     public static final String MTA_VERSION_ACCEPTED = "MTA accepted for deployment";
