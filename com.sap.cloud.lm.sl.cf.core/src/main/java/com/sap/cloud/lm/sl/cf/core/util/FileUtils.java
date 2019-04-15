@@ -44,6 +44,12 @@ public class FileUtils {
         }
     }
 
+    public static String getRelativePath(String parentPath, String filePath) {
+        return Paths.get(parentPath)
+            .relativize(Paths.get(filePath))
+            .toString();
+    }
+
     public static boolean isDirectory(String fileName) {
         return fileName.endsWith("/");
     }

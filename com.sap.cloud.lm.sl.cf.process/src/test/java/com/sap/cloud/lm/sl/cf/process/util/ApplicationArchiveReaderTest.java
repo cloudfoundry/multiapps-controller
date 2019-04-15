@@ -5,15 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Assertions;
@@ -35,8 +34,9 @@ public class ApplicationArchiveReaderTest {
     public static Stream<Arguments> testReadResources() {
         // @formatter:off
         return Stream.of(
-            Arguments.of(SAMPLE_MTAR, "web/web-server.zip", MAX_UPLOAD_FILE_SIZE),
-            Arguments.of(SAMPLE_FLAT_MTAR, "web/", MAX_UPLOAD_FILE_SIZE));
+            Arguments.of(SAMPLE_MTAR, "web/web-server.zip", MAX_UPLOAD_FILE_SIZE, Stream.of("web-server.zip").collect(Collectors.toSet())),
+            Arguments.of(SAMPLE_FLAT_MTAR, "web/", MAX_UPLOAD_FILE_SIZE, Stream.of("xs-app.json","readme.txt","package.json","local-destinations.json",
+                "default-services.json","resources/index.html","resources/favicon.ico","resources/jds/tree.controller.js","resources/jds/tree.view.js").collect(Collectors.toSet())));
         // @formatter:on
     }
 
@@ -59,60 +59,61 @@ public class ApplicationArchiveReaderTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testReadResources(String mtar, String fileName, long maxFileUploadSize) throws Exception {
-        ApplicationArchiveReader reader = getApplicationArchiveReader(mtar, fileName, maxFileUploadSize);
+    public void testReadResources(String mtar, String fileName, long maxFileUploadSize, Set<String> expectedZipEntries) throws Exception {
+        ApplicationArchiveContext applicatonArchiveContext = getApplicationArchiveContext(mtar, fileName, maxFileUploadSize);
+        ApplicationArchiveReader reader = getApplicationArchiveReader();
         ApplicationResources applicationResources = new ApplicationResources();
-        reader.initializeApplicationResources(applicationResources);
+        reader.initializeApplicationResources(applicatonArchiveContext, applicationResources);
         assertFalse(applicationResources.getCloudResourceList()
             .isEmpty());
         assertNotNull(applicationResources.getApplicationDigest());
-        try (InputStream mtarStream = getClass().getResourceAsStream(mtar)) {
-            Set<String> zipEntriesName = getZipEntriesName(mtarStream, fileName);
-            Set<String> applicationResourcesNames = applicationResources.toCloudResources()
-                .getFileNames();
-            assertTrue(zipEntriesName.containsAll(applicationResourcesNames));
-        }
+        Set<String> applicationResourcesNames = applicationResources.toCloudResources()
+            .getFileNames();
+        Set<String> normalizedZipEntries = normalizePathsOfZipEntries(expectedZipEntries);
+        assertTrue(normalizedZipEntries.containsAll(applicationResourcesNames),
+            MessageFormat.format("Expected resources:{0} but was:{1}", normalizedZipEntries, applicationResourcesNames));
     }
 
-    private Set<String> getZipEntriesName(InputStream inputStream, String fileName) throws IOException {
-        Set<String> zipEntriesName = new HashSet<>();
-        try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
-            for (ZipEntry zipEntry; (zipEntry = zipInputStream.getNextEntry()) != null;) {
-                if (zipEntry.getName()
-                    .startsWith(fileName) && !FileUtils.isDirectory(zipEntry.getName())) {
-                    zipEntriesName.add(zipEntry.getName());
-                }
-            }
-        }
-        return zipEntriesName;
+    private Set<String> normalizePathsOfZipEntries(Set<String> expectedZipEntries) {
+        Set<String> normalizedZipEntries = new HashSet<>();
+        expectedZipEntries.stream()
+            .forEach(zipEntry -> {
+                normalizedZipEntries.add(FilenameUtils.normalize(zipEntry));
+            });
+        return normalizedZipEntries;
     }
 
     @ParameterizedTest
     @MethodSource
     public void testFailingReadResources(String mtar, String fileName, String expectedException, long maxFileUploadSize) {
-        ApplicationArchiveReader reader = getApplicationArchiveReader(mtar, fileName, maxFileUploadSize);
+        ApplicationArchiveContext applicatonArchiveContext = getApplicationArchiveContext(mtar, fileName, maxFileUploadSize);
+        ApplicationArchiveReader reader = getApplicationArchiveReader();
         Exception exception = Assertions.assertThrows(Exception.class,
-            () -> reader.initializeApplicationResources(new ApplicationResources()));
+            () -> reader.initializeApplicationResources(applicatonArchiveContext, new ApplicationResources()));
         assertEquals(expectedException, exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource
     public void testBadAbsolutePathRead(String mtar, String fileName, String expectedException, long maxFileUploadSize) {
-        ApplicationArchiveReader reader = getApplicationArchiveReaderForAbsolutePath(mtar, fileName, maxFileUploadSize);
+        ApplicationArchiveContext applicatonArchiveContext = getApplicationArchiveContext(mtar, fileName, maxFileUploadSize);
+        ApplicationArchiveReader reader = getApplicationArchiveReaderForAbsolutePath();
         Exception exception = Assertions.assertThrows(Exception.class,
-            () -> reader.initializeApplicationResources(new ApplicationResources()));
+            () -> reader.initializeApplicationResources(applicatonArchiveContext, new ApplicationResources()));
         assertEquals(expectedException, exception.getMessage());
     }
 
-    private ApplicationArchiveReader getApplicationArchiveReader(String mtar, String fileName, long maxFileUploadSize) {
+    private ApplicationArchiveContext getApplicationArchiveContext(String mtar, String fileName, long maxFileUploadSize) {
         InputStream mtarInputStream = getClass().getResourceAsStream(mtar);
-        return new ApplicationArchiveReader(mtarInputStream, fileName, maxFileUploadSize);
+        return new ApplicationArchiveContext(mtarInputStream, fileName, maxFileUploadSize);
     }
 
-    private ApplicationArchiveReader getApplicationArchiveReaderForAbsolutePath(String mtar, String fileName, long maxFileUploadSize) {
-        InputStream mtarInputStream = getClass().getResourceAsStream(mtar);
-        return new ApplicationArchiveReader(mtarInputStream, fileName, maxFileUploadSize) {
+    private ApplicationArchiveReader getApplicationArchiveReader() {
+        return new ApplicationArchiveReader();
+    }
+
+    private ApplicationArchiveReader getApplicationArchiveReaderForAbsolutePath() {
+        return new ApplicationArchiveReader() {
             @Override
             protected void validateEntry(ZipEntry entry) {
                 String path = entry.getName();

@@ -35,6 +35,7 @@ import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.persistence.services.FileStorageException;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveContext;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationDigestDetector;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationResources;
@@ -50,6 +51,10 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
     @Inject
     protected ApplicationConfiguration configuration;
+    @Inject
+    protected ApplicationArchiveReader applicationArchiveReader;
+    @Inject
+    protected ApplicationZipBuilder applicationZipBuilder;
 
     @Override
     public StepPhase executeAsyncStep(ExecutionWrapper execution) throws FileStorageException {
@@ -95,8 +100,9 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
             appArchiveStream -> {
                 long maxSize = configuration.getMaxResourceFileSize();
                 try {
-                    ApplicationArchiveReader appArchiveReader = getApplicationArchiveReader(appArchiveStream, fileName, maxSize);
-                    appArchiveReader.initializeApplicationResources(applicationResources);
+                    ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName,
+                        maxSize);
+                    applicationArchiveReader.initializeApplicationResources(applicationArchiveContext, applicationResources);
                 } catch (CloudOperationException e) {
                     throw e;
                 }
@@ -105,6 +111,10 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         fileService.processFileContent(fileDownloadProcessor);
 
         return applicationResources;
+    }
+
+    protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName, long maxSize) {
+        return new ApplicationArchiveContext(appArchiveStream, fileName, maxSize);
     }
 
     private UploadToken asyncUploadFiles(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app,
@@ -119,7 +129,10 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
                     RemoteApplicationResourcesDetector remoteResourcesDetector = new RemoteApplicationResourcesDetector(client,
                         applicationResources.toCloudResources());
                     CloudResources knownRemoteResources = remoteResourcesDetector.getCloudResources();
-                    filePath = extractFromMtar(appArchiveStream, fileName, maxSize, getAlreadyUploadedFiles(knownRemoteResources));
+                    ApplicationArchiveContext applicationArchiveContext = createApplicationArchiveContext(appArchiveStream, fileName,
+                        maxSize);
+                    setAlreadyUploadedFiles(knownRemoteResources, applicationArchiveContext);
+                    filePath = extractFromMtar(applicationArchiveContext);
                     upload(execution, client, app, filePath, uploadToken, knownRemoteResources);
                 } catch (IOException e) {
                     cleanUp(filePath);
@@ -135,23 +148,12 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return uploadToken;
     }
 
-    private Set<String> getAlreadyUploadedFiles(CloudResources knownRemoteResources) {
-        return knownRemoteResources.getFileNames();
+    private void setAlreadyUploadedFiles(CloudResources knownRemoteResources, ApplicationArchiveContext applicationArchiveContext) {
+        applicationArchiveContext.setAlreadyUploadedFiles(knownRemoteResources.getFileNames());
     }
 
-    protected ApplicationArchiveReader getApplicationArchiveReader(InputStream appArchiveStream, String fileName, long maxSize) {
-        return new ApplicationArchiveReader(appArchiveStream, fileName, maxSize);
-    }
-
-    protected Path extractFromMtar(InputStream appArchiveStream, String fileName, long maxSize, Set<String> alreadyUploadedFiles) {
-        ApplicationArchiveReader appArchiveReader = getApplicationArchiveReader(appArchiveStream, fileName, maxSize);
-        ApplicationZipBuilder appZipBuilder = getApplicationZipBuilder(fileName, alreadyUploadedFiles, appArchiveReader);
-        return appZipBuilder.extractApplicationInNewArchive();
-    }
-
-    protected ApplicationZipBuilder getApplicationZipBuilder(String fileName, Set<String> alreadyUploadedFiles,
-        ApplicationArchiveReader appArchiveReader) {
-        return new ApplicationZipBuilder(appArchiveReader, fileName, getStepLogger(), alreadyUploadedFiles);
+    protected Path extractFromMtar(ApplicationArchiveContext applicationArchiveContext) {
+        return applicationZipBuilder.extractApplicationInNewArchive(applicationArchiveContext, getStepLogger());
     }
 
     private void upload(ExecutionWrapper execution, CloudControllerClient client, CloudApplication app, Path filePath,
