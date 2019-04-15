@@ -1,76 +1,90 @@
 package com.sap.cloud.lm.sl.cf.process.util;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.cloudfoundry.client.lib.domain.CloudResource;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.util.FileUtils;
-import com.sap.cloud.lm.sl.cf.persistence.services.FileUploader;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
 
+@Component
+@Profile("cf")
 public class ApplicationArchiveReader {
     private static final String APPLICATION_ENTRY_DIGEST_METHOD = "SHA";
-    private static final int BUFFER_SIZE = 4 * 1024; // 4KB
-    private ZipInputStream zipInputStream;
-    private String moduleFileName;
-    private long maxSizeInBytes;
-    private long currentSizeInBytes;
-    private DigestCalculator applicationDigestCalculator;
+    protected static final int BUFFER_SIZE = 4 * 1024; // 4KB
 
-    public ApplicationArchiveReader(InputStream inputStream, String moduleFileName, long maxSizeInBytes) {
-        this.zipInputStream = new ZipInputStream(inputStream);
-        this.moduleFileName = moduleFileName;
-        this.maxSizeInBytes = maxSizeInBytes;
-        this.applicationDigestCalculator = createDigestCalculator(FileUploader.DIGEST_METHOD);
-    }
-
-    public void initializeApplicationResources(ApplicationResources applicationResources) {
+    public void initializeApplicationResources(ApplicationArchiveContext applicationArchiveContext,
+        ApplicationResources applicationResources) {
         try {
-            setApplicationResources(applicationResources);
+            setApplicationResources(applicationArchiveContext, applicationResources);
         } catch (IOException e) {
-            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, moduleFileName);
+            throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_MODULE_CONTENT, applicationArchiveContext.getModuleFileName());
         }
     }
 
-    private void setApplicationResources(ApplicationResources applicationResources) throws IOException {
-        ZipEntry zipEntry = getFirstZipEntry();
+    private void setApplicationResources(ApplicationArchiveContext applicationArchiveContext, ApplicationResources applicationResources)
+        throws IOException {
+        String moduleFileName = applicationArchiveContext.getModuleFileName();
+        ZipEntry zipEntry = getFirstZipEntry(applicationArchiveContext);
         do {
             if (isFile(zipEntry.getName())) {
-                addDataToApplicationResources(zipEntry.getName(), applicationResources);
+                addDataToApplicationResources(zipEntry.getName(), applicationResources, applicationArchiveContext);
             }
-        } while ((zipEntry = getNextEntryByName(moduleFileName)) != null);
-        applicationResources.setApplicationDigest(applicationDigestCalculator.getDigest());
+        } while ((zipEntry = getNextEntryByName(moduleFileName, applicationArchiveContext)) != null);
+        applicationResources.setApplicationDigest(applicationArchiveContext.getApplicationDigestCalculator()
+            .getDigest());
     }
 
-    public ZipEntry getFirstZipEntry() throws IOException {
-        ZipEntry zipEntry = getNextEntryByName(moduleFileName);
+    public ZipEntry getFirstZipEntry(ApplicationArchiveContext applicationArchiveContext) throws IOException {
+        String moduleFileName = applicationArchiveContext.getModuleFileName();
+        ZipEntry zipEntry = getNextEntryByName(moduleFileName, applicationArchiveContext);
         if (zipEntry == null) {
             throw new ContentException(com.sap.cloud.lm.sl.mta.message.Messages.CANNOT_FIND_ARCHIVE_ENTRY, moduleFileName);
         }
         return zipEntry;
     }
 
-    private void addDataToApplicationResources(String zipEntryName, ApplicationResources applicationResources) throws IOException {
-        DigestCalculator entryDigestCalculator = createDigestCalculator(APPLICATION_ENTRY_DIGEST_METHOD);
+    protected void addDataToApplicationResources(String zipEntryName, ApplicationResources applicationResources,
+        ApplicationArchiveContext applicationArchiveContext) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         int numberOfReadBytes = 0;
         long sizeOfEntry = 0;
+        ZipInputStream zipInputStream = applicationArchiveContext.getZipInputStream();
+        long maxSizeInBytes = applicationArchiveContext.getMaxSizeInBytes();
+        DigestCalculator applicationDigestCalculator = applicationArchiveContext.getApplicationDigestCalculator();
+        DigestCalculator entryDigestCalculator = createDigestCalculator(APPLICATION_ENTRY_DIGEST_METHOD);
+
         while ((numberOfReadBytes = zipInputStream.read(buffer)) != -1) {
+            long currentSizeInBytes = applicationArchiveContext.getCurrentSizeInBytes();
             if (currentSizeInBytes + numberOfReadBytes > maxSizeInBytes) {
                 throw new ContentException(Messages.SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT, maxSizeInBytes);
             }
             sizeOfEntry += numberOfReadBytes;
+            applicationArchiveContext.calculateCurrentSizeInBytes(numberOfReadBytes);
             entryDigestCalculator.updateDigest(buffer, 0, numberOfReadBytes);
             applicationDigestCalculator.updateDigest(buffer, 0, numberOfReadBytes);
         }
-        applicationResources.addCloudResource(new CloudResource(zipEntryName, sizeOfEntry, entryDigestCalculator.getDigest()));
+        String relativeZipEntryName = getZipEntryNameWithoutParent(applicationArchiveContext.getModuleFileName(), zipEntryName);
+        applicationResources.addCloudResource(new CloudResource(relativeZipEntryName, sizeOfEntry, entryDigestCalculator.getDigest()));
+    }
+
+    private String getZipEntryNameWithoutParent(String moduleFileName, String zipEntryName) {
+        Path moduleFileNamePathParent = Paths.get(moduleFileName)
+            .getParent();
+        if (moduleFileNamePathParent == null) {
+            return FileUtils.getRelativePath(moduleFileName, zipEntryName);
+        }
+        return FileUtils.getRelativePath(moduleFileNamePathParent.toString(), zipEntryName);
     }
 
     private DigestCalculator createDigestCalculator(String algorithm) {
@@ -81,11 +95,8 @@ public class ApplicationArchiveReader {
         }
     }
 
-    public InputStream getZipEntryStream() {
-        return zipInputStream;
-    }
-
-    public ZipEntry getNextEntryByName(String name) throws IOException {
+    public ZipEntry getNextEntryByName(String name, ApplicationArchiveContext applicationArchiveContext) throws IOException {
+        ZipInputStream zipInputStream = applicationArchiveContext.getZipInputStream();
         for (ZipEntry zipEntry; (zipEntry = zipInputStream.getNextEntry()) != null;) {
             if (zipEntry.getName()
                 .startsWith(name)) {

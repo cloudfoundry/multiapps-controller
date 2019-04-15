@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
@@ -42,6 +41,7 @@ import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
+import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveContext;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationArchiveReader;
 import com.sap.cloud.lm.sl.cf.process.util.ApplicationZipBuilder;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -191,21 +191,31 @@ public class UploadAppStepTest {
         }
 
         private class UploadAppStepMock extends UploadAppStep {
-            @Override
-            protected ApplicationArchiveReader getApplicationArchiveReader(InputStream appArchiveStream, String fileName, long maxSize) {
-                return new ApplicationArchiveReader(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize);
+
+            public UploadAppStepMock() {
+                applicationArchiveReader = getApplicationArchiveReader();
+                applicationZipBuilder = getApplicationZipBuilder(applicationArchiveReader);
             }
 
             @Override
-            protected ApplicationZipBuilder getApplicationZipBuilder(String fileName, Set<String> alreadyUploadedFiles,
-                ApplicationArchiveReader appArchiveReader) {
-                return new ApplicationZipBuilder(appArchiveReader, fileName, getStepLogger(), alreadyUploadedFiles) {
+            protected ApplicationArchiveContext createApplicationArchiveContext(InputStream appArchiveStream, String fileName,
+                long maxSize) {
+                return super.createApplicationArchiveContext(getClass().getResourceAsStream(APP_ARCHIVE), fileName, maxSize);
+            }
+
+            private ApplicationArchiveReader getApplicationArchiveReader() {
+                return new ApplicationArchiveReader();
+            }
+
+            private ApplicationZipBuilder getApplicationZipBuilder(ApplicationArchiveReader applicationArchiveReader) {
+                return new ApplicationZipBuilder(applicationArchiveReader) {
                     @Override
                     protected Path createTempFile() throws IOException {
                         return appFile.toPath();
                     }
                 };
             }
+
         }
 
         @Override

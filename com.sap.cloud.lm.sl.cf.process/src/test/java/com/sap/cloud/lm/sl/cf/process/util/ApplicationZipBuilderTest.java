@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,9 +54,9 @@ public class ApplicationZipBuilderTest {
     public static Stream<Arguments> testCreateZipOnlyWithMissingResources() {
         // @formatter:off
         return Stream.of(
-            Arguments.of(SAMPLE_MTAR, "db/", Stream.of("db/readme.txt").collect(Collectors.toSet())),
-            Arguments.of(SAMPLE_FLAT_MTAR, "web/", Stream.of("web/xs-app.json", "web/readme.txt", "web/local-destinations.json", "web/resources/index.html").collect(Collectors.toSet())),
-            Arguments.of(SAMPLE_MTAR, "db/pricing-db.zip", Stream.of("db/pricing-db.zip").collect(Collectors.toSet())));
+            Arguments.of(SAMPLE_MTAR, "db/", Stream.of("readme.txt").collect(Collectors.toSet())),
+            Arguments.of(SAMPLE_FLAT_MTAR, "web/", Stream.of("xs-app.json", "readme.txt", "local-destinations.json", "resources/index.html").collect(Collectors.toSet())),
+            Arguments.of(SAMPLE_MTAR, "db/pricing-db.zip", Stream.of("pricing-db.zip").collect(Collectors.toSet())));
         // @formatter:on
     }
 
@@ -74,9 +75,10 @@ public class ApplicationZipBuilderTest {
     @ParameterizedTest
     @MethodSource
     public void testCreateNewZip(String mtar, String fileName) throws Exception {
-        ApplicationArchiveReader reader = getApplicationArchiveReader(mtar, fileName);
-        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader, fileName, logger, Collections.emptySet());
-        appPath = zipBuilder.extractApplicationInNewArchive();
+        ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
+        ApplicationArchiveReader reader = new ApplicationArchiveReader();
+        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader);
+        appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext, logger);
         assertTrue(Files.exists(appPath));
         try (InputStream zipStream = Files.newInputStream(appPath)) {
             Set<String> zipEntriesName = getZipEntriesName(zipStream);
@@ -84,29 +86,31 @@ public class ApplicationZipBuilderTest {
         }
     }
 
-    private ApplicationArchiveReader getApplicationArchiveReader(String mtar, String fileName) {
-        return new ApplicationArchiveReader(getClass().getResourceAsStream(mtar), fileName, MAX_UPLOAD_FILE_SIZE);
+    private ApplicationArchiveContext getApplicationArchiveContext(String mtar, String fileName) {
+        return new ApplicationArchiveContext(getClass().getResourceAsStream(mtar), fileName, MAX_UPLOAD_FILE_SIZE);
     }
 
     @ParameterizedTest
     @MethodSource
     public void testCreateZipOnlyWithMissingResources(String mtar, String fileName, Set<String> alreadyUploadedFiles) throws IOException {
-        ApplicationArchiveReader reader = getApplicationArchiveReader(mtar, fileName);
-        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader, fileName, logger, alreadyUploadedFiles);
-        appPath = zipBuilder.extractApplicationInNewArchive();
+        ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
+        ApplicationArchiveReader reader = new ApplicationArchiveReader();
+        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader);
+        appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext, logger);
         assertTrue(Files.exists(appPath));
-        Set<String> relativizedFilePaths = relativizeUploadedFilesPaths(zipBuilder, alreadyUploadedFiles);
+        Set<String> relativizedFilePaths = relativizeUploadedFilesPaths(zipBuilder, fileName, alreadyUploadedFiles);
         try (InputStream zipStream = Files.newInputStream(appPath)) {
             Set<String> zipEntriesName = getZipEntriesName(zipStream);
-            assertTrue(Collections.disjoint(relativizedFilePaths, zipEntriesName));
+            assertTrue(Collections.disjoint(relativizedFilePaths, zipEntriesName),
+                MessageFormat.format("Expected resources:{0} but was:{1}", relativizedFilePaths, zipEntriesName));
         }
     }
 
-    private Set<String> relativizeUploadedFilesPaths(ApplicationZipBuilder zipBuilder, Set<String> alreadyUploadedFiles) {
+    private Set<String> relativizeUploadedFilesPaths(ApplicationZipBuilder zipBuilder, String fileName, Set<String> alreadyUploadedFiles) {
         Set<String> relativizedFilePaths = new HashSet<>();
         alreadyUploadedFiles.stream()
             .forEach(filePath -> {
-                relativizedFilePaths.add(zipBuilder.getRelativePathOfZipEntry(filePath));
+                relativizedFilePaths.add(FileUtils.getRelativePath(fileName, filePath));
             });
         return relativizedFilePaths;
     }
@@ -127,15 +131,18 @@ public class ApplicationZipBuilderTest {
     public void testFailToCreateZip() {
         String mtar = SAMPLE_MTAR;
         String fileName = "db/";
-        ApplicationArchiveReader reader = getApplicationArchiveReader(mtar, fileName);
-        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader, fileName, logger, Collections.emptySet()) {
+        ApplicationArchiveReader reader = new ApplicationArchiveReader();
+        ApplicationZipBuilder zipBuilder = new ApplicationZipBuilder(reader) {
             @Override
-            protected void copy(InputStream input, OutputStream output) throws IOException {
+            protected void copy(InputStream input, OutputStream output, ApplicationArchiveContext applicationArchiveContext)
+                throws IOException {
                 throw new IOException();
             }
 
         };
-        Assertions.assertThrows(SLException.class, () -> appPath = zipBuilder.extractApplicationInNewArchive());
+        ApplicationArchiveContext applicationArchiveContext = getApplicationArchiveContext(mtar, fileName);
+        Assertions.assertThrows(SLException.class,
+            () -> appPath = zipBuilder.extractApplicationInNewArchive(applicationArchiveContext, logger));
     }
 
 }
