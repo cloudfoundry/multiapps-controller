@@ -113,7 +113,9 @@ public class ApplicationZipBuilder {
     }
 
     protected void cleanUp(Path appPath, StepLogger logger) {
-        if (appPath == null || !Files.exists(appPath)) {
+        // java 8 Files.exists() has poor performance
+        if (appPath == null || !appPath.toFile()
+            .exists()) {
             return;
         }
 
