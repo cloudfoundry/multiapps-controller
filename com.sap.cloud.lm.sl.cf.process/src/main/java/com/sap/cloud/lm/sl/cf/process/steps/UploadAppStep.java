@@ -76,7 +76,7 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
 
             getStepLogger().debug(Messages.UPLOADING_FILE_0_FOR_APP_1, fileName, app.getName());
 
-            ApplicationResources applicationResources = getApplicationResources(execution, app, appArchiveId, fileName);
+            ApplicationResources applicationResources = getApplicationResources(execution, appArchiveId, fileName);
             detectApplicationFileDigestChanges(execution, app, client, applicationResources);
             UploadToken uploadToken = asyncUploadFiles(execution, client, app, appArchiveId, fileName, applicationResources);
             getStepLogger().debug(Messages.STARTED_ASYNC_UPLOAD_OF_APP_0, app.getName());
@@ -92,8 +92,8 @@ public class UploadAppStep extends TimeoutAsyncFlowableStep {
         return StepPhase.POLL;
     }
 
-    private ApplicationResources getApplicationResources(ExecutionWrapper execution, CloudApplication app, String appArchiveId,
-        String fileName) throws FileStorageException {
+    private ApplicationResources getApplicationResources(ExecutionWrapper execution, String appArchiveId, String fileName)
+        throws FileStorageException {
         ApplicationResources applicationResources = new ApplicationResources();
         DelegateExecution context = execution.getContext();
         FileDownloadProcessor fileDownloadProcessor = new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId,
