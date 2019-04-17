@@ -42,7 +42,8 @@ public class ServiceUpdater extends CloudServiceOperator {
     }
 
     public MethodExecution<String> updateServicePlan(CloudControllerClient client, String serviceName, String servicePlan) {
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToUpdateServicePlan(client, serviceName, servicePlan));
+        return new CustomControllerClientErrorHandler()
+            .handleErrorsOrReturnResult(() -> attemptToUpdateServicePlan(client, serviceName, servicePlan));
     }
 
     public MethodExecution<String> updateServiceTagsQuietly(CloudControllerClient client, String serviceName, List<String> serviceTags) {
@@ -50,26 +51,33 @@ public class ServiceUpdater extends CloudServiceOperator {
     }
 
     public MethodExecution<String> updateServiceTags(CloudControllerClient client, String serviceName, List<String> serviceTags) {
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToUpdateServiceTags(client, serviceName, serviceTags));
+        return new CustomControllerClientErrorHandler()
+            .handleErrorsOrReturnResult(() -> attemptToUpdateServiceTags(client, serviceName, serviceTags));
     }
 
-    public MethodExecution<String> updateServiceParametersQuietly(CloudControllerClient client, String serviceName, Map<String, Object> parameters) {
+    public MethodExecution<String> updateServiceParametersQuietly(CloudControllerClient client, String serviceName,
+        Map<String, Object> parameters) {
         return ignoreBadGatewayErrors(() -> updateServiceParameters(client, serviceName, parameters));
     }
 
-    public MethodExecution<String> updateServiceParameters(CloudControllerClient client, String serviceName, Map<String, Object> parameters) {
-        return new CustomControllerClientErrorHandler().handleErrorsOrReturnResult(() -> attemptToUpdateServiceParameters(client, serviceName, parameters));
+    public MethodExecution<String> updateServiceParameters(CloudControllerClient client, String serviceName,
+        Map<String, Object> parameters) {
+        return new CustomControllerClientErrorHandler()
+            .handleErrorsOrReturnResult(() -> attemptToUpdateServiceParameters(client, serviceName, parameters));
     }
 
     private MethodExecution<String> attemptToUpdateServicePlan(CloudControllerClient client, String serviceName, String servicePlanName) {
         CloudService service = client.getService(serviceName);
         CloudServicePlan servicePlan = findPlanForService(client, service, servicePlanName);
-        String servicePlanGuid = servicePlan.getMeta().getGuid().toString();
-        return attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_PLAN_GUID, servicePlanGuid);
+        String servicePlanGuid = servicePlan.getMeta()
+            .getGuid()
+            .toString();
+        return attemptToUpdateServiceParameter(client, service, SERVICE_INSTANCES_URL, SERVICE_PLAN_GUID, servicePlanGuid);
     }
 
     private MethodExecution<String> attemptToUpdateServiceTags(CloudControllerClient client, String serviceName, List<String> serviceTags) {
-        return attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_TAGS, serviceTags);
+        CloudService service = client.getService(serviceName);
+        return attemptToUpdateServiceParameter(client, service, SERVICE_INSTANCES_URL, SERVICE_TAGS, serviceTags);
     }
 
     private String getCloudControllerUrl(CloudControllerClient client) {
@@ -77,23 +85,20 @@ public class ServiceUpdater extends CloudServiceOperator {
             .toString();
     }
 
-
-    private MethodExecution<String> attemptToUpdateServiceParameters(CloudControllerClient client, String serviceName, Map<String, Object> parameters) {
+    private MethodExecution<String> attemptToUpdateServiceParameters(CloudControllerClient client, String serviceName,
+        Map<String, Object> parameters) {
         assertServiceAttributes(serviceName, parameters);
         CloudService service = client.getService(serviceName);
 
         if (service.isUserProvided()) {
-            return attemptToUpdateServiceParameter(client, serviceName, USER_PROVIDED_SERVICE_INSTANCES_URL, SERVICE_CREDENTIALS, parameters);
+            return attemptToUpdateServiceParameter(client, service, USER_PROVIDED_SERVICE_INSTANCES_URL, SERVICE_CREDENTIALS, parameters);
         }
 
-        return attemptToUpdateServiceParameter(client, serviceName, SERVICE_INSTANCES_URL, SERVICE_PARAMETERS, parameters);
+        return attemptToUpdateServiceParameter(client, service, SERVICE_INSTANCES_URL, SERVICE_PARAMETERS, parameters);
     }
 
-    private MethodExecution<String> attemptToUpdateServiceParameter(CloudControllerClient client, String serviceName, String serviceUrl, String parameterName,
-        Object parameter) {
-
-        CloudService service = client.getService(serviceName);
-
+    private MethodExecution<String> attemptToUpdateServiceParameter(CloudControllerClient client, CloudService service, String serviceUrl,
+        String parameterName, Object parameter) {
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = getCloudControllerUrl(client);
         String updateServiceUrl = getUrl(cloudControllerUrl, getUpdateServiceUrl(serviceUrl, service.getMeta()
