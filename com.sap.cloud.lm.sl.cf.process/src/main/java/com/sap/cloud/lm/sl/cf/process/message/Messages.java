@@ -18,6 +18,7 @@ public class Messages {
     public static final String ERROR_MODULE_NOT_FOUND = "Module with name \"{0}\" not found";
     public static final String ERROR_DELETING_APP_TEMP_FILE = "Error deleting temp application file \"{0}\"";
     public static final String ERROR_RETRIEVING_MTA_RESOURCE_CONTENT = "Error retrieving content of MTA resource \"{0}\"";
+    public static final String ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET = "Service described by MTA resource \"{0}\" does not match already existing service \"{1}\" of type [{2}] and needs to be recreated. Use command line option \"--delete-services\" to enable the deletion of the existing one.";
     public static final String MODULE_CONTENT_NA = "The content of MTA module \"{0}\" is not available";
     public static final String SIZE_OF_APP_EXCEEDS_MAX_SIZE_LIMIT = "The size of the application exceeds max size limit \"{0}\"";
     public static final String CF_ERROR = "Controller operation failed: {0}";
@@ -178,7 +179,7 @@ public class Messages {
     public static final String SKIP_SERVICES_DELETION = "Skipping deletion of services, because the command line option \"--delete-services\" is not specified.";
     public static final String UNSUPPORTED_MINOR_VERSION = "Used verion \"{0}\" is higher than the supported ones. Some features might not be implemented.";
     public static final String APPLICATION_NOT_STAGED_CORRECTLY = "Application \"{0}\" was not staged correctly during the previous deployment";
-    
+
     // INFO log messages
     public static final String MTA_NOT_FOUND = "An MTA with id \"{0}\" does not exist";
     public static final String ACQUIRING_LOCK = "Process \"{0}\" attempting to acquire lock for operation on MTA \"{1}\"";

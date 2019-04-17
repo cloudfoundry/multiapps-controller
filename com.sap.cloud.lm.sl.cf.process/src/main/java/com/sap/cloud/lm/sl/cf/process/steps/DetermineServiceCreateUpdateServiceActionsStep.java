@@ -30,6 +30,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
+import com.sap.cloud.lm.sl.cf.core.cf.v2.ResourceType;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
@@ -86,7 +87,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return StepPhase.DONE;
     }
 
-    private void setServiceParameters(CloudServiceExtended service, List<ServiceAction> actions, DelegateExecution delegateExecution) throws FileStorageException {
+    private void setServiceParameters(CloudServiceExtended service, List<ServiceAction> actions, DelegateExecution delegateExecution)
+        throws FileStorageException {
         if (CollectionUtils.isNotEmpty(actions)) {
             prepareServiceParameters(delegateExecution, service);
             StepsUtil.setServiceToProcess(service, delegateExecution);
@@ -211,15 +213,31 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             && lastOperation.getState() == ServiceOperationState.FAILED) {
             return true;
         }
-        if (!StepsUtil.shouldDeleteServices(execution.getContext())) {
-            return false;
+        boolean serviceNeedsRecreation = serviceHasDifferentTypeOrLabel(service, existingService);
+        if (!StepsUtil.shouldDeleteServices(execution.getContext()) && serviceNeedsRecreation) {
+            getStepLogger().debug("Service should be recreated, but delete-services was not enabled.");
+            throw new SLException(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET, service.getResourceName(),
+                existingService.getName(), buildExistingServiceType(existingService));
         }
+        return serviceNeedsRecreation;
+    }
+
+    private boolean serviceHasDifferentTypeOrLabel(CloudServiceExtended service, CloudService existingService) {
         boolean haveDifferentTypes = service.isUserProvided() ^ existingService.isUserProvided();
         if (existingService.isUserProvided()) {
             return haveDifferentTypes;
         }
         boolean haveDifferentLabels = !Objects.equals(service.getLabel(), existingService.getLabel());
         return haveDifferentTypes || haveDifferentLabels;
+    }
+
+    private String buildExistingServiceType(CloudService existingService) {
+        if (existingService.isUserProvided()) {
+            return ResourceType.USER_PROVIDED_SERVICE.toString();
+        }
+        String label = CommonUtil.isNullOrEmpty(existingService.getLabel()) ? "unknown label" : existingService.getLabel();
+        String plan = CommonUtil.isNullOrEmpty(existingService.getPlan()) ? "unknown plan" : existingService.getPlan();
+        return label + "/" + plan;
     }
 
     private boolean shouldUpdateTags(CloudServiceExtended service, List<String> defaultTags, List<String> existingServiceTags) {
