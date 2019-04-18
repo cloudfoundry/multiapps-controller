@@ -60,6 +60,11 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     }
 
     @Override
+    protected HookPhase getHookPhaseAfterStep() {
+        return HookPhase.APPLICATION_AFTER_STOP;
+    }
+
+    @Override
     protected String getOnCompleteHookMessageName() {
         return STOP_APP_ON_COMPLETE_HOOK_MESSAGE;
     }
