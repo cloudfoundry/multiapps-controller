@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import java.util.function.Supplier;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 

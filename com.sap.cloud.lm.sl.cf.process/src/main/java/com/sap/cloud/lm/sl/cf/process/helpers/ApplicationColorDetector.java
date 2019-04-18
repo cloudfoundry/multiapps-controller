@@ -1,13 +1,14 @@
 package com.sap.cloud.lm.sl.cf.process.helpers;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.flowable.engine.history.HistoricProcessInstance;
+import org.apache.commons.collections4.CollectionUtils;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 
 import com.sap.cloud.lm.sl.cf.core.dao.OperationDao;
@@ -42,25 +43,27 @@ public class ApplicationColorDetector {
         ApplicationColor olderApplicationColor = getOlderApplicationColor(deployedMta);
         Operation currentOperation = operationDao.find(correlationId);
 
-        Operation lastOperation = operationDao.find(createLatestOperationFilter(currentOperation.getMtaId(), currentOperation.getSpaceId()))
-            .get(0);
+        List<Operation> operations = operationDao
+            .find(createLatestOperationFilter(currentOperation.getMtaId(), currentOperation.getSpaceId()));
+        if (CollectionUtils.isEmpty(operations)) {
+            return olderApplicationColor;
+        }
 
-        if (lastOperation.getState() != State.ABORTED) {
+        if (operations.get(0)
+            .getState() != State.ABORTED) {
             return olderApplicationColor;
         }
         String xs2BlueGreenDeployHistoricProcessInstanceId = flowableFacade
-            .findHistoricProcessInstanceIdByProcessDefinitionKey(lastOperation.getProcessId(), Constants.BLUE_GREEN_DEPLOY_SERVICE_ID);
+            .findHistoricProcessInstanceIdByProcessDefinitionKey(operations.get(0)
+                .getProcessId(), Constants.BLUE_GREEN_DEPLOY_SERVICE_ID);
 
         ApplicationColor latestDeployedColor = getColorFromHistoricProcess(xs2BlueGreenDeployHistoricProcessInstanceId);
         Phase phase = getPhaseFromHistoricProcess(xs2BlueGreenDeployHistoricProcessInstanceId);
 
-        if (latestDeployedColor == null || phase == null) {
+        if (latestDeployedColor == null) {
             return olderApplicationColor;
         }
-        if (phase == Phase.UNDEPLOY) {
-            return latestDeployedColor;
-        }
-        return olderApplicationColor;
+        return phase == Phase.UNDEPLOY ? latestDeployedColor : olderApplicationColor;
     }
 
     public ApplicationColor detectSingularDeployedApplicationColor(DeployedMta deployedMta) {

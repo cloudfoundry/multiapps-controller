@@ -1,7 +1,7 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,10 +11,12 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.core.model.Phase;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 
 public class StepsUtilTest {
@@ -105,6 +107,15 @@ public class StepsUtilTest {
 
         assertEquals(expectedUploadToken.getToken(), actualUploadToken.getToken());
         assertEquals(expectedUploadToken.getPackageGuid(), actualUploadToken.getPackageGuid());
+    }
+
+    @Test
+    public void testSetAndGetPhase() {
+        Phase expectedPhase = Phase.UNDEPLOY;
+        StepsUtil.setPhase(context, expectedPhase);
+        Phase actualPhase = Phase.valueOf((String) context.getVariable(Constants.VAR_PHASE));
+
+        assertEquals(expectedPhase, actualPhase);
     }
 
 }

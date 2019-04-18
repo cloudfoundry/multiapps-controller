@@ -4,7 +4,9 @@ import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentD
 import static org.mockito.Mockito.*;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -13,6 +15,7 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.helpers.ApplicationColorDetector;
 import com.sap.cloud.lm.sl.common.ConflictException;
+import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
@@ -21,13 +24,16 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Mock
     private ApplicationColorDetector applicationColorDetector;
 
     @Before
     public void setUp() throws Exception {
         prepareContext();
-        step.applicationColorDetector = mock(ApplicationColorDetector.class);
+        step.applicationColorDetector = applicationColorDetector;
     }
 
     private void prepareContext() throws Exception {
@@ -39,9 +45,8 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
         StepsUtil.setDeploymentDescriptor(context, loadDeploymentDescriptor("node-hello-mtad.yaml", getClass()));
     }
 
-    // Test what happens when there are 0 color(s) deployed:
     @Test
-    public void testExecute0() throws Exception {
+    public void testWithNoColorsDeployed() throws Exception {
         when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenReturn(null);
 
         step.execute(context);
@@ -52,10 +57,9 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
             new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
-    // Test what happens when there are 1 color(s) deployed:
     @Test
-    public void testExecute1() throws Exception {
-        when(applicationColorDetector.detectSingularDeployedApplicationColor(any())).thenReturn(ApplicationColor.GREEN);
+    public void testWithOneColorDeployed() throws Exception {
+        when(applicationColorDetector.detectSingularDeployedApplicationColor(any(DeployedMta.class))).thenReturn(ApplicationColor.GREEN);
 
         step.execute(context);
 
@@ -65,9 +69,8 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
             new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
     }
 
-    // Test what happens when there are 2 color(s) deployed:
     @Test
-    public void testExecute2() throws Exception {
+    public void testWithTwoColorsDeployed() throws Exception {
         when(applicationColorDetector.detectSingularDeployedApplicationColor(any()))
             .thenThrow(new ConflictException(Messages.CONFLICTING_APP_COLORS));
         when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
@@ -77,6 +80,17 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context),
             new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
+    }
+
+    @Test
+    public void testExceptionIsThrow() {
+        when(applicationColorDetector.detectSingularDeployedApplicationColor(any()))
+            .thenThrow(new SLException(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_MODULES));
+        when(applicationColorDetector.detectLiveApplicationColor(any(), any())).thenReturn(ApplicationColor.GREEN);
+        expectedException.expect(SLException.class);
+        expectedException.expectMessage(com.sap.cloud.lm.sl.cf.process.message.Messages.ERROR_RENAMING_MODULES);
+        step.execute(context);
+        verify(context, never()).setVariable(anyString(), any());
     }
 
     @Override
