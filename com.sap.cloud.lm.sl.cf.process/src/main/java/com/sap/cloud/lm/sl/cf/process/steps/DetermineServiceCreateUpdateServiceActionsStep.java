@@ -106,6 +106,14 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             actions.add(ServiceAction.UPDATE_KEYS);
         }
 
+        if (existingService == null) {
+            getStepLogger().debug("Service should be created");
+            getStepLogger().debug("New service: " + secureSerializer.toJson(service));
+            actions.add(ServiceAction.CREATE);
+            StepsUtil.setServicesToCreate(execution.getContext(), Arrays.asList(service));
+            return actions;
+        }
+
         Map<String, Object> serviceInstanceEntity = serviceInstanceGetter.getServiceInstanceEntity(client, service.getName(), spaceId);
         // Check if the existing service should be updated or not
         if (shouldRecreate(service, existingService, serviceInstanceEntity, execution)) {
@@ -114,14 +122,6 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             getStepLogger().debug("Existing service: " + secureSerializer.toJson(existingService));
             StepsUtil.setServicesToDelete(execution.getContext(), Arrays.asList(service.getName()));
             actions.add(ServiceAction.RECREATE);
-            return actions;
-        }
-
-        if (existingService == null) {
-            getStepLogger().debug("Service should be created");
-            getStepLogger().debug("New service: " + secureSerializer.toJson(service));
-            actions.add(ServiceAction.CREATE);
-            StepsUtil.setServicesToCreate(execution.getContext(), Arrays.asList(service));
             return actions;
         }
 
