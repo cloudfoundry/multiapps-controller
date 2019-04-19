@@ -104,6 +104,10 @@ public class ObjectStoreFileStorage implements FileStorage {
         InputStream fileContentStream = null;
         try {
             Blob blob = blobStore.getBlob(container, fileEntry.getId());
+            if (blob == null) {
+                throw new FileStorageException(
+                    MessageFormat.format(Messages.FILE_WITH_ID_AND_SPACE_DOES_NOT_EXIST, fileEntry.getId(), fileEntry.getSpace()));
+            }
             Payload payload = blob.getPayload();
             fileContentStream = payload.openStream();
             fileDownloadProcessor.processContent(fileContentStream);
@@ -120,7 +124,7 @@ public class ObjectStoreFileStorage implements FileStorage {
                 blobStore.putBlob(container, blob);
                 return;
             } catch (HttpResponseException e) {
-                LOGGER.warn(MessageFormat.format(Messages.BLOB_STORE_PUT_BLOB_FAILED, e.getMessage()), e);
+                LOGGER.warn(MessageFormat.format(Messages.BLOB_STORE_PUT_BLOB_FAILED, i, retries, e.getMessage()), e);
                 if (i == retries) {
                     throw e;
                 }
