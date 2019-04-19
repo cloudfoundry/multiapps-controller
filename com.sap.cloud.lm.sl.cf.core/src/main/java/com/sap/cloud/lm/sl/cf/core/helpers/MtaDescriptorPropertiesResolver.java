@@ -39,9 +39,9 @@ public class MtaDescriptorPropertiesResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MtaDescriptorPropertiesResolver.class);
 
-    public static String IDLE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.IDLE_DOMAIN + "}";
-    public static String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
-    public static String IDLE_PORT_PLACEHOLDER = "${" + SupportedParameters.IDLE_PORT + "}";
+    public static final String IDLE_DOMAIN_PLACEHOLDER = "${" + SupportedParameters.IDLE_DOMAIN + "}";
+    public static final String IDLE_HOST_PLACEHOLDER = "${" + SupportedParameters.IDLE_HOST + "}";
+    public static final String IDLE_PORT_PLACEHOLDER = "${" + SupportedParameters.IDLE_PORT + "}";
 
     private final SecureSerializationFacade secureSerializer = new SecureSerializationFacade().setFormattedOutput(true);
 
