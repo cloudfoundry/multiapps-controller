@@ -108,7 +108,7 @@ public class DeleteServicesStep extends AsyncFlowableStep {
                 prepareServicesToDelete(client, serviceName);
                 deleteService(client, serviceName);
                 triggeredServiceOperations.put(serviceName, ServiceOperationType.DELETE);
-            } catch (CloudOperationException | CloudException e) {
+            } catch (CloudException e) {
                 processException(e, client.getServiceInstance(serviceName), serviceName);
             }
         }

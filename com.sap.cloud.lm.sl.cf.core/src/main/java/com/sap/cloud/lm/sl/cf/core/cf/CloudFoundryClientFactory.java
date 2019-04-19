@@ -28,7 +28,8 @@ public class CloudFoundryClientFactory extends ClientFactory {
 
     @Inject
     public CloudFoundryClientFactory(ApplicationConfiguration configuration, OAuthClientFactory oAuthClientFactory) {
-        this.clientFactory = new CloudControllerRestClientFactory(configuration.shouldSkipSslValidation());
+        this.clientFactory = new CloudControllerRestClientFactory(configuration.getControllerClientConnectionPoolSize(),
+            configuration.getControllerClientThreadPoolSize(), configuration.shouldSkipSslValidation());
         this.configuration = configuration;
         this.oAuthClientFactory = oAuthClientFactory;
     }

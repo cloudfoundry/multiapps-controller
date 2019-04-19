@@ -91,6 +91,8 @@ public class ApplicationConfiguration {
     static final String CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = "FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY";
     static final String CFG_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = "FSS_CACHE_UPDATE_TIMEOUT_MINUTES";
     static final String CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = "SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS";
+    static final String CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = "CONTROLLER_CLIENT_CONNECTION_POOL_SIZE";
+    static final String CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE = "CONTROLLER_CLIENT_THREAD_POOL_SIZE";
 
     private static final List<String> VCAP_APPLICATION_URIS_KEYS = Arrays.asList("full_application_uris", "application_uris", "uris");
 
@@ -132,6 +134,8 @@ public class ApplicationConfiguration {
     public static final Integer DEFAULT_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY = 16;
     public static final Integer DEFAULT_FSS_CACHE_UPDATE_TIMEOUT_MINUTES = 30;
     public static final Integer DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS = 20;
+    public static final int DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE = 75;
+    public static final int DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE = 75;
 
     // Type names
     private static final Map<String, PlatformType> TYPE_NAMES = createTypeNames();
@@ -189,6 +193,8 @@ public class ApplicationConfiguration {
     private Integer fssCacheUpdateTimeoutMinutes;
     private Integer spaceDeveloperCacheTimeInSeconds;
     private Platform platform;
+    private Integer controllerClientConnectionPoolSize;
+    private Integer controllerClientThreadPoolSize;
 
     public ApplicationConfiguration() {
         this(new Environment());
@@ -252,14 +258,14 @@ public class ApplicationConfiguration {
     }
 
     private Set<String> getNotSensitiveConfigVariables() {
-        return new HashSet<>(
-            Arrays.asList(CFG_TYPE, CFG_DB_TYPE, CFG_PLATFORM, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE, CFG_MAX_MANIFEST_SIZE,
-                CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED, CFG_BASIC_AUTH_ENABLED,
-                CFG_GLOBAL_AUDITOR_USER, CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION, CFG_XS_PLACEHOLDERS_SUPPORTED,
-                CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION, CFG_CHANGE_LOG_LOCK_ATTEMPTS,
-                CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL, CFG_AUDIT_LOG_CLIENT_CORE_THREADS,
-                CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY, CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS,
-                CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY, CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE));
+        return new HashSet<>(Arrays.asList(CFG_TYPE, CFG_DB_TYPE, CFG_PLATFORM, CFG_MAX_UPLOAD_SIZE, CFG_MAX_MTA_DESCRIPTOR_SIZE,
+            CFG_MAX_MANIFEST_SIZE, CFG_MAX_RESOURCE_FILE_SIZE, CFG_SCAN_UPLOADS, CFG_USE_XS_AUDIT_LOGGING, CFG_DUMMY_TOKENS_ENABLED,
+            CFG_BASIC_AUTH_ENABLED, CFG_GLOBAL_AUDITOR_USER, CFG_STEP_POLLING_INTERVAL_IN_SECONDS, CFG_SKIP_SSL_VALIDATION,
+            CFG_XS_PLACEHOLDERS_SUPPORTED, CFG_VERSION, CFG_CHANGE_LOG_LOCK_POLL_RATE, CFG_CHANGE_LOG_LOCK_DURATION,
+            CFG_CHANGE_LOG_LOCK_ATTEMPTS, CFG_GLOBAL_CONFIG_SPACE, CFG_GATHER_USAGE_STATISTICS, CFG_MAIL_API_URL,
+            CFG_AUDIT_LOG_CLIENT_CORE_THREADS, CFG_AUDIT_LOG_CLIENT_MAX_THREADS, CFG_AUDIT_LOG_CLIENT_QUEUE_CAPACITY,
+            CFG_FLOWABLE_JOB_EXECUTOR_CORE_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_MAX_THREADS, CFG_FLOWABLE_JOB_EXECUTOR_QUEUE_CAPACITY,
+            CFG_AUDIT_LOG_CLIENT_KEEP_ALIVE, CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE, CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE));
     }
 
     public Configuration getFileConfiguration() {
@@ -565,6 +571,20 @@ public class ApplicationConfiguration {
             spaceDeveloperCacheTimeInSeconds = getSpaceDeveloperCacheTimeInSecondsFromEnvironment();
         }
         return spaceDeveloperCacheTimeInSeconds;
+    }
+
+    public Integer getControllerClientConnectionPoolSize() {
+        if (controllerClientConnectionPoolSize == null) {
+            controllerClientConnectionPoolSize = getControllerClientConnectionPoolSizeFromEnvironment();
+        }
+        return controllerClientConnectionPoolSize;
+    }
+
+    public Integer getControllerClientThreadPoolSize() {
+        if (controllerClientThreadPoolSize == null) {
+            controllerClientThreadPoolSize = getControllerClientThreadPoolSizeFromEnvironment();
+        }
+        return controllerClientThreadPoolSize;
     }
 
     private PlatformType getPlatformTypeFromEnvironment() {
@@ -960,6 +980,19 @@ public class ApplicationConfiguration {
         Integer value = environment.getPositiveInteger(CFG_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS,
             DEFAULT_SPACE_DEVELOPER_CACHE_TIME_IN_SECONDS);
         LOGGER.info(format(Messages.SPACE_DEVELOPERS_CACHE_TIME_IN_SECONDS, value));
+        return value;
+    }
+
+    private Integer getControllerClientConnectionPoolSizeFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE,
+            DEFAULT_CONTROLLER_CLIENT_CONNECTION_POOL_SIZE);
+        LOGGER.info(format(Messages.CONTROLLER_CLIENT_CONNECTION_POOL_SIZE, value));
+        return value;
+    }
+
+    private Integer getControllerClientThreadPoolSizeFromEnvironment() {
+        Integer value = environment.getPositiveInteger(CFG_CONTROLLER_CLIENT_THREAD_POOL_SIZE, DEFAULT_CONTROLLER_CLIENT_THREAD_POOL_SIZE);
+        LOGGER.info(format(Messages.CONTROLLER_CLIENT_THREAD_POOL_SIZE, value));
         return value;
     }
 
