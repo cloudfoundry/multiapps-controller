@@ -217,7 +217,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         if (!StepsUtil.shouldDeleteServices(execution.getContext()) && serviceNeedsRecreation) {
             getStepLogger().debug("Service should be recreated, but delete-services was not enabled.");
             throw new SLException(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET, service.getResourceName(),
-                existingService.getName(), buildExistingServiceType(existingService));
+                buildServiceType(service), existingService.getName(), buildServiceType(existingService));
         }
         return serviceNeedsRecreation;
     }
@@ -231,12 +231,12 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return haveDifferentTypes || haveDifferentLabels;
     }
 
-    private String buildExistingServiceType(CloudService existingService) {
-        if (existingService.isUserProvided()) {
+    private String buildServiceType(CloudService service) {
+        if (service.isUserProvided()) {
             return ResourceType.USER_PROVIDED_SERVICE.toString();
         }
-        String label = CommonUtil.isNullOrEmpty(existingService.getLabel()) ? "unknown label" : existingService.getLabel();
-        String plan = CommonUtil.isNullOrEmpty(existingService.getPlan()) ? "unknown plan" : existingService.getPlan();
+        String label = CommonUtil.isNullOrEmpty(service.getLabel()) ? "unknown label" : service.getLabel();
+        String plan = CommonUtil.isNullOrEmpty(service.getPlan()) ? "unknown plan" : service.getPlan();
         return label + "/" + plan;
     }
 
