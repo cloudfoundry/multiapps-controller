@@ -173,12 +173,8 @@ public class FileService {
     }
 
     protected void storeFile(FileEntry fileEntry, FileInfo fileInfo) throws FileStorageException {
-        try (InputStream fileStream = fileInfo.getInputStream()) {
-            fileStorage.addFile(fileEntry, fileStream);
-            storeFileAttributes(fileEntry);
-        } catch (IOException e) {
-            logger.debug(e.getMessage(), e);
-        }
+        fileStorage.addFile(fileEntry, fileInfo.getFile());
+        storeFileAttributes(fileEntry);
     }
 
     protected boolean deleteFileAttribute(final String space, final String id) throws FileStorageException {

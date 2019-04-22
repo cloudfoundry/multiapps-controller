@@ -1,5 +1,6 @@
 package com.sap.cloud.lm.sl.cf.persistence.services;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
@@ -43,15 +44,14 @@ public class ObjectStoreFileStorage implements FileStorage {
     }
 
     @Override
-    public void addFile(FileEntry fileEntry, InputStream fileStream) throws FileStorageException {
+    public void addFile(FileEntry fileEntry, File file) throws FileStorageException {
         String entryName = fileEntry.getId();
         long fileSize = fileEntry.getSize()
             .longValue();
         Blob blob = blobStore.blobBuilder(entryName)
-            .payload(fileStream)
+            .payload(file)
             .contentDisposition(fileEntry.getName())
             .contentType(MediaType.OCTET_STREAM.toString())
-            .contentLength(fileSize)
             .userMetadata(createFileEntryMetadata(fileEntry))
             .build();
         try {

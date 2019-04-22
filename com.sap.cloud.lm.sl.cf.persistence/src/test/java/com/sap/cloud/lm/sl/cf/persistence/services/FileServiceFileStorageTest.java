@@ -186,7 +186,7 @@ public class FileServiceFileStorageTest {
         Path testFilePath = Paths.get(pathString)
             .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
-        fileStorage.addFile(fileEntry, Files.newInputStream(testFilePath));
+        fileStorage.addFile(fileEntry, testFilePath.toFile());
         return fileEntry;
     }
 
