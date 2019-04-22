@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -228,7 +227,7 @@ public class ObjectStoreFileStorageTest {
             .toAbsolutePath();
         FileEntry fileEntry = createFileEntry(space, namespace);
         enrichFileEntry(fileEntry, testFilePath, date);
-        fileStorage.addFile(fileEntry, Files.newInputStream(testFilePath));
+        fileStorage.addFile(fileEntry, testFilePath.toFile());
         return fileEntry;
     }
 
