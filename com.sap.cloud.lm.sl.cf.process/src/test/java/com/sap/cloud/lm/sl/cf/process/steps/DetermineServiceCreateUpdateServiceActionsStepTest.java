@@ -78,7 +78,7 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
 //          "determine-actions-create-or-update-services-step-input-8-recreate-service-failure.json", null,
 //          },
             {
-                "determine-actions-create-or-update-services-step-input-9-recreate-service-error.json", MessageFormat.format(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET, "service-1", "service-1", "label-1-old/plan-3"),
+                "determine-actions-create-or-update-services-step-input-9-recreate-service-error.json", MessageFormat.format(Messages.ERROR_SERVICE_NEEDS_TO_BE_RECREATED_BUT_FLAG_NOT_SET, "service-1", "label-1/plan-3", "service-1", "label-1-old/plan-3"),
             },
          // @formatter:on
         });
