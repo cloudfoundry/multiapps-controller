@@ -59,8 +59,8 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
 
     private void prepareContext() {
         context.setVariable(Constants.VAR_MODULES_INDEX, 0);
-        context.setVariable("appToDeploy", JsonUtil.toJson(application.toCloudApplication()));
-        //TODO
+        context.setVariable("appToProcess", JsonUtil.toJson(application.toCloudApplication()));
+        // TODO
         StepsUtil.setAppsToDeploy(context, Collections.emptyList());
         StepsUtil.setExistingApp(context, (existingApplication != null) ? existingApplication.toCloudApplication() : null);
     }

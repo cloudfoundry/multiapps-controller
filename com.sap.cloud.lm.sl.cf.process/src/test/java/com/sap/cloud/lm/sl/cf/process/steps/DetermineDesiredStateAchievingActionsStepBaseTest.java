@@ -121,7 +121,7 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
         CloudEntity.Meta meta = new CloudEntity.Meta(FAKE_UUID, null, null);
         CloudApplicationExtended app = new CloudApplicationExtended(meta, DUMMY);
         app.setRestartParameters(restartParameters);
-        context.setVariable(Constants.VAR_APP_TO_DEPLOY, JsonUtil.toJson(app));
+        context.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(app));
         when(client.getApplication(anyString())).thenReturn(app);
         when(client.getBuildsForApplication(app.getMeta()
             .getGuid())).thenReturn(cloudBuilds);

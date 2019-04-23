@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -127,7 +128,7 @@ public class AnalyticsCollectorTest {
 
         when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE)).thenReturn(mockedListWithObjects(2));
         when(context.getVariable(Constants.VAR_DELETED_ENTRIES)).thenReturn(mockedListWithObjects(1));
-        when(context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY)).thenReturn(mockedListWithObjects(3));
+        when(context.getVariable(Constants.VAR_APPS_TO_UNDEPLOY)).thenReturn(mockAppsToUndeploy(3));
         when(context.getVariable(Constants.VAR_SERVICES_TO_DELETE)).thenReturn(mockedListAsBytesWithStrings(3));
         when(context.getVariable(Constants.VAR_UPDATED_SUBSCRIBERS)).thenReturn(mockedListWithObjects(1));
         when(context.getVariable(Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS)).thenReturn(mockedListWithObjects(2));
@@ -163,6 +164,16 @@ public class AnalyticsCollectorTest {
         for (int i = 0; i < size; i++) {
             module.setName(Integer.toString(i));
             list.add(JsonUtil.toJsonBinary(module));
+        }
+        return list;
+    }
+
+    private List<String> mockAppsToUndeploy(int size) {
+        List<String> list = new ArrayList<>();
+        CloudApplication app = new CloudApplication(null, null);
+        for (int i = 0; i < size; i++) {
+            app.setName(Integer.toString(i));
+            list.add(JsonUtil.toJson(app));
         }
         return list;
     }

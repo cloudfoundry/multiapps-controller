@@ -1,16 +1,12 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
@@ -31,13 +27,13 @@ import com.sap.cloud.lm.sl.common.util.Pair;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
+public abstract class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
 
     @Mock
-    private ApplicationRoutesGetter applicationRoutesGetter;
+    protected ApplicationRoutesGetter applicationRoutesGetter;
 
-    private StepInput stepInput;
-    private StepOutput stepOutput;
+    protected StepInput stepInput;
+    protected StepOutput stepOutput;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -95,45 +91,23 @@ public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
         for (CloudApplication cloudApplication : stepInput.appsToDelete) {
             undeployApp(cloudApplication);
         }
-        assertRoutesWereDeleted();
-        assertTasksWereCanceled();
+
+        performAfterUndeploymentValidation();
     }
+
+    protected abstract void performAfterUndeploymentValidation();
 
     private void undeployApp(CloudApplication cloudApplication) throws Exception {
+        context.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(cloudApplication));
         step.execute(context);
+
         assertStepFinishedSuccessfully();
-        verify(client).stopApplication(cloudApplication.getName());
-        if (!cloudApplication.getUris()
-            .isEmpty()) {
-            verify(client).updateApplicationUris(cloudApplication.getName(), Collections.emptyList());
-        }
-        verify(client).deleteApplication(cloudApplication.getName());
-        StepsUtil.incrementVariable(context, Constants.VAR_APPS_TO_UNDEPLOY_INDEX);
+        performValidation(cloudApplication);
     }
 
-    private void assertRoutesWereDeleted() {
-        int routesToDeleteCount = stepOutput.expectedRoutesToDelete.size();
-        verify(client, times(routesToDeleteCount)).deleteRoute(anyString(), anyString(), anyString());
-        for (Pair<String, String> hostAndDomain : stepOutput.expectedRoutesToDelete) {
-            verify(client).deleteRoute(hostAndDomain._1, hostAndDomain._2, null);
-            routesToDeleteCount--;
-        }
-        assertEquals("A number of routes were not deleted: ", 0, routesToDeleteCount);
-    }
-
-    private void assertTasksWereCanceled() {
-        int tasksToCancelCount = stepOutput.expectedTasksToCancel.size();
-        verify(client, times(tasksToCancelCount)).cancelTask(any(UUID.class));
-        for (String taskGuid : stepOutput.expectedTasksToCancel) {
-            verify(client).cancelTask(UUID.fromString(taskGuid));
-            tasksToCancelCount--;
-        }
-        assertEquals("A number of tasks were not canceled: ", 0, tasksToCancelCount);
-
-    }
+    protected abstract void performValidation(CloudApplication cloudApplication);
 
     private void prepareContext() {
-        context.setVariable(Constants.VAR_APPS_TO_UNDEPLOY_INDEX, 0);
         StepsUtil.setAppsToUndeploy(context, stepInput.appsToDelete);
     }
 
@@ -159,21 +133,16 @@ public class UndeployAppStepTest extends SyncFlowableStepTest<UndeployAppStep> {
             });
     }
 
-    private static class StepInput {
-        private boolean portBasedRouting;
-        private List<CloudApplication> appsToDelete = Collections.emptyList();
-        private Map<String, List<CloudRoute>> appRoutesPerApplication = Collections.emptyMap();
-        private Map<String, List<CloudTask>> tasksPerApplication = Collections.emptyMap();
+    protected static class StepInput {
+        protected boolean portBasedRouting;
+        protected List<CloudApplication> appsToDelete = Collections.emptyList();
+        protected Map<String, List<CloudRoute>> appRoutesPerApplication = Collections.emptyMap();
+        protected Map<String, List<CloudTask>> tasksPerApplication = Collections.emptyMap();
     }
 
-    private static class StepOutput {
-        private List<Pair<String, String>> expectedRoutesToDelete = Collections.emptyList();
-        private List<String> expectedTasksToCancel = Collections.emptyList();
-    }
-
-    @Override
-    protected UndeployAppStep createStep() {
-        return new UndeployAppStep();
+    protected static class StepOutput {
+        protected List<Pair<String, String>> expectedRoutesToDelete = Collections.emptyList();
+        protected List<String> expectedTasksToCancel = Collections.emptyList();
     }
 
 }

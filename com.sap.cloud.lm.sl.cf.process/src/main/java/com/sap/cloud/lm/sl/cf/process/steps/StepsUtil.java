@@ -70,8 +70,8 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.common.util.YamlUtil;
+import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
@@ -192,11 +192,11 @@ public class StepsUtil {
     public static void setMtaColor(VariableScope scope, ApplicationColor mtaColor) {
         setEnum(scope, Constants.VAR_MTA_COLOR, mtaColor);
     }
-    
+
     public static void setPhase(VariableScope scope, Phase phase) {
         setEnum(scope, Constants.VAR_PHASE, phase);
     }
-    
+
     private static String getModuleContentVariable(String moduleName) {
         return Constants.VAR_MTA_MODULE_CONTENT_PREFIX + moduleName;
     }
@@ -393,19 +393,11 @@ public class StepsUtil {
     }
 
     public static List<CloudApplication> getAppsToUndeploy(VariableScope scope) {
-        Type type = new TypeToken<List<CloudApplication>>() {
-        }.getType();
-        return getFromJsonBinary(scope, Constants.VAR_APPS_TO_UNDEPLOY, type);
-    }
-
-    public static CloudApplication getAppToUndeploy(VariableScope scope) {
-        List<CloudApplication> appsToUndeploy = getAppsToUndeploy(scope);
-        int index = (Integer) scope.getVariable(Constants.VAR_APPS_TO_UNDEPLOY_INDEX);
-        return appsToUndeploy.get(index);
+        return getFromJsonStrings(scope, Constants.VAR_APPS_TO_UNDEPLOY, CloudApplication.class);
     }
 
     static void setAppsToUndeploy(VariableScope scope, List<CloudApplication> apps) {
-        setAsJsonBinary(scope, Constants.VAR_APPS_TO_UNDEPLOY, apps);
+        setAsJsonStrings(scope, Constants.VAR_APPS_TO_UNDEPLOY, apps);
     }
 
     public static List<String> getServicesToDelete(VariableScope scope) {
@@ -698,11 +690,11 @@ public class StepsUtil {
     }
 
     public static CloudApplicationExtended getApp(VariableScope scope) {
-        return getFromJsonString(scope, Constants.VAR_APP_TO_DEPLOY, CloudApplicationExtended.class);
+        return getFromJsonString(scope, Constants.VAR_APP_TO_PROCESS, CloudApplicationExtended.class);
     }
 
     static void setApp(VariableScope scope, CloudApplicationExtended app) {
-        setAsJsonString(scope, Constants.VAR_APP_TO_DEPLOY, app);
+        setAsJsonString(scope, Constants.VAR_APP_TO_PROCESS, app);
     }
 
     public static void setModuleToDeploy(VariableScope scope, Module module) {
