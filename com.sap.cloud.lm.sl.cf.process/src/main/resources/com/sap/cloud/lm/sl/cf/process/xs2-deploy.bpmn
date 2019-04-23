@@ -138,6 +138,7 @@
       <extensionElements>
         <flowable:in source="user" target="user"></flowable:in>
         <flowable:in source="correlationId" target="correlationId"></flowable:in>
+        <flowable:in source="servicesToCreate" target="servicesToCreate"></flowable:in>
         <flowable:in source="serviceToProcess" target="serviceToProcess"></flowable:in>
         <flowable:in source="serviceKeysToCreate" target="serviceKeysToCreate"></flowable:in>
         <flowable:in source="initiator" target="initiator"></flowable:in>
