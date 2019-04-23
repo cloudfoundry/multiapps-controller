@@ -9,7 +9,7 @@
     <serviceTask id="CreateServiceTask" name="Create" flowable:async="true" flowable:delegateExpression="${createServiceStep}"></serviceTask>
     <sequenceFlow id="flow19" sourceRef="startevent3" targetRef="DetermineServiceCreateUpdateActionsTask"></sequenceFlow>
     <sequenceFlow id="flow20" sourceRef="DetermineServiceCreateUpdateActionsTask" targetRef="exclusivegateway2"></sequenceFlow>
-    <callActivity id="DeleteServiceCallActivity" name="Delete" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:fallbackToDefaultTenant="false"></callActivity>
+    <callActivity id="DeleteServiceCallActivity" name="Delete" flowable:async="true" calledElement="deleteServicesSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
     <serviceTask id="UpdateServicePlanTask" name="Update service plan" flowable:async="true" flowable:delegateExpression="${updateServicePlanStep}"></serviceTask>
     <sequenceFlow id="flow48" sourceRef="UpdateServicePlanTask" targetRef="exclusivegateway10"></sequenceFlow>
     <serviceTask id="UpdateServiceCredentialsTask" name="Update credentials" flowable:async="true" flowable:delegateExpression="${updateServiceCredentialsStep}"></serviceTask>
