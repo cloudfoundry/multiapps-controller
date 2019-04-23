@@ -94,7 +94,7 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
 
     private void prepareContext() {
         StepsUtil.setConfigurationEntriesToPublish(context, input.entriesToPublish);
-        Mockito.when(context.getVariable(Constants.VAR_APP_TO_DEPLOY))
+        Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
             .thenReturn(JsonUtil.toJson(new CloudApplicationExtended(Meta.defaultMeta(), "test-app-name")));
     }
 

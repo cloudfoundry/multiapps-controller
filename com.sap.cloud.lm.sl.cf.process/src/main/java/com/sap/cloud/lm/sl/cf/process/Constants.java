@@ -101,8 +101,6 @@ public class Constants {
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS = "updatedServiceBrokerSubscribers";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_COUNT = "updatedServiceBrokerSubscribersCount";
     public static final String VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS_INDEX = "updatedServiceBrokerSubscribersIndex";
-    public static final String VAR_APPS_TO_UNDEPLOY_COUNT = "appsToUndeployCount";
-    public static final String VAR_APPS_TO_UNDEPLOY_INDEX = "appsToUndeployIndex";
     public static final String VAR_MODULES_INDEX = "modulesIndex";
     public static final String VAR_MODULES_COUNT = "modulesCount";
     public static final String VAR_INDEX_VARIABLE_NAME = "indexVariableName";
@@ -139,7 +137,7 @@ public class Constants {
     public static final String VAR_TRIGGERED_SERVICE_OPERATIONS = "triggeredServiceOperations";
     public static final String VAR_CORRELATION_ID = "correlationId";
     public static final String VAR_MODULE_TO_DEPLOY = "moduleToDeploy";
-    public static final String VAR_APP_TO_DEPLOY = "appToDeploy";
+    public static final String VAR_APP_TO_PROCESS = "appToProcess";
     public static final String VAR_SUBPROCESS_ID = "subProcessId";
     public static final String VAR_PARENTPROCESS_ID = "parentProcessId";
     public static final String VAR_PLATFORM_TYPE = "platformType";
