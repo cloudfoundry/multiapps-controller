@@ -20,6 +20,7 @@ import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.junit.Before;
 import org.junit.Rule;
@@ -64,43 +65,39 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
             {
                 "update-subscribers-step-input-00.json", "update-subscribers-step-output-00.json", 2, null,
             },
-            // (1) A subscriber should be updated, because there are new published entries (there are no existing entries):
-            {
-                "update-subscribers-step-input-00.json", "update-subscribers-step-output-00.json", 2, null,
-            },
-            // (2) A subscriber should be updated:
+            // (1) A subscriber should be updated:
             {
                 "update-subscribers-step-input-01.json", "update-subscribers-step-output-01.json", 2, null,
             },
-            // (3) A subscriber should be updated, but the user does not have the necessary permissions for the org and space of the subscriber:
+            // (2) A subscriber should be updated, but the user does not have the necessary permissions for the org and space of the subscriber:
             {
                 "update-subscribers-step-input-02.json", "update-subscribers-step-output-02.json", 2, null,
             },
-            // (4) A subscriber should be updated, but the user does not have the necessary permissions for the org and space of the subscriber:
+            // (3) A subscriber should be updated, but the user does not have the necessary permissions for the org and space of the subscriber:
             {
                 "update-subscribers-step-input-03.json", "update-subscribers-step-output-02.json", 2, null,
             },
-            // (5) A subscriber should be updated, because there are deleted entries (there are no existing entries):
+            // (4) A subscriber should be updated, because there are deleted entries (there are no existing entries):
             {
                 "update-subscribers-step-input-04.json", "update-subscribers-step-output-04.json", 2, null,
             },
-            // (6) A subscriber should be updated, and there are additional environment variables that should be updated, other than the list variable:
+            // (5) A subscriber should be updated, and there are additional environment variables that should be updated, other than the list variable:
             {
                 "update-subscribers-step-input-05.json", "update-subscribers-step-output-05.json", 2, null,
             },
-            // (7) A subscriber should be updated, because there are new published entries (there are no existing entries) and the subscriber requires just one entry:
+            // (6) A subscriber should be updated, because there are new published entries (there are no existing entries) and the subscriber requires just one entry:
             {
                 "update-subscribers-step-input-06.json", "update-subscribers-step-output-06.json", 2, null,
             },
-            // (8) There are multiple subscribers that should be updated:
+            // (7) There are multiple subscribers that should be updated:
             {
                 "update-subscribers-step-input-07.json", "update-subscribers-step-output-07.json", 2, null,
             },
-            // (9) One application has two subscriptions:
+            // (8) One application has two subscriptions:
             {
                 "update-subscribers-step-input-08.json", "update-subscribers-step-output-08.json", 2, null,
             },
-            // (10) There's no need to update a subscriber:
+            // (9) There's no need to update a subscriber:
             {
                 "update-subscribers-step-input-09.json", "update-subscribers-step-output-09.json", 2, null,
             },
@@ -118,7 +115,7 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
 
     @Mock
     protected ModuleToDeployHelper moduleToDeployHelper;
-    
+
     private String expectedExceptionMessage;
 
     private int majorSchemaVersion;
@@ -177,7 +174,8 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
             .thenReturn(varInstanceMock);
         Mockito.when(varInstanceMock.getValue())
             .thenReturn(getBytes(getPublishedEntries()));
-        Mockito.when(moduleToDeployHelper.isApplication((Module) any())).thenReturn(true);
+        Mockito.when(moduleToDeployHelper.isApplication((Module) any()))
+            .thenReturn(true);
     }
 
     private byte[] getBytes(List<ConfigurationEntry> publishedEntries) {
@@ -333,11 +331,12 @@ public class UpdateSubscribersStepTest extends SyncFlowableStepTest<UpdateSubscr
             .orElse(null);
     }
 
-    private CloudApplication createApp(String name, CloudSpace space, Map<Object, Object> env) {
-        CloudApplication app = new CloudApplication(null, name);
-        app.setSpace(space);
-        app.setEnv(env);
-        return app;
+    private CloudApplication createApp(String name, CloudSpace space, Map<String, String> env) {
+        return ImmutableCloudApplication.builder()
+            .name(name)
+            .space(space)
+            .env(env)
+            .build();
     }
 
     private static class SubscriberToUpdate {

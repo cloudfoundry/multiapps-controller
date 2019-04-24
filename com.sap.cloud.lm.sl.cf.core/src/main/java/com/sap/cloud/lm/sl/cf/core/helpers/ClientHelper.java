@@ -31,7 +31,7 @@ public class ClientHelper {
     public String computeSpaceId(String orgName, String spaceName) {
         CloudSpace space = client.getSpace(orgName, spaceName, false);
         if (space != null) {
-            return space.getMeta()
+            return space.getMetadata()
                 .getGuid()
                 .toString();
         }

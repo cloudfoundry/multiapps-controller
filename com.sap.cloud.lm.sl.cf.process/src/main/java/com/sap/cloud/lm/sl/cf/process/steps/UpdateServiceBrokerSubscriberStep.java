@@ -7,6 +7,7 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,8 @@ public class UpdateServiceBrokerSubscriberStep extends CreateOrUpdateServiceBrok
             if (existingServiceBroker == null) {
                 getStepLogger().warn(MessageFormat.format(Messages.SERVICE_BROKER_DOES_NOT_EXIST, serviceBroker.getName()));
             } else {
-                serviceBroker.setMeta(existingServiceBroker.getMeta());
+                serviceBroker = ImmutableCloudServiceBroker.copyOf(serviceBroker)
+                    .withMetadata(existingServiceBroker.getMetadata());
                 updateServiceBroker(execution.getContext(), serviceBroker, client);
             }
             return StepPhase.DONE;

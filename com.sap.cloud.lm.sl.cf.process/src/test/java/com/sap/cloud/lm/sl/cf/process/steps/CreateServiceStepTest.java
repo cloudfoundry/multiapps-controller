@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
-import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,7 +71,7 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
         step.execute(context);
         assertStepPhase(STEP_EXECUTION);
 
-        if(getExecutionStatus().equals("DONE")) {
+        if (getExecutionStatus().equals("DONE")) {
             return;
         }
         prepareResponses(POLLING);
@@ -122,15 +124,17 @@ public class CreateServiceStepTest extends SyncFlowableStepTest<CreateServiceSte
     }
 
     private CloudServiceInstance createServiceInstance(SimpleService service) {
-        CloudServiceInstance instance = new CloudServiceInstance();
-        CloudService cloudService = new CloudService();
-        cloudService.setName(service.name);
-        cloudService.setLabel(service.label);
-        cloudService.setPlan(service.plan);
-        UUID guid = UUID.fromString(service.guid);
-        cloudService.setMeta(new Meta(guid, null, null));
-        instance.setService(cloudService);
-        return instance;
+        CloudMetadata serviceMetadata = ImmutableCloudMetadata.builder()
+            .guid(UUID.fromString(service.guid))
+            .build();
+        return ImmutableCloudServiceInstance.builder()
+            .service(ImmutableCloudService.builder()
+                .name(service.name)
+                .plan(service.plan)
+                .label(service.label)
+                .metadata(serviceMetadata)
+                .build())
+            .build();
     }
 
     private static class StepInput {

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.validators.parameters.TasksValidator;
@@ -45,12 +46,13 @@ public class TaskParametersParser implements ParametersParser<List<CloudTask>> {
         }
 
         public CloudTask toCloudTask(Map<String, Object> rawTask) {
-            CloudTask task = new CloudTask(null, getProperty(rawTask, TasksValidator.TASK_NAME_KEY));
-            task.setCommand(getProperty(rawTask, TasksValidator.TASK_COMMAND_KEY));
-            task.setEnvironmentVariables(getEnvironmentVariables(rawTask));
-            task.setMemory(parseMemory(rawTask));
-            task.setDiskQuota(parseDiskQuota(rawTask));
-            return task;
+            return ImmutableCloudTask.builder()
+                .name(getProperty(rawTask, TasksValidator.TASK_NAME_KEY))
+                .command(getProperty(rawTask, TasksValidator.TASK_COMMAND_KEY))
+                .environmentVariables(getEnvironmentVariables(rawTask))
+                .memory(parseMemory(rawTask))
+                .diskQuota(parseDiskQuota(rawTask))
+                .build();
         }
 
         private Map<String, String> getEnvironmentVariables(Map<String, Object> rawTask) {

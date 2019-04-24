@@ -12,31 +12,32 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.devx.webide\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"webide\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"webide\"]",
-      "MTA_SERVICES=[]",
-      "destinations=[{\"name\":\"sapui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://che.sofd60245639a\"}]"
-    ],
-    "instances": 0,
     "memory": 128,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [
-      "uaa"
-    ],
     "staging": {},
     "uris": [
       "webide.sofd60245639a"
     ],
-    "meta": {},
-    "name": "webide"
+    "services": [
+      "uaa"
+    ],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.devx.webide\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"webide\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"webide\"]",
+      "MTA_SERVICES": "[]",
+      "destinations": "[{\"name\":\"sapui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"},{\"name\":\"che\",\"url\":\"http://che.sofd60245639a\"}]"
+    },
+    "name": "webide",
+    "bindingParameters" : {},
+    "routes": []
   }
 ]

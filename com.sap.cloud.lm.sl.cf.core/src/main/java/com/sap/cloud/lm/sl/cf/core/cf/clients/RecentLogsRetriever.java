@@ -64,7 +64,7 @@ public class RecentLogsRetriever extends CustomControllerClient {
 
     private List<ApplicationLog> attemptToGetRecentLogs(CloudControllerClient client, String appName) {
         UUID applicationGuid = client.getApplication(appName)
-            .getMeta()
+            .getMetadata()
             .getGuid();
         String dopplerEndpoint = getDopplerEndpoint(client.getCloudInfo()
             .getLoggingEndpoint());

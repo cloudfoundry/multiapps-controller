@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
+import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -94,8 +95,12 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
 
     private void prepareContext() {
         StepsUtil.setConfigurationEntriesToPublish(context, input.entriesToPublish);
+        CloudApplicationExtended appToProcess = ImmutableCloudApplicationExtended.builder()
+            .metadata(CloudMetadata.defaultMetadata())
+            .name("test-app-name")
+            .build();
         Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
-            .thenReturn(JsonUtil.toJson(new CloudApplicationExtended(Meta.defaultMeta(), "test-app-name")));
+            .thenReturn(JsonUtil.toJson(appToProcess));
     }
 
     @Test

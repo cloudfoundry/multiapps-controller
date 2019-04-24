@@ -67,7 +67,7 @@ public class PollExecuteTaskStatusExecution implements AsyncExecution {
 
         private CloudTask.State getCurrentState() {
             CloudControllerClient client = execution.getControllerClient();
-            return client.getTask(taskToPoll.getMeta()
+            return client.getTask(taskToPoll.getMetadata()
                 .getGuid())
                 .getState();
         }

@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
@@ -17,11 +18,12 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.ServiceGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperation;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationState;
@@ -67,7 +69,7 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
             .info(Messages.PROCESSING_SERVICE, serviceToProcess.getName());
         CloudService existingService = controllerClient.getService(serviceToProcess.getName(), false);
 
-        Map<String, List<ServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(execution.getContext());
+        Map<String, List<CloudServiceKey>> serviceKeys = StepsUtil.getServiceKeysToCreate(execution.getContext());
 
         List<ServiceAction> actions = determineActions(controllerClient, spaceId, serviceToProcess, existingService, serviceKeys,
             execution);
@@ -83,17 +85,18 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
     private void setServiceParameters(CloudServiceExtended service, List<ServiceAction> actions, DelegateExecution delegateExecution)
         throws FileStorageException {
         if (CollectionUtils.isNotEmpty(actions)) {
-            prepareServiceParameters(delegateExecution, service);
+            service = prepareServiceParameters(delegateExecution, service);
             StepsUtil.setServiceToProcess(service, delegateExecution);
         }
     }
 
     private List<ServiceAction> determineActions(CloudControllerClient client, String spaceId, CloudServiceExtended service,
-        CloudService existingService, Map<String, List<ServiceKey>> serviceKeys, ExecutionWrapper execution) throws FileStorageException {
+        CloudService existingService, Map<String, List<CloudServiceKey>> serviceKeys, ExecutionWrapper execution)
+        throws FileStorageException {
         List<ServiceAction> actions = new ArrayList<>();
 
-        List<ServiceKey> keys = serviceKeys.get(service.getName());
-        if (shouldUpdateKeys(service, keys, execution)) {
+        List<CloudServiceKey> keys = serviceKeys.get(service.getName());
+        if (shouldUpdateKeys(service, keys)) {
             getStepLogger().debug("Service keys should be updated");
             actions.add(ServiceAction.UPDATE_KEYS);
         }
@@ -145,37 +148,42 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return actions;
     }
 
-    private void prepareServiceParameters(DelegateExecution context, CloudServiceExtended service) throws FileStorageException {
+    private CloudServiceExtended prepareServiceParameters(DelegateExecution context, CloudServiceExtended service)
+        throws FileStorageException {
         MtaArchiveElements mtaArchiveElements = StepsUtil.getMtaArchiveElements(context);
         String fileName = mtaArchiveElements.getResourceFileName(service.getResourceName());
         if (fileName != null) {
             getStepLogger().info(Messages.SETTING_SERVICE_PARAMETERS, service.getName(), fileName);
             String appArchiveId = StepsUtil.getRequiredString(context, Constants.PARAM_APP_ARCHIVE_ID);
-            setServiceParameters(context, service, appArchiveId, fileName);
+            return setServiceParameters(context, service, appArchiveId, fileName);
         }
+        return service;
     }
 
-    private void setServiceParameters(DelegateExecution context, CloudServiceExtended service, final String appArchiveId,
+    private CloudServiceExtended setServiceParameters(DelegateExecution context, CloudServiceExtended service, final String appArchiveId,
         final String fileName) throws FileStorageException {
+        AtomicReference<CloudServiceExtended> serviceReference = new AtomicReference<>();
         FileContentProcessor parametersFileProcessor = appArchiveStream -> {
             try (InputStream is = ArchiveHandler.getInputStream(appArchiveStream, fileName, configuration.getMaxManifestSize())) {
-                mergeCredentials(service, is);
+                serviceReference.set(mergeCredentials(service, is));
             } catch (IOException e) {
                 throw new SLException(e, Messages.ERROR_RETRIEVING_MTA_RESOURCE_CONTENT, fileName);
             }
         };
         fileService
             .processFileContent(new DefaultFileDownloadProcessor(StepsUtil.getSpaceId(context), appArchiveId, parametersFileProcessor));
+        return serviceReference.get();
     }
 
-    private void mergeCredentials(CloudServiceExtended service, InputStream credentialsJson) {
+    private CloudServiceExtended mergeCredentials(CloudServiceExtended service, InputStream credentialsJson) {
         Map<String, Object> existingCredentials = service.getCredentials();
         Map<String, Object> credentials = JsonUtil.convertJsonToMap(credentialsJson);
         if (existingCredentials == null) {
             existingCredentials = Collections.emptyMap();
         }
         Map<String, Object> result = PropertiesUtil.mergeExtensionProperties(credentials, existingCredentials);
-        service.setCredentials(result);
+        return ImmutableCloudServiceExtended.copyOf(service)
+            .withCredentials(result);
     }
 
     private List<String> getServiceTags(CloudControllerClient client, String spaceId, CloudService service) {
@@ -187,8 +195,8 @@ public class DetermineServiceCreateUpdateServiceActionsStep extends SyncFlowable
         return CommonUtil.cast(serviceInstance.get("tags"));
     }
 
-    private boolean shouldUpdateKeys(CloudServiceExtended service, List<ServiceKey> list, ExecutionWrapper execution) {
-        return service.isUserProvided() || list == null || list.isEmpty() ? false : true;
+    private boolean shouldUpdateKeys(CloudServiceExtended service, List<CloudServiceKey> serviceKeys) {
+        return !(service.isUserProvided() || CollectionUtils.isEmpty(serviceKeys));
     }
 
     private boolean shouldUpdatePlan(CloudServiceExtended service, CloudService existingService) {

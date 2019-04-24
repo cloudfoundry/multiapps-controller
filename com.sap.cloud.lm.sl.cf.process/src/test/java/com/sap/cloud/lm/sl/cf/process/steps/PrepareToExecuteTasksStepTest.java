@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
 public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareToExecuteTasksStep> {
@@ -51,9 +53,10 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     }
 
     private CloudApplicationExtended createDummyApplicationWithTasks(int numberOfTasks) {
-        CloudApplicationExtended app = new CloudApplicationExtended(null, "dummy");
-        app.setTasks(createDummyTasks(numberOfTasks));
-        return app;
+        return ImmutableCloudApplicationExtended.builder()
+            .name("dummy")
+            .tasks(createDummyTasks(numberOfTasks))
+            .build();
     }
 
     private List<CloudTask> createDummyTasks(int count) {
@@ -65,7 +68,9 @@ public class PrepareToExecuteTasksStepTest extends SyncFlowableStepTest<PrepareT
     }
 
     private CloudTask createDummyTask() {
-        return new CloudTask(null, "dummy");
+        return ImmutableCloudTask.builder()
+            .name("dummy")
+            .build();
     }
 
 }

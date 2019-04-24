@@ -9,10 +9,12 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 
 import org.cloudfoundry.client.lib.domain.CloudTask;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -21,14 +23,18 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
 
     private static final long DUMMY_TIME = 100;
 
-    private final CloudTask task = new CloudTask(null, "foo");
-    private final CloudApplicationExtended app = new CloudApplicationExtended(null, "dummy");
+    private final CloudTask task = ImmutableCloudTask.builder()
+        .name("foo")
+        .command("echo ${test}")
+        .environmentVariables(MapUtil.asMap("test", "bar"))
+        .build();
+    private final CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
+        .name("dummy")
+        .build();
 
     @Before
     public void setUp() {
         step.currentTimeSupplier = () -> DUMMY_TIME;
-        task.setCommand("echo ${test}");
-        task.setEnvironmentVariables(MapUtil.asMap("test", "bar"));
     }
 
     @Test
@@ -38,7 +44,8 @@ public class ExecuteTaskStepTest extends SyncFlowableStepTest<ExecuteTaskStep> {
         StepsUtil.setTasksToExecute(context, Arrays.asList(task));
         context.setVariable(Constants.VAR_TASKS_INDEX, 0);
 
-        when(client.runTask(eq(app.getName()), argThat(GenericArgumentMatcher.forObject(task)))).thenReturn(StepsTestUtil.copy(task));
+        when(client.runTask(eq(app.getName()), argThat(GenericArgumentMatcher.forObject(task))))
+            .thenReturn(ImmutableCloudTask.copyOf(task));
 
         // When:
         step.execute(context);

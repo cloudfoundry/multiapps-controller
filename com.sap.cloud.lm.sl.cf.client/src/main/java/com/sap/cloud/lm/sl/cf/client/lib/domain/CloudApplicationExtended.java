@@ -4,165 +4,66 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
+import org.cloudfoundry.client.lib.domain.annotation.Nullable;
+import org.immutables.value.Value;
 
-public class CloudApplicationExtended extends CloudApplication {
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy;
 
-    private String moduleName;
-    private List<String> idleUris;
-    private Map<String, Map<String, Object>> bindingParameters;
-    private List<CloudTask> tasks;
-    private List<ServiceKeyToInject> serviceKeysToInject;
-    private List<String> domains;
-    private RestartParameters restartParameters;
-    private DockerInfo dockerInfo;
-    private AttributeUpdateStrategy applicationAttributesUpdateStrategy;
+@Value.Enclosing
+@Value.Immutable
+@JsonSerialize(as = ImmutableCloudApplicationExtended.class)
+@JsonDeserialize(as = ImmutableCloudApplicationExtended.class)
+public interface CloudApplicationExtended extends CloudApplication {
 
-    // Required by Jackson.
-    protected CloudApplicationExtended() {
-    }
+    @Nullable
+    String getModuleName();
 
-    public CloudApplicationExtended(Meta meta, String name) {
-        super(meta, name);
-    }
+    List<String> getIdleUris();
 
-    public CloudApplicationExtended(String name, String command, String buildpackUrl, int memory, int instances, List<String> uris,
-        List<String> serviceNames, AppState state, List<String> domains, DockerInfo dockerInfo) {
-        super(name, command, buildpackUrl, memory, instances, uris, serviceNames, state);
-        this.domains = domains;
-        this.dockerInfo = dockerInfo;
-    }
+    Map<String, Map<String, Object>> getBindingParameters();
 
-    public String getModuleName() {
-        return moduleName;
-    }
+    List<CloudTask> getTasks();
 
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
-    }
+    List<CloudRoute> getRoutes();
 
-    public List<String> getIdleUris() {
-        return idleUris;
-    }
+    List<ServiceKeyToInject> getServiceKeysToInject();
 
-    public void setIdleUris(List<String> idleUris) {
-        this.idleUris = idleUris;
-    }
+    List<String> getDomains();
 
-    public Map<String, Map<String, Object>> getBindingParameters() {
-        return bindingParameters;
-    }
+    @Nullable
+    RestartParameters getRestartParameters();
 
-    public void setBindingParameters(Map<String, Map<String, Object>> bindingParameters) {
-        this.bindingParameters = bindingParameters;
-    }
+    @Nullable
+    DockerInfo getDockerInfo();
 
-    public List<CloudTask> getTasks() {
-        return tasks;
-    }
+    @Nullable
+    AttributeUpdateStrategy getAttributesUpdateStrategy();
 
-    public void setTasks(List<CloudTask> tasks) {
-        this.tasks = tasks;
-    }
+    @Value.Immutable
+    @JsonSerialize(as = ImmutableAttributeUpdateStrategy.class)
+    @JsonDeserialize(as = ImmutableAttributeUpdateStrategy.class)
+    interface AttributeUpdateStrategy {
 
-    public List<ServiceKeyToInject> getServiceKeysToInject() {
-        return serviceKeysToInject;
-    }
-
-    public void setServiceKeysToInject(List<ServiceKeyToInject> serviceKeysToInject) {
-        this.serviceKeysToInject = serviceKeysToInject;
-    }
-
-    public List<String> getDomains() {
-        return domains;
-    }
-
-    public void setDomains(List<String> domains) {
-        this.domains = domains;
-    }
-
-    public RestartParameters getRestartParameters() {
-        return restartParameters;
-    }
-
-    public void setRestartParameters(RestartParameters restartParameters) {
-        this.restartParameters = restartParameters;
-    }
-
-    public DockerInfo getDockerInfo() {
-        return dockerInfo;
-    }
-
-    public void setDockerInfo(DockerInfo dockerInfo) {
-        this.dockerInfo = dockerInfo;
-    }
-
-    public AttributeUpdateStrategy getApplicationAttributesUpdateStrategy() {
-        return applicationAttributesUpdateStrategy;
-    }
-
-    public void setApplicationAttributesUpdateBehavior(AttributeUpdateStrategy applicationAttributesUpdateStrategy) {
-        this.applicationAttributesUpdateStrategy = applicationAttributesUpdateStrategy;
-    }
-
-    public static class AttributeUpdateStrategy {
-        private boolean shouldKeepExistingEnv;
-        private boolean shouldKeepExistingServiceBindings;
-        private boolean shouldKeepExistingRoutes;
-
-        // Required by Jackson.
-        protected AttributeUpdateStrategy() {
+        @Value.Default
+        default boolean shouldKeepExistingEnv() {
+            return false;
         }
 
-        public AttributeUpdateStrategy(Builder attrbiuteUpdateStrategyBuilder) {
-            this.shouldKeepExistingEnv = attrbiuteUpdateStrategyBuilder.shouldKeepExistingEnv;
-            this.shouldKeepExistingServiceBindings = attrbiuteUpdateStrategyBuilder.shouldKeepExistingServiceBindings;
-            this.shouldKeepExistingRoutes = attrbiuteUpdateStrategyBuilder.shouldKeepExistingRoutes;
+        @Value.Default
+        default boolean shouldKeepExistingServiceBindings() {
+            return false;
         }
 
-        public boolean shouldKeepExistingEnv() {
-            return shouldKeepExistingEnv;
-        }
-
-        public boolean shouldKeepExistingServiceBindings() {
-            return shouldKeepExistingServiceBindings;
-        }
-
-        public boolean shouldKeepExistingRoutes() {
-            return shouldKeepExistingRoutes;
-        }
-
-        public static class Builder {
-            private boolean shouldKeepExistingEnv = false;
-            private boolean shouldKeepExistingServiceBindings = false;
-            private boolean shouldKeepExistingRoutes = false;
-
-            public Builder shouldKeepExistingEnv(Boolean shouldKeepExistingEnv) {
-                if (shouldKeepExistingEnv != null) {
-                    this.shouldKeepExistingEnv = shouldKeepExistingEnv;
-                }
-                return this;
-            }
-
-            public Builder shouldKeepExistingServiceBindings(Boolean shouldKeepExistingServiceBindings) {
-                if (shouldKeepExistingServiceBindings != null) {
-                    this.shouldKeepExistingServiceBindings = shouldKeepExistingServiceBindings;
-                }
-                return this;
-            }
-
-            public Builder shouldKeepExistingRoutes(Boolean shouldKeepExistingRoutes) {
-                if (shouldKeepExistingRoutes != null) {
-                    this.shouldKeepExistingRoutes = shouldKeepExistingRoutes;
-                }
-                return this;
-            }
-
-            public AttributeUpdateStrategy build() {
-                return new AttributeUpdateStrategy(this);
-            }
+        @Value.Default
+        default boolean shouldKeepExistingRoutes() {
+            return false;
         }
 
     }
+
 }

@@ -29,26 +29,26 @@ public class ApplicationEnvironmentUpdater {
 
     public void updateApplicationEnvironment(String envPropertyKey, String key, Object value) {
         try {
-            Map<String, String> appEnvAsMap = app.getEnvAsMap();
+            Map<String, String> env = new TreeMap<>(app.getEnv());
             if (envPropertyKey == null) {
-                Map<String, Object> updatedEnv = addToEnvironmentProperty(cast(appEnvAsMap), key, value);
+                Map<String, Object> updatedEnv = addToEnvironmentProperty(cast(env), key, value);
                 updateEnvironment(updatedEnv);
                 return;
             }
 
-            String locatedEnvString = appEnvAsMap.get(envPropertyKey);
+            String locatedEnvString = env.get(envPropertyKey);
             Map<String, Object> updatedEnv = addToEnvironmentProperty(JsonUtil.convertJsonToMap(locatedEnvString), key, value);
-            appEnvAsMap.put(envPropertyKey, JsonUtil.toJson(updatedEnv, prettyPrinting));
-            updateEnvironment(cast(appEnvAsMap));
+            env.put(envPropertyKey, JsonUtil.toJson(updatedEnv, prettyPrinting));
+            updateEnvironment(cast(env));
         } catch (Exception e) {
             throw new SLException(e, "Error updating environment of application");
         }
     }
 
     private Map<String, Object> addToEnvironmentProperty(Map<String, Object> envProperty, String key, Object value) {
-        Map<String, Object> environment = new TreeMap<>(envProperty);
-        environment.put(key, value);
-        return environment;
+        Map<String, Object> env = new TreeMap<>(envProperty);
+        env.put(key, value);
+        return env;
     }
 
     private void updateEnvironment(Map<String, Object> updatedEnv) {

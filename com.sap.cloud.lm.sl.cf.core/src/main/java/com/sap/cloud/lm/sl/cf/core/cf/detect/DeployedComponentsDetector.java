@@ -46,10 +46,10 @@ public class DeployedComponentsDetector {
                 DeployedMtaMetadata mtaMetadata = appMetadata.getMtaMetadata();
 
                 List<DeployedMtaModule> modules = modulesMap.getOrDefault(mtaMetadata, new ArrayList<>());
-                Date createdOn = app.getMeta()
-                    .getCreated();
-                Date updatedOn = app.getMeta()
-                    .getUpdated();
+                Date createdOn = app.getMetadata()
+                    .getCreatedAt();
+                Date updatedOn = app.getMetadata()
+                    .getUpdatedAt();
                 DeployedMtaModule module = new DeployedMtaModule(moduleName, appName, createdOn, updatedOn, appServices,
                     providedDependencies, app.getUris());
                 modules.add(module);

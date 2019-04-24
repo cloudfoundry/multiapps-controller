@@ -5,7 +5,7 @@
       "instances": 1,
       "memory": 0,
       "diskQuota": 512,
-      "env": [],
+      "env": {},
       "services": [],
       "serviceKeysToInject": []
     },
@@ -14,7 +14,7 @@
       "instances": 3,
       "memory": 0,
       "diskQuota": 512,
-      "env": [],
+      "env": {},
       "services": [],
       "serviceKeysToInject": []
     }

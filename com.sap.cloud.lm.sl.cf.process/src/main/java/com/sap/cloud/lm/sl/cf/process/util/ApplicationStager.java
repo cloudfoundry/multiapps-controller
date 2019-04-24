@@ -32,18 +32,18 @@ public class ApplicationStager {
 
     public boolean isApplicationStagedCorrectly(ExecutionWrapper execution, CloudApplication cloudApplication) {
         CloudBuild cloudBuild = execution.getControllerClient()
-            .getBuildsForApplication(cloudApplication.getMeta()
+            .getBuildsForApplication(cloudApplication.getMetadata()
                 .getGuid())
             .stream()
-            .max(Comparator.comparing(build -> build.getMeta()
-                .getCreated()))
+            .max(Comparator.comparing(build -> build.getMetadata()
+                .getCreatedAt()))
             .orElse(null);
         if (cloudBuild == null) {
             execution.getStepLogger()
                 .debug(Messages.NO_BUILD_FOUND_FOR_APPLICATION, cloudApplication.getName());
             return false;
         }
-        if (cloudBuild.getState() == CloudBuild.BuildState.STAGED && cloudBuild.getDroplet() != null && cloudBuild.getError() == null) {
+        if (cloudBuild.getState() == CloudBuild.State.STAGED && cloudBuild.getDropletInfo() != null && cloudBuild.getError() == null) {
             return true;
         }
         execution.getStepLogger()
@@ -79,7 +79,7 @@ public class ApplicationStager {
             .getVariable(Constants.VAR_BUILD_GUID);
 
         client.bindDropletToApp(client.getBuild(buildGuid)
-            .getDroplet()
+            .getDropletInfo()
             .getGuid(), appId);
     }
 
@@ -93,7 +93,7 @@ public class ApplicationStager {
         stepLogger.info(Messages.STAGING_APP, app.getName());
 
         context.setVariable(Constants.VAR_BUILD_GUID, client.createBuild(packageGuid)
-            .getMeta()
+            .getMetadata()
             .getGuid());
 
         return StepPhase.POLL;

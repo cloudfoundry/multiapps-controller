@@ -8,6 +8,7 @@ import java.text.MessageFormat;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
@@ -45,8 +46,10 @@ public class ApplicationAttributesTest {
 
     @Test
     public void testGetWithInvalidAttributes() {
-        CloudApplication app = new CloudApplication(null, APP_NAME);
-        app.setEnv(MapUtil.asMap("DEPLOY_ATTRIBUTES", "INVALID_JSON_OBJECT"));
+        CloudApplication app = ImmutableCloudApplication.builder()
+            .name(APP_NAME)
+            .env(MapUtil.asMap("DEPLOY_ATTRIBUTES", "INVALID_JSON_OBJECT"))
+            .build();
 
         ParsingException e = assertThrows(ParsingException.class, () -> ApplicationAttributes.fromApplication(app));
 
@@ -56,7 +59,9 @@ public class ApplicationAttributesTest {
 
     @Test
     public void testGetWithMissingAttributes() {
-        CloudApplication app = new CloudApplication(null, APP_NAME);
+        CloudApplication app = ImmutableCloudApplication.builder()
+            .name(APP_NAME)
+            .build();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
 
         assertNull(appAttributes.get("service-broker-url", String.class));
@@ -65,8 +70,10 @@ public class ApplicationAttributesTest {
 
     @Test
     public void testGetWithNullAttributes() {
-        CloudApplication app = new CloudApplication(null, APP_NAME);
-        app.setEnv(MapUtil.asMap("DEPLOY_ATTRIBUTES", "null"));
+        CloudApplication app = ImmutableCloudApplication.builder()
+            .name(APP_NAME)
+            .env(MapUtil.asMap("DEPLOY_ATTRIBUTES", "null"))
+            .build();
         ApplicationAttributes appAttributes = ApplicationAttributes.fromApplication(app);
 
         assertNull(appAttributes.get("service-broker-url", String.class));

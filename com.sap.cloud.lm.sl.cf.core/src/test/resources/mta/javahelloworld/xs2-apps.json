@@ -12,32 +12,33 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"java-hello-world\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java-hello-world\"]",
-      "MTA_SERVICES=[\"uaa\"]",
-      "destinations=[{\"name\":\"java\",\"url\":\"http://java-hello-world-backend.sofd60245639a\"},{\"name\":\"ui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
-    ],
-    "instances": 0,
     "memory": 128,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [
-      "uaa"
-    ],
     "staging": {},
     "uris": [
       "java-hello-world.sofd60245639a"
     ],
-    "meta": {},
-    "name": "java-hello-world"
+    "services": [
+      "uaa"
+    ],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java-hello-world\"]",
+      "MTA_SERVICES": "[\"uaa\"]",
+      "destinations": "[{\"name\":\"java\",\"url\":\"http://java-hello-world-backend.sofd60245639a\"},{\"name\":\"ui5\",\"proxyHost\":\"proxy\",\"proxyPort\":\"8080\",\"url\":\"https://sapui5.netweaver.ondemand.com\"}]"
+    },
+    "name": "java-hello-world",
+    "bindingParameters" : {},
+    "routes": []
   },
   {
     "moduleName": "java-hello-world-backend",
@@ -52,33 +53,34 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"java-hello-world-backend\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java\",\"java-hello-world-backend\"]",
-      "MTA_SERVICES=[\"uaa\",\"java-hdi-container\"]",
-      "TARGET_RUNTIME=tomee"
-    ],
-    "instances": 1,
     "memory": 512,
+    "diskQuota": 0,
+    "instances": 1,
     "runningInstances": 0,
-    "services": [
-      "uaa",
-      "java-hdi-container"
-    ],
     "staging": {},
     "uris": [
       "java-hello-world-backend.sofd60245639a"
     ],
-    "meta": {},
-    "name": "java-hello-world-backend"
+    "services": [
+      "uaa",
+      "java-hdi-container"
+    ],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world-backend\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java\",\"java-hello-world-backend\"]",
+      "MTA_SERVICES": "[\"uaa\",\"java-hdi-container\"]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "name": "java-hello-world-backend",
+    "bindingParameters" : {},
+    "routes": []
   },
   {
     "moduleName": "java-hello-world-db",
@@ -93,28 +95,29 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"execute-app\":false}",
-      "MTA_METADATA={\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"java-hello-world-db\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"java-hello-world-db\"]",
-      "MTA_SERVICES=[\"java-hdi-container\"]"
-    ],
-    "instances": 0,
     "memory": 256,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
+    "staging": {},
+    "uris": [],
     "services": [
       "java-hdi-container"
     ],
-    "staging": {},
-    "uris": [],
-    "meta": {},
-    "name": "java-hello-world-db"
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"execute-app\":false}",
+      "MTA_METADATA": "{\"id\":\"com.sap.xs2.samples.javahelloworld\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"java-hello-world-db\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"java-hello-world-db\"]",
+      "MTA_SERVICES": "[\"java-hdi-container\"]"
+    },
+    "name": "java-hello-world-db",
+    "bindingParameters" : {},
+    "routes": []
   }
 ]

@@ -13,14 +13,17 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.CloudBuild;
-import org.cloudfoundry.client.lib.domain.CloudEntity;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
+import org.cloudfoundry.client.lib.domain.CloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudBuild.ImmutableDropletInfo;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.RestartParameters;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupState;
 import com.sap.cloud.lm.sl.cf.core.cf.apps.ApplicationStartupStateCalculator;
@@ -76,10 +79,16 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
         return new DetermineDesiredStateAchievingActionsStep();
     }
 
-    protected static CloudBuild createCloudBuild(CloudBuild.BuildState buildState, Date createdAt, String error) {
-        return new CloudBuild.Builder().buildState(buildState)
-            .meta(new Meta(FAKE_UUID, createdAt, null))
-            .droplet(new CloudBuild.Droplet(FAKE_UUID, null))
+    protected static CloudBuild createCloudBuild(CloudBuild.State state, Date createdAt, String error) {
+        return ImmutableCloudBuild.builder()
+            .metadata(ImmutableCloudMetadata.builder()
+                .guid(FAKE_UUID)
+                .createdAt(createdAt)
+                .build())
+            .dropletInfo(ImmutableDropletInfo.builder()
+                .guid(FAKE_UUID)
+                .build())
+            .state(state)
             .error(error)
             .build();
     }
@@ -112,12 +121,18 @@ public abstract class DetermineDesiredStateAchievingActionsStepBaseTest
 
     private void prepareClient() {
         RestartParameters restartParameters = getRestartParameters();
-        CloudEntity.Meta meta = new CloudEntity.Meta(FAKE_UUID, null, null);
-        CloudApplicationExtended app = new CloudApplicationExtended(meta, DUMMY);
-        app.setRestartParameters(restartParameters);
+        CloudMetadata metadata = ImmutableCloudMetadata.builder()
+            .guid(FAKE_UUID)
+            .build();
+
+        CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
+            .metadata(metadata)
+            .name(DUMMY)
+            .restartParameters(restartParameters)
+            .build();
         context.setVariable(Constants.VAR_APP_TO_PROCESS, JsonUtil.toJson(app));
         when(client.getApplication(anyString())).thenReturn(app);
-        when(client.getBuildsForApplication(app.getMeta()
+        when(client.getBuildsForApplication(app.getMetadata()
             .getGuid())).thenReturn(cloudBuilds);
     }
 }

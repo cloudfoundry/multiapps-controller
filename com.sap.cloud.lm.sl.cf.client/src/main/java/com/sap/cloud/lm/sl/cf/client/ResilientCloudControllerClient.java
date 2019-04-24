@@ -23,7 +23,6 @@ import org.cloudfoundry.client.lib.UploadStatusCallback;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationStats;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudApplication.DebugMode;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
 import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudEvent;
@@ -43,7 +42,7 @@ import org.cloudfoundry.client.lib.domain.CloudUser;
 import org.cloudfoundry.client.lib.domain.CrashesInfo;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.InstancesInfo;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.cloudfoundry.client.lib.domain.Upload;
 import org.cloudfoundry.client.lib.domain.UploadToken;
@@ -322,11 +321,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void updateApplicationEnv(String applicationName, List<String> env) {
-        executeWithRetry(() -> cc.updateApplicationEnv(applicationName, env));
-    }
-
-    @Override
     public void updateApplicationInstances(String applicationName, int instances) {
         executeWithRetry(() -> cc.updateApplicationInstances(applicationName, instances));
     }
@@ -514,11 +508,6 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public void debugApplication(String applicationName, DebugMode mode) {
-        executeWithRetry(() -> cc.debugApplication(applicationName, mode));
-    }
-
-    @Override
     public void deleteAllApplications() {
         executeWithRetry(() -> cc.deleteAllApplications());
     }
@@ -664,7 +653,7 @@ public class ResilientCloudControllerClient implements CloudControllerClient {
     }
 
     @Override
-    public List<ServiceKey> getServiceKeys(String serviceName) {
+    public List<CloudServiceKey> getServiceKeys(String serviceName) {
         return executeWithRetry(() -> cc.getServiceKeys(serviceName), HttpStatus.NOT_FOUND);
     }
 

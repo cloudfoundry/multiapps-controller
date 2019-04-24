@@ -3,12 +3,13 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import static org.junit.Assert.assertEquals;
 
 import org.cloudfoundry.client.lib.StartingInfo;
-import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
+import org.cloudfoundry.client.lib.domain.CloudApplication.State;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -23,7 +24,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Test
     public void testExecuteWhenAppIsStopped() throws Exception {
-        CloudApplicationExtended app = createApplication(APP_NAME, AppState.STOPPED);
+        CloudApplicationExtended app = createApplication(APP_NAME, State.STOPPED);
         StartingInfo startingInfo = new StartingInfo("dummyStagingFile");
         prepareContextAndClient(app, startingInfo);
 
@@ -45,7 +46,7 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
 
     @Test
     public void testExecuteWhenAppIsStarted() throws Exception {
-        CloudApplicationExtended app = createApplication(APP_NAME, AppState.STARTED);
+        CloudApplicationExtended app = createApplication(APP_NAME, State.STARTED);
         StartingInfo startingInfo = new StartingInfo("dummyStagingFile");
         prepareContextAndClient(app, startingInfo);
 
@@ -60,10 +61,11 @@ public class RestartAppStepTest extends SyncFlowableStepTest<RestartAppStep> {
         assertEquals(JsonUtil.toJson(startingInfo), JsonUtil.toJson(StepsUtil.getStartingInfo(context)));
     }
 
-    private CloudApplicationExtended createApplication(String name, AppState state) {
-        CloudApplicationExtended app = new CloudApplicationExtended(null, name);
-        app.setState(state);
-        return app;
+    private CloudApplicationExtended createApplication(String name, State state) {
+        return ImmutableCloudApplicationExtended.builder()
+            .name(name)
+            .state(state)
+            .build();
     }
 
     private void prepareContextAndClient(CloudApplicationExtended app, StartingInfo startingInfo) {

@@ -61,7 +61,7 @@ public class PollStageAppStatusExecution implements AsyncExecution {
                 .info(Messages.APP_STAGED, app.getName());
 
             UUID appId = client.getApplication(app.getName())
-                .getMeta()
+                .getMetadata()
                 .getGuid();
 
             applicationStager.bindDropletToApp(execution, appId, client);

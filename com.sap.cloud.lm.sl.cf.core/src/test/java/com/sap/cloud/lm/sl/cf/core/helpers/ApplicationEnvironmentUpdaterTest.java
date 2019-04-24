@@ -5,7 +5,8 @@ import java.util.Map;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
+import org.cloudfoundry.client.lib.domain.CloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +40,7 @@ public class ApplicationEnvironmentUpdaterTest {
             },
             {
                 "application-env-updater-input-01.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-01.json"),
-            }
+            },
 // @formatter:on
         });
     }
@@ -78,9 +79,11 @@ public class ApplicationEnvironmentUpdaterTest {
         Map<String, Object> env;
 
         CloudApplication toCloudApplication() {
-            CloudApplication app = new CloudApplication(Meta.defaultMeta(), name);
-            app.setEnv(MapUtil.upcast(ENV_CONVERTER.asEnv(env)));
-            return app;
+            return ImmutableCloudApplication.builder()
+                .metadata(CloudMetadata.defaultMetadata())
+                .name(name)
+                .env(ENV_CONVERTER.asEnv(env))
+                .build();
         }
     }
 }

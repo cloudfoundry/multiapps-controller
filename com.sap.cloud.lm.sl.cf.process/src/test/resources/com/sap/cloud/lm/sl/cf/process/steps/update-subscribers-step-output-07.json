@@ -1,67 +1,85 @@
 {
   "callArgumentsOfUpdateApplicationEnvMethod": [
     {
-      "env": [
-        "plugins\u003d[{\"name\":\"plugin-01\"}]"
-      ],
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "plugins": "[{\"name\":\"plugin-01\"}]"
+      },
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
       },
-      "meta": {},
       "name": "foo"
     },
     {
-      "env": [
-        "plugins\u003d[{\"name\":\"plugins\",\"url\":\"https://localhost:30030\"}]"
-      ],
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "plugins": "[{\"name\":\"plugins\",\"url\":\"https://localhost:30030\"}]"
+      },
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
       },
-      "meta": {},
       "name": "bar"
     }
   ],
   "updatedSubscribers": [
     {
-      "env": [
-        "plugins\u003d[]"
-      ],
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "plugins": "[]"
+      },
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
       },
-      "meta": {
+      "metadata": {
         "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
       },
       "name": "foo"
     },
     {
-      "env": [
-        "plugins\u003d[]"
-      ],
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "plugins": "[]"
+      },
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
       },
-      "meta": {
+      "metadata": {
         "guid": "4d14bc48-cf01-4e61-94e7-e78fee293f29"
       },
       "name": "bar"

@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
@@ -174,8 +175,10 @@ public class SyncFlowableStepWithHooksTest {
     }
 
     private void prepareApplication(String name, String moduleName) {
-        CloudApplicationExtended cloudApplicationExtended = new CloudApplicationExtended(null, name);
-        cloudApplicationExtended.setModuleName(moduleName);
+        CloudApplicationExtended cloudApplicationExtended = ImmutableCloudApplicationExtended.builder()
+            .name(name)
+            .moduleName(moduleName)
+            .build();
         StepsUtil.setApp(context, cloudApplicationExtended);
     }
 

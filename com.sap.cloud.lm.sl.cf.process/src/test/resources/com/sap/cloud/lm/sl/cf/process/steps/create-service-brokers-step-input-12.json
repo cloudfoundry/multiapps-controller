@@ -1,7 +1,7 @@
 {
   "existingServiceBrokers": [
     {
-      "meta": {},
+      "metadata": {},
       "name": "foo-broker",
       "username": "old-username",
       "password": "old-password",

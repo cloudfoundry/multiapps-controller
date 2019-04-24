@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Component;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -116,9 +118,10 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         }
 
         public void injectServiceKeysCredentialsInAppEnv() {
-            Map<String, String> appEnv = app.getEnvAsMap();
+            Map<String, String> appEnv = new LinkedHashMap<>(app.getEnv());
             Map<String, String> appServiceKeysCredentials = buildServiceKeysCredentials(client, app, appEnv);
-            app.setEnv(MapUtil.upcast(appEnv));
+            app = ImmutableCloudApplicationExtended.copyOf(app)
+                .withEnv(appEnv);
             updateContextWithServiceKeysCredentials(execution.getContext(), app, appServiceKeysCredentials);
         }
 
@@ -168,7 +171,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationEnv() {
-            client.updateApplicationEnv(app.getName(), app.getEnvAsMap());
+            client.updateApplicationEnv(app.getName(), app.getEnv());
             StepsUtil.setUserPropertiesChanged(execution.getContext(), true);
         }
 
@@ -196,8 +199,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationAttributes() {
-            List<UpdateState> updateStates = getApplicationAttributeUpdaters(existingApp, app.getApplicationAttributesUpdateStrategy())
-                .stream()
+            List<UpdateState> updateStates = getApplicationAttributeUpdaters(existingApp, app.getAttributesUpdateStrategy()).stream()
                 .map(updater -> updater.updateApplication(client, app))
                 .collect(Collectors.toList());
 
@@ -224,12 +226,13 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
         @Override
         public void handleApplicationEnv() {
-            Map<String, String> envAsMap = app.getEnvAsMap();
-            updateAppDigest(envAsMap, existingApp.getEnvAsMap());
-            app.setEnv(MapUtil.unmodifiable(envAsMap));
+            Map<String, String> envAsMap = new LinkedHashMap<>(app.getEnv());
+            updateAppDigest(envAsMap, existingApp.getEnv());
+            app = ImmutableCloudApplicationExtended.copyOf(app)
+                .withEnv(envAsMap);
 
             UpdateState updateApplicationEnvironmentState = updateApplicationEnvironment(app, existingApp, client,
-                app.getApplicationAttributesUpdateStrategy());
+                app.getAttributesUpdateStrategy());
 
             StepsUtil.setUserPropertiesChanged(execution.getContext(), updateApplicationEnvironmentState == UpdateState.UPDATED);
         }
@@ -291,7 +294,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
     }
 
     private Set<String> calculateServicesForUpdate(CloudApplicationExtended application, List<String> existingServices) {
-        AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getApplicationAttributesUpdateStrategy();
+        AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getAttributesUpdateStrategy();
         if (!applicationAttributesUpdateBehavior.shouldKeepExistingServiceBindings()) {
             return new HashSet<>(application.getServices());
         }
@@ -301,7 +304,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     private boolean unbindServicesIfNeeded(CloudApplicationExtended application, CloudApplication existingApplication,
         CloudControllerClient client, List<String> services) {
-        AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getApplicationAttributesUpdateStrategy();
+        AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getAttributesUpdateStrategy();
         if (!applicationAttributesUpdateBehavior.shouldKeepExistingServiceBindings()) {
             return unbindNotRequiredServices(existingApplication, services, client);
         }

@@ -6,7 +6,6 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.mockito.Mockito;
 
@@ -60,17 +59,6 @@ public class StepsTestUtil {
             Mockito.when(context.getVariable(Constants.VAR_APP_TO_PROCESS))
                 .thenReturn(appInArray);
         }
-    }
-
-    public static CloudTask copy(CloudTask task) {
-        CloudTask copy = new CloudTask(null, null);
-        copy.setCommand(task.getCommand());
-        copy.setState(task.getState());
-        copy.setMeta(task.getMeta());
-        copy.setName(task.getName());
-        copy.setEnvironmentVariables(task.getEnvironmentVariables());
-        copy.setResult(task.getResult());
-        return copy;
     }
 
     private static String[] getAppsInArray(List<CloudApplicationExtended> applications) {

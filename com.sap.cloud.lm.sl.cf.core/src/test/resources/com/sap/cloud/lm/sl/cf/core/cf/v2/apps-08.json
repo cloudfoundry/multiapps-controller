@@ -12,23 +12,19 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-1\"]",
-      "MTA_SERVICES=[\"user-provided-renamed\",\"user-provided-service\",\"user-provider-resource-named-service\",\"random-service-renamed\",\"random-service\",\"random-resource-named-service\"]",
-      "TARGET_RUNTIME=tomee"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
+    "staging": {},
+    "uris": [
+      "module-1.sofd60245639a"
+    ],
     "services": [
       "user-provided-renamed",
       "user-provided-service",
@@ -40,11 +36,16 @@
       "existing-service",
       "existing-resource-named-service"
     ],
-    "staging": {},
-    "uris": [
-      "module-1.sofd60245639a"
-    ],
-    "meta": {},
-    "name": "module-1"
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"module-1\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-1\"]",
+      "MTA_SERVICES": "[\"user-provided-renamed\",\"user-provided-service\",\"user-provider-resource-named-service\",\"random-service-renamed\",\"random-service\",\"random-resource-named-service\"]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "name": "module-1",
+    "bindingParameters" : {},
+    "routes": []
   }
 ]

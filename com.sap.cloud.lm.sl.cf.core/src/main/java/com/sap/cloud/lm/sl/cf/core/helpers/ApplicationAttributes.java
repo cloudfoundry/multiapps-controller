@@ -45,7 +45,7 @@ public class ApplicationAttributes {
     }
 
     private static Map<String, Object> parseAttributes(CloudApplication app) {
-        Map<String, String> env = app.getEnvAsMap();
+        Map<String, String> env = app.getEnv();
         Map<String, Object> attributes = parseAttributes(app, env.get(Constants.ENV_DEPLOY_ATTRIBUTES));
         return attributes == null ? Collections.emptyMap() : attributes;
     }

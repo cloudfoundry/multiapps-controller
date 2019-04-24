@@ -7,7 +7,7 @@
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
+    "metadata": {},
     "name": "bar"
   }
 ]

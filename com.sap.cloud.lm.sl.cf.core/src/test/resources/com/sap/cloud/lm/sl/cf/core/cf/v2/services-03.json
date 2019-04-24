@@ -1,32 +1,32 @@
 [
   {
+    "alternativeLabels": [],
     "resourceName": "ups",
     "credentials": {},
     "tags": [],
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "user-provided-renamed"
   },
   {
+    "alternativeLabels": [],
     "resourceName": "user-provided-service",
     "credentials": {},
     "tags": [],
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "user-provided-service"
   },
   {
+    "alternativeLabels": [],
     "resourceName": "user-provider-resource-named-service",
     "credentials": {},
     "tags": [],
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "user-provider-resource-named-service"
   },
   {
@@ -39,7 +39,6 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "xsuaa",
     "plan": "space",
-    "meta": {},
     "name": "random-service-renamed"
   },
   {
@@ -52,7 +51,6 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "xsuaa",
     "plan": "space",
-    "meta": {},
     "name": "random-service"
   },
   {
@@ -65,37 +63,36 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "xsuaa",
     "plan": "space",
-    "meta": {},
     "name": "random-resource-named-service"
   },
   {
+    "alternativeLabels": [],
     "resourceName": "es",
     "credentials": {},
     "tags": [],
     "isOptional": false,
     "isManaged": false,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "existing-service-renamed"
   },
   {
+    "alternativeLabels": [],
     "resourceName": "existing-service",
     "credentials": {},
     "tags": [],
     "isOptional": false,
     "isManaged": false,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "existing-service"
   },
   {
+    "alternativeLabels": [],
     "resourceName": "existing-resource-named-service",
     "credentials": {},
     "tags": [],
     "isOptional": false,
     "isManaged": false,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "existing-resource-named-service"
   }
 ]

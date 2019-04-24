@@ -1,52 +1,65 @@
 {
   "callArgumentsOfUpdateApplicationEnvMethod": [
     {
-      "env": [
-        "test\u003dthis-property-should-remain-in-the-env-after-the-update",
-        "plugins\u003d[{\"name\":\"plugin-01\"}]"
-      ],
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "test": "this-property-should-remain-in-the-env-after-the-update",
+        "plugins": "[{\"name\":\"plugin-01\"}]"
+      },
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
       },
-      "meta": {},
       "name": "foo"
     },
     {
-      "env": [
-        "urls\u003d[{\"name\":\"urls\",\"url\":\"https://localhost:30030\"}]",
-        "test\u003dthis-property-should-remain-in-the-env-after-the-update"
-      ],
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "test": "this-property-should-remain-in-the-env-after-the-update",
+        "urls": "[{\"name\":\"urls\",\"url\":\"https://localhost:30030\"}]"
+      },
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
       },
-      "meta": {},
       "name": "foo"
     }
   ],
   "updatedSubscribers": [
     {
-      "env": [
-        "test\u003dthis-property-should-remain-in-the-env-after-the-update"
-      ],
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "test": "this-property-should-remain-in-the-env-after-the-update"
+      },
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
       },
-      "meta": {
+      "metadata": {
         "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
       },
       "name": "foo"

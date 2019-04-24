@@ -3,7 +3,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 import java.util.Arrays;
 import java.util.List;
 
-import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
+import org.cloudfoundry.client.lib.domain.CloudApplication.State;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
@@ -34,16 +35,16 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
         return Arrays.asList(new Object[][] {
             // @formatter:off
             {
-                new SimpleApplicationWithState("test-app-1", 0, AppState.STARTED), new SimpleApplicationWithState("test-app-1", 0, AppState.STARTED)
+                new SimpleApplicationWithState("test-app-1", 0, State.STARTED), new SimpleApplicationWithState("test-app-1", 0, State.STARTED)
             },
             {
-                new SimpleApplicationWithState("test-app-1", 0, AppState.STARTED), new SimpleApplicationWithState("test-app-1", 0, AppState.STOPPED)
+                new SimpleApplicationWithState("test-app-1", 0, State.STARTED), new SimpleApplicationWithState("test-app-1", 0, State.STOPPED)
             },
             {
-                new SimpleApplicationWithState("test-app-1", 0, AppState.STOPPED), new SimpleApplicationWithState("test-app-1", 0, AppState.STOPPED)
+                new SimpleApplicationWithState("test-app-1", 0, State.STOPPED), new SimpleApplicationWithState("test-app-1", 0, State.STOPPED)
             },
             {
-                new SimpleApplicationWithState("test-app-1", 0, AppState.STOPPED), new SimpleApplicationWithState("test-app-1", 0, AppState.STARTED)
+                new SimpleApplicationWithState("test-app-1", 0, State.STOPPED), new SimpleApplicationWithState("test-app-1", 0, State.STARTED)
             },
             // @formatter:on
         });
@@ -74,7 +75,7 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     private void determineActionForApplication() {
-        if (existingApplication.state != AppState.STOPPED) {
+        if (existingApplication.state != State.STOPPED) {
             shouldBeStopped = true;
         } else {
             shouldBeStopped = false;
@@ -103,18 +104,19 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
     }
 
     private static class SimpleApplicationWithState extends SimpleApplication {
-        AppState state;
+        State state;
 
-        public SimpleApplicationWithState(String name, int instances, AppState state) {
+        public SimpleApplicationWithState(String name, int instances, State state) {
             super(name, instances);
             this.state = state;
         }
 
         @Override
         CloudApplicationExtended toCloudApplication() {
-            CloudApplicationExtended app = new CloudApplicationExtended(null, name);
-            app.setState(state);
-            return app;
+            return ImmutableCloudApplicationExtended.builder()
+                .name(name)
+                .state(state)
+                .build();
         }
     }
 

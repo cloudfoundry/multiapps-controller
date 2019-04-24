@@ -33,7 +33,7 @@ public class ApplicationMtaMetadataParser {
     }
 
     private static ApplicationMtaMetadata attemptToParseAppMetadata(CloudApplication app) {
-        Map<String, String> appEnv = app.getEnvAsMap();
+        Map<String, String> appEnv = app.getEnv();
         DeployedMtaMetadata mtaMetadata = parseMtaMetadata(app, appEnv);
         List<String> services = parseServices(appEnv);
         String moduleName = parseModuleName(app, appEnv);

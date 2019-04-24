@@ -11,7 +11,9 @@ import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
@@ -102,7 +104,7 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
     private void prepareServiceInstanceGetter() {
         Mockito.reset(serviceInstanceGetter);
         Mockito.when(serviceInstanceGetter.getServiceInstanceEntity(Matchers.any(), Matchers.any(), Matchers.any()))
-            .thenReturn(stepInput.getServiceInstanceEntity(stepInput.existingService));
+            .thenReturn(stepInput.getExistingServiceInstanceEntity());
     }
 
     private void prepareContext() {
@@ -155,10 +157,12 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
 
     private void prepareClient() {
         if (stepInput.existingService != null) {
+            CloudService existingService = stepInput.getCloudService(stepInput.existingService);
+            CloudServiceInstance existingServiceInstance = stepInput.getCloudServiceInstance(stepInput.existingService);
             Mockito.when(client.getService(stepInput.existingService.getName(), false))
-                .thenReturn(stepInput.getCloudService(stepInput.existingService));
+                .thenReturn(existingService);
             Mockito.when(client.getServiceInstance(stepInput.existingService.getName(), false))
-                .thenReturn(stepInput.getCloudServiceInsntance(stepInput.existingService));
+                .thenReturn(existingServiceInstance);
         }
     }
 
@@ -166,7 +170,8 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
 
         // ServiceData - Input
         CloudServiceExtended service;
-        CloudServiceExtendedForTest existingService;
+        CloudServiceExtended existingService;
+        ServiceOperation lastOperationForExistingService;
 
         // ServiceData - Expectation
         boolean shouldCreateService;
@@ -178,56 +183,47 @@ public class DetermineServiceCreateUpdateServiceActionsStepTest
         boolean shouldUpdateServiceCredentials;
 
         // ServiceKeys - Input
-        List<ServiceKey> serviceKeysToCreate = Collections.emptyList();
+        List<CloudServiceKey> serviceKeysToCreate = Collections.emptyList();
         // ServiceKeys - Expectation
 
-        public Map<String, List<ServiceKey>> getServiceKeysToCreate() {
-            Map<String, List<ServiceKey>> result = new HashMap<>();
+        public Map<String, List<CloudServiceKey>> getServiceKeysToCreate() {
+            Map<String, List<CloudServiceKey>> result = new HashMap<>();
             result.put(service.getName(), serviceKeysToCreate);
             return result;
         }
 
         public CloudService getCloudService(CloudServiceExtended service) {
-            CloudService cloudService = new CloudService();
-            cloudService.setMeta(service.getMeta());
-            cloudService.setLabel(service.getLabel());
-            cloudService.setName(service.getName());
-            cloudService.setProvider(service.getProvider());
-            cloudService.setVersion(service.getVersion());
-            cloudService.setPlan(service.getPlan());
-            return cloudService;
+            return ImmutableCloudService.builder()
+                .from(service)
+                .build();
         }
 
-        public CloudServiceInstance getCloudServiceInsntance(CloudServiceExtended service) {
-            CloudServiceInstance cloudServiceInstance = new CloudServiceInstance();
-            cloudServiceInstance.setMeta(service.getMeta());
-            cloudServiceInstance.setName(service.getName());
-            cloudServiceInstance.setCredentials(service.getCredentials());
-            return cloudServiceInstance;
+        public CloudServiceInstance getCloudServiceInstance(CloudServiceExtended service) {
+            return ImmutableCloudServiceInstance.builder()
+                .metadata(service.getMetadata())
+                .name(service.getName())
+                .credentials(service.getCredentials())
+                .build();
         }
 
-        public Map<String, Object> getServiceInstanceEntity(CloudServiceExtendedForTest service) {
-            if (service == null) {
+        public Map<String, Object> getExistingServiceInstanceEntity() {
+            if (existingService == null) {
                 return null;
             }
             Map<String, Object> result = new HashMap<>();
-            if (service.lastOperation != null) {
+            if (lastOperationForExistingService != null) {
                 Map<String, String> operation = new HashMap<>();
-                operation.put("type", service.lastOperation.getType()
+                operation.put("type", lastOperationForExistingService.getType()
                     .toString());
-                operation.put("state", service.lastOperation.getState()
+                operation.put("state", lastOperationForExistingService.getState()
                     .toString());
                 result.put("last_operation", operation);
             }
-            if (service.getTags() != null) {
-                result.put("tags", service.getTags());
+            if (existingService.getTags() != null) {
+                result.put("tags", existingService.getTags());
             }
             return result;
         }
-    }
-
-    private static class CloudServiceExtendedForTest extends CloudServiceExtended {
-        ServiceOperation lastOperation;
     }
 
     @Override

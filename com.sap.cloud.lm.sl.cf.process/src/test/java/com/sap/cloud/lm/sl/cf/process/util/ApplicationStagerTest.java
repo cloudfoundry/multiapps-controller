@@ -8,7 +8,8 @@ import java.util.UUID;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudBuild;
-import org.cloudfoundry.client.lib.domain.CloudEntity;
+import org.cloudfoundry.client.lib.domain.CloudBuild.DropletInfo;
+import org.cloudfoundry.client.lib.domain.CloudMetadata;
 import org.cloudfoundry.client.lib.domain.PackageState;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -21,7 +22,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.cf.process.steps.ExecutionWrapper;
 import com.sap.cloud.lm.sl.cf.process.steps.StepPhase;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.Pair;
 
 public class ApplicationStagerTest {
 
@@ -68,7 +68,7 @@ public class ApplicationStagerTest {
     public void testBuildStateFailed() {
         Mockito.when(client.getBuild(BUILD_GUID)
             .getState())
-            .thenReturn(CloudBuild.BuildState.FAILED);
+            .thenReturn(CloudBuild.State.FAILED);
         Mockito.when(client.getBuild(BUILD_GUID)
             .getError())
             .thenReturn("Error occured while creating a build!");
@@ -82,7 +82,7 @@ public class ApplicationStagerTest {
     public void testBuildStateStaging() {
         Mockito.when(client.getBuild(BUILD_GUID)
             .getState())
-            .thenReturn(CloudBuild.BuildState.STAGING);
+            .thenReturn(CloudBuild.State.STAGING);
 
         StagingState stagingState = applicationStager.getStagingState(execution, client);
         assertEquals(PackageState.PENDING, stagingState.getState());
@@ -93,7 +93,7 @@ public class ApplicationStagerTest {
     public void testBuildStateStaged() {
         Mockito.when(client.getBuild(BUILD_GUID)
             .getState())
-            .thenReturn(CloudBuild.BuildState.STAGED);
+            .thenReturn(CloudBuild.State.STAGED);
 
         StagingState stagingState = applicationStager.getStagingState(execution, client);
         assertEquals(PackageState.STAGED, stagingState.getState());
@@ -102,12 +102,12 @@ public class ApplicationStagerTest {
 
     @Test
     public void testBindDropletToApp() {
-        CloudBuild.Droplet droplet = Mockito.mock(CloudBuild.Droplet.class);
+        CloudBuild.DropletInfo droplet = Mockito.mock(DropletInfo.class);
         Mockito.when(client.getBuild(BUILD_GUID)
-            .getDroplet())
+            .getDropletInfo())
             .thenReturn(droplet);
         Mockito.when(client.getBuild(BUILD_GUID)
-            .getDroplet()
+            .getDropletInfo()
             .getGuid())
             .thenReturn(DROPLET_GUID);
 
@@ -134,12 +134,12 @@ public class ApplicationStagerTest {
         CloudBuild build = Mockito.mock(CloudBuild.class);
         Mockito.when(client.createBuild(PACKAGE_GUID))
             .thenReturn(build);
-        CloudEntity.Meta meta = Mockito.mock(CloudEntity.Meta.class);
+        CloudMetadata meta = Mockito.mock(CloudMetadata.class);
         Mockito.when(client.createBuild(PACKAGE_GUID)
-            .getMeta())
+            .getMetadata())
             .thenReturn(meta);
         Mockito.when(client.createBuild(PACKAGE_GUID)
-            .getMeta()
+            .getMetadata()
             .getGuid())
             .thenReturn(BUILD_GUID);
 

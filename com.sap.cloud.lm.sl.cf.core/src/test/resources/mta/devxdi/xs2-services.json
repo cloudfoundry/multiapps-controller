@@ -1,12 +1,12 @@
 [
   {
+    "alternativeLabels": [],
     "resourceName": "uaa",
     "credentials": {},
     "tags": [],
     "isOptional": false,
     "isManaged": false,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "uaa"
   },
   {
@@ -19,7 +19,6 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "hana",
     "plan": "hdi-shared",
-    "meta": {},
     "name": "di-core-hdi"
   }
 ]

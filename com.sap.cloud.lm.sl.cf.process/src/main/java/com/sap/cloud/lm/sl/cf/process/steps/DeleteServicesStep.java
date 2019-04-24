@@ -17,16 +17,18 @@ import org.cloudfoundry.client.lib.CloudException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.CloudEntity;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.EventsGetter;
 import com.sap.cloud.lm.sl.cf.core.cf.services.ServiceOperationType;
 import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacade;
@@ -86,8 +88,11 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         return serviceNames.parallelStream()
             .map(name -> client.getService(name, false))
             .filter(Objects::nonNull)
-            .map(service -> new CloudServiceExtended(service.getMeta(), service.getName()))
-            .collect(Collectors.toMap(e -> e.getName(), e -> e));
+            .map(service -> ImmutableCloudServiceExtended.builder()
+                .metadata(service.getMetadata())
+                .name(service.getName())
+                .build())
+            .collect(Collectors.toMap(CloudEntity::getName, e -> e));
     }
 
     private List<String> getServicesWithoutData(List<String> servicesToDelete, Map<String, CloudServiceExtended> servicesData) {
@@ -139,8 +144,8 @@ public class DeleteServicesStep extends AsyncFlowableStep {
         if (service.isUserProvided()) {
             return;
         }
-        List<ServiceKey> serviceKeys = client.getServiceKeys(serviceName);
-        for (ServiceKey serviceKey : serviceKeys) {
+        List<CloudServiceKey> serviceKeys = client.getServiceKeys(serviceName);
+        for (CloudServiceKey serviceKey : serviceKeys) {
             getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, serviceKey.getName(), serviceName);
             client.deleteServiceKey(serviceName, serviceKey.getName());
         }

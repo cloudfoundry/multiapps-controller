@@ -8,8 +8,8 @@ import java.net.URL;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.domain.CloudDomain;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.junit.Before;
 import org.mockito.Mock;
 
@@ -71,7 +71,9 @@ public abstract class CollectSystemParametersStepBaseTest extends SyncFlowableSt
     private CloudDomain mockDefaultDomain() {
         CloudDomain domain = mock(CloudDomain.class);
         when(domain.getName()).thenReturn(DEFAULT_DOMAIN);
-        when(domain.getMeta()).thenReturn(new Meta(DEFAULT_DOMAIN_GUID, null, null));
+        when(domain.getMetadata()).thenReturn(ImmutableCloudMetadata.builder()
+            .guid(DEFAULT_DOMAIN_GUID)
+            .build());
         return domain;
     }
 

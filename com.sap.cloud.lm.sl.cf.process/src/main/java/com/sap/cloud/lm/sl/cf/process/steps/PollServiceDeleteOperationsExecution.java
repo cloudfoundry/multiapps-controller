@@ -40,11 +40,11 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
     }
 
     private ServiceOperation getLastDeleteServiceOperation(ExecutionWrapper execution, CloudServiceExtended service) {
-        if (service.getMeta() == null) {
+        if (service.getMetadata() == null) {
             return null;
         }
-        boolean isServiceDeleted = isServiceDeleted(execution, service.getMeta()
-                                                                      .getGuid());
+        boolean isServiceDeleted = isServiceDeleted(execution, service.getMetadata()
+            .getGuid());
         ServiceOperationState operationState = isServiceDeleted ? ServiceOperationState.SUCCEEDED : ServiceOperationState.IN_PROGRESS;
         return new ServiceOperation(ServiceOperationType.DELETE, ServiceOperationType.DELETE.name(), operationState);
     }
@@ -52,7 +52,7 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
     private boolean isServiceDeleted(ExecutionWrapper execution, UUID uuid) {
         List<CloudEvent> serviceEvent = eventsGetter.getEvents(uuid, execution.getControllerClient());
         return serviceEvent.stream()
-                    .filter(Objects::nonNull)
-                    .anyMatch(e -> eventsGetter.isDeleteEvent(e.getType()));
+            .filter(Objects::nonNull)
+            .anyMatch(e -> eventsGetter.isDeleteEvent(e.getType()));
     }
 }

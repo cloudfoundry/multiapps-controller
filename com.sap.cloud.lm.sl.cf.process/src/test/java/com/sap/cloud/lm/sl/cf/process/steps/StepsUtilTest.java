@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.Phase;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
@@ -25,12 +27,12 @@ public class StepsUtilTest {
 
     @Test
     public void testGetServicesToCreateWithCredentials() throws Exception {
-        Map<String, Object> credentials = new HashMap<String, Object>();
-        credentials.put("integer-value", (Integer) 1);
-        credentials.put("double-value", (Double) 1.4);
-        credentials.put("string-value", (String) "1");
-        CloudServiceExtended service = new CloudServiceExtended(null, "my-service");
-        service.setCredentials(credentials);
+        CloudServiceExtended service = ImmutableCloudServiceExtended.builder()
+            .name("my-service")
+            .putCredential("integer-value", (Integer) 1)
+            .putCredential("double-value", (Double) 1.4)
+            .putCredential("string-value", (String) "1")
+            .build();
 
         StepsUtil.setServicesToCreate(context, Arrays.asList(service));
         List<CloudServiceExtended> actualServicesToCreate = StepsUtil.getServicesToCreate(context);
@@ -61,8 +63,11 @@ public class StepsUtilTest {
         serviceBindingParameters.put("double-value", (Double) 1.4);
         serviceBindingParameters.put("string-value", (String) "1");
         bindingParameters.put("service-1", serviceBindingParameters);
-        CloudApplicationExtended application = new CloudApplicationExtended(null, "my-app");
-        application.setBindingParameters(bindingParameters);
+
+        CloudApplicationExtended application = ImmutableCloudApplicationExtended.builder()
+            .name("my-application")
+            .bindingParameters(bindingParameters)
+            .build();
 
         StepsUtil.setApp(context, application);
         CloudApplicationExtended actualAppToDeploy = StepsUtil.getApp(context);

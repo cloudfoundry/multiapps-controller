@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.util.JsonUtil;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -23,7 +23,7 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
@@ -115,13 +115,15 @@ public class MtaConfigurationPurgerTest {
 
     private CloudApplication createApplication(String applicationName, Map<String, Object> env) {
         MapToEnvironmentConverter envConverter = new MapToEnvironmentConverter(false);
-        CloudApplication application = new CloudApplication(null, applicationName);
-        application.setEnv(MapUtil.upcast(envConverter.asEnv(env)));
-        return application;
+        return ImmutableCloudApplication.builder()
+            .name(applicationName)
+            .env(envConverter.asEnv(env))
+            .build();
     }
 
     private Map<String, Object> getApplicationEnvFromFile(String path) throws IOException {
-        return JsonUtil.convertJsonToMap(TestUtil.getResourceAsString(path, MtaConfigurationPurgerTest.class));
+        String envJson = TestUtil.getResourceAsString(path, MtaConfigurationPurgerTest.class);
+        return JsonUtil.convertJsonToMap(envJson);
     }
 
     private ConfigurationSubscription createSubscription(int id, String applicationName) {

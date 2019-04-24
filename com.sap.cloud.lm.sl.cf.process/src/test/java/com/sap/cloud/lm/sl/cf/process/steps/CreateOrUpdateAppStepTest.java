@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,6 +25,8 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -113,7 +115,10 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
             expectedException.expectMessage(expectedExceptionMessage);
         }
         application = stepInput.applications.get(stepInput.applicationIndex);
-        application.setModuleName("test");
+        application = ImmutableCloudApplicationExtended.builder()
+            .from(application)
+            .moduleName("test")
+            .build();
     }
 
     private void prepareContext() {
@@ -140,7 +145,9 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
                 return simpleService.toCloudServiceExtended();
             }
         }
-        return new CloudServiceExtended(null, serviceName);
+        return ImmutableCloudServiceExtended.builder()
+            .name(serviceName)
+            .build();
     }
 
     private void prepareClient() {
@@ -162,7 +169,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
         }
 
         for (String serviceName : stepInput.existingServiceKeys.keySet()) {
-            List<ServiceKey> serviceKeys = stepInput.existingServiceKeys.get(serviceName);
+            List<CloudServiceKey> serviceKeys = stepInput.existingServiceKeys.get(serviceName);
             Mockito.when(client.getServiceKeys(eq(serviceName)))
                 .thenReturn(ListUtil.upcast(serviceKeys));
         }
@@ -184,7 +191,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
             }
         }
         Mockito.verify(client)
-            .updateApplicationEnv(application.getName(), application.getEnvAsMap());
+            .updateApplicationEnv(application.getName(), application.getEnv());
     }
 
     private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {

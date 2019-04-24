@@ -9,10 +9,10 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "hana",
     "plan": "hdi-shared",
-    "meta": {},
     "name": "com.sap.xs2.samples.javahelloworld.java-hd7ef77536"
   },
   {
+    "alternativeLabels": [],
     "resourceName": "uaa",
     "credentials": {
       "clientid": "xs2.java",
@@ -26,7 +26,6 @@
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "com.sap.xs2.samples.javahelloworld.uaa"
   }
 ]

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,13 +23,13 @@ import com.sap.cloud.lm.sl.common.util.MapUtil;
 public class ApplicationBitsChangesDetectorTest {
 
     private static final String FILE_NAME = "src/test/resources/com/sap/cloud/lm/sl/cf/core/helpers/node-hello-world-0.1.0-SNAPSHOT.mtar";
-    private Map<Object, Object> appEnv;
+    private Map<String, String> appEnv;
     private File applicationFile;
     private ApplicationFileDigestDetector detector;
 
     @Before
     public void setUp() {
-        appEnv = MapUtil.asMap(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(new TreeMap<Object, Object>()));
+        appEnv = MapUtil.asMap(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(new TreeMap<>()));
         detector = new ApplicationFileDigestDetector(createCloudApplication(appEnv));
         applicationFile = Paths.get(FILE_NAME)
             .toFile();
@@ -53,7 +54,8 @@ public class ApplicationBitsChangesDetectorTest {
 
     @Test
     public void testDetectWithNotMatchingFileDigestInTheEnv() {
-        appEnv.put(Constants.ENV_DEPLOY_ATTRIBUTES, MapUtil.asMap(Constants.ATTR_APP_CONTENT_DIGEST, "test-not-matching-at-all"));
+        Map<String, Object> deployAttributes = MapUtil.asMap(Constants.ATTR_APP_CONTENT_DIGEST, "test-not-matching-at-all");
+        appEnv.put(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(deployAttributes));
         detector = new ApplicationFileDigestDetector(createCloudApplication(appEnv));
 
         try {
@@ -72,9 +74,9 @@ public class ApplicationBitsChangesDetectorTest {
         return DigestHelper.computeFileChecksum(Paths.get(applicationFile.toURI()), "MD5");
     }
 
-    private CloudApplication createCloudApplication(Map<Object, Object> appEnv) {
-        CloudApplication app = new CloudApplication(null, null);
-        app.setEnv(appEnv);
-        return app;
+    private CloudApplication createCloudApplication(Map<String, String> appEnv) {
+        return ImmutableCloudApplication.builder()
+            .env(appEnv)
+            .build();
     }
 }

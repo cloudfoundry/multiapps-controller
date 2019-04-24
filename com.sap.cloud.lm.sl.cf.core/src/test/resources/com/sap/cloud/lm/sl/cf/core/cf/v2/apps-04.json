@@ -23,8 +23,9 @@
       "MTA_SERVICES=[\"techical-user-provider\"]",
       "TARGET_RUNTIME=tomee"
     ],
-    "meta": {},
-    "name": "com.sap.sample.mta.module-1"
+    "name": "com.sap.sample.mta.module-1",
+    "bindingParameters" : {},
+    "routes": []
   },
   {
     "moduleName": "module-2",
@@ -48,7 +49,8 @@
       "MTA_SERVICES=[]",
       "TARGET_RUNTIME=tomee"
     ],
-    "meta": {},
-    "name": "com.sap.sample.mta.application-2"
+    "name": "com.sap.sample.mta.application-2",
+    "bindingParameters" : {},
+    "routes": []
   }
 ]

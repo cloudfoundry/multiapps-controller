@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cloudfoundry.client.lib.domain.CloudDomain;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudDomain;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +73,9 @@ public class AddDomainsStepTest extends SyncFlowableStepTest<AddDomainsStep> {
     private List<CloudDomain> getExistingDomainsList() {
         List<CloudDomain> result = new ArrayList<>();
         for (String existingDomain : existingDomains) {
-            result.add(new CloudDomain(null, existingDomain, null));
+            result.add(ImmutableCloudDomain.builder()
+                .name(existingDomain)
+                .build());
         }
         return result;
     }

@@ -15,12 +15,12 @@
         "http://localhost:8888",
         "http://localhost:7777"
       ],
-      "env": [
-        "foo=foo",
-        "bar=bar",
-        "baz=baz",
-        "serviceKeyCredentials={\"user\":\"service-key-user\",\"password\":\"service-key-password\"}"
-      ],
+      "env": {
+        "foo":"foo",
+        "bar":"bar",
+        "baz":"baz",
+        "serviceKeyCredentials":"{\"user\":\"service-key-user\",\"password\":\"service-key-password\"}"
+      },
       "services": [],
       "serviceKeysToInject": [
         {

@@ -3,23 +3,19 @@ package com.sap.cloud.lm.sl.cf.core.cf.clients;
 import static org.junit.Assert.assertEquals;
 
 import java.net.MalformedURLException;
-import java.util.Map;
 import java.util.UUID;
 
-import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
+import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudService;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
-import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution.ExecutionState;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class ServiceUpdaterTest extends CloudServiceOperatorTest {
 
@@ -28,13 +24,14 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     private static final String EXISTING_SERVICE_NAME = "foo";
     private static final String EXISTING_SERVICE_PLAN = "v3.4-large";
     private static final String EXISTING_SERVICE_LABEL = "mongodb";
-    private static final CloudService EXISTING_SERVICE = new CloudService();
-    static {
-        EXISTING_SERVICE.setMeta(new Meta(UUID.fromString(EXISTING_SERVICE_GUID), null, null));
-        EXISTING_SERVICE.setName(EXISTING_SERVICE_NAME);
-        EXISTING_SERVICE.setPlan(EXISTING_SERVICE_PLAN);
-        EXISTING_SERVICE.setLabel(EXISTING_SERVICE_LABEL);
-    }
+    private static final CloudService EXISTING_SERVICE = ImmutableCloudService.builder()
+        .metadata(ImmutableCloudMetadata.builder()
+            .guid(UUID.fromString(EXISTING_SERVICE_GUID))
+            .build())
+        .name(EXISTING_SERVICE_NAME)
+        .plan(EXISTING_SERVICE_PLAN)
+        .label(EXISTING_SERVICE_LABEL)
+        .build();
 
     private ServiceUpdater serviceUpdater;
 
@@ -57,8 +54,8 @@ public class ServiceUpdaterTest extends CloudServiceOperatorTest {
     @SuppressWarnings("unchecked")
     private void validatePlanUpdate(String servicePlanGuid) throws MalformedURLException {
         String updateServicePlanUrl = getUpdateServicePlanUrl();
-        Mockito.verify(getMockedRestTemplate()).exchange(Matchers.eq(updateServicePlanUrl), Matchers.any(HttpMethod.class), Matchers.any(),
-            Matchers.any(Class.class));
+        Mockito.verify(getMockedRestTemplate())
+            .exchange(Matchers.eq(updateServicePlanUrl), Matchers.any(HttpMethod.class), Matchers.any(), Matchers.any(Class.class));
     }
 
     private String getUpdateServicePlanUrl() {

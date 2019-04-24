@@ -34,6 +34,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaArchiveElements;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.cf.persistence.processors.FileDownloadProcessor;
@@ -153,8 +154,10 @@ public class UploadAppStepTest {
         }
 
         public void prepareContext() throws Exception {
-            CloudApplicationExtended app = new CloudApplicationExtended(null, APP_NAME);
-            app.setModuleName(APP_NAME);
+            CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
+                .name(APP_NAME)
+                .moduleName(APP_NAME)
+                .build();
             StepsUtil.setApp(context, app);
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);
@@ -240,15 +243,19 @@ public class UploadAppStepTest {
 
         @Test
         public void testGetTimeoutWithoutAppParameter() {
-            CloudApplicationExtended app = new CloudApplicationExtended(null, APP_NAME);
+            CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
+                .name(APP_NAME)
+                .build();
 
             testGetTimeout(app, UploadAppStep.DEFAULT_APP_UPLOAD_TIMEOUT);
         }
 
         @Test
         public void testGetTimeoutWithAppParameter() {
-            CloudApplicationExtended app = new CloudApplicationExtended(null, APP_NAME);
-            app.setEnv(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, "{\"upload-timeout\":1800}"));
+            CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder()
+                .name(APP_NAME)
+                .env(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, "{\"upload-timeout\":1800}"))
+                .build();
 
             testGetTimeout(app, 1800);
         }
@@ -278,9 +285,8 @@ public class UploadAppStepTest {
         }
 
         private void prepareContext() {
-            CloudApplicationExtended app = new CloudApplicationExtended(null, APP_NAME);
             // module name must be null
-            app.setModuleName(null);
+            CloudApplicationExtended app = ImmutableCloudApplicationExtended.builder().name(APP_NAME).build();
             StepsUtil.setApp(context, app);
             context.setVariable(Constants.VAR_MODULES_INDEX, 0);
             context.setVariable(Constants.PARAM_APP_ARCHIVE_ID, APP_ARCHIVE);

@@ -10,6 +10,7 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Rule;
@@ -144,7 +145,9 @@ public class DeleteServiceBrokersStepTest extends SyncFlowableStepTest<DeleteSer
                 public CloudServiceBroker answer(InvocationOnMock invocation) {
                     String serviceBrokerName = (String) invocation.getArguments()[0];
                     if (input.existingServiceBrokers.contains(serviceBrokerName)) {
-                        return new CloudServiceBroker(null, serviceBrokerName);
+                        return ImmutableCloudServiceBroker.builder()
+                            .name(serviceBrokerName)
+                            .build();
                     }
                     return null;
                 }

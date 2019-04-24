@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -170,9 +171,10 @@ public class AnalyticsCollectorTest {
 
     private List<String> mockAppsToUndeploy(int size) {
         List<String> list = new ArrayList<>();
-        CloudApplication app = new CloudApplication(null, null);
         for (int i = 0; i < size; i++) {
-            app.setName(Integer.toString(i));
+            CloudApplication app = ImmutableCloudApplication.builder()
+                .name(Integer.toString(i))
+                .build();
             list.add(JsonUtil.toJson(app));
         }
         return list;
