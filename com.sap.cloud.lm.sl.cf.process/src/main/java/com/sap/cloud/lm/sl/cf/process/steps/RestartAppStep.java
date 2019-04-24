@@ -10,7 +10,7 @@ import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
+import org.cloudfoundry.client.lib.domain.CloudApplication.State;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -75,7 +75,7 @@ public class RestartAppStep extends TimeoutAsyncFlowableStep {
         try {
             CloudApplication app = client.getApplication(appName);
             return app.getState()
-                .equals(AppState.STARTED);
+                .equals(State.STARTED);
         } catch (CloudOperationException e) {
             if (e.getStatusCode()
                 .equals(HttpStatus.INTERNAL_SERVER_ERROR)) {

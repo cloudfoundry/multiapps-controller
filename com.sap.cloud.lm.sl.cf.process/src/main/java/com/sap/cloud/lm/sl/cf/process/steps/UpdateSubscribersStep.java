@@ -23,6 +23,9 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -122,7 +125,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
                 }
                 CloudApplication updatedApplication = updateSubscriber(execution, orgAndSpace, subscription);
                 if (updatedApplication != null) {
-                    addOrgAndSpaceIfNecessary(updatedApplication, orgAndSpace);
+                    updatedApplication = addOrgAndSpaceIfNecessary(updatedApplication, orgAndSpace);
                     addApplicationToProperList(updatedSubscribers, updatedServiceBrokerSubscribers, updatedApplication);
                 }
             }
@@ -147,7 +150,7 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         }
     }
 
-    private void addOrgAndSpaceIfNecessary(CloudApplication application, Pair<String, String> orgAndSpace) {
+    private CloudApplication addOrgAndSpaceIfNecessary(CloudApplication application, Pair<String, String> orgAndSpace) {
         // The entity returned by the getApplication(String appName) method of
         // the CF Java client does not contain a CloudOrganization,
         // because the value of the 'inline-relations-depth' is hardcoded to 1
@@ -156,23 +159,30 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         if (application.getSpace() == null || application.getSpace()
             .getOrganization() == null) {
             CloudSpace space = createDummySpace(orgAndSpace);
-            application.setSpace(space);
+            return ImmutableCloudApplication.copyOf(application)
+                .withSpace(space);
         }
+        return application;
     }
 
     private CloudSpace createDummySpace(Pair<String, String> orgAndSpace) {
         CloudOrganization org = createDummyOrg(orgAndSpace._1);
-        return new CloudSpace(null, orgAndSpace._2, org);
+        return ImmutableCloudSpace.builder()
+            .name(orgAndSpace._2)
+            .organization(org)
+            .build();
     }
 
     private CloudOrganization createDummyOrg(String orgName) {
-        return new CloudOrganization(null, orgName);
+        return ImmutableCloudOrganization.builder()
+            .name(orgName)
+            .build();
     }
 
     private List<CloudApplication> removeDuplicates(List<CloudApplication> applications) {
         Map<UUID, CloudApplication> applicationsMap = new LinkedHashMap<>();
         for (CloudApplication application : applications) {
-            applicationsMap.put(application.getMeta()
+            applicationsMap.put(application.getMetadata()
                 .getGuid(), application);
         }
         return new ArrayList<>(applicationsMap.values());
@@ -219,8 +229,8 @@ public class UpdateSubscribersStep extends SyncFlowableStep {
         CloudApplicationExtended application = applicationCloudModelBuilder.build(module, moduleToDeployHelper);
         CloudApplication existingApplication = client.getApplication(subscription.getAppName());
 
-        Map<String, String> updatedEnvironment = application.getEnvAsMap();
-        Map<String, String> currentEnvironment = existingApplication.getEnvAsMap();
+        Map<String, String> updatedEnvironment = application.getEnv();
+        Map<String, String> currentEnvironment = new LinkedHashMap<>(existingApplication.getEnv());
 
         boolean neededToBeUpdated = updateCurrentEnvironment(currentEnvironment, updatedEnvironment,
             getPropertiesToTransfer(subscription, resolver));

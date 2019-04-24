@@ -12,10 +12,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudService;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceInstance;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
@@ -34,7 +37,6 @@ import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -179,10 +181,10 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     private CloudServiceInstance createServiceInstance(CloudServiceExtended service, List<SimpleApplication> boundApplications) {
-        CloudServiceInstance instance = new CloudServiceInstance();
-        instance.setBindings(createServiceBindings(boundApplications));
-        instance.setCredentials(service.getCredentials());
-        return instance;
+        return ImmutableCloudServiceInstance.builder()
+            .bindings(createServiceBindings(boundApplications))
+            .credentials(service.getCredentials())
+            .build();
     }
 
     private List<CloudServiceBinding> createServiceBindings(List<SimpleApplication> boundApplications) {
@@ -192,9 +194,9 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
     }
 
     private CloudServiceBinding createServiceBinding(SimpleApplication boundApplication) {
-        CloudServiceBinding binding = new CloudServiceBinding();
-        binding.setApplicationGuid(NameUtil.getUUID(boundApplication.name));
-        return binding;
+        return ImmutableCloudServiceBinding.builder()
+            .applicationGuid(NameUtil.getUUID(boundApplication.name))
+            .build();
     }
 
     private void prepareExistingServices() {
@@ -239,9 +241,13 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         Map<String, Object> env = Collections.emptyMap();
 
         CloudApplicationExtended toCloudApplication() {
-            CloudApplicationExtended application = new CloudApplicationExtended(new Meta(NameUtil.getUUID(name), null, null), name);
-            application.setEnv(MapUtil.upcast(ENV_CONVERTER.asEnv(env)));
-            return application;
+            return ImmutableCloudApplicationExtended.builder()
+                .metadata(ImmutableCloudMetadata.builder()
+                    .guid(NameUtil.getUUID(name))
+                    .build())
+                .name(name)
+                .env(ENV_CONVERTER.asEnv(env))
+                .build();
         }
     }
 

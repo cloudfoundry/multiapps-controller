@@ -32,7 +32,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         this.prettyPrinting = prettyPrinting;
     }
 
-    public Map<Object, Object> build(Module module, List<String> services) {
+    public Map<String, String> build(Module module, List<String> services) {
         Map<String, Object> properties = module.getProperties();
         Map<String, Object> parameters = module.getParameters();
         Map<String, Object> env = new TreeMap<>();
@@ -41,7 +41,7 @@ public class ApplicationEnvironmentCloudModelBuilder {
         addAttributes(env, parameters);
         addProperties(env, properties);
         addDependencies(env, module);
-        return MapUtil.unmodifiable(new MapToEnvironmentConverter(prettyPrinting).asEnv(env));
+        return new MapToEnvironmentConverter(prettyPrinting).asEnv(env);
     }
 
     protected void addMetadata(Map<String, Object> env, Module module) {

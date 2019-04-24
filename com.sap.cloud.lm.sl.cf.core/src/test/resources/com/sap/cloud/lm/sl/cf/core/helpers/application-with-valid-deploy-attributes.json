@@ -1,6 +1,6 @@
 {
   "name": "foo",
-  "env": [
-    "DEPLOY_ATTRIBUTES={\"create-service-broker\":true,\"service-broker-username\":\"username\",\"service-broker-password\":\"password\",\"env\":{\"foo\":\"bar\"}}"
-  ]
+  "env": {
+    "DEPLOY_ATTRIBUTES":"{\"create-service-broker\":true,\"service-broker-username\":\"username\",\"service-broker-password\":\"password\",\"env\":{\"foo\":\"bar\"}}"
+  }
 }

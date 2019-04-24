@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
@@ -12,8 +12,8 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class ServiceOperationUtil {
     
     public static Map<String, Object> getServiceKeyCredentials(CloudControllerClient client, String serviceName, String serviceKeyName) {
-        List<ServiceKey> existingServiceKeys = client.getServiceKeys(serviceName);
-        for (ServiceKey existingServiceKey : existingServiceKeys) {
+        List<CloudServiceKey> existingServiceKeys = client.getServiceKeys(serviceName);
+        for (CloudServiceKey existingServiceKey : existingServiceKeys) {
             if (existingServiceKey.getName()
                 .equals(serviceKeyName)) {
                 return existingServiceKey.getCredentials();

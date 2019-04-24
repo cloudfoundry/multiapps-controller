@@ -10,11 +10,14 @@ import java.util.List;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
+
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 
 public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubscribersStep> {
 
@@ -135,14 +138,19 @@ public class RestartSubscribersStepTest extends SyncFlowableStepTest<RestartSubs
     }
 
     private CloudApplication createCloudApplication(String appName, CloudSpace space) {
-        CloudApplication app = new CloudApplication(null, appName);
-        app.setSpace(space);
-        return app;
+        return ImmutableCloudApplicationExtended.builder()
+            .name(appName)
+            .space(space)
+            .build();
     }
 
     private CloudSpace createCloudSpace(String orgName, String spaceName) {
-        CloudOrganization org = new CloudOrganization(null, orgName);
-        return new CloudSpace(null, spaceName, org);
+        return ImmutableCloudSpace.builder()
+            .organization(ImmutableCloudOrganization.builder()
+                .name(orgName)
+                .build())
+            .name(spaceName)
+            .build();
     }
 
     @Override

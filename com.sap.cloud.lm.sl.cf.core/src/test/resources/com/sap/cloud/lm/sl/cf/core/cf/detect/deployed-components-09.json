@@ -13,7 +13,8 @@
           "providedDependencyNames": [
             "mta-provided-dependency-1",
             "mta-provided-dependency-2"
-          ]
+          ],
+          "uris": []
         },
         {
           "moduleName": "mta-module",
@@ -22,7 +23,8 @@
             "service-1",
             "service-2"
           ],
-          "providedDependencyNames": []
+          "providedDependencyNames": [],
+          "uris": []
         }
       ],
       "services": [

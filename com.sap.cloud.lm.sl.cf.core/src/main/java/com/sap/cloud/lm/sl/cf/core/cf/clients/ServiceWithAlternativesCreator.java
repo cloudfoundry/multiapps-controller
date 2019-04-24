@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.exec.MethodExecution;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
@@ -106,8 +107,9 @@ public class ServiceWithAlternativesCreator {
         String spaceId, List<String> validServiceOfferings) {
         for (String validServiceOffering : validServiceOfferings) {
             try {
-                service.setLabel(validServiceOffering);
-                return serviceCreator.createService(client, service, spaceId);
+                CloudServiceExtended serviceWithCorrectLabel = ImmutableCloudServiceExtended.copyOf(service)
+                    .withLabel(validServiceOffering);
+                return serviceCreator.createService(client, serviceWithCorrectLabel, spaceId);
             } catch (CloudOperationException e) {
                 if (!shouldIgnoreException(e)) {
                     throw e;

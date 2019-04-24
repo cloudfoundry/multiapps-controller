@@ -1,38 +1,47 @@
 {
   "callArgumentsOfUpdateApplicationEnvMethod": [
     {
-      "env": [
-        "plugins=[{\"name\":\"plugins.0\",\"plugin_name\":\"plugin-03\"},{\"name\":\"plugins.1\",\"plugin_name\":\"plugin-01\"},{\"name\":\"plugins.2\",\"plugin_name\":\"plugin-02\"}]"
-      ],
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "plugins": "[{\"name\":\"plugins.0\",\"plugin_name\":\"plugin-03\"},{\"name\":\"plugins.1\",\"plugin_name\":\"plugin-01\"},{\"name\":\"plugins.2\",\"plugin_name\":\"plugin-02\"}]"
+      },
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
       },
-      "meta": {},
       "name": "framework"
     }
   ],
   "updatedSubscribers": [
     {
-      "meta": {
-        "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "plugins": "[]"
       },
-      "name": "framework",
-      "env": [
-        "plugins=[]"
-      ],
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
-      }
+      },
+      "metadata": {
+        "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
+      },
+      "name": "framework"
     }
   ]
 }

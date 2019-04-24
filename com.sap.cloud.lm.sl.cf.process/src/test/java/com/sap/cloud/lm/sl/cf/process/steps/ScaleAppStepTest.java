@@ -12,6 +12,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
@@ -87,10 +88,11 @@ public class ScaleAppStepTest extends SyncFlowableStepTest<ScaleAppStep> {
         }
 
         CloudApplicationExtended toCloudApplication() {
-            CloudApplicationExtended app = new CloudApplicationExtended(null, name);
-            app.setModuleName(name);
-            app.setInstances(instances);
-            return app;
+            return ImmutableCloudApplicationExtended.builder()
+                .name(name)
+                .moduleName(name)
+                .instances(instances)
+                .build();
         }
     }
 

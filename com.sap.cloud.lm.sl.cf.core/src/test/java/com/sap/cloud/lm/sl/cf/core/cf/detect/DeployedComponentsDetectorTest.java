@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,7 +17,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -80,13 +80,17 @@ public class DeployedComponentsDetectorTest {
 
     private static class TestCloudApplication {
 
-        private Map<String, Object> env;
         private String name;
+        private Map<String, Object> env;
 
         private CloudApplication toCloudApplication() {
-            CloudApplication app = new CloudApplication(new Meta(NameUtil.getUUID(name), null, null), name);
-            app.setEnv(MapUtil.upcast(ENV_CONVERTER.asEnv(env)));
-            return app;
+            return ImmutableCloudApplication.builder()
+                .metadata(ImmutableCloudMetadata.builder()
+                    .guid(NameUtil.getUUID(name))
+                    .build())
+                .name(name)
+                .env(ENV_CONVERTER.asEnv(env))
+                .build();
         }
 
     }

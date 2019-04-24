@@ -52,7 +52,7 @@ public class ServiceCreator extends CloudServiceOperator {
         Map<String, Object> serviceRequest = new HashMap<>();
         serviceRequest.put(SPACE_GUID, spaceId);
         serviceRequest.put(SERVICE_NAME, service.getName());
-        serviceRequest.put(SERVICE_PLAN_GUID, cloudServicePlan.getMeta()
+        serviceRequest.put(SERVICE_PLAN_GUID, cloudServicePlan.getMetadata()
             .getGuid()
             .toString());
         serviceRequest.put(SERVICE_PARAMETERS, service.getCredentials());

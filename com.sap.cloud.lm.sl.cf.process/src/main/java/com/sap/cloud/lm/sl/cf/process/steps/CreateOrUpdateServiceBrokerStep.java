@@ -10,6 +10,7 @@ import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.CloudServiceBrokerException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -48,7 +49,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
 
             if (existingServiceBrokerNames.contains(serviceBroker.getName())) {
                 CloudServiceBroker existingBroker = findServiceBroker(existingServiceBrokers, serviceBroker.getName());
-                updateServiceBroker(execution.getContext(), serviceBroker, existingBroker, client);
+                serviceBroker = updateServiceBroker(execution.getContext(), serviceBroker, existingBroker, client);
             } else {
                 createServiceBroker(execution.getContext(), serviceBroker, client);
             }
@@ -66,9 +67,10 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
         }
     }
 
-    private void updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker, CloudServiceBroker existingBroker,
-        CloudControllerClient client) {
-        serviceBroker.setMeta(existingBroker.getMeta());
+    private CloudServiceBroker updateServiceBroker(DelegateExecution context, CloudServiceBroker serviceBroker,
+        CloudServiceBroker existingBroker, CloudControllerClient client) {
+        serviceBroker = ImmutableCloudServiceBroker.copyOf(serviceBroker)
+            .withMetadata(existingBroker.getMetadata());
         if (existingBroker.getSpaceGuid() != null && serviceBroker.getSpaceGuid() == null) {
             getStepLogger().warn(MessageFormat.format(Messages.CANNOT_CHANGE_VISIBILITY_OF_SERVICE_BROKER_FROM_SPACE_SCOPED_TO_GLOBAL,
                 serviceBroker.getName()));
@@ -77,6 +79,7 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
                 serviceBroker.getName()));
         }
         updateServiceBroker(context, serviceBroker, client);
+        return serviceBroker;
     }
 
     private CloudServiceBroker findServiceBroker(List<CloudServiceBroker> serviceBrokers, String name) {
@@ -123,12 +126,13 @@ public class CreateOrUpdateServiceBrokerStep extends SyncFlowableStep {
             throw new ContentException(Messages.MISSING_SERVICE_BROKER_URL, app.getName());
         }
 
-        CloudServiceBroker serviceBroker = new CloudServiceBroker(null, serviceBrokerName);
-        serviceBroker.setUsername(serviceBrokerUsername);
-        serviceBroker.setPassword(serviceBrokerPassword);
-        serviceBroker.setUrl(serviceBrokerUrl);
-        serviceBroker.setSpaceGuid(serviceBrokerSpaceGuid);
-        return serviceBroker;
+        return ImmutableCloudServiceBroker.builder()
+            .name(serviceBrokerName)
+            .username(serviceBrokerUsername)
+            .password(serviceBrokerPassword)
+            .url(serviceBrokerUrl)
+            .spaceGuid(serviceBrokerSpaceGuid)
+            .build();
     }
 
     private String getServiceBrokerSpaceGuid(DelegateExecution context, String serviceBrokerName, ApplicationAttributes appAttributes) {

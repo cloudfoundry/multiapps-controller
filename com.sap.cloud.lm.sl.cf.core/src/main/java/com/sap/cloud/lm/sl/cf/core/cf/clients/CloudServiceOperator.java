@@ -55,7 +55,7 @@ public abstract class CloudServiceOperator extends CustomControllerClient {
 
     private List<CloudServiceOffering> filterByLabel(List<CloudServiceOffering> offerings, String label) {
         return offerings.stream()
-            .filter(offering -> label.equals(offering.getLabel()))
+            .filter(offering -> label.equals(offering.getName()))
             .collect(Collectors.toList());
     }
 

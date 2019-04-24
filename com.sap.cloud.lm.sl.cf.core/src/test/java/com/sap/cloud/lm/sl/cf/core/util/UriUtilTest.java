@@ -5,8 +5,9 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.cloudfoundry.client.lib.domain.CloudDomain;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudDomain;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudRoute;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -146,7 +147,12 @@ public class UriUtilTest {
     @RunWith(Parameterized.class)
     public static class RouteMatchesUriTest {
 
-        private CloudRoute routeInput;
+        private CloudRoute route = ImmutableCloudRoute.builder()
+            .host("valid-host")
+            .domain(ImmutableCloudDomain.builder()
+                .name("valid-domain")
+                .build())
+            .build();
         private String uri;
         private boolean expectedResult;
 
@@ -171,14 +177,13 @@ public class UriUtilTest {
         }
 
         public RouteMatchesUriTest(String uri, boolean expectedResult) throws ParsingException, IOException {
-            this.routeInput = new CloudRoute(null, "valid-host", new CloudDomain(null, "valid-domain", null), 0);
             this.uri = uri;
             this.expectedResult = expectedResult;
         }
 
         @Test
         public void testRouteMatchesUri() {
-            boolean actualResult = UriUtil.routeMatchesUri(routeInput, uri);
+            boolean actualResult = UriUtil.routeMatchesUri(route, uri);
             assertEquals(expectedResult, actualResult);
         }
 
@@ -189,9 +194,9 @@ public class UriUtilTest {
             boolean routeHostMatches = false;
             boolean routeDomainMatches = false;
             ApplicationURI uriCopy = new ApplicationURI(uri.toString());
-            routeHostMatches = routeInput.getHost()
+            routeHostMatches = route.getHost()
                 .equals(uriCopy.getHost());
-            routeDomainMatches = routeInput.getDomain()
+            routeDomainMatches = route.getDomain()
                 .getName()
                 .equals(uriCopy.getDomain());
 

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -103,7 +103,7 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
     }
 
     private void prepareContext() {
-        Map<String, List<ServiceKey>> keysToCreate = new HashMap<>();
+        Map<String, List<CloudServiceKey>> keysToCreate = new HashMap<>();
         keysToCreate.put(stepInput.service.name, stepInput.serviceKeysToCreate);
         StepsUtil.setServiceKeysToCreate(context, keysToCreate);
         context.setVariable("serviceToProcess", JsonUtil.toJson(stepInput.service));
@@ -117,8 +117,8 @@ public class UpdateServiceKeysStepTest extends SyncFlowableStepTest<UpdateServic
 
     private static class StepInput {
         SimpleService service;
-        List<ServiceKey> serviceKeysToCreate = Collections.emptyList();
-        List<ServiceKey> existingServiceKeys = Collections.emptyList();
+        List<CloudServiceKey> serviceKeysToCreate = Collections.emptyList();
+        List<CloudServiceKey> existingServiceKeys = Collections.emptyList();
         Map<String, Object> stepPhaseResults;
     }
 

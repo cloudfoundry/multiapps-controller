@@ -7,7 +7,6 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 
 import com.sap.cloud.lm.sl.cf.process.util.ElementUpdater.UpdateBehavior;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 
 public class EnvironmentApplicationAttributeUpdater extends ApplicationAttributeUpdater {
 
@@ -17,19 +16,18 @@ public class EnvironmentApplicationAttributeUpdater extends ApplicationAttribute
 
     @Override
     protected boolean shouldUpdateAttribute(CloudApplication app) {
-        return !app.getEnvAsMap()
-            .equals(existingApp.getEnvAsMap());
+        return !app.getEnv()
+            .equals(existingApp.getEnv());
     }
 
     @Override
     protected UpdateState updateApplicationAttribute(CloudControllerClient client, CloudApplication app) {
         stepLogger.debug("Updating env of application \"{0}\"", app.getName());
-        stepLogger.debug("Updated env: {0}", JsonUtil.toJson(app.getEnvAsMap(), true));
+        stepLogger.debug("Updated env: {0}", JsonUtil.toJson(app.getEnv(), true));
 
         Map<String, String> updateEnv = ElementUpdater.getUpdater(updateBehavior)
-            .updateMap(existingApp.getEnvAsMap(), app.getEnvAsMap());
-        app.setEnv(MapUtil.upcastUnmodifiable(updateEnv));
-        client.updateApplicationEnv(app.getName(), app.getEnv());
+            .updateMap(existingApp.getEnv(), app.getEnv());
+        client.updateApplicationEnv(app.getName(), updateEnv);
 
         return UpdateState.UPDATED;
     }

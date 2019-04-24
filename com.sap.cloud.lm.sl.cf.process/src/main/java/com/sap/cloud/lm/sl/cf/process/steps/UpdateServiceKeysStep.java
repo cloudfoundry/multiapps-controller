@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
@@ -32,19 +32,19 @@ public class UpdateServiceKeysStep extends ServiceStep {
     private MethodExecution<String> createOrUpdateServiceKeys(CloudServiceExtended service, DelegateExecution execution,
         CloudControllerClient client) {
         MethodExecution<String> methodExecution = new MethodExecution<>(null, ExecutionState.FINISHED);
-        Map<String, List<ServiceKey>> serviceKeysMap = StepsUtil.getServiceKeysToCreate(execution);
-        List<ServiceKey> serviceKeys = serviceKeysMap.get(service.getName());
+        Map<String, List<CloudServiceKey>> serviceKeysMap = StepsUtil.getServiceKeysToCreate(execution);
+        List<CloudServiceKey> serviceKeys = serviceKeysMap.get(service.getName());
 
-        List<ServiceKey> existingServiceKeys = serviceOperationExecutor.executeServiceOperation(service,
-            (Supplier<List<ServiceKey>>) () -> client.getServiceKeys(service.getName()), getStepLogger());
+        List<CloudServiceKey> existingServiceKeys = serviceOperationExecutor.executeServiceOperation(service,
+            (Supplier<List<CloudServiceKey>>) () -> client.getServiceKeys(service.getName()), getStepLogger());
 
         if (existingServiceKeys == null) {
             return methodExecution;
         }
 
-        List<ServiceKey> serviceKeysToCreate = getServiceKeysToCreate(serviceKeys, existingServiceKeys);
-        List<ServiceKey> serviceKeysToUpdate = getServiceKeysToUpdate(serviceKeys, existingServiceKeys);
-        List<ServiceKey> serviceKeysToDelete = getServiceKeysToDelete(serviceKeys, existingServiceKeys);
+        List<CloudServiceKey> serviceKeysToCreate = getServiceKeysToCreate(serviceKeys, existingServiceKeys);
+        List<CloudServiceKey> serviceKeysToUpdate = getServiceKeysToUpdate(serviceKeys, existingServiceKeys);
+        List<CloudServiceKey> serviceKeysToDelete = getServiceKeysToDelete(serviceKeys, existingServiceKeys);
 
         if (canDeleteServiceKeys(execution)) {
             deleteServiceKeys(client, serviceKeysToDelete);
@@ -62,38 +62,38 @@ public class UpdateServiceKeysStep extends ServiceStep {
         return methodExecution;
     }
 
-    private List<ServiceKey> getServiceKeysToCreate(List<ServiceKey> serviceKeys, List<ServiceKey> existingServiceKeys) {
+    private List<CloudServiceKey> getServiceKeysToCreate(List<CloudServiceKey> serviceKeys, List<CloudServiceKey> existingServiceKeys) {
         return serviceKeys.stream()
             .filter(key -> shouldCreate(key, existingServiceKeys))
             .collect(Collectors.toList());
     }
 
-    private List<ServiceKey> getServiceKeysToUpdate(List<ServiceKey> serviceKeys, List<ServiceKey> existingServiceKeys) {
+    private List<CloudServiceKey> getServiceKeysToUpdate(List<CloudServiceKey> serviceKeys, List<CloudServiceKey> existingServiceKeys) {
         return serviceKeys.stream()
             .filter(key -> shouldUpdate(key, existingServiceKeys))
             .collect(Collectors.toList());
     }
 
-    private List<ServiceKey> getServiceKeysToDelete(List<ServiceKey> serviceKeys, List<ServiceKey> existingServiceKeys) {
+    private List<CloudServiceKey> getServiceKeysToDelete(List<CloudServiceKey> serviceKeys, List<CloudServiceKey> existingServiceKeys) {
         return existingServiceKeys.stream()
             .filter(key -> shouldDelete(key, serviceKeys))
             .collect(Collectors.toList());
     }
 
-    private boolean shouldCreate(ServiceKey key, List<ServiceKey> existingKeys) {
+    private boolean shouldCreate(CloudServiceKey key, List<CloudServiceKey> existingKeys) {
         return getWithName(existingKeys, key.getName()) == null;
     }
 
-    private boolean shouldUpdate(ServiceKey key, List<ServiceKey> existingKeys) {
-        ServiceKey existingKey = getWithName(existingKeys, key.getName());
+    private boolean shouldUpdate(CloudServiceKey key, List<CloudServiceKey> existingKeys) {
+        CloudServiceKey existingKey = getWithName(existingKeys, key.getName());
         return (existingKey != null) && (!areServiceKeysEqual(key, existingKey));
     }
 
-    private boolean shouldDelete(ServiceKey existingKey, List<ServiceKey> keys) {
+    private boolean shouldDelete(CloudServiceKey existingKey, List<CloudServiceKey> keys) {
         return getWithName(keys, existingKey.getName()) == null;
     }
 
-    private ServiceKey getWithName(List<ServiceKey> serviceKeys, String name) {
+    private CloudServiceKey getWithName(List<CloudServiceKey> serviceKeys, String name) {
         return serviceKeys.stream()
             .filter(key -> key.getName()
                 .equals(name))
@@ -105,21 +105,21 @@ public class UpdateServiceKeysStep extends ServiceStep {
         return (Boolean) context.getVariable(Constants.PARAM_DELETE_SERVICE_KEYS);
     }
 
-    private boolean areServiceKeysEqual(ServiceKey key1, ServiceKey key2) {
+    private boolean areServiceKeysEqual(CloudServiceKey key1, CloudServiceKey key2) {
         return Objects.equals(key1.getParameters(), key2.getParameters()) && Objects.equals(key1.getName(), key2.getName());
     }
 
-    private void deleteServiceKeys(CloudControllerClient client, List<ServiceKey> serviceKeys) {
+    private void deleteServiceKeys(CloudControllerClient client, List<CloudServiceKey> serviceKeys) {
         serviceKeys.stream()
             .forEach(key -> deleteServiceKey(client, key));
     }
 
-    private void createServiceKeys(CloudControllerClient client, List<ServiceKey> serviceKeys) {
+    private void createServiceKeys(CloudControllerClient client, List<CloudServiceKey> serviceKeys) {
         serviceKeys.stream()
             .forEach(key -> createServiceKey(client, key));
     }
 
-    private void createServiceKey(CloudControllerClient client, ServiceKey key) {
+    private void createServiceKey(CloudControllerClient client, CloudServiceKey key) {
         getStepLogger().info(Messages.CREATING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
             .getName());
         client.createServiceKey(key.getService()
@@ -127,7 +127,7 @@ public class UpdateServiceKeysStep extends ServiceStep {
         getStepLogger().debug(Messages.CREATED_SERVICE_KEY, key.getName());
     }
 
-    private void deleteServiceKey(CloudControllerClient client, ServiceKey key) {
+    private void deleteServiceKey(CloudControllerClient client, CloudServiceKey key) {
         getStepLogger().info(Messages.DELETING_SERVICE_KEY_FOR_SERVICE, key.getName(), key.getService()
             .getName());
         client.deleteServiceKey(key.getService()

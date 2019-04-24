@@ -1,5 +1,6 @@
 [
   {
+    "alternativeLabels": [],
     "resourceName": "shine-database",
     "credentials": {
       "driver": "com.sap.db.jdbc.Driver",
@@ -13,10 +14,10 @@
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "shine-database"
   },
   {
+    "alternativeLabels": [],
     "resourceName": "uaa",
     "credentials": {
       "clientid": "xs2.java",
@@ -30,7 +31,6 @@
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "uaa"
   }
 ]

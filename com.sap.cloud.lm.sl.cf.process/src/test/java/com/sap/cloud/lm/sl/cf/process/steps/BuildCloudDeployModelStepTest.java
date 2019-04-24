@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,9 +108,6 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
             {
                 new StepInput("modules-to-deploy-01.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), null), new StepOutput("0.1.0"),
             },
-            {
-                new StepInput("modules-to-deploy-01.json", "services-to-bind-01.json", "services-to-create-01.json", "service-keys-01.json", Arrays.asList("api.cf.neo.ondemand.com"), null), new StepOutput("0.1.0"),
-            },
 // @formatter:on
         });
     }
@@ -121,7 +118,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
     protected List<Module> modulesToDeploy;
     protected DeployedMta deployedMta;
     protected List<CloudServiceExtended> servicesToBind;
-    protected Map<String, List<ServiceKey>> serviceKeys;
+    protected Map<String, List<CloudServiceKey>> serviceKeys;
 
     @Mock
     protected ApplicationCloudModelBuilder applicationCloudModelBuilder;
@@ -181,7 +178,7 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
         });
 
         String serviceKeysString = TestUtil.getResourceAsString(input.serviceKeysLocation, getClass());
-        serviceKeys = JsonUtil.fromJson(serviceKeysString, new TypeReference<Map<String, List<ServiceKey>>>() {
+        serviceKeys = JsonUtil.fromJson(serviceKeysString, new TypeReference<Map<String, List<CloudServiceKey>>>() {
         });
 
         if (input.deployedMtaLocation != null) {

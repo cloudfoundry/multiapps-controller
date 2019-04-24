@@ -12,29 +12,30 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"framework\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"framework\"]",
-      "MTA_SERVICES=[]",
-      "plugins=[{\"name\":\"plugins.0\",\"plugin_name\":\"foo\",\"url\":\"https://foo.localhost\"},{\"name\":\"plugins.1\",\"plugin_name\":\"bar\",\"url\":\"https://bar.localhost\"}]"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [],
     "staging": {},
     "uris": [
       "framework.sofd60245639a/v2"
     ],
-    "meta": {},
-    "name": "framework"
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"framework\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"framework\"]",
+      "MTA_SERVICES": "[]",
+      "plugins": "[{\"name\":\"plugins.0\",\"plugin_name\":\"foo\",\"url\":\"https://foo.localhost\"},{\"name\":\"plugins.1\",\"plugin_name\":\"bar\",\"url\":\"https://bar.localhost\"}]"
+    },
+    "name": "framework",
+    "bindingParameters" : {},
+    "routes": []
   }
 ]

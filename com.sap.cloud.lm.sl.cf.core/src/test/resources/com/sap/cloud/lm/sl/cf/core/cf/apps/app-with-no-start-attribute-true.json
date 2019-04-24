@@ -1,6 +1,6 @@
 {
   "name": "foo",
-  "env": [
-    "DEPLOY_ATTRIBUTES={\"no-start\":true}"
-  ]
+  "env": {
+    "DEPLOY_ATTRIBUTES":"{\"no-start\":true}"
+  }
 }

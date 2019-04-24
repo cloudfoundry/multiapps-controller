@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
@@ -67,7 +67,7 @@ public class BuildCloudDeployModelStep extends SyncFlowableStep {
             StepsUtil.setNewMtaVersion(execution.getContext(), deploymentDescriptor.getVersion());
 
             // Build a map of service keys and save them in the context:
-            Map<String, List<ServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution.getContext()).build();
+            Map<String, List<CloudServiceKey>> serviceKeys = getServiceKeysCloudModelBuilder(execution.getContext()).build();
             getStepLogger().debug(Messages.SERVICE_KEYS_TO_CREATE, secureSerializer.toJson(serviceKeys));
 
             StepsUtil.setServiceKeysToCreate(execution.getContext(), serviceKeys);

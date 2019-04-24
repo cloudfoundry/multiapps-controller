@@ -12,30 +12,31 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-1\"]",
-      "MTA_SERVICES=[]",
-      "TARGET_RUNTIME=tomee"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [],
     "staging": {},
     "uris": [
       "test-host.sofd60245639a/test"
     ],
-    "meta": {},
-    "name": "com.sap.sample.mta.application-1"
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"module-1\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-1\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "name": "com.sap.sample.mta.application-1",
+    "bindingParameters" : {},
+    "routes": []
   },
   {
     "moduleName": "module-2",
@@ -50,29 +51,30 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"module-2\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-2\"]",
-      "MTA_SERVICES=[]",
-      "TARGET_RUNTIME=tomee"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [],
     "staging": {},
     "uris": [
       "module-2.sofd60245639a"
     ],
-    "meta": {},
-    "name": "com.sap.sample.mta.application-2"
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"module-2\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-2\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "name": "com.sap.sample.mta.application-2",
+    "bindingParameters" : {},
+    "routes": []
   }
 ]

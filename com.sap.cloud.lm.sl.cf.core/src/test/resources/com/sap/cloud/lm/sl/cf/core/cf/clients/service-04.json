@@ -1,6 +1,6 @@
 {
   "service": {
-    "meta": {
+    "metadata": {
       
     },
     "label": "mongodb",

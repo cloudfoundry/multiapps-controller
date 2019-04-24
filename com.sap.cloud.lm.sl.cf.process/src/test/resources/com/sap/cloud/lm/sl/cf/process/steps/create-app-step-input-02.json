@@ -15,11 +15,11 @@
         "http://localhost:8888",
         "http://localhost:7777"
       ],
-      "env": [
-        "foo=foo",
-        "bar=bar",
-        "baz=baz"
-      ],
+      "env": {
+        "foo":"foo",
+        "bar":"bar",
+        "baz":"baz"
+      },
       "services": [],
       "serviceKeysToInject": []
     }

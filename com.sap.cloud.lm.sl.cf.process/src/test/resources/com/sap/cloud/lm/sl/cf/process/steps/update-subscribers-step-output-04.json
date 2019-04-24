@@ -1,38 +1,47 @@
 {
   "callArgumentsOfUpdateApplicationEnvMethod": [
     {
-      "env": [
-        "plugins=[]"
-      ],
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "plugins": "[]"
+      },
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
       },
-      "meta": {},
       "name": "framework"
     }
   ],
   "updatedSubscribers": [
     {
-      "meta": {
-        "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
+      "memory": 0,
+      "diskQuota": 0,
+      "instances": 1,
+      "runningInstances": 0,
+      "env": {
+        "plugins": "[{\"plugin_name\":\"plugin-01\"},{\"plugin_name\":\"plugin-02\"}]"
       },
-      "name": "framework",
-      "env": [
-        "plugins=[{\"plugin_name\":\"plugin-01\"},{\"plugin_name\":\"plugin-02\"}]"
-      ],
       "space": {
         "organization": {
-          "meta": {},
+          "billingEnabled": false,
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
-      }
+      },
+      "metadata": {
+        "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
+      },
+      "name": "framework"
     }
   ]
 }

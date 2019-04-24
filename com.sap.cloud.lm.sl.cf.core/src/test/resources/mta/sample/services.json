@@ -9,10 +9,10 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "hdi-hana",
     "plan": "hdi-shared",
-    "meta": {},
     "name": "pricing-db-service"
   },
   {
+    "alternativeLabels": [],
     "resourceName": "internal-odata-service",
     "credentials": {
       "password": "shfzj86g",
@@ -22,7 +22,6 @@
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "internal-odata-service"
   }
 ]

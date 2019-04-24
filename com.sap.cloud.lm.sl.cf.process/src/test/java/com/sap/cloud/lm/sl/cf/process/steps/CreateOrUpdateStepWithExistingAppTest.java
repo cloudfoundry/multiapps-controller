@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
 import org.cloudfoundry.client.lib.ApplicationServicesUpdateCallback;
-import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
+import org.cloudfoundry.client.lib.domain.CloudApplication.State;
 import org.cloudfoundry.client.lib.domain.CloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBinding;
 import org.cloudfoundry.client.lib.domain.Staging;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.junit.Before;
@@ -29,8 +30,9 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -176,7 +178,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         }
         if (input.updateEnv) {
             Mockito.verify(client)
-                .updateApplicationEnv(appName, cloudApp.getEnvAsMap());
+                .updateApplicationEnv(appName, cloudApp.getEnv());
         }
     }
 
@@ -241,7 +243,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         }
 
         for (String serviceName : input.existingServiceKeys.keySet()) {
-            List<ServiceKey> serviceKeys = input.existingServiceKeys.get(serviceName);
+            List<CloudServiceKey> serviceKeys = input.existingServiceKeys.get(serviceName);
             Mockito.when(client.getServiceKeys(eq(serviceName)))
                 .thenReturn(ListUtil.upcast(serviceKeys));
         }
@@ -277,7 +279,6 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         Mockito.when(client.getApplication(eq(input.existingApplication.name), eq(false)))
             .thenReturn(input.existingApplication.toCloudApp());
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
-        cloudApp.setModuleName("test");
         // TODO
         StepsUtil.setAppsToDeploy(context, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(cloudApp), context);
@@ -293,7 +294,7 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         SimpleApplication application;
         SimpleApplication existingApplication;
         Map<String, List<SimpleBinding>> existingServiceBindings;
-        Map<String, List<ServiceKey>> existingServiceKeys = new HashMap<>();
+        Map<String, List<CloudServiceKey>> existingServiceKeys = new HashMap<>();
         boolean updateStaging;
         boolean updateMemory;
         boolean updateDiskQuota;
@@ -306,20 +307,20 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         Map<String, Object> bindingOptions;
 
         CloudServiceBinding toCloudServiceBinding() {
-            CloudServiceBinding binding = new CloudServiceBinding();
-            binding.setApplicationGuid(NameUtil.getUUID(applicationName));
-            binding.setBindingOptions(bindingOptions);
-            return binding;
+            return ImmutableCloudServiceBinding.builder()
+                .applicationGuid(NameUtil.getUUID(applicationName))
+                .bindingOptions(bindingOptions)
+                .build();
         }
     }
 
     private static class SimpleApplication {
         String name;
-        List<String> services;
-        Map<String, Map<String, Object>> bindingParameters;
-        List<ServiceKeyToInject> serviceKeysToInject;
+        List<String> services = Collections.emptyList();
+        Map<String, Map<String, Object>> bindingParameters = Collections.emptyMap();
+        List<ServiceKeyToInject> serviceKeysToInject = Collections.emptyList();
         String command;
-        List<String> uris;
+        List<String> uris = Collections.emptyList();
         String buildpackUrl;
         int memory;
         int instances;
@@ -330,26 +331,30 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         boolean shouldKeepServiceBindings;
 
         CloudApplicationExtended toCloudApp() {
-            AttributeUpdateStrategy applicationAttributeUpdateStrategy = new CloudApplicationExtended.AttributeUpdateStrategy.Builder()
-                .shouldKeepExistingServiceBindings(shouldKeepServiceBindings)
+            return ImmutableCloudApplicationExtended.builder()
+                .attributesUpdateStrategy(ImmutableCloudApplicationExtended.ImmutableAttributeUpdateStrategy.builder()
+                    .shouldKeepExistingServiceBindings(shouldKeepServiceBindings)
+                    .build())
+                .name(name)
+                .moduleName("test")
+                .staging(new Staging.StagingBuilder().command(command)
+                    .buildpackUrl(buildpackUrl)
+                    .stack(null)
+                    .healthCheckTimeout(0)
+                    .detectedBuildpack("none")
+                    .healthCheckType(healthCheckType)
+                    .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
+                    .sshEnabled(sshEnabled)
+                    .build())
+                .memory(memory)
+                .instances(instances)
+                .uris(uris)
+                .services(services)
+                .state(State.STARTED)
+                .diskQuota(diskQuota)
+                .bindingParameters(bindingParameters)
+                .serviceKeysToInject(serviceKeysToInject)
                 .build();
-            CloudApplicationExtended cloudApp = new CloudApplicationExtended(name, command, buildpackUrl, memory, instances, uris, services,
-                AppState.STARTED, Collections.emptyList(), null);
-            cloudApp.setMeta(new Meta(NameUtil.getUUID(name), null, null));
-            cloudApp.setDiskQuota(diskQuota);
-            cloudApp.setApplicationAttributesUpdateBehavior(applicationAttributeUpdateStrategy);
-            cloudApp.setStaging(new Staging.StagingBuilder().command(command)
-                .buildpackUrl(buildpackUrl)
-                .stack(null)
-                .healthCheckTimeout(0)
-                .detectedBuildpack("none")
-                .healthCheckType(healthCheckType)
-                .healthCheckHttpEndpoint(healthCheckHttpEndpoint)
-                .sshEnabled(sshEnabled)
-                .build());
-            cloudApp.setBindingParameters(bindingParameters);
-            cloudApp.setServiceKeysToInject(serviceKeysToInject);
-            return cloudApp;
         }
 
     }
@@ -362,7 +367,12 @@ public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<
         }
 
         CloudServiceExtended toCloudService() {
-            return new CloudServiceExtended(new Meta(NameUtil.getUUID(name), null, null), name);
+            return ImmutableCloudServiceExtended.builder()
+                .metadata(ImmutableCloudMetadata.builder()
+                    .guid(NameUtil.getUUID(name))
+                    .build())
+                .name(name)
+                .build();
         }
     }
 

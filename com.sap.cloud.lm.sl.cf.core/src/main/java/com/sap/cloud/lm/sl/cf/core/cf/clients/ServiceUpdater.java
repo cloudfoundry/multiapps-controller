@@ -71,7 +71,7 @@ public class ServiceUpdater extends CloudServiceOperator {
     private MethodExecution<String> attemptToUpdateServicePlan(CloudControllerClient client, String serviceName, String servicePlanName) {
         CloudService service = client.getService(serviceName);
         CloudServicePlan servicePlan = findPlanForService(client, service, servicePlanName);
-        String servicePlanGuid = servicePlan.getMeta()
+        String servicePlanGuid = servicePlan.getMetadata()
             .getGuid()
             .toString();
         return attemptToUpdateServiceParameter(client, service, SERVICE_INSTANCES_URL, SERVICE_PLAN_GUID, servicePlanGuid);
@@ -103,7 +103,7 @@ public class ServiceUpdater extends CloudServiceOperator {
         String parameterName, Object parameter) {
         RestTemplate restTemplate = getRestTemplate(client);
         String cloudControllerUrl = getCloudControllerUrl(client);
-        String updateServiceUrl = getUrl(cloudControllerUrl, getUpdateServiceUrl(serviceUrl, service.getMeta()
+        String updateServiceUrl = getUrl(cloudControllerUrl, getUpdateServiceUrl(serviceUrl, service.getMetadata()
             .getGuid()
             .toString(), ACCEPTS_INCOMPLETE_TRUE));
 

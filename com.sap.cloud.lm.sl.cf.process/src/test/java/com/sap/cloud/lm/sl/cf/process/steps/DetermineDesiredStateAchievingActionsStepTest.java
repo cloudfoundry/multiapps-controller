@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.cloudfoundry.client.lib.domain.CloudBuild;
-import org.cloudfoundry.client.lib.domain.CloudBuild.BuildState;
+import org.cloudfoundry.client.lib.domain.CloudBuild.State;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,147 +32,147 @@ public class DetermineDesiredStateAchievingActionsStepTest extends DetermineDesi
             // @formatter:off
             // (0)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (1)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, false, Collections.emptySet(), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("18-03-2018"), null)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, false, Collections.emptySet(), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("18-03-2018"), null)), null
             },
             // (2)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (3)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("18-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("18-03-2018"), FAKE_ERROR)), null
             },
             // (4)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (5)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (6)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (7)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (8)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (9)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (10)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (11)
             {
-                ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.STOPPED, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (12)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (13)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (14)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (15)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (16)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (17)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, false, Collections.emptySet(), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, false, Collections.emptySet(), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (18)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (19)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (20)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.STOP, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (21)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.EXECUTE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (22)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (23)
             {
-                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.STARTED, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (24)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (25)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, false, Stream.of(ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (26)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), FAKE_ERROR)), null
             },
             // (27)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STOPPED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (28)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), null)), null
             },
             // (29)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, false, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (30)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), null)), null
             },
             // (31)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.STAGED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.STARTED, true, Stream.of(ApplicationStateAction.STOP, ApplicationStateAction.STAGE, ApplicationStateAction.START).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.STAGED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (32)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), null)), null
             },
             // (33)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, false, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
             // (34)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.FAILED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.FAILED, parseDate("21-03-2018"), null)), null
             },
             // (35)
             {
-                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(BuildState.FAILED, parseDate("20-03-2018"), null), createCloudBuild(BuildState.STAGED, parseDate("21-03-2018"), null)), null
+                ApplicationStartupState.INCONSISTENT, ApplicationStartupState.EXECUTED, true, Stream.of(ApplicationStateAction.STAGE, ApplicationStateAction.EXECUTE, ApplicationStateAction.START, ApplicationStateAction.STOP).collect(Collectors.toSet()), Arrays.asList(createCloudBuild(State.FAILED, parseDate("20-03-2018"), null), createCloudBuild(State.STAGED, parseDate("21-03-2018"), null)), null
             },
         });
     } 

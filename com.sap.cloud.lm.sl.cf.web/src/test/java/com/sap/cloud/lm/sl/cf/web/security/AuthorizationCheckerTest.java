@@ -15,6 +15,8 @@ import java.util.stream.Stream;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudSpace;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudOrganization;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudSpace;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -159,7 +161,13 @@ public class AuthorizationCheckerTest {
     private void setUpMocks(boolean hasPermissions, boolean hasAccess, Exception e) {
         DefaultOAuth2AccessToken accessToken = new DefaultOAuth2AccessToken("testTokenValue");
         accessToken.setScope(new HashSet<>());
-        CloudSpace space = new CloudSpace(null, SPACE, new CloudOrganization(null, ORG));
+        CloudOrganization organization = ImmutableCloudOrganization.builder()
+            .name(ORG)
+            .build();
+        CloudSpace space = ImmutableCloudSpace.builder()
+            .name(SPACE)
+            .organization(organization)
+            .build();
         ClientHelper clientHelper = Mockito.mock(ClientHelper.class);
 
         if (hasAccess) {

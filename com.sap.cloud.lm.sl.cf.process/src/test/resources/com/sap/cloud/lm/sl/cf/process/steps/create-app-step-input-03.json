@@ -5,7 +5,7 @@
       "instances": 1,
       "memory": 128,
       "diskQuota": 0,
-      "env": [],
+      "env": {},
       "services": [
         "service-1",
         "service-2",

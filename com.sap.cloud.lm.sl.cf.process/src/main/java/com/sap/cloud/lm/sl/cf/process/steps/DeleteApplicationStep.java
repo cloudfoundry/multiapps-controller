@@ -44,7 +44,7 @@ public class DeleteApplicationStep extends UndeployAppStep {
 
     private void cancelTask(CloudControllerClient client, CloudTask task, CloudApplication appToUndeploy) {
         getStepLogger().info(Messages.CANCELING_TASK_ON_APP, task.getName(), appToUndeploy.getName());
-        client.cancelTask(task.getMeta()
+        client.cancelTask(task.getMetadata()
             .getGuid());
         getStepLogger().debug(Messages.CANCELED_TASK_ON_APP, task.getName(), appToUndeploy.getName());
     }

@@ -23,6 +23,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -67,7 +68,7 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
             },
             // (03) No service brokers should be created (explicit):
             {
-                "create-service-brokers-step-input-03.json", "create-service-brokers-step-output-03.json", null, null, null, null, null,
+                "create-service-brokers-step-input-03.json", "create-service-brokers-step-output-02.json", null, null, null, null, null,
             },
             // (04) A service broker should be created but the username is missing:
             {
@@ -255,9 +256,10 @@ public class CreateOrUpdateServiceBrokerStepTest extends SyncFlowableStepTest<Cr
         Map<String, Object> attributes;
 
         CloudApplicationExtended toCloudApplication() {
-            CloudApplicationExtended application = new CloudApplicationExtended(null, name);
-            application.setEnv(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(attributes)));
-            return application;
+            return ImmutableCloudApplicationExtended.builder()
+                .name(name)
+                .env(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(attributes)))
+                .build();
         }
 
     }

@@ -1,12 +1,12 @@
 {
   "existingApp": {
     "name": "app",
-    "env": [
-      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
-      "MTA_SERVICES=[]",
-      "MTA_MODULE_METADATA={\"name\":\"app\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]"
-    ]
+    "env": {
+      "MTA_METADATA":"{\"id\":\"com.sap.sample.mta\",\"version\":\"0.1.0\"}",
+      "MTA_SERVICES":"[]",
+      "MTA_MODULE_METADATA":"{\"name\":\"app\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES":"[]"
+    }
   },
   "mtaId": "com.sap.sample.mta",
   "mtaVersion": "0.1.0"

@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceKey;
 
-import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.core.util.CloudModelBuilderUtil;
 import com.sap.cloud.lm.sl.common.ContentException;
@@ -25,8 +26,8 @@ public class ServiceKeysCloudModelBuilder {
         this.deploymentDescriptor = deploymentDescriptor;
     }
 
-    public Map<String, List<ServiceKey>> build() {
-        Map<String, List<ServiceKey>> serviceKeys = new HashMap<>();
+    public Map<String, List<CloudServiceKey>> build() {
+        Map<String, List<CloudServiceKey>> serviceKeys = new HashMap<>();
         for (Resource resource : deploymentDescriptor.getResources()) {
             if (CloudModelBuilderUtil.isService(resource)) {
                 serviceKeys.put(resource.getName(), getServiceKeysForService(resource));
@@ -35,7 +36,7 @@ public class ServiceKeysCloudModelBuilder {
         return serviceKeys;
     }
 
-    protected List<ServiceKey> getServiceKeysForService(Resource resource) {
+    protected List<CloudServiceKey> getServiceKeysForService(Resource resource) {
         List<Map<String, Object>> serviceKeysMaps = getServiceKeysMaps(resource);
         return serviceKeysMaps.stream()
             .map(keysMap -> getServiceKey(resource, keysMap))
@@ -43,13 +44,19 @@ public class ServiceKeysCloudModelBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    protected ServiceKey getServiceKey(Resource resource, Map<String, Object> serviceKeyMap) {
+    protected CloudServiceKey getServiceKey(Resource resource, Map<String, Object> serviceKeyMap) {
         String serviceKeyName = (String) serviceKeyMap.get(SupportedParameters.NAME);
         Map<String, Object> parameters = (Map<String, Object>) serviceKeyMap.get(SupportedParameters.SERVICE_KEY_CONFIG);
         if (parameters == null) {
             parameters = Collections.emptyMap();
         }
-        return new ServiceKey(serviceKeyName, parameters, Collections.emptyMap(), new CloudServiceExtended(null, resource.getName()));
+        return ImmutableCloudServiceKey.builder()
+            .name(serviceKeyName)
+            .parameters(parameters)
+            .service(ImmutableCloudServiceExtended.builder()
+                .name(resource.getName())
+                .build())
+            .build();
     }
 
     @SuppressWarnings("unchecked")

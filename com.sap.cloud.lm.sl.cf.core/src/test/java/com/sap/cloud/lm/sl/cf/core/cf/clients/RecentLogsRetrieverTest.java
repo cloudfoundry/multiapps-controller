@@ -7,8 +7,9 @@ import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudApplication;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -96,8 +97,12 @@ public class RecentLogsRetrieverTest {
     }
 
     private CloudApplication createDummpyApp() {
-        Meta meta = new Meta(APP_UUID, null, null);
-        return new CloudApplication(meta, APP_NAME);
+        return ImmutableCloudApplication.builder()
+            .metadata(ImmutableCloudMetadata.builder()
+                .guid(APP_UUID)
+                .build())
+            .name(APP_NAME)
+            .build();
     }
 
 }

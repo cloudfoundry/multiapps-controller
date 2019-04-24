@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ConfigurationEntriesCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
@@ -17,7 +18,6 @@ import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFac
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -36,8 +36,11 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
             StepsUtil.setModuleToDeploy(execution.getContext(), applicationModule);
             CloudApplicationExtended modifiedApp = getApplicationCloudModelBuilder(execution.getContext()).build(applicationModule,
                 moduleToDeployHelper);
-            editUrisIfIdleApplication(execution.getContext(), modifiedApp);
-            modifiedApp.setEnv(getApplicationEnv(execution.getContext(), modifiedApp));
+            modifiedApp = ImmutableCloudApplicationExtended.builder()
+                .from(modifiedApp)
+                .env(getApplicationEnv(execution.getContext(), modifiedApp))
+                .uris(getApplicationUris(execution.getContext(), modifiedApp))
+                .build();
             SecureSerializationFacade secureSerializationFacade = new SecureSerializationFacade();
             String appJson = secureSerializationFacade.toJson(modifiedApp);
             getStepLogger().debug(Messages.APP_WITH_UPDATED_ENVIRONMENT, appJson);
@@ -54,14 +57,15 @@ public class BuildApplicationDeployModelStep extends SyncFlowableStep {
         return StepPhase.DONE;
     }
 
-    protected Map<Object, Object> getApplicationEnv(DelegateExecution context, CloudApplicationExtended app) {
-        return MapUtil.upcastUnmodifiable(app.getEnvAsMap());
+    protected Map<String, String> getApplicationEnv(DelegateExecution context, CloudApplicationExtended app) {
+        return app.getEnv();
     }
 
-    private void editUrisIfIdleApplication(DelegateExecution context, CloudApplicationExtended modifiedApp) {
+    private List<String> getApplicationUris(DelegateExecution context, CloudApplicationExtended modifiedApp) {
         if (StepsUtil.getUseIdleUris(context)) {
-            modifiedApp.setUris(modifiedApp.getIdleUris());
+            return modifiedApp.getIdleUris();
         }
+        return modifiedApp.getUris();
     }
 
     private void buildConfigurationEntries(DelegateExecution context, CloudApplicationExtended app) {

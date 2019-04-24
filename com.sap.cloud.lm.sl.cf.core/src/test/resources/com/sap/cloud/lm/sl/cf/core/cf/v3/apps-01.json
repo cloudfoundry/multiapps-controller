@@ -12,31 +12,32 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.xs2.test\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"foo\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[]",
-      "MTA_SERVICES=[]",
-      "TARGET_RUNTIME=tomee"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [],
     "staging": {
       "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
     },
     "uris": [
       "foo.cfapps.neo.ondemand.com"
     ],
-    "meta": {},
-    "name": "foo"
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.xs2.test\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "name": "foo",
+    "bindingParameters" : {},
+    "routes": []
   }
 ]

@@ -30,7 +30,7 @@ public class ApplicationRoutesGetter extends CustomControllerClient {
 
     private List<CloudRoute> attemptToGetRoutes(CloudControllerClient client, String appName) {
         CloudApplication app = client.getApplication(appName);
-        String appRoutesUrl = getAppRoutesUrl(app.getMeta()
+        String appRoutesUrl = getAppRoutesUrl(app.getMetadata()
             .getGuid());
         return doGetRoutes(client, appRoutesUrl);
     }

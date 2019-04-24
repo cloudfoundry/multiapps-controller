@@ -1,10 +1,10 @@
 {
   "currentSpace": {
     "organization": {
-      "meta": {},
+      "metadata": {},
       "name": "sap"
     },
-    "meta": {},
+    "metadata": {},
     "name": "sap"
   },
   "subscribersToUpdate": [
@@ -43,19 +43,19 @@
         }
       },
       "app": {
-        "meta": {
+        "metadata": {
           "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
         },
         "name": "foo",
-        "env": [
-          "test=this-property-should-remain-in-the-env-after-the-update"
-        ],
+        "env": {
+          "test":"this-property-should-remain-in-the-env-after-the-update"
+        },
         "space": {
           "organization": {
-            "meta": {},
+            "metadata": {},
             "name": "xsa"
           },
-          "meta": {},
+          "metadata": {},
           "name": "xsa"
         }
       },
@@ -108,19 +108,19 @@
         }
       },
       "app": {
-        "meta": {
+        "metadata": {
           "guid": "bf98b810-823c-4311-a489-9e4ca844b632"
         },
         "name": "foo",
-        "env": [
-          "test=this-property-should-remain-in-the-env-after-the-update"
-        ],
+        "env": {
+          "test":"this-property-should-remain-in-the-env-after-the-update"
+        },
         "space": {
           "organization": {
-            "meta": {},
+            "metadata": {},
             "name": "xsa"
           },
-          "meta": {},
+          "metadata": {},
           "name": "xsa"
         }
       },
@@ -143,10 +143,10 @@
     {
       "space": {
         "organization": {
-          "meta": {},
+          "metadata": {},
           "name": "xsa"
         },
-        "meta": {},
+        "metadata": {},
         "name": "xsa"
       },
       "permissions": [

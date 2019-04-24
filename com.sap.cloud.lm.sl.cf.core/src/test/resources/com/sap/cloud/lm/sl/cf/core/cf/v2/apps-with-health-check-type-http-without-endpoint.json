@@ -12,23 +12,15 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"test\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"foo\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"foo\"]",
-      "MTA_SERVICES=[]"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [],
     "staging": {
       "healthCheckType": "http",
       "healthCheckHttpEndpoint": "/"
@@ -36,7 +28,16 @@
     "uris": [
       "foo.sofd60245639a"
     ],
-    "meta": {},
-    "name": "foo"
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"test\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
+      "MTA_SERVICES": "[]"
+    },
+    "name": "foo",
+    "bindingParameters" : {},
+    "routes": []
   }
 ]

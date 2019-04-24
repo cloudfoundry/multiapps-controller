@@ -9,10 +9,10 @@
     "shouldIgnoreUpdateErrors": false,
     "label": "hana",
     "plan": "hdi-shared",
-    "meta": {},
     "name": "java-hdi-container"
   },
   {
+    "alternativeLabels": [],
     "resourceName": "uaa",
     "credentials": {
       "clientid": "xs2.node",
@@ -29,7 +29,6 @@
     "isOptional": false,
     "isManaged": true,
     "shouldIgnoreUpdateErrors": false,
-    "meta": {},
     "name": "uaa"
   }
 ]

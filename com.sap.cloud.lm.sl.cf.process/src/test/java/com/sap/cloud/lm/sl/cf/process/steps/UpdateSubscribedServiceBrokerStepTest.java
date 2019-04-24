@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudServiceBroker;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ParsingException;
@@ -112,10 +114,12 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
             Mockito.verify(stepLogger)
                 .warn(warningMessage);
         } else {
-            CloudServiceBroker expectedBroker = new CloudServiceBroker(null, input.brokerApplication.brokerName);
-            expectedBroker.setUsername(input.brokerApplication.brokerUsername);
-            expectedBroker.setPassword(input.brokerApplication.brokerPassword);
-            expectedBroker.setUrl(input.brokerApplication.brokerUrl);
+            CloudServiceBroker expectedBroker = ImmutableCloudServiceBroker.builder()
+                .name(input.brokerApplication.brokerName)
+                .username(input.brokerApplication.brokerUsername)
+                .password(input.brokerApplication.brokerPassword)
+                .url(input.brokerApplication.brokerUrl)
+                .build();
             Mockito.verify(client)
                 .updateServiceBroker(Mockito.argThat(GenericArgumentMatcher.forObject(expectedBroker)));
         }
@@ -139,24 +143,21 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
         String brokerUrl;
 
         CloudApplicationExtended toCloudApplication() {
-            CloudApplicationExtended application = new CloudApplicationExtended(null, name);
             Map<String, Object> brokerDetails = getBrokerDetails();
-            application.setEnv(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(brokerDetails)));
-            return application;
+            return ImmutableCloudApplicationExtended.builder()
+                .name(name)
+                .env(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(brokerDetails)))
+                .build();
         }
 
         private Map<String, Object> getBrokerDetails() {
-            return new HashMap<String, Object>() {
-                private static final long serialVersionUID = 1L;
-
-                {
-                    put(SupportedParameters.CREATE_SERVICE_BROKER, true);
-                    put(SupportedParameters.SERVICE_BROKER_NAME, brokerName);
-                    put(SupportedParameters.SERVICE_BROKER_URL, brokerUrl);
-                    put(SupportedParameters.SERVICE_BROKER_USERNAME, brokerUsername);
-                    put(SupportedParameters.SERVICE_BROKER_PASSWORD, brokerPassword);
-                }
-            };
+            Map<String, Object> brokerDetails = new HashMap<>();
+            brokerDetails.put(SupportedParameters.CREATE_SERVICE_BROKER, true);
+            brokerDetails.put(SupportedParameters.SERVICE_BROKER_NAME, brokerName);
+            brokerDetails.put(SupportedParameters.SERVICE_BROKER_URL, brokerUrl);
+            brokerDetails.put(SupportedParameters.SERVICE_BROKER_USERNAME, brokerUsername);
+            brokerDetails.put(SupportedParameters.SERVICE_BROKER_PASSWORD, brokerPassword);
+            return brokerDetails;
         }
     }
 
@@ -164,7 +165,10 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
         String name;
 
         CloudServiceBroker toServiceBroker() {
-            return (name == null) ? null : new CloudServiceBroker(null, name);
+            return (name == null) ? null
+                : ImmutableCloudServiceBroker.builder()
+                    .name(name)
+                    .build();
         }
     }
 }

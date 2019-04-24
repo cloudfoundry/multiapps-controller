@@ -15,24 +15,15 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": true,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"foo\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"foo\"]",
-      "MTA_SERVICES=[]",
-      "TARGET_RUNTIME=tomee"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [],
     "staging": {
       "buildpackUrl": "git://github.example.com/xs2-java/java-buildpack.git"
     },
@@ -40,7 +31,17 @@
       "host-in-route1.test-domain",
       "host-in-route2.test-domain/path-in-route"
     ],
-    "meta": {},
-    "name": "foo"
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"com.sap.sample.mta\",\"version\":\"1.0.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"foo\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"foo\"]",
+      "MTA_SERVICES": "[]",
+      "TARGET_RUNTIME": "tomee"
+    },
+    "name": "foo",
+    "bindingParameters" : {},
+    "routes": []
   }
 ]

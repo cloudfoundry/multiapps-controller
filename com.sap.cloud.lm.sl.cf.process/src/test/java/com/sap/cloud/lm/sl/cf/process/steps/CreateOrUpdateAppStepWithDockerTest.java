@@ -13,17 +13,35 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBaseTest {
 
-    private DockerInfo dockerInfo;
+    private static final DockerInfo DOCKER_INFO = createDockerInfo();
 
-    public void initParametersContextClient() {
+    private static DockerInfo createDockerInfo() {
+        String image = "cloudfoundry/test-app";
+        String username = "someUser";
+        String password = "somePassword";
+        DockerInfo dockerInfo = new DockerInfo(image);
+        DockerCredentials dockerCredentials = new DockerCredentials(username, password);
+        dockerInfo.setDockerCredentials(dockerCredentials);
+        return dockerInfo;
+    }
+
+    @Test
+    public void testWithDockerImage() {
+        stepInput = createStepInput();
         loadParameters();
         prepareContext();
+
+        step.execute(context);
+        assertStepFinishedSuccessfully();
+
+        validateClient();
     }
 
     private void prepareContext() {
@@ -33,37 +51,12 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
 
         byte[] serviceKeysToInjectByteArray = JsonUtil.toJsonBinary(new HashMap<>());
         context.setVariable(Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, serviceKeysToInjectByteArray);
-        stepInput.applications.get(0)
-            .setDockerInfo(dockerInfo);
         StepsUtil.setAppsToDeploy(context, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(stepInput.applications, context);
     }
 
     private void loadParameters() {
-        dockerInfo = createDockerInfo();
         application = stepInput.applications.get(stepInput.applicationIndex);
-    }
-
-    private DockerInfo createDockerInfo() {
-        String image = "cloudfoundry/test-app";
-        String username = "someUser";
-        String password = "somePassword";
-        DockerInfo dockerInfo = new DockerInfo(image);
-        DockerCredentials dockerCredentials = new DockerCredentials(username, password);
-        dockerInfo.setDockerCredentials(dockerCredentials);
-
-        return dockerInfo;
-    }
-
-    @Test
-    public void testWithDockerImage() {
-        stepInput = createStepInput();
-        initParametersContextClient();
-
-        step.execute(context);
-        assertStepFinishedSuccessfully();
-
-        validateClient();
     }
 
     private StepInput createStepInput() {
@@ -78,18 +71,13 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
     }
 
     private CloudApplicationExtended createFakeCloudApplicationExtended() {
-        CloudApplicationExtended cloudApplicationExtended = new CloudApplicationExtended(null, "application1");
-
-        cloudApplicationExtended.setInstances(1);
-        cloudApplicationExtended.setMemory(0);
-        cloudApplicationExtended.setDiskQuota(512);
-        cloudApplicationExtended.setEnv(Collections.emptyMap());
-        cloudApplicationExtended.setServices(Collections.emptyList());
-        cloudApplicationExtended.setServiceKeysToInject(Collections.emptyList());
-        cloudApplicationExtended.setUris(Collections.emptyList());
-        cloudApplicationExtended.setDockerInfo(dockerInfo);
-
-        return cloudApplicationExtended;
+        return ImmutableCloudApplicationExtended.builder()
+            .name("application1")
+            .instances(1)
+            .memory(0)
+            .diskQuota(512)
+            .dockerInfo(DOCKER_INFO)
+            .build();
     }
 
     private void validateClient() {
@@ -98,9 +86,9 @@ public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBa
 
         Mockito.verify(client)
             .createApplication(eq(application.getName()), argThat(GenericArgumentMatcher.forObject(application.getStaging())),
-                eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(dockerInfo));
+                eq(diskQuota), eq(memory), eq(application.getUris()), eq(Collections.emptyList()), eq(DOCKER_INFO));
         Mockito.verify(client)
-            .updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
+            .updateApplicationEnv(eq(application.getName()), eq(application.getEnv()));
     }
 
     @Override

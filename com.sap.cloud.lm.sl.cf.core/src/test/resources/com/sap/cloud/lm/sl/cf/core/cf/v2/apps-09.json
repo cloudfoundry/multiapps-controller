@@ -12,12 +12,10 @@
         },
         "memory": 256,
         "diskQuota": 1024,
-        "meta": {},
         "name": "task-1"
       },
       {
         "command": "echo 2",
-        "meta": {},
         "name": "task-2"
       }
     ],
@@ -30,29 +28,30 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"no-start\":true}",
-      "MTA_METADATA={\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"module-1\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-1\"]",
-      "MTA_SERVICES=[]"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [],
     "staging": {},
     "uris": [
       "module-1.sofd60245639a"
     ],
-    "meta": {},
-    "name": "module-1"
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"no-start\":true}",
+      "MTA_METADATA": "{\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"module-1\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-1\"]",
+      "MTA_SERVICES": "[]"
+    },
+    "name": "module-1",
+    "bindingParameters" : {},
+    "routes": []
   },
   {
     "moduleName": "module-2",
@@ -67,29 +66,30 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"module-2\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-2\"]",
-      "MTA_SERVICES=[]"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [],
     "staging": {},
     "uris": [
       "module-2.sofd60245639a"
     ],
-    "meta": {},
-    "name": "module-2"
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"module-2\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-2\"]",
+      "MTA_SERVICES": "[]"
+    },
+    "name": "module-2",
+    "bindingParameters" : {},
+    "routes": []
   },
   {
     "moduleName": "module-3",
@@ -104,29 +104,30 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\"}",
-      "MTA_METADATA={\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"module-3\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-3\"]",
-      "MTA_SERVICES=[]"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [],
     "staging": {},
     "uris": [
       "module-3.sofd60245639a"
     ],
-    "meta": {},
-    "name": "module-3"
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\"}",
+      "MTA_METADATA": "{\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"module-3\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-3\"]",
+      "MTA_SERVICES": "[]"
+    },
+    "name": "module-3",
+    "bindingParameters" : {},
+    "routes": []
   },
   {
     "moduleName": "module-4",
@@ -141,29 +142,30 @@
       "shouldRestartOnVcapServicesChange": true,
       "shouldRestartOnUserProvidedChange": true
     },
-    "applicationAttributesUpdateStrategy": {
+    "attributesUpdateStrategy": {
       "shouldKeepExistingEnv": false,
       "shouldKeepExistingServiceBindings": false,
       "shouldKeepExistingRoutes": false
     },
-    "diskQuota": 0,
-    "env": [
-      "DEPLOY_ATTRIBUTES={\"dependency-type\":\"soft\",\"no-start\":false}",
-      "MTA_METADATA={\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
-      "MTA_MODULE_METADATA={\"name\":\"module-4\"}",
-      "MTA_MODULE_PROVIDED_DEPENDENCIES=[\"module-4\"]",
-      "MTA_SERVICES=[]",
-      "tasks=[{\"command\":\"echo 3\",\"memory\":\"256M\",\"name\":\"task-3\"},{\"command\":\"echo 4\",\"memory\":\"512M\",\"name\":\"task-4\"}]"
-    ],
-    "instances": 0,
     "memory": 0,
+    "diskQuota": 0,
+    "instances": 0,
     "runningInstances": 0,
-    "services": [],
     "staging": {},
     "uris": [
       "module-4.sofd60245639a"
     ],
-    "meta": {},
-    "name": "module-4"
+    "services": [],
+    "env": {
+      "DEPLOY_ATTRIBUTES": "{\"dependency-type\":\"soft\",\"no-start\":false}",
+      "MTA_METADATA": "{\"id\":\"tasks-test\",\"version\":\"0.1.0\"}",
+      "MTA_MODULE_METADATA": "{\"name\":\"module-4\"}",
+      "MTA_MODULE_PROVIDED_DEPENDENCIES": "[\"module-4\"]",
+      "MTA_SERVICES": "[]",
+      "tasks": "[{\"command\":\"echo 3\",\"memory\":\"256M\",\"name\":\"task-3\"},{\"command\":\"echo 4\",\"memory\":\"512M\",\"name\":\"task-4\"}]"
+    },
+    "name": "module-4",
+    "bindingParameters" : {},
+    "routes": []
   }
 ]

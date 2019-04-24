@@ -11,12 +11,10 @@ import java.util.function.Predicate;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.DockerInfo;
-import org.cloudfoundry.client.lib.domain.Staging;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
-import com.sap.cloud.lm.sl.cf.client.lib.domain.RestartParameters;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
@@ -91,26 +89,28 @@ public class ApplicationCloudModelBuilder {
 
     protected CloudApplicationExtended getApplication(Module module) {
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
-        Staging staging = parseParameters(parametersList, new StagingParametersParser());
-        int diskQuota = parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0"));
-        int memory = parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.MEMORY, "0"));
-        int instances = (Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0);
-        DockerInfo dockerInfo = parseParameters(parametersList, new DockerInfoParser());
-        CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateStrategy = getApplicationAttributesUpdateStrategy(
-            parametersList);
         ApplicationUrisCloudModelBuilder urisCloudModelBuilder = getApplicationUrisCloudModelBuilder(parametersList);
         List<String> uris = getApplicationUris(module);
         List<String> idleUris = urisCloudModelBuilder.getIdleApplicationUris(module, parametersList);
-        List<String> services = getAllApplicationServices(module);
-        List<ServiceKeyToInject> serviceKeys = getServicesKeysToInject(module);
-        Map<Object, Object> env = applicationEnvCloudModelBuilder.build(module, getApplicationServices(module));
-        List<CloudTask> tasks = getTasks(parametersList);
-        Map<String, Map<String, Object>> bindingParameters = getBindingParameters(module);
-        List<String> applicationDomains = getApplicationDomains(parametersList, module);
-        RestartParameters restartParameters = parseParameters(parametersList, new RestartParametersParser());
-        return createCloudApplication(NameUtil.getApplicationName(module), module.getName(), staging, diskQuota, memory, instances, uris,
-            idleUris, services, serviceKeys, env, bindingParameters, tasks, applicationDomains, restartParameters, dockerInfo,
-            applicationAttributesUpdateStrategy);
+        return ImmutableCloudApplicationExtended.builder()
+            .name(NameUtil.getApplicationName(module))
+            .moduleName(module.getName())
+            .staging(parseParameters(parametersList, new StagingParametersParser()))
+            .diskQuota(parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0")))
+            .memory(parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.MEMORY, "0")))
+            .instances((Integer) getPropertyValue(parametersList, SupportedParameters.INSTANCES, 0))
+            .uris(uris)
+            .idleUris(idleUris)
+            .services(getAllApplicationServices(module))
+            .serviceKeysToInject(getServicesKeysToInject(module))
+            .env(applicationEnvCloudModelBuilder.build(module, getApplicationServices(module)))
+            .bindingParameters(getBindingParameters(module))
+            .tasks(getTasks(parametersList))
+            .domains(getApplicationDomains(parametersList, module))
+            .restartParameters(parseParameters(parametersList, new RestartParametersParser()))
+            .dockerInfo(parseParameters(parametersList, new DockerInfoParser()))
+            .attributesUpdateStrategy(getApplicationAttributesUpdateStrategy(parametersList))
+            .build();
     }
 
     private AttributeUpdateStrategy getApplicationAttributesUpdateStrategy(List<Map<String, Object>> parametersList) {
@@ -163,48 +163,10 @@ public class ApplicationCloudModelBuilder {
         return new TaskParametersParser(SupportedParameters.TASKS, prettyPrinting);
     }
 
-    protected CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota, int memory,
-        int instances, List<String> uris, List<String> idleUris, List<String> services, List<ServiceKeyToInject> serviceKeys,
-        Map<Object, Object> env, Map<String, Map<String, Object>> bindingParameters, List<CloudTask> tasks, List<String> applicationDomains,
-        RestartParameters restartParameters, DockerInfo dockerInfo,
-        CloudApplicationExtended.AttributeUpdateStrategy applicationAttributesUpdateBehavior) {
-        CloudApplicationExtended app = createCloudApplication(name, moduleName, staging, diskQuota, memory, instances, uris, idleUris,
-            services, serviceKeys, env, tasks, dockerInfo);
-        if (bindingParameters != null) {
-            app.setBindingParameters(bindingParameters);
-        }
-        app.setDomains(applicationDomains);
-        app.setRestartParameters(restartParameters);
-        app.setApplicationAttributesUpdateBehavior(applicationAttributesUpdateBehavior);
-        return app;
-    }
-
-    protected static CloudApplicationExtended createCloudApplication(String name, String moduleName, Staging staging, int diskQuota,
-        int memory, int instances, List<String> uris, List<String> idleUris, List<String> services,
-        List<ServiceKeyToInject> serviceKeysToInject, Map<Object, Object> env, List<CloudTask> tasks, DockerInfo dockerInfo) {
-        CloudApplicationExtended app = new CloudApplicationExtended(null, name);
-        app.setModuleName(moduleName);
-        app.setStaging(staging);
-        app.setDiskQuota(diskQuota);
-        app.setMemory(memory);
-        app.setInstances(instances);
-        app.setUris(uris);
-        app.setIdleUris(idleUris);
-        app.setServices(services);
-        app.setServiceKeysToInject(serviceKeysToInject);
-        app.setEnv(env);
-        app.setTasks(tasks);
-        app.setDockerInfo(dockerInfo);
-        return app;
-    }
-
     protected Map<String, Map<String, Object>> getBindingParameters(Module module) {
         Map<String, Map<String, Object>> result = new HashMap<>();
         for (RequiredDependency dependency : module.getRequiredDependencies()) {
             addBindingParameters(result, dependency, module);
-        }
-        if (result.isEmpty()) {
-            return null;
         }
         return result;
     }

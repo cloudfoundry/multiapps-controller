@@ -30,7 +30,7 @@ public class ApplicationFileDigestDetector {
     }
 
     private Map<String, Object> getApplicationDeployAttributes() {
-        Map<String, String> applicationEnv = app.getEnvAsMap();
+        Map<String, String> applicationEnv = app.getEnv();
         String applicationDeployAttributes = applicationEnv.get(Constants.ENV_DEPLOY_ATTRIBUTES);
         return JsonUtil.convertJsonToMap(applicationDeployAttributes);
     }

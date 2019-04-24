@@ -23,7 +23,7 @@ import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudServiceBroker;
 import org.cloudfoundry.client.lib.domain.CloudTask;
-import org.cloudfoundry.client.lib.domain.ServiceKey;
+import org.cloudfoundry.client.lib.domain.CloudServiceKey;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.engine.RuntimeService;
@@ -243,13 +243,13 @@ public class StepsUtil {
         return getFromJsonBinary(scope, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, type);
     }
 
-    public static Map<String, List<ServiceKey>> getServiceKeysToCreate(VariableScope scope) {
-        TypeReference<Map<String, List<ServiceKey>>> type = new TypeReference<Map<String, List<ServiceKey>>>() {
+    public static Map<String, List<CloudServiceKey>> getServiceKeysToCreate(VariableScope scope) {
+        TypeReference<Map<String, List<CloudServiceKey>>> type = new TypeReference<Map<String, List<CloudServiceKey>>>() {
         };
         return getFromJsonBinary(scope, Constants.VAR_SERVICE_KEYS_TO_CREATE, type);
     }
 
-    static void setServiceKeysToCreate(VariableScope scope, Map<String, List<ServiceKey>> serviceKeys) {
+    static void setServiceKeysToCreate(VariableScope scope, Map<String, List<CloudServiceKey>> serviceKeys) {
         setAsJsonBinary(scope, Constants.VAR_SERVICE_KEYS_TO_CREATE, serviceKeys);
     }
 
@@ -899,7 +899,7 @@ public class StepsUtil {
     }
 
     private static boolean hasGuid(CloudApplication app, UUID appGuid) {
-        return app.getMeta()
+        return app.getMetadata()
             .getGuid()
             .equals(appGuid);
     }

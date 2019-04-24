@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.cloudfoundry.client.lib.domain.CloudEntity.Meta;
 import org.cloudfoundry.client.lib.domain.CloudTask;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudMetadata;
+import org.cloudfoundry.client.lib.domain.ImmutableCloudTask;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -17,6 +18,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.client.lib.domain.ImmutableCloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.clients.RecentLogsRetriever;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 
@@ -31,7 +33,9 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     private static final String APPLICATION_NAME = "bar";
 
     private static final UUID TASK_UUID = UUID.randomUUID();
-    private static final CloudApplicationExtended APPLICATION = new CloudApplicationExtended(null, APPLICATION_NAME);
+    private static final CloudApplicationExtended APPLICATION = ImmutableCloudApplicationExtended.builder()
+        .name(APPLICATION_NAME)
+        .build();
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -85,7 +89,12 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     private long currentTime;
     private AsyncExecutionState expectedExecutionStatus;
 
-    private CloudTask task = new CloudTask(new Meta(TASK_UUID, null, null), TASK_NAME);
+    private CloudTask task = ImmutableCloudTask.builder()
+        .metadata(ImmutableCloudMetadata.builder()
+            .guid(TASK_UUID)
+            .build())
+        .name(TASK_NAME)
+        .build();
 
     public PollExecuteTaskStatusStepTest(CloudTask.State currentTaskState, long currentTime, AsyncExecutionState expectedExecutionStatus) {
         this.currentTaskState = currentTaskState;
@@ -109,8 +118,10 @@ public class PollExecuteTaskStatusStepTest extends AsyncStepOperationTest<Execut
     }
 
     private void prepareClientExtensions() {
-        CloudTask taskWithState = StepsTestUtil.copy(task);
-        taskWithState.setState(currentTaskState);
+        CloudTask taskWithState = ImmutableCloudTask.builder()
+            .from(task)
+            .state(currentTaskState)
+            .build();
         when(client.getTask(TASK_UUID)).thenReturn(taskWithState);
     }
 

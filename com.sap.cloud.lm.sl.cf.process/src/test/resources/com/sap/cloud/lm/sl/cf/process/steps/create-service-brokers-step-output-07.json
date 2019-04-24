@@ -4,8 +4,6 @@
       "password": "baz",
       "url": "http://localhost:3030",
       "username": "bar",
-      "meta": {},
       "name": "foo"
-    },
-  "updatedServiceBroker": null
+    }
 }
