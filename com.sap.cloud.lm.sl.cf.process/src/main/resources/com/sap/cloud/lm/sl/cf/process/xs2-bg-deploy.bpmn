@@ -188,8 +188,8 @@
         <flowable:executionListener event="take" delegateExpression="${setUndeployPhase}"></flowable:executionListener>
       </extensionElements>
     </sequenceFlow>
-    <callActivity id="undeployAppCallActivity" name="Undeploy App Call Activity" flowable:async="true" calledElement="undeployAppSubProces" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false">
-      <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess"></multiInstanceLoopCharacteristics>
+    <callActivity id="undeployAppCallActivity" name="Undeploy App Call Activity" flowable:async="true" calledElement="undeployAppSubProces" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-D124D686-DAD8-4E1B-89F1-55D02A2B86F4" sourceRef="undeployAppCallActivity" targetRef="shouldDeleteDiscontinuedServicesGateway"></sequenceFlow>
     <sequenceFlow id="sid-89DB9056-1BFC-4D13-B6DF-B962CE9D9F39" sourceRef="restartAppsSequential" targetRef="setUndeployPhaseInclusiveGateway"></sequenceFlow>
@@ -439,7 +439,7 @@
       <bpmndi:BPMNEdge bpmnElement="sid-89DB9056-1BFC-4D13-B6DF-B962CE9D9F39" id="BPMNEdge_sid-89DB9056-1BFC-4D13-B6DF-B962CE9D9F39">
         <omgdi:waypoint x="1502.0229559271215" y="496.12963237459195"></omgdi:waypoint>
         <omgdi:waypoint x="1613.0" y="496.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1610.9139004149376" y="594.4149377593361"></omgdi:waypoint>
+        <omgdi:waypoint x="1610.4966804979251" y="593.9979253112034"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
         <omgdi:waypoint x="1326.9499999999748" y="59.5"></omgdi:waypoint>
@@ -646,8 +646,8 @@
       <bpmndi:BPMNEdge bpmnElement="sid-F03AE0E8-50BB-406A-86A2-F03817C71F5E" id="BPMNEdge_sid-F03AE0E8-50BB-406A-86A2-F03817C71F5E">
         <omgdi:waypoint x="1659.935970464135" y="374.0"></omgdi:waypoint>
         <omgdi:waypoint x="1711.0" y="374.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1711.0" y="613.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1629.909836471687" y="613.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1711.0" y="613.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1629.851724137924" y="613.4014778325123"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="serviceBrokerSubscriberWasStartedFlow" id="BPMNEdge_serviceBrokerSubscriberWasStartedFlow">
         <omgdi:waypoint x="782.853834355828" y="791.0875000000001"></omgdi:waypoint>

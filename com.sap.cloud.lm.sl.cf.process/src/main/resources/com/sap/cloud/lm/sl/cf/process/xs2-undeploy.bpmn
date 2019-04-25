@@ -83,8 +83,8 @@
       </extensionElements>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(deleteServices == false)}]]></conditionExpression>
     </sequenceFlow>
-    <callActivity id="undeployAppsCallActivity" name="Undeploy Apps Call Activity" flowable:async="true" calledElement="undeployAppSubProces" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false">
-      <multiInstanceLoopCharacteristics isSequential="true" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess"></multiInstanceLoopCharacteristics>
+    <callActivity id="undeployAppsCallActivity" name="Undeploy App Call Activity" flowable:async="true" calledElement="undeployAppSubProces" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="appsToUndeploy" flowable:elementVariable="appToProcess"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="sid-5C5B02D1-A40E-41A4-8C0B-C93A7E500B93" sourceRef="undeployAppsCallActivity" targetRef="shouldDeleteDiscontinuedServicesGateway"></sequenceFlow>
   </process>
@@ -169,8 +169,8 @@
         <omgdi:waypoint x="37.759799621546854" y="205.02041314444045"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
-        <omgdi:waypoint x="1206.9999999998895" y="222.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1065.9499999998895" y="222.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1206.9999999998574" y="222.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1065.95" y="222.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="restartSubscribersFlow" id="BPMNEdge_restartSubscribersFlow">
         <omgdi:waypoint x="199.09151376146787" y="241.84942713107242"></omgdi:waypoint>
@@ -260,8 +260,8 @@
       <bpmndi:BPMNEdge bpmnElement="prepareToUndeployAppsFlow" id="BPMNEdge_prepareToUndeployAppsFlow">
         <omgdi:waypoint x="1226.655172413793" y="122.6060344827586"></omgdi:waypoint>
         <omgdi:waypoint x="1226.0" y="160.0"></omgdi:waypoint>
-        <omgdi:waypoint x="975.5" y="160.0"></omgdi:waypoint>
-        <omgdi:waypoint x="975.5" y="185.0"></omgdi:waypoint>
+        <omgdi:waypoint x="975.0" y="160.0"></omgdi:waypoint>
+        <omgdi:waypoint x="975.2016129032259" y="185.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deleteServiceBrokersFlow" id="BPMNEdge_deleteServiceBrokersFlow">
         <omgdi:waypoint x="1246.9215811965812" y="103.0"></omgdi:waypoint>
