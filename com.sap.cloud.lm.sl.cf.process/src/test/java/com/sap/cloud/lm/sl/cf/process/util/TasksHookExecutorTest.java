@@ -48,7 +48,7 @@ public class TasksHookExecutorTest {
             .setParameters(Collections.emptyMap())
             .setName("foo")
             .setPhases(Arrays.asList("this-is-test-not-important"));
-        HookExecution hookExecution = new HookExecution(HookPhase.APPLICATION_AFTER_STOP, testHook, "testCompleteMessage");
+        HookExecution hookExecution = new HookExecution(HookPhase.APPLICATION_AFTER_STOP_LIVE, testHook, "testCompleteMessage");
 
         Assertions.assertThrows(IllegalStateException.class, () -> tasksHookExecutor.executeHook(hookExecution),
             "Hook task parameters must not be empty");
@@ -63,7 +63,7 @@ public class TasksHookExecutorTest {
             .setName("foo")
             .setPhases(Arrays.asList("this-is-test-not-important"));
 
-        HookExecution hookExecution = new HookExecution(HookPhase.APPLICATION_AFTER_STOP, testHook, "testCompleteMessage");
+        HookExecution hookExecution = new HookExecution(HookPhase.APPLICATION_AFTER_STOP_LIVE, testHook, "testCompleteMessage");
 
         tasksHookExecutor.executeHook(hookExecution);
 
@@ -71,7 +71,7 @@ public class TasksHookExecutorTest {
         ArgumentCaptor<Map> processVariablesCaptor = ArgumentCaptor.forClass(Map.class);
 
         Mockito.verify(flowableFacade)
-            .startProcessByMessage(Mockito.eq("APPLICATION_AFTER_STOP"), processVariablesCaptor.capture());
+            .startProcessByMessage(Mockito.eq("APPLICATION_AFTER_STOP_LIVE"), processVariablesCaptor.capture());
         Map<String, Object> processVariables = processVariablesCaptor.getValue();
         validateProcessVariables(processVariables);
     }

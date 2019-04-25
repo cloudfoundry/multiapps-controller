@@ -55,16 +55,16 @@ public class SyncFlowableStepWithHooksTest {
 
         List<Hook> moduleHooks = module.getHooks();
 
-        Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP))
+        Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE))
             .thenReturn(moduleHooks);
 
         new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
 
         Mockito.verify(moduleHooksAggregatorMock)
-            .aggregateHooks(HookPhase.APPLICATION_AFTER_STOP);
+            .aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE);
 
         Mockito.verify(hooksExecutorMock)
-            .executeHooks(HookPhase.APPLICATION_AFTER_STOP, moduleHooks);
+            .executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE, moduleHooks);
 
     }
 
@@ -104,16 +104,16 @@ public class SyncFlowableStepWithHooksTest {
 
         StepsUtil.setModuleToDeploy(context, module);
 
-        Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP))
+        Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE))
             .thenReturn(Collections.emptyList());
 
         new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
 
         Mockito.verify(moduleHooksAggregatorMock)
-            .aggregateHooks(HookPhase.APPLICATION_AFTER_STOP);
+            .aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE);
 
         Mockito.verify(hooksExecutorMock)
-            .executeHooks(HookPhase.APPLICATION_AFTER_STOP, Collections.emptyList());
+            .executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE, Collections.emptyList());
     }
 
     @Test
@@ -220,11 +220,11 @@ public class SyncFlowableStepWithHooksTest {
 
         @Override
         protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
-            return HookPhase.APPLICATION_AFTER_STOP;
+            return HookPhase.APPLICATION_AFTER_STOP_LIVE;
         }
 
         @Override
-        protected HookPhase getHookPhaseAfterStep() {
+        protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
             return HookPhase.APPLICATION_BEFORE_STOP_IDLE;
         }
 
@@ -245,7 +245,7 @@ public class SyncFlowableStepWithHooksTest {
         @Test
         public void withHooksForExecution() {
 
-            getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP,
+            getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE,
                 Arrays.asList(
                     createHook("tasks", "test-hook-1", Arrays.asList("application.before-start"), MapUtil.asMap("task", "testing1")),
                     createHook("tasks", "test-hook-2", Arrays.asList("application.before-start", "application.before-stop"),
@@ -280,7 +280,7 @@ public class SyncFlowableStepWithHooksTest {
 
         @Test
         public void withNoHooksForExecution() {
-            getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP, Collections.emptyList());
+            getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE, Collections.emptyList());
 
             @SuppressWarnings("unchecked")
             List<String> hooksAsStrings = (List<String>) context.getVariable("hooksForExecution");
@@ -291,7 +291,7 @@ public class SyncFlowableStepWithHooksTest {
         @Test
         public void withHooksWhichAreOfUnsupportedType() {
             IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
-                () -> getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP,
+                () -> getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE,
                     Arrays.asList(createHook("foo", "test-hook-1", Arrays.asList("application.before-start")))));
 
             Assertions.assertEquals("Unsupported hook type \"foo\"", exception.getMessage());
@@ -300,7 +300,7 @@ public class SyncFlowableStepWithHooksTest {
         @Test
         public void withHooksForExecutionWithEmptyHookParameters() {
             IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
-                () -> getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP,
+                () -> getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE,
                     Arrays.asList(createHook("tasks", "test-hook-1", Arrays.asList("application.before-start")))));
 
             Assertions.assertEquals("Hook task parameters must not be empty", exception.getMessage());
@@ -320,7 +320,7 @@ public class SyncFlowableStepWithHooksTest {
             Module module = prepareModule(2, "application.after-stop");
 
             ModuleHooksAggregator aggregator = getModuleHooksAggregator(module);
-            List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP);
+            List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE);
 
             Assertions.assertEquals(2, aggregatedHooks.size());
             Assertions.assertEquals(module.getHooks(), aggregatedHooks);

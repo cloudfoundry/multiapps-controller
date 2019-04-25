@@ -74,8 +74,14 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     }
 
     @Override
-    protected HookPhase getHookPhaseAfterStep() {
-        return HookPhase.APPLICATION_AFTER_STOP;
+    protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
+        ProcessType processType = processTypeParser.getProcessType(context);
+        if (ProcessType.BLUE_GREEN_DEPLOY.getName()
+            .equals(processType.getName())) {
+            return HookPhase.APPLICATION_AFTER_STOP_IDLE;
+        }
+
+        return HookPhase.APPLICATION_AFTER_STOP_LIVE;
     }
 
     @Override

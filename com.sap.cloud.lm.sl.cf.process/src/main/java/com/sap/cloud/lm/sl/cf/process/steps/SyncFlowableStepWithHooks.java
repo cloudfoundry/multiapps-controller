@@ -72,11 +72,14 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     private Module determineModuleFromDescriptor(DelegateExecution context) {
         DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
         if (deploymentDescriptor == null) {
+            // This will be the case only when the process is undeploy.
             return null;
         }
 
         CloudApplicationExtended cloudApplication = StepsUtil.getApp(context);
         if (cloudApplication.getModuleName() == null) {
+            // This case handles the deletion of old applications when the process is undeploy. Here the application is taken from the
+            // CloudController and thus we do not have moduleName in it.
             return determineModuleFromAppName(deploymentDescriptor, cloudApplication);
         }
 
@@ -127,7 +130,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         return HookPhase.NONE;
     }
 
-    protected HookPhase getHookPhaseAfterStep() {
+    protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
         return HookPhase.NONE;
     }
 
@@ -140,7 +143,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
             return getHookPhaseBeforeStep(context);
         }
         if (isInPostExecuteStepPhase(currentStepPhase)) {
-            return getHookPhaseAfterStep();
+            return getHookPhaseAfterStep(context);
         }
         return HookPhase.NONE;
     }
