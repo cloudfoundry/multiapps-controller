@@ -36,8 +36,6 @@ public class PrepareToExecuteTasksStep extends SyncFlowableStep {
     }
 
     private StepPhase attemptToPrepareExecutionOfTasks(ExecutionWrapper execution, List<CloudTask> tasksToExecute) {
-        StepsUtil.setTasksToExecute(execution.getContext(), tasksToExecute);
-
         execution.getContext()
             .setVariable(Constants.VAR_PLATFORM_SUPPORTS_TASKS, platformSupportsTasks(execution));
 

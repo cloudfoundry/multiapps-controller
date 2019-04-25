@@ -1,16 +1,21 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
+import javax.inject.Inject;
+
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.cloudfoundry.client.lib.domain.CloudApplication.AppState;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.SLException;
 
 @Component("stopAppStep")
@@ -18,6 +23,9 @@ import com.sap.cloud.lm.sl.common.SLException;
 public class StopAppStep extends SyncFlowableStepWithHooks {
 
     private static final String STOP_APP_ON_COMPLETE_HOOK_MESSAGE = "stopAppHookMessage";
+
+    @Inject
+    private ProcessTypeParser processTypeParser;
 
     @Override
     protected StepPhase executeStepInternal(ExecutionWrapper execution) {
@@ -55,8 +63,14 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
     }
 
     @Override
-    protected HookPhase getHookPhaseBeforeStep() {
-        return HookPhase.APPLICATION_BEFORE_STOP;
+    protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
+        ProcessType processType = processTypeParser.getProcessType(context);
+        if (ProcessType.BLUE_GREEN_DEPLOY.getName()
+            .equals(processType.getName())) {
+            return HookPhase.APPLICATION_BEFORE_STOP_IDLE;
+        }
+
+        return HookPhase.APPLICATION_BEFORE_STOP_LIVE;
     }
 
     @Override

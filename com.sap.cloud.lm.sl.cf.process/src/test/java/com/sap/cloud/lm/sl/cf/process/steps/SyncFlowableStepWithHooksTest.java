@@ -16,13 +16,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
+import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.steps.SyncFlowableStepWithHooks.HooksExecutor;
 import com.sap.cloud.lm.sl.cf.process.steps.SyncFlowableStepWithHooks.ModuleHooksAggregator;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -78,16 +81,16 @@ public class SyncFlowableStepWithHooksTest {
 
         List<Hook> moduleHooks = module.getHooks();
 
-        Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP))
+        Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
             .thenReturn(moduleHooks);
 
         new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
 
         Mockito.verify(moduleHooksAggregatorMock)
-            .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP);
+            .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
         Mockito.verify(hooksExecutorMock)
-            .executeHooks(HookPhase.APPLICATION_BEFORE_STOP, moduleHooks);
+            .executeHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE, moduleHooks);
 
     }
 
@@ -113,6 +116,91 @@ public class SyncFlowableStepWithHooksTest {
             .executeHooks(HookPhase.APPLICATION_AFTER_STOP, Collections.emptyList());
     }
 
+    @Test
+    public void testWithNoModuleToDeployAndNoDeploymentDescriptor() throws Exception {
+        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+
+        Mockito.verifyZeroInteractions(moduleHooksAggregatorMock, hooksExecutorMock);
+    }
+
+    @Test
+    public void testWithDeploymentDescriptorAndNoModuleNameInApplication() throws Exception {
+        StepsUtil.setStepPhase(context, StepPhase.EXECUTE);
+
+        Module module = Module.createV3()
+            .setName("test")
+            .setHooks(Collections.emptyList());
+
+        prepareDeploymentDescriptor(Arrays.asList(module));
+        prepareApplication("test", null);
+
+        Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
+            .thenReturn(Collections.emptyList());
+
+        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+
+        Mockito.verify(moduleHooksAggregatorMock)
+            .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
+
+        Mockito.verify(hooksExecutorMock)
+            .executeHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE, Collections.emptyList());
+    }
+
+    @Test
+    public void testWithDeploymentDescriptorAndModuleNameInApplication() throws Exception {
+        StepsUtil.setStepPhase(context, StepPhase.EXECUTE);
+        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
+
+        Module module = Module.createV3()
+            .setName("test")
+            .setHooks(Collections.emptyList());
+
+        prepareDeploymentDescriptor(Arrays.asList(module));
+        prepareApplication("foo-application", "test");
+
+        Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
+            .thenReturn(Collections.emptyList());
+
+        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+
+        Mockito.verify(moduleHooksAggregatorMock)
+            .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
+
+        Mockito.verify(hooksExecutorMock)
+            .executeHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE, Collections.emptyList());
+    }
+
+    @Test
+    public void testWithDeploymentDescriptorWithNoModulesContainingModuleName() throws Exception {
+        StepsUtil.setStepPhase(context, StepPhase.EXECUTE);
+        context.setVariable(Constants.VAR_MTA_MAJOR_SCHEMA_VERSION, 3);
+
+        prepareDeploymentDescriptor(Arrays.asList(Module.createV3()
+            .setName("foo"),
+            Module.createV3()
+                .setName("bar")));
+        prepareApplication("foo-application", "test");
+
+        Mockito.when(moduleHooksAggregatorMock.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE))
+            .thenReturn(Collections.emptyList());
+
+        new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
+
+        Mockito.verifyZeroInteractions(moduleHooksAggregatorMock, hooksExecutorMock);
+    }
+
+    private void prepareApplication(String name, String moduleName) {
+        CloudApplicationExtended cloudApplicationExtended = new CloudApplicationExtended(null, name);
+        cloudApplicationExtended.setModuleName(moduleName);
+        StepsUtil.setApp(context, cloudApplicationExtended);
+    }
+
+    private void prepareDeploymentDescriptor(List<Module> modules) {
+        DeploymentDescriptor deploymentDescriptorMock = DeploymentDescriptor.createV3()
+            .setModules(modules);
+        StepsUtil.setDeploymentDescriptor(context, deploymentDescriptorMock);
+    }
+
     private class SyncFlowableStepWithHooksMock extends SyncFlowableStepWithHooks {
 
         @Override
@@ -131,13 +219,13 @@ public class SyncFlowableStepWithHooksTest {
         }
 
         @Override
-        protected HookPhase getHookPhaseBeforeStep() {
+        protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
             return HookPhase.APPLICATION_AFTER_STOP;
         }
 
         @Override
         protected HookPhase getHookPhaseAfterStep() {
-            return HookPhase.APPLICATION_BEFORE_STOP;
+            return HookPhase.APPLICATION_BEFORE_STOP_IDLE;
         }
 
     }
@@ -278,7 +366,7 @@ public class SyncFlowableStepWithHooksTest {
 
             Module module = prepareModule(0, null);
             ModuleHooksAggregator aggregator = getModuleHooksAggregator(module);
-            List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP);
+            List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
             Assertions.assertEquals(0, aggregatedHooks.size());
             Assertions.assertEquals(Collections.emptyList(), aggregatedHooks);
@@ -295,7 +383,7 @@ public class SyncFlowableStepWithHooksTest {
 
             Module module = prepareModule(1, "application.before-stop");
             ModuleHooksAggregator aggregator = getModuleHooksAggregator(module);
-            List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP);
+            List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
             Assertions.assertEquals(1, aggregatedHooks.size());
             Assertions.assertEquals(module.getHooks(), aggregatedHooks);
@@ -312,7 +400,7 @@ public class SyncFlowableStepWithHooksTest {
 
             Module module = prepareModule(2, "application.before-stop");
             ModuleHooksAggregator aggregator = getModuleHooksAggregator(module);
-            List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP);
+            List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
             Assertions.assertEquals(2, aggregatedHooks.size());
             Assertions.assertEquals(module.getHooks(), aggregatedHooks);
@@ -329,7 +417,7 @@ public class SyncFlowableStepWithHooksTest {
 
             Module module = prepareModule(1, "application.before-stop");
             ModuleHooksAggregator aggregator = getModuleHooksAggregator(module);
-            List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP);
+            List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
             Assertions.assertEquals(0, aggregatedHooks.size());
 
