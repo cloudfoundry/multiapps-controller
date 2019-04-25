@@ -11,6 +11,8 @@ import javax.inject.Inject;
 import org.apache.commons.collections4.ListUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 
+import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
+import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
@@ -18,6 +20,7 @@ import com.sap.cloud.lm.sl.cf.process.util.HookExecutor;
 import com.sap.cloud.lm.sl.cf.process.util.HookExecutor.HookExecution;
 import com.sap.cloud.lm.sl.cf.process.util.HooksExecutorFactory;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -30,9 +33,13 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
-        StepPhase currentStepPhase = StepsUtil.getStepPhase(execution.getContext());
-        Module moduleToDeploy = StepsUtil.getModuleToDeploy(execution.getContext());
+        Module moduleToDeploy = determineModuleToDeploy(execution.getContext());
 
+        if (moduleToDeploy == null) {
+            return executeStepInternal(execution);
+        }
+
+        StepPhase currentStepPhase = StepsUtil.getStepPhase(execution.getContext());
         List<Hook> executedHooks = executeHooksForStepPhase(execution.getContext(), moduleToDeploy, currentStepPhase);
         if (!executedHooks.isEmpty()) {
             return currentStepPhase;
@@ -49,11 +56,47 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     }
 
     private List<Hook> executeHooksForStepPhase(DelegateExecution context, Module moduleToDeploy, StepPhase currentStepPhase) {
-        HookPhase currentHookPhaseForExecution = determineHookPhaseForCurrentStepPhase(currentStepPhase);
+        HookPhase currentHookPhaseForExecution = determineHookPhaseForCurrentStepPhase(context, currentStepPhase);
         List<Hook> hooksForCurrentPhase = getHooksForCurrentPhase(context, moduleToDeploy, currentHookPhaseForExecution);
         executeHooks(context, hooksForCurrentPhase, currentHookPhaseForExecution);
 
         return hooksForCurrentPhase;
+    }
+
+    private Module determineModuleToDeploy(DelegateExecution context) {
+        Module moduleToDeploy = StepsUtil.getModuleToDeploy(context);
+
+        return moduleToDeploy != null ? moduleToDeploy : determineModuleFromDescriptor(context);
+    }
+
+    private Module determineModuleFromDescriptor(DelegateExecution context) {
+        DeploymentDescriptor deploymentDescriptor = StepsUtil.getDeploymentDescriptor(context);
+        if (deploymentDescriptor == null) {
+            return null;
+        }
+
+        CloudApplicationExtended cloudApplication = StepsUtil.getApp(context);
+        if (cloudApplication.getModuleName() == null) {
+            return determineModuleFromAppName(deploymentDescriptor, cloudApplication);
+        }
+
+        HandlerFactory handlerFactory = StepsUtil.getHandlerFactory(context);
+        return findModuleByNameFromDeploymentDescriptor(handlerFactory, deploymentDescriptor, cloudApplication.getModuleName());
+    }
+
+    private Module determineModuleFromAppName(DeploymentDescriptor deploymentDescriptor, CloudApplicationExtended cloudApplication) {
+        return deploymentDescriptor.getModules()
+            .stream()
+            .filter(module -> cloudApplication.getName()
+                .contains(module.getName()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    private Module findModuleByNameFromDeploymentDescriptor(HandlerFactory handlerFactory, DeploymentDescriptor deploymentDescriptor,
+        String moduleName) {
+        return handlerFactory.getDescriptorHandler()
+            .findModule(deploymentDescriptor, moduleName);
     }
 
     private List<Hook> getHooksForCurrentPhase(DelegateExecution context, Module moduleToDeploy, HookPhase currentHookPhaseForExecution) {
@@ -80,7 +123,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         return currentStepPhase == StepPhase.DONE;
     }
 
-    protected HookPhase getHookPhaseBeforeStep() {
+    protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
         return HookPhase.NONE;
     }
 
@@ -92,9 +135,9 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         return NO_ON_COMPLETE_HOOK_MESSAGE_NAME;
     }
 
-    private HookPhase determineHookPhaseForCurrentStepPhase(StepPhase currentStepPhase) {
+    private HookPhase determineHookPhaseForCurrentStepPhase(DelegateExecution context, StepPhase currentStepPhase) {
         if (isInPreExecuteStepPhase(currentStepPhase)) {
-            return getHookPhaseBeforeStep();
+            return getHookPhaseBeforeStep(context);
         }
         if (isInPostExecuteStepPhase(currentStepPhase)) {
             return getHookPhaseAfterStep();

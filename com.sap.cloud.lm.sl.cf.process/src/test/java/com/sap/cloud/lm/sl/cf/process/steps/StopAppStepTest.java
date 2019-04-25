@@ -9,17 +9,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.steps.ScaleAppStepTest.SimpleApplication;
+import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 
 @RunWith(Parameterized.class)
 public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     private SimpleApplicationWithState application;
     private SimpleApplicationWithState existingApplication;
+
+    @Mock
+    private ProcessTypeParser processTypeParser;
 
     private boolean shouldBeStopped;
 
@@ -50,8 +56,12 @@ public class StopAppStepTest extends SyncFlowableStepTest<StopAppStep> {
 
     @Before
     public void setUp() throws Exception {
+
         prepareContext();
         determineActionForApplication();
+
+        Mockito.when(processTypeParser.getProcessType(Mockito.any()))
+            .thenReturn(ProcessType.DEPLOY);
     }
 
     @Test
