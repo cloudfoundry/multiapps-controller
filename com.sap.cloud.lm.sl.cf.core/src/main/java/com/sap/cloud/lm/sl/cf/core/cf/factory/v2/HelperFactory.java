@@ -75,7 +75,7 @@ public class HelperFactory implements HelperFactoryConstructor {
 
     @Override
     public PlatformMerger getPlatformMerger(Platform platform) {
-        return new PlatformMerger(cast(platform), getHandler());
+        return new PlatformMerger(platform, getHandler());
     }
 
     @Override

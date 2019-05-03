@@ -1,7 +1,5 @@
 package com.sap.cloud.lm.sl.cf.core.helpers.v3;
 
-import static com.sap.cloud.lm.sl.common.util.CommonUtil.cast;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +43,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
             resource.setRequiredDependencies(getUpdatedRequiredDependencies(descriptor, resource));
 
             Map<String, Object> properties = resource.getProperties();
-            Set<RequiredDependency> dependencies = cast(expandedDependenciesMap.keySet());
+            Set<RequiredDependency> dependencies = expandedDependenciesMap.keySet();
             for (RequiredDependency dependency : dependencies) {
 
                 List<String> expandedDependenciesNames = getNames(expandedDependenciesMap.get(dependency));
@@ -105,7 +103,7 @@ public class ConfigurationReferencesResolver extends com.sap.cloud.lm.sl.cf.core
     protected List<RequiredDependency> getUpdatedRequiredDependencies(DeploymentDescriptor descriptor, Resource resource) {
         List<RequiredDependency> requiredDependencies = new ArrayList<>();
         for (RequiredDependency dependency : resource.getRequiredDependencies()) {
-            List<RequiredDependency> dependencies = cast(expandRequiredDependencyIfNecessary(descriptor, resource, dependency));
+            List<RequiredDependency> dependencies = expandRequiredDependencyIfNecessary(descriptor, resource, dependency);
             requiredDependencies.addAll(dependencies);
         }
         return requiredDependencies;

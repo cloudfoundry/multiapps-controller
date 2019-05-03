@@ -12,9 +12,9 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.handlers.SchemaVersionDetector;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
+import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 import com.sap.cloud.lm.sl.mta.model.SupportedVersions;
 import com.sap.cloud.lm.sl.mta.model.Version;
-import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
 
 @Component("detectMtaSchemaVersionStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)

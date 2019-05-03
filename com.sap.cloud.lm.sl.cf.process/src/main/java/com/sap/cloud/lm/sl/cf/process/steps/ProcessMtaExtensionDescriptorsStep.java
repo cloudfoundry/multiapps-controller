@@ -20,7 +20,7 @@ import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.mta.builders.ExtensionDescriptorChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
-import com.sap.cloud.lm.sl.mta.model.v2.ExtensionDescriptor;
+import com.sap.cloud.lm.sl.mta.model.ExtensionDescriptor;
 
 @Component("processMtaExtensionDescriptorsStep")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
