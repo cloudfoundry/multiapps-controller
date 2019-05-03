@@ -97,11 +97,7 @@ public class ConfigurationEntriesCloudModelBuilder {
     }
 
     protected List<Map<String, Object>> getVisibleTargets(ProvidedDependency providedDependency) {
-        if (!(providedDependency instanceof ParametersContainer)) {
-            return null;
-        }
-        ParametersContainer dependency = (ParametersContainer) providedDependency;
-        return CommonUtil.cast(dependency.getParameters()
+        return CommonUtil.cast(providedDependency.getParameters()
             .get(SupportedParameters.VISIBILITY));
     }
 
