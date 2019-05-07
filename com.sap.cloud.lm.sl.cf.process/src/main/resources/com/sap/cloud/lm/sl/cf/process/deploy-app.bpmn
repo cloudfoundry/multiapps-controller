@@ -101,21 +101,12 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${deleteIdleUris}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="createOrUpdateServiceBrokerTask" name="Create Or Update Service Broker " flowable:async="true" flowable:delegateExpression="${createOrUpdateServiceBrokerStep}"></serviceTask>
-    <exclusiveGateway id="sid-6B760DCF-0FFA-454A-A45D-8E0D20AC90D0" default="continueWithoutExecutingTasksFlow"></exclusiveGateway>
-    <intermediateCatchEvent id="sid-D667F9E2-0EB6-4ED6-9F55-4E662BBADC51">
-      <messageEventDefinition messageRef="stopAppHookMessage"></messageEventDefinition>
-    </intermediateCatchEvent>
     <exclusiveGateway id="sid-70329A91-339F-4215-9AB6-41ED6C769C40" default="sid-E6050369-B93F-4433-8CDB-D7572FD2F525"></exclusiveGateway>
-    <sequenceFlow id="sid-2F2376AB-128E-485A-89DF-8236A097B6EF" sourceRef="sid-D667F9E2-0EB6-4ED6-9F55-4E662BBADC51" targetRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40"></sequenceFlow>
     <sequenceFlow id="doNotStopAppFlow" sourceRef="shouldStopAppGateway" targetRef="exclusivegateway2"></sequenceFlow>
-    <sequenceFlow id="sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407" sourceRef="stopAppTask" targetRef="sid-6B760DCF-0FFA-454A-A45D-8E0D20AC90D0"></sequenceFlow>
+    <sequenceFlow id="sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407" sourceRef="stopAppTask" targetRef="hooksCallActivity"></sequenceFlow>
     <sequenceFlow id="sid-E6050369-B93F-4433-8CDB-D7572FD2F525" sourceRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40" targetRef="stopAppTask"></sequenceFlow>
     <sequenceFlow id="flow64" sourceRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40" targetRef="exclusivegateway2">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${(StepExecution == "DONE")}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="continueWithoutExecutingTasksFlow" name="No Hooks" sourceRef="sid-6B760DCF-0FFA-454A-A45D-8E0D20AC90D0" targetRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40"></sequenceFlow>
-    <sequenceFlow id="waitForHooksExecutionFlow" name="Wait For Hooks Execution" sourceRef="sid-6B760DCF-0FFA-454A-A45D-8E0D20AC90D0" targetRef="sid-D667F9E2-0EB6-4ED6-9F55-4E662BBADC51">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${not empty hooksForExecution}]]></conditionExpression>
     </sequenceFlow>
     <exclusiveGateway id="shouldManageServiceBroker" name="Should Manage Service Broker" default="sid-E5FF49FE-063B-4602-B171-70C396A56996"></exclusiveGateway>
     <sequenceFlow id="sid-270F2B6C-6A27-456B-9CE0-2D0303E27B1C" sourceRef="registerServiceUrlTask" targetRef="shouldManageServiceBroker"></sequenceFlow>
@@ -134,6 +125,10 @@
     <callActivity id="executeTasksCallActivity" name="Execute Tasks Call Activity" flowable:async="true" calledElement="executeTasksSubProcess" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:fallbackToDefaultTenant="false"></callActivity>
     <sequenceFlow id="sid-0F200B9A-6462-48CD-BA2D-6E6F1CE15D96" sourceRef="deleteIdleRoutesTask" targetRef="registerServiceUrlTask"></sequenceFlow>
     <sequenceFlow id="sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36" sourceRef="executeTasksCallActivity" targetRef="publishProvidedDependenciesTask"></sequenceFlow>
+    <callActivity id="hooksCallActivity" name="Execute Hooks Call Activity" flowable:async="true" calledElement="${hookProcessGetter.get(hookForExecution)}" flowable:calledElementType="key" flowable:inheritVariables="true" flowable:completeAsync="true" flowable:fallbackToDefaultTenant="false">
+      <multiInstanceLoopCharacteristics isSequential="false" flowable:collection="hooksForExecution" flowable:elementVariable="hookForExecution"></multiInstanceLoopCharacteristics>
+    </callActivity>
+    <sequenceFlow id="sid-4433C2BB-6626-4F02-8061-F70191657A5A" sourceRef="hooksCallActivity" targetRef="sid-70329A91-339F-4215-9AB6-41ED6C769C40"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_deployAppSubProcess">
     <bpmndi:BPMNPlane bpmnElement="deployAppSubProcess" id="BPMNPlane_deployAppSubProcess">
@@ -236,12 +231,6 @@
       <bpmndi:BPMNShape bpmnElement="createOrUpdateServiceBrokerTask" id="BPMNShape_createOrUpdateServiceBrokerTask">
         <omgdc:Bounds height="80.0" width="100.0" x="1146.0" y="1155.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-6B760DCF-0FFA-454A-A45D-8E0D20AC90D0" id="BPMNShape_sid-6B760DCF-0FFA-454A-A45D-8E0D20AC90D0">
-        <omgdc:Bounds height="40.0" width="40.0" x="450.0" y="471.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="sid-D667F9E2-0EB6-4ED6-9F55-4E662BBADC51" id="BPMNShape_sid-D667F9E2-0EB6-4ED6-9F55-4E662BBADC51">
-        <omgdc:Bounds height="30.0" width="30.0" x="585.0" y="476.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="sid-70329A91-339F-4215-9AB6-41ED6C769C40" id="BPMNShape_sid-70329A91-339F-4215-9AB6-41ED6C769C40">
         <omgdc:Bounds height="40.0" width="40.0" x="703.0" y="471.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -251,10 +240,17 @@
       <bpmndi:BPMNShape bpmnElement="executeTasksCallActivity" id="BPMNShape_executeTasksCallActivity">
         <omgdc:Bounds height="80.0" width="100.0" x="390.0" y="1160.5"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="hooksCallActivity" id="BPMNShape_hooksCallActivity">
+        <omgdc:Bounds height="53.0" width="113.0" x="480.0" y="465.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="appUploadedFlow" id="BPMNEdge_appUploadedFlow">
         <omgdi:waypoint x="1179.76" y="157.8095238095238"></omgdi:waypoint>
         <omgdi:waypoint x="1264.0" y="157.0"></omgdi:waypoint>
         <omgdi:waypoint x="1264.4201877934272" y="336.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407" id="BPMNEdge_sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407">
+        <omgdi:waypoint x="347.9499999999119" y="491.5"></omgdi:waypoint>
+        <omgdi:waypoint x="479.9999999998174" y="491.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36" id="BPMNEdge_sid-26C87D1E-88D5-47E3-907B-0F8EBBCD2C36">
         <omgdi:waypoint x="489.95000000000005" y="1200.5"></omgdi:waypoint>
@@ -268,9 +264,32 @@
         <omgdi:waypoint x="224.94999999990904" y="154.0"></omgdi:waypoint>
         <omgdi:waypoint x="239.9999999999763" y="154.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-0F200B9A-6462-48CD-BA2D-6E6F1CE15D96" id="BPMNEdge_sid-0F200B9A-6462-48CD-BA2D-6E6F1CE15D96">
+        <omgdi:waypoint x="975.4499999999972" y="1196.0"></omgdi:waypoint>
+        <omgdi:waypoint x="985.0" y="1196.0"></omgdi:waypoint>
+        <omgdi:waypoint x="985.0" y="1340.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1010.999999999973" y="1340.1721854304637"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="updateConfigurationsFlow" id="BPMNEdge_updateConfigurationsFlow">
+        <omgdi:waypoint x="658.5" y="1320.5"></omgdi:waypoint>
+        <omgdi:waypoint x="658.5" y="1229.45"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="startAppFlow" id="BPMNEdge_startAppFlow">
         <omgdi:waypoint x="162.88146470955627" y="898.0623437500001"></omgdi:waypoint>
         <omgdi:waypoint x="250.0" y="898.3354231974922"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-4433C2BB-6626-4F02-8061-F70191657A5A" id="BPMNEdge_sid-4433C2BB-6626-4F02-8061-F70191657A5A">
+        <omgdi:waypoint x="592.949999999968" y="491.34852546916886"></omgdi:waypoint>
+        <omgdi:waypoint x="703.0534759358259" y="491.05334224598926"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="skipDeleteIdleRoutesFlow" id="BPMNEdge_skipDeleteIdleRoutesFlow">
+        <omgdi:waypoint x="945.9425891530458" y="1340.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1011.0" y="1340.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="appExistsFlow" id="BPMNEdge_appExistsFlow">
+        <omgdi:waypoint x="680.8198198198198" y="177.77027027027032"></omgdi:waypoint>
+        <omgdi:waypoint x="680.0" y="268.0"></omgdi:waypoint>
+        <omgdi:waypoint x="749.9999999999828" y="268.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="stageAppFlow" id="BPMNEdge_stageAppFlow">
         <omgdi:waypoint x="162.878331156081" y="671.0651960784314"></omgdi:waypoint>
@@ -284,13 +303,40 @@
         <omgdi:waypoint x="926.0" y="1320.5"></omgdi:waypoint>
         <omgdi:waypoint x="926.0" y="1222.45"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="854.9499999999983" y="158.5748987854251"></omgdi:waypoint>
+        <omgdi:waypoint x="906.1606425702811" y="158.16024096385541"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="appStagedFlow" id="BPMNEdge_appStagedFlow">
+        <omgdi:waypoint x="422.7702702702577" y="670.8198198198198"></omgdi:waypoint>
+        <omgdi:waypoint x="513.0" y="670.0"></omgdi:waypoint>
+        <omgdi:waypoint x="513.0" y="787.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="787.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="878.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow86" id="BPMNEdge_flow86">
         <omgdi:waypoint x="1108.949999999998" y="158.4927536231884"></omgdi:waypoint>
         <omgdi:waypoint x="1140.1913875598086" y="158.1909090909091"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow64" id="BPMNEdge_flow64">
+        <omgdi:waypoint x="742.9273809523809" y="491.0"></omgdi:waypoint>
+        <omgdi:waypoint x="767.0" y="491.0"></omgdi:waypoint>
+        <omgdi:waypoint x="767.0" y="589.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="589.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="651.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="854.9499999999989" y="267.57142857142856"></omgdi:waypoint>
+        <omgdi:waypoint x="925.0" y="267.0"></omgdi:waypoint>
+        <omgdi:waypoint x="925.8181818181818" y="177.76863636363638"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow87" id="BPMNEdge_flow87">
         <omgdi:waypoint x="1159.6703296703297" y="177.62115384615387"></omgdi:waypoint>
         <omgdi:waypoint x="1158.7589029073872" y="232.0021333892898"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="doNotStopAppFlow" id="BPMNEdge_doNotStopAppFlow">
+        <omgdi:waypoint x="143.0" y="510.9444614103276"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="651.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow88" id="BPMNEdge_flow88">
         <omgdi:waypoint x="1143.0016223610335" y="247.72607431448188"></omgdi:waypoint>
@@ -307,6 +353,10 @@
         <omgdi:waypoint x="1339.0" y="52.0"></omgdi:waypoint>
         <omgdi:waypoint x="1339.0" y="369.0"></omgdi:waypoint>
         <omgdi:waypoint x="1316.95" y="369.2953020134228"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-E5FF49FE-063B-4602-B171-70C396A56996" id="BPMNEdge_sid-E5FF49FE-063B-4602-B171-70C396A56996">
+        <omgdi:waypoint x="1196.0" y="1320.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1196.0" y="1234.95"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow84" id="BPMNEdge_flow84">
         <omgdi:waypoint x="383.0018309410825" y="986.7401272493862"></omgdi:waypoint>
@@ -325,101 +375,21 @@
         <omgdi:waypoint x="401.0" y="917.9401335311574"></omgdi:waypoint>
         <omgdi:waypoint x="401.0" y="999.0"></omgdi:waypoint>
         <omgdi:waypoint x="140.0" y="999.0"></omgdi:waypoint>
-        <omgdi:waypoint x="140.4498746867166" y="1178.9498746867166"></omgdi:waypoint>
+        <omgdi:waypoint x="140.0" y="1178.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
         <omgdi:waypoint x="662.0" y="369.447504302926"></omgdi:waypoint>
         <omgdi:waypoint x="142.0" y="369.0"></omgdi:waypoint>
         <omgdi:waypoint x="142.83739837398372" y="471.12144597887897"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-ADE65EC6-6976-42C4-9D50-5A08086D1533" id="BPMNEdge_sid-ADE65EC6-6976-42C4-9D50-5A08086D1533">
-        <omgdi:waypoint x="74.94999855629514" y="154.0"></omgdi:waypoint>
-        <omgdi:waypoint x="119.99999999996459" y="154.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="doNotStageAppFlow" id="BPMNEdge_doNotStageAppFlow">
-        <omgdi:waypoint x="143.0" y="690.9456076618228"></omgdi:waypoint>
-        <omgdi:waypoint x="143.0" y="878.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
-        <omgdi:waypoint x="1212.0" y="369.9515235457064"></omgdi:waypoint>
-        <omgdi:waypoint x="783.9499999999231" y="369.55627885503225"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="appDoesNotExistFlow" id="BPMNEdge_appDoesNotExistFlow">
-        <omgdi:waypoint x="700.7791394779771" y="158.16285714285715"></omgdi:waypoint>
-        <omgdi:waypoint x="749.9999999999997" y="158.5679012345679"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407" id="BPMNEdge_sid-EDE0C6AF-FE13-4120-94B8-406BFCE8A407">
-        <omgdi:waypoint x="347.9499999999836" y="491.34957020057305"></omgdi:waypoint>
-        <omgdi:waypoint x="450.0571428571355" y="491.0570000000001"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-2F2376AB-128E-485A-89DF-8236A097B6EF" id="BPMNEdge_sid-2F2376AB-128E-485A-89DF-8236A097B6EF">
-        <omgdi:waypoint x="614.9499987921671" y="491.0"></omgdi:waypoint>
-        <omgdi:waypoint x="703.0" y="491.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-0F200B9A-6462-48CD-BA2D-6E6F1CE15D96" id="BPMNEdge_sid-0F200B9A-6462-48CD-BA2D-6E6F1CE15D96">
-        <omgdi:waypoint x="975.4499999999972" y="1196.0"></omgdi:waypoint>
-        <omgdi:waypoint x="985.0" y="1196.0"></omgdi:waypoint>
-        <omgdi:waypoint x="985.0" y="1340.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1010.9999999998383" y="1340.5"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="updateConfigurationsFlow" id="BPMNEdge_updateConfigurationsFlow">
-        <omgdi:waypoint x="658.5" y="1320.5"></omgdi:waypoint>
-        <omgdi:waypoint x="658.5" y="1229.45"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="skipDeleteIdleRoutesFlow" id="BPMNEdge_skipDeleteIdleRoutesFlow">
-        <omgdi:waypoint x="945.9425891530458" y="1340.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1011.0" y="1340.5"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="appExistsFlow" id="BPMNEdge_appExistsFlow">
-        <omgdi:waypoint x="680.8198198198198" y="177.77027027027032"></omgdi:waypoint>
-        <omgdi:waypoint x="680.0" y="268.0"></omgdi:waypoint>
-        <omgdi:waypoint x="749.9999999999828" y="268.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="continueWithoutExecutingTasksFlow" id="BPMNEdge_continueWithoutExecutingTasksFlow">
-        <omgdi:waypoint x="470.0" y="471.0"></omgdi:waypoint>
-        <omgdi:waypoint x="470.0" y="430.0"></omgdi:waypoint>
-        <omgdi:waypoint x="723.0" y="430.0"></omgdi:waypoint>
-        <omgdi:waypoint x="723.0" y="471.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
-        <omgdi:waypoint x="854.9499999999983" y="158.5748987854251"></omgdi:waypoint>
-        <omgdi:waypoint x="906.1606425702811" y="158.16024096385541"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="appStagedFlow" id="BPMNEdge_appStagedFlow">
-        <omgdi:waypoint x="422.7702702702577" y="670.8198198198198"></omgdi:waypoint>
-        <omgdi:waypoint x="513.0" y="670.0"></omgdi:waypoint>
-        <omgdi:waypoint x="513.0" y="787.0"></omgdi:waypoint>
-        <omgdi:waypoint x="143.0" y="787.0"></omgdi:waypoint>
-        <omgdi:waypoint x="143.0" y="878.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow64" id="BPMNEdge_flow64">
-        <omgdi:waypoint x="742.9273809523809" y="491.0"></omgdi:waypoint>
-        <omgdi:waypoint x="767.0" y="491.0"></omgdi:waypoint>
-        <omgdi:waypoint x="767.0" y="589.0"></omgdi:waypoint>
-        <omgdi:waypoint x="143.0" y="589.0"></omgdi:waypoint>
-        <omgdi:waypoint x="143.0" y="651.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
-        <omgdi:waypoint x="854.9499999999989" y="267.57142857142856"></omgdi:waypoint>
-        <omgdi:waypoint x="925.0" y="267.0"></omgdi:waypoint>
-        <omgdi:waypoint x="925.8181818181818" y="177.76863636363638"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="doNotStopAppFlow" id="BPMNEdge_doNotStopAppFlow">
-        <omgdi:waypoint x="143.0" y="510.9444614103276"></omgdi:waypoint>
-        <omgdi:waypoint x="143.0" y="651.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-E5FF49FE-063B-4602-B171-70C396A56996" id="BPMNEdge_sid-E5FF49FE-063B-4602-B171-70C396A56996">
-        <omgdi:waypoint x="1196.0" y="1320.5"></omgdi:waypoint>
-        <omgdi:waypoint x="1196.0" y="1234.95"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="manageServiceBrokerFlow" id="BPMNEdge_manageServiceBrokerFlow">
         <omgdi:waypoint x="1245.95" y="1195.0"></omgdi:waypoint>
         <omgdi:waypoint x="1349.0" y="1195.0"></omgdi:waypoint>
         <omgdi:waypoint x="1349.0" y="1326.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="waitForHooksExecutionFlow" id="BPMNEdge_waitForHooksExecutionFlow">
-        <omgdi:waypoint x="489.9423328207535" y="491.0"></omgdi:waypoint>
-        <omgdi:waypoint x="585.0" y="491.0"></omgdi:waypoint>
+      <bpmndi:BPMNEdge bpmnElement="sid-ADE65EC6-6976-42C4-9D50-5A08086D1533" id="BPMNEdge_sid-ADE65EC6-6976-42C4-9D50-5A08086D1533">
+        <omgdi:waypoint x="74.94999855629514" y="154.0"></omgdi:waypoint>
+        <omgdi:waypoint x="119.99999999996459" y="154.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow90" id="BPMNEdge_flow90">
         <omgdi:waypoint x="402.53846153846155" y="690.4896153846153"></omgdi:waypoint>
@@ -431,8 +401,12 @@
         <omgdi:waypoint x="295.28682170542635" y="698.9499999999999"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="executeOneOffTasksFlow" id="BPMNEdge_executeOneOffTasksFlow">
-        <omgdi:waypoint x="159.44661123032887" y="1199.0"></omgdi:waypoint>
-        <omgdi:waypoint x="389.9999999999252" y="1199.0"></omgdi:waypoint>
+        <omgdi:waypoint x="159.8146226415094" y="1198.632119205298"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="1200.1666666666667"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="doNotStageAppFlow" id="BPMNEdge_doNotStageAppFlow">
+        <omgdi:waypoint x="143.0" y="690.9456076618228"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="878.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="waitStartAppFlow" id="BPMNEdge_waitStartAppFlow">
         <omgdi:waypoint x="400.45054945054943" y="917.4019230769231"></omgdi:waypoint>
@@ -454,6 +428,10 @@
         <omgdi:waypoint x="140.0" y="999.0"></omgdi:waypoint>
         <omgdi:waypoint x="140.0" y="1178.5"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="1212.0" y="369.9515235457064"></omgdi:waypoint>
+        <omgdi:waypoint x="783.9499999999231" y="369.55627885503225"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="uploadAppContentFlow" id="BPMNEdge_uploadAppContentFlow">
         <omgdi:waypoint x="945.790824468085" y="158.15171102661597"></omgdi:waypoint>
         <omgdi:waypoint x="1004.0" y="158.5977011494253"></omgdi:waypoint>
@@ -461,6 +439,10 @@
       <bpmndi:BPMNEdge bpmnElement="flow93" id="BPMNEdge_flow93">
         <omgdi:waypoint x="477.949999999998" y="158.3642361111111"></omgdi:waypoint>
         <omgdi:waypoint x="517.0" y="158.63541666666669"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="appDoesNotExistFlow" id="BPMNEdge_appDoesNotExistFlow">
+        <omgdi:waypoint x="700.7791394779771" y="158.16285714285715"></omgdi:waypoint>
+        <omgdi:waypoint x="749.9999999999997" y="158.5679012345679"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow50" id="BPMNEdge_flow50">
         <omgdi:waypoint x="710.9499999999684" y="1199.7708333333333"></omgdi:waypoint>
@@ -471,14 +453,14 @@
         <omgdi:waypoint x="661.1777777777778" y="158.17733333333337"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow51" id="BPMNEdge_flow51">
-        <omgdi:waypoint x="802.5" y="1227.95"></omgdi:waypoint>
-        <omgdi:waypoint x="802.5" y="1340.5"></omgdi:waypoint>
-        <omgdi:waypoint x="906.0" y="1340.5"></omgdi:waypoint>
+        <omgdi:waypoint x="802.3957597173145" y="1227.95"></omgdi:waypoint>
+        <omgdi:waypoint x="802.0" y="1340.0"></omgdi:waypoint>
+        <omgdi:waypoint x="906.0387239165326" y="1340.4196787148592"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="doNotExecuteOneOffTasksFlow" id="BPMNEdge_doNotExecuteOneOffTasksFlow">
-        <omgdi:waypoint x="140.0" y="1218.4429802955665"></omgdi:waypoint>
-        <omgdi:waypoint x="140.0" y="1340.5"></omgdi:waypoint>
-        <omgdi:waypoint x="638.5" y="1340.5"></omgdi:waypoint>
+        <omgdi:waypoint x="140.0" y="1218.4429555084746"></omgdi:waypoint>
+        <omgdi:waypoint x="140.0" y="1340.0"></omgdi:waypoint>
+        <omgdi:waypoint x="638.5" y="1340.4807321772641"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

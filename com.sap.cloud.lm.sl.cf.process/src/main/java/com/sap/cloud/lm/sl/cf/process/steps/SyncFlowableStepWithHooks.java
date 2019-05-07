@@ -6,30 +6,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.apache.commons.collections4.ListUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
-import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
-import com.sap.cloud.lm.sl.cf.process.message.Messages;
-import com.sap.cloud.lm.sl.cf.process.util.HookExecutor;
-import com.sap.cloud.lm.sl.cf.process.util.HookExecutor.HookExecution;
-import com.sap.cloud.lm.sl.cf.process.util.HooksExecutorFactory;
-import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Hook;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
-
-    private static final String NO_ON_COMPLETE_HOOK_MESSAGE_NAME = "noOnCompleteMessage";
-
-    @Inject
-    private FlowableFacade flowableFacade;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws Exception {
@@ -58,7 +45,7 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
     private List<Hook> executeHooksForStepPhase(DelegateExecution context, Module moduleToDeploy, StepPhase currentStepPhase) {
         HookPhase currentHookPhaseForExecution = determineHookPhaseForCurrentStepPhase(context, currentStepPhase);
         List<Hook> hooksForCurrentPhase = getHooksForCurrentPhase(context, moduleToDeploy, currentHookPhaseForExecution);
-        executeHooks(context, hooksForCurrentPhase, currentHookPhaseForExecution);
+        setHooksForExecution(context, hooksForCurrentPhase);
 
         return hooksForCurrentPhase;
     }
@@ -110,12 +97,8 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
         return new ModuleHooksAggregator(context, moduleToDeploy);
     }
 
-    private void executeHooks(DelegateExecution context, List<Hook> hooksToExecute, HookPhase currentHookPhaseForExecution) {
-        getHooksExecutor(context).executeHooks(currentHookPhaseForExecution, hooksToExecute);
-    }
-
-    protected HooksExecutor getHooksExecutor(DelegateExecution context) {
-        return new HooksExecutor(context, flowableFacade, getStepLogger());
+    private void setHooksForExecution(DelegateExecution context, List<Hook> hooksForExecution) {
+        StepsUtil.setHooksForExecution(context, hooksForExecution);
     }
 
     private boolean isInPreExecuteStepPhase(StepPhase currentStepPhase) {
@@ -132,10 +115,6 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
 
     protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
         return HookPhase.NONE;
-    }
-
-    protected String getOnCompleteHookMessageName() {
-        return NO_ON_COMPLETE_HOOK_MESSAGE_NAME;
     }
 
     private HookPhase determineHookPhaseForCurrentStepPhase(DelegateExecution context, StepPhase currentStepPhase) {
@@ -247,47 +226,6 @@ public abstract class SyncFlowableStepWithHooks extends SyncFlowableStep {
                 .filter(phase -> HookPhase.fromString(phase) == currentHookPhaseForExecution)
                 .collect(Collectors.toList());
         }
-    }
-
-    public class HooksExecutor {
-
-        private DelegateExecution context;
-        private HooksExecutorFactory hooksExecutorFactory = new HooksExecutorFactory();
-        private StepLogger stepLogger;
-        private FlowableFacade flowableFacade;
-
-        public HooksExecutor(DelegateExecution context, FlowableFacade flowableFacade, StepLogger stepLogger) {
-            this.context = context;
-            this.stepLogger = stepLogger;
-            this.flowableFacade = flowableFacade;
-        }
-
-        public void executeHooks(HookPhase currentHookPhase, List<Hook> hooksToExecute) {
-            executeHooks(context, currentHookPhase, hooksToExecute);
-            reportHooksExecution(hooksToExecute);
-        }
-
-        private void executeHooks(DelegateExecution context, HookPhase currentHookPhase, List<Hook> hooksToExecute) {
-            hooksToExecute.stream()
-                .forEach(hook -> executeHook(currentHookPhase, hook));
-
-        }
-
-        private void executeHook(HookPhase currentHookPhase, Hook hookToExecute) {
-            HookExecutor hookExecutor = hooksExecutorFactory.getHookExecutor(context, this.flowableFacade, hookToExecute.getType());
-            HookExecution hookExecution = new HookExecution(currentHookPhase, hookToExecute, getOnCompleteHookMessageName());
-            hookExecutor.executeHook(hookExecution);
-        }
-
-        private void reportHooksExecution(List<Hook> hooksForExecution) {
-            hooksForExecution.forEach(this::reportHookExecution);
-            StepsUtil.setHooksForExecution(context, hooksForExecution);
-        }
-
-        private void reportHookExecution(Hook hook) {
-            stepLogger.info(Messages.EXECUTING_HOOK_0, hook.getName());
-        }
-
     }
 
 }

@@ -14,8 +14,6 @@ import com.sap.cloud.lm.sl.cf.process.message.Messages;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StopApplicationUndeploymentStep extends UndeployAppStep {
 
-    private static final String STOP_APP_HOOK_MESSAGE_LIVE = "stopAppLiveHookMessage";
-
     @Override
     protected StepPhase undeployApplication(CloudControllerClient client, CloudApplication cloudApplicationToUndeploy) {
         getStepLogger().info(Messages.STOPPING_APP, cloudApplicationToUndeploy.getName());
@@ -28,11 +26,6 @@ public class StopApplicationUndeploymentStep extends UndeployAppStep {
     @Override
     protected HookPhase getHookPhaseBeforeStep(DelegateExecution context) {
         return HookPhase.APPLICATION_BEFORE_STOP_LIVE;
-    }
-
-    @Override
-    protected String getOnCompleteHookMessageName() {
-        return STOP_APP_HOOK_MESSAGE_LIVE;
     }
 
 }

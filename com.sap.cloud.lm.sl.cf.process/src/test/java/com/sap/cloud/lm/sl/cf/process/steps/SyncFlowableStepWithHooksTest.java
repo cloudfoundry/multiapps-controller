@@ -17,11 +17,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
-import com.sap.cloud.lm.sl.cf.core.flowable.FlowableFacade;
 import com.sap.cloud.lm.sl.cf.core.model.HookPhase;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
-import com.sap.cloud.lm.sl.cf.process.steps.SyncFlowableStepWithHooks.HooksExecutor;
 import com.sap.cloud.lm.sl.cf.process.steps.SyncFlowableStepWithHooks.ModuleHooksAggregator;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
 import com.sap.cloud.lm.sl.common.util.MapUtil;
@@ -33,8 +31,6 @@ public class SyncFlowableStepWithHooksTest {
 
     @Mock
     private ModuleHooksAggregator moduleHooksAggregatorMock;
-    @Mock
-    private HooksExecutor hooksExecutorMock;
 
     private DelegateExecution context = MockDelegateExecution.createSpyInstance();
 
@@ -63,9 +59,6 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.verify(moduleHooksAggregatorMock)
             .aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE);
 
-        Mockito.verify(hooksExecutorMock)
-            .executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE, moduleHooks);
-
     }
 
     @Test
@@ -89,9 +82,6 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.verify(moduleHooksAggregatorMock)
             .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
-        Mockito.verify(hooksExecutorMock)
-            .executeHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE, moduleHooks);
-
     }
 
     @Test
@@ -112,15 +102,13 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.verify(moduleHooksAggregatorMock)
             .aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE);
 
-        Mockito.verify(hooksExecutorMock)
-            .executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE, Collections.emptyList());
     }
 
     @Test
     public void testWithNoModuleToDeployAndNoDeploymentDescriptor() throws Exception {
         new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
 
-        Mockito.verifyZeroInteractions(moduleHooksAggregatorMock, hooksExecutorMock);
+        Mockito.verifyZeroInteractions(moduleHooksAggregatorMock);
     }
 
     @Test
@@ -142,8 +130,6 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.verify(moduleHooksAggregatorMock)
             .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
-        Mockito.verify(hooksExecutorMock)
-            .executeHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE, Collections.emptyList());
     }
 
     @Test
@@ -166,8 +152,6 @@ public class SyncFlowableStepWithHooksTest {
         Mockito.verify(moduleHooksAggregatorMock)
             .aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
-        Mockito.verify(hooksExecutorMock)
-            .executeHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE, Collections.emptyList());
     }
 
     @Test
@@ -186,7 +170,7 @@ public class SyncFlowableStepWithHooksTest {
 
         new SyncFlowableStepWithHooksMock().executeStep(new ExecutionWrapper(context, Mockito.mock(StepLogger.class), null));
 
-        Mockito.verifyZeroInteractions(moduleHooksAggregatorMock, hooksExecutorMock);
+        Mockito.verifyZeroInteractions(moduleHooksAggregatorMock);
     }
 
     private void prepareApplication(String name, String moduleName) {
@@ -209,11 +193,6 @@ public class SyncFlowableStepWithHooksTest {
         }
 
         @Override
-        protected HooksExecutor getHooksExecutor(DelegateExecution context) {
-            return hooksExecutorMock;
-        }
-
-        @Override
         protected ModuleHooksAggregator getModuleHooksAggregator(DelegateExecution context, Module moduleToDeploy) {
             return moduleHooksAggregatorMock;
         }
@@ -226,84 +205,6 @@ public class SyncFlowableStepWithHooksTest {
         @Override
         protected HookPhase getHookPhaseAfterStep(DelegateExecution context) {
             return HookPhase.APPLICATION_BEFORE_STOP_IDLE;
-        }
-
-    }
-
-    public static class ModuleHooksExecutorTest {
-
-        @Mock
-        private FlowableFacade flowableFacade;
-
-        private DelegateExecution context = MockDelegateExecution.createSpyInstance();
-
-        @BeforeEach
-        public void setUp() {
-            MockitoAnnotations.initMocks(this);
-        }
-
-        @Test
-        public void withHooksForExecution() {
-
-            getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE,
-                Arrays.asList(
-                    createHook("tasks", "test-hook-1", Arrays.asList("application.before-start"), MapUtil.asMap("task", "testing1")),
-                    createHook("tasks", "test-hook-2", Arrays.asList("application.before-start", "application.before-stop"),
-                        MapUtil.asMap("task", "testing2"))));
-
-            @SuppressWarnings("unchecked")
-            List<String> hooksAsStrings = (List<String>) context.getVariable("hooksForExecution");
-            Assertions.assertEquals(2, hooksAsStrings.size());
-        }
-
-        private Hook createHook(String type, String name, List<String> hookPhases) {
-            return createHook(type, name, hookPhases, Collections.emptyMap());
-        }
-
-        private Hook createHook(String type, String name, List<String> hookPhases, Map<String, Object> parameters) {
-            return Hook.createV3()
-                .setType(type)
-                .setPhases(hookPhases)
-                .setName(name)
-                .setParameters(parameters);
-        }
-
-        private HooksExecutor getHooksExecutor() {
-            return new SyncFlowableStepWithHooks() {
-
-                @Override
-                protected StepPhase executeStepInternal(ExecutionWrapper execution) throws Exception {
-                    return null;
-                }
-            }.new HooksExecutor(context, flowableFacade, Mockito.mock(StepLogger.class));
-        }
-
-        @Test
-        public void withNoHooksForExecution() {
-            getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE, Collections.emptyList());
-
-            @SuppressWarnings("unchecked")
-            List<String> hooksAsStrings = (List<String>) context.getVariable("hooksForExecution");
-            Assertions.assertEquals(0, hooksAsStrings.size());
-            Assertions.assertEquals(Collections.emptyList(), hooksAsStrings);
-        }
-
-        @Test
-        public void withHooksWhichAreOfUnsupportedType() {
-            IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
-                () -> getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE,
-                    Arrays.asList(createHook("foo", "test-hook-1", Arrays.asList("application.before-start")))));
-
-            Assertions.assertEquals("Unsupported hook type \"foo\"", exception.getMessage());
-        }
-
-        @Test
-        public void withHooksForExecutionWithEmptyHookParameters() {
-            IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
-                () -> getHooksExecutor().executeHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE,
-                    Arrays.asList(createHook("tasks", "test-hook-1", Arrays.asList("application.before-start")))));
-
-            Assertions.assertEquals("Hook task parameters must not be empty", exception.getMessage());
         }
 
     }
