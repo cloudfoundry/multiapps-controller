@@ -1,4 +1,4 @@
-package com.sap.cloud.lm.sl.cf.process.steps;
+package com.sap.cloud.lm.sl.cf.process.util;
 
 import org.flowable.engine.delegate.DelegateExecution;
 

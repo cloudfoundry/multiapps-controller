@@ -22,8 +22,6 @@ import com.sap.cloud.lm.sl.common.SLException;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class StopAppStep extends SyncFlowableStepWithHooks {
 
-    private static final String STOP_APP_ON_COMPLETE_HOOK_MESSAGE = "stopAppHookMessage";
-
     @Inject
     private ProcessTypeParser processTypeParser;
 
@@ -82,11 +80,6 @@ public class StopAppStep extends SyncFlowableStepWithHooks {
         }
 
         return HookPhase.APPLICATION_AFTER_STOP_LIVE;
-    }
-
-    @Override
-    protected String getOnCompleteHookMessageName() {
-        return STOP_APP_ON_COMPLETE_HOOK_MESSAGE;
     }
 
 }

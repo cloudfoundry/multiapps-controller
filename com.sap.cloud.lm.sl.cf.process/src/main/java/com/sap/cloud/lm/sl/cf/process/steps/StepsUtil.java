@@ -1097,6 +1097,10 @@ public class StepsUtil {
         setAsJsonStrings(scope, Constants.VAR_HOOKS_FOR_EXECUTION, hooksForExecution);
     }
 
+    static Hook getHookForExecution(VariableScope scole) {
+        return getFromJsonString(scole, Constants.VAR_HOOK_FOR_EXECUTION, Hook.class);
+    }
+
     public static <E> E getEnum(VariableScope scope, String name, Function<String, E> factory) {
         String value = getObject(scope, name);
         return value == null ? null : factory.apply(value);

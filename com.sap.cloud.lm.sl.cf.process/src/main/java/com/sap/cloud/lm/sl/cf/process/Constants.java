@@ -9,6 +9,7 @@ public class Constants {
     public static final String UNDEPLOY_SERVICE_ID = "xs2-undeploy";
     public static final String CTS_DEPLOY_SERVICE_ID = "CTS_DEPLOY";
     public static final String DEPLOY_APP_SUB_PROCESS_ID = "deployAppSubProcess";
+    public static final String EXECUTE_HOOK_TASKS_SUB_PROCESS_ID = "executeHookTasksSubProcess";
     public static final String SERVICE_VERSION_1_2 = "1.2";
     public static final String SERVICE_VERSION_1_1 = "1.1";
     public static final String SERVICE_VERSION_1_0 = "1.0";
@@ -167,8 +168,7 @@ public class Constants {
     public static final String VAR_PHASE = "phase";
     public static final String VAR_EXECUTED_HOOKS_FOR_PREFIX = "executedHooksFor_";
     public static final String VAR_HOOKS_FOR_EXECUTION = "hooksForExecution";
-    public static final String VAR_ON_COMPLETE_MESSAGE_EVENT_NAME = "onCompleteMessageEventName";
-    public static final String VAR_PARENT_EXECUTION_ID = "parentExecutionId";
+    public static final String VAR_HOOK_FOR_EXECUTION = "hookForExecution";
 
     public static final String TOOL_TYPE = "tool_type";
     public static final String FEEDBACK_MAIL = "feedback_form";
