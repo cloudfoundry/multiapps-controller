@@ -43,11 +43,11 @@ public class ApplicationZipBuilderTest {
     public static Stream<Arguments> testCreateNewZip() {
         // @formatter:off
         return Stream.of(
-            Arguments.of(SAMPLE_MTAR, "db/"),
-            Arguments.of(SAMPLE_MTAR, "web/"),
+            Arguments.of(SAMPLE_MTAR, "db"),
+            Arguments.of(SAMPLE_MTAR, "web"),
             Arguments.of(SAMPLE_MTAR, "web/web-server.zip"),
-            Arguments.of(SAMPLE_FLAT_MTAR, "db/"),
-            Arguments.of(SAMPLE_FLAT_MTAR, "web/"));
+            Arguments.of(SAMPLE_FLAT_MTAR, "db"),
+            Arguments.of(SAMPLE_FLAT_MTAR, "web"));
         // @formatter:on
     }
 
@@ -55,7 +55,7 @@ public class ApplicationZipBuilderTest {
         // @formatter:off
         return Stream.of(
             Arguments.of(SAMPLE_MTAR, "db/", Stream.of("readme.txt").collect(Collectors.toSet())),
-            Arguments.of(SAMPLE_FLAT_MTAR, "web/", Stream.of("xs-app.json", "readme.txt", "local-destinations.json", "resources/index.html").collect(Collectors.toSet())),
+            Arguments.of(SAMPLE_FLAT_MTAR, "web", Stream.of("xs-app.json", "readme.txt", "local-destinations.json", "resources/index.html").collect(Collectors.toSet())),
             Arguments.of(SAMPLE_MTAR, "db/pricing-db.zip", Stream.of("pricing-db.zip").collect(Collectors.toSet())));
         // @formatter:on
     }
