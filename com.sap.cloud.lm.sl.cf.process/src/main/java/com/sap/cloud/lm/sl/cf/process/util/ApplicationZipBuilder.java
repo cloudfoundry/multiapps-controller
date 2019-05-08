@@ -42,22 +42,22 @@ public class ApplicationZipBuilder {
     }
 
     private void saveAllEntries(Path dirPath, ApplicationArchiveContext applicationArchiveContext) throws IOException {
-        String moduleFileName = applicationArchiveContext.getModuleFileName();
         try (OutputStream fileOutputStream = Files.newOutputStream(dirPath)) {
-            if (!isFile(moduleFileName)) {
-                saveAsZip(fileOutputStream, applicationArchiveContext);
+            ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext);
+            if (zipEntry.isDirectory()) {
+                saveAsZip(fileOutputStream, applicationArchiveContext, zipEntry);
             } else {
-                saveToFile(fileOutputStream, applicationArchiveContext);
+                saveToFile(fileOutputStream, applicationArchiveContext, zipEntry);
             }
         }
     }
 
-    private void saveAsZip(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext) throws IOException {
+    private void saveAsZip(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry)
+        throws IOException {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
             String moduleFileName = applicationArchiveContext.getModuleFileName();
-            ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext);
             do {
-                if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext) && isFile(zipEntry.getName())) {
+                if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext) && !zipEntry.isDirectory()) {
                     zipOutputStream.putNextEntry(createNewZipEntry(zipEntry.getName(), moduleFileName));
                     copy(applicationArchiveContext.getZipInputStream(), zipOutputStream, applicationArchiveContext);
                     zipOutputStream.closeEntry();
@@ -71,9 +71,9 @@ public class ApplicationZipBuilder {
         return new UtcAdjustedZipEntry(FileUtils.getRelativePath(moduleFileName, zipEntryName));
     }
 
-    private void saveToFile(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext) throws IOException {
+    private void saveToFile(OutputStream fileOutputStream, ApplicationArchiveContext applicationArchiveContext, ZipEntry zipEntry)
+        throws IOException {
         String moduleFileName = applicationArchiveContext.getModuleFileName();
-        ZipEntry zipEntry = applicationArchiveReader.getFirstZipEntry(applicationArchiveContext);
         do {
             if (!isAlreadyUploaded(zipEntry.getName(), applicationArchiveContext)) {
                 copy(applicationArchiveContext.getZipInputStream(), fileOutputStream, applicationArchiveContext);
@@ -106,10 +106,6 @@ public class ApplicationZipBuilder {
 
     private String getFileExtension() {
         return FilenameUtils.EXTENSION_SEPARATOR_STR + "zip";
-    }
-
-    private boolean isFile(String fileName) {
-        return !FileUtils.isDirectory(fileName);
     }
 
     protected void cleanUp(Path appPath, StepLogger logger) {
