@@ -2,6 +2,7 @@ package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.cloudfoundry.client.lib.CloudControllerClient;
@@ -43,13 +44,15 @@ public class PollServiceDeleteOperationsExecution extends PollServiceOperationsE
             return null;
         }
         boolean isServiceDeleted = isServiceDeleted(execution, service.getMeta()
-            .getGuid());
+                                                                      .getGuid());
         ServiceOperationState operationState = isServiceDeleted ? ServiceOperationState.SUCCEEDED : ServiceOperationState.IN_PROGRESS;
         return new ServiceOperation(ServiceOperationType.DELETE, ServiceOperationType.DELETE.name(), operationState);
     }
 
     private boolean isServiceDeleted(ExecutionWrapper execution, UUID uuid) {
-        CloudEvent serviceEvent = eventsGetter.getLastEvent(uuid, execution.getControllerClient());
-        return serviceEvent != null && eventsGetter.isDeleteEvent(serviceEvent.getType());
+        List<CloudEvent> serviceEvent = eventsGetter.getEvents(uuid, execution.getControllerClient());
+        return serviceEvent.stream()
+                    .filter(Objects::nonNull)
+                    .anyMatch(e -> eventsGetter.isDeleteEvent(e.getType()));
     }
 }
