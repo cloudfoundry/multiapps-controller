@@ -43,11 +43,11 @@ public class FileSystemFileStorage implements FileStorage {
 
     @Override
     public void addFile(FileEntry fileEntry, File file) throws FileStorageException {
-        try {
+        try (InputStream fileInputStream = Files.newInputStream(file.toPath())) {
             Path filesDirectory = getFilesDirectory(fileEntry.getSpace());
             Path newFilePath = Paths.get(filesDirectory.toString(), fileEntry.getId());
             logger.trace(MessageFormat.format(Messages.STORING_FILE_TO_PATH_0, newFilePath));
-            Files.copy(Files.newInputStream(file.toPath()), newFilePath, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(fileInputStream, newFilePath, StandardCopyOption.REPLACE_EXISTING);
             File newFile = newFilePath.toFile();
             if (!newFile.exists()) {
                 throw new FileStorageException(
