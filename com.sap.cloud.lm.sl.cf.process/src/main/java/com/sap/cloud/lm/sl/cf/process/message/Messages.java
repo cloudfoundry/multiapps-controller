@@ -98,9 +98,8 @@ public class Messages {
     public static final String ERROR_UNDEPLOYING_APPS = "Error undeploying applications";
     public static final String ERROR_BUILDING_CLOUD_APP_MODEL = "Error building cloud application deploy model";
     public static final String ERROR_SETTING_APP = "Error setting application from module \"{0}\"";
-    public static final String ERROR_CHECKING_APP = "Error checking application \"{0}\"";
     public static final String ERROR_CREATING_APP = "Error creating application \"{0}\"";
-    public static final String ERROR_UPDATING_APP = "Error updating application \"{0}\"";
+    public static final String ERROR_CREATING_OR_UPDATING_APP = "Error creating or updating application \"{0}\"";
     public static final String ERROR_UPLOADING_APP = "Error uploading application \"{0}\"";
     public static final String ERROR_UPLOADING_APP_WITH_DETAILS = "Error uploading application \"{0}\". [{1}] \"{2}\"";
     public static final String ERROR_UPLOADING_APP_BECAUSE_OF = "Error uploading application \"{0}\": \"{1}\"";

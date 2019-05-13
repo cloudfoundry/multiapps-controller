@@ -18,7 +18,7 @@ import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.GenericArgumentMatcher;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
-public class CreateAppStepWithDockerTest extends CreateAppStepBaseTest {
+public class CreateOrUpdateAppStepWithDockerTest extends CreateOrUpdateAppStepBaseTest {
 
     private DockerInfo dockerInfo;
 
@@ -123,8 +123,8 @@ public class CreateAppStepWithDockerTest extends CreateAppStepBaseTest {
     }
 
     @Override
-    protected CreateAppStep createStep() {
-        return new CreateAppStep();
+    protected CreateOrUpdateAppStep createStep() {
+        return new CreateOrUpdateAppStep();
     }
 
 }
