@@ -17,7 +17,6 @@ import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
-import org.cloudfoundry.client.lib.domain.CloudResources;
 import org.cloudfoundry.client.lib.domain.UploadToken;
 import org.junit.After;
 import org.junit.Before;
@@ -168,14 +167,13 @@ public class UploadAppStepTest {
 
         public void prepareClients() throws Exception {
             if (expectedIOExceptionMessage == null && expectedCFExceptionMessage == null) {
-                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any(), any())).thenReturn(new UploadToken(TOKEN, null));
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenReturn(new UploadToken(TOKEN, null));
             } else if (expectedIOExceptionMessage != null) {
-                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any(), any())).thenThrow(IO_EXCEPTION);
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(IO_EXCEPTION);
             } else if (expectedCFExceptionMessage != null) {
-                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any(), any())).thenThrow(CO_EXCEPTION);
+                when(client.asyncUploadApplication(eq(APP_NAME), eq(appFile), any())).thenThrow(CO_EXCEPTION);
             }
             when(client.getApplication(APP_NAME)).thenReturn(new SimpleApplication(APP_NAME, 2).toCloudApplication());
-            when(client.getKnownRemoteResources(any())).thenReturn(new CloudResources());
         }
 
         public void prepareFileService() throws Exception {
