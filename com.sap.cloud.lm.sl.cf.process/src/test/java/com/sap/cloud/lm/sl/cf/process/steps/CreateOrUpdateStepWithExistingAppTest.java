@@ -42,7 +42,7 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
+public class CreateOrUpdateStepWithExistingAppTest extends SyncFlowableStepTest<CreateOrUpdateAppStep> {
 
     private static final ApplicationServicesUpdateCallback CALLBACK = ApplicationServicesUpdateCallback.DEFAULT_APPLICATION_SERVICES_UPDATE_CALLBACK;
 
@@ -134,8 +134,8 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
         });
     }
 
-    public UpdateAppStepTest(String input, String expectedExceptionMessage, PlatformType platform) throws Exception {
-        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, UpdateAppStepTest.class), StepInput.class);
+    public CreateOrUpdateStepWithExistingAppTest(String input, String expectedExceptionMessage, PlatformType platform) throws Exception {
+        this.input = JsonUtil.fromJson(TestUtil.getResourceAsString(input, CreateOrUpdateStepWithExistingAppTest.class), StepInput.class);
         this.platform = platform;
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
@@ -287,10 +287,11 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
     }
 
     private void prepareContext() {
-        StepsUtil.setExistingApp(context, input.existingApplication.toCloudApp());
+        Mockito.when(client.getApplication(eq(input.existingApplication.name), eq(false)))
+            .thenReturn(input.existingApplication.toCloudApp());
         CloudApplicationExtended cloudApp = input.application.toCloudApp();
         cloudApp.setModuleName("test");
-        //TODO
+        // TODO
         StepsUtil.setAppsToDeploy(context, Collections.emptyList());
         StepsTestUtil.mockApplicationsToDeploy(Arrays.asList(cloudApp), context);
         StepsUtil.setServicesToBind(context, mapToCloudServices());
@@ -379,11 +380,11 @@ public class UpdateAppStepTest extends SyncFlowableStepTest<UpdateAppStep> {
     }
 
     @Override
-    protected UpdateAppStep createStep() {
-        return new UpdateAppStepMock();
+    protected CreateOrUpdateAppStep createStep() {
+        return new CreateAppStepMock();
     }
 
-    private class UpdateAppStepMock extends UpdateAppStep {
+    private class CreateAppStepMock extends CreateOrUpdateAppStep {
         @Override
         protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution context) {
             return CALLBACK;

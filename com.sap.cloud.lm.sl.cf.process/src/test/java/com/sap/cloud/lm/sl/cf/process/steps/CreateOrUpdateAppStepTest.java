@@ -34,7 +34,7 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
-public class CreateAppStepTest extends CreateAppStepBaseTest {
+public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
     private String expectedExceptionMessage;
 
@@ -87,8 +87,8 @@ public class CreateAppStepTest extends CreateAppStepBaseTest {
         });
     }
 
-    public CreateAppStepTest(String stepInput, String expectedExceptionMessage, PlatformType platform) throws Exception {
-        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateAppStepTest.class), StepInput.class);
+    public CreateOrUpdateAppStepTest(String stepInput, String expectedExceptionMessage, PlatformType platform) throws Exception {
+        this.stepInput = JsonUtil.fromJson(TestUtil.getResourceAsString(stepInput, CreateOrUpdateAppStepTest.class), StepInput.class);
         this.stepInput.platform = platform;
         this.expectedExceptionMessage = expectedExceptionMessage;
     }
@@ -204,11 +204,11 @@ public class CreateAppStepTest extends CreateAppStepBaseTest {
     }
 
     @Override
-    protected CreateAppStep createStep() {
+    protected CreateOrUpdateAppStep createStep() {
         return new CreateAppStepMock();
     }
 
-    private class CreateAppStepMock extends CreateAppStep {
+    private class CreateAppStepMock extends CreateOrUpdateAppStep {
         @Override
         protected ApplicationServicesUpdateCallback getApplicationServicesUpdateCallback(DelegateExecution context) {
             return callback;
