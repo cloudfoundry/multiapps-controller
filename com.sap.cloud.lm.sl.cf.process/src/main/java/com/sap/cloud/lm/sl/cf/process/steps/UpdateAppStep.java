@@ -1,12 +1,15 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.cloudfoundry.client.lib.CloudControllerClient;
 import org.cloudfoundry.client.lib.CloudControllerException;
 import org.cloudfoundry.client.lib.CloudOperationException;
@@ -150,13 +153,17 @@ public class UpdateAppStep extends CreateAppStep {
         return hasUnboundServices || hasUpdatedServices;
     }
 
-    private List<String> calculateServicesForUpdate(CloudApplicationExtended application, List<String> existingServices) {
+    private Set<String> calculateServicesForUpdate(CloudApplicationExtended application, List<String> existingServices) {
         AttributeUpdateStrategy applicationAttributesUpdateBehavior = application.getApplicationAttributesUpdateStrategy();
         if (!applicationAttributesUpdateBehavior.shouldKeepExistingServiceBindings()) {
-            return application.getServices();
+            return toSet(application.getServices());
         }
 
-        return ListUtils.union(application.getServices(), existingServices);
+        return SetUtils.union(toSet(application.getServices()), toSet(existingServices));
+    }
+
+    private Set<String> toSet(List<String> list) {
+        return new HashSet<>(list);
     }
 
     private boolean unbindServicesIfNeeded(CloudApplicationExtended application, CloudApplication existingApplication,
@@ -183,7 +190,7 @@ public class UpdateAppStep extends CreateAppStep {
     }
 
     private boolean updateServices(DelegateExecution context, String applicationName, Map<String, Map<String, Object>> bindingParameters,
-        CloudControllerClient client, List<String> services) {
+        CloudControllerClient client, Set<String> services) {
         Map<String, Map<String, Object>> serviceNamesWithBindingParameters = services.stream()
             .collect(Collectors.toMap(String::toString, serviceName -> getBindingParametersForService(serviceName, bindingParameters)));
 
@@ -194,7 +201,7 @@ public class UpdateAppStep extends CreateAppStep {
         return !updatedServices.isEmpty();
     }
 
-    private void reportNonUpdatedServices(List<String> services, String applicationName, List<String> updatedServices) {
+    private void reportNonUpdatedServices(Set<String> services, String applicationName, List<String> updatedServices) {
         List<String> nonUpdatesServices = ListUtils.removeAll(services, updatedServices);
         nonUpdatesServices.forEach(service -> getStepLogger().warn(Messages.WILL_NOT_REBIND_APP_TO_SERVICE, service, applicationName));
     }
