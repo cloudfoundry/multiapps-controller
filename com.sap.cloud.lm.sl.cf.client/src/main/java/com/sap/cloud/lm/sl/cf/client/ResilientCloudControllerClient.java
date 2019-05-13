@@ -19,7 +19,6 @@ import org.cloudfoundry.client.lib.RestLogCallback;
 import org.cloudfoundry.client.lib.StartingInfo;
 import org.cloudfoundry.client.lib.StreamingLogToken;
 import org.cloudfoundry.client.lib.UploadStatusCallback;
-import org.cloudfoundry.client.lib.archive.ApplicationArchive;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.cloudfoundry.client.lib.domain.ApplicationStats;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
@@ -30,7 +29,6 @@ import org.cloudfoundry.client.lib.domain.CloudEvent;
 import org.cloudfoundry.client.lib.domain.CloudInfo;
 import org.cloudfoundry.client.lib.domain.CloudOrganization;
 import org.cloudfoundry.client.lib.domain.CloudQuota;
-import org.cloudfoundry.client.lib.domain.CloudResources;
 import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudSecurityGroup;
 import org.cloudfoundry.client.lib.domain.CloudService;
@@ -443,45 +441,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void uploadApplication(String applicationName, ApplicationArchive archive, UploadStatusCallback callback) throws IOException {
-        executeWithRetry(() -> {
-            try {
-                cc.uploadApplication(applicationName, archive, callback);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
-    }
-
-    @Override
     public UploadToken asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback) throws IOException {
         return executeWithRetry(() -> {
             try {
                 return cc.asyncUploadApplication(applicationName, file, callback);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
-    }
-
-    @Override
-    public UploadToken asyncUploadApplication(String applicationName, File file, UploadStatusCallback callback,
-        CloudResources knownRemoteResources) throws IOException {
-        return executeWithRetry(() -> {
-            try {
-                return cc.asyncUploadApplication(applicationName, file, callback, knownRemoteResources);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
-    }
-
-    @Override
-    public UploadToken asyncUploadApplication(String applicationName, ApplicationArchive archive, UploadStatusCallback callback)
-        throws IOException {
-        return executeWithRetry(() -> {
-            try {
-                return cc.asyncUploadApplication(applicationName, archive, callback);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -958,32 +921,10 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     }
 
     @Override
-    public void uploadApplication(String applicationName, ApplicationArchive archive) throws IOException {
-        executeWithRetry(() -> {
-            try {
-                cc.uploadApplication(applicationName, archive);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
-    }
-
-    @Override
     public UploadToken asyncUploadApplication(String applicationName, File file) throws IOException {
         return executeWithRetry(() -> {
             try {
                 return cc.asyncUploadApplication(applicationName, file);
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        });
-    }
-
-    @Override
-    public UploadToken asyncUploadApplication(String applicationName, ApplicationArchive archive) throws IOException {
-        return executeWithRetry(() -> {
-            try {
-                return cc.asyncUploadApplication(applicationName, archive);
             } catch (IOException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
@@ -1053,10 +994,5 @@ public class ResilientCloudControllerClient implements CloudControllerClientSupp
     public void unbindService(String applicationName, String serviceName,
         ApplicationServicesUpdateCallback applicationServicesUpdateCallback) {
         executeWithRetry(() -> cc.unbindService(applicationName, serviceName, applicationServicesUpdateCallback));
-    }
-
-    @Override
-    public CloudResources getKnownRemoteResources(CloudResources applicationResources) {
-        return executeWithRetry(() -> cc.getKnownRemoteResources(applicationResources));
     }
 }
