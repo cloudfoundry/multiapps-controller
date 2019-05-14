@@ -8,7 +8,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
@@ -25,8 +24,6 @@ public class ApplicationShutdownResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationShutdownResource.class);
 
-    private static final long DEFAULT_COOLDOWN_TIMEOUT_IN_SECONDS = 300L; // 5 mins
-
     public static final String ACTION = "shutdown";
 
     @Inject
@@ -34,26 +31,20 @@ public class ApplicationShutdownResource {
 
     @POST
     public ApplicationShutdownDto shutdownFlowableJobExecutor(@HeaderParam("x-cf-applicationid") String appId,
-        @HeaderParam("x-cf-instanceid") String appInstanceId, @HeaderParam("x-cf-instanceindex") String appInstanceIndex,
-        @QueryParam("cooldownTimeoutInSeconds") String cooldownTimeoutInSecondsParam) {
-
-        long cooldownTimeoutInSeconds = getCooldownTimeoutInSeconds(cooldownTimeoutInSecondsParam);
+        @HeaderParam("x-cf-instanceid") String appInstanceId, @HeaderParam("x-cf-instanceindex") String appInstanceIndex) {
 
         CompletableFuture.runAsync(() -> {
-            LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_REQUEST, appId, appInstanceId, appInstanceIndex,
-                cooldownTimeoutInSeconds));
-            flowableFacade.shutdownJobExecutor(cooldownTimeoutInSeconds);
+            LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWN_REQUEST, appId, appInstanceId, appInstanceIndex));
+            flowableFacade.shutdownJobExecutor();
         })
             .thenRun(() -> {
-                LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex,
-                    cooldownTimeoutInSeconds));
+                LOGGER.info(MessageFormat.format(Messages.APP_SHUTDOWNED, appId, appInstanceId, appInstanceIndex));
             });
 
         return new ApplicationShutdownDto.Builder().isActive(flowableFacade.isJobExecutorActive())
             .appId(appId)
             .appInstanceId(appInstanceId)
             .appInstanceIndex(appInstanceIndex)
-            .cooldownTimeoutInSeconds(cooldownTimeoutInSeconds)
             .build();
     }
 
@@ -71,13 +62,6 @@ public class ApplicationShutdownResource {
             MessageFormat.format(Messages.APP_SHUTDOWN_STATUS_MONITOR, appId, appInstanceId, appInstanceIndex, appShutdownDto.getStatus()));
 
         return appShutdownDto;
-    }
-
-    private long getCooldownTimeoutInSeconds(String cooldownTimeoutInSecondsParam) {
-        if (cooldownTimeoutInSecondsParam == null) {
-            return DEFAULT_COOLDOWN_TIMEOUT_IN_SECONDS;
-        }
-        return Long.parseLong(cooldownTimeoutInSecondsParam);
     }
 
 }

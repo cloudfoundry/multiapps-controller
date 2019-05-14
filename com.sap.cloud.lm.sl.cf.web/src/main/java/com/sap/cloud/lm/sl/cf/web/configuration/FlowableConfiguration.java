@@ -94,6 +94,7 @@ public class FlowableConfiguration {
         scale(configuration, jobExecutor);
         jobExecutor.setAsyncJobLockTimeInMillis(JOB_EXECUTOR_LOCK_TIME_IN_MILLIS);
         jobExecutor.setLockOwner(jobExecutorId);
+        jobExecutor.setUnlockOwnedJobs(true);
         return jobExecutor;
     }
 

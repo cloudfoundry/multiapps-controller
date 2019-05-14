@@ -26,18 +26,19 @@ class FlowableFacadeTest {
     void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        Mockito.when(mockedProcessEngineConfiguration.getAsyncExecutor()).thenReturn(mockedAsyncExecutor);
-        Mockito.when(mockedProcessEngine.getProcessEngineConfiguration()).thenReturn(mockedProcessEngineConfiguration);
+        Mockito.when(mockedProcessEngineConfiguration.getAsyncExecutor())
+            .thenReturn(mockedAsyncExecutor);
+        Mockito.when(mockedProcessEngine.getProcessEngineConfiguration())
+            .thenReturn(mockedProcessEngineConfiguration);
 
         flowableFacade = new FlowableFacade(mockedProcessEngine);
     }
 
     @Test
     void testAsyncExecutorMethodsAreCalled() {
-        long secondsToWaitOnShutdown = 10;
-        flowableFacade.shutdownJobExecutor(secondsToWaitOnShutdown);
-        Mockito.verify(mockedAsyncExecutor, Mockito.times(1)).setSecondsToWaitOnShutdown(secondsToWaitOnShutdown);
-        Mockito.verify(mockedAsyncExecutor, Mockito.times(1)).shutdown();
+        flowableFacade.shutdownJobExecutor();
+        Mockito.verify(mockedAsyncExecutor, Mockito.times(1))
+            .shutdown();
     }
 
 }
