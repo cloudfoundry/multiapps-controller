@@ -15,7 +15,8 @@ import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorHandler;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
@@ -24,13 +25,15 @@ import com.sap.cloud.lm.sl.mta.model.Resource;
 @RunWith(Parameterized.class)
 public class ConfigurationSubscriptionFactoryTest {
 
+    protected final Tester tester = Tester.forClass(getClass());
+
     @Parameters
     public static Iterable<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             // (0) The required dependency is managed, so a subscription should be created:
             {
-                "subscriptions-mtad-00.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.RESOURCE, "subscriptions-00.json"),
+                "subscriptions-mtad-00.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.JSON, "subscriptions-00.json"),
             },
             // (1) The required dependency is not managed, so a subscription should not be created:
             {
@@ -67,9 +70,9 @@ public class ConfigurationSubscriptionFactoryTest {
 
     protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
         Expectation expectation) {
-        TestUtil.test(() -> {
+        tester.test(() -> {
             return new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId);
-        }, expectation, getClass());
+        }, expectation);
     }
 
     private Map<String, ResolvedConfigurationReference> getResolvedConfigurationReferences(DeploymentDescriptor descriptor) {

@@ -33,13 +33,16 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestCase;
 import com.sap.cloud.lm.sl.common.util.TestInput;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.common.util.TestUtil.JsonSerializationOptions;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester.JsonSerializationOptions;
 
 @RunWith(Enclosed.class)
 public class ConfigurationSubscriptionDaoTest {
 
     private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("TestDefault");
+
+    private static final Tester TESTER = Tester.forClass(ConfigurationEntryDaoTest.class, new JsonSerializationOptions(true, false));
 
     @RunWith(Parameterized.class)
     public static class ConfigurationSubscriptionDaoTest1 {
@@ -60,7 +63,7 @@ public class ConfigurationSubscriptionDaoTest {
                 // (00) Add non-existing subscription:
                 {
                     new AddTest(new AddTestInput("configuration-subscription-04.json"),
-                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-04.json")),
+                        new Expectation(Expectation.Type.JSON, "configuration-subscription-04.json")),
                 },
                 // (01) Add subscription that violates the unique constraint:
                 {
@@ -100,17 +103,17 @@ public class ConfigurationSubscriptionDaoTest {
                 // (08) Delete exiting subscription:
                 {
                     new RemoveTest(new RemoveTestInput("com.sap.sample.mta.framework", "framework", "sap", "plugin"),
-                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-00.json")),
+                        new Expectation(Expectation.Type.JSON, "configuration-subscription-00.json")),
                 },
                 // (09) Find all subscriptions for certain entries:
                 {
                     new FindAllTest(new FindAllTestInput("configuration-entries-00.json"),
-                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-dao-test-output-00.json")),
+                        new Expectation(Expectation.Type.JSON, "configuration-subscription-dao-test-output-00.json")),
                 },
                 // (10) Find all subscriptions for certain entries:
                 {
                     new FindAllTest(new FindAllTestInput("configuration-entries-01.json"),
-                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-dao-test-output-01.json")),
+                        new Expectation(Expectation.Type.JSON, "configuration-subscription-dao-test-output-01.json")),
                 },
                 // (11) Update existing subscription:
                 {
@@ -120,12 +123,12 @@ public class ConfigurationSubscriptionDaoTest {
                 // (12) Update existing subscription:
                 {
                     new UpdateTest(new UpdateTestInput("com.sap.sample.mta.framework", "framework", "sap", "plugin", "configuration-subscription-00-updated-00.json"),
-                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-00-updated-00.json")),
+                        new Expectation(Expectation.Type.JSON, "configuration-subscription-00-updated-00.json")),
                 },
                 // (13) Find all subscriptions for current guid
                 {
                     new FindAllGuidTest(new FindOneTestInput("", "", "fbd3dc79-1a54-4a70-8022-ab716643809b", ""),
-                        new Expectation(Expectation.Type.RESOURCE, "configuration-subscription-dao-test-output-13.json")),
+                        new Expectation(Expectation.Type.JSON, "configuration-subscription-dao-test-output-13.json")),
                 }
     // @formatter:on
             });
@@ -223,8 +226,7 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() throws Exception {
-                TestUtil.test(() -> dao.remove(findOne(input, dao).getId()), expectation, getClass(),
-                    new JsonSerializationOptions(true, false));
+                TESTER.test(() -> dao.remove(findOne(input, dao).getId()), expectation);
             }
 
         }
@@ -237,7 +239,7 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() throws Exception {
-                TestUtil.test(() -> findAll(input, getDao()), expectation, getClass(), new JsonSerializationOptions(true, false));
+                TESTER.test(() -> findAll(input, getDao()), expectation);
             }
 
         }
@@ -250,7 +252,7 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() throws Exception {
-                TestUtil.test(() -> findAll(input.spaceId, getDao()), expectation, getClass(), new JsonSerializationOptions(true, false));
+                TESTER.test(() -> findAll(input.spaceId, getDao()), expectation);
             }
 
         }
@@ -265,8 +267,7 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() throws Exception {
-                TestUtil.test(() -> dao.update(findOne(input, dao).getId(), input.subscription), expectation, getClass(),
-                    new JsonSerializationOptions(true, false));
+                TESTER.test(() -> dao.update(findOne(input, dao).getId(), input.subscription), expectation);
             }
 
         }
@@ -279,7 +280,7 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() {
-                TestUtil.test(() -> getDao().add(input.subscription), expectation, getClass(), new JsonSerializationOptions(true, false));
+                TESTER.test(() -> getDao().add(input.subscription), expectation);
             }
 
         }

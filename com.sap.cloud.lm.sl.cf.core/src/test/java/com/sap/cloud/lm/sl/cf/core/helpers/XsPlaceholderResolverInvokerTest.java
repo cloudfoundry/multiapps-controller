@@ -8,12 +8,15 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.DescriptorParserFacade;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class XsPlaceholderResolverInvokerTest {
+
+    private final Tester tester = Tester.forClass(getClass());
 
     private static final String DEFAULT_DOMAIN = "localhost";
     private static final String PROTOCOL = "http";
@@ -26,7 +29,7 @@ public class XsPlaceholderResolverInvokerTest {
 // @formatter:off
             // (0) MTA spec version 2.0.0:
             {
-                "xs-placeholder-mtad-01.yaml", new Expectation(Expectation.Type.RESOURCE, "xs-placeholder-resolved-mtad-01.json"),
+                "xs-placeholder-mtad-01.yaml", new Expectation(Expectation.Type.JSON, "xs-placeholder-resolved-mtad-01.json"),
             },
 // @formatter:on
         });
@@ -50,12 +53,12 @@ public class XsPlaceholderResolverInvokerTest {
         xsPlaceholderResolver.setAuthorizationEndpoint(AUTH_ENDPOINT);
         xsPlaceholderResolver.setProtocol(PROTOCOL);
         xsPlaceholderResolver.setDefaultDomain(DEFAULT_DOMAIN);
-        TestUtil.test(() -> {
+        tester.test(() -> {
 
             descriptor.accept(new XsPlaceholderResolverInvoker(xsPlaceholderResolver));
             return descriptor;
 
-        }, expectation, getClass());
+        }, expectation);
     }
 
 }

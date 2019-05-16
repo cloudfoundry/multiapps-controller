@@ -9,8 +9,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.sap.cloud.lm.sl.cf.core.model.ResolvedConfigurationReference;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v3.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
@@ -28,7 +27,7 @@ public class ConfigurationSubscriptionFactoryTest extends com.sap.cloud.lm.sl.cf
 // @formatter:off
             // (0) The required dependency is managed, so a subscription should be created:
             {
-                "subscriptions-mtad-00.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.RESOURCE, "subscriptions-00.json"),
+                "subscriptions-mtad-00.yaml", Arrays.asList("plugins"), "SPACE_ID_1", new Expectation(Expectation.Type.JSON, "subscriptions-00.json"),
             },
             // (1) The required dependency is not managed, so a subscription should not be created:
             {
@@ -49,9 +48,9 @@ public class ConfigurationSubscriptionFactoryTest extends com.sap.cloud.lm.sl.cf
     @Override
     protected void testCreate(DeploymentDescriptor mtad, Map<String, ResolvedConfigurationReference> resolvedResources, String spaceId,
         Expectation expectation) {
-        TestUtil.test(() -> {
+        tester.test(() -> {
             return new ConfigurationSubscriptionFactory().create(mtad, resolvedResources, spaceId);
-        }, expectation, getClass());
+        }, expectation);
     }
 
     @Override

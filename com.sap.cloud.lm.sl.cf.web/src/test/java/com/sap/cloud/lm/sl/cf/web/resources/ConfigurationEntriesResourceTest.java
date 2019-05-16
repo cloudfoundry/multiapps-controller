@@ -37,11 +37,14 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestCase;
 import com.sap.cloud.lm.sl.common.util.TestInput;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.common.util.XmlUtil;
 
 @RunWith(Parameterized.class)
 public class ConfigurationEntriesResourceTest {
+
+    private static final Tester TESTER = Tester.forClass(ConfigurationEntriesResourceTest.class);
 
     private TestCase<TestInput> test;
 
@@ -56,7 +59,7 @@ public class ConfigurationEntriesResourceTest {
             // (0)
             {
                 new PostRequestTest(new PostRequestTestInput("configuration-entry-01.xml"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-01.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-01.json")),
             },
             // (1)
             {
@@ -71,7 +74,7 @@ public class ConfigurationEntriesResourceTest {
             // (3)
             {
                 new PostRequestTest(new PostRequestTestInput("configuration-entry-04.xml"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-04.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-04.json")),
             },
             // (4)
             {
@@ -81,32 +84,32 @@ public class ConfigurationEntriesResourceTest {
             // (5)
             {
                 new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-05.json"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-05.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-05.json")),
             },
             // (6)
             {
                 new GetRequestTest(new GetRequestTestInput(100, "configuration-entry-06.json"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-06.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-06.json")),
            },
             // (7)
             {
                 new DeleteRequestTest(new DeleteRequestTestInput(100),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-07.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-07.json")),
             },
             // (8)
             {
                 new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("foo:bar", "baz:qux"), "parsed-properties-01.json"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-08.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-08.json")),
             },
             // (9)
             {
                 new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-09.xml"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-09.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-09.json")),
             },
             // (10)
             {
                 new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-10.xml"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-10.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-10.json")),
             },
             // (11)
             {
@@ -116,7 +119,7 @@ public class ConfigurationEntriesResourceTest {
             // (12)
             {
                 new SearchRequestTest(new SearchRequestTestInput(Arrays.asList("{\"foo\":\"bar\",\"baz\":\"qux\"}"), "parsed-properties-01.json"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-08.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-08.json")),
             },
             // (13)
             {
@@ -126,17 +129,17 @@ public class ConfigurationEntriesResourceTest {
             // (14)
             {
                 new PostRequestTest(new PostRequestTestInput("configuration-entry-06.xml"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-01.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-01.json")),
             },
             // (15)
             {
                 new PutRequestTest(new PutRequestTestInput(100, "configuration-entries-resource-test-input-12.xml"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-09.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-09.json")),
             },
             // (16)
             {
                 new PostRequestTest(new PostRequestTestInput("configuration-entry-07.xml"),
-                    new Expectation(Expectation.Type.RESOURCE, "configuration-entries-resource-test-output-01.json")),
+                    new Expectation(Expectation.Type.JSON, "configuration-entries-resource-test-output-01.json")),
             },
             
 // @formatter:on
@@ -244,11 +247,11 @@ public class ConfigurationEntriesResourceTest {
 
         @Override
         protected void test() throws Exception {
-            TestUtil.test(() -> {
+            TESTER.test(() -> {
 
                 return new RestResponse(resource.getConfigurationEntry(input.getId()));
 
-            }, expectation, getClass());
+            }, expectation);
         }
 
         @Override
@@ -277,14 +280,14 @@ public class ConfigurationEntriesResourceTest {
         @Override
         protected void test() throws Exception {
 
-            TestUtil.test(() -> {
+            TESTER.test(() -> {
                 ConfigurationEntryDto dto = getDto();
                 ConfigurationEntryMatcher entryMatcher = new ConfigurationEntryMatcher(dto);
                 when(dao.add(argThat(entryMatcher))).thenReturn(dto.toConfigurationEntry());
 
                 return new RestResponse(resource.createConfigurationEntry(input.getEntryXml()));
 
-            }, expectation, getClass());
+            }, expectation);
         }
 
         @Override
@@ -317,11 +320,11 @@ public class ConfigurationEntriesResourceTest {
 
         @Override
         protected void test() throws Exception {
-            TestUtil.test(() -> {
+            TESTER.test(() -> {
 
                 return new RestResponse(resource.updateConfigurationEntry(input.getId(), input.getEntryXml()));
 
-            }, expectation, getClass());
+            }, expectation);
         }
 
         @Override
@@ -368,12 +371,12 @@ public class ConfigurationEntriesResourceTest {
 
         @Override
         protected void test() throws Exception {
-            TestUtil.test(() -> {
+            TESTER.test(() -> {
 
                 return new RestResponse(resource.getConfigurationEntries(
                     new ConfigurationFilterDto(PROVIDER_NID, PROVIDER_ID, PROVIDER_VERSION, TARGET_SPACE, input.getRequiredContent())));
 
-            }, expectation, getClass());
+            }, expectation);
         }
 
         @Override
@@ -405,11 +408,11 @@ public class ConfigurationEntriesResourceTest {
 
         @Override
         protected void test() throws Exception {
-            TestUtil.test(() -> {
+            TESTER.test(() -> {
 
                 return new RestResponse(resource.deleteConfigurationEntry(input.getId()));
 
-            }, expectation, getClass());
+            }, expectation);
         }
 
         @Override

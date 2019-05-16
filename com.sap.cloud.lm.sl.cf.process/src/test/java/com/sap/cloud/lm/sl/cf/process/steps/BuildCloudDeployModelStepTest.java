@@ -34,13 +34,13 @@ import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 @RunWith(Parameterized.class)
 public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildCloudDeployModelStep> {
-    
+
     private static final Integer MTA_MAJOR_SCHEMA_VERSION = 2;
 
     private static final DeploymentDescriptor DEPLOYMENT_DESCRIPTOR = loadDeploymentDescriptor("build-cloud-model.yaml",
@@ -170,16 +170,11 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getServicesToBind(context), new Expectation(Expectation.Type.RESOURCE, input.servicesToBindLocation),
-            getClass());
-        TestUtil.test(() -> StepsUtil.getServicesToCreate(context),
-            new Expectation(Expectation.Type.RESOURCE, input.servicesToCreateLocation), getClass());
-        TestUtil.test(() -> StepsUtil.getServiceKeysToCreate(context),
-            new Expectation(Expectation.Type.RESOURCE, input.serviceKeysLocation), getClass());
-        TestUtil.test(() -> StepsUtil.getModulesToDeploy(context),
-            new Expectation(Expectation.Type.RESOURCE, input.modulesToDeployLocation), getClass());
-        TestUtil.test(() -> StepsUtil.getAllModulesToDeploy(context),
-            new Expectation(Expectation.Type.RESOURCE, input.modulesToDeployLocation), getClass());
+        tester.test(() -> StepsUtil.getServicesToBind(context), new Expectation(Expectation.Type.JSON, input.servicesToBindLocation));
+        tester.test(() -> StepsUtil.getServicesToCreate(context), new Expectation(Expectation.Type.JSON, input.servicesToCreateLocation));
+        tester.test(() -> StepsUtil.getServiceKeysToCreate(context), new Expectation(Expectation.Type.JSON, input.serviceKeysLocation));
+        tester.test(() -> StepsUtil.getModulesToDeploy(context), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
+        tester.test(() -> StepsUtil.getAllModulesToDeploy(context), new Expectation(Expectation.Type.JSON, input.modulesToDeployLocation));
         assertEquals(false, StepsUtil.getUseIdleUris(context));
         assertEquals(input.customDomains, StepsUtil.getCustomDomains(context));
         assertEquals(output.newMtaVersion, StepsUtil.getNewMtaVersion(context));

@@ -21,7 +21,7 @@ import com.sap.cloud.lm.sl.common.ParsingException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeployedMtaStep> {
 
@@ -59,11 +59,7 @@ public class DetectDeployedMtaStepTest extends SyncFlowableStepTest<DetectDeploy
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> {
-
-            return StepsUtil.getDeployedMta(context);
-
-        }, new Expectation(Expectation.Type.RESOURCE, DEPLOYED_MTA_LOCATION), getClass());
+        tester.test(() -> StepsUtil.getDeployedMta(context), new Expectation(Expectation.Type.JSON, DEPLOYED_MTA_LOCATION));
     }
 
     @Test

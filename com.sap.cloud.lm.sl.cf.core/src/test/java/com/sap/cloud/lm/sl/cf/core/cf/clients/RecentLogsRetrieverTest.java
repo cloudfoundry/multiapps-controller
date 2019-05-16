@@ -21,8 +21,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.sap.cloud.lm.sl.cf.client.util.ExecutionRetrier;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class RecentLogsRetrieverTest {
 
@@ -30,6 +30,8 @@ public class RecentLogsRetrieverTest {
     private static final String LOGGING_ENDPOINT_URL = "https://api.cf.sap.hana.ondemand.com/log";
     private static final String APP_NAME = "my-app";
     private static final UUID APP_UUID = UUID.randomUUID();
+
+    private final Tester tester = Tester.forClass(getClass());
 
     @Mock
     private CloudControllerClient client;
@@ -60,7 +62,8 @@ public class RecentLogsRetrieverTest {
         MockitoAnnotations.initMocks(this);
         this.recentLogsRetriever = new RecentLogsRetrieverMock(restTemplateFactory);
         CloudInfo cloudInfo = Mockito.mock(CloudInfo.class);
-        Mockito.when(cloudInfo.getLoggingEndpoint()).thenReturn(LOGGING_ENDPOINT_URL);
+        Mockito.when(cloudInfo.getLoggingEndpoint())
+            .thenReturn(LOGGING_ENDPOINT_URL);
         Mockito.when(client.getCloudInfo())
             .thenReturn(cloudInfo);
         Mockito.when(client.getApplication(APP_NAME))
@@ -78,8 +81,8 @@ public class RecentLogsRetrieverTest {
                 Resource.class, APP_UUID))
             .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Something fails"));
 
-        TestUtil.test(() -> recentLogsRetriever.getRecentLogs(client, APP_NAME),
-            new Expectation(Expectation.Type.EXCEPTION, "500 Something fails"), getClass());
+        tester.test(() -> recentLogsRetriever.getRecentLogs(client, APP_NAME),
+            new Expectation(Expectation.Type.EXCEPTION, "500 Something fails"));
     }
 
     @Test

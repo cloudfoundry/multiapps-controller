@@ -21,8 +21,8 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.builders.v2.ParametersChainBuilder;
 import com.sap.cloud.lm.sl.mta.handlers.ConfigurationParser;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
@@ -31,6 +31,8 @@ import com.sap.cloud.lm.sl.mta.model.Platform;
 
 @RunWith(Parameterized.class)
 public class ConfigurationReferencesResolverTest {
+
+    private final Tester tester = Tester.forClass(getClass());
 
     protected static class DaoMockConfiguration {
 
@@ -64,11 +66,11 @@ public class ConfigurationReferencesResolverTest {
 // @formatter:off
             // (0) Reference to existing provided dependency:
             {
-                "mtad-03.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.RESOURCE, "result-01.json"),
+                "mtad-03.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.JSON, "result-01.json"),
             },
             // (1) Use new syntax:
             {
-                "mtad-05.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.RESOURCE, "result-01.json"),
+                "mtad-05.yaml", "configuration-entries-01.json", new Expectation(Expectation.Type.JSON, "result-01.json"),
             },
             // (2) Use new syntax when more than one configuration entries are available:
             {
@@ -76,7 +78,7 @@ public class ConfigurationReferencesResolverTest {
             },
             // (3) Use new syntax when more than one configuration entries are available:
             {
-                "mtad-07.yaml", "configuration-entries-06.json", new Expectation(Expectation.Type.RESOURCE, "result-02.json"),
+                "mtad-07.yaml", "configuration-entries-06.json", new Expectation(Expectation.Type.JSON, "result-02.json"),
             },
             // (4) Use new syntax when there is no configuration entry available:
             {
@@ -84,7 +86,7 @@ public class ConfigurationReferencesResolverTest {
             },
             // (5) Use new syntax when there is no configuration entry available:
             {
-                "mtad-07.yaml", "configuration-entries-07.json", new Expectation(Expectation.Type.RESOURCE, "result-03.json"),
+                "mtad-07.yaml", "configuration-entries-07.json", new Expectation(Expectation.Type.JSON, "result-03.json"),
             },
             // (6) Use new syntax (missing org parameter):
             {
@@ -92,7 +94,7 @@ public class ConfigurationReferencesResolverTest {
             },
             // (7) Subscriptions should be created:
             {
-                "mtad-08.yaml", "configuration-entries-06.json", new Expectation(Expectation.Type.RESOURCE, "result-04.json"),
+                "mtad-08.yaml", "configuration-entries-06.json", new Expectation(Expectation.Type.JSON, "result-04.json"),
             },
 // @formatter:on
         });
@@ -119,12 +121,12 @@ public class ConfigurationReferencesResolverTest {
     public void testResolve() {
         ConfigurationReferencesResolver referencesResolver = getConfigurationResolver(descriptor);
 
-        TestUtil.test(() -> {
+        tester.test(() -> {
 
             referencesResolver.resolve(descriptor);
             return descriptor;
 
-        }, expectation, getClass());
+        }, expectation);
     }
 
     protected ConfigurationReferencesResolver getConfigurationResolver(DeploymentDescriptor deploymentDescriptor) {

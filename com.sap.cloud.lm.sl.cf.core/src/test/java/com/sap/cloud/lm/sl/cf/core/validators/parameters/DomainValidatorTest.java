@@ -10,13 +10,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 @RunWith(Parameterized.class)
 public class DomainValidatorTest {
 
+    private final Tester tester = Tester.forClass(getClass());
+    
     private DomainValidator validator = new DomainValidator();
 
     private boolean isValid;
@@ -61,7 +63,7 @@ public class DomainValidatorTest {
 
     @Test
     public void testAttemptToCorrect() throws Exception {
-        TestUtil.test(() -> validator.attemptToCorrect(domain), expectation, getClass());
+        tester.test(() -> validator.attemptToCorrect(domain), expectation);
     }
 
     @Test

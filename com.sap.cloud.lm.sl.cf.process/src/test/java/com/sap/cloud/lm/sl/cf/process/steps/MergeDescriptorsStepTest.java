@@ -16,8 +16,7 @@ import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorMerger;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.common.ContentException;
 import com.sap.cloud.lm.sl.common.SLException;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Platform;
 
@@ -60,7 +59,7 @@ public class MergeDescriptorsStepTest extends SyncFlowableStepTest<MergeDescript
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context), new Expectation(Expectation.Type.RESOURCE, "node-hello-mtad.yaml.json"), getClass());
+        tester.test(() -> StepsUtil.getDeploymentDescriptor(context), new Expectation(Expectation.Type.JSON, "node-hello-mtad.yaml.json"));
     }
 
     @Test(expected = SLException.class)

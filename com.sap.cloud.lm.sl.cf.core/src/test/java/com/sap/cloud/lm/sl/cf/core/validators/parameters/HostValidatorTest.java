@@ -10,12 +10,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 @RunWith(Parameterized.class)
 public class HostValidatorTest {
+
+    private final Tester tester = Tester.forClass(getClass());
 
     private HostValidator validator = new HostValidator();
 
@@ -59,7 +61,7 @@ public class HostValidatorTest {
 
     @Test
     public void testAttemptToCorrect() throws Exception {
-        TestUtil.test(() -> validator.attemptToCorrect(host), expectation, getClass());
+        tester.test(() -> validator.attemptToCorrect(host), expectation);
     }
 
     @Test
