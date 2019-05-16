@@ -14,7 +14,7 @@ import com.sap.cloud.lm.sl.cf.core.cf.v2.CloudModelConfiguration;
 import com.sap.cloud.lm.sl.cf.core.helpers.XsPlaceholderResolver;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.util.UserMessageLogger;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.resolvers.ResolverBuilder;
 import com.sap.cloud.lm.sl.mta.resolvers.v2.DescriptorReferenceResolver;
@@ -44,7 +44,7 @@ public class CloudModelBuilderTest extends com.sap.cloud.lm.sl.cf.core.cf.v2.Clo
                 new String[] { "foo" }, // mtaModules
                 new String[] {}, // deployedApps
                 new Expectation("[]"),
-                new Expectation(Expectation.Type.RESOURCE, "apps-01.json"),
+                new Expectation(Expectation.Type.JSON, "apps-01.json"),
             },
 // @formatter:on
         });

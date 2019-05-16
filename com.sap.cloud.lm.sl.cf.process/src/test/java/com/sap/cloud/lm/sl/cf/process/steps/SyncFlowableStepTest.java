@@ -38,6 +38,7 @@ import com.sap.cloud.lm.sl.cf.persistence.services.ProgressMessageService;
 import com.sap.cloud.lm.sl.cf.process.Constants;
 import com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution;
 import com.sap.cloud.lm.sl.cf.process.util.StepLogger;
+import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
@@ -50,6 +51,8 @@ public abstract class SyncFlowableStepTest<T extends SyncFlowableStep> {
     protected static final String SPACE_GUID = "spaceGuid";
     protected String TEST_CORRELATION_ID = "test";
     protected String TEST_TASK_ID = "testTask";
+
+    protected Tester tester = Tester.forClass(getClass());
 
     protected DelegateExecution context = MockDelegateExecution.createSpyInstance();
     @Mock

@@ -7,12 +7,16 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sap.cloud.lm.sl.cf.core.security.serialization.SecureSerializationFacadeTest;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 @RunWith(Parameterized.class)
 public class ObjectToEnvironmentValueConverterTest {
+
+    private final Tester tester = Tester.forClass(getClass());
 
     private String objectJsonFilePath;
     private Expectation expectation;
@@ -23,27 +27,27 @@ public class ObjectToEnvironmentValueConverterTest {
 // @formatter:off
             // (0) There are escape sequences and they are preceded by 0 additional escape characters:
             {
-                "object-00.json", new Expectation(Expectation.Type.RESOURCE, "env-value-00.txt"),
+                "object-00.json", new Expectation(Expectation.Type.STRING, getResourceAsString("env-value-00.txt")),
             },
             // (1) There are no escape sequences:
             {
-                "object-01.json", new Expectation(Expectation.Type.RESOURCE, "env-value-01.txt"),
+                "object-01.json", new Expectation(Expectation.Type.STRING, getResourceAsString("env-value-01.txt")),
             },
             // (2) There are no escape sequences, because the marker characters are preceded by escaped escape characters:
             {
-                "object-02.json", new Expectation(Expectation.Type.RESOURCE, "env-value-02.txt"),
+                "object-02.json", new Expectation(Expectation.Type.STRING, getResourceAsString("env-value-02.txt")),
             },
             // (3) There are escape sequences and they are preceded by 2 additional escape characters:
             {
-                "object-03.json", new Expectation(Expectation.Type.RESOURCE, "env-value-03.txt"),
+                "object-03.json", new Expectation(Expectation.Type.STRING, getResourceAsString("env-value-03.txt")),
             },
             // (4) There are custom and other escape sequences:
             {
-                "object-04.json", new Expectation(Expectation.Type.RESOURCE, "env-value-04.txt"),
+                "object-04.json", new Expectation(Expectation.Type.STRING, getResourceAsString("env-value-04.txt")),
             },
             // (5) The object is a string:
             {
-                "object-05.json", new Expectation(Expectation.Type.RESOURCE, "env-value-05.txt"),
+                "object-05.json", new Expectation(Expectation.Type.STRING, getResourceAsString("env-value-05.txt")),
             },
 // @formatter:on
         });
@@ -56,12 +60,16 @@ public class ObjectToEnvironmentValueConverterTest {
 
     @Test
     public void testConvert() {
-        TestUtil.test(() -> new ObjectToEnvironmentValueConverter(true).convert(loadObject()), expectation, getClass());
+        tester.test(() -> new ObjectToEnvironmentValueConverter(true).convert(loadObject()), expectation);
     }
 
     private Object loadObject() throws Exception {
         String objectAsAString = TestUtil.getResourceAsString(objectJsonFilePath, getClass());
         return JsonUtil.fromJson(objectAsAString, Object.class);
+    }
+
+    private static String getResourceAsString(String resource) {
+        return TestUtil.getResourceAsString(resource, ObjectToEnvironmentValueConverterTest.class);
     }
 
 }

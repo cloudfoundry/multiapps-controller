@@ -36,7 +36,8 @@ import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class ApplicationColorDetectorTest {
 
@@ -79,6 +80,8 @@ public class ApplicationColorDetectorTest {
     }
     // @formatter:on
 
+    private final Tester tester = Tester.forClass(getClass());
+
     @Mock
     private OperationDao operationDao;
 
@@ -94,7 +97,7 @@ public class ApplicationColorDetectorTest {
 
     @Test
     public void detectSingularDeployedAppNullDeployedMta() {
-        TestUtil.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(null), new Expectation(null), getClass());
+        tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(null), new Expectation(null));
     }
 
     @Test
@@ -104,7 +107,7 @@ public class ApplicationColorDetectorTest {
                 createMtaModule("app-2", "app-2-green", parseDate("2019-04-05")),
                 createMtaModule("app-3", "app-3-green", parseDate("2019-04-06"))));
         Expectation expectation = new Expectation(GREEN);
-        TestUtil.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation, getClass());
+        tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
 
     @Test
@@ -114,7 +117,7 @@ public class ApplicationColorDetectorTest {
                 createMtaModule("app-2", "app-2-blue", parseDate("2019-04-05")),
                 createMtaModule("app-3", "app-3-blue", parseDate("2019-04-06"))));
         Expectation expectation = new Expectation(BLUE);
-        TestUtil.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation, getClass());
+        tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
 
     @Test
@@ -123,7 +126,7 @@ public class ApplicationColorDetectorTest {
             Arrays.asList(createMtaModule("app-1", "app-1", parseDate("2019-04-04")),
                 createMtaModule("app-2", "app-2", parseDate("2019-04-05")), createMtaModule("app-3", "app-3", parseDate("2019-04-06"))));
         Expectation expectation = new Expectation(BLUE);
-        TestUtil.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation, getClass());
+        tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
 
     @Test
@@ -133,14 +136,14 @@ public class ApplicationColorDetectorTest {
                 createMtaModule("app-2", "app-2-green", parseDate("2016-10-10")),
                 createMtaModule("app-3", "app-3-blue", parseDate("2016-15-10"))));
         Expectation expectation = new Expectation(Expectation.Type.EXCEPTION, EXPECTED_EXCEPTION_MESSAGE);
-        TestUtil.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation, getClass());
+        tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
 
     @Test
     public void detectSingularDeployedAppNoModule() {
         DeployedMta deployedMta = createMta("com.sap.sample.mta.consumer", Collections.emptySet(), Collections.emptyList());
         Expectation expectation = new Expectation(null);
-        TestUtil.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation, getClass());
+        tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
 
     @Test
@@ -149,33 +152,32 @@ public class ApplicationColorDetectorTest {
             Arrays.asList(createMtaModule("consumer", "consumer-green", parseDate("2016-15-10")),
                 createMtaModule("consumer", "consumer-blue", parseDate("2016-10-10"))));
         Expectation expectation = new Expectation(Expectation.Type.EXCEPTION, EXPECTED_EXCEPTION_MESSAGE);
-        TestUtil.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation, getClass());
+        tester.test(() -> applicationColorDetector.detectSingularDeployedApplicationColor(deployedMta), expectation);
     }
 
     @ParameterizedTest
     @MethodSource
     public void detectLiveApplicationColor(String deployedMtaJsonLocation, Expectation expectations) {
         mockOperationDao(createFakeOperation(State.RUNNING), createFakeOperation(State.FINISHED));
-        TestUtil.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectations, getClass());
+        tester.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectations);
     }
 
     @Test
     public void detectLiveApplicationColorNullDeployedMta() {
-        TestUtil.test(() -> detectLiveApplicationColor(null), new Expectation(null), getClass());
+        tester.test(() -> detectLiveApplicationColor(null), new Expectation(null));
     }
 
     @ParameterizedTest
     @MethodSource
-    public void detectLiveApplicationColorMtaColorAndPhase(
-        String deployedMtaJsonLocation, String expectedColor, State currentOperationState, State lastOperationState,
-        String lastDeployedColor) {
+    public void detectLiveApplicationColorMtaColorAndPhase(String deployedMtaJsonLocation, String expectedColor,
+        State currentOperationState, State lastOperationState, String lastDeployedColor) {
         Expectation expectation = new Expectation(expectedColor);
         mockOperationDao(createFakeOperation(currentOperationState), createFakeOperation(lastOperationState));
         when(flowableFacade.findHistoricProcessInstanceIdByProcessDefinitionKey(FAKE_PROCESS_ID, Constants.BLUE_GREEN_DEPLOY_SERVICE_ID))
             .thenReturn(FAKE_BLUE_GREEN_DEPLOY_HISTORIC_PROCESS_INSTANCE_ID);
         mockHistoricVariableInstanceColor(lastDeployedColor);
         mockHistoricVariableInstancePhase();
-        TestUtil.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectation, getClass());
+        tester.test(() -> detectLiveApplicationColor(readResource(deployedMtaJsonLocation, DeployedMta.class)), expectation);
     }
 
     @Test
@@ -183,7 +185,7 @@ public class ApplicationColorDetectorTest {
         Expectation expectation = new Expectation(GREEN);
         mockOperationDao(createFakeOperation(State.RUNNING), createFakeOperation(State.ABORTED));
         mockHistoricVariableInstanceColor(GREEN);
-        TestUtil.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation, getClass());
+        tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
 
     @Test
@@ -191,14 +193,14 @@ public class ApplicationColorDetectorTest {
         Expectation expectation = new Expectation(GREEN);
         mockOperationDao(createFakeOperation(State.RUNNING), createFakeOperation(State.ABORTED));
         mockHistoricVariableInstancePhase();
-        TestUtil.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation, getClass());
+        tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
 
     @Test
     public void detectLiveApplicationColorNoOperations() {
         Expectation expectation = new Expectation(GREEN);
         mockOperationDaoNoOtherOperations(createFakeOperation(State.RUNNING));
-        TestUtil.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation, getClass());
+        tester.test(() -> detectLiveApplicationColor(readResource("deployed-mta-02.json", DeployedMta.class)), expectation);
     }
 
     private DeployedMta createMta(String id, Set<String> services, List<DeployedMtaModule> deployedModules) {

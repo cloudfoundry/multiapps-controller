@@ -35,8 +35,8 @@ import com.sap.cloud.lm.sl.cf.process.steps.StepsUtil;
 import com.sap.cloud.lm.sl.cf.process.util.ProcessTypeParser;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
 public class AnalyticsCollectorTest {
@@ -57,6 +57,8 @@ public class AnalyticsCollectorTest {
         TRIGGERED_SERVICE_OPERATIONS.put("baz", ServiceOperationType.UPDATE);
         TRIGGERED_SERVICE_OPERATIONS.put("qux", ServiceOperationType.CREATE);
     }
+
+    private Tester tester = Tester.forClass(getClass());
 
     protected DelegateExecution context = com.sap.cloud.lm.sl.cf.process.mock.MockDelegateExecution.createSpyInstance();
 
@@ -181,17 +183,17 @@ public class AnalyticsCollectorTest {
     @Test
     public void collectAttributesDeployTest() throws Exception {
         when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.DEPLOY);
-        TestUtil.test(() -> {
+        tester.test(() -> {
             return collector.collectAnalyticsData(context);
-        }, new Expectation(Expectation.Type.RESOURCE, "AnalyticsDeploy.json"), getClass());
+        }, new Expectation(Expectation.Type.JSON, "AnalyticsDeploy.json"));
     }
 
     @Test
     public void collectAttributesUndeployTest() throws Exception {
         when(processTypeParser.getProcessType(context)).thenReturn(ProcessType.UNDEPLOY);
-        TestUtil.test(() -> {
+        tester.test(() -> {
             return collector.collectAnalyticsData(context);
-        }, new Expectation(Expectation.Type.RESOURCE, "AnalyticsUndeploy.json"), getClass());
+        }, new Expectation(Expectation.Type.JSON, "AnalyticsUndeploy.json"));
     }
 
 }

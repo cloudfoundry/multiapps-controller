@@ -31,8 +31,9 @@ import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
-import com.sap.cloud.lm.sl.common.util.TestUtil.JsonSerializationOptions;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester.JsonSerializationOptions;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -40,6 +41,8 @@ import com.sap.cloud.lm.sl.mta.model.Module;
 public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildCloudUndeployModelStep> {
 
     private static final String SPACE_ID = "sap";
+
+    private final Tester tester = Tester.forClass(getClass(), new JsonSerializationOptions(true, false));
 
     private class BuildCloudUndeployModelStepMock extends BuildCloudUndeployModelStep {
         @Override
@@ -55,67 +58,67 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
             // (0) No previously deployed MTA:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Collections.emptyList(), "deployed-apps-01.json", new TreeSet<>(Arrays.asList("a", "b", "c")), null, "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c"))),
-                new StepOutput(Collections.emptyList(), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Collections.emptyList(), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
             // (1) There are obsolete modules:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Collections.emptyList(), "deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-03.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
-                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
             // (2) All modules are obsolete:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Collections.emptyList(), "deployed-apps-05.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-04.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
-                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
             // (3) There are obsolete services:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Arrays.asList("s-1", "s-2"), "deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-05.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
-                new StepOutput(Arrays.asList("d", "e"), Arrays.asList("s-3", "s-4"), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Arrays.asList("d", "e"), Arrays.asList("s-3", "s-4"), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
             // (4) All services are obsolete:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Arrays.asList("s-3", "s-4"), "deployed-apps-05.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-06.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
-                new StepOutput(Arrays.asList("d", "e"), Arrays.asList("s-1", "s-2"), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Arrays.asList("d", "e"), Arrays.asList("s-1", "s-2"), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
             // (5) There are renamed applications:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Collections.emptyList(),"deployed-apps-06.json", new TreeSet<>(Arrays.asList("a", "b", "c")), "deployed-mta-07.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c"))),
-                new StepOutput(Arrays.asList("namespace.a", "namespace.b", "namespace.c"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Arrays.asList("namespace.a", "namespace.b", "namespace.c"), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
             // (6) There are no obsolete services:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Arrays.asList("s-1", "s-2", "s-3"), "deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-08.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
-                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
             // (7) There are no obsolete modules:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Collections.emptyList(), "deployed-apps-07.json", new TreeSet<>(Arrays.asList("a", "b", "c")), "deployed-mta-09.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c"))),
-                new StepOutput(Collections.emptyList(), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Collections.emptyList(), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
             // (8) There are no obsolete published provided dependencies:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Collections.emptyList(),"deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-10.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
-                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
             // (9) There are no obsolete subscriptions:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Collections.emptyList(),"deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-03.json", "subscriptions-to-create-01.json","empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
-                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
             // (10) There are obsolete subscriptions:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Collections.emptyList(),"deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-03.json", "subscriptions-to-create-01.json", "existing-subscriptions-01.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
-                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "subscriptions-to-delete-01.json")),
+                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "subscriptions-to-delete-01.json")),
             },
             // (11) There are obsolete subscriptions:
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Collections.emptyList(),"deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-03.json", "empty-list.json",  "existing-subscriptions-01.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
-                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.RESOURCE, "subscriptions-to-delete-02.json")),
+                new StepOutput(Arrays.asList("d", "e"), Collections.emptyList(), new Expectation(Expectation.Type.JSON, "subscriptions-to-delete-02.json")),
             },
             // (12) There are obsolete services because they are all unbound
             {
                 new StepInput("modules-to-deploy-01.json", "apps-to-deploy-01.json", Collections.emptyList(), "deployed-apps-04.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e")), "deployed-mta-08.json", "empty-list.json", "empty-list.json", new TreeSet<>(Arrays.asList("a", "b", "c", "d", "e"))),
-                new StepOutput(Arrays.asList("d", "e"), Arrays.asList("s-1", "s-2", "s-3"), new Expectation(Expectation.Type.RESOURCE, "empty-list.json")),
+                new StepOutput(Arrays.asList("d", "e"), Arrays.asList("s-1", "s-2", "s-3"), new Expectation(Expectation.Type.JSON, "empty-list.json")),
             },
 // @formatter:on
         });
@@ -235,8 +238,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
         assertEquals(output.appsToUndeployNames, getNames(StepsUtil.getAppsToUndeploy(context)));
 
-        TestUtil.test(() -> StepsUtil.getSubscriptionsToDelete(context), output.subscriptionsToDeleteExpectation, getClass(),
-            new JsonSerializationOptions(true, false));
+        tester.test(() -> StepsUtil.getSubscriptionsToDelete(context), output.subscriptionsToDeleteExpectation);
     }
 
     private List<String> getNames(List<CloudApplication> appsToUndeploy) {

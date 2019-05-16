@@ -16,10 +16,13 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 @RunWith(Parameterized.class)
 public class ApplicationEnvironmentUpdaterTest {
+
+    private final Tester tester = Tester.forClass(getClass());
 
     private Input input;
     private Expectation expectation;
@@ -31,11 +34,10 @@ public class ApplicationEnvironmentUpdaterTest {
         return Arrays.asList(new Object[][] {
 // @formatter:off
             {
-                "application-env-updater-input-00.json", new Expectation(Expectation.Type.RESOURCE, "application-env-updater-result-00.json"),
-            }
-            ,
+                "application-env-updater-input-00.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-00.json"),
+            },
             {
-                "application-env-updater-input-01.json", new Expectation(Expectation.Type.RESOURCE, "application-env-updater-result-01.json"),
+                "application-env-updater-input-01.json", new Expectation(Expectation.Type.JSON, "application-env-updater-result-01.json"),
             }
 // @formatter:on
         });
@@ -58,7 +60,7 @@ public class ApplicationEnvironmentUpdaterTest {
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         Mockito.verify(client)
             .updateApplicationEnv(Mockito.eq(input.app.name), (Map<String, String>) captor.capture());
-        TestUtil.test(() -> captor.getValue(), expectation, getClass());
+        tester.test(() -> captor.getValue(), expectation);
     }
 
     private static class Input {

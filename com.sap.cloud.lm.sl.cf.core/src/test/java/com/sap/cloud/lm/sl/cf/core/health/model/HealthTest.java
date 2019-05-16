@@ -13,10 +13,13 @@ import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 @RunWith(Parameterized.class)
 public class HealthTest {
+
+    private final Tester tester = Tester.forClass(getClass());
 
     @Parameters
     public static Iterable<Object[]> getParameter() {
@@ -24,11 +27,11 @@ public class HealthTest {
             // @formatter:off
             // (0)
             {
-                "successful-operations.json", new Expectation(Expectation.Type.RESOURCE, "good-health.json"), 
+                "successful-operations.json", new Expectation(Expectation.Type.JSON, "good-health.json"), 
             },
             // (1)
             {
-                "failed-operations.json", new Expectation(Expectation.Type.RESOURCE, "poor-health.json"), 
+                "failed-operations.json", new Expectation(Expectation.Type.JSON, "poor-health.json"), 
             },
             // @formatter:on
         });
@@ -53,7 +56,7 @@ public class HealthTest {
 
     @Test
     public void testFromOperations() {
-        TestUtil.test(() -> Health.fromOperations(operations), expectation, getClass());
+        tester.test(() -> Health.fromOperations(operations), expectation);
     }
 
 }

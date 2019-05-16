@@ -1,7 +1,11 @@
 package com.sap.cloud.lm.sl.cf.process.steps;
 
 import static com.sap.cloud.lm.sl.cf.process.steps.StepsTestUtil.loadDeploymentDescriptor;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -18,7 +22,7 @@ import com.sap.cloud.lm.sl.common.ConflictException;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenameStep> {
 
@@ -53,8 +57,8 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context),
-            new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
+        tester.test(() -> StepsUtil.getDeploymentDescriptor(context),
+            new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
     }
 
     @Test
@@ -65,8 +69,8 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context),
-            new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
+        tester.test(() -> StepsUtil.getDeploymentDescriptor(context),
+            new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
     }
 
     @Test
@@ -78,8 +82,8 @@ public class BlueGreenRenameStepTest extends SyncFlowableStepTest<BlueGreenRenam
 
         assertStepFinishedSuccessfully();
 
-        TestUtil.test(() -> StepsUtil.getDeploymentDescriptor(context),
-            new Expectation(Expectation.Type.RESOURCE, "node-hello-blue-mtad.yaml.json"), getClass());
+        tester.test(() -> StepsUtil.getDeploymentDescriptor(context),
+            new Expectation(Expectation.Type.JSON, "node-hello-blue-mtad.yaml.json"));
     }
 
     @Test

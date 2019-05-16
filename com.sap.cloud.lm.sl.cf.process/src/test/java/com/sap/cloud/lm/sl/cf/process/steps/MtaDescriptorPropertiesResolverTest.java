@@ -18,8 +18,8 @@ import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.helpers.MtaDescriptorPropertiesResolver;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationConfiguration;
-import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 public class MtaDescriptorPropertiesResolverTest {
@@ -28,14 +28,16 @@ public class MtaDescriptorPropertiesResolverTest {
         return Stream.of(
 // @formatter:off
             Arguments.of(
-                "mtad-properties-resolver-test/bg-mtad-xsa-with-route.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-properties-resolver-test/bg-mtad-xsa-with-route-result.json")
+                "mtad-properties-resolver-test/bg-mtad-xsa-with-route.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/bg-mtad-xsa-with-route-result.json")
                 ),
             Arguments.of(
-                "mtad-properties-resolver-test/bg-mtad-xsa-with-domain.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-properties-resolver-test/bg-mtad-xsa-with-domain-result.json")
+                "mtad-properties-resolver-test/bg-mtad-xsa-with-domain.yaml", new Expectation(Expectation.Type.JSON, "mtad-properties-resolver-test/bg-mtad-xsa-with-domain-result.json")
                 )
             );
 // @formatter:on
     }
+
+    private final Tester tester = Tester.forClass(getClass());
 
     private MtaDescriptorPropertiesResolver resolver;
 
@@ -62,6 +64,6 @@ public class MtaDescriptorPropertiesResolverTest {
     public void testResolve(String descriptorFile, Expectation expectation) {
         DeploymentDescriptor descriptor = StepsTestUtil.loadDeploymentDescriptor(descriptorFile, getClass());
 
-        TestUtil.test(() -> resolver.resolve(descriptor), expectation, getClass());
+        tester.test(() -> resolver.resolve(descriptor), expectation);
     }
 }

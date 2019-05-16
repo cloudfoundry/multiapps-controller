@@ -7,15 +7,17 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.sap.cloud.lm.sl.cf.core.helpers.ApplicationColorAppender;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationColor;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 import com.sap.cloud.lm.sl.mta.handlers.v2.DescriptorParser;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 
 @RunWith(Parameterized.class)
 public class ApplicationColorAppenderTest {
+
+    private final Tester tester = Tester.forClass(getClass());
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -23,11 +25,11 @@ public class ApplicationColorAppenderTest {
 // @formatter:off
             // (0) No application name is specified:
             {
-                "mtad-01.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-01.yaml.json"),
+                "mtad-01.yaml", new Expectation(Expectation.Type.JSON, "mtad-01.yaml.json"),
             },
             // (1) An application name is specified:
             {
-                "mtad-02.yaml", new Expectation(Expectation.Type.RESOURCE, "mtad-02.yaml.json"),
+                "mtad-02.yaml", new Expectation(Expectation.Type.JSON, "mtad-02.yaml.json"),
             },
 // @formatter:on
         });
@@ -46,12 +48,12 @@ public class ApplicationColorAppenderTest {
         DeploymentDescriptor descriptor = getDescriptorParser()
             .parseDeploymentDescriptorYaml(TestUtil.getResourceAsString(deploymentDescriptorString, getClass()));
 
-        TestUtil.test(() -> {
+        tester.test(() -> {
 
             descriptor.accept(getApplicationColorAppender(ApplicationColor.BLUE, ApplicationColor.GREEN));
             return descriptor;
 
-        }, expectation, getClass());
+        }, expectation);
     }
 
     protected DescriptorParser getDescriptorParser() {

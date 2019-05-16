@@ -9,15 +9,18 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.cloud.lm.sl.common.util.TestUtil;
-import com.sap.cloud.lm.sl.common.util.TestUtil.Expectation;
+import com.sap.cloud.lm.sl.common.util.Tester;
+import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
 
 public class IdleUriParametersParserTest {
+
+    private final Tester tester = Tester.forClass(getClass());
 
     public static Stream<Arguments> testResolve() {
         return Stream.of(
         // @formatter:off
             // TODO: add actual tests
-            Arguments.of("parameters1.json", new Expectation(Expectation.Type.RESOURCE, "parsed-routes.json")));
+            Arguments.of("parameters1.json", new Expectation(Expectation.Type.JSON, "parsed-routes.json")));
         // @formatter:on
     }
 
@@ -39,7 +42,7 @@ public class IdleUriParametersParserTest {
 
         IdleUriParametersParser idleParser = new IdleUriParametersParser(true, "not-used", "not-used", 1, "not-used", true, "protocol");
 
-        TestUtil.test(() -> idleParser.parse((List<Map<String, Object>>) moduleProperties), expectation, getClass());
+        tester.test(() -> idleParser.parse((List<Map<String, Object>>) moduleProperties), expectation);
     }
 
 }
