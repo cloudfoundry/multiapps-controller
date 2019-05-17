@@ -4,18 +4,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
 import com.sap.cloud.lm.sl.cf.persistence.changes.liquibase.AbstractDataTransformationChange;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 public class TransformFilterColumn extends AbstractDataTransformationChange<Map<Long, String>, Map<Long, String>> {
 
@@ -43,19 +41,19 @@ public class TransformFilterColumn extends AbstractDataTransformationChange<Map<
             if (StringUtils.isEmpty(entry.getValue())) {
                 continue;
             }
-            JsonElement initialFilterJsonElement = new JsonParser().parse(entry.getValue());
-            JsonObject filterJsonObject = initialFilterJsonElement.getAsJsonObject();
-            JsonElement targetSpaceJsonElement = filterJsonObject.get(TARGET_SPACE);
-            if (targetSpaceJsonElement == null) {
+            Map<String, Object> filter = new LinkedHashMap<>(JsonUtil.convertJsonToMap(entry.getValue()));
+            Object targetSpace = filter.get(TARGET_SPACE);
+            if (targetSpace == null) {
                 continue;
             }
 
-            CloudTarget cloudTarget = ConfigurationEntriesUtil.splitTargetSpaceValue(targetSpaceJsonElement.getAsString());
-            JsonElement cloudTargetJsonElement = new Gson().toJsonTree(cloudTarget);
-            filterJsonObject.add(TARGET_SPACE, cloudTargetJsonElement);
-            transformedData.put(entry.getKey(), filterJsonObject.toString());
+            CloudTarget cloudTarget = ConfigurationEntriesUtil.splitTargetSpaceValue(targetSpace.toString());
+            filter.put(TARGET_SPACE, cloudTarget);
 
-            logger.debug(String.format("Transform data for row ID: '%s' , Filter: '%s'", entry.getKey(), filterJsonObject.toString()));
+            String transformedFilter = JsonUtil.toJson(filter);
+            transformedData.put(entry.getKey(), transformedFilter);
+
+            logger.debug(String.format("Transform data for row ID: '%s' , Filter: '%s'", entry.getKey(), transformedFilter));
         }
         return transformedData;
     }

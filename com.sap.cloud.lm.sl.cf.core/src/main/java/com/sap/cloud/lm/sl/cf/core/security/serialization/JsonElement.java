@@ -2,61 +2,66 @@ package com.sap.cloud.lm.sl.cf.core.security.serialization;
 
 import static com.sap.cloud.lm.sl.mta.util.ValidatorUtil.getPrefixedName;
 
-public class JsonElement<T extends com.google.gson.JsonElement> implements Element {
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-    protected String elementName;
-    protected T gsonElement;
+public class JsonElement<T> implements Element {
+
+    protected String name;
     protected String prefix;
+    protected T object;
 
-    public JsonElement(String elementName, String prefix, T gsonElement) {
-        this.elementName = elementName;
+    public JsonElement(String name, String prefix, T object) {
+        this.name = name;
         this.prefix = prefix;
-        this.gsonElement = gsonElement;
+        this.object = object;
     }
 
-    public T getGsonElement() {
-        return gsonElement;
-    }
-
-    @Override
-    public boolean isSimpleElement() {
-        return gsonElement.isJsonPrimitive() && gsonElement.getAsJsonPrimitive()
-            .isString();
+    public Object getObject() {
+        return object;
     }
 
     @Override
-    public boolean isMappingElement() {
-        return JsonMapElement.isGsonMapping(gsonElement);
+    public boolean isScalar() {
+        return !isMap() && !isList();
     }
 
     @Override
-    public boolean isListingElement() {
-        return JsonListElement.isGsonListing(gsonElement);
+    public boolean isMap() {
+        return object instanceof Map;
     }
 
     @Override
-    public MapElement asMappingElement() {
-        return new JsonMapElement(elementName, prefix, JsonMapElement.asGsonMapping(gsonElement));
+    public boolean isList() {
+        return object instanceof List;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public MapElement asMapElement() {
+        return new JsonMapElement(name, prefix, (Map<String, Object>) object);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ListElement asListElement() {
+        return new JsonListElement(name, prefix, (List<Object>) object);
     }
 
     @Override
-    public ListElement asListingElement() {
-        return new JsonListElement(elementName, prefix, JsonListElement.asGsonListing(gsonElement));
-    }
-
-    @Override
-    public String asSimpleElement() {
-        return gsonElement.getAsString();
+    public String asString() {
+        return Objects.toString(object, null);
     }
 
     @Override
     public String getFullName() {
-        return getPrefixedName(prefix, elementName);
+        return getPrefixedName(prefix, name);
     }
 
     @Override
     public String getName() {
-        return elementName;
+        return name;
     }
 
 }

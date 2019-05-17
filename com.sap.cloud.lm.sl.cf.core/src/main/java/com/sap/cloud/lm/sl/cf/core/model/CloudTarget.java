@@ -10,20 +10,17 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.google.gson.annotations.Expose;
 import com.sap.cloud.lm.sl.cf.core.filters.TargetWildcardFilter;
 
 @XmlRootElement(name = "target")
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class CloudTarget {
 
-    @Expose
     @XmlElement(name = "space")
     @QueryParam(SPACE)
     @DefaultValue(TargetWildcardFilter.ANY_TARGET_WILDCARD)
     private String space;
 
-    @Expose
     @XmlElement(name = "org")
     @QueryParam(ORG)
     @DefaultValue(TargetWildcardFilter.ANY_TARGET_WILDCARD)

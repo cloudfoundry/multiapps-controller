@@ -4,50 +4,36 @@ import static com.sap.cloud.lm.sl.mta.util.ValidatorUtil.getPrefixedName;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+public class JsonMapElement extends JsonElement<Map<String, Object>> implements MapElement {
 
-public class JsonMapElement extends JsonElement<JsonObject> implements MapElement {
-
-    public JsonMapElement(String name, String prefix, JsonObject element) {
-        super(name, prefix, element);
-    }
-
-    public static JsonObject asGsonMapping(com.google.gson.JsonElement element) {
-        return element.getAsJsonObject();
-    }
-
-    public static boolean isGsonMapping(com.google.gson.JsonElement element) {
-        return element.isJsonObject();
-    }
-
-    private Element toJsonElement(Map.Entry<String, com.google.gson.JsonElement> gsonElement) {
-        return new JsonElement<>(gsonElement.getKey(), getPrefixedName(prefix, elementName), gsonElement.getValue());
-    }
-
-    private com.google.gson.JsonElement toJsonElement(Object element) {
-        return new JsonElement<com.google.gson.JsonElement>("", "", new Gson().toJsonTree(element)).getGsonElement();
+    public JsonMapElement(String name, String prefix, Map<String, Object> object) {
+        super(name, prefix, object);
     }
 
     @Override
     public Collection<Element> getMembers() {
-        ArrayList<Element> members = new ArrayList<>();
-        for (Map.Entry<String, com.google.gson.JsonElement> element : gsonElement.entrySet()) {
+        List<Element> members = new ArrayList<>();
+        for (Map.Entry<String, Object> element : object.entrySet()) {
             members.add(toJsonElement(element));
         }
         return members;
     }
 
+    private Element toJsonElement(Map.Entry<String, Object> element) {
+        return new JsonElement<>(element.getKey(), getPrefixedName(prefix, name), element.getValue());
+    }
+
     @Override
     public void remove(String memberName) {
-        gsonElement.remove(memberName);
+        object.remove(memberName);
     }
 
     @Override
     public void add(String memberName, Object memberValue) {
-        gsonElement.add(memberName, toJsonElement(memberValue));
+        object.put(memberName, memberValue);
     }
 
 }

@@ -23,7 +23,7 @@ public abstract class SecureSerializer<E extends Element> {
     }
 
     private boolean hasSensitiveValues(Element element) {
-        return element.isSimpleElement() && isSensitive(element.asSimpleElement());
+        return element.isScalar() && isSensitive(element.asString());
     }
 
     private boolean hasSensitiveNaming(Element element) {
@@ -52,10 +52,10 @@ public abstract class SecureSerializer<E extends Element> {
     }
 
     private void modifyElements(CompositeElement element, Collection<Element> elementsToModify) {
-        if (element.isMappingElement()) {
-            modifyElements(element.asMappingElement(), elementsToModify);
+        if (element.isMap()) {
+            modifyElements(element.asMapElement(), elementsToModify);
         } else {
-            modifyElements(element.asListingElement(), elementsToModify);
+            modifyElements(element.asListElement(), elementsToModify);
         }
     }
 
@@ -73,12 +73,12 @@ public abstract class SecureSerializer<E extends Element> {
     }
 
     private void modifySensitiveElements(Element element) {
-        if (element.isMappingElement()) {
-            modifySensitiveElements(element.asMappingElement());
+        if (element.isMap()) {
+            modifySensitiveElements(element.asMapElement());
             return;
         }
-        if (element.isListingElement()) {
-            modifySensitiveElements(element.asListingElement());
+        if (element.isList()) {
+            modifySensitiveElements(element.asListElement());
         }
     }
 

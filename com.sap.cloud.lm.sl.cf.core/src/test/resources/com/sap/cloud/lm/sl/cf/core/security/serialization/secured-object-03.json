@@ -1,34 +1,32 @@
 {
-  "schemaVersion": "3.1.0",
-  "id": "com.sap.mta.sample.v2",
-  "version": "1.2.1-beta+20150403144937853",
-  "modules": [
-    {
-      "name": "test-module",
-      "type": "test-type",
-      "properties": {
-        "test-1": "********"
-      },
-      "parameters": {},
-      "requiredDependencies": [],
-      "providedDependencies": [],
-      "propertiesMetadata": {
-        "metadata": {
-          "test-1": {
-            "sensitive": true
-          }
+  "majorSchemaVersion" : 3,
+  "schemaVersion" : "3.1.0",
+  "id" : "com.sap.mta.sample.v2",
+  "version" : "1.2.1-beta+20150403144937853",
+  "modules" : [ {
+    "majorSchemaVersion" : 3,
+    "name" : "test-module",
+    "type" : "test-type",
+    "properties" : {
+      "test-1" : "********"
+    },
+    "parameters" : { },
+    "requiredDependencies" : [ ],
+    "providedDependencies" : [ ],
+    "propertiesMetadata" : {
+      "metadata" : {
+        "test-1" : {
+          "sensitive" : true
         }
-      },
-      "parametersMetadata": {
-        "metadata": {}
-      },
-      "deployedAfter": [],
-      "hooks": [],
-      "majorSchemaVersion": 3
-    }
-  ],
-  "resources": [],
-  "parameters": {},
-  "parametersMetadata": {},
-  "majorSchemaVersion": 3
+      }
+    },
+    "parametersMetadata" : {
+      "metadata" : { }
+    },
+    "deployedAfter" : [ ],
+    "hooks" : [ ]
+  } ],
+  "resources" : [ ],
+  "parameters" : { },
+  "parametersMetadata" : { }
 }

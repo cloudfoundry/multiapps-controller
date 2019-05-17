@@ -4,45 +4,35 @@ import static com.sap.cloud.lm.sl.mta.util.ValidatorUtil.getPrefixedName;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+public class JsonListElement extends JsonElement<List<Object>> implements ListElement {
 
-public class JsonListElement extends JsonElement<JsonArray> implements ListElement {
-
-    public JsonListElement(String name, String prefix, JsonArray element) {
-        super(name, prefix, element);
-    }
-
-    public static JsonArray asGsonListing(com.google.gson.JsonElement element) {
-        return element.getAsJsonArray();
-    }
-
-    public static boolean isGsonListing(com.google.gson.JsonElement element) {
-        return element.isJsonArray();
-    }
-
-    private JsonElement<com.google.gson.JsonElement> toJsonElement(Integer index, com.google.gson.JsonElement element) {
-        return new JsonElement<>(index.toString(), getPrefixedName(prefix, elementName), element);
+    public JsonListElement(String name, String prefix, List<Object> object) {
+        super(name, prefix, object);
     }
 
     @Override
     public Collection<Element> getMembers() {
-        ArrayList<Element> members = new ArrayList<>();
-        for (int i = 0; i < gsonElement.size(); i++) {
-            members.add(toJsonElement(i, gsonElement.get(i)));
+        List<Element> members = new ArrayList<>();
+        for (int i = 0; i < object.size(); i++) {
+            members.add(toJsonElement(i, object.get(i)));
         }
         return members;
     }
 
+    private Element toJsonElement(Integer index, Object element) {
+        return new JsonElement<>(index.toString(), getPrefixedName(prefix, name), element);
+    }
+
     @Override
     public void remove(int index) {
-        gsonElement.remove(index);
+        object.remove(index);
     }
 
     @Override
     public void add(Object element) {
-        gsonElement.add(new Gson().toJsonTree(element));
+        object.add(element);
     }
 
 }
