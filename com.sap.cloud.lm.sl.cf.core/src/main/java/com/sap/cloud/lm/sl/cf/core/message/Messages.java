@@ -17,11 +17,9 @@ public final class Messages {
     public static final String PERMISSION_CHECK_FAILED_SPACE_ID = "Could not check for permission to perform operation \"{0}\" in space with ID \"{1}\"";
     public static final String ORG_AND_SPACE_NOT_FOUND = "Could not find organization and space by space ID \"{0}\"";
     public static final String ROUTE_NOT_FOUND = "Could not find route \"{0}\"";
-    public static final String ARCHIVE_MODULE_NOT_INTENDED_FOR_DEPLOYMENT = "MTA module \"{0}\" is part of MTA archive, but is not intended for deployment";
     public static final String OPERATION_NOT_FOUND = "MTA operation with ID \"{0}\" does not exist";
     public static final String OPERATION_SPACE_MISMATCH = "MTA operation with ID \"{0}\" exists in space \"{1}\" but was queried from space \"{2}\"";
     public static final String OPERATION_ALREADY_EXISTS = "MTA operation with ID \"{0}\" already exists";
-    public static final String MULTIPLE_OPERATIONS_WITH_LOCK_FOUND = "Multiple operations found with lock for MTA \"{0}\" in space \"{1}\"";
     public static final String PATH_SHOULD_NOT_BE_ABSOLUTE = "Path \"{0}\" should not be absolute";
     public static final String PATH_SHOULD_BE_NORMALIZED = "Path \"{0}\" should be normalized (should not contain any \".\", \"..\" or \"//\" path segments)!";
     public static final String PATH_MUST_NOT_CONTAIN_WINDOWS_SEPARATORS = "Path \"{0}\" must use only Unix separators \"/\", but contains Windows separators \"\\\"";
@@ -29,17 +27,12 @@ public final class Messages {
     public static final String UNRESOLVED_MODULE_DEPENDENCIES = "Modules {0} have dependencies which are neither part of MTA archive, nor already deployed";
     public static final String COULD_NOT_CREATE_VALID_DOMAIN = "Could not create a valid domain from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_HOST = "Could not create a valid host from \"{0}\"";
-    public static final String COULD_NOT_CREATE_VALID_PORT = "Could not create a valid port from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_ROUTE = "Could not create a valid route from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_APPLICATION_NAME_FROM_0 = "Could not create a valid application name from \"{0}\"";
     public static final String COULD_NOT_CREATE_VALID_SERVICE_NAME_FROM_0 = "Could not create a valid service name from \"{0}\"";
     public static final String COULD_NOT_PARSE_ROUTE = "Cannot parse 'routes' property - check documentation for correct format.";
     public static final String COULD_NOT_CREATE_VALID_ROUTE_NESTED_EXCEPTION = "Invalid route \"{0}\" : {1}";
-    public static final String COULD_NOT_CREATE_VALID_VISIBILITY_PARAMETER = "Could not create a valid visibility parameter from \"{0}\"";
     public static final String CANNOT_CORRECT_PARAMETER = "Value for parameter \"{0}\" is not valid and cannot be corrected";
-    public static final String DEPLOY_TARGET_ALREADY_EXISTS = "Deploy target with name \"{0}\" already exists";
-    public static final String DEPLOY_TARGET_NOT_FOUND = "Deploy target with id \"{0}\" does not exist";
-    public static final String DEPLOY_TARGET_WITH_NAME_NOT_FOUND = "Deploy target with name \"{0}\" does not exist";
     public static final String CONFIGURATION_ENTRY_ALREADY_EXISTS = "Configuration entry with namespace ID \"{0}\", ID \"{1}\", version \"{2}\", target org \"{3}\" and target space \"{4}\", already exists";
     public static final String CONFIGURATION_SUBSCRIPTION_ALREADY_EXISTS = "Configuration subscription for MTA \"{0}\", app \"{1}\" and resource \"{2}\" already exists in space \"{3}\"";
     public static final String CONFIGURATION_ENTRY_NOT_FOUND = "Configuration entry with ID \"{0}\" does not exist";
@@ -67,15 +60,12 @@ public final class Messages {
     public static final String ATTRIBUTE_0_OF_APP_1_IS_OF_TYPE_2_INSTEAD_OF_3 = "Attribute \"{0}\" of application \"{1}\" is of type {2} instead of {3}!";
     public static final String ILLEGAL_DESIRED_STATE = "Illegal desired application state: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_STATE = "Illegal service operation state: {0}";
-    public static final String ILLEGAL_SERVICE_ACTION_NAME = "Illegal service action name: {0}";
     public static final String ILLEGAL_SERVICE_OPERATION_TYPE = "Illegal service operation type: {0}";
     public static final String MULTIPLE_CONFIGURATION_ENTRIES = "Multiple configuration entries were found matching the filter specified in resource \"{0}\": \"{1}\"";
     public static final String INVALID_TCP_ROUTE = "TCP route can either be TCP or TCPS";
     public static final String NO_SERVICE_PLAN_FOUND = "Could not create service instance \"{0}\". Service plan \"{1}\" from service offering \"{2}\" was not found.";
     public static final String EMPTY_SERVICE_PLANS_LIST_FOUND = "An empty service plans list was found for service \"{0}\"";
-    public static final String NO_CONTENT_TO_DEPLOY = "No content to deploy";
     public static final String UNABLE_TO_PARSE_MEMORY_STRING_0 = "Unable to parse memory string \"{0}\"";
-    public static final String LIQUIBASE_CF_CHECK_PLATFORM_TYPE = "Platform must be cloud foundry to execute this change. Current platform is: {0}";
     public static final String CANNOT_SUBMIT_TASK = "Couldn't submit auditlogging task for execution in the executor service";
     public static final String CANT_CREATE_SERVICE_NOT_MATCHING_OFFERINGS_OR_PLAN = "Service \"{0}\" could not be created because none of the service offering(s) \"{1}\" match with existing service offerings or provide service plan \"{2}\"";
     public static final String CANT_CREATE_SERVICE = "Service \"{0}\" could not be created because all attempt(s) to use service offerings \"{1}\" failed";
@@ -94,15 +84,12 @@ public final class Messages {
     public static final String ENVIRONMENT_VARIABLE_IS_NOT_SET_USING_DEFAULT = "Environment variable \"{0}\" is not set. Using default \"{1}\"...";
     public static final String UNKNOWN_XS_TYPE = "Unknown XS type \"{0}\". Using default: \"{1}\"";
     public static final String UNKNOWN_DB_TYPE = "Unknown database type \"{0}\", using default \"{1}\"";
-    public static final String INVALID_PLATFORMS = "Invalid platforms \"{0}\", using default \"{1}\"";
-    public static final String INVALID_TARGETS = "Invalid targets \"{0}\", using default \"{1}\"";
     public static final String OPTIONAL_RESOURCE_IS_NOT_SERVICE = "Optional resource \"{0}\" it will be not created because it's not a service";
     public static final String SERVICE_IS_NOT_ACTIVE = "Service \"{0}\" is inactive and will not be processed";
 
     public static final String INVALID_VCAP_APPLICATION = "Invalid VCAP_APPLICATION \"{0}\"";
     public static final String COULD_NOT_PARSE_ROUTER_PORT_0_USING_DEFAULT_1 = "Could not parse router port \"{0}\", using default \"{1}\"";
     public static final String IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE = "Ignoring label \"{0}\" for service \"{1}\", as user-provided services do not support labels!";
-    public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
     public static final String NOT_DESCRIBED_MODULE = "MTA module \"{0}\" is found deployed, but it is not part of MTA manifest file";
     public static final String COULD_NOT_PARSE_PROVIDED_DEPENDENCY_NAMES_1_OF_APP_0 = "Could not parse provided dependency names of application \"{0}\". Assuming that they're written in the \"old\" format. This is what they look like: {1}";
     public static final String SPACE_ID_NOT_SPECIFIED_USING_DEFAULT_0 = "Space ID is not specified in the environment. Using default: \"{0}\"";
@@ -113,9 +100,6 @@ public final class Messages {
     public static final String XS_TYPE_NOT_SPECIFIED = "XS type is not specified in the environment. Using default: \"{0}\"";
     public static final String DB_TYPE_NOT_SPECIFIED = "Database type is not specified in the environment. Using default: \"{0}\"";
     public static final String PLATFORMS_NOT_SPECIFIED = "No platforms are specified in the environment.";
-    public static final String TARGETS_NOT_SPECIFIED = "Targets are not specified in the environment. Using default: \"{0}\"";
-    public static final String MAX_UPLOAD_SIZE_NOT_SPECIFIED = "Max upload size is not specified in the environment. Using default: \"{0}\"";
-    public static final String MAX_MTA_DESCRIPTOR_SIZE_NOT_SPECIFIED = "Max MTA descriptor size is not specified in the environment. Using default: \"{0}\"";
     public static final String NO_APPLICATION_URIS_SPECIFIED = "No application URIs are specified in the environment.";
     public static final String ATTEMPTING_TO_RELEASE_STUCK_LOCK = "Change log lock is presumed to be stuck. Attempting to release it...";
     public static final String CURRENT_LOCK = "Change log lock was acquired at {0} by {1}";
@@ -124,7 +108,6 @@ public final class Messages {
     public static final String ALTERED_DATA_TYPES_FOR_OPERATION_TABLE = "Altered data types for 'started_at' and 'ended_at' columns in 'operation' table to 'timestamp'.";
     public static final String SPLIT_TARGET_SPACE_COLUMN = "Split target space column in configuration registry";
     public static final String TRANSFORMED_FILTER_COLUMN = "Transformed filter column in configuration subscription table";
-    public static final String POPULATE_SPACE_ID_COLUMN = "Populate SPACE_ID column in configuration registry table";
 
     public static final String XS_TYPE = "XS type: {0}";
     public static final String CONTROLLER_URL = "Controller URL: {0}";
@@ -176,8 +159,6 @@ public final class Messages {
     public static final String AUDIT_LOG_DELETE_CONFIG = "Deleting configuration \"{0}\"";
     public static final String AUDIT_LOG_CONFIG_UPDATED = "Configuration was updated";
     public static final String AUDIT_LOG_CONFIG_UPDATE_FAILED = "Configuration update failed";
-    public static final String AUDIT_LOG_ABOUT_TO_UPDATE = "About to update configuration \"{0}\"";
-    public static final String AUDIT_LOG_CONFIG_CREATED = "Created configuration \"{0}\"";
     public static final String PURGING_SUBSCRIPTIONS = "Purging configuration subscriptions for target: {0}";
     public static final String PURGING_ENTRIES = "Purging entries for target: {0}";
     public static final String PURGE_DELETE_REQUEST_SPACE_FROM_CONFIGURATION_TABLES = "All delete request spaces after date: {0} will be deleted from configuration tables.";
