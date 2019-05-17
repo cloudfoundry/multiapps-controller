@@ -141,7 +141,7 @@ public class UpdateSubscribedServiceBrokerStepTest extends SyncFlowableStepTest<
         CloudApplicationExtended toCloudApplication() {
             CloudApplicationExtended application = new CloudApplicationExtended(null, name);
             Map<String, Object> brokerDetails = getBrokerDetails();
-            application.setEnv(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, brokerDetails));
+            application.setEnv(MapUtil.asMap(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(brokerDetails)));
             return application;
         }
 

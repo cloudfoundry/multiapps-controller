@@ -5,6 +5,7 @@ public class ServiceUrl {
     private String serviceName;
     private String url;
 
+    // Required by Jackson.
     public ServiceUrl() {
     }
 

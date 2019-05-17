@@ -21,7 +21,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.util.ModulesCloudModelBuilderContentCalculator;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
@@ -182,16 +182,16 @@ public class BuildCloudDeployModelStepTest extends SyncFlowableStepTest<BuildClo
 
     protected void loadParameters() throws Exception {
         String modulesToDeployString = TestUtil.getResourceAsString(input.modulesToDeployLocation, getClass());
-        modulesToDeploy = JsonUtil.fromJson(modulesToDeployString, new TypeToken<List<Module>>() {
-        }.getType());
+        modulesToDeploy = JsonUtil.fromJson(modulesToDeployString, new TypeReference<List<Module>>() {
+        });
 
         String servicesToBindString = TestUtil.getResourceAsString(input.servicesToBindLocation, getClass());
-        servicesToBind = JsonUtil.fromJson(servicesToBindString, new TypeToken<List<CloudServiceExtended>>() {
-        }.getType());
+        servicesToBind = JsonUtil.fromJson(servicesToBindString, new TypeReference<List<CloudServiceExtended>>() {
+        });
 
         String serviceKeysString = TestUtil.getResourceAsString(input.serviceKeysLocation, getClass());
-        serviceKeys = JsonUtil.fromJson(serviceKeysString, new TypeToken<Map<String, List<ServiceKey>>>() {
-        }.getType());
+        serviceKeys = JsonUtil.fromJson(serviceKeysString, new TypeReference<Map<String, List<ServiceKey>>>() {
+        });
 
         if (input.deployedMtaLocation != null) {
             String deployedMtaString = TestUtil.getResourceAsString(input.deployedMtaLocation, getClass());

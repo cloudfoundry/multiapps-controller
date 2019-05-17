@@ -1,5 +1,6 @@
 [
   {
+    "id": 0,
     "providerNid": "mta",
     "providerId": "com.sap.example.mta:foo",
     "providerVersion": "0.1.0",
@@ -17,6 +18,7 @@
     "spaceId": ""
   },
   {
+    "id": 0,
     "providerNid": "mta",
     "providerId": "com.sap.example.mta:bar",
     "providerVersion": "0.1.0",

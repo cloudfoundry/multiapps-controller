@@ -53,6 +53,9 @@
               }
             }
           },
+          "parametersMetadata": {
+            "metadata": {}
+          },
           "majorSchemaVersion": 3
         }
       ],
@@ -85,7 +88,7 @@
       "parameters": {
         "resource-parameter": "********"
       },
-      "isActive": false,
+      "isActive": true,
       "isOptional": false,
       "propertiesMetadata": {
         "metadata": {

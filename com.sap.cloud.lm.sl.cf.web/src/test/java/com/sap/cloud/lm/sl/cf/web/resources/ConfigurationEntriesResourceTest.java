@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.impl.AuditLoggingFacadeSLImpl;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
@@ -179,8 +179,8 @@ public class ConfigurationEntriesResourceTest {
         public SearchRequestTestInput(List<String> requiredContent, String parsedRequiredContentLocation) throws Exception {
             this.requiredContent = requiredContent;
             this.parsedRequiredContent = JsonUtil.convertJsonToMap(
-                SearchRequestTestInput.class.getResourceAsStream(parsedRequiredContentLocation), new TypeToken<Map<String, String>>() {
-                }.getType());
+                SearchRequestTestInput.class.getResourceAsStream(parsedRequiredContentLocation), new TypeReference<Map<String, Object>>() {
+                });
         }
 
         public Map<String, Object> getParsedRequiredContent() {

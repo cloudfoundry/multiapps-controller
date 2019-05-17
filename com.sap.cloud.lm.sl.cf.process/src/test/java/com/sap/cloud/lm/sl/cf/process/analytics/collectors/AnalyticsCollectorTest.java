@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -126,7 +127,7 @@ public class AnalyticsCollectorTest {
         when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_CREATE)).thenReturn(mockedListWithObjects(3));
         when(context.getVariable(Constants.VAR_TRIGGERED_SERVICE_OPERATIONS))
             .thenReturn(JsonUtil.toJsonBinary(TRIGGERED_SERVICE_OPERATIONS));
-        when(context.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.toJsonBinary(new Object()));
+        when(context.getVariable(Constants.VAR_SERVICE_KEYS_TO_CREATE)).thenReturn(JsonUtil.toJsonBinary(Collections.emptyMap()));
 
         when(context.getVariable(Constants.VAR_SUBSCRIPTIONS_TO_DELETE)).thenReturn(mockedListWithObjects(2));
         when(context.getVariable(Constants.VAR_DELETED_ENTRIES)).thenReturn(mockedListWithObjects(1));
@@ -139,7 +140,7 @@ public class AnalyticsCollectorTest {
     private byte[] mockedListWithObjects(int size) {
         List<Object> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            list.add(new Object());
+            list.add(Collections.emptyMap());
         }
         return JsonUtil.toJsonBinary(list);
     }
@@ -147,7 +148,7 @@ public class AnalyticsCollectorTest {
     private List<String> mockedListWithStrings(int size) {
         List<String> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            list.add(new String());
+            list.add("{}");
         }
         return list;
     }
@@ -155,7 +156,7 @@ public class AnalyticsCollectorTest {
     private byte[] mockedListAsBytesWithStrings(int size) {
         List<String> list = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            list.add(new String());
+            list.add("{}");
         }
         return JsonUtil.toJsonBinary(list);
     }

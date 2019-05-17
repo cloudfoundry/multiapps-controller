@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -70,13 +71,15 @@ public class ApplicationEnvironmentUpdaterTest {
         String newValue;
     }
 
+    private static final MapToEnvironmentConverter ENV_CONVERTER = new MapToEnvironmentConverter(false);
+
     private static class SimpleApp {
         String name;
-        Map<Object, Object> env;
+        Map<String, Object> env;
 
         CloudApplication toCloudApplication() {
             CloudApplication app = new CloudApplication(Meta.defaultMeta(), name);
-            app.setEnv(env);
+            app.setEnv(MapUtil.upcast(ENV_CONVERTER.asEnv(env)));
             return app;
         }
     }

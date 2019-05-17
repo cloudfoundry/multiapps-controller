@@ -14,7 +14,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
@@ -54,8 +54,8 @@ public class ConfigurationReferencesResolverTest {
     public ConfigurationReferencesResolverTest(String descriptorLocation, String configurationEntriesLocation, Expectation expectation)
         throws Exception {
         this.daoConfigurations = JsonUtil.fromJson(getResourceAsString(configurationEntriesLocation, getClass()),
-            new TypeToken<List<DaoMockConfiguration>>() {
-            }.getType());
+            new TypeReference<List<DaoMockConfiguration>>() {
+            });
         this.descriptorLocation = descriptorLocation;
         this.expectation = expectation;
     }

@@ -17,7 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.util.ApplicationURI;
 import com.sap.cloud.lm.sl.cf.process.Constants;
@@ -69,11 +69,11 @@ public class DeleteIdleRoutesStepTest extends SyncFlowableStepTest<DeleteIdleRou
 
     private void loadParameters(String appDetailsFile) {
         expectedAppToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(appDetailsFile, getClass()),
-            new TypeToken<CloudApplicationExtended>() {
-            }.getType());
+            new TypeReference<CloudApplicationExtended>() {
+            });
         appToDeploy = JsonUtil.fromJson(TestUtil.getResourceAsString(appDetailsFile, getClass()),
-            new TypeToken<CloudApplicationExtended>() {
-            }.getType());
+            new TypeReference<CloudApplicationExtended>() {
+            });
     }
 
     private void prepareContext(List<String> urisToDelete) {

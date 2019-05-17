@@ -11,7 +11,7 @@ import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.Constants;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ApplicationMtaMetadata;
@@ -73,8 +73,8 @@ public class ApplicationMtaMetadataParser {
         if (envValue == null) {
             return null;
         }
-        return JsonUtil.convertJsonToList(envValue, new TypeToken<List<String>>() {
-        }.getType());
+        return JsonUtil.convertJsonToList(envValue, new TypeReference<List<String>>() {
+        });
     }
 
     private static String parseModuleName(CloudApplication app, Map<String, String> appEnv) {
@@ -93,8 +93,8 @@ public class ApplicationMtaMetadataParser {
             return null;
         }
         try {
-            return JsonUtil.convertJsonToList(envValue, new TypeToken<List<String>>() {
-            }.getType());
+            return JsonUtil.convertJsonToList(envValue, new TypeReference<List<String>>() {
+            });
         } catch (ParsingException e) {
             LOGGER.warn(MessageFormat.format(Messages.COULD_NOT_PARSE_PROVIDED_DEPENDENCY_NAMES_1_OF_APP_0, appName, envValue), e);
             return Collections.emptyList();

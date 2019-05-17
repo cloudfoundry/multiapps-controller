@@ -95,6 +95,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
 
     @Before
     public void setUp() throws Exception {
+        step.shouldPrettyPrint = () -> false;
         loadParameters();
         prepareContext();
         prepareClient();
@@ -187,7 +188,7 @@ public class CreateOrUpdateAppStepTest extends CreateOrUpdateAppStepBaseTest {
             }
         }
         Mockito.verify(client)
-            .updateApplicationEnv(eq(application.getName()), eq(application.getEnvAsMap()));
+            .updateApplicationEnv(application.getName(), application.getEnvAsMap());
     }
 
     private Map<String, Object> getBindingParametersForService(Map<String, Map<String, Object>> bindingParameters, String serviceName) {

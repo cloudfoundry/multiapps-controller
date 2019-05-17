@@ -8,23 +8,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.JsonAdapter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
-
-import io.swagger.annotations.ApiModelProperty;
 
 public class Operation implements AuditableConfiguration {
 
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     private String processId = null;
-    @JsonAdapter(ProcessTypeJsonAdapter.class)
+    @JsonSerialize(using = ProcessTypeSerializer.class)
+    @JsonDeserialize(using = ProcessTypeDeserializer.class)
     private ProcessType processType = null;
-    @JsonAdapter(ZonedDateTimeJsonAdapter.class)
+    @JsonSerialize(using = ZonedDateTimeSerializer.class)
+    @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
     private ZonedDateTime startedAt = null;
-    @JsonAdapter(ZonedDateTimeJsonAdapter.class)
+    @JsonSerialize(using = ZonedDateTimeSerializer.class)
+    @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
     private ZonedDateTime endedAt = null;
     private String spaceId = null;
     private String mtaId = null;
@@ -41,8 +42,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("processId")
     public String getProcessId() {
         return processId;
     }
@@ -58,8 +57,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("processType")
     public ProcessType getProcessType() {
         return processType;
     }
@@ -75,8 +72,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("startedAt")
     public ZonedDateTime getStartedAt() {
         return startedAt;
     }
@@ -92,8 +87,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("endedAt")
     public ZonedDateTime getEndedAt() {
         return endedAt;
     }
@@ -109,8 +102,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("spaceId")
     public String getSpaceId() {
         return spaceId;
     }
@@ -126,8 +117,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("mtaId")
     public String getMtaId() {
         return mtaId;
     }
@@ -143,8 +132,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("user")
     public String getUser() {
         return user;
     }
@@ -160,8 +147,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("acquiredLock")
     public Boolean hasAcquiredLock() {
         return acquiredLock;
     }
@@ -177,8 +162,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("state")
     public State getState() {
         return state;
     }
@@ -194,8 +177,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("messages")
     public List<Message> getMessages() {
         return messages;
     }
@@ -211,8 +192,6 @@ public class Operation implements AuditableConfiguration {
         return this;
     }
 
-    @ApiModelProperty(value = "")
-    @JsonProperty("parameters")
     public Map<String, Object> getParameters() {
         return parameters;
     }

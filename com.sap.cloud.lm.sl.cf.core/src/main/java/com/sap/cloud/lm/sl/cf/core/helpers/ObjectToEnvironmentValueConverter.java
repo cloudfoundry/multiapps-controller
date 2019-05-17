@@ -29,7 +29,7 @@ public class ObjectToEnvironmentValueConverter {
 
     private String toJson(Object object) {
         object = replaceCustomEscapeSequencesWithPlaceholders(object);
-        String result = JsonUtil.toJson(object, prettyPrinting, false, true);
+        String result = JsonUtil.toJson(object, prettyPrinting);
         result = replacePlaceholdersWithCustomEscapeSequences(result);
         return result;
     }

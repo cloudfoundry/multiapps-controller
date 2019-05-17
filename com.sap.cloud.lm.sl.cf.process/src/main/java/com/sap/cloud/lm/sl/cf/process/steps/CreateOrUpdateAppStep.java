@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.ListUtils;
@@ -60,6 +61,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
 
     @Autowired
     protected ApplicationConfiguration configuration;
+
+    protected Supplier<Boolean> shouldPrettyPrint = () -> true;
 
     @Override
     protected StepPhase executeStep(ExecutionWrapper execution) throws FileStorageException {
@@ -276,7 +279,8 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         String newAppDeployAttributes = newAppEnv.get(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES);
         TreeMap<String, Object> newAppDeployAttributesMap = new TreeMap<>(JsonUtil.convertJsonToMap(newAppDeployAttributes));
         newAppDeployAttributesMap.put(com.sap.cloud.lm.sl.cf.core.Constants.ATTR_APP_CONTENT_DIGEST, existingFileDigest);
-        newAppEnv.put(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(newAppDeployAttributesMap, true));
+        newAppEnv.put(com.sap.cloud.lm.sl.cf.core.Constants.ENV_DEPLOY_ATTRIBUTES,
+            JsonUtil.toJson(newAppDeployAttributesMap, shouldPrettyPrint.get()));
     }
 
     private Object getExistingAppFileDigest(Map<String, String> envAsMap) {
@@ -339,7 +343,7 @@ public class CreateOrUpdateAppStep extends SyncFlowableStep {
         Map<String, String> appServiceKeysCredentials = new HashMap<>();
         for (ServiceKeyToInject serviceKeyToInject : app.getServiceKeysToInject()) {
             String serviceKeyCredentials = JsonUtil.toJson(ServiceOperationUtil.getServiceKeyCredentials(client,
-                serviceKeyToInject.getServiceName(), serviceKeyToInject.getServiceKeyName()), true);
+                serviceKeyToInject.getServiceName(), serviceKeyToInject.getServiceKeyName()), shouldPrettyPrint.get());
             appEnv.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
             appServiceKeysCredentials.put(serviceKeyToInject.getEnvVarName(), serviceKeyCredentials);
         }

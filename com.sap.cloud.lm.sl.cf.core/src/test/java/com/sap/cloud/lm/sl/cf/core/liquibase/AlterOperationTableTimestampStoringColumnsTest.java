@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.liquibase.AlterOperationTableTimestampStoringColumnsPostgresqlChange.OriginalOperation;
 import com.sap.cloud.lm.sl.cf.core.liquibase.AlterOperationTableTimestampStoringColumnsPostgresqlChange.TransformedOperation;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
@@ -75,8 +75,8 @@ public class AlterOperationTableTimestampStoringColumnsTest {
     @Before
     public void loadOriginalOperations() throws Exception {
         String originalOperationsJson = TestUtil.getResourceAsString(originalOperationsJsonLocation, getClass());
-        this.originalOperations = JsonUtil.fromJson(originalOperationsJson, new TypeToken<List<OriginalOperation>>() {
-        }.getType());
+        this.originalOperations = JsonUtil.fromJson(originalOperationsJson, new TypeReference<List<OriginalOperation>>() {
+        });
     }
 
     @Before
@@ -85,8 +85,8 @@ public class AlterOperationTableTimestampStoringColumnsTest {
             return;
         }
         String expectedOperationsJson = TestUtil.getResourceAsString(expectedOperationsJsonLocation, getClass());
-        this.expectedOperations = JsonUtil.fromJson(expectedOperationsJson, new TypeToken<List<ExpectedOperation>>() {
-        }.getType());
+        this.expectedOperations = JsonUtil.fromJson(expectedOperationsJson, new TypeReference<List<ExpectedOperation>>() {
+        });
     }
 
     @Before

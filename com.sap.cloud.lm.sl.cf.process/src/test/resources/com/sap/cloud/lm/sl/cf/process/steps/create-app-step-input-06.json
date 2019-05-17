@@ -19,7 +19,7 @@
         "foo=foo",
         "bar=bar",
         "baz=baz",
-        "serviceKeyCredentials={\n  \"user\": \"service-key-user\",\n  \"password\": \"service-key-password\"\n}"
+        "serviceKeyCredentials={\"user\":\"service-key-user\",\"password\":\"service-key-password\"}"
       ],
       "services": [],
       "serviceKeysToInject": [

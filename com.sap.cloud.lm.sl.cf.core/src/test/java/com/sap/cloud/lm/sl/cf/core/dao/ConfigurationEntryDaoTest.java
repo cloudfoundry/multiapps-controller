@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -22,7 +22,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -35,7 +35,6 @@ import com.sap.cloud.lm.sl.common.util.TestInput;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.common.util.Tester.JsonSerializationOptions;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
 @RunWith(Enclosed.class)
@@ -43,7 +42,7 @@ public class ConfigurationEntryDaoTest {
 
     private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("TestDefault");
 
-    private static final Tester TESTER = Tester.forClass(ConfigurationEntryDaoTest.class, new JsonSerializationOptions(true, false));
+    private static final Tester TESTER = Tester.forClass(ConfigurationEntryDaoTest.class);
 
     @RunWith(Parameterized.class)
     public static class ConfigurationEntryDaoParameterizedTest {
@@ -203,11 +202,9 @@ public class ConfigurationEntryDaoTest {
 
         @Before
         public void prepare() throws Exception {
-            Type type = new TypeToken<List<ConfigurationEntry>>() {
-            }.getType();
-
-            List<ConfigurationEntry> entries = JsonUtil
-                .convertJsonToList(TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), type);
+            List<ConfigurationEntry> entries = JsonUtil.convertJsonToList(
+                TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), new TypeReference<List<ConfigurationEntry>>() {
+                });
 
             for (ConfigurationEntry entry : entries) {
                 dao.add(entry);
@@ -311,8 +308,8 @@ public class ConfigurationEntryDaoTest {
             protected void test() throws Exception {
                 TESTER.test(() -> {
 
-                    return dao.update(findConfigurationEntries(input, dao).get(0)
-                        .getId(), input.configurationEntry);
+                    return removeId(dao.update(findConfigurationEntries(input, dao).get(0)
+                        .getId(), input.configurationEntry));
 
                 }, expectation);
             }
@@ -331,7 +328,7 @@ public class ConfigurationEntryDaoTest {
             public void test() {
                 TESTER.test(() -> {
 
-                    return dao.add(input.configurationEntry);
+                    return removeId(dao.add(input.configurationEntry));
 
                 }, expectation);
             }
@@ -350,8 +347,8 @@ public class ConfigurationEntryDaoTest {
             public void test() {
                 TESTER.test(() -> {
 
-                    return dao.find(findConfigurationEntries(input, dao).get(0)
-                        .getId());
+                    return removeId(dao.find(findConfigurationEntries(input, dao).get(0)
+                        .getId()));
 
                 }, expectation);
             }
@@ -368,7 +365,7 @@ public class ConfigurationEntryDaoTest {
             public void test() {
                 TESTER.test(() -> {
 
-                    return findConfigurationEntries(input, createDao());
+                    return removeIds(findConfigurationEntries(input, createDao()));
 
                 }, expectation);
             }
@@ -383,7 +380,8 @@ public class ConfigurationEntryDaoTest {
             @Override
             public void test() {
                 TESTER.test(() -> {
-                    return findConfigurationEntriesGuid(input, createDao());
+
+                    return removeIds(findConfigurationEntriesGuid(input, createDao()));
 
                 }, expectation);
             }
@@ -445,6 +443,17 @@ public class ConfigurationEntryDaoTest {
             throw new UnsupportedOperationException();
         }
 
+    }
+
+    private static List<ConfigurationEntry> removeIds(List<ConfigurationEntry> entries) {
+        return entries.stream()
+            .map(ConfigurationEntryDaoTest::removeId)
+            .collect(Collectors.toList());
+    }
+
+    private static ConfigurationEntry removeId(ConfigurationEntry entry) {
+        entry.setId(0);
+        return entry;
     }
 
     private static ConfigurationEntryDao createDao() {

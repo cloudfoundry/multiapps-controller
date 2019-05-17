@@ -17,7 +17,7 @@ import com.sap.cloud.lm.sl.common.util.XmlUtil;
 @RunWith(Parameterized.class)
 public class ConfigurationSubscriptionTest {
 
-    private final String jsonContent, xmlContent;
+    private final String jsonResource, xmlResource;
 
     @Parameters
     public static Iterable<Object[]> getParameters() {
@@ -30,20 +30,27 @@ public class ConfigurationSubscriptionTest {
         });
     }
 
-    public ConfigurationSubscriptionTest(String jsonInput, String expectedXml) throws IOException {
-        this.jsonContent = TestUtil.getResourceAsString(jsonInput, getClass());
-        this.xmlContent = TestUtil.getResourceAsString(expectedXml, getClass());
+    public ConfigurationSubscriptionTest(String jsonResource, String xmlResource) throws IOException {
+        this.jsonResource = loadResource(jsonResource);
+        this.xmlResource = loadResource(xmlResource);
+    }
+
+    private String loadResource(String resource) {
+        return TestUtil.getResourceAsStringWithoutCarriageReturns(resource, getClass());
     }
 
     @Test
     public void testMarshlling() {
-        ConfigurationSubscription configurationSubscription = JsonUtil.fromJson(jsonContent, ConfigurationSubscription.class);
-        assertEquals(xmlContent, XmlUtil.toXml(configurationSubscription, true));
+        ConfigurationSubscription subscription = JsonUtil.fromJson(jsonResource, ConfigurationSubscription.class);
+        String actualXml = TestUtil.removeCarriageReturns(XmlUtil.toXml(subscription, true));
+        assertEquals(xmlResource, actualXml);
     }
 
     @Test
     public void testUnmarshlling() {
-        ConfigurationSubscription configurationSubscription = XmlUtil.fromXml(xmlContent, ConfigurationSubscription.class);
-        assertEquals(jsonContent, JsonUtil.toJson(configurationSubscription, true));
+        ConfigurationSubscription subscription = XmlUtil.fromXml(xmlResource, ConfigurationSubscription.class);
+        String actualJson = TestUtil.removeCarriageReturns(JsonUtil.toJson(subscription, true));
+        assertEquals(jsonResource, actualJson);
     }
+
 }

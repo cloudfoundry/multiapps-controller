@@ -8,14 +8,10 @@ import org.cloudfoundry.client.lib.domain.CloudRoute;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 
-import com.google.gson.annotations.JsonAdapter;
-import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
-
 public class CloudApplicationExtended extends CloudApplication {
 
     private String moduleName;
     private List<String> idleUris;
-    @JsonAdapter(MapWithNumbersAdapterFactory.class)
     private Map<String, Map<String, Object>> bindingParameters;
     private List<CloudTask> tasks;
     private List<CloudRoute> routes;
@@ -25,6 +21,10 @@ public class CloudApplicationExtended extends CloudApplication {
     private RestartParameters restartParameters;
     private DockerInfo dockerInfo;
     private AttributeUpdateStrategy applicationAttributesUpdateStrategy;
+
+    // Required by Jackson.
+    protected CloudApplicationExtended() {
+    }
 
     public CloudApplicationExtended(Meta meta, String name) {
         super(meta, name);
@@ -130,6 +130,10 @@ public class CloudApplicationExtended extends CloudApplication {
         private boolean shouldKeepExistingEnv;
         private boolean shouldKeepExistingServiceBindings;
         private boolean shouldKeepExistingRoutes;
+
+        // Required by Jackson.
+        protected AttributeUpdateStrategy() {
+        }
 
         public AttributeUpdateStrategy(Builder attrbiuteUpdateStrategyBuilder) {
             this.shouldKeepExistingEnv = attrbiuteUpdateStrategyBuilder.shouldKeepExistingEnv;

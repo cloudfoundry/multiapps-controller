@@ -57,7 +57,7 @@ public class CloudModelBuilderTest {
 
     protected static final String DEPLOY_ID = "123";
 
-    protected final Tester tester = Tester.forClass(getClass(), new Tester.JsonSerializationOptions(false, true));
+    protected final Tester tester = Tester.forClass(getClass());
     protected final DescriptorParser descriptorParser = getDescriptorParser();
     protected final ConfigurationParser configurationParser = new ConfigurationParser();
     protected final DescriptorHandler descriptorHandler = getDescriptorHandler();

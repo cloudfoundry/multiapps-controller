@@ -1,5 +1,6 @@
 [
   {
+    "id": 0,
     "spaceId": "sap",
     "appName": "t-4",
     "moduleDto": {

@@ -12,9 +12,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
@@ -32,8 +34,8 @@ public class DeployedComponentsDetectorTest {
 
     private List<CloudApplication> parseApps(String appsResourceLocation) throws IOException {
         String appsJson = TestUtil.getResourceAsString(appsResourceLocation, getClass());
-        List<TestCloudApplication> testApps = JsonUtil.fromJson(appsJson, new TypeToken<List<TestCloudApplication>>() {
-        }.getType());
+        List<TestCloudApplication> testApps = JsonUtil.fromJson(appsJson, new TypeReference<List<TestCloudApplication>>() {
+        });
         return toCloudApplications(testApps);
     }
 
@@ -74,14 +76,16 @@ public class DeployedComponentsDetectorTest {
         );
     }
 
+    private static final MapToEnvironmentConverter ENV_CONVERTER = new MapToEnvironmentConverter(false);
+
     private static class TestCloudApplication {
 
-        private Map<Object, Object> env;
+        private Map<String, Object> env;
         private String name;
 
         private CloudApplication toCloudApplication() {
             CloudApplication app = new CloudApplication(new Meta(NameUtil.getUUID(name), null, null), name);
-            app.setEnv(env);
+            app.setEnv(MapUtil.upcast(ENV_CONVERTER.asEnv(env)));
             return app;
         }
 

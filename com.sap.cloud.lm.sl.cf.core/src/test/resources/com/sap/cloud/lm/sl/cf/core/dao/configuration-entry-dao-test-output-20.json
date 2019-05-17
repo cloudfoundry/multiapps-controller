@@ -1,5 +1,6 @@
 [
   {
+    "id": 0,
     "providerNid": "n-2",
     "providerId": "id-2",
     "providerVersion": "1.0.0",
@@ -17,6 +18,7 @@
     "spaceId": ""
   },
   {
+    "id": 0,
     "providerNid": "n-2",
     "providerId": "id-2",
     "providerVersion": "2.0.0",

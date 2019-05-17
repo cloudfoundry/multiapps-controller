@@ -147,6 +147,7 @@ public class BuildCloudUndeployModelStep extends SyncFlowableStep {
         Set<String> servicesForApplications) {
         return existingServices.stream()
             .filter(service -> shouldDeleteService(modulesWithoutChange, service, servicesForApplications))
+            .sorted()
             .collect(Collectors.toList());
     }
 

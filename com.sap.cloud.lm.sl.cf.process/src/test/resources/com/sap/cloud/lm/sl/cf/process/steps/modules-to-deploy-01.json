@@ -1,26 +1,43 @@
-[
-  {
-    "name": "module-1",
-    "properties": {},
-    "parameters": {},
-    "requiredDependencies": [],
-    "providedDependencies": [],
-    "majorSchemaVersion": 2
+[ {
+  "majorSchemaVersion" : 2,
+  "name" : "module-1",
+  "properties" : { },
+  "parameters" : { },
+  "requiredDependencies" : [ ],
+  "providedDependencies" : [ ],
+  "propertiesMetadata" : {
+    "metadata" : { }
   },
-  {
-    "name": "module-2",
-    "properties": {},
-    "parameters": {},
-    "requiredDependencies": [],
-    "providedDependencies": [],
-    "majorSchemaVersion": 2
+  "parametersMetadata" : {
+    "metadata" : { }
   },
-  {
-    "name": "module-3",
-    "properties": {},
-    "parameters": {},
-    "requiredDependencies": [],
-    "providedDependencies": [],
-    "majorSchemaVersion": 2
-  }
-]
+  "hooks" : [ ]
+}, {
+  "majorSchemaVersion" : 2,
+  "name" : "module-2",
+  "properties" : { },
+  "parameters" : { },
+  "requiredDependencies" : [ ],
+  "providedDependencies" : [ ],
+  "propertiesMetadata" : {
+    "metadata" : { }
+  },
+  "parametersMetadata" : {
+    "metadata" : { }
+  },
+  "hooks" : [ ]
+}, {
+  "majorSchemaVersion" : 2,
+  "name" : "module-3",
+  "properties" : { },
+  "parameters" : { },
+  "requiredDependencies" : [ ],
+  "providedDependencies" : [ ],
+  "propertiesMetadata" : {
+    "metadata" : { }
+  },
+  "parametersMetadata" : {
+    "metadata" : { }
+  },
+  "hooks" : [ ]
+} ]

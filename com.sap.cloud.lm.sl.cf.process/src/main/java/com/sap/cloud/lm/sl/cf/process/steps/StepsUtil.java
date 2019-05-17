@@ -35,7 +35,7 @@ import org.flowable.variable.api.delegate.VariableScope;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.XsCloudControllerClient;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudInfoExtended;
@@ -231,8 +231,8 @@ public class StepsUtil {
     }
 
     public static List<String> getCustomDomains(VariableScope scope) {
-        Type type = new TypeToken<List<String>>() {
-        }.getType();
+        TypeReference<List<String>> type = new TypeReference<List<String>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_CUSTOM_DOMAINS, type);
     }
 
@@ -261,8 +261,8 @@ public class StepsUtil {
     }
 
     static List<CloudServiceExtended> getServicesToPoll(VariableScope scope) {
-        Type type = new TypeToken<List<CloudServiceExtended>>() {
-        }.getType();
+        TypeReference<List<CloudServiceExtended>> type = new TypeReference<List<CloudServiceExtended>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_SERVICES_TO_POLL, type);
     }
 
@@ -271,14 +271,14 @@ public class StepsUtil {
     }
 
     public static Map<String, ServiceOperationType> getTriggeredServiceOperations(VariableScope scope) {
-        Type type = new TypeToken<Map<String, ServiceOperationType>>() {
-        }.getType();
+        TypeReference<Map<String, ServiceOperationType>> type = new TypeReference<Map<String, ServiceOperationType>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_TRIGGERED_SERVICE_OPERATIONS, type);
     }
 
     public static Map<String, List<ServiceKey>> getServiceKeysToCreate(VariableScope scope) {
-        Type type = new TypeToken<Map<String, List<ServiceKey>>>() {
-        }.getType();
+        TypeReference<Map<String, List<ServiceKey>>> type = new TypeReference<Map<String, List<ServiceKey>>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_SERVICE_KEYS_TO_CREATE, type);
     }
 
@@ -287,8 +287,8 @@ public class StepsUtil {
     }
 
     static List<CloudApplication> getDeployedApps(VariableScope scope) {
-        Type type = new TypeToken<List<CloudApplication>>() {
-        }.getType();
+        TypeReference<List<CloudApplication>> type = new TypeReference<List<CloudApplication>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_DEPLOYED_APPS, type);
     }
 
@@ -297,8 +297,8 @@ public class StepsUtil {
     }
 
     public static List<String> getAppsToDeploy(VariableScope scope) {
-        Type type = new TypeToken<List<String>>() {
-        }.getType();
+        TypeReference<List<String>> type = new TypeReference<List<String>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_APPS_TO_DEPLOY, type, Collections.emptyList());
     }
 
@@ -343,14 +343,14 @@ public class StepsUtil {
     }
 
     static Map<String, Map<String, String>> getServiceKeysCredentialsToInject(VariableScope scope) {
-        Type type = new TypeToken<Map<String, Map<String, String>>>() {
-        }.getType();
+        TypeReference<Map<String, Map<String, String>>> type = new TypeReference<Map<String, Map<String, String>>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_SERVICE_KEYS_CREDENTIALS_TO_INJECT, type);
     }
 
     public static List<CloudApplication> getUpdatedSubscribers(VariableScope scope) {
-        Type type = new TypeToken<List<CloudApplicationExtended>>() {
-        }.getType();
+        TypeReference<List<CloudApplication>> type = new TypeReference<List<CloudApplication>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_UPDATED_SUBSCRIBERS, type);
     }
 
@@ -359,8 +359,8 @@ public class StepsUtil {
     }
 
     public static List<CloudApplication> getServiceBrokerSubscribersToRestart(VariableScope scope) {
-        Type type = new TypeToken<List<CloudApplication>>() {
-        }.getType();
+        TypeReference<List<CloudApplication>> type = new TypeReference<List<CloudApplication>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_UPDATED_SERVICE_BROKER_SUBSCRIBERS, type);
     }
 
@@ -375,8 +375,8 @@ public class StepsUtil {
     }
 
     static List<CloudTask> getTasksToExecute(VariableScope scope) {
-        Type type = new TypeToken<List<CloudTask>>() {
-        }.getType();
+        TypeReference<List<CloudTask>> type = new TypeReference<List<CloudTask>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_TASKS_TO_EXECUTE, type);
     }
 
@@ -401,8 +401,8 @@ public class StepsUtil {
     }
 
     public static List<String> getServicesToDelete(VariableScope scope) {
-        Type type = new TypeToken<List<String>>() {
-        }.getType();
+        TypeReference<List<String>> type = new TypeReference<List<String>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_SERVICES_TO_DELETE, type);
     }
 
@@ -411,8 +411,8 @@ public class StepsUtil {
     }
 
     public static List<ConfigurationSubscription> getSubscriptionsToDelete(VariableScope scope) {
-        Type type = new TypeToken<List<ConfigurationSubscription>>() {
-        }.getType();
+        TypeReference<List<ConfigurationSubscription>> type = new TypeReference<List<ConfigurationSubscription>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_SUBSCRIPTIONS_TO_DELETE, type);
     }
 
@@ -421,8 +421,8 @@ public class StepsUtil {
     }
 
     public static List<ConfigurationSubscription> getSubscriptionsToCreate(VariableScope scope) {
-        Type type = new TypeToken<List<ConfigurationSubscription>>() {
-        }.getType();
+        TypeReference<List<ConfigurationSubscription>> type = new TypeReference<List<ConfigurationSubscription>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_SUBSCRIPTIONS_TO_CREATE, type);
     }
 
@@ -435,8 +435,8 @@ public class StepsUtil {
     }
 
     static List<ConfigurationEntry> getConfigurationEntriesToPublish(VariableScope scope) {
-        Type type = new TypeToken<List<ConfigurationEntry>>() {
-        }.getType();
+        TypeReference<List<ConfigurationEntry>> type = new TypeReference<List<ConfigurationEntry>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_CONFIGURATION_ENTRIES_TO_PUBLISH, type);
     }
 
@@ -462,8 +462,8 @@ public class StepsUtil {
     }
 
     public static List<ConfigurationEntry> getDeletedEntries(VariableScope scope) {
-        Type type = new TypeToken<List<ConfigurationEntry>>() {
-        }.getType();
+        TypeReference<List<ConfigurationEntry>> type = new TypeReference<List<ConfigurationEntry>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_DELETED_ENTRIES, type, Collections.emptyList());
     }
 
@@ -492,8 +492,8 @@ public class StepsUtil {
     }
 
     public static List<ConfigurationEntry> getPublishedEntries(VariableScope scope) {
-        Type type = new TypeToken<List<ConfigurationEntry>>() {
-        }.getType();
+        TypeReference<List<ConfigurationEntry>> type = new TypeReference<List<ConfigurationEntry>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_PUBLISHED_ENTRIES, type);
     }
 
@@ -571,8 +571,8 @@ public class StepsUtil {
     }
 
     static Map<String, Set<Integer>> getAllocatedPorts(VariableScope scope) {
-        Type type = new TypeToken<Map<String, Set<Integer>>>() {
-        }.getType();
+        TypeReference<Map<String, Set<Integer>>> type = new TypeReference<Map<String, Set<Integer>>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_ALLOCATED_PORTS, type);
     }
 
@@ -793,8 +793,8 @@ public class StepsUtil {
     }
 
     static Set<String> getMtaArchiveModules(VariableScope scope) {
-        Type type = new TypeToken<Set<String>>() {
-        }.getType();
+        TypeReference<Set<String>> type = new TypeReference<Set<String>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_MTA_ARCHIVE_MODULES, type);
     }
 
@@ -803,8 +803,8 @@ public class StepsUtil {
     }
 
     static Set<String> getMtaModules(VariableScope scope) {
-        Type type = new TypeToken<Set<String>>() {
-        }.getType();
+        TypeReference<Set<String>> type = new TypeReference<Set<String>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_MTA_MODULES, type);
     }
 
@@ -990,8 +990,8 @@ public class StepsUtil {
     }
 
     public static Map<String, CloudServiceExtended> getServicesData(VariableScope scope) {
-        Type type = new TypeToken<Map<String, CloudServiceExtended>>() {
-        }.getType();
+        TypeReference<Map<String, CloudServiceExtended>> type = new TypeReference<Map<String, CloudServiceExtended>>() {
+        };
         return getFromJsonBinary(scope, Constants.VAR_SERVICES_DATA, type, Collections.emptyMap());
     }
 
@@ -1084,8 +1084,8 @@ public class StepsUtil {
     }
 
     static Map<String, List<String>> getExecutedHooksForModule(VariableScope scope, String moduleName) {
-        Type type = new TypeToken<Map<String, List<String>>>() {
-        }.getType();
+        TypeReference<Map<String, List<String>>> type = new TypeReference<Map<String, List<String>>>() {
+        };
         return getFromJsonBinary(scope, getExecutedHooksForModuleVariableName(moduleName), type, Collections.emptyMap());
     }
 
@@ -1148,11 +1148,19 @@ public class StepsUtil {
         return value != null ? value : defaultValue;
     }
 
-    public static <T> T getFromJsonString(VariableScope scope, String name, Type type) {
+    public static <T> T getFromJsonString(VariableScope scope, String name, Class<T> classOfT) {
+        return getFromJsonString(scope, name, toTypeReference(classOfT));
+    }
+
+    public static <T> T getFromJsonString(VariableScope scope, String name, Class<T> classOfT, T defaultValue) {
+        return getFromJsonString(scope, name, toTypeReference(classOfT), defaultValue);
+    }
+
+    public static <T> T getFromJsonString(VariableScope scope, String name, TypeReference<T> type) {
         return getFromJsonString(scope, name, type, null);
     }
 
-    public static <T> T getFromJsonString(VariableScope scope, String name, Type type, T defaultValue) {
+    public static <T> T getFromJsonString(VariableScope scope, String name, TypeReference<T> type, T defaultValue) {
         String stringJson = getString(scope, name);
         if (stringJson == null) {
             return defaultValue;
@@ -1160,11 +1168,19 @@ public class StepsUtil {
         return JsonUtil.fromJson(stringJson, type);
     }
 
-    public static <T> T getFromJsonBinary(VariableScope scope, String name, Type type) {
+    public static <T> T getFromJsonBinary(VariableScope scope, String name, Class<T> classOfT) {
+        return getFromJsonBinary(scope, name, toTypeReference(classOfT));
+    }
+
+    public static <T> T getFromJsonBinary(VariableScope scope, String name, Class<T> classOfT, T defaultValue) {
+        return getFromJsonBinary(scope, name, toTypeReference(classOfT), defaultValue);
+    }
+
+    public static <T> T getFromJsonBinary(VariableScope scope, String name, TypeReference<T> type) {
         return getFromJsonBinary(scope, name, type, null);
     }
 
-    public static <T> T getFromJsonBinary(VariableScope scope, String name, Type type, T defaultValue) {
+    public static <T> T getFromJsonBinary(VariableScope scope, String name, TypeReference<T> type, T defaultValue) {
         byte[] jsonBinary = getObject(scope, name);
         if (jsonBinary == null) {
             return defaultValue;
@@ -1173,31 +1189,47 @@ public class StepsUtil {
         return JsonUtil.fromJson(jsonString, type);
     }
 
-    public static <T> List<T> getFromJsonStrings(VariableScope scope, String name, Type type) {
+    public static <T> List<T> getFromJsonStrings(VariableScope scope, String name, Class<T> classOfT) {
+        return getFromJsonStrings(scope, name, toTypeReference(classOfT));
+    }
+
+    public static <T> List<T> getFromJsonStrings(VariableScope scope, String name, Class<T> classOfT, List<T> defaultValue) {
+        return getFromJsonStrings(scope, name, toTypeReference(classOfT), defaultValue);
+    }
+
+    public static <T> List<T> getFromJsonStrings(VariableScope scope, String name, TypeReference<T> type) {
         return getFromJsonStrings(scope, name, type, Collections.emptyList());
     }
 
-    public static <T> List<T> getFromJsonStrings(VariableScope scope, String name, Type type, List<T> defaultValue) {
+    public static <T> List<T> getFromJsonStrings(VariableScope scope, String name, TypeReference<T> type, List<T> defaultValue) {
         List<String> jsonStrings = getObject(scope, name);
         if (jsonStrings == null) {
             return defaultValue;
         }
         return jsonStrings.stream()
-            .map(jsonString -> JsonUtil.<T> fromJson(jsonString, type))
+            .map(jsonString -> JsonUtil.fromJson(jsonString, type))
             .collect(Collectors.toList());
     }
 
-    public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, Type type) {
+    public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, Class<T> classOfT) {
+        return getFromJsonBinaries(scope, name, toTypeReference(classOfT));
+    }
+
+    public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, Class<T> classOfT, List<T> defaultValue) {
+        return getFromJsonBinaries(scope, name, toTypeReference(classOfT), defaultValue);
+    }
+
+    public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, TypeReference<T> type) {
         return getFromJsonBinaries(scope, name, type, Collections.emptyList());
     }
 
-    public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, Type type, List<T> defaultValue) {
+    public static <T> List<T> getFromJsonBinaries(VariableScope scope, String name, TypeReference<T> type, List<T> defaultValue) {
         List<byte[]> jsonBinaries = getObject(scope, name);
         if (jsonBinaries == null) {
             return defaultValue;
         }
         return jsonBinaries.stream()
-            .map(jsonBinary -> JsonUtil.<T> fromJsonBinary(jsonBinary, type))
+            .map(jsonBinary -> JsonUtil.fromJsonBinary(jsonBinary, type))
             .collect(Collectors.toList());
     }
 
@@ -1247,6 +1279,15 @@ public class StepsUtil {
             .map(JsonUtil::toJsonBinary)
             .collect(Collectors.toList());
         scope.setVariable(name, jsonBinaries);
+    }
+
+    private static <T> TypeReference<T> toTypeReference(Class<T> classOfT) {
+        return new TypeReference<T>() {
+            @Override
+            public Type getType() {
+                return classOfT;
+            }
+        };
     }
 
 }

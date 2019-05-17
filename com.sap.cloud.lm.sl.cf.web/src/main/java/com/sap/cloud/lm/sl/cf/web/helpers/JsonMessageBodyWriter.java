@@ -27,7 +27,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
  *   </code>
  * </pre>
  * 
- * Then the standard MessageBodyWriter would generate the following JSON:
+ * The standard MessageBodyWriter would generate the following JSON:
  * 
  * <pre>
  *   <code>
@@ -47,7 +47,7 @@ import com.sap.cloud.lm.sl.common.util.JsonUtil;
  *   </code>
  * </pre>
  * 
- * Because of that, this class is used to replace the standard JSON serializer with Gson.
+ * This class is used to replace the standard JSON serializer with one that does not honor JAXB annotations.
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)

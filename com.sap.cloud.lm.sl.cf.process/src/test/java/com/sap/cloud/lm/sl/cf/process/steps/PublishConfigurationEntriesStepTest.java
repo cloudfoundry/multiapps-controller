@@ -18,7 +18,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -70,8 +70,8 @@ public class PublishConfigurationEntriesStepTest extends SyncFlowableStepTest<Pu
     public static void loadConfigurationEntries() throws Exception {
         exisitingConfigurationEntries = JsonUtil.fromJson(
             TestUtil.getResourceAsString("configuration-entries.json", PublishConfigurationEntriesStepTest.class),
-            new TypeToken<List<ConfigurationEntry>>() {
-            }.getType());
+            new TypeReference<List<ConfigurationEntry>>() {
+            });
     }
 
     @Before

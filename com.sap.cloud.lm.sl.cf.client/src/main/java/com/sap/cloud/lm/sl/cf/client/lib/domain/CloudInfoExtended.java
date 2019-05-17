@@ -4,9 +4,13 @@ import org.cloudfoundry.client.lib.domain.CloudInfo;
 
 public class CloudInfoExtended extends CloudInfo {
 
-    private final boolean portBasedRouting;
-    private final String deployServiceUrl;
-    private final boolean hasTasksSupport;
+    private boolean portBasedRouting;
+    private String deployServiceUrl;
+    private boolean hasTasksSupport;
+
+    // Required by Jackson.
+    protected CloudInfoExtended() {
+    }
 
     public CloudInfoExtended(String name, String support, String authorizationEndpoint, String build, String version, String user,
         String description, Limits limits, Usage usage, boolean allowDebug, String loggingEndpoint, boolean portBasedRouting,

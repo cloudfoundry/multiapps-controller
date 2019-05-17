@@ -1,4 +1,5 @@
 {
+  "id": 0,
   "mtaId": "com.sap.sample.mta.framework",
   "filter": {
     "requiredContent": {
