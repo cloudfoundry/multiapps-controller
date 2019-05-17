@@ -166,6 +166,9 @@
                     <version>2.22.1</version>
                     <configuration>
                         <runOrder>random</runOrder>
+                        <excludes>
+				          <exclude></exclude>
+				        </excludes>
                     </configuration>
                 </plugin>
                 <plugin>
