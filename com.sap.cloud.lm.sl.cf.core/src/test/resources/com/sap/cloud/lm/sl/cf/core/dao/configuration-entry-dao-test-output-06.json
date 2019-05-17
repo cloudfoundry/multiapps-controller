@@ -1,5 +1,6 @@
 [
   {
+    "id": 0,
     "providerNid": "n-1",
     "providerId": "id-1",
     "providerVersion": "1.0.0",

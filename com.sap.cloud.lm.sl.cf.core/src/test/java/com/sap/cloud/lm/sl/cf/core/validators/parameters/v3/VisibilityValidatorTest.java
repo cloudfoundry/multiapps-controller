@@ -36,7 +36,7 @@ public class VisibilityValidatorTest {
             // (2) Test with only org without space:
             { "[{\"org\":\"org1\"}]", true, },
             // (3) Test with random object
-            { "randomString", false, },
+            { "\"randomString\"", false, },
             // (4) Test with only space without org:
             { "[{\"space\":\"space1\"}]", false, },
             // (5) Not a List

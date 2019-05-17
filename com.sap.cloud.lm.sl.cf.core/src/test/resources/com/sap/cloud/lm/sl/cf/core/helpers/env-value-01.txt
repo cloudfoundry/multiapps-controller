@@ -1,5 +1,5 @@
 {
-  "source": "rest/$1/operations",
-  "target": "rest/$2/operations",
-  "token": "TOKEN"
+  "source" : "rest/$1/operations",
+  "target" : "rest/$2/operations",
+  "token" : "TOKEN"
 }

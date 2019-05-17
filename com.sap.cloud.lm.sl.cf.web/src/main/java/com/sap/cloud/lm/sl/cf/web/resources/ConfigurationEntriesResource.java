@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.auditlogging.AuditLoggingProvider;
 import com.sap.cloud.lm.sl.cf.core.cf.CloudControllerClientProvider;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationEntryDao;
@@ -165,8 +165,8 @@ public class ConfigurationEntriesResource {
     }
 
     private Map<String, Object> parseContentQueryJsonParameter(List<String> content) {
-        return JsonUtil.fromJson(content.get(0), new TypeToken<Map<String, String>>() {
-        }.getType());
+        return JsonUtil.fromJson(content.get(0), new TypeReference<Map<String, Object>>() {
+        });
     }
 
     private Map<String, Object> parseContentQueryListParameter(List<String> content) {

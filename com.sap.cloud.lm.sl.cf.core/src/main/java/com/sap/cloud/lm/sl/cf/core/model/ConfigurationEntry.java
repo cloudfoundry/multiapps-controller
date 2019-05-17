@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.annotations.SerializedName;
-import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonAdapter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonDeserializer;
+import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonSerializer;
 import com.sap.cloud.lm.sl.mta.model.AuditableConfiguration;
 import com.sap.cloud.lm.sl.mta.model.ConfigurationIdentifier;
 import com.sap.cloud.lm.sl.mta.model.Version;
@@ -15,29 +15,19 @@ import com.sap.cloud.lm.sl.mta.model.Version;
 public class ConfigurationEntry implements AuditableConfiguration {
 
     private long id;
-
-    @Expose
     private String providerNid;
-
-    @Expose
     private String providerId;
-
-    @Expose
-    @JsonAdapter(VersionJsonAdapter.class)
+    @JsonSerialize(using = VersionJsonSerializer.class)
+    @JsonDeserialize(using = VersionJsonDeserializer.class)
     private Version providerVersion;
-
-    @Expose
-    @SerializedName("targetSpace")
     private CloudTarget targetSpace;
-
-    @Expose
     private String content;
-
-    @Expose
     private List<CloudTarget> visibility;
-
-    @Expose
     private String spaceId;
+
+    // Required by Jackson.
+    protected ConfigurationEntry() {
+    }
 
     public ConfigurationEntry(long id, String providerNid, String providerId, Version providerVersion, CloudTarget targetSpace,
         String content, List<CloudTarget> visibility, String spaceId) {
@@ -58,6 +48,10 @@ public class ConfigurationEntry implements AuditableConfiguration {
 
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getProviderNid() {

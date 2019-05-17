@@ -9,35 +9,24 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
-import com.sap.cloud.lm.sl.common.model.json.MapWithNumbersAdapterFactory;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
+import com.sap.cloud.lm.sl.common.util.JsonUtil;
 
 @XmlRootElement(name = "configuration-filter")
 @XmlAccessorType(value = XmlAccessType.FIELD)
 public class ConfigurationFilter {
 
-    @Expose
     @XmlElement(name = "provider-id")
     private String providerId;
-    @Expose
     @XmlElement(name = "required-content")
     @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
     private Map<String, Object> requiredContent;
-    @Expose
     @XmlElement(name = "provider-nid")
     private String providerNid;
-    @Expose
-    @SerializedName("targetSpace")
     @XmlElement(name = "target-space")
     private CloudTarget targetSpace;
-    @Expose
     @XmlElement(name = "provider-version")
     private String providerVersion;
 
@@ -129,10 +118,7 @@ public class ConfigurationFilter {
                 return null;
             }
             try {
-                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MapWithNumbersAdapterFactory())
-                    .create();
-                return gson.fromJson(content, new TypeToken<Map<String, Object>>() {
-                }.getType());
+                return JsonUtil.convertJsonToMap(content);
             } catch (Exception e) {
                 return null;
             }

@@ -14,7 +14,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.google.gson.annotations.Expose;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.common.model.xml.PropertiesAdapter;
 import com.sap.cloud.lm.sl.mta.message.Messages;
@@ -31,23 +30,16 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
     @XmlElement
     private long id;
-
-    @Expose
     @XmlElement(name = "mta-id")
     private String mtaId;
-    @Expose
     @XmlElement(name = "configuration-filter")
     private ConfigurationFilter filter;
-    @Expose
     @XmlElement(name = "space-id")
     private String spaceId;
-    @Expose
     @XmlElement(name = "app-name")
     private String appName;
-    @Expose
     @XmlElement(name = "module")
     private ModuleDto moduleDto;
-    @Expose
     @XmlElement(name = "resource")
     private ResourceDto resourceDto;
 
@@ -68,6 +60,10 @@ public class ConfigurationSubscription implements AuditableConfiguration {
 
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public ConfigurationFilter getFilter() {
@@ -110,18 +106,14 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class ModuleDto {
 
-        @Expose
         @XmlElement
         private String name;
-        @Expose
         @XmlElement
         @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
-        @Expose
         @XmlElement(name = "provided-dependency")
         @XmlElementWrapper(name = "provided-dependencies")
         private List<ProvidedDependencyDto> providedDependencies;
-        @Expose
         @XmlElement(name = "required-dependency")
         @XmlElementWrapper(name = "required-dependencies")
         private List<RequiredDependencyDto> requiredDependencies;
@@ -177,10 +169,8 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class ResourceDto {
 
-        @Expose
         @XmlElement
         private String name;
-        @Expose
         @XmlElement
         @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
@@ -212,13 +202,10 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class RequiredDependencyDto {
 
-        @Expose
         @XmlElement
         private String name;
-        @Expose
         @XmlElement
         private String list;
-        @Expose
         @XmlElement
         @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;
@@ -256,10 +243,8 @@ public class ConfigurationSubscription implements AuditableConfiguration {
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class ProvidedDependencyDto {
 
-        @Expose
         @XmlElement
         private String name;
-        @Expose
         @XmlElement
         @XmlJavaTypeAdapter(value = PropertiesAdapter.class)
         private Map<String, Object> properties;

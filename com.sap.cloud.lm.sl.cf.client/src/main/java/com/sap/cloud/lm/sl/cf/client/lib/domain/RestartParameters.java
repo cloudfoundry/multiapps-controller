@@ -6,6 +6,10 @@ public class RestartParameters {
     private boolean shouldRestartOnVcapServicesChange;
     private boolean shouldRestartOnUserProvidedChange;
 
+    // Required by Jackson.
+    protected RestartParameters() {
+    }
+
     public RestartParameters(boolean shouldRestartOnVcapAppChange, boolean shouldRestartOnVcapServicesChange,
         boolean shouldRestartOnUserProvidedChange) {
         this.shouldRestartOnVcapAppChange = shouldRestartOnVcapAppChange;

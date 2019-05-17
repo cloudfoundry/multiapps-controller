@@ -3,21 +3,27 @@ package com.sap.cloud.lm.sl.cf.core.health.model;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
-import com.google.gson.annotations.JsonAdapter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.cf.web.api.model.ProcessType;
-import com.sap.cloud.lm.sl.cf.web.api.model.ProcessTypeJsonAdapter;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessTypeDeserializer;
+import com.sap.cloud.lm.sl.cf.web.api.model.ProcessTypeSerializer;
 import com.sap.cloud.lm.sl.cf.web.api.model.State;
-import com.sap.cloud.lm.sl.cf.web.api.model.ZonedDateTimeJsonAdapter;
+import com.sap.cloud.lm.sl.cf.web.api.model.ZonedDateTimeDeserializer;
+import com.sap.cloud.lm.sl.cf.web.api.model.ZonedDateTimeSerializer;
 
 public class HealthCheckOperation {
 
     private String id;
-    @JsonAdapter(ProcessTypeJsonAdapter.class)
+    @JsonSerialize(using = ProcessTypeSerializer.class)
+    @JsonDeserialize(using = ProcessTypeDeserializer.class)
     private ProcessType type;
-    @JsonAdapter(ZonedDateTimeJsonAdapter.class)
+    @JsonSerialize(using = ZonedDateTimeSerializer.class)
+    @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
     private ZonedDateTime startedAt;
-    @JsonAdapter(ZonedDateTimeJsonAdapter.class)
+    @JsonSerialize(using = ZonedDateTimeSerializer.class)
+    @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
     private ZonedDateTime endedAt;
     private long durationInSeconds;
     private State state;

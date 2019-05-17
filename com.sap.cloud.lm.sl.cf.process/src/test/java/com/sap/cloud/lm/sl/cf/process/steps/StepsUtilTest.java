@@ -27,8 +27,7 @@ public class StepsUtilTest {
     public void testGetServicesToCreateWithCredentials() throws Exception {
         Map<String, Object> credentials = new HashMap<String, Object>();
         credentials.put("integer-value", (Integer) 1);
-        credentials.put("int-double-value", (Double) 1.0);
-        credentials.put("real-double-value", (Double) 1.4);
+        credentials.put("double-value", (Double) 1.4);
         credentials.put("string-value", (String) "1");
         CloudServiceExtended service = new CloudServiceExtended(null, "my-service");
         service.setCredentials(credentials);
@@ -44,13 +43,9 @@ public class StepsUtilTest {
             .getCredentials()
             .get("integer-value")
             .getClass());
-        assertEquals(Integer.class, actualServicesToCreate.get(0)
-            .getCredentials()
-            .get("int-double-value")
-            .getClass());
         assertEquals(Double.class, actualServicesToCreate.get(0)
             .getCredentials()
-            .get("real-double-value")
+            .get("double-value")
             .getClass());
         assertEquals(String.class, actualServicesToCreate.get(0)
             .getCredentials()
@@ -63,8 +58,7 @@ public class StepsUtilTest {
         Map<String, Map<String, Object>> bindingParameters = new HashMap<String, Map<String, Object>>();
         Map<String, Object> serviceBindingParameters = new HashMap<String, Object>();
         serviceBindingParameters.put("integer-value", (Integer) 1);
-        serviceBindingParameters.put("int-double-value", (Double) 1.0);
-        serviceBindingParameters.put("real-double-value", (Double) 1.4);
+        serviceBindingParameters.put("double-value", (Double) 1.4);
         serviceBindingParameters.put("string-value", (String) "1");
         bindingParameters.put("service-1", serviceBindingParameters);
         CloudApplicationExtended application = new CloudApplicationExtended(null, "my-app");
@@ -82,13 +76,9 @@ public class StepsUtilTest {
             .get("service-1")
             .get("integer-value")
             .getClass());
-        assertEquals(Integer.class, actualAppToDeploy.getBindingParameters()
-            .get("service-1")
-            .get("int-double-value")
-            .getClass());
         assertEquals(Double.class, actualAppToDeploy.getBindingParameters()
             .get("service-1")
-            .get("real-double-value")
+            .get("double-value")
             .getClass());
         assertEquals(String.class, actualAppToDeploy.getBindingParameters()
             .get("service-1")

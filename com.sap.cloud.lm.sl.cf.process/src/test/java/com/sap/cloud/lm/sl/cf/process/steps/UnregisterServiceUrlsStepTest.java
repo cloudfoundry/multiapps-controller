@@ -20,8 +20,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceUrl;
+import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -117,14 +119,16 @@ public class UnregisterServiceUrlsStepTest extends SyncFlowableStepTest<Unregist
         List<SimpleApplication> apps;
     }
 
+    private static final MapToEnvironmentConverter ENV_CONVERTER = new MapToEnvironmentConverter(false);
+
     private static class SimpleApplication {
 
         String name;
-        Map<Object, Object> env;
+        Map<String, Object> env;
 
         CloudApplication toCloudApplication() {
             CloudApplication app = new CloudApplication(new Meta(NameUtil.getUUID(name), null, null), name);
-            app.setEnv(env);
+            app.setEnv(MapUtil.upcast(ENV_CONVERTER.asEnv(env)));
             return app;
         }
 

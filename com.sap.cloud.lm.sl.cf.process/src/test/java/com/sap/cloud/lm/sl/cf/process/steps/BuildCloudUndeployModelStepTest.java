@@ -21,7 +21,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.core.cf.v2.ApplicationCloudModelBuilder;
 import com.sap.cloud.lm.sl.cf.core.dao.ConfigurationSubscriptionDao;
@@ -33,7 +33,6 @@ import com.sap.cloud.lm.sl.common.util.ListUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.common.util.Tester.JsonSerializationOptions;
 import com.sap.cloud.lm.sl.mta.model.DeploymentDescriptor;
 import com.sap.cloud.lm.sl.mta.model.Module;
 
@@ -42,7 +41,7 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
 
     private static final String SPACE_ID = "sap";
 
-    private final Tester tester = Tester.forClass(getClass(), new JsonSerializationOptions(true, false));
+    private final Tester tester = Tester.forClass(getClass());
 
     private class BuildCloudUndeployModelStepMock extends BuildCloudUndeployModelStep {
         @Override
@@ -179,17 +178,17 @@ public class BuildCloudUndeployModelStepTest extends SyncFlowableStepTest<BuildC
         String subscriptionsToCreateString = TestUtil.getResourceAsString(input.subscriptionsToCreateLocation, getClass());
         String existingSubscriptionsString = TestUtil.getResourceAsString(input.existingSubscriptionsLocation, getClass());
 
-        modulesToDeploy = JsonUtil.fromJson(modulesToDeployString, new TypeToken<List<Module>>() {
-        }.getType());
-        deployedApps = JsonUtil.fromJson(deployedAppsString, new TypeToken<List<CloudApplicationExtended>>() {
-        }.getType());
-        appsToDeploy = JsonUtil.fromJson(appsToDeployString, new TypeToken<List<CloudApplicationExtended>>() {
-        }.getType());
+        modulesToDeploy = JsonUtil.fromJson(modulesToDeployString, new TypeReference<List<Module>>() {
+        });
+        deployedApps = JsonUtil.fromJson(deployedAppsString, new TypeReference<List<CloudApplicationExtended>>() {
+        });
+        appsToDeploy = JsonUtil.fromJson(appsToDeployString, new TypeReference<List<CloudApplicationExtended>>() {
+        });
 
-        subscriptionsToCreate = JsonUtil.fromJson(subscriptionsToCreateString, new TypeToken<List<ConfigurationSubscription>>() {
-        }.getType());
-        existingSubscriptions = JsonUtil.fromJson(existingSubscriptionsString, new TypeToken<List<ConfigurationSubscription>>() {
-        }.getType());
+        subscriptionsToCreate = JsonUtil.fromJson(subscriptionsToCreateString, new TypeReference<List<ConfigurationSubscription>>() {
+        });
+        existingSubscriptions = JsonUtil.fromJson(existingSubscriptionsString, new TypeReference<List<ConfigurationSubscription>>() {
+        });
 
         if (input.deployedMtaLocation != null) {
             String deployedMtaString = TestUtil.getResourceAsString(input.deployedMtaLocation, getClass());

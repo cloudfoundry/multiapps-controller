@@ -72,7 +72,7 @@ public class SecureSerializationFacadeTest {
     }
 
     private static String getResourceAsString(String resource) {
-        return TestUtil.getResourceAsString(resource, SecureSerializationFacadeTest.class);
+        return TestUtil.getResourceAsStringWithoutCarriageReturns(resource, SecureSerializationFacadeTest.class);
     }
 
 }

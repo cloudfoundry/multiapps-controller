@@ -44,7 +44,8 @@ public class ApplicationBitsChangesDetectorTest {
     @Test
     public void testDetectWithFileDigestInTheEnv() throws NoSuchAlgorithmException, IOException {
         String testFileDigest = getTestFileDigest();
-        appEnv.put(Constants.ENV_DEPLOY_ATTRIBUTES, MapUtil.asMap(Constants.ATTR_APP_CONTENT_DIGEST, testFileDigest));
+        Map<String, Object> deployAttributes = MapUtil.asMap(Constants.ATTR_APP_CONTENT_DIGEST, testFileDigest);
+        appEnv.put(Constants.ENV_DEPLOY_ATTRIBUTES, JsonUtil.toJson(deployAttributes));
         detector = new ApplicationFileDigestDetector(createCloudApplication(appEnv));
 
         assertEquals(testFileDigest, detector.detectCurrentAppFileDigest());

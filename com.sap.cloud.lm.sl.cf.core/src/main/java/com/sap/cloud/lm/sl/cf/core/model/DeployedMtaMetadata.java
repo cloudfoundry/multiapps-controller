@@ -2,8 +2,10 @@ package com.sap.cloud.lm.sl.cf.core.model;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.google.gson.annotations.JsonAdapter;
-import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonAdapter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonDeserializer;
+import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionJsonSerializer;
 import com.sap.cloud.lm.sl.cf.core.model.adapter.VersionXmlAdapter;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
@@ -14,7 +16,8 @@ public class DeployedMtaMetadata {
     private static final Version UNKNOWN_MTA_VERSION = Version.parseVersion("0.0.0-unknown");
 
     private String id;
-    @JsonAdapter(VersionJsonAdapter.class)
+    @JsonSerialize(using = VersionJsonSerializer.class)
+    @JsonDeserialize(using = VersionJsonDeserializer.class)
     @XmlJavaTypeAdapter(VersionXmlAdapter.class)
     private Version version;
 

@@ -4,6 +4,10 @@ public class ApplicationPort {
     private int port;
     private ApplicationPortType portType;
 
+    // Required by Jackson.
+    protected ApplicationPort() {
+    }
+
     public ApplicationPort(int port, ApplicationPortType portType) {
         this.port = port;
         this.portType = portType;

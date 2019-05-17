@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.web.api.model.Operation;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
@@ -50,8 +50,8 @@ public class HealthTest {
     @Before
     public void loadOperations() throws Exception {
         String operationsJson = TestUtil.getResourceAsString(operationsJsonLocation, getClass());
-        this.operations = JsonUtil.fromJson(operationsJson, new TypeToken<List<Operation>>() {
-        }.getType());
+        this.operations = JsonUtil.fromJson(operationsJson, new TypeReference<List<Operation>>() {
+        });
     }
 
     @Test

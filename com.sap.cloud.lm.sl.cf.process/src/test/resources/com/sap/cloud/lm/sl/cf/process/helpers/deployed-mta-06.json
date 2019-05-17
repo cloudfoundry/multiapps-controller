@@ -6,8 +6,8 @@
   "modules": [
     {
       "moduleName": "consumer",
-      "createdOn": "Oct 10, 2016 11:05:00 AM",
-      "updatedOn": "Oct 10, 2016 11:05:00 AM",
+      "createdOn": "2016-10-10T11:05:00.000",
+      "updatedOn": "2016-10-10T11:05:00.000",
       "appName": "consumer-green",
       "services": [],
       "providedDependencyNames": [
@@ -16,8 +16,8 @@
     },
     {
       "moduleName": "consumer",
-      "createdOn": "Oct 15, 2016 10:45:00 AM",
-      "updatedOn": "Oct 15, 2016 10:45:00 AM",
+      "createdOn": "2016-10-15T10:45:00.000",
+      "updatedOn": "2016-10-15T10:45:00.000",
       "appName": "consumer-blue",
       "services": [],
       "providedDependencyNames": [

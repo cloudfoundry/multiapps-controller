@@ -9,6 +9,10 @@ public class CloudServiceOfferingExtended extends CloudServiceOffering {
 
     private List<String> tags = new ArrayList<>();
 
+    // Required by Jackson.
+    protected CloudServiceOfferingExtended() {
+    }
+
     public CloudServiceOfferingExtended(Meta meta, String name) {
         super(meta, name);
     }

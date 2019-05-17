@@ -27,12 +27,14 @@ import org.mockito.Mockito;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudServiceExtended;
+import com.sap.cloud.lm.sl.cf.core.helpers.MapToEnvironmentConverter;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.util.NameUtil;
 import com.sap.cloud.lm.sl.cf.process.message.Messages;
 import com.sap.cloud.lm.sl.common.SLException;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
 @RunWith(Parameterized.class)
@@ -228,15 +230,17 @@ public class CheckForCreationConflictsStepTest extends SyncFlowableStepTest<Chec
         List<SimpleApplication> appsFromDeployedMta = Collections.emptyList();
     }
 
+    private static final MapToEnvironmentConverter ENV_CONVERTER = new MapToEnvironmentConverter(false);
+    
     private static class SimpleApplication {
 
         String name;
         List<String> boundServices = Collections.emptyList();
-        Map<Object, Object> env = Collections.emptyMap();
+        Map<String, Object> env = Collections.emptyMap();
 
         CloudApplicationExtended toCloudApplication() {
             CloudApplicationExtended application = new CloudApplicationExtended(new Meta(NameUtil.getUUID(name), null, null), name);
-            application.setEnv(env);
+            application.setEnv(MapUtil.upcast(ENV_CONVERTER.asEnv(env)));
             return application;
         }
     }

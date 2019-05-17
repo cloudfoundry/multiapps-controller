@@ -3,11 +3,11 @@ package com.sap.cloud.lm.sl.cf.core.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -20,7 +20,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.dao.filters.ConfigurationFilter;
 import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
@@ -35,14 +35,12 @@ import com.sap.cloud.lm.sl.common.util.TestInput;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.common.util.Tester;
 import com.sap.cloud.lm.sl.common.util.Tester.Expectation;
-import com.sap.cloud.lm.sl.common.util.Tester.JsonSerializationOptions;
 
 @RunWith(Enclosed.class)
 public class ConfigurationSubscriptionDaoTest {
 
     private static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("TestDefault");
-
-    private static final Tester TESTER = Tester.forClass(ConfigurationEntryDaoTest.class, new JsonSerializationOptions(true, false));
+    private static final Tester TESTER = Tester.forClass(ConfigurationEntryDaoTest.class);
 
     @RunWith(Parameterized.class)
     public static class ConfigurationSubscriptionDaoTest1 {
@@ -136,11 +134,9 @@ public class ConfigurationSubscriptionDaoTest {
 
         @Before
         public void insertDatabaseEntries() throws Exception {
-            Type type = new TypeToken<List<ConfigurationSubscription>>() {
-            }.getType();
-
-            List<ConfigurationSubscription> subscriptions = JsonUtil
-                .convertJsonToList(TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), type);
+            List<ConfigurationSubscription> subscriptions = JsonUtil.convertJsonToList(
+                TestUtil.getResourceAsString(DATABASE_CONTENT_LOCATION, getClass()), new TypeReference<List<ConfigurationSubscription>>() {
+                });
 
             for (ConfigurationSubscription subscription : subscriptions) {
                 dao.add(subscription);
@@ -180,8 +176,8 @@ public class ConfigurationSubscriptionDaoTest {
             public List<ConfigurationEntry> entries;
 
             public FindAllTestInput(String entriesLocation) throws Exception {
-                this.entries = loadJsonInput(entriesLocation, new TypeToken<List<ConfigurationEntry>>() {
-                }.getType(), getClass());
+                this.entries = loadJsonInput(entriesLocation, new TypeReference<List<ConfigurationEntry>>() {
+                }, getClass());
             }
 
         }
@@ -226,7 +222,7 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() throws Exception {
-                TESTER.test(() -> dao.remove(findOne(input, dao).getId()), expectation);
+                TESTER.test(() -> removeId(dao.remove(findOne(input, dao).getId())), expectation);
             }
 
         }
@@ -239,7 +235,7 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() throws Exception {
-                TESTER.test(() -> findAll(input, getDao()), expectation);
+                TESTER.test(() -> removeIds(findAll(input, getDao())), expectation);
             }
 
         }
@@ -252,7 +248,7 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() throws Exception {
-                TESTER.test(() -> findAll(input.spaceId, getDao()), expectation);
+                TESTER.test(() -> removeIds(findAll(input.spaceId, getDao())), expectation);
             }
 
         }
@@ -267,7 +263,7 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() throws Exception {
-                TESTER.test(() -> dao.update(findOne(input, dao).getId(), input.subscription), expectation);
+                TESTER.test(() -> removeId(dao.update(findOne(input, dao).getId(), input.subscription)), expectation);
             }
 
         }
@@ -280,7 +276,7 @@ public class ConfigurationSubscriptionDaoTest {
 
             @Override
             protected void test() {
-                TESTER.test(() -> getDao().add(input.subscription), expectation);
+                TESTER.test(() -> removeId(getDao().add(input.subscription)), expectation);
             }
 
         }
@@ -337,6 +333,17 @@ public class ConfigurationSubscriptionDaoTest {
             }
         }
 
+    }
+
+    private static List<ConfigurationSubscription> removeIds(List<ConfigurationSubscription> subscriptions) {
+        return subscriptions.stream()
+            .map(ConfigurationSubscriptionDaoTest::removeId)
+            .collect(Collectors.toList());
+    }
+
+    private static ConfigurationSubscription removeId(ConfigurationSubscription subscription) {
+        subscription.setId(0);
+        return subscription;
     }
 
     private static ConfigurationSubscriptionDao getDao() {

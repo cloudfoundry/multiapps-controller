@@ -16,7 +16,6 @@
       "requiredDependencies": [
         {
           "name": "test-dependency",
-          "type": "test-type",
           "properties": {
             "requiredDependency-property": "property-1-val"
           },
@@ -43,7 +42,6 @@
       "providedDependencies": [
         {
           "name": "test-dependency",
-          "type": "test-type",
           "properties": {
             "providedDependency-property": "property-1-val"
           },

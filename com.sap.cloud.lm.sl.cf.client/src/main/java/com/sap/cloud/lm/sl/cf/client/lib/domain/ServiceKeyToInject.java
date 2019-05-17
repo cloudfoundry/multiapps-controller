@@ -5,6 +5,7 @@ public class ServiceKeyToInject {
     private String serviceName;
     private String serviceKeyName;
 
+    // Required by Jackson.
     public ServiceKeyToInject() {
     }
 

@@ -20,7 +20,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.PersistenceMetadata;
@@ -176,8 +176,8 @@ public class ConfigurationEntryDto {
         if (visibility == null) {
             return null;
         }
-        return JsonUtil.convertJsonToList(visibility, new TypeToken<List<CloudTarget>>() {
-        }.getType());
+        return JsonUtil.convertJsonToList(visibility, new TypeReference<List<CloudTarget>>() {
+        });
     }
 
     private String getOriginal(String source) {

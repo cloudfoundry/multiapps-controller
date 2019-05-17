@@ -23,6 +23,7 @@ import com.sap.cloud.lm.sl.cf.core.model.CloudTarget;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationEntry;
 import com.sap.cloud.lm.sl.cf.core.model.ConfigurationSubscription;
 import com.sap.cloud.lm.sl.cf.core.util.ConfigurationEntriesUtil;
+import com.sap.cloud.lm.sl.common.util.MapUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 import com.sap.cloud.lm.sl.mta.model.Version;
 
@@ -45,7 +46,7 @@ public class MtaConfigurationPurgerTest {
 
     @Mock
     CloudControllerClient client;
-    
+
     @Mock
     ConfigurationEntryDao entryDao;
 
@@ -90,7 +91,7 @@ public class MtaConfigurationPurgerTest {
     }
 
     private void initApplicationsMock() throws IOException {
-        applications.add(createApplication(APPLICATION_NAME_TO_KEEP, getAppEnvFromFile(RESOURCE_LOCATION)));
+        applications.add(createApplication(APPLICATION_NAME_TO_KEEP, getApplicationEnvFromFile(RESOURCE_LOCATION)));
         applications.add(createApplication("app-2", new HashMap<>()));
         Mockito.when(client.getApplications())
             .thenReturn(applications);
@@ -112,18 +113,19 @@ public class MtaConfigurationPurgerTest {
             .thenReturn(configurationSubscriptions);
     }
 
-    private CloudApplication createApplication(String appName, Map<Object, Object> env) {
-        CloudApplication app = new CloudApplication(null, appName);
-        app.setEnv(env);
-        return app;
+    private CloudApplication createApplication(String applicationName, Map<String, Object> env) {
+        MapToEnvironmentConverter envConverter = new MapToEnvironmentConverter(false);
+        CloudApplication application = new CloudApplication(null, applicationName);
+        application.setEnv(MapUtil.upcast(envConverter.asEnv(env)));
+        return application;
     }
 
-    private Map<Object, Object> getAppEnvFromFile(String path) throws IOException {
-        return new HashMap<>(JsonUtil.convertJsonToMap(TestUtil.getResourceAsString(path, MtaConfigurationPurgerTest.class)));
+    private Map<String, Object> getApplicationEnvFromFile(String path) throws IOException {
+        return JsonUtil.convertJsonToMap(TestUtil.getResourceAsString(path, MtaConfigurationPurgerTest.class));
     }
 
-    private ConfigurationSubscription createSubscription(int id, String appName) {
-        return new ConfigurationSubscription(id, null, null, appName, null, null, null);
+    private ConfigurationSubscription createSubscription(int id, String applicationName) {
+        return new ConfigurationSubscription(id, null, null, applicationName, null, null, null);
     }
 
     private ConfigurationEntry createEntry(int id, String providerId) {

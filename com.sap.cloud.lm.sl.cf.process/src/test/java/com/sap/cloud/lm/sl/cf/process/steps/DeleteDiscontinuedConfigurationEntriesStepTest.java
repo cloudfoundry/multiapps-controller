@@ -136,7 +136,7 @@ public class DeleteDiscontinuedConfigurationEntriesStepTest extends SyncFlowable
     }
 
     private String toJson(List<ConfigurationEntry> entries) {
-        return JsonUtil.toJson(entries, true, true, false);
+        return JsonUtil.toJson(entries, true);
     }
 
     private static class StepInput {

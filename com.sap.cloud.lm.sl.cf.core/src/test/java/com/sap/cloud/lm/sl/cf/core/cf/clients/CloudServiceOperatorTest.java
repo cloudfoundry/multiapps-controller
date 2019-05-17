@@ -12,7 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.client.RestTemplate;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sap.cloud.lm.sl.common.util.JsonUtil;
 import com.sap.cloud.lm.sl.common.util.TestUtil;
 
@@ -52,8 +52,8 @@ public abstract class CloudServiceOperatorTest {
 
     private List<CloudServiceOffering> loadServiceOfferingsFromFile(String filePath) throws IOException {
         String serviceOfferingsJson = TestUtil.getResourceAsString(filePath, getClass());
-        return JsonUtil.fromJson(serviceOfferingsJson, new TypeToken<List<CloudServiceOffering>>() {
-        }.getType());
+        return JsonUtil.fromJson(serviceOfferingsJson, new TypeReference<List<CloudServiceOffering>>() {
+        });
     }
 
     protected static String getControllerUrl() {
