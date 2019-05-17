@@ -218,7 +218,7 @@ public class SyncFlowableStepWithHooksTest {
         @Test
         public void withNoAlreadyExecutedHooksAndWithHooksForCurrentStepPhase() {
             StepsUtil.setExecutedHooksForModule(context, DEFAULT_MODULE_NAME, Collections.emptyMap());
-            Module module = prepareModule(2, "application.after-stop");
+            Module module = prepareModule(2, "application.after-stop.live");
 
             ModuleHooksAggregator aggregator = getModuleHooksAggregator(module);
             List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_AFTER_STOP_LIVE);
@@ -282,7 +282,7 @@ public class SyncFlowableStepWithHooksTest {
             StepsUtil.setExecutedHooksForModule(context, DEFAULT_MODULE_NAME,
                 MapUtil.asMap(executedHook.getName(), executedHook.getPhases()));
 
-            Module module = prepareModule(1, "application.before-stop");
+            Module module = prepareModule(1, "application.before-stop.idle");
             ModuleHooksAggregator aggregator = getModuleHooksAggregator(module);
             List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
@@ -299,7 +299,7 @@ public class SyncFlowableStepWithHooksTest {
             StepsUtil.setExecutedHooksForModule(context, DEFAULT_MODULE_NAME,
                 MapUtil.asMap(executedHook.getName(), executedHook.getPhases()));
 
-            Module module = prepareModule(2, "application.before-stop");
+            Module module = prepareModule(2, "application.before-stop.idle");
             ModuleHooksAggregator aggregator = getModuleHooksAggregator(module);
             List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
@@ -312,11 +312,11 @@ public class SyncFlowableStepWithHooksTest {
 
         @Test
         public void withAlreadyExecutedHooksAndHooksWhichAreAlreadyExecuted() {
-            Hook executedHook = getExecutedHook("hook0", "application.before-stop");
+            Hook executedHook = getExecutedHook("hook0", "application.before-stop.idle");
             StepsUtil.setExecutedHooksForModule(context, DEFAULT_MODULE_NAME,
                 MapUtil.asMap(executedHook.getName(), executedHook.getPhases()));
 
-            Module module = prepareModule(1, "application.before-stop");
+            Module module = prepareModule(1, "application.before-stop.idle");
             ModuleHooksAggregator aggregator = getModuleHooksAggregator(module);
             List<Hook> aggregatedHooks = aggregator.aggregateHooks(HookPhase.APPLICATION_BEFORE_STOP_IDLE);
 
@@ -325,7 +325,7 @@ public class SyncFlowableStepWithHooksTest {
             Map<String, List<String>> executedHooksForModule = StepsUtil.getExecutedHooksForModule(context, DEFAULT_MODULE_NAME);
             Assertions.assertEquals(1, executedHooksForModule.size());
             Assertions.assertTrue(executedHooksForModule.containsKey("hook0"));
-            Assertions.assertEquals(Arrays.asList("application.before-stop"), executedHooksForModule.get("hook0"));
+            Assertions.assertEquals(Arrays.asList("application.before-stop.idle"), executedHooksForModule.get("hook0"));
         }
 
         private Map<String, List<String>> buildResultWithExecutedHook(List<Hook> aggregatedHooks, String executedHooksPhase) {
