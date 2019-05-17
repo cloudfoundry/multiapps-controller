@@ -100,7 +100,6 @@ public final class Messages {
 
     public static final String INVALID_VCAP_APPLICATION = "Invalid VCAP_APPLICATION \"{0}\"";
     public static final String COULD_NOT_PARSE_ROUTER_PORT_0_USING_DEFAULT_1 = "Could not parse router port \"{0}\", using default \"{1}\"";
-    public static final String UNSUPPORTED_PARAMETER = "Parameter \"{0}\" is not supported, it will be ignored";
     public static final String IGNORING_LABEL_FOR_USER_PROVIDED_SERVICE = "Ignoring label \"{0}\" for service \"{1}\", as user-provided services do not support labels!";
     public static final String COULD_NOT_ROLLBACK_TRANSACTION = "Could not rollback transaction!";
     public static final String NOT_DESCRIBED_MODULE = "MTA module \"{0}\" is found deployed, but it is not part of MTA manifest file";
