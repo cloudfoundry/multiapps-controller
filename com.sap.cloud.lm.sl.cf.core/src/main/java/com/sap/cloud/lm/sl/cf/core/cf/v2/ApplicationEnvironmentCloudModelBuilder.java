@@ -141,22 +141,4 @@ public class ApplicationEnvironmentCloudModelBuilder {
         return new HandlerFactory(MTA_MAJOR_VERSION);
     }
 
-    public Map<String, Object> removeSpecialApplicationProperties(Map<String, Object> properties) {
-        properties.keySet()
-            .removeAll(SupportedParameters.APP_ATTRIBUTES);
-        properties.keySet()
-            .removeAll(SupportedParameters.APP_PROPS);
-        properties.keySet()
-            .removeAll(SupportedParameters.SPECIAL_MT_PROPS);
-        return properties;
-    }
-
-    public Map<String, Object> removeSpecialServiceProperties(Map<String, Object> properties) {
-        properties.keySet()
-            .removeAll(SupportedParameters.SPECIAL_RT_PROPS);
-        properties.keySet()
-            .removeAll(SupportedParameters.SERVICE_PROPS);
-        return properties;
-    }
-
 }

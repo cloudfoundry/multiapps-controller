@@ -89,8 +89,6 @@ public class SupportedParameters {
     public static final String SERVICE_BROKER_URL = "service-broker-url";
     public static final String SERVICE_BROKER_SPACE_SCOPED = "service-broker-space-scoped";
 
-    public static final String DEFAULT_RT = "default-resource-type";
-
     // Required dependency parameters:
     public static final String SERVICE_BINDING_CONFIG = "config";
     public static final String SERVICE_BINDING_CONFIG_PATH = "config-path";
@@ -136,24 +134,10 @@ public class SupportedParameters {
     public static final Set<String> CONFIGURATION_REFERENCE_PARAMETERS = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList(PROVIDER_NID, PROVIDER_ID, TARGET, VERSION, MTA_ID, MTA_VERSION, MTA_PROVIDES_DEPENDENCY)));
 
-    public static final Set<String> APP_PROPS = Collections
-        .unmodifiableSet(new HashSet<>(Arrays.asList(APP_NAME, HOST, HOSTS, DOMAIN, DOMAINS, COMMAND, BUILDPACK, HEALTH_CHECK_TYPE,
-            HEALTH_CHECK_HTTP_ENDPOINT, ENABLE_SSH, STACK, HEALTH_CHECK_TIMEOUT, IDLE_HOST, MEMORY, INSTANCES, NO_HOSTNAME, NO_ROUTE,
-            IDLE_DOMAIN, DISK_QUOTA, IDLE_DOMAINS, IDLE_HOSTS, TASKS, RESTART_ON_ENV_CHANGE, VCAP_APPLICATION_ENV, VCAP_SERVICES_ENV,
-            USER_PROVIDED_ENV, KEEP_EXISTING_ROUTES, KEEP_EXISTING_APPLICATION_ATTRIBUTES_UPDATE_STRATEGY)));
-
-    public static final Set<String> SERVICE_PROPS = Collections
-        .unmodifiableSet(new HashSet<>(Arrays.asList(SERVICE_NAME, SERVICE, SERVICE_PLAN, SERVICE_ALTERNATIVES, SERVICE_PROVIDER,
-            SERVICE_VERSION, SERVICE_CONFIG, SERVICE_CONFIG_PATH, SERVICE_TAGS, SERVICE_KEY_NAME)));
-
     public static final Set<String> APP_ATTRIBUTES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(EXECUTE_APP, SUCCESS_MARKER,
         FAILURE_MARKER, STOP_APP, CHECK_DEPLOY_ID, REGISTER_SERVICE_URL, REGISTER_SERVICE_URL_SERVICE_NAME,
         REGISTER_SERVICE_URL_SERVICE_URL, CREATE_SERVICE_BROKER, SERVICE_BROKER_NAME, SERVICE_BROKER_USERNAME, SERVICE_BROKER_PASSWORD,
         SERVICE_BROKER_URL, SERVICE_BROKER_SPACE_SCOPED, DEPENDENCY_TYPE, NO_START, UPLOAD_TIMEOUT)));
-
-    public static final Set<String> SPECIAL_MT_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_RT)));
-
-    public static final Set<String> SPECIAL_RT_PROPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(TYPE)));
 
     public static final Map<String, String> SINGULAR_PLURAL_MAPPING;
 

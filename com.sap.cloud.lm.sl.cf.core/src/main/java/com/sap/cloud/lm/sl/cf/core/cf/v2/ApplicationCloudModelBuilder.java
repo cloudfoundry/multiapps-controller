@@ -1,7 +1,6 @@
 package com.sap.cloud.lm.sl.cf.core.cf.v2;
 
 import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.getPropertyValue;
-import static com.sap.cloud.lm.sl.mta.util.PropertiesUtil.mergeProperties;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -14,8 +13,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.cloudfoundry.client.lib.domain.CloudTask;
 import org.cloudfoundry.client.lib.domain.DockerInfo;
 import org.cloudfoundry.client.lib.domain.Staging;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended;
 import com.sap.cloud.lm.sl.cf.client.lib.domain.CloudApplicationExtended.AttributeUpdateStrategy;
@@ -24,7 +21,6 @@ import com.sap.cloud.lm.sl.cf.client.lib.domain.ServiceKeyToInject;
 import com.sap.cloud.lm.sl.cf.core.cf.DeploymentMode;
 import com.sap.cloud.lm.sl.cf.core.cf.HandlerFactory;
 import com.sap.cloud.lm.sl.cf.core.helpers.ModuleToDeployHelper;
-import com.sap.cloud.lm.sl.cf.core.message.Messages;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMta;
 import com.sap.cloud.lm.sl.cf.core.model.DeployedMtaModule;
 import com.sap.cloud.lm.sl.cf.core.model.SupportedParameters;
@@ -54,8 +50,6 @@ public class ApplicationCloudModelBuilder {
 
     public static final String DEPENDENCY_TYPE_SOFT = "soft";
     public static final String DEPENDENCY_TYPE_HARD = "hard";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationCloudModelBuilder.class);
 
     private static final int MTA_MAJOR_VERSION = 2;
 
@@ -97,7 +91,6 @@ public class ApplicationCloudModelBuilder {
 
     protected CloudApplicationExtended getApplication(Module module) {
         List<Map<String, Object>> parametersList = parametersChainBuilder.buildModuleChain(module.getName());
-        warnAboutUnsupportedParameters(parametersList);
         Staging staging = parseParameters(parametersList, new StagingParametersParser());
         int diskQuota = parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.DISK_QUOTA, "0"));
         int memory = parseParameters(parametersList, new MemoryParametersParser(SupportedParameters.MEMORY, "0"));
@@ -203,17 +196,6 @@ public class ApplicationCloudModelBuilder {
         app.setTasks(tasks);
         app.setDockerInfo(dockerInfo);
         return app;
-    }
-
-    protected void warnAboutUnsupportedParameters(List<Map<String, Object>> fullParametersList) {
-        Map<String, Object> merged = mergeProperties(fullParametersList);
-        applicationEnvCloudModelBuilder.removeSpecialApplicationProperties(merged);
-        applicationEnvCloudModelBuilder.removeSpecialServiceProperties(merged);
-        for (String parameterName : merged.keySet()) {
-            String warningMessage = MessageFormat.format(Messages.UNSUPPORTED_PARAMETER, parameterName);
-            stepLogger.warnWithoutProgressMessage(warningMessage);
-            LOGGER.debug(warningMessage);
-        }
     }
 
     protected Map<String, Map<String, Object>> getBindingParameters(Module module) {
